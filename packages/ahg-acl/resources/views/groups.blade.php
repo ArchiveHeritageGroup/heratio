@@ -28,7 +28,7 @@
           </tr>
         @empty
           <tr>
-            <td colspan="2" class="text-muted">No groups found.</td>
+            <td colspan="2" class="text-muted">{{ __('No groups found.') }}</td>
           </tr>
         @endforelse
       </tbody>
@@ -38,6 +38,6 @@
 
 @section('after-content')
   <section class="actions mb-3">
-    <a class="btn atom-btn-outline-light" href="{{ route('acl.create-group') }}">Add new</a>
+    <a class="btn atom-btn-outline-light" href="{{ route('acl.create-group') }}">{{ __('Add new') }}</a>
   </section>
 @endsection

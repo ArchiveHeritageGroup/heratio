@@ -31,7 +31,7 @@
       </div>
     </div>
     @if(empty($mergeJobs))
-      <p class="text-muted text-center">No merge jobs in queue.</p>
+      <p class="text-muted text-center">{{ __('No merge jobs in queue.') }}</p>
     @else
       <div class="table-responsive">
         <table class="table table-sm">

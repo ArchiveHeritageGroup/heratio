@@ -34,7 +34,7 @@
 <div class="row">
   <div class="col-md-7">
     <div class="card mb-3">
-      <div class="card-header bg-light">Record under review</div>
+      <div class="card-header bg-light">{{ __('Record under review') }}</div>
       <table class="table table-sm mb-0">
         <tr>
           <th class="text-muted" style="width:40%">{{ __('Record') }}</th>
@@ -108,7 +108,7 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Next review due') }}</label>
               <input type="date" name="next_review_due_date" class="form-control">
-              <div class="form-text small">Optional. If retaining, schedule the next look at this record.</div>
+              <div class="form-text small">{{ __('Optional. If retaining, schedule the next look at this record.') }}</div>
             </div>
             <button type="submit" class="btn btn-primary"><i class="fas fa-check me-1"></i>{{ __('Submit decision') }}</button>
           </form>

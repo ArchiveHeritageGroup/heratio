@@ -8,8 +8,8 @@
         <div class="col-12">
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('homepage') }}">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('accessRequest.myRequests') }}">My Requests</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('homepage') }}">{{ __('Home') }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('accessRequest.myRequests') }}">{{ __('My Requests') }}</a></li>
                     <li class="breadcrumb-item active">Request #{{ $accessRequest->id }}</li>
                 </ol>
             </nav>

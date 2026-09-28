@@ -14,15 +14,15 @@
 
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">Data Migration</a></li>
-      <li class="breadcrumb-item"><a href="{{ route('data-migration.map') }}">Map Fields</a></li>
-      <li class="breadcrumb-item active">Preview</li>
+      <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">{{ __('Data Migration') }}</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('data-migration.map') }}">{{ __('Map Fields') }}</a></li>
+      <li class="breadcrumb-item active">{{ __('Preview') }}</li>
     </ol>
   </nav>
 
   <div class="alert alert-info">
     <i class="fas fa-info-circle"></i>
-    Target type: <strong>{{ $targetType }}</strong> |
+    {{ __('Target type:') }} <strong>{{ $targetType }}</strong> |
     Total rows in file: <strong>{{ number_format($totalRows) }}</strong> |
     Showing first <strong>{{ count($transformedRows) }}</strong> rows after mapping
   </div>

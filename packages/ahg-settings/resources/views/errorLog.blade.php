@@ -94,7 +94,7 @@
           <button type="submit" class="btn btn-sm btn-primary">
             <i class="fas fa-search me-1"></i>{{ __('Filter') }}
           </button>
-          <a href="{{ route('settings.error-log') }}" class="btn btn-sm btn-outline-secondary">Reset</a>
+          <a href="{{ route('settings.error-log') }}" class="btn btn-sm btn-outline-secondary">{{ __('Reset') }}</a>
         </div>
       </form>
     </div>
@@ -217,7 +217,7 @@
             <tr>
               <td colspan="7" class="text-center text-muted py-4">
                 <i class="fas fa-check-circle fa-2x mb-2 d-block text-success"></i>
-                No errors logged.
+                {{ __('No errors logged.') }}
               </td>
             </tr>
           @endforelse

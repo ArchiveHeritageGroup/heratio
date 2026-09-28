@@ -15,7 +15,7 @@
 
 @section('title-block')
 <h1><i class="fas fa-camera me-2"></i>{{ __('Condition Photos') }}</h1>
-<p class="text-muted">Photo upload and thumbnail settings</p>
+<p class="text-muted">{{ __('Photo upload and thumbnail settings') }}</p>
 @endsection
 
 @section('content')
@@ -39,7 +39,7 @@
           <div class="col-sm-9">
             <input type="text" class="form-control" id="photo_upload_path" name="settings[photo_upload_path]"
                    value="{{ e($settings['photo_upload_path'] ?? config('heratio.uploads_path', base_path('uploads')) . '/condition_photos') }}">
-            <div class="form-text">Absolute path for condition photo storage</div>
+            <div class="form-text">{{ __('Absolute path for condition photo storage') }}</div>
           </div>
         </div>
 
@@ -87,7 +87,7 @@
                        value="{{ $settings['photo_thumbnail_large'] ?? 600 }}" min="300" max="1200">
               </div>
             </div>
-            <div class="form-text">Maximum dimension in pixels</div>
+            <div class="form-text">{{ __('Maximum dimension in pixels') }}</div>
           </div>
         </div>
 

@@ -20,7 +20,7 @@
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ url('/'.$object->slug) }}">{{ $object->title ?? 'Record' }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.object-icip', ['slug' => $object->slug]) }}">ICIP</a></li>
-      <li class="breadcrumb-item active">TK Labels</li>
+      <li class="breadcrumb-item active">{{ __('TK Labels') }}</li>
     </ol>
   </nav>
 
@@ -39,7 +39,7 @@
         <div class="card-header"><h5 class="mb-0">{{ __('Applied Labels') }}</h5></div>
         <div class="card-body">
           @if($labels->isEmpty())
-            <p class="text-muted">No TK labels applied to this record.</p>
+            <p class="text-muted">{{ __('No TK labels applied to this record.') }}</p>
           @else
             <div class="row">
               @foreach($labels as $label)
@@ -81,7 +81,7 @@
             @csrf
             <input type="hidden" name="form_action" value="add">
             <div class="mb-3">
-              <label class="form-label">Label Type <span class="text-danger">*</span></label>
+              <label class="form-label">{{ __('Label Type') }} <span class="text-danger">*</span></label>
               <select name="label_type_id" class="form-select" required>
                 <option value="">{{ __('Select label') }}</option>
                 <optgroup label="Traditional Knowledge (TK) Labels">
@@ -142,12 +142,12 @@
       <div class="card mb-4">
         <div class="card-header"><h5 class="mb-0">{{ __('About TK Labels') }}</h5></div>
         <div class="card-body small">
-          <p>TK Labels are developed by <strong>{{ __('Local Contexts') }}</strong> to help Indigenous communities manage their cultural heritage.</p>
+          <p>{{ __('TK Labels are developed by') }} <strong>{{ __('Local Contexts') }}</strong> to help Indigenous communities manage their cultural heritage.</p>
           <p><strong>{{ __('TK Labels') }}</strong> (brown) relate to Traditional Knowledge.</p>
           <p><strong>{{ __('BC Labels') }}</strong> (green) relate to Biocultural heritage.</p>
           <p class="mb-0">
             <a href="https://localcontexts.org/labels/traditional-knowledge-labels/" target="_blank">
-              Learn more at Local Contexts <i class="bi bi-box-arrow-up-right"></i>
+              {{ __('Learn more at Local Contexts') }} <i class="bi bi-box-arrow-up-right"></i>
             </a>
           </p>
         </div>
@@ -156,7 +156,7 @@
       <div class="card">
         <div class="card-header"><h5 class="mb-0">{{ __('Applied By') }}</h5></div>
         <div class="card-body small">
-          <p><strong>{{ __('Community:') }}</strong> Labels applied directly by or at the request of the community.</p>
+          <p><strong>{{ __('Community:') }}</strong> {{ __('Labels applied directly by or at the request of the community.') }}</p>
           <p class="mb-0"><strong>{{ __('Institution:') }}</strong> Labels applied by the institution to acknowledge Indigenous origin or protocols.</p>
         </div>
       </div>

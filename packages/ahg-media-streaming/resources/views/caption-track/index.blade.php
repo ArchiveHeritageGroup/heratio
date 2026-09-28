@@ -12,12 +12,12 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="fas fa-closed-captioning me-2"></i>Caption & Subtitle Tracks</h1>
     <a href="{{ route('caption-tracks.create', $digitalObjectId) }}" class="btn atom-btn-white">
-        <i class="fas fa-plus me-1"></i>Add Track
+        <i class="fas fa-plus me-1"></i>{{ __('Add Track') }}
     </a>
 </div>
 
 <p class="text-muted">
-    Digital object: <strong>{{ $doName }}</strong>
+    {{ __('Digital object:') }} <strong>{{ $doName }}</strong>
     @if($tracks->count())
         - {{ $tracks->count() }} track(s) configured
     @else
@@ -37,9 +37,9 @@
     <div class="card">
         <div class="card-body text-center py-5">
             <i class="fas fa-closed-captioning fa-3x text-muted mb-3 d-block"></i>
-            <p class="text-muted mb-3">No caption or subtitle tracks have been added yet.</p>
+            <p class="text-muted mb-3">{{ __('No caption or subtitle tracks have been added yet.') }}</p>
             <a href="{{ route('caption-tracks.create', $digitalObjectId) }}" class="btn atom-btn-white">
-                <i class="fas fa-plus me-1"></i>Add your first track
+                <i class="fas fa-plus me-1"></i>{{ __('Add your first track') }}
             </a>
         </div>
     </div>
@@ -91,7 +91,7 @@
                                     </td>
                                     <td>
                                         @if($track->is_default)
-                                            <span class="badge bg-success">Default</span>
+                                            <span class="badge bg-success">{{ __('Default') }}</span>
                                         @else
                                             <span class="text-muted">-</span>
                                         @endif
@@ -99,22 +99,22 @@
                                     <td>
                                         @if($track->source_url)
                                             <a href="{{ $track->source_url }}" target="_blank" class="text-decoration-none" title="{{ $track->source_url }}">
-                                                <i class="fas fa-globe me-1"></i>Remote
+                                                <i class="fas fa-globe me-1"></i>{{ __('Remote') }}
                                             </a>
                                             @if(empty($track->vtt_content))
-                                                <span class="badge bg-warning text-dark ms-1">Not cached</span>
+                                                <span class="badge bg-warning text-dark ms-1">{{ __('Not cached') }}</span>
                                             @endif
                                         @elseif(!empty($track->vtt_content))
-                                            <span class="badge bg-info">Inline</span>
+                                            <span class="badge bg-info">{{ __('Inline') }}</span>
                                         @else
                                             <span class="text-muted">-</span>
                                         @endif
                                     </td>
                                     <td>
                                         @if($track->active)
-                                            <span class="badge bg-success">Active</span>
+                                            <span class="badge bg-success">{{ __('Active') }}</span>
                                         @else
-                                            <span class="badge bg-secondary">Inactive</span>
+                                            <span class="badge bg-secondary">{{ __('Inactive') }}</span>
                                         @endif
                                     </td>
                                     <td>
@@ -171,21 +171,21 @@
 
 <div class="card mt-4">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-question-circle me-2"></i>Quick Reference
+        <i class="fas fa-question-circle me-2"></i>{{ __('Quick Reference') }}
     </div>
     <div class="card-body small">
         <dl class="row mb-0">
-            <dt class="col-sm-3">Caption</dt>
+            <dt class="col-sm-3">{{ __('Caption') }}</dt>
             <dd class="col-sm-9">Full transcription with audio cues; essential for accessibility compliance.</dd>
-            <dt class="col-sm-3">Subtitle</dt>
+            <dt class="col-sm-3">{{ __('Subtitle') }}</dt>
             <dd class="col-sm-9">Dialogue-only text tracks. Suitable for foreign-language dubs or same-language subtitles.</dd>
-            <dt class="col-sm-3">Description</dt>
+            <dt class="col-sm-3">{{ __('Description') }}</dt>
             <dd class="col-sm-9">Audio description - narrated descriptions of visual elements for blind viewers.</dd>
-            <dt class="col-sm-3">Chapters</dt>
-            <dd class="col-sm-9">Chapter markers for navigation within a long-form video.</dd>
+            <dt class="col-sm-3">{{ __('Chapters') }}</dt>
+            <dd class="col-sm-9">{{ __('Chapter markers for navigation within a long-form video.') }}</dd>
             <dt class="col-sm-3">SDH</dt>
             <dd class="col-sm-9">Subtitles for the Deaf and Hard of Hearing - include speaker identification and sound descriptions.</dd>
-            <dt class="col-sm-3">Remote URL</dt>
+            <dt class="col-sm-3">{{ __('Remote URL') }}</dt>
             <dd class="col-sm-9">Link to an external VTT/SRT file. Content is cached locally on first use or manual fetch.</dd>
         </dl>
     </div>

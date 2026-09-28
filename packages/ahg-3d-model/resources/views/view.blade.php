@@ -44,7 +44,7 @@
   {{-- Breadcrumb --}}
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
       @if($object ?? null)
         <li class="breadcrumb-item"><a href="{{ url($object->slug ?? '') }}">{{ e($object->title ?? '') }}</a></li>
       @endif
@@ -223,7 +223,7 @@
         </div>
         <div class="card-body">
           @if(count($hotspots) === 0)
-            <p class="text-muted mb-0">No hotspots defined for this model.</p>
+            <p class="text-muted mb-0">{{ __('No hotspots defined for this model.') }}</p>
           @else
             <ul class="list-group list-group-flush">
               @foreach($hotspots as $hotspot)

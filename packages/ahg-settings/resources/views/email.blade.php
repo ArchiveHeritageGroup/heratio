@@ -23,8 +23,8 @@
                   <label class="form-label">{{ ucwords(str_replace('_', ' ', str_replace('smtp_', '', $setting->setting_key))) }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   @if ($setting->setting_type === 'boolean')
                     <select name="settings[{{ $setting->setting_key }}]" class="form-select">
-                      <option value="0" {{ $setting->setting_value == '0' ? 'selected' : '' }}>Disabled</option>
-                      <option value="1" {{ $setting->setting_value == '1' ? 'selected' : '' }}>Enabled</option>
+                      <option value="0" {{ $setting->setting_value == '0' ? 'selected' : '' }}>{{ __('Disabled') }}</option>
+                      <option value="1" {{ $setting->setting_value == '1' ? 'selected' : '' }}>{{ __('Enabled') }}</option>
                     </select>
                   @elseif ($setting->setting_type === 'password')
                     <input type="password" name="settings[{{ $setting->setting_key }}]" class="form-control" value="{{ e($setting->setting_value ?? '') }}">
@@ -93,12 +93,12 @@
                       <div id="tpl{{ $index }}" class="accordion-collapse collapse" data-bs-parent="#templateAccordion">
                         <div class="accordion-body">
                           <div class="mb-3">
-                            <label class="form-label">Subject <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                            <label class="form-label">{{ __('Subject') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <input type="text" name="settings[{{ $setting->setting_key }}]" class="form-control" value="{{ e($setting->setting_value ?? '') }}">
                           </div>
                           @if($bodySetting)
                           <div class="mb-3">
-                            <label class="form-label">Body <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                            <label class="form-label">{{ __('Body') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <textarea name="settings[{{ $bodyKey }}]" class="form-control" rows="5">{{ e($bodySetting->setting_value ?? '') }}</textarea>
                           </div>
                           @endif
@@ -118,7 +118,7 @@
         <div class="card-header bg-warning text-dark"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Error Alert Configuration') }}</div>
         <div class="card-body">
           <div class="mb-3">
-            <label class="form-label">Enable Error Alerts <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Enable Error Alerts') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="error_alert[error_alert_enabled]" class="form-select">
               <option value="0" {{ (isset($errorAlertSettings['error_alert_enabled']) && $errorAlertSettings['error_alert_enabled'] === '0') ? 'selected' : '' }}>{{ __('Disabled') }}</option>
               <option value="1" {{ (!isset($errorAlertSettings['error_alert_enabled']) || $errorAlertSettings['error_alert_enabled'] === '1') ? 'selected' : '' }}>{{ __('Enabled') }}</option>
@@ -132,13 +132,13 @@
             <small class="text-muted">{{ __('Minimum seconds between duplicate error alerts. Default: 300 (5 min).') }}</small>
           </div>
           <div class="mb-3">
-            <label class="form-label">Daily Cap <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Daily Cap') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="number" name="error_alert[error_alert_daily_cap]" class="form-control" min="0" max="1000"
                    value="{{ e($errorAlertSettings['error_alert_daily_cap'] ?? '50') }}">
             <small class="text-muted">{{ __('Maximum alert emails per day. 0 = unlimited. Default: 50.') }}</small>
           </div>
           <div class="mb-3">
-            <label class="form-label">Production Only <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Production Only') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="error_alert[error_alert_env_gate]" class="form-select">
               <option value="0" {{ (isset($errorAlertSettings['error_alert_env_gate']) && $errorAlertSettings['error_alert_env_gate'] === '0') ? 'selected' : '' }}>{{ __('Send in all environments') }}</option>
               <option value="1" {{ (!isset($errorAlertSettings['error_alert_env_gate']) || $errorAlertSettings['error_alert_env_gate'] === '1') ? 'selected' : '' }}>{{ __('Production only') }}</option>
@@ -153,14 +153,14 @@
         <ul class="list-group list-group-flush">
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <div>
-              <i class="fas fa-layer-group me-2 text-muted"></i>Collections Procedure Email Notifications
+              <i class="fas fa-layer-group me-2 text-muted"></i>{{ __('Collections Procedure Email Notifications') }}
               <br><small class="text-muted">{{ __('Task assignments and state transitions') }}</small>
             </div>
-            <a href="{{ route('settings.ahg.spectrum') }}" class="btn btn-sm btn-outline-primary">Configure</a>
+            <a href="{{ route('settings.ahg.spectrum') }}" class="btn btn-sm btn-outline-primary">{{ __('Configure') }}</a>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <div>
-              <i class="fas fa-book-reader me-2 text-muted"></i>Research Notifications
+              <i class="fas fa-book-reader me-2 text-muted"></i>{{ __('Research Notifications') }}
               <br><small class="text-muted">{{ __('Researcher registration, approval, booking emails') }}</small>
             </div>
             <div class="form-check form-switch">
@@ -171,7 +171,7 @@
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <div>
-              <i class="fas fa-shield-alt me-2 text-muted"></i>Access Request Notifications
+              <i class="fas fa-shield-alt me-2 text-muted"></i>{{ __('Access Request Notifications') }}
               <br><small class="text-muted">{{ __('Approver notifications, request status emails') }}</small>
             </div>
             <div class="form-check form-switch">
@@ -182,7 +182,7 @@
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <div>
-              <i class="fas fa-project-diagram me-2 text-muted"></i>Workflow Notifications
+              <i class="fas fa-project-diagram me-2 text-muted"></i>{{ __('Workflow Notifications') }}
               <br><small class="text-muted">{{ __('Task assignment, approval, rejection emails') }}</small>
             </div>
             <div class="form-check form-switch">

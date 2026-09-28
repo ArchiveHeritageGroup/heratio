@@ -34,11 +34,11 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.index') }}">CDPA</a></li>
-                    <li class="breadcrumb-item active">Configuration</li>
+                    <li class="breadcrumb-item active">{{ __('Configuration') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-cog me-2"></i>{{ __('CDPA Configuration') }}</h1>
-            <p class="text-muted">Configure plugin settings for CDPA compliance</p>
+            <p class="text-muted">{{ __('Configure plugin settings for CDPA compliance') }}</p>
         </div>
     </div>
 
@@ -127,12 +127,12 @@
                     <div class="card-header"><h5 class="mb-0">{{ __('CDPA Key Requirements') }}</h5></div>
                     <div class="card-body small">
                         <ul class="mb-0">
-                            <li><strong>{{ __('Registration:') }}</strong> Register with the regulator</li>
-                            <li><strong>{{ __('DPO:') }}</strong> Appoint Data Protection Officer</li>
-                            <li><strong>{{ __('ROPA:') }}</strong> Maintain processing records</li>
-                            <li><strong>{{ __('Rights:') }}</strong> Respond to data subject requests</li>
+                            <li><strong>{{ __('Registration:') }}</strong> {{ __('Register with the regulator') }}</li>
+                            <li><strong>{{ __('DPO:') }}</strong> {{ __('Appoint Data Protection Officer') }}</li>
+                            <li><strong>{{ __('ROPA:') }}</strong> {{ __('Maintain processing records') }}</li>
+                            <li><strong>{{ __('Rights:') }}</strong> {{ __('Respond to data subject requests') }}</li>
                             <li><strong>{{ __('Breaches:') }}</strong> Report within 72 hours</li>
-                            <li><strong>{{ __('DPIA:') }}</strong> Assess high-risk processing</li>
+                            <li><strong>{{ __('DPIA:') }}</strong> {{ __('Assess high-risk processing') }}</li>
                         </ul>
                     </div>
                 </div>
@@ -146,7 +146,7 @@
                         </p>
                         <p class="small text-muted mb-0">
                             <strong>{{ __('Version:') }}</strong> 1.0.0<br>
-                            <strong>{{ __('Author:') }}</strong> The Archive and Heritage Group
+                            <strong>{{ __('Author:') }}</strong> {{ __('The Archive and Heritage Group') }}
                         </p>
                     </div>
                 </div>

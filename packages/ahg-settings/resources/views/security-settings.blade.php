@@ -96,7 +96,7 @@
                      {{ ($settings['security_lockout_enabled'] ?? 'true') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="security_lockout_enabled"><strong>{{ __('Enable Account Lockout') }}</strong></label>
             </div>
-            <div class="form-text">Lock accounts after repeated failed login attempts.</div>
+            <div class="form-text">{{ __('Lock accounts after repeated failed login attempts.') }}</div>
           </div>
           <div class="col-md-4">
             <label for="security_lockout_max_attempts" class="form-label"><strong>{{ __('Max Failed Attempts') }}</strong></label>

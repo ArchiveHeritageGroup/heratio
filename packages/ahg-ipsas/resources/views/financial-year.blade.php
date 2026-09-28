@@ -26,7 +26,7 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.index') }}">IPSAS</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('ipsas.reports') }}">Reports</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('ipsas.reports') }}">{{ __('Reports') }}</a></li>
                     <li class="breadcrumb-item active">Financial Year {{ $year }}</li>
                 </ol>
             </nav>
@@ -97,7 +97,7 @@
                             </tbody>
                         </table>
                     @else
-                        <p class="text-muted mb-0">No data available</p>
+                        <p class="text-muted mb-0">{{ __('No data available') }}</p>
                     @endif
                 </div>
             </div>
@@ -120,7 +120,7 @@
                             </tbody>
                         </table>
                     @else
-                        <p class="text-muted mb-0">No data available</p>
+                        <p class="text-muted mb-0">{{ __('No data available') }}</p>
                     @endif
                 </div>
             </div>
@@ -133,26 +133,26 @@
                     <table class="table mb-0">
                         <tbody>
                             <tr>
-                                <td>Opening Balance</td>
+                                <td>{{ __('Opening Balance') }}</td>
                                 <td class="text-end">{{ $defaultCurrency }} {{ number_format($summary['opening_balance'] ?? 0, 2) }}</td>
                             </tr>
                             <tr>
-                                <td>Additions</td>
+                                <td>{{ __('Additions') }}</td>
                                 <td class="text-end text-success">+{{ $defaultCurrency }} {{ number_format($summary['additions_value'] ?? 0, 2) }}</td>
                             </tr>
                             <tr>
-                                <td>Disposals</td>
+                                <td>{{ __('Disposals') }}</td>
                                 <td class="text-end text-danger">-{{ $defaultCurrency }} {{ number_format($summary['disposals_value'] ?? 0, 2) }}</td>
                             </tr>
                             <tr>
-                                <td>Revaluations</td>
+                                <td>{{ __('Revaluations') }}</td>
                                 <td class="text-end">
                                     @php $rev = $summary['revaluations'] ?? 0; @endphp
                                     {{ $rev >= 0 ? '+' : '' }}{{ $defaultCurrency }} {{ number_format($rev, 2) }}
                                 </td>
                             </tr>
                             <tr>
-                                <td>Impairments</td>
+                                <td>{{ __('Impairments') }}</td>
                                 <td class="text-end text-danger">-{{ $defaultCurrency }} {{ number_format($summary['impairments'] ?? 0, 2) }}</td>
                             </tr>
                             <tr class="table-active">

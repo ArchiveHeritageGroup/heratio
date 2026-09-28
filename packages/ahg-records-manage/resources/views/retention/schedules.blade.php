@@ -80,7 +80,7 @@
       </tbody>
     </table>
     @else
-      <div class="text-center py-4 text-muted">No retention schedules found.</div>
+      <div class="text-center py-4 text-muted">{{ __('No retention schedules found.') }}</div>
     @endif
   </div>
 </div>

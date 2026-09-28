@@ -65,7 +65,7 @@
             </tbody>
           </table>
           @else
-          <p class="text-muted">No rights statements assigned yet.</p>
+          <p class="text-muted">{{ __('No rights statements assigned yet.') }}</p>
           @endif
         </div>
       </div>
@@ -91,7 +91,7 @@
             </tbody>
           </table>
           @else
-          <p class="text-muted">No CC licenses assigned yet.</p>
+          <p class="text-muted">{{ __('No CC licenses assigned yet.') }}</p>
           @endif
         </div>
       </div>

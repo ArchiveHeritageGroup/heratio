@@ -25,7 +25,7 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.index') }}">CDPA</a></li>
-                    <li class="breadcrumb-item active">Controller License</li>
+                    <li class="breadcrumb-item active">{{ __('Controller License') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-id-card me-2"></i>{{ __('Controller License') }}</h1>
@@ -45,32 +45,32 @@
                     <div class="card-header"><h5 class="mb-0">{{ __('License Details') }}</h5></div>
                     <div class="card-body">
                         <dl class="row mb-0">
-                            <dt class="col-sm-4">License Number</dt>
+                            <dt class="col-sm-4">{{ __('License Number') }}</dt>
                             <dd class="col-sm-8"><strong>{{ $license->license_number }}</strong></dd>
 
-                            <dt class="col-sm-4">Organization Name</dt>
+                            <dt class="col-sm-4">{{ __('Organization Name') }}</dt>
                             <dd class="col-sm-8">{{ $license->organization_name }}</dd>
 
-                            <dt class="col-sm-4">Tier</dt>
+                            <dt class="col-sm-4">{{ __('Tier') }}</dt>
                             <dd class="col-sm-8"><span class="badge bg-info fs-6">{{ strtoupper($license->tier) }}</span></dd>
 
-                            <dt class="col-sm-4">Registration Date</dt>
+                            <dt class="col-sm-4">{{ __('Registration Date') }}</dt>
                             <dd class="col-sm-8">{{ $license->registration_date ? date('j F Y', strtotime($license->registration_date)) : '-' }}</dd>
 
-                            <dt class="col-sm-4">Issue Date</dt>
+                            <dt class="col-sm-4">{{ __('Issue Date') }}</dt>
                             <dd class="col-sm-8">{{ $license->issue_date ? date('j F Y', strtotime($license->issue_date)) : '-' }}</dd>
 
-                            <dt class="col-sm-4">Expiry Date</dt>
+                            <dt class="col-sm-4">{{ __('Expiry Date') }}</dt>
                             <dd class="col-sm-8">{{ $license->expiry_date ? date('j F Y', strtotime($license->expiry_date)) : '-' }}</dd>
 
-                            <dt class="col-sm-4">Regulator Reference</dt>
+                            <dt class="col-sm-4">{{ __('Regulator Reference') }}</dt>
                             <dd class="col-sm-8">{{ $license->potraz_ref ?? '-' }}</dd>
 
-                            <dt class="col-sm-4">Data Subjects Count</dt>
+                            <dt class="col-sm-4">{{ __('Data Subjects Count') }}</dt>
                             <dd class="col-sm-8">{{ $license->data_subjects_count ? number_format($license->data_subjects_count) : '-' }}</dd>
 
                             @if ($license->notes ?? null)
-                                <dt class="col-sm-4">Notes</dt>
+                                <dt class="col-sm-4">{{ __('Notes') }}</dt>
                                 <dd class="col-sm-8">{!! nl2br(e($license->notes)) !!}</dd>
                             @endif
                         </dl>

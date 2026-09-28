@@ -46,7 +46,7 @@
 
       <div class="d-flex gap-2">
         <button type="submit" class="btn btn-success"><i class="fas fa-lock me-1"></i>{{ __('Place Hold') }}</button>
-        <a href="{{ route('integrity.holds') }}" class="btn atom-btn-white">Cancel</a>
+        <a href="{{ route('integrity.holds') }}" class="btn atom-btn-white">{{ __('Cancel') }}</a>
       </div>
     </form>
   </div>

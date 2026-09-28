@@ -13,7 +13,7 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 mb-0">Disposal Action #{{ $action->id }}</h1>
-        <a href="{{ route('records.disposal.queue') }}" class="btn btn-outline-secondary btn-sm">Back to Queue</a>
+        <a href="{{ route('records.disposal.queue') }}" class="btn btn-outline-secondary btn-sm">{{ __('Back to Queue') }}</a>
     </div>
 
     {{-- Header --}}

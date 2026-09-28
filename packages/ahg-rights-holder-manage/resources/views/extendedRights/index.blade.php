@@ -28,7 +28,7 @@
             @endforeach
           </ul>
         @else
-          <p class="text-muted">No rights statements configured.</p>
+          <p class="text-muted">{{ __('No rights statements configured.') }}</p>
         @endif
       </div>
     </div>
@@ -39,7 +39,7 @@
     <div class="card h-100">
       <div class="card-header bg-success text-white"><h5 class="mb-0">{{ __('Creative Commons') }}</h5></div>
       <div class="card-body">
-        <p class="text-muted small">Open licensing for sharing and reuse.</p>
+        <p class="text-muted small">{{ __('Open licensing for sharing and reuse.') }}</p>
         @if(!empty($ccLicenses) && count($ccLicenses) > 0)
           <ul class="list-unstyled">
             @foreach($ccLicenses as $cc)
@@ -53,7 +53,7 @@
             @endforeach
           </ul>
         @else
-          <p class="text-muted">No Creative Commons licenses configured.</p>
+          <p class="text-muted">{{ __('No Creative Commons licenses configured.') }}</p>
         @endif
       </div>
     </div>
@@ -64,7 +64,7 @@
     <div class="card h-100">
       <div class="card-header" style="background-color: #1a4d2e; color: white;"><h5 class="mb-0">{{ __('Traditional Knowledge Labels') }}</h5></div>
       <div class="card-body">
-        <p class="text-muted small">Labels for Indigenous cultural heritage.</p>
+        <p class="text-muted small">{{ __('Labels for Indigenous cultural heritage.') }}</p>
         @if(!empty($tkLabels) && count($tkLabels) > 0)
           <ul class="list-unstyled">
             @foreach($tkLabels as $tk)
@@ -81,7 +81,7 @@
             @endforeach
           </ul>
         @else
-          <p class="text-muted">No TK Labels configured.</p>
+          <p class="text-muted">{{ __('No TK Labels configured.') }}</p>
         @endif
       </div>
     </div>

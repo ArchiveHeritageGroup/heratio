@@ -21,7 +21,7 @@
       <div class="row g-3">
         {{-- Column --}}
         <div class="col-md-4">
-          <label for="column" class="form-label">Column <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+          <label for="column" class="form-label">{{ __('Column') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
           <select name="column" id="column" class="form-select" required>
             <option value="">-- Select a field --</option>
             @foreach($columns as $value => $label)
@@ -35,7 +35,7 @@
 
         {{-- Pattern --}}
         <div class="col-md-4">
-          <label for="pattern" class="form-label">Search pattern <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+          <label for="pattern" class="form-label">{{ __('Search pattern') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
           <input type="text" name="pattern" id="pattern" class="form-control" value="{{ old('pattern', $pattern ?? '') }}" required>
           @error('pattern')
             <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -44,7 +44,7 @@
 
         {{-- Replacement --}}
         <div class="col-md-4">
-          <label for="replacement" class="form-label">Replacement <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label for="replacement" class="form-label">{{ __('Replacement') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <input type="text" name="replacement" id="replacement" class="form-control" value="{{ old('replacement', $replacement ?? '') }}">
         </div>
 
@@ -52,7 +52,7 @@
         <div class="col-md-4">
           <div class="form-check mt-2">
             <input class="form-check-input" type="checkbox" name="caseSensitive" id="caseSensitive" value="1" {{ old('caseSensitive', $caseSensitive ?? true) ? 'checked' : '' }}>
-            <label class="form-check-label" for="caseSensitive">Case sensitive <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-check-label" for="caseSensitive">{{ __('Case sensitive') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           </div>
         </div>
 
@@ -74,7 +74,7 @@
     @if($results->count() > 0)
       <div class="alert alert-warning">
         <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
-        <strong>{{ __('Warning:') }}</strong> This will permanently modify <strong>{{ number_format($count) }}</strong> record(s). This action cannot be undone!
+        <strong>{{ __('Warning:') }}</strong> {{ __('This will permanently modify') }} <strong>{{ number_format($count) }}</strong> record(s). This action cannot be undone!
       </div>
 
       <table class="table table-bordered table-striped table-hover mb-4">

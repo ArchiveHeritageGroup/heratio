@@ -8,8 +8,8 @@
         <div>
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb mb-1">
-                    <li class="breadcrumb-item"><a href="{{ route('federation.index') }}">Federation</a></li>
-                    <li class="breadcrumb-item active">Peers</li>
+                    <li class="breadcrumb-item"><a href="{{ route('federation.index') }}">{{ __('Federation') }}</a></li>
+                    <li class="breadcrumb-item active">{{ __('Peers') }}</li>
                 </ol>
             </nav>
             <h4 class="mb-0"><i class="bi bi-hdd-network me-2"></i>{{ __('Federation Peers') }}</h4>
@@ -26,7 +26,7 @@
     <div class="card">
         <div class="card-body p-0">
             @if($peers->isEmpty())
-                <div class="p-4 text-center text-muted">No peers configured.</div>
+                <div class="p-4 text-center text-muted">{{ __('No peers configured.') }}</div>
             @else
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
@@ -57,7 +57,7 @@
                                     <td>{{ $peer->record_count ?? 0 }}</td>
                                     <td>{{ $peer->last_harvest_at ?? 'Never' }}</td>
                                     <td>
-                                        <a href="{{ route('federation.editPeer', $peer->id) }}" class="atom-btn-white btn-sm me-1">Edit</a>
+                                        <a href="{{ route('federation.editPeer', $peer->id) }}" class="atom-btn-white btn-sm me-1">{{ __('Edit') }}</a>
                                         <form method="post" action="{{ route('federation.testPeer', $peer->id) }}" class="d-inline">
                                             @csrf
                                             <button type="submit" class="atom-btn-white btn-sm">{{ __('Test') }}</button>

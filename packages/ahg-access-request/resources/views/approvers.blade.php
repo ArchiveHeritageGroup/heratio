@@ -8,9 +8,9 @@
         <div class="col-12">
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('homepage') }}">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('accessRequest.pending') }}">Access Requests</a></li>
-                    <li class="breadcrumb-item active">Manage Approvers</li>
+                    <li class="breadcrumb-item"><a href="{{ route('homepage') }}">{{ __('Home') }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('accessRequest.pending') }}">{{ __('Access Requests') }}</a></li>
+                    <li class="breadcrumb-item active">{{ __('Manage Approvers') }}</li>
                 </ol>
             </nav>
 
@@ -37,7 +37,7 @@
                         <div class="card-body p-0">
                             @if($approvers->isEmpty())
                                 <div class="p-4 text-center text-muted">
-                                    <p>No approvers configured.</p>
+                                    <p>{{ __('No approvers configured.') }}</p>
                                 </div>
                             @else
                                 <div class="table-responsive">
@@ -82,7 +82,7 @@
                             <form method="post" action="{{ route('accessRequest.addApprover') }}">
                                 @csrf
                                 <div class="mb-3">
-                                    <label for="user_id" class="form-label">Select User <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                                    <label for="user_id" class="form-label">{{ __('Select User') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                                     <select class="form-select" id="user_id" name="user_id" required>
                                         <option value="">-- Select user --</option>
                                     </select>

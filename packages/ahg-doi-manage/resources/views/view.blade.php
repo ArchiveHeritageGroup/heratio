@@ -41,7 +41,7 @@
       <div class="col-lg-8">
         {{-- DOI Information card --}}
         <div class="card mb-4">
-          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">DOI Information</div>
+          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">{{ __('DOI Information') }}</div>
           <div class="card-body">
             <table class="table table-bordered mb-0">
               <tbody>
@@ -116,7 +116,7 @@
         {{-- DataCite Metadata --}}
         @if(!empty($doi->metadata_json))
           <div class="card mb-4">
-            <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">DataCite Metadata</div>
+            <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">{{ __('DataCite Metadata') }}</div>
             <div class="card-body">
               <pre class="mb-0" style="max-height: 400px; overflow: auto;"><code>{{ json_encode(json_decode($doi->metadata_json), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</code></pre>
             </div>
@@ -159,14 +159,14 @@
             </table>
           </div>
         @else
-          <div class="alert alert-info">No activity log entries for this DOI.</div>
+          <div class="alert alert-info">{{ __('No activity log entries for this DOI.') }}</div>
         @endif
       </div>
 
       <div class="col-lg-4">
         {{-- Actions --}}
         <div class="card mb-4">
-          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">Actions</div>
+          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">{{ __('Actions') }}</div>
           <div class="card-body">
             <div class="d-grid gap-2">
               <a href="{{ route('doi.view', $doi->id) }}?verify=1" class="btn atom-btn-white">
@@ -192,7 +192,7 @@
 
         {{-- Quick Links --}}
         <div class="card mb-4">
-          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">Quick Links</div>
+          <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">{{ __('Quick Links') }}</div>
           <div class="card-body">
             <ul class="list-unstyled mb-0">
               <li class="mb-2">

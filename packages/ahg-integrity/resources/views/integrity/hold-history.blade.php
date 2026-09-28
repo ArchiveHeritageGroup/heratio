@@ -11,7 +11,7 @@
 
 <div class="card">
   <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-    <h5 class="mb-0">All Legal Holds for <a href="{{ url('/informationobject/show/' . $ioId) }}" class="text-white text-decoration-underline">{{ $ioTitle }}</a></h5>
+    <h5 class="mb-0">{{ __('All Legal Holds for') }} <a href="{{ url('/informationobject/show/' . $ioId) }}" class="text-white text-decoration-underline">{{ $ioTitle }}</a></h5>
   </div>
   <div class="card-body p-0">
     @if(count($history) > 0)
@@ -35,7 +35,7 @@
       </tbody>
     </table>
     @else
-    <div class="text-center py-4 text-muted">No hold history for this information object.</div>
+    <div class="text-center py-4 text-muted">{{ __('No hold history for this information object.') }}</div>
     @endif
   </div>
 </div>

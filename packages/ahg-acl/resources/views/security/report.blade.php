@@ -27,7 +27,7 @@
         <div class="card bg-primary text-white h-100">
             <div class="card-body text-center">
                 <h2>{{ $clearanceStats['total_users'] ?? 0 }}</h2>
-                <p class="mb-0">Active Users</p>
+                <p class="mb-0">{{ __('Active Users') }}</p>
             </div>
         </div>
     </div>
@@ -35,7 +35,7 @@
         <div class="card bg-success text-white h-100">
             <div class="card-body text-center">
                 <h2>{{ $clearanceStats['with_clearance'] ?? 0 }}</h2>
-                <p class="mb-0">With Clearance</p>
+                <p class="mb-0">{{ __('With Clearance') }}</p>
             </div>
         </div>
     </div>
@@ -43,7 +43,7 @@
         <div class="card bg-secondary text-white h-100">
             <div class="card-body text-center">
                 <h2>{{ $clearanceStats['without_clearance'] ?? 0 }}</h2>
-                <p class="mb-0">Without Clearance</p>
+                <p class="mb-0">{{ __('Without Clearance') }}</p>
             </div>
         </div>
     </div>
@@ -114,15 +114,15 @@
         <div class="row text-center">
             <div class="col-md-4">
                 <h3 class="text-warning">{{ $requestStats['pending'] ?? 0 }}</h3>
-                <p>Pending</p>
+                <p>{{ __('Pending') }}</p>
             </div>
             <div class="col-md-4">
                 <h3 class="text-success">{{ $requestStats['approved'] ?? 0 }}</h3>
-                <p>Approved</p>
+                <p>{{ __('Approved') }}</p>
             </div>
             <div class="col-md-4">
                 <h3 class="text-danger">{{ $requestStats['denied'] ?? 0 }}</h3>
-                <p>Denied</p>
+                <p>{{ __('Denied') }}</p>
             </div>
         </div>
     </div>
@@ -152,7 +152,7 @@
                     <td>{{ e($activity->object_title ?? '-') }}</td>
                 </tr>
                 @empty
-                <tr><td colspan="4" class="text-center text-muted py-3">No recent activity</td></tr>
+                <tr><td colspan="4" class="text-center text-muted py-3">{{ __('No recent activity') }}</td></tr>
                 @endforelse
             </tbody>
         </table>

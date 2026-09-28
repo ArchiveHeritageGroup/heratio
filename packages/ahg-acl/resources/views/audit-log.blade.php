@@ -54,20 +54,20 @@
 
         <div class="d-grid gap-2">
           <button type="submit" class="btn btn-primary btn-sm">{{ __('Apply Filters') }}</button>
-          <a href="{{ route('acl.audit-log') }}" class="btn btn-outline-secondary btn-sm">Clear</a>
+          <a href="{{ route('acl.audit-log') }}" class="btn btn-outline-secondary btn-sm">{{ __('Clear') }}</a>
         </div>
       </form>
 
       <hr class="my-4">
       <h4>{{ __('Quick Links') }}</h4>
       <ul class="list-unstyled">
-        <li><a href="{{ route('acl.audit-log', ['filter_action' => 'login']) }}">Authentication Log</a></li>
-        <li><a href="{{ route('acl.audit-log', ['filter_action' => 'access_request']) }}">Security Access Log</a></li>
+        <li><a href="{{ route('acl.audit-log', ['filter_action' => 'login']) }}">{{ __('Authentication Log') }}</a></li>
+        <li><a href="{{ route('acl.audit-log', ['filter_action' => 'access_request']) }}">{{ __('Security Access Log') }}</a></li>
         @if(\Route::has('audit.statistics'))
-          <li><a href="{{ route('audit.statistics') }}">Statistics Dashboard</a></li>
+          <li><a href="{{ route('audit.statistics') }}">{{ __('Statistics Dashboard') }}</a></li>
         @endif
         @if(\Route::has('audit.settings'))
-          <li><a href="{{ route('audit.settings') }}">Settings</a></li>
+          <li><a href="{{ route('audit.settings') }}">{{ __('Settings') }}</a></li>
         @endif
       </ul>
     </div>
@@ -92,8 +92,8 @@
         @endforeach
       </div>
       <div class="btn-group btn-group-sm">
-        <a href="{{ route('acl.audit-log', array_merge(request()->except(['page']), ['format' => 'csv'])) }}" class="btn btn-outline-secondary">Export CSV</a>
-        <a href="{{ route('acl.audit-log', array_merge(request()->except(['page']), ['format' => 'json'])) }}" class="btn btn-outline-secondary">Export JSON</a>
+        <a href="{{ route('acl.audit-log', array_merge(request()->except(['page']), ['format' => 'csv'])) }}" class="btn btn-outline-secondary">{{ __('Export CSV') }}</a>
+        <a href="{{ route('acl.audit-log', array_merge(request()->except(['page']), ['format' => 'json'])) }}" class="btn btn-outline-secondary">{{ __('Export JSON') }}</a>
       </div>
     </div>
   </div>
@@ -205,7 +205,7 @@
             </td>
           </tr>
         @empty
-          <tr><td colspan="7" class="text-center text-muted py-4">No audit log entries found.</td></tr>
+          <tr><td colspan="7" class="text-center text-muted py-4">{{ __('No audit log entries found.') }}</td></tr>
         @endforelse
       </tbody>
     </table>

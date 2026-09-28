@@ -46,7 +46,7 @@
     {{-- Classification Level --}}
     <fieldset class="mb-4">
       <legend class="h6 border-bottom pb-2 mb-3">
-        <i class="fas fa-lock me-2"></i>Classification Level
+        <i class="fas fa-lock me-2"></i>{{ __('Classification Level') }}
       </legend>
 
       <div class="row">
@@ -77,14 +77,14 @@
     {{-- Classification Details --}}
     <fieldset class="mb-4">
       <legend class="h6 border-bottom pb-2 mb-3">
-        <i class="fas fa-file-alt me-2"></i>Classification Details
+        <i class="fas fa-file-alt me-2"></i>{{ __('Classification Details') }}
       </legend>
 
       <div class="mb-3">
         <label for="reason" class="form-label">{{ __('Reason for Classification') }}</label>
         <textarea name="reason" id="reason" class="form-control" rows="3"
                   placeholder="{{ __('Explain why this classification level is appropriate...') }}">{{ $currentClassification->reason ?? '' }}</textarea>
-        <div class="form-text">Document the justification for this classification decision.</div>
+        <div class="form-text">{{ __('Document the justification for this classification decision.') }}</div>
       </div>
 
       <div class="mb-3">
@@ -106,7 +106,7 @@
           <input type="date" name="review_date" id="review_date" class="form-control"
                  value="{{ ($currentClassification && ($currentClassification->reviewDate ?? $currentClassification->review_date ?? null)) ? date('Y-m-d', strtotime($currentClassification->reviewDate ?? $currentClassification->review_date)) : '' }}"
                  min="{{ date('Y-m-d', strtotime('+1 day')) }}">
-          <div class="form-text">Date when classification should be reviewed.</div>
+          <div class="form-text">{{ __('Date when classification should be reviewed.') }}</div>
         </div>
 
         <div class="col-md-6 mb-3">
@@ -114,7 +114,7 @@
           <input type="date" name="declassify_date" id="declassify_date" class="form-control"
                  value="{{ ($currentClassification && ($currentClassification->declassifyDate ?? $currentClassification->declassify_date ?? null)) ? date('Y-m-d', strtotime($currentClassification->declassifyDate ?? $currentClassification->declassify_date)) : '' }}"
                  min="{{ date('Y-m-d', strtotime('+1 day')) }}">
-          <div class="form-text">Date when classification will be automatically removed.</div>
+          <div class="form-text">{{ __('Date when classification will be automatically removed.') }}</div>
         </div>
       </div>
 
@@ -136,7 +136,7 @@
     {{-- Inheritance --}}
     <fieldset class="mb-4">
       <legend class="h6 border-bottom pb-2 mb-3">
-        <i class="fas fa-sitemap me-2"></i>Inheritance
+        <i class="fas fa-sitemap me-2"></i>{{ __('Inheritance') }}
       </legend>
 
       <div class="form-check">
@@ -144,7 +144,7 @@
                name="inherit_to_children" id="inherit_to_children" value="1"
                {{ (!($currentClassification ?? null) || ($currentClassification->inheritToChildren ?? $currentClassification->inherit_to_children ?? true)) ? 'checked' : '' }}>
         <label class="form-check-label" for="inherit_to_children">
-          Apply this classification to all child records
+          {{ __('Apply this classification to all child records') }}
         </label>
       </div>
       <div class="form-text">If checked, all descendant records will inherit this classification level.</div>
@@ -153,7 +153,7 @@
     {{-- Actions --}}
     <section class="actions">
       <ul class="list-unstyled d-flex gap-2">
-        <li><a href="{{ route('acl.object-view', ['id' => $resource->id ?? 0]) }}" class="btn btn-secondary">Cancel</a></li>
+        <li><a href="{{ route('acl.object-view', ['id' => $resource->id ?? 0]) }}" class="btn btn-secondary">{{ __('Cancel') }}</a></li>
         @if($currentClassification ?? null)
           <li><button class="btn btn-danger" type="submit" name="action_type" value="declassify" formnovalidate>{{ __('Declassify') }}</button></li>
         @endif

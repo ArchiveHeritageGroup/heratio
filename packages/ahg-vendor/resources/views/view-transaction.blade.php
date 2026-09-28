@@ -36,8 +36,8 @@ $statusColors = [
 
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.index') }}">Vendor Management</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.transactions') }}">Transactions</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.index') }}">{{ __('Vendor Management') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.transactions') }}">{{ __('Transactions') }}</a></li>
             <li class="breadcrumb-item active">{{ e($transaction->transaction_number) }}</li>
         </ol>
     </nav>
@@ -138,7 +138,7 @@ $statusColors = [
                         </table>
                     </div>
                     @else
-                    <div class="text-center py-4 text-muted"><i class="fas fa-archive fa-2x mb-2"></i><p class="mb-0">No items linked yet</p></div>
+                    <div class="text-center py-4 text-muted"><i class="fas fa-archive fa-2x mb-2"></i><p class="mb-0">{{ __('No items linked yet') }}</p></div>
                     @endif
                 </div>
             </div>

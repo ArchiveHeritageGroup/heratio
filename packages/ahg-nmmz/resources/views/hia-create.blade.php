@@ -24,12 +24,12 @@
       <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
-          <li class="breadcrumb-item"><a href="{{ route('nmmz.hia') }}">Heritage Impact Assessments</a></li>
-          <li class="breadcrumb-item active">New Assessment</li>
+          <li class="breadcrumb-item"><a href="{{ route('nmmz.hia') }}">{{ __('Heritage Impact Assessments') }}</a></li>
+          <li class="breadcrumb-item active">{{ __('New Assessment') }}</li>
         </ol>
       </nav>
       <h1><i class="fas fa-clipboard-check me-2"></i>{{ __('Heritage Impact Assessment') }}</h1>
-      <p class="text-muted">Submit HIA</p>
+      <p class="text-muted">{{ __('Submit HIA') }}</p>
     </div>
   </div>
 
@@ -41,7 +41,7 @@
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-8">
-              <label class="form-label">Project Name <span class="text-danger">*</span></label>
+              <label class="form-label">{{ __('Project Name') }} <span class="text-danger">*</span></label>
               <input type="text" name="project_name" class="form-control" required>
             </div>
             <div class="col-md-4">
@@ -58,7 +58,7 @@
               </select>
             </div>
             <div class="col-12">
-              <label class="form-label">Project Description <span class="text-danger">*</span></label>
+              <label class="form-label">{{ __('Project Description') }} <span class="text-danger">*</span></label>
               <textarea name="project_description" class="form-control" rows="4" required></textarea>
             </div>
             <div class="col-12">
@@ -87,7 +87,7 @@
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">Developer/Company Name <span class="text-danger">*</span></label>
+              <label class="form-label">{{ __('Developer/Company Name') }} <span class="text-danger">*</span></label>
               <input type="text" name="developer_name" class="form-control" required>
             </div>
             <div class="col-md-6">
@@ -115,7 +115,7 @@
               <input type="text" name="assessor_qualification" class="form-control" placeholder="{{ __('e.g., PhD Archaeology') }}">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Impact Level <span class="text-danger">*</span></label>
+              <label class="form-label">{{ __('Impact Level') }} <span class="text-danger">*</span></label>
               <select name="impact_level" class="form-select" required>
                 <option value="">{{ __('Select...') }}</option>
                 <option value="low">{{ __('Low - No significant heritage resources') }}</option>
@@ -142,8 +142,8 @@
         <h6><i class="fas fa-exclamation-triangle me-1"></i> {{ __('Important') }}</h6>
         <ul class="small mb-0">
           <li>HIAs are required for developments that may impact heritage sites</li>
-          <li>Assessment must be conducted by qualified professional</li>
-          <li>Review required before project commencement</li>
+          <li>{{ __('Assessment must be conducted by qualified professional') }}</li>
+          <li>{{ __('Review required before project commencement') }}</li>
         </ul>
       </div>
 
@@ -152,7 +152,7 @@
           <button type="submit" class="btn btn-primary btn-lg">
             <i class="fas fa-paper-plane me-2"></i>{{ __('Submit Assessment') }}
           </button>
-          <a href="{{ route('nmmz.hia') }}" class="btn btn-outline-secondary">Cancel</a>
+          <a href="{{ route('nmmz.hia') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
         </div>
       </div>
     </div>

@@ -44,12 +44,12 @@
   $parentSlug = $parentSlug ?? null;
 @endphp
 
-<h1>Edit archival description
+<h1>{{ __('Edit archival description') }}
   <small class="text-muted">(DACS 2nd edition)</small>
 </h1>
 
 @if($parentTitle)
-  <p class="text-muted">Parent:
+  <p class="text-muted">{{ __('Parent:') }}
     <a href="{{ url('/'.$parentSlug) }}">{{ $parentTitle }}</a>
   </p>
 @endif
@@ -85,7 +85,7 @@
   </div>
 
   <ul class="actions mb-3 nav gap-2">
-    <li><a href="{{ url('/'.($io->slug ?? '')) }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+    <li><a href="{{ url('/'.($io->slug ?? '')) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
     <li><button class="btn atom-btn-outline-success" type="submit">{{ __('Save') }}</button></li>
   </ul>
 </form>

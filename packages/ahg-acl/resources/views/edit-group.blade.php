@@ -7,8 +7,8 @@
 
   <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Admin</a></li>
-      <li class="breadcrumb-item"><a href="{{ route('acl.groups') }}">ACL Groups</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">{{ __('Admin') }}</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('acl.groups') }}">{{ __('ACL Groups') }}</a></li>
       <li class="breadcrumb-item active" aria-current="page">{{ $group->name ?? 'Unnamed' }}</li>
     </ol>
   </nav>
@@ -68,7 +68,7 @@
                   </tr>
                 @empty
                   <tr>
-                    <td colspan="3" class="text-center text-muted py-3">No members in this group.</td>
+                    <td colspan="3" class="text-center text-muted py-3">{{ __('No members in this group.') }}</td>
                   </tr>
                 @endforelse
               </tbody>
@@ -79,7 +79,7 @@
           <form action="{{ route('acl.add-member', ['groupId' => $group->id]) }}" method="POST" class="row g-2 align-items-end">
             @csrf
             <div class="col">
-              <label for="user_id" class="form-label form-label-sm">Add Member <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label for="user_id" class="form-label form-label-sm">{{ __('Add Member') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select name="user_id" id="user_id" class="form-select form-select-sm" required>
                 <option value="">-- Select User --</option>
                 @foreach($allUsers as $user)
@@ -139,7 +139,7 @@
                   </tr>
                 @empty
                   <tr>
-                    <td colspan="4" class="text-center text-muted py-3">No permissions configured.</td>
+                    <td colspan="4" class="text-center text-muted py-3">{{ __('No permissions configured.') }}</td>
                   </tr>
                 @endforelse
               </tbody>
@@ -151,15 +151,15 @@
             @csrf
             <input type="hidden" name="_action" value="add_permission">
             <div class="col">
-              <label for="perm_action" class="form-label form-label-sm">Action <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label for="perm_action" class="form-label form-label-sm">{{ __('Action') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="text" name="action" id="perm_action" class="form-control form-control-sm" placeholder="{{ __('e.g. read, create, update, delete') }}" required>
             </div>
             <div class="col-3">
-              <label for="perm_object_id" class="form-label form-label-sm">Object ID <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label for="perm_object_id" class="form-label form-label-sm">{{ __('Object ID') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="number" name="object_id" id="perm_object_id" class="form-control form-control-sm" placeholder="{{ __('All') }}">
             </div>
             <div class="col-3">
-              <label for="perm_grant_deny" class="form-label form-label-sm">Grant/Deny <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label for="perm_grant_deny" class="form-label form-label-sm">{{ __('Grant/Deny') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select name="grant_deny" id="perm_grant_deny" class="form-select form-select-sm" required>
                 <option value="1">{{ __('Grant') }}</option>
                 <option value="0">{{ __('Deny') }}</option>

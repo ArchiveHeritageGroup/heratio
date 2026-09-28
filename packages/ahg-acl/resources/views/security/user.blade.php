@@ -9,7 +9,7 @@
   <div class="col-md-12">
 
     <h1 class="multiline">
-      User security clearance
+      {{ __('User security clearance') }}
       <span class="sub">{{ e($user->username ?? '') }}</span>
     </h1>
 
@@ -77,7 +77,7 @@
 
                 <div class="mb-4">
                   <label for="classification_id" class="form-label fw-bold">
-                    <i class="fas fa-lock me-1"></i>Clearance Level
+                    <i class="fas fa-lock me-1"></i>{{ __('Clearance Level') }}
                   </label>
                   <select name="classification_id" id="classification_id" class="form-select form-select-lg">
                     <option value="">-- Select Classification --</option>
@@ -96,19 +96,19 @@
 
                 <div class="mb-4">
                   <label for="expires_at" class="form-label fw-bold">
-                    <i class="fas fa-calendar-times me-1"></i>Expiry Date
+                    <i class="fas fa-calendar-times me-1"></i>{{ __('Expiry Date') }}
                   </label>
                   <input type="date" name="expires_at" id="expires_at" class="form-control"
                          value="{{ ($clearance && ($clearance->expires_at ?? null)) ? date('Y-m-d', strtotime($clearance->expires_at)) : '' }}"
                          min="{{ date('Y-m-d', strtotime('+1 day')) }}">
                   <div class="form-text">
-                    Leave empty for no automatic expiry.
+                    {{ __('Leave empty for no automatic expiry.') }}
                   </div>
                 </div>
 
                 <div class="mb-4">
                   <label for="notes" class="form-label fw-bold">
-                    <i class="fas fa-sticky-note me-1"></i>Notes
+                    <i class="fas fa-sticky-note me-1"></i>{{ __('Notes') }}
                   </label>
                   <textarea name="notes" id="notes" class="form-control" rows="3"
                             placeholder="{{ __('Enter any notes about this clearance...') }}">{{ $clearance->notes ?? '' }}</textarea>
@@ -196,9 +196,9 @@
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <p>Are you sure you want to revoke the security clearance for <strong>{{ e($user->username ?? '') }}</strong>?</p>
+          <p>{{ __('Are you sure you want to revoke the security clearance for') }} <strong>{{ e($user->username ?? '') }}</strong>?</p>
           <div class="mb-3">
-            <label class="form-label">Reason <span class="text-danger">*</span></label>
+            <label class="form-label">{{ __('Reason') }} <span class="text-danger">*</span></label>
             <textarea name="revoke_reason" class="form-control" rows="2" required></textarea>
           </div>
         </div>

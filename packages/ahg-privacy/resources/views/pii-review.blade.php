@@ -19,7 +19,7 @@
     <div class="card">
         <div class="card-header">
             <h5 class="mb-0">
-                <i class="fas fa-list me-2"></i>Pending Review
+                <i class="fas fa-list me-2"></i>{{ __('Pending Review') }}
                 <span class="badge bg-warning text-dark ms-2">{{ count($entities) }}</span>
             </h5>
         </div>
@@ -27,7 +27,7 @@
             @if(empty($entities) || count($entities) === 0)
                 <div class="text-center text-muted py-5">
                     <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
-                    <p>No pending PII entities to review</p>
+                    <p>{{ __('No pending PII entities to review') }}</p>
                 </div>
             @else
                 <table class="table table-hover mb-0">

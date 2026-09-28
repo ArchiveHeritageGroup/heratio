@@ -24,21 +24,21 @@
           <div id="storage-config-collapse" class="accordion-collapse collapse" aria-labelledby="storage-config-heading">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Enable storage service <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Enable storage service') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[storage_service_enabled]" id="ss_enabled_no" value="0" {{ ($settings['storage_service_enabled'] ?? '') != '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="ss_enabled_no">No <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-check-label" for="ss_enabled_no">{{ __('No ') }}<span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[storage_service_enabled]" id="ss_enabled_yes" value="1" {{ ($settings['storage_service_enabled'] ?? '') == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="ss_enabled_yes">Yes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-check-label" for="ss_enabled_yes">{{ __('Yes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                 </div>
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Storage service type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Storage service type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="settings[storage_service_type]" class="form-select">
                   <option value="">-- Select --</option>
                   <option value="archivematica" {{ ($settings['storage_service_type'] ?? '') == 'archivematica' ? 'selected' : '' }}>{{ __('Archivematica') }}</option>
@@ -49,18 +49,18 @@
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Storage service URL <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Storage service URL') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="url" name="settings[storage_service_url]" class="form-control" value="{{ e($settings['storage_service_url']) }}" placeholder="{{ __('https://storage.example.com') }}">
                 <small class="text-muted">{{ __('Full URL of the storage service API endpoint') }}</small>
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Storage service username <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Storage service username') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="settings[storage_service_username]" class="form-control" value="{{ e($settings['storage_service_username']) }}">
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Storage service API key <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Storage service API key') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="password" name="settings[storage_service_api_key]" class="form-control" value="" autocomplete="new-password" placeholder="{{ __('Leave blank to keep current') }}"> {{-- #1395(D) write-only --}}
                 <small class="text-muted">{{ __('The API key or password used to authenticate with the storage service') }}</small>
               </div>

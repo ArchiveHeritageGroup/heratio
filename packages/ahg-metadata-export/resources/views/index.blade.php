@@ -40,7 +40,7 @@
     <h2>{{ __('Select Export Format') }}</h2>
     <div class="card mb-4">
       <div class="card-header">
-        <h3 class="card-title mb-0">Supported Formats
+        <h3 class="card-title mb-0">{{ __('Supported Formats') }}
           <small class="text-muted">({{ count($formats ?? []) }} formats)</small>
         </h3>
       </div>
@@ -94,7 +94,7 @@
             <label for="slug" class="form-label">{{ __('Record Slug') }}</label>
             <input type="text" name="slug" id="slug" class="form-control" required
                    placeholder="{{ __('e.g., my-fonds') }}">
-            <div class="form-text">Enter the slug of the record to export.</div>
+            <div class="form-text">{{ __('Enter the slug of the record to export.') }}</div>
           </div>
 
           <div class="mb-3">
@@ -120,7 +120,7 @@
         <h3 class="card-title mb-0">{{ __('CLI Usage') }}</h3>
       </div>
       <div class="card-body">
-        <p class="small text-muted">For bulk exports, use the command line:</p>
+        <p class="small text-muted">{{ __('For bulk exports, use the command line:') }}</p>
         <pre class="bg-light p-2 small"><code>php artisan metadata:export --format=ead3 --slug=my-fonds --output=/exports/</code></pre>
         <pre class="bg-light p-2 small"><code>php artisan metadata:export --list</code></pre>
       </div>

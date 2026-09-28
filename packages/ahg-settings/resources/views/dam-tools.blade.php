@@ -12,7 +12,7 @@
     </div>
 
     <h1><i class="fas fa-photo-video text-info"></i> {{ __('Digital Asset Management Tools') }}</h1>
-    <p class="text-muted">Tools for managing digital assets, images, and documents</p>
+    <p class="text-muted">{{ __('Tools for managing digital assets, images, and documents') }}</p>
 
     @include('ahg-settings::_tiff-pdf-merge-settings')
 
@@ -22,7 +22,7 @@
           <div class="card-body text-center">
             <i class="fas fa-images fa-3x text-success mb-3"></i>
             <h5>{{ __('Digital Objects') }}</h5>
-            <p class="text-muted small">Browse and manage all digital objects in the system.</p>
+            <p class="text-muted small">{{ __('Browse and manage all digital objects in the system.') }}</p>
             <a href="{{ url('/digitalobject/browse') }}" class="btn atom-btn-outline-success"><i class="fas fa-search me-1"></i>{{ __('Browse') }}</a>
           </div>
         </div>
@@ -32,7 +32,7 @@
           <div class="card-body text-center">
             <i class="fas fa-tasks fa-3x text-info mb-3"></i>
             <h5>{{ __('Background Jobs') }}</h5>
-            <p class="text-muted small">View status of all processing jobs.</p>
+            <p class="text-muted small">{{ __('View status of all processing jobs.') }}</p>
             <a href="{{ url('/admin/jobs') }}" class="btn atom-btn-outline-info"><i class="fas fa-list me-1"></i>{{ __('View Jobs') }}</a>
           </div>
         </div>

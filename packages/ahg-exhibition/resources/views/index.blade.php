@@ -63,7 +63,7 @@
   <div class="col-md-3 col-sm-6">
     <div class="card border-0 shadow-sm h-100">
       <div class="card-body text-center">
-        <div class="text-muted text-uppercase small mb-1">Total Exhibitions</div>
+        <div class="text-muted text-uppercase small mb-1">{{ __('Total Exhibitions') }}</div>
         <div class="display-6 fw-semibold text-primary mb-0">{{ $stats['total_exhibitions'] ?? 0 }}</div>
       </div>
     </div>
@@ -71,7 +71,7 @@
   <div class="col-md-3 col-sm-6">
     <div class="card border-0 shadow-sm h-100">
       <div class="card-body text-center">
-        <div class="text-muted text-uppercase small mb-1">Currently Open</div>
+        <div class="text-muted text-uppercase small mb-1">{{ __('Currently Open') }}</div>
         <div class="display-6 fw-semibold text-success mb-0">{{ $stats['current_exhibitions'] ?? 0 }}</div>
       </div>
     </div>
@@ -79,7 +79,7 @@
   <div class="col-md-3 col-sm-6">
     <div class="card border-0 shadow-sm h-100">
       <div class="card-body text-center">
-        <div class="text-muted text-uppercase small mb-1">Upcoming</div>
+        <div class="text-muted text-uppercase small mb-1">{{ __('Upcoming') }}</div>
         <div class="display-6 fw-semibold text-info mb-0">{{ $stats['upcoming_exhibitions'] ?? 0 }}</div>
       </div>
     </div>
@@ -87,7 +87,7 @@
   <div class="col-md-3 col-sm-6">
     <div class="card border-0 shadow-sm h-100">
       <div class="card-body text-center">
-        <div class="text-muted text-uppercase small mb-1">Objects on Display</div>
+        <div class="text-muted text-uppercase small mb-1">{{ __('Objects on Display') }}</div>
         <div class="display-6 fw-semibold text-secondary mb-0">{{ $stats['total_objects_on_display'] ?? 0 }}</div>
       </div>
     </div>
@@ -101,13 +101,13 @@
     <div class="card shadow-sm mb-4">
       <div class="card-header bg-white d-flex justify-content-between align-items-center">
         <h5 class="mb-0">{{ __('Currently Open') }}</h5>
-        <a href="{{ route('exhibition.index', ['status' => 'open']) }}" class="btn btn-sm btn-outline-primary">View All</a>
+        <a href="{{ route('exhibition.index', ['status' => 'open']) }}" class="btn btn-sm btn-outline-primary">{{ __('View All') }}</a>
       </div>
       <div class="card-body p-0">
         @if(empty($currentExhibitions))
           <div class="p-4 text-center text-muted">
             <i class="fas fa-calendar-check fa-2x mb-2 d-block"></i>
-            <p class="mb-0">No exhibitions currently open</p>
+            <p class="mb-0">{{ __('No exhibitions currently open') }}</p>
           </div>
         @else
           <div class="list-group list-group-flush">
@@ -148,13 +148,13 @@
     <div class="card shadow-sm mb-4">
       <div class="card-header bg-white d-flex justify-content-between align-items-center">
         <h5 class="mb-0">{{ __('Upcoming Exhibitions') }}</h5>
-        <a href="{{ route('exhibition.index', ['status' => 'preparation']) }}" class="btn btn-sm btn-outline-primary">View All</a>
+        <a href="{{ route('exhibition.index', ['status' => 'preparation']) }}" class="btn btn-sm btn-outline-primary">{{ __('View All') }}</a>
       </div>
       <div class="card-body p-0">
         @if(empty($upcomingExhibitions))
           <div class="p-4 text-center text-muted">
             <i class="fas fa-calendar fa-2x mb-2 d-block"></i>
-            <p class="mb-0">No upcoming exhibitions scheduled</p>
+            <p class="mb-0">{{ __('No upcoming exhibitions scheduled') }}</p>
           </div>
         @else
           <div class="list-group list-group-flush">
@@ -187,7 +187,7 @@
       </div>
       <div class="card-body">
         @if(empty($stats['by_status']))
-          <p class="text-muted mb-0 text-center">No workflow data available.</p>
+          <p class="text-muted mb-0 text-center">{{ __('No workflow data available.') }}</p>
         @else
           <div class="row text-center g-3">
             @foreach($stats['by_status'] as $statusKey => $count)
@@ -239,7 +239,7 @@
           </div>
           <div class="col-md-2 text-end">
             <button type="submit" class="btn btn-primary btn-sm">{{ __('Filter') }}</button>
-            <a href="{{ route('exhibition.index') }}#all-exhibitions" class="btn btn-outline-secondary btn-sm">Clear</a>
+            <a href="{{ route('exhibition.index') }}#all-exhibitions" class="btn btn-outline-secondary btn-sm">{{ __('Clear') }}</a>
           </div>
         </form>
       </div>
@@ -247,7 +247,7 @@
         @if(empty($exhibitions) || (is_object($exhibitions) && $exhibitions->isEmpty()))
           <div class="p-4 text-center text-muted">
             <i class="fas fa-image fa-2x mb-2 d-block"></i>
-            <p class="mb-0">No exhibitions found</p>
+            <p class="mb-0">{{ __('No exhibitions found') }}</p>
           </div>
         @else
           <div class="table-responsive">
@@ -429,7 +429,7 @@
             @endforeach
           </ul>
         @else
-          <p class="small text-muted mb-0">No events scheduled</p>
+          <p class="small text-muted mb-0">{{ __('No events scheduled') }}</p>
         @endif
       </div>
     </div>

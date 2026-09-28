@@ -29,7 +29,7 @@
       <div class="card text-center">
         <div class="card-body py-2">
           <div class="fs-3 fw-bold">{{ number_format($stats['total']) }}</div>
-          <div class="small text-muted">Total Detected</div>
+          <div class="small text-muted">{{ __('Total Detected') }}</div>
         </div>
       </div>
     </div>
@@ -37,7 +37,7 @@
       <div class="card text-center border-warning">
         <div class="card-body py-2">
           <div class="fs-3 fw-bold text-warning">{{ number_format($stats['pending']) }}</div>
-          <div class="small text-muted">Pending Review</div>
+          <div class="small text-muted">{{ __('Pending Review') }}</div>
         </div>
       </div>
     </div>
@@ -45,7 +45,7 @@
       <div class="card text-center border-danger">
         <div class="card-body py-2">
           <div class="fs-3 fw-bold text-danger">{{ number_format($stats['confirmed']) }}</div>
-          <div class="small text-muted">Confirmed</div>
+          <div class="small text-muted">{{ __('Confirmed') }}</div>
         </div>
       </div>
     </div>
@@ -53,7 +53,7 @@
       <div class="card text-center border-success">
         <div class="card-body py-2">
           <div class="fs-3 fw-bold text-success">{{ number_format($stats['merged']) }}</div>
-          <div class="small text-muted">Merged</div>
+          <div class="small text-muted">{{ __('Merged') }}</div>
         </div>
       </div>
     </div>
@@ -61,7 +61,7 @@
       <div class="card text-center border-secondary">
         <div class="card-body py-2">
           <div class="fs-3 fw-bold text-secondary">{{ number_format($stats['dismissed']) }}</div>
-          <div class="small text-muted">Dismissed</div>
+          <div class="small text-muted">{{ __('Dismissed') }}</div>
         </div>
       </div>
     </div>
@@ -69,7 +69,7 @@
       <div class="card text-center border-primary">
         <div class="card-body py-2">
           <div class="fs-3 fw-bold text-primary">{{ number_format($stats['activeRules']) }}</div>
-          <div class="small text-muted">Active Rules</div>
+          <div class="small text-muted">{{ __('Active Rules') }}</div>
         </div>
       </div>
     </div>
@@ -82,11 +82,11 @@
         <div class="card-header d-flex align-items-center" >
           <strong>{{ __('Pending Review') }}</strong>
           <span class="badge bg-warning text-dark ms-2">{{ number_format($stats['pending']) }}</span>
-          <a href="{{ route('dedupe.browse', ['status' => 'pending']) }}" class="ms-auto small">View all</a>
+          <a href="{{ route('dedupe.browse', ['status' => 'pending']) }}" class="ms-auto small">{{ __('View all') }}</a>
         </div>
         <div class="card-body p-0">
           @if($topPending->isEmpty())
-            <div class="p-3 text-muted">No pending duplicates.</div>
+            <div class="p-3 text-muted">{{ __('No pending duplicates.') }}</div>
           @else
             <div class="table-responsive">
               <table class="table table-bordered table-striped mb-0">
@@ -155,7 +155,7 @@
               <span class="badge bg-secondary rounded-pill">{{ number_format($mc->total) }}</span>
             </li>
           @empty
-            <li class="list-group-item text-muted">No detection data.</li>
+            <li class="list-group-item text-muted">{{ __('No detection data.') }}</li>
           @endforelse
         </ul>
       </div>
@@ -188,8 +188,8 @@
             </li>
           @empty
             <li class="list-group-item text-muted">
-              No scans yet.
-              <a href="{{ route('dedupe.scan') }}" class="btn btn-sm btn-primary mt-2 d-block">Run First Scan</a>
+              {{ __('No scans yet.') }}
+              <a href="{{ route('dedupe.scan') }}" class="btn btn-sm btn-primary mt-2 d-block">{{ __('Run First Scan') }}</a>
             </li>
           @endforelse
         </ul>

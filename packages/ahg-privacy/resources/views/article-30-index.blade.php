@@ -26,7 +26,7 @@
       <ul class="dropdown-menu dropdown-menu-end">
         <li><a class="dropdown-item" href="{{ route('ahgprivacy.article-30.export', ['format' => 'json']) }}">JSON</a></li>
         <li><a class="dropdown-item" href="{{ route('ahgprivacy.article-30.export', ['format' => 'csv']) }}">CSV</a></li>
-        <li><a class="dropdown-item" href="{{ route('ahgprivacy.article-30.export', ['format' => 'markdown']) }}">Markdown</a></li>
+        <li><a class="dropdown-item" href="{{ route('ahgprivacy.article-30.export', ['format' => 'markdown']) }}">{{ __('Markdown') }}</a></li>
       </ul>
     </div>
   </div>

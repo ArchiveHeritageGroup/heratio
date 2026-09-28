@@ -15,7 +15,7 @@
 
 @section('title-block')
 <h1><i class="fas fa-file-import me-2"></i>{{ __('Data Ingest') }}</h1>
-<p class="text-muted">Data ingest pipeline and processing options</p>
+<p class="text-muted">{{ __('Data ingest pipeline and processing options') }}</p>
 @endsection
 
 @section('content')
@@ -58,7 +58,7 @@
                 <strong><i class="fas fa-file-alt me-1 text-primary"></i>OCR (Tesseract)</strong>
               </label>
             </div>
-            <div class="form-text">Extract text from images and PDFs using Tesseract / pdftotext.</div>
+            <div class="form-text">{{ __('Extract text from images and PDFs using Tesseract / pdftotext.') }}</div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch">
@@ -77,7 +77,7 @@
                      name="settings[ingest_summarize]" value="true"
                      {{ ($settings['ingest_summarize'] ?? '') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="ingest_summarize">
-                <strong><i class="fas fa-compress-alt me-1 text-warning"></i>Auto-Summarize</strong>
+                <strong><i class="fas fa-compress-alt me-1 text-warning"></i>{{ __('Auto-Summarize') }}</strong>
               </label>
             </div>
             <div class="form-text">Generate scope and content summaries for records with extensive text.</div>
@@ -110,10 +110,10 @@
                      name="settings[ingest_face_detect]" value="true"
                      {{ ($settings['ingest_face_detect'] ?? '') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="ingest_face_detect">
-                <strong><i class="fas fa-user-circle me-1 text-dark"></i>Face Detection</strong>
+                <strong><i class="fas fa-user-circle me-1 text-dark"></i>{{ __('Face Detection') }}</strong>
               </label>
             </div>
-            <div class="form-text">Detect and match faces in images to authority records.</div>
+            <div class="form-text">{{ __('Detect and match faces in images to authority records.') }}</div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch">

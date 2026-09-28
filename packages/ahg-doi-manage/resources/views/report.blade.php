@@ -37,7 +37,7 @@
         <div class="card text-center border-primary">
           <div class="card-body py-2">
             <div class="fs-3 fw-bold text-primary">{{ number_format($stats['total'] ?? 0) }}</div>
-            <div class="small text-muted">Total DOIs</div>
+            <div class="small text-muted">{{ __('Total DOIs') }}</div>
           </div>
         </div>
       </div>
@@ -45,7 +45,7 @@
         <div class="card text-center border-success">
           <div class="card-body py-2">
             <div class="fs-3 fw-bold text-success">{{ number_format($stats['findable'] ?? 0) }}</div>
-            <div class="small text-muted">Findable</div>
+            <div class="small text-muted">{{ __('Findable') }}</div>
           </div>
         </div>
       </div>
@@ -53,7 +53,7 @@
         <div class="card text-center border-info">
           <div class="card-body py-2">
             <div class="fs-3 fw-bold text-info">{{ number_format($stats['registered'] ?? 0) }}</div>
-            <div class="small text-muted">Registered</div>
+            <div class="small text-muted">{{ __('Registered') }}</div>
           </div>
         </div>
       </div>
@@ -61,7 +61,7 @@
         <div class="card text-center border-secondary">
           <div class="card-body py-2">
             <div class="fs-3 fw-bold text-secondary">{{ number_format($stats['draft'] ?? 0) }}</div>
-            <div class="small text-muted">Draft</div>
+            <div class="small text-muted">{{ __('Draft') }}</div>
           </div>
         </div>
       </div>
@@ -69,7 +69,7 @@
         <div class="card text-center border-warning">
           <div class="card-body py-2">
             <div class="fs-3 fw-bold text-warning">{{ number_format($stats['pending'] ?? 0) }}</div>
-            <div class="small text-muted">Queue Pending</div>
+            <div class="small text-muted">{{ __('Queue Pending') }}</div>
           </div>
         </div>
       </div>
@@ -77,7 +77,7 @@
         <div class="card text-center border-danger">
           <div class="card-body py-2">
             <div class="fs-3 fw-bold text-danger">{{ number_format($stats['failed'] ?? 0) }}</div>
-            <div class="small text-muted">Failed</div>
+            <div class="small text-muted">{{ __('Failed') }}</div>
           </div>
         </div>
       </div>
@@ -123,7 +123,7 @@
                 </tbody>
               </table>
             @else
-              <p class="text-muted text-center mb-0">No monthly statistics available yet.</p>
+              <p class="text-muted text-center mb-0">{{ __('No monthly statistics available yet.') }}</p>
             @endif
           </div>
         </div>
@@ -166,7 +166,7 @@
                 </tbody>
               </table>
             @else
-              <p class="text-muted text-center mb-0">No repository breakdown available yet.</p>
+              <p class="text-muted text-center mb-0">{{ __('No repository breakdown available yet.') }}</p>
             @endif
           </div>
         </div>
@@ -181,14 +181,14 @@
       <div class="card-body">
         <form method="get" action="{{ route('doi.report') }}" class="row g-3">
           <div class="col-md-3">
-            <label class="form-label">Format <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Format') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="format" class="form-select">
               <option value="csv">CSV</option>
               <option value="json">JSON</option>
             </select>
           </div>
           <div class="col-md-3">
-            <label class="form-label">Status <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Status') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="status" class="form-select">
               <option value="">{{ __('All Statuses') }}</option>
               <option value="findable">{{ __('Findable') }}</option>
@@ -198,11 +198,11 @@
             </select>
           </div>
           <div class="col-md-2">
-            <label class="form-label">From Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('From Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" name="from_date" class="form-control">
           </div>
           <div class="col-md-2">
-            <label class="form-label">To Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('To Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" name="to_date" class="form-control">
           </div>
           <div class="col-md-2 d-flex align-items-end">

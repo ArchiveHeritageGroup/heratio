@@ -19,16 +19,16 @@
       @if($requestRow->decision_channel === 'offline')<span class="badge bg-info text-dark">decided offline</span>@endif
     </div>
     <div class="d-flex gap-2">
-      <a href="{{ route('artwork-request.index') }}" class="btn btn-outline-secondary btn-sm">My requests</a>
+      <a href="{{ route('artwork-request.index') }}" class="btn btn-outline-secondary btn-sm">{{ __('My requests') }}</a>
       @if($canReview && $anyApproved && !$requestRow->loan_id)
         <form method="post" action="{{ route('artwork-request.create-loan', ['id' => $requestRow->id]) }}"
               onsubmit="return confirm('Create a loan record for the approved works? Movement and condition reports are tracked there.');">
           @csrf
-          <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-exchange-alt me-1"></i> Create loan record</button>
+          <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-exchange-alt me-1"></i> {{ __('Create loan record') }}</button>
         </form>
       @endif
       @if($requestRow->loan_id)
-        <a href="{{ url('/loan/'.$requestRow->loan_id) }}" class="btn btn-outline-primary btn-sm">View loan</a>
+        <a href="{{ url('/loan/'.$requestRow->loan_id) }}" class="btn btn-outline-primary btn-sm">{{ __('View loan') }}</a>
       @endif
     </div>
   </div>
@@ -36,7 +36,7 @@
   <div class="row g-4">
     <div class="col-lg-8">
       <div class="card mb-3">
-        <div class="card-header">Works</div>
+        <div class="card-header">{{ __('Works') }}</div>
         <ul class="list-group list-group-flush">
           @foreach($works as $w)
             <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -51,17 +51,17 @@
       </div>
 
       <div class="card mb-3">
-        <div class="card-header">Details</div>
+        <div class="card-header">{{ __('Details') }}</div>
         <div class="card-body">
           <dl class="row mb-0">
-            <dt class="col-sm-3">Requester</dt><dd class="col-sm-9">{{ $requestRow->requester_name ?: '-' }} {{ $requestRow->requester_email ? '('.$requestRow->requester_email.')' : '' }}</dd>
-            <dt class="col-sm-3">Department</dt><dd class="col-sm-9">{{ $requestRow->department ?: '-' }}</dd>
-            <dt class="col-sm-3">Period</dt><dd class="col-sm-9">{{ $requestRow->requested_from }} to {{ $requestRow->requested_to }}</dd>
-            <dt class="col-sm-3">Purpose</dt><dd class="col-sm-9">{{ $requestRow->purpose ?: '-' }}</dd>
-            <dt class="col-sm-3">Placement</dt><dd class="col-sm-9">{{ trim(($requestRow->placement_building ?? '').' '.($requestRow->placement_floor ?? '').' '.($requestRow->placement_room ?? '')) ?: '-' }}
+            <dt class="col-sm-3">{{ __('Requester') }}</dt><dd class="col-sm-9">{{ $requestRow->requester_name ?: '-' }} {{ $requestRow->requester_email ? '('.$requestRow->requester_email.')' : '' }}</dd>
+            <dt class="col-sm-3">{{ __('Department') }}</dt><dd class="col-sm-9">{{ $requestRow->department ?: '-' }}</dd>
+            <dt class="col-sm-3">{{ __('Period') }}</dt><dd class="col-sm-9">{{ $requestRow->requested_from }} to {{ $requestRow->requested_to }}</dd>
+            <dt class="col-sm-3">{{ __('Purpose') }}</dt><dd class="col-sm-9">{{ $requestRow->purpose ?: '-' }}</dd>
+            <dt class="col-sm-3">{{ __('Placement') }}</dt><dd class="col-sm-9">{{ trim(($requestRow->placement_building ?? '').' '.($requestRow->placement_floor ?? '').' '.($requestRow->placement_room ?? '')) ?: '-' }}
               @if($requestRow->placement_occupant)<span class="text-muted">({{ $requestRow->placement_occupant }})</span>@endif</dd>
-            @if($requestRow->justification)<dt class="col-sm-3">Justification</dt><dd class="col-sm-9">{{ $requestRow->justification }}</dd>@endif
-            @if($requestRow->review_notes)<dt class="col-sm-3">Review notes</dt><dd class="col-sm-9">{{ $requestRow->review_notes }}</dd>@endif
+            @if($requestRow->justification)<dt class="col-sm-3">{{ __('Justification') }}</dt><dd class="col-sm-9">{{ $requestRow->justification }}</dd>@endif
+            @if($requestRow->review_notes)<dt class="col-sm-3">{{ __('Review notes') }}</dt><dd class="col-sm-9">{{ $requestRow->review_notes }}</dd>@endif
           </dl>
         </div>
       </div>
@@ -69,7 +69,7 @@
 
     <div class="col-lg-4">
       <div class="card">
-        <div class="card-header">History</div>
+        <div class="card-header">{{ __('History') }}</div>
         <ul class="list-group list-group-flush">
           @forelse($log as $l)
             <li class="list-group-item">
@@ -81,7 +81,7 @@
               @if($l->detail)<div class="small">{{ $l->detail }}</div>@endif
             </li>
           @empty
-            <li class="list-group-item text-muted">No history yet.</li>
+            <li class="list-group-item text-muted">{{ __('No history yet.') }}</li>
           @endforelse
         </ul>
       </div>

@@ -15,7 +15,7 @@
 
 @section('title-block')
 <h1><i class="fas fa-user-shield me-2"></i>{{ __('Data Protection') }}</h1>
-<p class="text-muted">POPIA / GDPR compliance and data handling</p>
+<p class="text-muted">{{ __('POPIA / GDPR compliance and data handling') }}</p>
 @endsection
 
 @section('content')
@@ -49,7 +49,7 @@
                      {{ ($settings['dp_enabled'] ?? 'true') === 'true' || ($settings['dp_enabled'] ?? '') === '1' ? 'checked' : '' }}>
               <label class="form-check-label fw-bold" for="dp_enabled">{{ __('Enable Data Protection Module') }}</label>
             </div>
-            <div class="form-text">Enable data protection module</div>
+            <div class="form-text">{{ __('Enable data protection module') }}</div>
           </div>
           <div class="col-md-6">
             <label for="dp_default_regulation" class="form-label fw-bold">{{ __('Default Regulation') }}</label>
@@ -71,7 +71,7 @@
                      {{ ($settings['dp_notify_overdue'] ?? 'true') === 'true' || ($settings['dp_notify_overdue'] ?? '') === '1' ? 'checked' : '' }}>
               <label class="form-check-label fw-bold" for="dp_notify_overdue">{{ __('Notify Overdue') }}</label>
             </div>
-            <div class="form-text">Send email notifications for overdue requests</div>
+            <div class="form-text">{{ __('Send email notifications for overdue requests') }}</div>
           </div>
           <div class="col-md-6">
             <label for="dp_notify_email" class="form-label fw-bold">{{ __('Notification Email') }}</label>

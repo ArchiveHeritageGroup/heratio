@@ -16,11 +16,11 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
-                    <li class="breadcrumb-item active">Records Transfers</li>
+                    <li class="breadcrumb-item active">{{ __('Records Transfers') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-truck me-2"></i>{{ __('Records Transfers') }}</h1>
-            <p class="text-muted">Transfers of records to the National Archives of Zimbabwe</p>
+            <p class="text-muted">{{ __('Transfers of records to the National Archives of Zimbabwe') }}</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgnaz.transfer-create') }}" class="btn btn-primary">
@@ -32,12 +32,12 @@
     <div class="card mb-4">
         <div class="card-body pb-0">
             <ul class="nav nav-tabs" role="tablist">
-                <li class="nav-item"><a class="nav-link {{ !$currentStatus ? 'active' : '' }}" href="{{ route('ahgnaz.transfers') }}">All</a></li>
-                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'proposed' ? 'active' : '' }}" href="{{ route('ahgnaz.transfers', ['status' => 'proposed']) }}">Proposed</a></li>
-                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'scheduled' ? 'active' : '' }}" href="{{ route('ahgnaz.transfers', ['status' => 'scheduled']) }}">Scheduled</a></li>
-                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'in_transit' ? 'active' : '' }}" href="{{ route('ahgnaz.transfers', ['status' => 'in_transit']) }}">In Transit</a></li>
-                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'received' ? 'active' : '' }}" href="{{ route('ahgnaz.transfers', ['status' => 'received']) }}">Received</a></li>
-                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'accessioned' ? 'active' : '' }}" href="{{ route('ahgnaz.transfers', ['status' => 'accessioned']) }}">Accessioned</a></li>
+                <li class="nav-item"><a class="nav-link {{ !$currentStatus ? 'active' : '' }}" href="{{ route('ahgnaz.transfers') }}">{{ __('All') }}</a></li>
+                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'proposed' ? 'active' : '' }}" href="{{ route('ahgnaz.transfers', ['status' => 'proposed']) }}">{{ __('Proposed') }}</a></li>
+                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'scheduled' ? 'active' : '' }}" href="{{ route('ahgnaz.transfers', ['status' => 'scheduled']) }}">{{ __('Scheduled') }}</a></li>
+                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'in_transit' ? 'active' : '' }}" href="{{ route('ahgnaz.transfers', ['status' => 'in_transit']) }}">{{ __('In Transit') }}</a></li>
+                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'received' ? 'active' : '' }}" href="{{ route('ahgnaz.transfers', ['status' => 'received']) }}">{{ __('Received') }}</a></li>
+                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'accessioned' ? 'active' : '' }}" href="{{ route('ahgnaz.transfers', ['status' => 'accessioned']) }}">{{ __('Accessioned') }}</a></li>
             </ul>
         </div>
     </div>
@@ -47,7 +47,7 @@
             @if ($transfers->isEmpty())
                 <div class="p-4 text-center text-muted">
                     <i class="fas fa-truck fa-3x mb-3"></i>
-                    <p>No transfers found.</p>
+                    <p>{{ __('No transfers found.') }}</p>
                 </div>
             @else
                 <table class="table table-hover mb-0">

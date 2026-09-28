@@ -8,8 +8,8 @@
         <div>
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb mb-1">
-                    <li class="breadcrumb-item"><a href="{{ route('federation.index') }}">Federation</a></li>
-                    <li class="breadcrumb-item active">Harvest</li>
+                    <li class="breadcrumb-item"><a href="{{ route('federation.index') }}">{{ __('Federation') }}</a></li>
+                    <li class="breadcrumb-item active">{{ __('Harvest') }}</li>
                 </ol>
             </nav>
             <h4 class="mb-0"><i class="bi bi-cloud-download me-2"></i>{{ __('Harvest Records') }}</h4>
@@ -36,7 +36,7 @@
                 @csrf
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="peer_id" class="form-label">Select Peer <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                        <label for="peer_id" class="form-label">{{ __('Select Peer') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <select class="form-select" id="peer_id" name="peer_id" required>
                             <option value="">-- Select peer --</option>
                             <option value="all">{{ __('All active peers') }}</option>

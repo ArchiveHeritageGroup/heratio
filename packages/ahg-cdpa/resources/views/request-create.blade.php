@@ -21,8 +21,8 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.index') }}">CDPA</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.requests') }}">Requests</a></li>
-                    <li class="breadcrumb-item active">New Request</li>
+                    <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.requests') }}">{{ __('Requests') }}</a></li>
+                    <li class="breadcrumb-item active">{{ __('New Request') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-user-clock me-2"></i>{{ __('Log Data Subject Request') }}</h1>
@@ -37,11 +37,11 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Full Name') }} <span class="text-danger">*</span></label>
                             <input type="text" name="data_subject_name" class="form-control" autocomplete="off" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Email') }} <span class="text-danger">*</span></label>
                             <input type="email" name="data_subject_email" class="form-control" required>
                         </div>
                         <div class="col-md-6">
@@ -61,7 +61,7 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Request Type <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Request Type') }} <span class="text-danger">*</span></label>
                             <select name="request_type" class="form-select" required>
                                 <option value="">{{ __('Select...') }}</option>
                                 <option value="access">{{ __('Access - Obtain copy of personal data') }}</option>
@@ -83,15 +83,15 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Request Date <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Request Date') }} <span class="text-danger">*</span></label>
                             <input type="date" name="request_date" class="form-control" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Due Date <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Due Date') }} <span class="text-danger">*</span></label>
                             <input type="date" name="due_date" class="form-control" value="{{ \Carbon\Carbon::now()->addDays(30)->format('Y-m-d') }}" required>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Description <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Description') }} <span class="text-danger">*</span></label>
                             <textarea name="description" class="form-control" rows="4" required placeholder="{{ __('Describe the request and what personal data is involved...') }}"></textarea>
                         </div>
                     </div>
@@ -111,7 +111,7 @@
                         <i class="fas fa-save me-2"></i>{{ __('Log Request') }}
                     </button>
                     <a href="{{ route('ahgcdpa.requests') }}" class="btn btn-outline-secondary">
-                        Cancel
+                        {{ __('Cancel') }}
                     </a>
                 </div>
             </div>

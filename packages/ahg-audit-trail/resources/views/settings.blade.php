@@ -24,7 +24,7 @@
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" id="audit_enabled" name="settings[audit_enabled]"
                  value="1" @checked($settings['audit_enabled'] === '1')>
-          <label class="form-check-label" for="audit_enabled">Enable Audit Logging <span class="badge bg-secondary ms-1">{{ __('Recommended') }}</span></label>
+          <label class="form-check-label" for="audit_enabled">{{ __('Enable Audit Logging') }} <span class="badge bg-secondary ms-1">{{ __('Recommended') }}</span></label>
         </div>
       </div>
     </div>
@@ -40,34 +40,34 @@
             <div class="form-check form-switch mb-3">
               <input class="form-check-input" type="checkbox" id="audit_views" name="settings[audit_views]"
                      value="1" @checked($settings['audit_views'] === '1')>
-              <label class="form-check-label" for="audit_views">Log View Actions <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-check-label" for="audit_views">{{ __('Log View Actions') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
             <div class="form-check form-switch mb-3">
               <input class="form-check-input" type="checkbox" id="audit_searches" name="settings[audit_searches]"
                      value="1" @checked($settings['audit_searches'] === '1')>
-              <label class="form-check-label" for="audit_searches">Log Search Queries <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-check-label" for="audit_searches">{{ __('Log Search Queries') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
             <div class="form-check form-switch mb-3">
               <input class="form-check-input" type="checkbox" id="audit_downloads" name="settings[audit_downloads]"
                      value="1" @checked($settings['audit_downloads'] === '1')>
-              <label class="form-check-label" for="audit_downloads">Log File Downloads <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-check-label" for="audit_downloads">{{ __('Log File Downloads') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch mb-3">
               <input class="form-check-input" type="checkbox" id="audit_api_requests" name="settings[audit_api_requests]"
                      value="1" @checked($settings['audit_api_requests'] === '1')>
-              <label class="form-check-label" for="audit_api_requests">Log API Requests <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-check-label" for="audit_api_requests">{{ __('Log API Requests') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
             <div class="form-check form-switch mb-3">
               <input class="form-check-input" type="checkbox" id="audit_authentication" name="settings[audit_authentication]"
                      value="1" @checked($settings['audit_authentication'] === '1')>
-              <label class="form-check-label" for="audit_authentication">Log Authentication Events <span class="badge bg-secondary ms-1">{{ __('Recommended') }}</span></label>
+              <label class="form-check-label" for="audit_authentication">{{ __('Log Authentication Events') }} <span class="badge bg-secondary ms-1">{{ __('Recommended') }}</span></label>
             </div>
             <div class="form-check form-switch mb-3">
               <input class="form-check-input" type="checkbox" id="audit_sensitive_access" name="settings[audit_sensitive_access]"
                      value="1" @checked($settings['audit_sensitive_access'] === '1')>
-              <label class="form-check-label" for="audit_sensitive_access">Log Classified Access <span class="badge bg-secondary ms-1">{{ __('Recommended') }}</span></label>
+              <label class="form-check-label" for="audit_sensitive_access">{{ __('Log Classified Access') }} <span class="badge bg-secondary ms-1">{{ __('Recommended') }}</span></label>
             </div>
           </div>
         </div>
@@ -83,7 +83,7 @@
         <div class="form-check form-switch mb-3">
           <input class="form-check-input" type="checkbox" id="audit_mask_sensitive" name="settings[audit_mask_sensitive]"
                  value="1" @checked($settings['audit_mask_sensitive'] === '1')>
-          <label class="form-check-label" for="audit_mask_sensitive">Mask Sensitive Data <span class="badge bg-secondary ms-1">{{ __('Recommended') }}</span></label>
+          <label class="form-check-label" for="audit_mask_sensitive">{{ __('Mask Sensitive Data') }} <span class="badge bg-secondary ms-1">{{ __('Recommended') }}</span></label>
         </div>
         <div class="form-check form-switch mb-3">
           <input class="form-check-input" type="checkbox" id="audit_ip_anonymize" name="settings[audit_ip_anonymize]"

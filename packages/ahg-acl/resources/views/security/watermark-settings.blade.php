@@ -9,7 +9,7 @@
       <h4 class="mb-0">{{ __('Watermark Settings') }}</h4>
     </div>
     <div class="card-body">
-      <p>Configure default watermark behavior for all digital objects.</p>
+      <p>{{ __('Configure default watermark behavior for all digital objects.') }}</p>
     </div>
   </div>
 @endsection
@@ -102,7 +102,7 @@
                  name="apply_watermark_on_view" value="1"
                  {{ ($applyOnView ?? '') === '1' ? 'checked' : '' }}>
           <label class="form-check-label" for="apply_watermark_on_view">
-            Apply watermark when viewing images
+            {{ __('Apply watermark when viewing images') }}
           </label>
         </div>
         <small class="text-muted">{{ __('Watermark will be overlaid on IIIF image viewer.') }}</small>
@@ -114,7 +114,7 @@
                  name="apply_watermark_on_download" value="1"
                  {{ ($applyOnDownload ?? '') === '1' ? 'checked' : '' }}>
           <label class="form-check-label" for="apply_watermark_on_download">
-            Apply watermark on download
+            {{ __('Apply watermark on download') }}
           </label>
         </div>
         <small class="text-muted">{{ __('Downloaded images will have watermark applied. Master files are never modified.') }}</small>
@@ -126,7 +126,7 @@
                  name="security_watermark_override" value="1"
                  {{ ($securityOverride ?? '') === '1' ? 'checked' : '' }}>
           <label class="form-check-label" for="security_watermark_override">
-            Security classification overrides default
+            {{ __('Security classification overrides default') }}
           </label>
         </div>
         <small class="text-muted">{{ __('Security classification watermarks take priority over default/custom watermarks.') }}</small>
@@ -223,7 +223,7 @@
         </div>
       </div>
       @else
-      <p class="text-muted"><em>No custom watermarks uploaded yet.</em></p>
+      <p class="text-muted"><em>{{ __('No custom watermarks uploaded yet.') }}</em></p>
       @endif
 
     </div>

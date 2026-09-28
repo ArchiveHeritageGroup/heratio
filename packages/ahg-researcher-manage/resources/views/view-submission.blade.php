@@ -2,8 +2,8 @@
 
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb mb-0">
-      <li class="breadcrumb-item"><a href="@php echo route('researcher.dashboard') @endphp">Researcher</a></li>
-      <li class="breadcrumb-item"><a href="@php echo route('researcher.submissions') @endphp">Submissions</a></li>
+      <li class="breadcrumb-item"><a href="@php echo route('researcher.dashboard') @endphp">{{ __('Researcher') }}</a></li>
+      <li class="breadcrumb-item"><a href="@php echo route('researcher.submissions') @endphp">{{ __('Submissions') }}</a></li>
       <li class="breadcrumb-item active">@php echo htmlspecialchars($submission->title) @endphp</li>
     </ol>
   </nav>
@@ -55,13 +55,13 @@
       <!-- Return/Reject comments -->
       @if($submission->status === 'returned' && $submission->return_comment)
         <div class="alert alert-warning">
-          <strong><i class="bi bi-exclamation-triangle me-1"></i>Returned by reviewer:</strong>
+          <strong><i class="bi bi-exclamation-triangle me-1"></i>{{ __('Returned by reviewer:') }}</strong>
           <p class="mb-0 mt-1">@php echo nl2br(htmlspecialchars($submission->return_comment)) @endphp</p>
         </div>
       @endif
       @if($submission->status === 'rejected' && $submission->reject_comment)
         <div class="alert alert-danger">
-          <strong><i class="bi bi-x-circle me-1"></i>Rejected:</strong>
+          <strong><i class="bi bi-x-circle me-1"></i>{{ __('Rejected:') }}</strong>
           <p class="mb-0 mt-1">@php echo nl2br(htmlspecialchars($submission->reject_comment)) @endphp</p>
         </div>
       @endif
@@ -77,7 +77,7 @@
               <i class="bi bi-inbox" style="font-size: 1.5rem;"></i>
               <p class="mt-2 mb-0">No items yet.
                 @if(in_array($submission->status, ['draft', 'returned']))
-                  <a href="{{ route('researcher.addItem', ['id' => $submission->id]) }}">Add your first item</a>.
+                  <a href="{{ route('researcher.addItem', ['id' => $submission->id]) }}">{{ __('Add your first item') }}</a>.
                 @endif
               </p>
             </div>
@@ -196,26 +196,26 @@
             <dt class="col-5">ID</dt>
             <dd class="col-7">#@php echo $submission->id @endphp</dd>
 
-            <dt class="col-5">Source</dt>
+            <dt class="col-5">{{ __('Source') }}</dt>
             <dd class="col-7">@php echo ucfirst($submission->source_type) @endphp</dd>
 
-            <dt class="col-5">Repository</dt>
+            <dt class="col-5">{{ __('Repository') }}</dt>
             <dd class="col-7">@php echo htmlspecialchars($repositoryName ?? 'Not set') @endphp</dd>
 
             @if($projectName)
-            <dt class="col-5">Project</dt>
+            <dt class="col-5">{{ __('Project') }}</dt>
             <dd class="col-7">
               <i class="bi bi-journal-text me-1"></i>@php echo htmlspecialchars($projectName) @endphp
             </dd>
             @endif
 
-            <dt class="col-5">Items</dt>
+            <dt class="col-5">{{ __('Items') }}</dt>
             <dd class="col-7">@php echo $submission->total_items @endphp</dd>
 
-            <dt class="col-5">Files</dt>
+            <dt class="col-5">{{ __('Files') }}</dt>
             <dd class="col-7">@php echo $submission->total_files @endphp</dd>
 
-            <dt class="col-5">Total Size</dt>
+            <dt class="col-5">{{ __('Total Size') }}</dt>
             <dd class="col-7">
               @php $size = $submission->total_file_size;
                 if ($size > 1048576) { echo round($size / 1048576, 1) . ' MB'; }
@@ -223,16 +223,16 @@
                 else { echo $size . ' B'; } @endphp
             </dd>
 
-            <dt class="col-5">Created</dt>
+            <dt class="col-5">{{ __('Created') }}</dt>
             <dd class="col-7">@php echo date('d M Y', strtotime($submission->created_at)) @endphp</dd>
 
             @if($submission->submitted_at)
-            <dt class="col-5">Submitted</dt>
+            <dt class="col-5">{{ __('Submitted') }}</dt>
             <dd class="col-7">@php echo date('d M Y', strtotime($submission->submitted_at)) @endphp</dd>
             @endif
 
             @if($submission->published_at)
-            <dt class="col-5">Published</dt>
+            <dt class="col-5">{{ __('Published') }}</dt>
             <dd class="col-7">@php echo date('d M Y', strtotime($submission->published_at)) @endphp</dd>
             @endif
           </dl>
@@ -291,10 +291,10 @@
           <h6 class="mb-0"><i class="bi bi-tags me-2"></i>{{ __('Access Points Legend') }}</h6>
         </div>
         <div class="card-body small">
-          <span class="badge bg-info text-dark me-1">S</span> Subjects
-          <span class="badge bg-warning text-dark me-1 ms-2">P</span> Places
-          <span class="badge bg-secondary me-1 ms-2">G</span> Genre
-          <span class="badge bg-primary me-1 ms-2">C</span> Creators
+          <span class="badge bg-info text-dark me-1">S</span> {{ __('Subjects') }}
+          <span class="badge bg-warning text-dark me-1 ms-2">P</span> {{ __('Places') }}
+          <span class="badge bg-secondary me-1 ms-2">G</span> {{ __('Genre') }}
+          <span class="badge bg-primary me-1 ms-2">C</span> {{ __('Creators') }}
         </div>
       </div>
 

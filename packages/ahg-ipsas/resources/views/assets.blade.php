@@ -30,11 +30,11 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.index') }}">IPSAS</a></li>
-                    <li class="breadcrumb-item active">Asset Register</li>
+                    <li class="breadcrumb-item active">{{ __('Asset Register') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-archive me-2"></i>{{ __('Heritage Asset Register') }}</h1>
-            <p class="text-muted">IPSAS-compliant asset inventory</p>
+            <p class="text-muted">{{ __('IPSAS-compliant asset inventory') }}</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('ipsas.asset.create') }}" class="btn btn-primary">
@@ -90,7 +90,7 @@
             @if(empty($assets) || (is_object($assets) && method_exists($assets, 'isEmpty') && $assets->isEmpty()) || (is_countable($assets) && count($assets) === 0))
                 <div class="p-4 text-center text-muted">
                     <i class="fas fa-archive fa-3x mb-3"></i>
-                    <p>No assets found.</p>
+                    <p>{{ __('No assets found.') }}</p>
                 </div>
             @else
                 <table class="table table-hover mb-0">

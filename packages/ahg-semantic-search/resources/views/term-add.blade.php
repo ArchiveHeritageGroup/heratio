@@ -23,7 +23,7 @@
             </a>
             <i class="fas fa-chevron-right mx-2 small text-muted"></i>
             <a href="{{ route('semantic-search.terms') }}" class="text-decoration-none text-muted">
-                Terms
+                {{ __('Terms') }}
             </a>
             <i class="fas fa-chevron-right mx-2 small text-muted"></i>
             {{ __('Add Term') }}
@@ -44,10 +44,10 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label" for="term">Term <span class="text-danger">*</span></label>
+                            <label class="form-label" for="term">{{ __('Term') }} <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="term" name="term" required
                                    placeholder="{{ __('e.g., archive, manuscript, photograph') }}">
-                            <div class="form-text">The main term to add to the thesaurus.</div>
+                            <div class="form-text">{{ __('The main term to add to the thesaurus.') }}</div>
                         </div>
 
                         <div class="mb-3">
@@ -81,7 +81,7 @@
                             <label class="form-label" for="synonyms">{{ __('Synonyms') }}</label>
                             <textarea class="form-control" id="synonyms" name="synonyms" rows="10"
                                       placeholder="{{ __('Enter one synonym per line...') }}"></textarea>
-                            <div class="form-text">Enter each synonym on a new line.</div>
+                            <div class="form-text">{{ __('Enter each synonym on a new line.') }}</div>
                         </div>
                     </div>
                 </div>

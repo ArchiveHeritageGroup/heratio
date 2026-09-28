@@ -10,7 +10,7 @@
     <h5 class="mb-0">{{ __('Complaint Submitted Successfully') }}</h5>
   </div>
   <div class="card-body">
-    <p class="text-muted">Content for Complaint Submitted Successfully.</p>
+    <p class="text-muted">{{ __('Content for Complaint Submitted Successfully.') }}</p>
   </div>
 </div>
 @endsection

@@ -23,9 +23,9 @@
         <div class="col">
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('forms.index') }}">Form Templates</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('forms.builder', ['id' => $template->id ?? 0]) }}">Builder</a></li>
-                    <li class="breadcrumb-item active">Preview</li>
+                    <li class="breadcrumb-item"><a href="{{ route('forms.index') }}">{{ __('Form Templates') }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('forms.builder', ['id' => $template->id ?? 0]) }}">{{ __('Builder') }}</a></li>
+                    <li class="breadcrumb-item active">{{ __('Preview') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-eye me-2"></i>Preview: {{ $template->name ?? '' }}</h1>
@@ -178,15 +178,15 @@
                 @endphp
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item d-flex justify-content-between">
-                        Total Fields
+                        {{ __('Total Fields') }}
                         <span class="badge bg-primary">{{ $fields->count() }}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between">
-                        Required Fields
+                        {{ __('Required Fields') }}
                         <span class="badge bg-danger">{{ $requiredCount }}</span>
                     </li>
                     <li class="list-group-item d-flex justify-content-between">
-                        Optional Fields
+                        {{ __('Optional Fields') }}
                         <span class="badge bg-secondary">{{ $fields->count() - $requiredCount }}</span>
                     </li>
                 </ul>

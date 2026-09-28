@@ -18,8 +18,8 @@
 <div class="container-fluid px-4 py-3">
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('statistics.dashboard') }}">Statistics</a></li>
-            <li class="breadcrumb-item active">Views Report</li>
+            <li class="breadcrumb-item"><a href="{{ route('statistics.dashboard') }}">{{ __('Statistics') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('Views Report') }}</li>
         </ol>
     </nav>
 
@@ -90,7 +90,7 @@
                                 </tr>
                             @endforeach
                             @if(empty($data))
-                                <tr><td colspan="3" class="text-center text-muted">No data</td></tr>
+                                <tr><td colspan="3" class="text-center text-muted">{{ __('No data') }}</td></tr>
                             @endif
                         </tbody>
                     </table>

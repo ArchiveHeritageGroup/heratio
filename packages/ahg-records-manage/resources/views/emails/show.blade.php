@@ -22,7 +22,7 @@
 <div class="row">
   <div class="col-md-7">
     <div class="card mb-3">
-      <div class="card-header bg-light">Headers</div>
+      <div class="card-header bg-light">{{ __('Headers') }}</div>
       <table class="table table-sm mb-0">
         <tr><th class="text-muted" style="width:30%">{{ __('Message-ID') }}</th><td><code class="small">{{ $email->message_id }}</code></td></tr>
         <tr><th class="text-muted">{{ __('From') }}</th><td>{{ $email->from_address }}</td></tr>
@@ -43,7 +43,7 @@
     </div>
 
     <div class="card mb-3">
-      <div class="card-header bg-light">Body</div>
+      <div class="card-header bg-light">{{ __('Body') }}</div>
       <div class="card-body small" style="max-height:400px;overflow-y:auto;white-space:pre-wrap;font-family:ui-monospace,monospace;">@if($email->body_text){{ $email->body_text }}@elseif($email->body_html){!! strip_tags($email->body_html) !!}@else<em class="text-muted">(empty body)</em>@endif</div>
     </div>
   </div>
@@ -53,7 +53,7 @@
       <div class="card-header bg-primary text-white"><i class="fas fa-tags me-1"></i> {{ __('Classify') }}</div>
       <div class="card-body">
         @if($email->fileplan_code)
-          <div class="mb-2 small text-muted">Currently classified to <strong>{{ $email->fileplan_code }} - {{ $email->fileplan_title }}</strong>@if($email->disposal_class_ref) under disposal class <code>{{ $email->disposal_class_ref }}</code>@endif</div>
+          <div class="mb-2 small text-muted">{{ __('Currently classified to') }} <strong>{{ $email->fileplan_code }} - {{ $email->fileplan_title }}</strong>@if($email->disposal_class_ref) under disposal class <code>{{ $email->disposal_class_ref }}</code>@endif</div>
         @endif
         <form method="POST" action="{{ route('records.emails.classify', $email->id) }}">
           @csrf
@@ -80,7 +80,7 @@
     <div class="card border-success">
       <div class="card-header bg-success text-white"><i class="fas fa-flag me-1"></i> {{ __('Declare as record') }}</div>
       <div class="card-body small">
-        <p>Declares this email as an <code>information_object</code>. The record becomes part of the archival catalogue and the disposal class (if classified) is applied. The <em>Declare</em> action is irreversible without admin intervention.</p>
+        <p>Declares this email as an <code>information_object</code>. The record becomes part of the archival catalogue and the disposal class (if classified) is applied. The <em>{{ __('Declare') }}</em> action is irreversible without admin intervention.</p>
         <form method="POST" action="{{ route('records.emails.declare', $email->id) }}" onsubmit="return confirm('Declare this email as a record? It will become part of the archival catalogue.');">
           @csrf
           <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-flag me-1"></i>{{ __('Declare as record') }}</button>

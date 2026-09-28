@@ -20,7 +20,7 @@
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ url('/'.$object->slug) }}">{{ $object->title ?? 'Record' }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.object-icip', ['slug' => $object->slug]) }}">ICIP</a></li>
-      <li class="breadcrumb-item active">Consent</li>
+      <li class="breadcrumb-item active">{{ __('Consent') }}</li>
     </ol>
   </nav>
 
@@ -39,7 +39,7 @@
         <div class="card-header"><h5 class="mb-0">{{ __('Consent Records') }}</h5></div>
         <div class="card-body p-0">
           @if($consents->isEmpty())
-            <div class="p-4 text-center text-muted">No consent records yet</div>
+            <div class="p-4 text-center text-muted">{{ __('No consent records yet') }}</div>
           @else
             <div class="table-responsive">
               <table class="table table-hover mb-0">
@@ -102,7 +102,7 @@
                 </select>
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Consent Status <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Consent Status') }} <span class="text-danger">*</span></label>
                 <select name="consent_status" class="form-select" required>
                   @foreach($statusOptions as $value => $label)
                     <option value="{{ $value }}">{{ $label }}</option>
@@ -162,18 +162,18 @@
         <div class="card-header"><h5 class="mb-0">{{ __('Status Guide') }}</h5></div>
         <div class="card-body small">
           <dl class="mb-0">
-            <dt class="text-muted">Not Required</dt>
-            <dd>No consent needed for this material</dd>
-            <dt class="text-warning">Pending Consultation</dt>
-            <dd>Awaiting initial community contact</dd>
-            <dt class="text-info">In Progress</dt>
-            <dd>Consultation underway</dd>
-            <dt class="text-success">Full Consent</dt>
-            <dd>Unrestricted consent granted</dd>
-            <dt class="text-primary">Conditional/Restricted</dt>
-            <dd>Consent with specific limitations</dd>
-            <dt class="text-danger">Denied</dt>
-            <dd>Consent refused by community</dd>
+            <dt class="text-muted">{{ __('Not Required') }}</dt>
+            <dd>{{ __('No consent needed for this material') }}</dd>
+            <dt class="text-warning">{{ __('Pending Consultation') }}</dt>
+            <dd>{{ __('Awaiting initial community contact') }}</dd>
+            <dt class="text-info">{{ __('In Progress') }}</dt>
+            <dd>{{ __('Consultation underway') }}</dd>
+            <dt class="text-success">{{ __('Full Consent') }}</dt>
+            <dd>{{ __('Unrestricted consent granted') }}</dd>
+            <dt class="text-primary">{{ __('Conditional/Restricted') }}</dt>
+            <dd>{{ __('Consent with specific limitations') }}</dd>
+            <dt class="text-danger">{{ __('Denied') }}</dt>
+            <dd>{{ __('Consent refused by community') }}</dd>
           </dl>
         </div>
       </div>

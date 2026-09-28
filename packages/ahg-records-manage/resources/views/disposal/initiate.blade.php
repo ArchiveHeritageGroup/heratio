@@ -86,7 +86,7 @@
                     <button type="submit" class="btn btn-primary" {{ $hasLegalHold ? 'disabled' : '' }}>
                         {{ __('Initiate Disposal') }}
                     </button>
-                    <a href="{{ route('records.disposal.queue') }}" class="btn btn-secondary">Cancel</a>
+                    <a href="{{ route('records.disposal.queue') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
                 </div>
             </form>
         </div>

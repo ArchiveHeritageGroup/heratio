@@ -27,14 +27,14 @@
           </div>
           <div class="card-body">
             <div class="mb-3">
-              <label for="name" class="form-label">Rule Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label for="name" class="form-label">{{ __('Rule Name') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="text" class="form-control" id="name" name="name" required
                      autocomplete="off"
                      placeholder="{{ __('e.g., Title Similarity Check') }}" value="{{ old('name') }}">
             </div>
 
             <div class="mb-3">
-              <label for="rule_type" class="form-label">Rule Type <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label for="rule_type" class="form-label">{{ __('Rule Type') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select class="form-select" id="rule_type" name="rule_type" required>
                 <option value="">-- Select Type --</option>
                 @foreach($ruleTypes as $value => $label)
@@ -49,21 +49,21 @@
                   <label for="threshold" class="form-label">Threshold (0.0 - 1.0) <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                   <input type="number" class="form-control" id="threshold" name="threshold"
                          min="0" max="1" step="0.01" value="{{ old('threshold', '0.80') }}" required>
-                  <div class="form-text">Minimum similarity score to flag as duplicate</div>
+                  <div class="form-text">{{ __('Minimum similarity score to flag as duplicate') }}</div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="priority" class="form-label">Priority <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label for="priority" class="form-label">{{ __('Priority') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="number" class="form-control" id="priority" name="priority"
                          value="{{ old('priority', '100') }}" min="1" max="1000">
-                  <div class="form-text">Higher priority rules run first</div>
+                  <div class="form-text">{{ __('Higher priority rules run first') }}</div>
                 </div>
               </div>
             </div>
 
             <div class="mb-3">
-              <label for="repository_id" class="form-label">Apply to Repository <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="repository_id" class="form-label">{{ __('Apply to Repository') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select class="form-select" id="repository_id" name="repository_id">
                 <option value="">{{ __('All Repositories (Global)') }}</option>
                 @foreach($repositories as $repo)
@@ -78,21 +78,21 @@
               <label for="config_json" class="form-label">Configuration (JSON) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea class="form-control font-monospace" id="config_json" name="config_json"
                         rows="4" placeholder='{"algorithm": "levenshtein", "normalize": true}'>{{ old('config_json') }}</textarea>
-              <div class="form-text">Optional rule-specific configuration in JSON format</div>
+              <div class="form-text">{{ __('Optional rule-specific configuration in JSON format') }}</div>
             </div>
 
             <div class="row">
               <div class="col-md-6">
                 <div class="form-check form-switch mb-3">
                   <input class="form-check-input" type="checkbox" id="is_enabled" name="is_enabled" value="1" checked>
-                  <label class="form-check-label" for="is_enabled">Enabled <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-check-label" for="is_enabled">{{ __('Enabled') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-check form-switch mb-3">
                   <input class="form-check-input" type="checkbox" id="is_blocking" name="is_blocking" value="1">
-                  <label class="form-check-label" for="is_blocking">Blocking <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-                  <div class="form-text">Block record save if duplicate found</div>
+                  <label class="form-check-label" for="is_blocking">{{ __('Blocking') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <div class="form-text">{{ __('Block record save if duplicate found') }}</div>
                 </div>
               </div>
             </div>
@@ -103,7 +103,7 @@
           <button type="submit" class="btn atom-btn-outline-success">
             <i class="fas fa-save me-1"></i> {{ __('Create Rule') }}
           </button>
-          <a href="{{ route('dedupe.rules') }}" class="btn atom-btn-white">Cancel</a>
+          <a href="{{ route('dedupe.rules') }}" class="btn atom-btn-white">{{ __('Cancel') }}</a>
         </div>
       </div>
 
@@ -113,7 +113,7 @@
             <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Rule Type Help') }}</h5>
           </div>
           <div class="card-body" id="ruleHelp">
-            <p class="text-muted">Select a rule type to see configuration options.</p>
+            <p class="text-muted">{{ __('Select a rule type to see configuration options.') }}</p>
           </div>
         </div>
 

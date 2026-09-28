@@ -30,7 +30,7 @@
   {{-- AI server health -------------------------------------------------- --}}
   <div class="card mb-3 border-{{ $health ? 'success' : 'danger' }}">
     <div class="card-header fw-bold">
-      <i class="fas fa-heartbeat me-1"></i>AI server health
+      <i class="fas fa-heartbeat me-1"></i>{{ __('AI server health') }}
       <span class="badge bg-{{ $health ? 'success' : 'danger' }} float-end">
         {{ $health ? 'reachable' : 'unreachable' }}
       </span>
@@ -76,7 +76,7 @@
     @csrf
 
     <div class="card mb-3">
-      <div class="card-header fw-bold">Feature toggles</div>
+      <div class="card-header fw-bold">{{ __('Feature toggles') }}</div>
       <div class="card-body">
         <div class="form-check form-switch mb-2">
           <input type="hidden" name="ar_enabled" value="0">
@@ -88,13 +88,13 @@
           <input type="hidden" name="ar_user_button" value="0">
           <input class="form-check-input" type="checkbox" id="ar_user_button" name="ar_user_button" value="1"
                  {{ is_ar_on($settings, 'ar_user_button') ? 'checked' : '' }}>
-          <label class="form-check-label" for="ar_user_button">Show <em>Animate image (AI)</em> button on IO show pages</label>
+          <label class="form-check-label" for="ar_user_button">{{ __('Show') }} <em>Animate image (AI)</em> button on IO show pages</label>
         </div>
       </div>
     </div>
 
     <div class="card mb-3">
-      <div class="card-header fw-bold">AI server</div>
+      <div class="card-header fw-bold">{{ __('AI server') }}</div>
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-6">
@@ -123,7 +123,7 @@
     </div>
 
     <div class="card mb-3">
-      <div class="card-header fw-bold">Generation defaults</div>
+      <div class="card-header fw-bold">{{ __('Generation defaults') }}</div>
       <div class="card-body">
         <div class="row g-3">
           <div class="col-md-2">

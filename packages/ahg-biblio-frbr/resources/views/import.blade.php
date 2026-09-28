@@ -6,7 +6,7 @@
 
   <div class="d-flex align-items-center gap-2 mb-3">
     <h1 class="h3 mb-0">{{ __('FRBR Import') }}</h1>
-    <span class="badge bg-success">Import</span>
+    <span class="badge bg-success">{{ __('Import') }}</span>
   </div>
   <p class="text-muted small mb-4">
     Upload an FRBR XML document to import works, expressions, and items into the catalogue.
@@ -17,7 +17,7 @@
     <div class="col-lg-8">
       <div class="card">
         <div class="card-header">
-          <i class="bi bi-box-arrow-down-left me-1"></i> FRBR Document Upload
+          <i class="bi bi-box-arrow-down-left me-1"></i> {{ __('FRBR Document Upload') }}
         </div>
         <div class="card-body">
           @if(session('success'))
@@ -41,9 +41,9 @@
 
             <div class="d-flex gap-2">
               <button type="submit" class="btn btn-success">
-                <i class="bi bi-upload me-1"></i> Import FRBR
+                <i class="bi bi-upload me-1"></i> {{ __('Import FRBR') }}
               </button>
-              <a href="{{ route('frbr.index') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+              <a href="{{ route('frbr.index') }}" class="btn btn-outline-secondary">{{ __('Back to Dashboard') }}</a>
             </div>
           </form>
         </div>
@@ -52,14 +52,14 @@
       {{-- Validation before import shortcut --}}
       <div class="card mt-4">
         <div class="card-header">
-          <i class="bi bi-check-circle me-1"></i> Validate First
+          <i class="bi bi-check-circle me-1"></i> {{ __('Validate First') }}
         </div>
         <div class="card-body">
           <p class="small text-muted mb-2">
             Validate your FRBR document before importing to catch structural errors.
           </p>
           <a href="{{ route('frbr.validate') }}" class="btn btn-outline-warning btn-sm">
-            Go to Validator
+            {{ __('Go to Validator') }}
           </a>
         </div>
       </div>
@@ -67,12 +67,12 @@
 
     <div class="col-lg-4">
       <div class="card">
-        <div class="card-header">Expected FRBR Structure</div>
+        <div class="card-header">{{ __('Expected FRBR Structure') }}</div>
         <div class="card-body small">
-          <p class="mb-2">Imported documents should use the FRBRer namespace:</p>
+          <p class="mb-2">{{ __('Imported documents should use the FRBRer namespace:') }}</p>
           <pre class="bg-light p-2 small mb-2" style="font-size:0.75rem;">xmlns:frbr="http://iflastandards.info/
 ns/fr/frbr/frbrer/"</pre>
-          <p class="mb-2">The importer handles these elements:</p>
+          <p class="mb-2">{{ __('The importer handles these elements:') }}</p>
           <ul class="mb-0 text-muted">
             <li><code>frbr:Work</code> &rarr; a catalogue record (<code>library_item</code>), matched on title so a re-import does not duplicate</li>
             <li><code>frbr:Expression</code> &rarr; publication fields applied to that record</li>

@@ -21,8 +21,8 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('ahgnaz.permits') }}">Permits</a></li>
-                    <li class="breadcrumb-item active">New Permit</li>
+                    <li class="breadcrumb-item"><a href="{{ route('ahgnaz.permits') }}">{{ __('Permits') }}</a></li>
+                    <li class="breadcrumb-item active">{{ __('New Permit') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-id-card me-2"></i>{{ __('Issue Research Permit') }}</h1>
@@ -37,7 +37,7 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label">Select Researcher <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Select Researcher') }} <span class="text-danger">*</span></label>
                             <select name="researcher_id" class="form-select" required>
                                 <option value="">{{ __('Select...') }}</option>
                                 @foreach(($researchers ?? []) as $r)
@@ -54,7 +54,7 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label">Research Topic <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Research Topic') }} <span class="text-danger">*</span></label>
                             <input type="text" name="research_topic" class="form-control" required>
                         </div>
                         <div class="col-12">
@@ -78,11 +78,11 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Start Date <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Start Date') }} <span class="text-danger">*</span></label>
                             <input type="date" name="start_date" class="form-control" required value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">End Date <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('End Date') }} <span class="text-danger">*</span></label>
                             <input type="date" name="end_date" class="form-control" required value="{{ \Carbon\Carbon::now()->addMonths(12)->format('Y-m-d') }}">
                         </div>
                     </div>
@@ -120,14 +120,14 @@
                 <h6><i class="fas fa-info-circle"></i> {{ __('Permit Fees') }}</h6>
                 <ul class="small mb-0">
                     <li>Foreign researchers: US$200</li>
-                    <li>Local researchers: Free</li>
+                    <li>{{ __('Local researchers: Free') }}</li>
                     <li>Validity: 12 months</li>
                 </ul>
             </div>
             <div class="card">
                 <div class="card-body d-grid gap-2">
                     <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>{{ __('Issue Permit') }}</button>
-                    <a href="{{ route('ahgnaz.permits') }}" class="btn btn-outline-secondary">Cancel</a>
+                    <a href="{{ route('ahgnaz.permits') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
                 </div>
             </div>
         </div>

@@ -15,7 +15,7 @@ $colClass = 'col-md-' . (12 / $columns);
 @endif
 
 @if (empty($items))
-  <p class="text-muted">No recent items found.</p>
+  <p class="text-muted">{{ __('No recent items found.') }}</p>
 @elseif ($scrollable)
   <div class="recent-items-scroll d-flex overflow-auto pb-3" style="gap: 1rem; scroll-snap-type: x mandatory;">
     @foreach ($items as $item)

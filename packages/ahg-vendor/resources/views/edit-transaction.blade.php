@@ -26,10 +26,10 @@
 
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.index') }}">Vendor Management</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.transactions') }}">Transactions</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.index') }}">{{ __('Vendor Management') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.transactions') }}">{{ __('Transactions') }}</a></li>
             <li class="breadcrumb-item"><a href="{{ route('ahgvendor.view-transaction', ['id' => $transaction->id]) }}">{{ e($transaction->transaction_number) }}</a></li>
-            <li class="breadcrumb-item active">Edit</li>
+            <li class="breadcrumb-item active">{{ __('Edit') }}</li>
         </ol>
     </nav>
 
@@ -111,10 +111,10 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label" for="priority">{{ __('Priority') }}</label>
                                 <select name="priority" id="priority" class="form-select">
-                                    <option value="low" {{ ($transaction->priority ?? '') === 'low' ? 'selected' : '' }}>Low</option>
-                                    <option value="normal" {{ ($transaction->priority ?? 'normal') === 'normal' ? 'selected' : '' }}>Normal</option>
-                                    <option value="high" {{ ($transaction->priority ?? '') === 'high' ? 'selected' : '' }}>High</option>
-                                    <option value="urgent" {{ ($transaction->priority ?? '') === 'urgent' ? 'selected' : '' }}>Urgent</option>
+                                    <option value="low" {{ ($transaction->priority ?? '') === 'low' ? 'selected' : '' }}>{{ __('Low') }}</option>
+                                    <option value="normal" {{ ($transaction->priority ?? 'normal') === 'normal' ? 'selected' : '' }}>{{ __('Normal') }}</option>
+                                    <option value="high" {{ ($transaction->priority ?? '') === 'high' ? 'selected' : '' }}>{{ __('High') }}</option>
+                                    <option value="urgent" {{ ($transaction->priority ?? '') === 'urgent' ? 'selected' : '' }}>{{ __('Urgent') }}</option>
                                 </select>
                             </div>
                         </div>

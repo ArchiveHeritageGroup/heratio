@@ -133,7 +133,7 @@
     </table>
 
     @if(empty($logs) || (is_countable($logs) && count($logs) === 0))
-    <p class="text-muted text-center">No audit entries found.</p>
+    <p class="text-muted text-center">{{ __('No audit entries found.') }}</p>
     @endif
   </div>
 </div>

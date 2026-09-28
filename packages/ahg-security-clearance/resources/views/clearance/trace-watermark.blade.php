@@ -5,9 +5,9 @@
 @section('content')
 <div class="container-fluid mt-3">
   <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">Security Dashboard</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('security-clearance.watermark-settings') }}">Watermark Settings</a></li>
-    <li class="breadcrumb-item active">Trace Watermark</li>
+    <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">{{ __('Security Dashboard') }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('security-clearance.watermark-settings') }}">{{ __('Watermark Settings') }}</a></li>
+    <li class="breadcrumb-item active">{{ __('Trace Watermark') }}</li>
   </ol></nav>
 
   <h1><i class="fas fa-search"></i> {{ __('Trace Watermark') }}</h1>
@@ -46,7 +46,7 @@
           <tr><th>{{ __('Watermark Type') }}</th><td>{{ e($traceResult->watermark_type ?? '') }}</td></tr>
         </table>
       @else
-        <div class="alert alert-warning">No matching watermark code found.</div>
+        <div class="alert alert-warning">{{ __('No matching watermark code found.') }}</div>
       @endif
     </div>
   </div>

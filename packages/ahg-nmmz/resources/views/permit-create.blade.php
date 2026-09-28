@@ -21,12 +21,12 @@
       <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
-          <li class="breadcrumb-item"><a href="{{ route('nmmz.permits') }}">Export Permits</a></li>
-          <li class="breadcrumb-item active">New Application</li>
+          <li class="breadcrumb-item"><a href="{{ route('nmmz.permits') }}">{{ __('Export Permits') }}</a></li>
+          <li class="breadcrumb-item active">{{ __('New Application') }}</li>
         </ol>
       </nav>
       <h1><i class="fas fa-file-export me-2"></i>{{ __('Export Permit Application') }}</h1>
-      <p class="text-muted">Apply to export antiquities or heritage objects</p>
+      <p class="text-muted">{{ __('Apply to export antiquities or heritage objects') }}</p>
     </div>
   </div>
 
@@ -38,7 +38,7 @@
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">Applicant Name <span class="text-danger">*</span></label>
+              <label class="form-label">{{ __('Applicant Name') }} <span class="text-danger">*</span></label>
               <input type="text" name="applicant_name" class="form-control" required>
             </div>
             <div class="col-md-6">
@@ -79,7 +79,7 @@
               <input type="number" name="quantity" class="form-control" value="1" min="1">
             </div>
             <div class="col-12">
-              <label class="form-label">Object Description <span class="text-danger">*</span></label>
+              <label class="form-label">{{ __('Object Description') }} <span class="text-danger">*</span></label>
               <textarea name="object_description" class="form-control" rows="4" required placeholder="{{ __('Detailed description of the object(s) to be exported') }}"></textarea>
             </div>
             <div class="col-md-6">
@@ -95,7 +95,7 @@
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">Export Purpose <span class="text-danger">*</span></label>
+              <label class="form-label">{{ __('Export Purpose') }} <span class="text-danger">*</span></label>
               <select name="export_purpose" class="form-select" required>
                 <option value="">{{ __('Select...') }}</option>
                 <option value="exhibition">{{ __('Exhibition') }}</option>
@@ -107,7 +107,7 @@
               </select>
             </div>
             <div class="col-md-6">
-              <label class="form-label">Destination Country <span class="text-danger">*</span></label>
+              <label class="form-label">{{ __('Destination Country') }} <span class="text-danger">*</span></label>
               <input type="text" name="destination_country" class="form-control" required>
             </div>
             <div class="col-12">
@@ -135,10 +135,10 @@
       <div class="alert alert-info">
         <h6><i class="fas fa-info-circle me-1"></i> {{ __('Important') }}</h6>
         <ul class="small mb-0">
-          <li>Export of antiquities requires jurisdictional approval</li>
+          <li>{{ __('Export of antiquities requires jurisdictional approval') }}</li>
           <li>Processing may take 2-4 weeks</li>
-          <li>Fees apply per schedule</li>
-          <li>False declarations are punishable by law</li>
+          <li>{{ __('Fees apply per schedule') }}</li>
+          <li>{{ __('False declarations are punishable by law') }}</li>
         </ul>
       </div>
 
@@ -147,7 +147,7 @@
           <button type="submit" class="btn btn-primary btn-lg">
             <i class="fas fa-paper-plane me-2"></i>{{ __('Submit Application') }}
           </button>
-          <a href="{{ route('nmmz.permits') }}" class="btn btn-outline-secondary">Cancel</a>
+          <a href="{{ route('nmmz.permits') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
         </div>
       </div>
     </div>

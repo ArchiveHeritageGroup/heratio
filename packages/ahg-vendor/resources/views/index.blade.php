@@ -227,7 +227,7 @@
                     @else
                     <div class="text-center py-4 text-muted">
                         <i class="fas fa-inbox fa-3x mb-3"></i>
-                        <p>No active transactions</p>
+                        <p>{{ __('No active transactions') }}</p>
                     </div>
                     @endif
                 </div>
@@ -269,7 +269,7 @@
                         </div>
                         @endforeach
                     @else
-                        <p class="text-muted mb-0">No transactions yet</p>
+                        <p class="text-muted mb-0">{{ __('No transactions yet') }}</p>
                     @endif
                 </div>
             </div>

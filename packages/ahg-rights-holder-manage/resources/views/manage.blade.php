@@ -55,7 +55,7 @@
     </div>
 
     <ul class="actions mb-3 nav gap-2">
-      <li><a href="{{ route('informationobject.show', ['slug' => $resource->slug]) }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+      <li><a href="{{ route('informationobject.show', ['slug' => $resource->slug]) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
       <li><input class="btn atom-btn-outline-success" type="submit" value="Apply"></li>
     </ul>
 

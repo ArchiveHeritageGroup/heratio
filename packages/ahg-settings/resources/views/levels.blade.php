@@ -70,7 +70,7 @@ function levelsGetSectorIcon(string $sector): string {
           <input type="hidden" name="action_type" value="update_sector">
           <input type="hidden" name="sector" value="{{ $currentSector }}">
 
-          <p class="text-muted mb-3">Select which levels appear in the <strong>{{ ucfirst($currentSector) }}</strong> sector:</p>
+          <p class="text-muted mb-3">{{ __('Select which levels appear in the') }} <strong>{{ ucfirst($currentSector) }}</strong> sector:</p>
 
           @if ($sectorAvailableLevels->isEmpty())
             <div class="alert alert-warning">
@@ -170,22 +170,22 @@ function levelsGetSectorIcon(string $sector): string {
       </div>
       <div class="card-body small">
         <dl class="mb-0">
-          <dt><i class="fas fa-archive me-1"></i> Archive</dt>
+          <dt><i class="fas fa-archive me-1"></i> {{ __('Archive') }}</dt>
           <dd class="text-muted">Traditional archival levels (ISAD(G), RAD, DACS)</dd>
 
           @if (in_array('museum', $availableSectors))
-          <dt><i class="fas fa-landmark me-1"></i> Museum</dt>
+          <dt><i class="fas fa-landmark me-1"></i> {{ __('Museum') }}</dt>
           <dd class="text-muted">Object-based descriptions (CCO/CDWA)</dd>
           @endif
 
           @if (in_array('library', $availableSectors))
-          <dt><i class="fas fa-book me-1"></i> Library</dt>
+          <dt><i class="fas fa-book me-1"></i> {{ __('Library') }}</dt>
           <dd class="text-muted">Bibliographic materials (books, journals, articles)</dd>
           @endif
 
           @if (in_array('gallery', $availableSectors))
-          <dt><i class="fas fa-image me-1"></i> Gallery</dt>
-          <dd class="text-muted">Artwork and visual materials</dd>
+          <dt><i class="fas fa-image me-1"></i> {{ __('Gallery') }}</dt>
+          <dd class="text-muted">{{ __('Artwork and visual materials') }}</dd>
           @endif
 
           @if (in_array('dam', $availableSectors))
@@ -204,12 +204,12 @@ function levelsGetSectorIcon(string $sector): string {
       <div class="list-group list-group-flush">
         <a href="{{ route('term.browse', ['taxonomy' => 'levels-of-description']) }}"
            class="list-group-item list-group-item-action" target="_blank">
-          <i class="fas fa-list me-2"></i>Browse all levels in Taxonomy
+          <i class="fas fa-list me-2"></i>{{ __('Browse all levels in Taxonomy') }}
           <i class="fas fa-external-link-alt fa-xs float-end mt-1"></i>
         </a>
         <a href="{{ route('term.browse', ['taxonomy' => 'levels-of-description']) }}"
            class="list-group-item list-group-item-action" target="_blank">
-          <i class="fas fa-plus me-2"></i>Create new level term
+          <i class="fas fa-plus me-2"></i>{{ __('Create new level term') }}
           <i class="fas fa-external-link-alt fa-xs float-end mt-1"></i>
         </a>
       </div>

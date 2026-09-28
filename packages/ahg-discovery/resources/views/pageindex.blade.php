@@ -45,7 +45,7 @@
         <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">{{ __('Searching...') }}</span>
         </div>
-        <p class="mt-2 text-muted">Querying LLM across indexed trees...</p>
+        <p class="mt-2 text-muted">{{ __('Querying LLM across indexed trees...') }}</p>
     </div>
 
     <div class="row">
@@ -59,7 +59,7 @@
                     <table class="table table-sm table-borderless mb-0">
                         <tbody>
                             <tr>
-                                <td class="text-muted">Total indexed</td>
+                                <td class="text-muted">{{ __('Total indexed') }}</td>
                                 <td class="text-end fw-bold">{{ $stats['total'] }}</td>
                             </tr>
                             @foreach ($stats['by_type'] as $typeName => $count)
@@ -112,7 +112,7 @@
 
             @if (!empty($results))
                 <div class="alert alert-success mb-3">
-                    Found <strong>{{ $totalMatches }}</strong> matching node(s) across
+                    {{ __('Found') }} <strong>{{ $totalMatches }}</strong> matching node(s) across
                     <strong>{{ count($results) }}</strong> indexed record(s) for
                     "<strong>{{ e($query) }}</strong>".
                 </div>

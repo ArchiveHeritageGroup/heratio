@@ -26,13 +26,13 @@
 @endif
 
 <div class="card mb-3">
-    <div class="card-header">Upload File Plan</div>
+    <div class="card-header">{{ __('Upload File Plan') }}</div>
     <div class="card-body">
         <form method="post" action="{{ route('records.fileplan.import.upload') }}" enctype="multipart/form-data" id="importForm">
             @csrf
 
             <div class="mb-3">
-                <label class="form-label fw-bold">Source Type <span class="text-danger">*</span></label>
+                <label class="form-label fw-bold">{{ __('Source Type') }} <span class="text-danger">*</span></label>
                 <div>
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="source_type" id="type_spreadsheet" value="spreadsheet" {{ old('source_type', 'spreadsheet') === 'spreadsheet' ? 'checked' : '' }}>
@@ -90,7 +90,7 @@
             </div>
 
             <div class="d-flex justify-content-between">
-                <a href="{{ route('records.fileplan.index') }}" class="btn btn-secondary">Cancel</a>
+                <a href="{{ route('records.fileplan.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
                 <button type="submit" class="btn btn-primary">{{ __('Next: Map Columns') }}</button>
             </div>
         </form>
@@ -99,7 +99,7 @@
 
 @if(!empty($sessions['data']))
 <div class="card">
-    <div class="card-header">Recent Import Sessions</div>
+    <div class="card-header">{{ __('Recent Import Sessions') }}</div>
     <div class="card-body p-0">
         <table class="table table-sm table-striped mb-0">
             <thead>
@@ -128,7 +128,7 @@
                     </td>
                     <td>{{ $sess->imported_nodes }}/{{ $sess->total_nodes }}</td>
                     <td>{{ $sess->created_at }}</td>
-                    <td><a href="{{ route('records.fileplan.import.status', $sess->id) }}" class="btn btn-sm btn-outline-primary">View</a></td>
+                    <td><a href="{{ route('records.fileplan.import.status', $sess->id) }}" class="btn btn-sm btn-outline-primary">{{ __('View') }}</a></td>
                 </tr>
                 @endforeach
             </tbody>

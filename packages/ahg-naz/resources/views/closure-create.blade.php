@@ -21,8 +21,8 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('ahgnaz.closures') }}">Closures</a></li>
-                    <li class="breadcrumb-item active">New Closure</li>
+                    <li class="breadcrumb-item"><a href="{{ route('ahgnaz.closures') }}">{{ __('Closures') }}</a></li>
+                    <li class="breadcrumb-item active">{{ __('New Closure') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-lock me-2"></i>{{ __('Create Closure Period') }}</h1>
@@ -37,7 +37,7 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label">Information Object ID <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Information Object ID') }} <span class="text-danger">*</span></label>
                             <input type="number" name="information_object_id" class="form-control" required>
                             <small class="text-muted">{{ __('Enter the archival description record ID') }}</small>
                         </div>
@@ -50,7 +50,7 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Closure Type <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Closure Type') }} <span class="text-danger">*</span></label>
                             <select name="closure_type" class="form-select" required>
                                 <option value="standard">{{ __('Standard (25 years)') }}</option>
                                 <option value="extended">{{ __('Extended') }}</option>
@@ -63,7 +63,7 @@
                             <input type="number" name="years" class="form-control" value="25" min="1">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Start Date <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Start Date') }} <span class="text-danger">*</span></label>
                             <input type="date" name="start_date" class="form-control" required>
                         </div>
                         <div class="col-md-6">
@@ -71,7 +71,7 @@
                             <input type="date" name="review_date" class="form-control">
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Closure Reason <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Closure Reason') }} <span class="text-danger">*</span></label>
                             <textarea name="closure_reason" class="form-control" rows="3" required></textarea>
                         </div>
                         <div class="col-12">
@@ -91,7 +91,7 @@
             <div class="card">
                 <div class="card-body d-grid gap-2">
                     <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>{{ __('Create Closure') }}</button>
-                    <a href="{{ route('ahgnaz.closures') }}" class="btn btn-outline-secondary">Cancel</a>
+                    <a href="{{ route('ahgnaz.closures') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
                 </div>
             </div>
         </div>

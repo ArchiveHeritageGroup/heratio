@@ -7,7 +7,7 @@
 
 <div class="mb-4">
     <a href="{{ route('caption-tracks.index', $digitalObjectId) }}" class="text-decoration-none">
-        <i class="fas fa-arrow-left me-1"></i>Back to Caption Tracks
+        <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Caption Tracks') }}
     </a>
 </div>
 
@@ -32,28 +32,28 @@
             <div class="mb-3">
                 <label class="form-label" for="track_type">{{ __('Track type') }}</label>
                 <select name="track_type" id="track_type" class="form-select" required>
-                    <option value="subtitle" {{ ($track->track_type ?? request()->query('type', 'subtitle')) === 'subtitle' ? 'selected' : '' }}>Subtitle</option>
-                    <option value="caption" {{ ($track->track_type ?? '') === 'caption' ? 'selected' : '' }}>Caption</option>
-                    <option value="description" {{ ($track->track_type ?? '') === 'description' ? 'selected' : '' }}>Audio Description</option>
-                    <option value="chapters" {{ ($track->track_type ?? '') === 'chapters' ? 'selected' : '' }}>Chapters</option>
+                    <option value="subtitle" {{ ($track->track_type ?? request()->query('type', 'subtitle')) === 'subtitle' ? 'selected' : '' }}>{{ __('Subtitle') }}</option>
+                    <option value="caption" {{ ($track->track_type ?? '') === 'caption' ? 'selected' : '' }}>{{ __('Caption') }}</option>
+                    <option value="description" {{ ($track->track_type ?? '') === 'description' ? 'selected' : '' }}>{{ __('Audio Description') }}</option>
+                    <option value="chapters" {{ ($track->track_type ?? '') === 'chapters' ? 'selected' : '' }}>{{ __('Chapters') }}</option>
                 </select>
             </div>
 
             {{-- Label --}}
             <div class="mb-3">
-                <label class="form-label" for="label">Label <span class="text-danger">*</span></label>
+                <label class="form-label" for="label">{{ __('Label') }} <span class="text-danger">*</span></label>
                 <input type="text" name="label" id="label"
                        class="form-control"
                        value="{{ old('label', $track->label ?? '') }}"
                        maxlength="120"
                        placeholder="{{ __('e.g. English, English (SDH), isiZulu, Spanish') }}"
                        required>
-                <small class="text-muted">Short label shown in the video player's track selector.</small>
+                <small class="text-muted">{{ __('Short label shown in the video player\'s track selector.') }}</small>
             </div>
 
             {{-- Language --}}
             <div class="mb-3">
-                <label class="form-label" for="language_code">Language code <span class="text-danger">*</span></label>
+                <label class="form-label" for="language_code">{{ __('Language code') }} <span class="text-danger">*</span></label>
                 <select name="language_code" id="language_code" class="form-select" required>
                     @php
                         $selectedLang = old('language_code', $track->language_code ?? $prefillLanguage ?? 'en');
@@ -102,7 +102,7 @@
                            value="1"
                            {{ ($track->is_sdh ?? false) ? 'checked' : '' }}>
                     <label class="form-check-label" for="is_sdh">
-                        SDH - Subtitle for the Deaf and Hard of Hearing
+                        {{ __('SDH - Subtitle for the Deaf and Hard of Hearing') }}
                     </label>
                 </div>
                 <small class="text-muted">SDH tracks include speaker identification and sound/event descriptions. Enable for accessibility compliance.</small>
@@ -116,7 +116,7 @@
                            value="1"
                            {{ ($track->is_default ?? false) ? 'checked' : '' }}>
                     <label class="form-check-label" for="is_default">
-                        Default track - auto-selected when the video loads
+                        {{ __('Default track - auto-selected when the video loads') }}
                     </label>
                 </div>
             </div>
@@ -159,7 +159,7 @@ Welcome to our archival collection.') }}">{{ old('vtt_content', $track->vtt_cont
                     <i class="fas fa-save me-1"></i>{{ $mode === 'edit' ? 'Update Track' : 'Add Track' }}
                 </button>
                 <a href="{{ route('caption-tracks.index', $digitalObjectId) }}" class="btn btn-outline-secondary">
-                    Cancel
+                    {{ __('Cancel') }}
                 </a>
             </div>
         </form>

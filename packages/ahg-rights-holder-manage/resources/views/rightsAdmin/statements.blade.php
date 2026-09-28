@@ -36,7 +36,7 @@
         </tbody>
       </table>
     @else
-      <div class="text-center py-4 text-muted">No rights statements configured.</div>
+      <div class="text-center py-4 text-muted">{{ __('No rights statements configured.') }}</div>
     @endif
   </div>
 </div>

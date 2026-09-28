@@ -98,7 +98,7 @@
 
   <div class="col-12">
     <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ $isEdit ? 'Save' : 'Create rule' }}</button>
-    <a href="{{ route('records.classification.index') }}" class="btn btn-outline-secondary">Cancel</a>
+    <a href="{{ route('records.classification.index') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
     @if($isEdit)
       <form method="POST" action="{{ route('records.classification.destroy', $rule->id) }}" class="d-inline" onsubmit="return confirm('Delete this rule? Its rm_classification_log entries are kept for audit.');">
         @csrf

@@ -8,7 +8,7 @@
     <p><strong>{{ $ctx['title'] ?? '' }}</strong></p>
 
     <ul>
-        <li><strong>DOI:</strong> <code>{{ $ctx['doi'] ?? '' }}</code></li>
+        <li><strong>{{ __('DOI:') }}</strong> <code>{{ $ctx['doi'] ?? '' }}</code></li>
         @if (! empty($ctx['resolver_url']))
             <li><strong>{{ __('Resolver') }}:</strong> <a href="{{ $ctx['resolver_url'] }}">{{ $ctx['resolver_url'] }}</a></li>
         @endif

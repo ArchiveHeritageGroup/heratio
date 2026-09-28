@@ -19,7 +19,7 @@
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.dashboard') }}">ICIP</a></li>
-      <li class="breadcrumb-item active">Consent Records</li>
+      <li class="breadcrumb-item active">{{ __('Consent Records') }}</li>
     </ol>
   </nav>
 
@@ -31,7 +31,7 @@
   </div>
 
   @if(!($tablesExist ?? true))
-    <div class="alert alert-warning">ICIP tables have not been provisioned for this installation.</div>
+    <div class="alert alert-warning">{{ __('ICIP tables have not been provisioned for this installation.') }}</div>
   @endif
 
   <div class="card mb-4">
@@ -57,7 +57,7 @@
         </div>
         <div class="col-md-3">
           <button type="submit" class="btn btn-outline-primary me-2"><i class="bi bi-search"></i> {{ __('Filter') }}</button>
-          <a href="{{ route('ahgicip.consent-list') }}" class="btn btn-outline-secondary">Reset</a>
+          <a href="{{ route('ahgicip.consent-list') }}" class="btn btn-outline-secondary">{{ __('Reset') }}</a>
         </div>
       </form>
     </div>
@@ -69,7 +69,7 @@
       @if($consents->isEmpty())
         <div class="p-4 text-center text-muted">
           <i class="bi bi-file-earmark-check fs-1"></i>
-          <p class="mb-0 mt-2">No consent records found</p>
+          <p class="mb-0 mt-2">{{ __('No consent records found') }}</p>
         </div>
       @else
         <div class="table-responsive">

@@ -6,9 +6,9 @@
 
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ url('/admin') }}">Admin</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('scan.dashboard') }}">Scan</a></li>
-        <li class="breadcrumb-item active">Watched folders</li>
+        <li class="breadcrumb-item"><a href="{{ url('/admin') }}">{{ __('Admin') }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('scan.dashboard') }}">{{ __('Scan') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Watched folders') }}</li>
     </ol>
 </nav>
 
@@ -33,7 +33,7 @@
         <div class="card-body text-center py-5">
             <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
             <h5 class="text-muted">{{ __('No watched folders') }}</h5>
-            <p class="text-muted">Create a watched folder to auto-ingest scanned material.</p>
+            <p class="text-muted">{{ __('Create a watched folder to auto-ingest scanned material.') }}</p>
             <a href="{{ route('scan.folders.create') }}" class="btn btn-outline-secondary">
                 <i class="fas fa-plus me-1"></i>{{ __('New watched folder') }}
             </a>

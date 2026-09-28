@@ -46,7 +46,7 @@
             </td>
           </tr>
           @empty
-          <tr><td colspan="4" class="text-muted">No results found.</td></tr>
+          <tr><td colspan="4" class="text-muted">{{ __('No results found.') }}</td></tr>
           @endforelse
         </tbody>
       </table>
@@ -57,7 +57,7 @@
   <nav class="mt-3">
     <ul class="pagination">
       @if($page > 1)
-        <li class="page-item"><a class="page-link" href="?{{ http_build_query(['q' => $query, 'page' => $page - 1]) }}">Prev</a></li>
+        <li class="page-item"><a class="page-link" href="?{{ http_build_query(['q' => $query, 'page' => $page - 1]) }}">{{ __('Prev') }}</a></li>
       @endif
       @for($i = max(1, $page - 3); $i <= min($totalPages, $page + 3); $i++)
         <li class="page-item {{ $i == $page ? 'active' : '' }}"><a class="page-link" href="?{{ http_build_query(['q' => $query, 'page' => $i]) }}">{{ $i }}</a></li>

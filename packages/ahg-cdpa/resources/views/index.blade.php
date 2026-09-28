@@ -89,7 +89,7 @@
                 @elseif (!empty($compliance['warnings']))
                     <p class="mb-0">{{ count($compliance['warnings']) }} warning(s) to review</p>
                 @else
-                    <p class="mb-0">All compliance requirements met</p>
+                    <p class="mb-0">{{ __('All compliance requirements met') }}</p>
                 @endif
             </div>
         </div>
@@ -100,7 +100,7 @@
             <div class="card {{ $license ? 'border-success' : 'border-danger' }}">
                 <div class="card-body text-center">
                     <h3>{{ $license ? max(0, (int) $licenseDaysRemaining) : '-' }}</h3>
-                    <p class="text-muted mb-0">License Days Remaining</p>
+                    <p class="text-muted mb-0">{{ __('License Days Remaining') }}</p>
                     <small class="text-{{ $license ? 'success' : 'danger' }}">{{ $licenseStatusLabel }}</small>
                 </div>
             </div>
@@ -109,7 +109,7 @@
             <div class="card {{ ($stats['requests_overdue'] ?? 0) > 0 ? 'border-danger' : '' }}">
                 <div class="card-body text-center">
                     <h3>{{ $stats['requests_pending'] ?? 0 }}</h3>
-                    <p class="text-muted mb-0">Pending Requests</p>
+                    <p class="text-muted mb-0">{{ __('Pending Requests') }}</p>
                     @if (($stats['requests_overdue'] ?? 0) > 0)
                         <small class="text-danger">{{ $stats['requests_overdue'] }} overdue</small>
                     @else
@@ -122,7 +122,7 @@
             <div class="card {{ ($stats['breaches_open'] ?? 0) > 0 ? 'border-warning' : '' }}">
                 <div class="card-body text-center">
                     <h3>{{ $stats['breaches_open'] ?? 0 }}</h3>
-                    <p class="text-muted mb-0">Open Breaches</p>
+                    <p class="text-muted mb-0">{{ __('Open Breaches') }}</p>
                     <small class="text-muted">{{ $breachesThisYear }} this year</small>
                 </div>
             </div>
@@ -131,7 +131,7 @@
             <div class="card">
                 <div class="card-body text-center">
                     <h3>{{ $stats['processing_active'] ?? 0 }}</h3>
-                    <p class="text-muted mb-0">Processing Activities</p>
+                    <p class="text-muted mb-0">{{ __('Processing Activities') }}</p>
                     <small class="text-muted">{{ $stats['consent_active'] ?? 0 }} active consents</small>
                 </div>
             </div>
@@ -197,7 +197,7 @@
                     @if ($pendingRequests->isEmpty())
                         <div class="p-3 text-center text-muted">
                             <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
-                            <p class="mb-0">No pending requests</p>
+                            <p class="mb-0">{{ __('No pending requests') }}</p>
                         </div>
                     @else
                         <ul class="list-group list-group-flush">
@@ -222,7 +222,7 @@
                 </div>
                 @if (!$pendingRequests->isEmpty())
                     <div class="card-footer text-center">
-                        <a href="{{ route('ahgcdpa.requests', ['status' => 'pending']) }}">View All Pending</a>
+                        <a href="{{ route('ahgcdpa.requests', ['status' => 'pending']) }}">{{ __('View All Pending') }}</a>
                     </div>
                 @endif
             </div>
@@ -237,7 +237,7 @@
                     @if (empty($compliance['issues']) && empty($compliance['warnings']))
                         <div class="text-center text-success">
                             <i class="fas fa-check-circle fa-3x mb-2"></i>
-                            <p>All compliance requirements met!</p>
+                            <p>{{ __('All compliance requirements met!') }}</p>
                         </div>
                     @else
                         @if (!empty($compliance['issues']))
@@ -287,8 +287,8 @@
                     @else
                         <div class="text-center text-danger">
                             <i class="fas fa-exclamation-circle fa-2x mb-2"></i>
-                            <p>No controller license registered</p>
-                            <a href="{{ route('ahgcdpa.license-edit') }}" class="btn btn-danger">Register License</a>
+                            <p>{{ __('No controller license registered') }}</p>
+                            <a href="{{ route('ahgcdpa.license-edit') }}" class="btn btn-danger">{{ __('Register License') }}</a>
                         </div>
                     @endif
                 </div>
@@ -319,8 +319,8 @@
                     @else
                         <div class="text-center text-danger">
                             <i class="fas fa-user-slash fa-2x mb-2"></i>
-                            <p>No DPO appointed</p>
-                            <a href="{{ route('ahgcdpa.dpo-edit') }}" class="btn btn-danger">Appoint DPO</a>
+                            <p>{{ __('No DPO appointed') }}</p>
+                            <a href="{{ route('ahgcdpa.dpo-edit') }}" class="btn btn-danger">{{ __('Appoint DPO') }}</a>
                         </div>
                     @endif
                 </div>

@@ -38,14 +38,14 @@
     <div>
       <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb mb-1">
-          <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
-          <li class="breadcrumb-item"><a href="{{ route('donor.browse') }}">Donors</a></li>
-          <li class="breadcrumb-item active">Browse</li>
+          <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Home') }}</a></li>
+          <li class="breadcrumb-item"><a href="{{ route('donor.browse') }}">{{ __('Donors') }}</a></li>
+          <li class="breadcrumb-item active">{{ __('Browse') }}</li>
         </ol>
       </nav>
       <h1 class="h3 mb-0">
         <i class="fas fa-hand-holding-heart text-primary me-2"></i>
-        Browse donors
+        {{ __('Browse donors') }}
         <span class="badge bg-secondary ms-2">{{ number_format($total) }}</span>
       </h1>
     </div>
@@ -142,7 +142,7 @@
               <tr>
                 <td colspan="5" class="text-center py-5">
                   <i class="fas fa-hand-holding-heart fa-3x text-muted mb-3"></i>
-                  <p class="text-muted mb-0">No donors found</p>
+                  <p class="text-muted mb-0">{{ __('No donors found') }}</p>
                 </td>
               </tr>
             @endforelse

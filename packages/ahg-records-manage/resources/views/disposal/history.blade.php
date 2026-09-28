@@ -55,20 +55,20 @@
                                 <td>{{ $item->executed_at ? \Carbon\Carbon::parse($item->executed_at)->format('Y-m-d H:i') : '' }}</td>
                                 <td>
                                     @if ($item->certificate_id)
-                                        <a href="{{ route('records.disposal.verify', $item->id) }}">View</a>
+                                        <a href="{{ route('records.disposal.verify', $item->id) }}">{{ __('View') }}</a>
                                     @else
                                         -
                                     @endif
                                 </td>
                                 <td>
-                                    <a href="{{ route('records.disposal.show', $item->id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                                    <a href="{{ route('records.disposal.show', $item->id) }}" class="btn btn-sm btn-outline-primary">{{ __('View') }}</a>
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             @else
-                <div class="p-4 text-center text-muted">No completed disposal actions found.</div>
+                <div class="p-4 text-center text-muted">{{ __('No completed disposal actions found.') }}</div>
             @endif
         </div>
     </div>

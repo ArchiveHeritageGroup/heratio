@@ -44,36 +44,36 @@
           <div id="sending-collapse" class="accordion-collapse collapse" aria-labelledby="sending-heading">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Enable clipboard send functionality <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Enable clipboard send functionality') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[clipboard_send_enabled]" id="send_enabled_no" value="0" {{ $settings['clipboard_send_enabled'] != '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="send_enabled_no">No <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-check-label" for="send_enabled_no">{{ __('No ') }}<span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[clipboard_send_enabled]" id="send_enabled_yes" value="1" {{ $settings['clipboard_send_enabled'] == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="send_enabled_yes">Yes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-check-label" for="send_enabled_yes">{{ __('Yes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                 </div>
               </div>
 
               <div class="mb-3">
-                <label class="form-label">External URL to send clipboard contents to <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('External URL to send clipboard contents to') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="settings[clipboard_send_url]" class="form-control" value="{{ e($settings['clipboard_send_url']) }}">
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Send button text <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Send button text') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="settings[clipboard_send_button_text]" class="form-control" value="{{ e($settings['clipboard_send_button_text']) }}">
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Text or HTML to display when sending clipboard contents <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Text or HTML to display when sending clipboard contents') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <textarea name="settings[clipboard_send_message_html]" class="form-control" rows="3">{{ e($settings['clipboard_send_message_html']) }}</textarea>
               </div>
 
               <div class="mb-3">
-                <label class="form-label">HTTP method to use when sending clipboard contents <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('HTTP method to use when sending clipboard contents') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[clipboard_send_http_method]" id="method_post" value="POST" {{ $settings['clipboard_send_http_method'] != 'GET' ? 'checked' : '' }}>
@@ -99,15 +99,15 @@
           <div id="export-collapse" class="accordion-collapse collapse" aria-labelledby="export-heading">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Enable digital object export <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Enable digital object export') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[clipboard_export_digitalobjects_enabled]" id="export_no" value="0" {{ $settings['clipboard_export_digitalobjects_enabled'] != '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="export_no">No <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-check-label" for="export_no">{{ __('No ') }}<span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                   <div class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="settings[clipboard_export_digitalobjects_enabled]" id="export_yes" value="1" {{ $settings['clipboard_export_digitalobjects_enabled'] == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="export_yes">Yes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-check-label" for="export_yes">{{ __('Yes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                 </div>
               </div>

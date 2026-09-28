@@ -90,7 +90,7 @@
         <div class="card-header d-flex justify-content-between align-items-center">
           <h6 class="mb-0"><i class="bi bi-clock-history me-2"></i>{{ __('Recent Submissions') }}</h6>
           <a href="{{ route('researcher.submissions') }}" class="btn btn-sm btn-outline-primary">
-            View All
+            {{ __('View All') }}
           </a>
         </div>
         <div class="card-body p-0">
@@ -260,7 +260,7 @@
       <div class="card mb-3">
         <div class="card-body text-center text-muted">
           <i class="bi bi-person-plus" style="font-size: 1.5rem;"></i>
-          <p class="small mt-2 mb-2">Register as a researcher to link your research workspace.</p>
+          <p class="small mt-2 mb-2">{{ __('Register as a researcher to link your research workspace.') }}</p>
           <a href="{{ route('research.publicRegister') }}" class="btn btn-sm btn-outline-success">
             <i class="bi bi-person-plus me-1"></i>{{ __('Register') }}
           </a>

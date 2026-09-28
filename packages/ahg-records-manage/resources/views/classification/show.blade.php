@@ -25,7 +25,7 @@
 <div class="row">
   <div class="col-md-7">
     <div class="card mb-3">
-      <div class="card-header bg-light">Rule definition</div>
+      <div class="card-header bg-light">{{ __('Rule definition') }}</div>
       <table class="table table-sm mb-0">
         <tr><th class="text-muted" style="width:30%">{{ __('Type') }}</th><td><span class="badge bg-secondary">{{ $rule->rule_type }}</span></td></tr>
         <tr><th class="text-muted">{{ __('Pattern') }}</th><td><code>{{ $rule->match_pattern }}</code></td></tr>
@@ -54,7 +54,7 @@
             <td><small>{{ $row->classified_at }}</small></td>
           </tr>
         @empty
-          <tr><td colspan="3" class="text-muted text-center py-3">No matches yet.</td></tr>
+          <tr><td colspan="3" class="text-muted text-center py-3">{{ __('No matches yet.') }}</td></tr>
         @endforelse
         </tbody>
       </table>

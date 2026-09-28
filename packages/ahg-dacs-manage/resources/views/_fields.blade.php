@@ -46,7 +46,7 @@
             <input type="text" name="identifier" class="form-control" autocomplete="off" value="{{ old('identifier', $io->identifier ?? '') }}">
           </div>
           <div class="mb-3">
-            <label class="form-label">Title <span class="text-danger">*</span></label>
+            <label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
             <input type="text" name="title" class="form-control" required value="{{ old('title', $io->title ?? '') }}">
           </div>
           <div class="mb-3">
@@ -79,7 +79,7 @@
         <div class="accordion-body">
           <input type="hidden" name="_creatorsIncluded" value="1">
           @if($events->isEmpty())
-            <p class="text-muted">No dates recorded.</p>
+            <p class="text-muted">{{ __('No dates recorded.') }}</p>
           @else
             <ul class="list-group mb-3">
               @foreach($events as $evt)
@@ -232,19 +232,19 @@
           @forelse($publicationNotes as $n)
             <p class="mb-1">{{ $n->content }}</p>
           @empty
-            <p class="text-muted">None.</p>
+            <p class="text-muted">{{ __('None.') }}</p>
           @endforelse
           <h6>{{ __('Archivist notes') }}</h6>
           @forelse($archivistNotes as $n)
             <p class="mb-1">{{ $n->content }}</p>
           @empty
-            <p class="text-muted">None.</p>
+            <p class="text-muted">{{ __('None.') }}</p>
           @endforelse
           <h6>{{ __('General notes') }}</h6>
           @forelse($notes as $n)
             <p class="mb-1">{{ $n->content }}</p>
           @empty
-            <p class="text-muted">None.</p>
+            <p class="text-muted">{{ __('None.') }}</p>
           @endforelse
         </div>
       </div>

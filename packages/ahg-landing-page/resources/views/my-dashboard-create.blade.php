@@ -8,9 +8,9 @@
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-4">
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
-        <a href="{{ route('landing-page.myDashboard.list') }}">My Dashboards</a>
+        <a href="{{ route('landing-page.myDashboard.list') }}">{{ __('My Dashboards') }}</a>
       </li>
-      <li class="breadcrumb-item active">Create New</li>
+      <li class="breadcrumb-item active">{{ __('Create New') }}</li>
     </ol>
   </nav>
 
@@ -43,11 +43,11 @@
         @csrf
 
         <div class="mb-3">
-          <label class="form-label" for="name">Dashboard Name <span class="text-danger">*</span></label>
+          <label class="form-label" for="name">{{ __('Dashboard Name') }} <span class="text-danger">*</span></label>
           <input type="text" name="name" id="name" class="form-control" required
                  value="{{ old('name', 'My Dashboard') }}"
                  placeholder="{{ __('e.g., My Dashboard, Research View') }}">
-          <div class="form-text">Give your dashboard a name</div>
+          <div class="form-text">{{ __('Give your dashboard a name') }}</div>
         </div>
 
         <div class="mb-3">
@@ -62,7 +62,7 @@
             <input type="checkbox" name="is_default" id="is_default" class="form-check-input" value="1"
                    {{ old('is_default') ? 'checked' : '' }}>
             <label class="form-check-label" for="is_default">
-              Set as my default dashboard
+              {{ __('Set as my default dashboard') }}
             </label>
           </div>
         </div>
@@ -75,7 +75,7 @@
             <i class="bi bi-check-lg"></i> {{ __('Create Dashboard') }}
           </button>
           <a href="{{ route('landing-page.myDashboard.list') }}" class="btn btn-outline-secondary">
-            Cancel
+            {{ __('Cancel') }}
           </a>
         </div>
       </form>

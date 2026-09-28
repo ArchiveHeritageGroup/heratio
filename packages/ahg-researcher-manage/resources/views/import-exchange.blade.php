@@ -7,8 +7,8 @@
   {{-- Breadcrumb --}}
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('researcher.dashboard') }}">Researcher</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Import Exchange</li>
+      <li class="breadcrumb-item"><a href="{{ route('researcher.dashboard') }}">{{ __('Researcher') }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ __('Import Exchange') }}</li>
     </ol>
   </nav>
 
@@ -27,7 +27,7 @@
         <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>{{ __('Import Complete') }}</h5>
       </div>
       <div class="card-body">
-        <p>Your exchange file has been imported as a <strong>draft submission</strong>. Review the items and submit for archivist approval.</p>
+        <p>{{ __('Your exchange file has been imported as a') }} <strong>draft submission</strong>. Review the items and submit for archivist approval.</p>
 
         <div class="row g-3 mb-3">
           @if(($result['notes'] ?? 0) > 0)
@@ -104,7 +104,7 @@
             @csrf
 
             <div class="mb-3">
-              <label for="exchange_file" class="form-label fw-bold">Exchange File <span class="text-danger">*</span></label>
+              <label for="exchange_file" class="form-label fw-bold">{{ __('Exchange File') }} <span class="text-danger">*</span></label>
               <input type="file"
                      class="form-control @error('exchange_file') is-invalid @enderror"
                      id="exchange_file"
@@ -137,7 +137,7 @@
 
             {{-- JSON preview area --}}
             <div id="jsonPreview" class="mb-3" style="display: none;">
-              <label class="form-label"><i class="fas fa-eye me-2"></i>File Preview</label>
+              <label class="form-label"><i class="fas fa-eye me-2"></i>{{ __('File Preview') }}</label>
               <div class="card bg-light">
                 <div class="card-body py-2">
                   <dl class="row mb-0" id="jsonPreviewContent">
@@ -169,10 +169,10 @@
         <div class="card-body small">
           <dl class="row mb-0">
             <dt class="col-4"><span class="badge bg-info">notes</span></dt>
-            <dd class="col-8">Research notes attached to existing records</dd>
+            <dd class="col-8">{{ __('Research notes attached to existing records') }}</dd>
 
             <dt class="col-4"><span class="badge bg-secondary">files</span></dt>
-            <dd class="col-8">Imported files with captions and metadata</dd>
+            <dd class="col-8">{{ __('Imported files with captions and metadata') }}</dd>
 
             <dt class="col-4"><span class="badge bg-success">new_items</span></dt>
             <dd class="col-8">New descriptive records with hierarchy, access points (subjects, places, genre, creators), extent and media</dd>
@@ -181,7 +181,7 @@
             <dd class="col-8">New creator/actor records (persons, organizations, families)</dd>
 
             <dt class="col-4"><span class="badge bg-warning text-dark">new_repositories</span></dt>
-            <dd class="col-8">New repository/institution records</dd>
+            <dd class="col-8">{{ __('New repository/institution records') }}</dd>
           </dl>
         </div>
       </div>

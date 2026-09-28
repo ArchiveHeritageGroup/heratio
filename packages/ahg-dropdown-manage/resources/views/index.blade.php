@@ -145,7 +145,7 @@
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label">Section <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+          <label class="form-label">{{ __('Section') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
           <select id="createSection" class="form-select">
             @foreach ($sectionLabels as $sKey => $sLabel)
               <option value="{{ $sKey }}">{{ $sLabel }}</option>
@@ -153,13 +153,13 @@
           </select>
         </div>
         <div class="mb-3">
-          <label class="form-label">Display Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+          <label class="form-label">{{ __('Display Name') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
           <input type="text" id="createLabel" class="form-control" placeholder="{{ __('e.g., Condition Status') }}">
         </div>
         <div class="mb-3">
-          <label class="form-label">Code <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+          <label class="form-label">{{ __('Code') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
           <input type="text" id="createCode" class="form-control" placeholder="{{ __('e.g., condition_status') }}">
-          <div class="form-text">Lowercase letters, numbers, and underscores only</div>
+          <div class="form-text">{{ __('Lowercase letters, numbers, and underscores only') }}</div>
         </div>
       </div>
       <div class="modal-footer">
@@ -181,7 +181,7 @@
       <div class="modal-body">
         <input type="hidden" id="renameTaxonomyCode">
         <div class="mb-3">
-          <label class="form-label">New Display Name <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label">{{ __('New Display Name') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <input type="text" id="renameNewLabel" class="form-control">
         </div>
       </div>
@@ -204,7 +204,7 @@
       <div class="modal-body">
         <input type="hidden" id="moveTaxonomyCode">
         <div class="mb-3">
-          <label class="form-label">Target Section <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label">{{ __('Target Section') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select id="moveTargetSection" class="form-select">
             @foreach ($sectionLabels as $sKey => $sLabel)
               <option value="{{ $sKey }}">{{ $sLabel }}</option>

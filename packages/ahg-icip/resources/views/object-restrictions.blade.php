@@ -20,7 +20,7 @@
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ url('/'.$object->slug) }}">{{ $object->title ?? 'Record' }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.object-icip', ['slug' => $object->slug]) }}">ICIP</a></li>
-      <li class="breadcrumb-item active">Restrictions</li>
+      <li class="breadcrumb-item active">{{ __('Restrictions') }}</li>
     </ol>
   </nav>
 
@@ -39,7 +39,7 @@
         <div class="card-header"><h5 class="mb-0">{{ __('Active Restrictions') }}</h5></div>
         <div class="card-body">
           @if($restrictions->isEmpty())
-            <p class="text-muted">No access restrictions applied to this record.</p>
+            <p class="text-muted">{{ __('No access restrictions applied to this record.') }}</p>
           @else
             @foreach($restrictions as $restriction)
               <div class="alert alert-danger d-flex justify-content-between align-items-start">
@@ -89,7 +89,7 @@
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Restriction Type <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Restriction Type') }} <span class="text-danger">*</span></label>
                 <select name="restriction_type" class="form-select" required id="restrictionType">
                   @foreach($restrictionTypes as $value => $label)
                     <option value="{{ $value }}">{{ $label }}</option>
@@ -120,7 +120,7 @@
               <div class="col-md-4 mb-3">
                 <label class="form-label">{{ __('End Date') }}</label>
                 <input type="date" name="end_date" class="form-control">
-                <div class="form-text">Leave blank for indefinite</div>
+                <div class="form-text">{{ __('Leave blank for indefinite') }}</div>
               </div>
               <div class="col-md-4 mb-3">
                 <label class="form-label">&nbsp;</label>
@@ -159,16 +159,16 @@
         <div class="card-header"><h5 class="mb-0">{{ __('Restriction Types') }}</h5></div>
         <div class="card-body small">
           <dl class="mb-0">
-            <dt><i class="bi bi-people text-danger me-1"></i> Community Permission Required</dt>
-            <dd class="text-muted">Written permission from the community is required</dd>
-            <dt><i class="bi bi-shield-lock text-danger me-1"></i> Initiated Only</dt>
-            <dd class="text-muted">Restricted to initiated community members</dd>
-            <dt><i class="bi bi-calendar-event text-danger me-1"></i> Seasonal</dt>
-            <dd class="text-muted">Time-based restrictions</dd>
-            <dt><i class="bi bi-heart text-danger me-1"></i> Mourning Period</dt>
-            <dd class="text-muted">Temporary restriction during mourning</dd>
-            <dt><i class="bi bi-box-arrow-left text-danger me-1"></i> Repatriation Pending</dt>
-            <dd class="text-muted">Material awaiting return to community</dd>
+            <dt><i class="bi bi-people text-danger me-1"></i> {{ __('Community Permission Required') }}</dt>
+            <dd class="text-muted">{{ __('Written permission from the community is required') }}</dd>
+            <dt><i class="bi bi-shield-lock text-danger me-1"></i> {{ __('Initiated Only') }}</dt>
+            <dd class="text-muted">{{ __('Restricted to initiated community members') }}</dd>
+            <dt><i class="bi bi-calendar-event text-danger me-1"></i> {{ __('Seasonal') }}</dt>
+            <dd class="text-muted">{{ __('Time-based restrictions') }}</dd>
+            <dt><i class="bi bi-heart text-danger me-1"></i> {{ __('Mourning Period') }}</dt>
+            <dd class="text-muted">{{ __('Temporary restriction during mourning') }}</dd>
+            <dt><i class="bi bi-box-arrow-left text-danger me-1"></i> {{ __('Repatriation Pending') }}</dt>
+            <dd class="text-muted">{{ __('Material awaiting return to community') }}</dd>
           </dl>
         </div>
       </div>

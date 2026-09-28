@@ -26,7 +26,7 @@
     @csrf
 
     <div class="card mb-3">
-        <div class="card-header">Node Details</div>
+        <div class="card-header">{{ __('Node Details') }}</div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6 mb-3">
@@ -42,7 +42,7 @@
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label for="node_type" class="form-label">Node Type <span class="text-danger">*</span></label>
+                    <label for="node_type" class="form-label">{{ __('Node Type') }} <span class="text-danger">*</span></label>
                     <select name="node_type" id="node_type" class="form-select" required>
                         <option value="plan" {{ old('node_type') === 'plan' ? 'selected' : '' }}>{{ __('Plan') }}</option>
                         <option value="series" {{ old('node_type', 'series') === 'series' ? 'selected' : '' }}>{{ __('Series') }}</option>
@@ -55,12 +55,12 @@
 
             <div class="row">
                 <div class="col-md-4 mb-3">
-                    <label for="code" class="form-label">Code <span class="text-danger">*</span></label>
+                    <label for="code" class="form-label">{{ __('Code') }} <span class="text-danger">*</span></label>
                     <input type="text" name="code" id="code" class="form-control" value="{{ old('code') }}" required maxlength="50" placeholder="{{ __('e.g. 1/2/3') }}">
                 </div>
 
                 <div class="col-md-8 mb-3">
-                    <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+                    <label for="title" class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
                     <input type="text" name="title" id="title" class="form-control" value="{{ old('title') }}" required maxlength="255">
                 </div>
             </div>
@@ -110,7 +110,7 @@
     </div>
 
     <div class="d-flex justify-content-between">
-        <a href="{{ route('records.fileplan.index') }}" class="btn btn-secondary">Cancel</a>
+        <a href="{{ route('records.fileplan.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
         <button type="submit" class="btn btn-primary">{{ __('Create Node') }}</button>
     </div>
 </form>

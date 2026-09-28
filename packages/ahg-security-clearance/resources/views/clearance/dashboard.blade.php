@@ -65,7 +65,7 @@
               @endforeach
             </tbody>
           </table>
-          <a href="{{ route('security-clearance.index') }}" class="btn btn-sm btn-outline-primary">Manage Clearances</a>
+          <a href="{{ route('security-clearance.index') }}" class="btn btn-sm btn-outline-primary">{{ __('Manage Clearances') }}</a>
         </div>
       </div>
     </div>
@@ -117,7 +117,7 @@
             </td>
             <td>{{ isset($req->created_at) ? date('Y-m-d H:i', strtotime($req->created_at)) : '' }}</td>
             <td>
-              <a href="{{ route('security-clearance.view-request', ['id' => $req->request_id ?? $req->id]) }}" class="btn btn-sm btn-primary">Review</a>
+              <a href="{{ route('security-clearance.view-request', ['id' => $req->request_id ?? $req->id]) }}" class="btn btn-sm btn-primary">{{ __('Review') }}</a>
             </td>
           </tr>
           @endforeach
@@ -153,7 +153,7 @@
               @endif
             </td>
             <td>
-              <a href="{{ route('security-clearance.view', ['id' => $exp->user_id ?? 0]) }}" class="btn btn-sm btn-outline-primary">Manage</a>
+              <a href="{{ route('security-clearance.view', ['id' => $exp->user_id ?? 0]) }}" class="btn btn-sm btn-outline-primary">{{ __('Manage') }}</a>
             </td>
           </tr>
           @endforeach

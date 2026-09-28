@@ -28,11 +28,11 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.index') }}">IPSAS</a></li>
-                    <li class="breadcrumb-item active">Valuations</li>
+                    <li class="breadcrumb-item active">{{ __('Valuations') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-calculator me-2"></i>{{ __('Asset Valuations') }}</h1>
-            <p class="text-muted">Track asset value changes for IPSAS compliance</p>
+            <p class="text-muted">{{ __('Track asset value changes for IPSAS compliance') }}</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('ipsas.valuation.create') }}" class="btn btn-primary">
@@ -70,7 +70,7 @@
             @if(empty($valuations) || (is_object($valuations) && method_exists($valuations, 'isEmpty') && $valuations->isEmpty()) || (is_countable($valuations) && count($valuations) === 0))
                 <div class="p-4 text-center text-muted">
                     <i class="fas fa-calculator fa-3x mb-3"></i>
-                    <p>No valuations found.</p>
+                    <p>{{ __('No valuations found.') }}</p>
                 </div>
             @else
                 <table class="table table-hover mb-0">

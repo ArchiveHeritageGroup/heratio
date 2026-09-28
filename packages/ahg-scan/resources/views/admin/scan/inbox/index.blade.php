@@ -6,9 +6,9 @@
 
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ url('/admin') }}">Admin</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('scan.dashboard') }}">Scan</a></li>
-        <li class="breadcrumb-item active">Inbox</li>
+        <li class="breadcrumb-item"><a href="{{ url('/admin') }}">{{ __('Admin') }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('scan.dashboard') }}">{{ __('Scan') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Inbox') }}</li>
     </ol>
 </nav>
 
@@ -47,7 +47,7 @@
 </form>
 
 @if($files->isEmpty())
-    <p class="text-muted">No files match.</p>
+    <p class="text-muted">{{ __('No files match.') }}</p>
 @else
     <form method="POST" action="{{ route('scan.inbox.bulk') }}" id="bulkForm">
         @csrf

@@ -9,10 +9,10 @@
   {{-- Breadcrumb --}}
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('admin.3d-models.index') }}">3D Models</a></li>
       <li class="breadcrumb-item"><a href="{{ route('admin.3d-models.view', $model->id) }}">{{ e($model->model_title ?: ($model->original_filename ?? '3D Model')) }}</a></li>
-      <li class="breadcrumb-item active">Edit</li>
+      <li class="breadcrumb-item active">{{ __('Edit') }}</li>
     </ol>
   </nav>
 
@@ -59,13 +59,13 @@
           </div>
           <div class="card-body">
             <div class="mb-3">
-              <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="title" class="form-label">{{ __('Title') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" class="form-control" id="title" name="title"
                      autocomplete="off"
                      value="{{ old('title', $model->model_title ?? '') }}">
             </div>
             <div class="mb-3">
-              <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="description" class="form-label">{{ __('Description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea class="form-control" id="description" name="description" rows="3">{{ old('description', $model->description ?? '') }}</textarea>
             </div>
             <div class="mb-3">
@@ -85,7 +85,7 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="camera_orbit" class="form-label">Camera Orbit <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label for="camera_orbit" class="form-label">{{ __('Camera Orbit') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" class="form-control" id="camera_orbit" name="camera_orbit"
                          value="{{ old('camera_orbit', $model->camera_orbit ?? '0deg 75deg 105%') }}">
                   <div class="form-text">Format: "0deg 75deg 105%" (theta phi radius)</div>
@@ -93,7 +93,7 @@
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="field_of_view" class="form-label">Field of View <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label for="field_of_view" class="form-label">{{ __('Field of View') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" class="form-control" id="field_of_view" name="field_of_view"
                          value="{{ old('field_of_view', $model->field_of_view ?? '30deg') }}">
                 </div>
@@ -103,7 +103,7 @@
             <div class="row">
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label for="exposure" class="form-label">Exposure <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label for="exposure" class="form-label">{{ __('Exposure') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="range" class="form-range" id="exposure" name="exposure"
                          min="0" max="2" step="0.1" value="{{ old('exposure', $model->exposure ?? 1) }}"
                          oninput="document.getElementById('exposure-val').textContent=this.value; updatePreview();">
@@ -112,7 +112,7 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label for="shadow_intensity" class="form-label">Shadow Intensity <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label for="shadow_intensity" class="form-label">{{ __('Shadow Intensity') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="range" class="form-range" id="shadow_intensity" name="shadow_intensity"
                          min="0" max="2" step="0.1" value="{{ old('shadow_intensity', $model->shadow_intensity ?? 1) }}"
                          oninput="document.getElementById('shadow-val').textContent=this.value; updatePreview();">
@@ -129,7 +129,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="background_color" class="form-label">Background Color <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="background_color" class="form-label">{{ __('Background Color') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="input-group" style="max-width:200px;">
                 <input type="color" class="form-control form-control-color" id="bg_color_picker"
                        value="{{ old('background_color', $model->background_color ?? '#f5f5f5') }}"
@@ -142,7 +142,7 @@
             <div class="form-check mb-2">
               <input class="form-check-input" type="checkbox" id="auto_rotate" name="auto_rotate" value="1"
                      {{ old('auto_rotate', $model->auto_rotate ?? false) ? 'checked' : '' }}>
-              <label class="form-check-label" for="auto_rotate">Enable Auto-Rotate <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-check-label" for="auto_rotate">{{ __('Enable Auto-Rotate') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
           </div>
         </div>
@@ -164,19 +164,19 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="ar_scale" class="form-label">AR Scale <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label for="ar_scale" class="form-label">{{ __('AR Scale') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select class="form-select" id="ar_scale" name="ar_scale">
-                    <option value="auto" {{ ($model->ar_scale ?? 'auto') == 'auto' ? 'selected' : '' }}>Auto</option>
-                    <option value="fixed" {{ ($model->ar_scale ?? '') == 'fixed' ? 'selected' : '' }}>Fixed</option>
+                    <option value="auto" {{ ($model->ar_scale ?? 'auto') == 'auto' ? 'selected' : '' }}>{{ __('Auto') }}</option>
+                    <option value="fixed" {{ ($model->ar_scale ?? '') == 'fixed' ? 'selected' : '' }}>{{ __('Fixed') }}</option>
                   </select>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="ar_placement" class="form-label">AR Placement <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label for="ar_placement" class="form-label">{{ __('AR Placement') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select class="form-select" id="ar_placement" name="ar_placement">
-                    <option value="floor" {{ ($model->ar_placement ?? 'floor') == 'floor' ? 'selected' : '' }}>Floor</option>
-                    <option value="wall" {{ ($model->ar_placement ?? '') == 'wall' ? 'selected' : '' }}>Wall</option>
+                    <option value="floor" {{ ($model->ar_placement ?? 'floor') == 'floor' ? 'selected' : '' }}>{{ __('Floor') }}</option>
+                    <option value="wall" {{ ($model->ar_placement ?? '') == 'wall' ? 'selected' : '' }}>{{ __('Wall') }}</option>
                   </select>
                 </div>
               </div>
@@ -230,7 +230,7 @@
           </div>
           <div class="card-body">
             @if(count($hotspots ?? []) === 0)
-              <p class="text-muted mb-0 small">No hotspots defined.</p>
+              <p class="text-muted mb-0 small">{{ __('No hotspots defined.') }}</p>
             @else
               <ul class="list-group list-group-flush">
                 @foreach($hotspots as $hotspot)
@@ -401,7 +401,7 @@
         <div class="modal-body">
           <p class="small text-muted">Click on the 3D model to set the hotspot position, then fill in the details below.</p>
           <div class="mb-3">
-            <label class="form-label">Type <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+            <label class="form-label">{{ __('Type') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <select class="form-select" id="hotspot_type">
               <option value="annotation">{{ __('Annotation') }}</option>
               <option value="info">{{ __('Information') }}</option>
@@ -411,11 +411,11 @@
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Title') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" class="form-control" id="hotspot_title">
           </div>
           <div class="mb-3">
-            <label class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <textarea class="form-control" id="hotspot_description" rows="2"></textarea>
           </div>
           <div class="mb-3">

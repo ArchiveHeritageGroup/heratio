@@ -225,7 +225,7 @@
             <input type="number" class="form-control" id="library_hold_expiry_days"
                    name="settings[library_hold_expiry_days]"
                    value="{{ $settings['library_hold_expiry_days'] ?? '7' }}" min="1">
-            <div class="form-text">Days a hold remains ready for pickup before expiring.</div>
+            <div class="form-text">{{ __('Days a hold remains ready for pickup before expiring.') }}</div>
           </div>
           <div class="col-md-4 mb-3">
             <label for="library_hold_max_queue" class="form-label">{{ __('Max Queue Size Per Item') }}</label>

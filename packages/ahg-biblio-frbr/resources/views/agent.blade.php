@@ -6,7 +6,7 @@
 
   <div class="d-flex align-items-center gap-2 mb-3">
     <h1 class="h3 mb-0">{{ __('FRBR Agents') }}</h1>
-    <span class="badge bg-secondary">Agents</span>
+    <span class="badge bg-secondary">{{ __('Agents') }}</span>
   </div>
   <p class="text-muted small mb-4">
     Browse the agent authority used in FRBR records - creators, contributors,
@@ -78,7 +78,7 @@
 
   <div class="mt-3">
     <a href="{{ route('frbr.index') }}" class="btn btn-outline-secondary btn-sm">
-      <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+      <i class="bi bi-arrow-left me-1"></i> {{ __('Back to Dashboard') }}
     </a>
   </div>
 

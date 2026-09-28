@@ -17,7 +17,7 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.index') }}">CDPA</a></li>
-                    <li class="breadcrumb-item active">Breach Register</li>
+                    <li class="breadcrumb-item active">{{ __('Breach Register') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Breach Register') }}</h1>
@@ -33,10 +33,10 @@
     <div class="card mb-4">
         <div class="card-body pb-0">
             <ul class="nav nav-tabs" role="tablist">
-                <li class="nav-item"><a class="nav-link {{ !$currentStatus ? 'active' : '' }}" href="{{ route('ahgcdpa.breaches') }}">All</a></li>
-                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'investigating' ? 'active' : '' }}" href="{{ route('ahgcdpa.breaches', ['status' => 'investigating']) }}">Investigating</a></li>
-                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'contained' ? 'active' : '' }}" href="{{ route('ahgcdpa.breaches', ['status' => 'contained']) }}">Contained</a></li>
-                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'resolved' ? 'active' : '' }}" href="{{ route('ahgcdpa.breaches', ['status' => 'resolved']) }}">Resolved</a></li>
+                <li class="nav-item"><a class="nav-link {{ !$currentStatus ? 'active' : '' }}" href="{{ route('ahgcdpa.breaches') }}">{{ __('All') }}</a></li>
+                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'investigating' ? 'active' : '' }}" href="{{ route('ahgcdpa.breaches', ['status' => 'investigating']) }}">{{ __('Investigating') }}</a></li>
+                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'contained' ? 'active' : '' }}" href="{{ route('ahgcdpa.breaches', ['status' => 'contained']) }}">{{ __('Contained') }}</a></li>
+                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'resolved' ? 'active' : '' }}" href="{{ route('ahgcdpa.breaches', ['status' => 'resolved']) }}">{{ __('Resolved') }}</a></li>
             </ul>
         </div>
     </div>
@@ -46,7 +46,7 @@
             @if ($breaches->isEmpty())
                 <div class="p-4 text-center text-muted">
                     <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
-                    <p>No breaches recorded.</p>
+                    <p>{{ __('No breaches recorded.') }}</p>
                 </div>
             @else
                 <table class="table table-hover mb-0">

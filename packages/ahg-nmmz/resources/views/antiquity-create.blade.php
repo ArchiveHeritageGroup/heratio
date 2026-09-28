@@ -21,8 +21,8 @@
       <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
-          <li class="breadcrumb-item"><a href="{{ route('nmmz.antiquities') }}">Antiquities</a></li>
-          <li class="breadcrumb-item active">Register Antiquity</li>
+          <li class="breadcrumb-item"><a href="{{ route('nmmz.antiquities') }}">{{ __('Antiquities') }}</a></li>
+          <li class="breadcrumb-item active">{{ __('Register Antiquity') }}</li>
         </ol>
       </nav>
       <h1><i class="fas fa-vase me-2"></i>{{ __('Register Antiquity') }}</h1>
@@ -38,7 +38,7 @@
         <div class="card-body">
           <div class="row g-3">
             <div class="col-12">
-              <label class="form-label">Name/Title <span class="text-danger">*</span></label>
+              <label class="form-label">{{ __('Name/Title') }} <span class="text-danger">*</span></label>
               <input type="text" name="name" class="form-control" required>
             </div>
             <div class="col-12">
@@ -129,7 +129,7 @@
           <button type="submit" class="btn btn-primary btn-lg">
             <i class="fas fa-save me-2"></i>{{ __('Register Antiquity') }}
           </button>
-          <a href="{{ route('nmmz.antiquities') }}" class="btn btn-outline-secondary">Cancel</a>
+          <a href="{{ route('nmmz.antiquities') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
         </div>
       </div>
     </div>

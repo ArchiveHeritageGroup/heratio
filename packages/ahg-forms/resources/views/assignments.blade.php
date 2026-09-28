@@ -12,7 +12,7 @@
     <div class="row mb-4">
         <div class="col">
             <h1><i class="fas fa-link me-2"></i>{{ __('Form Assignments') }}</h1>
-            <p class="text-muted">Assign form templates to repositories and description levels</p>
+            <p class="text-muted">{{ __('Assign form templates to repositories and description levels') }}</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('forms.assignment.create') }}" class="btn btn-primary">

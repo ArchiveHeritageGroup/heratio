@@ -8,7 +8,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h1 class="h3 mb-1">{{ __('Landing Pages') }}</h1>
-      <p class="text-muted mb-0">Manage your site's landing pages</p>
+      <p class="text-muted mb-0">{{ __('Manage your site\'s landing pages') }}</p>
     </div>
     <a href="{{ route('landing-page.create') }}" class="btn btn-primary">
       <i class="bi bi-plus-lg"></i> {{ __('Create New Page') }}
@@ -19,7 +19,7 @@
     <div class="text-center py-5">
       <i class="bi bi-file-earmark-plus display-1 text-muted"></i>
       <h3 class="mt-3 text-muted">{{ __('No Landing Pages Yet') }}</h3>
-      <p class="text-muted">Create your first landing page to get started</p>
+      <p class="text-muted">{{ __('Create your first landing page to get started') }}</p>
       <a href="{{ route('landing-page.create') }}" class="btn btn-primary btn-lg mt-2">
         <i class="bi bi-plus-lg"></i> {{ __('Create Landing Page') }}
       </a>
@@ -48,7 +48,7 @@
                 @if ($page->description)
                   {{ e(\Illuminate\Support\Str::limit($page->description, 100)) }}
                 @else
-                  <em>No description</em>
+                  <em>{{ __('No description') }}</em>
                 @endif
               </p>
 
@@ -65,16 +65,16 @@
               <div class="d-flex gap-2">
                 <a href="{{ route('landing-page.edit', $page->id) }}"
                    class="btn btn-primary btn-sm flex-grow-1">
-                  Edit
+                  {{ __('Edit') }}
                 </a>
                 <a href="{{ route('landing-page.show', $page->slug) }}"
                    class="btn btn-outline-secondary btn-sm" target="_blank" title="{{ __('Preview') }}">
-                  Preview
+                  {{ __('Preview') }}
                 </a>
                 @if ($page->is_active)
                   <a href="{{ route('landing-page.show', $page->slug) }}"
                      class="btn btn-outline-secondary btn-sm" target="_blank" title="{{ __('View Live') }}">
-                    View
+                    {{ __('View') }}
                   </a>
                 @endif
               </div>

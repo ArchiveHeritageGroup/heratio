@@ -10,7 +10,7 @@
   </div>
 
   @if(count($queues) === 0)
-    <div class="alert alert-info">No queues configured yet.</div>
+    <div class="alert alert-info">{{ __('No queues configured yet.') }}</div>
   @else
     <div class="row">
       @foreach($queues as $queue)
@@ -61,7 +61,7 @@
                 </small>
                 @if($queue->overdue_count > 0)
                   <a href="{{ route('workflow.overdue', ['queue_id' => $queue->id]) }}" class="btn btn-sm atom-btn-outline-danger">
-                    View Overdue
+                    {{ __('View Overdue') }}
                   </a>
                 @endif
               </div>

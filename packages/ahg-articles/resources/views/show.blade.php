@@ -134,7 +134,7 @@
             </div>
             {{-- Honeypot: hidden from humans; bots fill it and get silently dropped. --}}
             <div style="position:absolute;left:-9999px;" aria-hidden="true">
-                <label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+                <label>{{ __('Website') }}<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
             </div>
             <div class="mb-2">
                 <textarea name="body" rows="4" maxlength="4000" required class="form-control"

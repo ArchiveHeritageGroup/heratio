@@ -22,26 +22,26 @@
     <div class="card-body">
       <div class="row">
         <div class="col-md-6 mb-3">
-          <label for="designation_date" class="form-label">Designation Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label for="designation_date" class="form-label">{{ __('Designation Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <input type="date" name="designation_date" id="designation_date" class="form-control" value="{{ $orphanWork->designation_date ?? '' }}">
         </div>
         <div class="col-md-6 mb-3">
-          <label for="search_status" class="form-label">Search Status <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label for="search_status" class="form-label">{{ __('Search Status') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="search_status" id="search_status" class="form-select">
-            <option value="pending" {{ ($orphanWork->search_status ?? '') === 'pending' ? 'selected' : '' }}>Pending</option>
-            <option value="diligent" {{ ($orphanWork->search_status ?? '') === 'diligent' ? 'selected' : '' }}>Diligent Search Completed</option>
-            <option value="incomplete" {{ ($orphanWork->search_status ?? '') === 'incomplete' ? 'selected' : '' }}>Incomplete</option>
+            <option value="pending" {{ ($orphanWork->search_status ?? '') === 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
+            <option value="diligent" {{ ($orphanWork->search_status ?? '') === 'diligent' ? 'selected' : '' }}>{{ __('Diligent Search Completed') }}</option>
+            <option value="incomplete" {{ ($orphanWork->search_status ?? '') === 'incomplete' ? 'selected' : '' }}>{{ __('Incomplete') }}</option>
           </select>
         </div>
       </div>
       <div class="mb-3">
-        <label for="search_notes" class="form-label">Search Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="search_notes" class="form-label">{{ __('Search Notes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <textarea name="search_notes" id="search_notes" class="form-control" rows="4">{{ $orphanWork->search_notes ?? '' }}</textarea>
       </div>
     </div>
   </div>
   <section class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
-    <a href="{{ route('rights-admin.orphan-works') }}" class="btn atom-btn-outline-light">Cancel</a>
+    <a href="{{ route('rights-admin.orphan-works') }}" class="btn atom-btn-outline-light">{{ __('Cancel') }}</a>
     <button type="submit" class="btn atom-btn-outline-light">{{ __('Save') }}</button>
   </section>
 </form>

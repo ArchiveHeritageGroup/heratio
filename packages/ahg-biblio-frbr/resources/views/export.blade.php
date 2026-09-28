@@ -16,7 +16,7 @@
     <div class="col-lg-8">
       <div class="card">
         <div class="card-header">
-          <i class="bi bi-box-arrow-up-right me-1"></i> Export Configuration
+          <i class="bi bi-box-arrow-up-right me-1"></i> {{ __('Export Configuration') }}
         </div>
         <div class="card-body">
           @if(session('info'))
@@ -57,9 +57,9 @@
 
             <div class="d-flex gap-2">
               <button type="submit" class="btn btn-primary">
-                <i class="bi bi-download me-1"></i> Download FRBR
+                <i class="bi bi-download me-1"></i> {{ __('Download FRBR') }}
               </button>
-              <a href="{{ route('frbr.index') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+              <a href="{{ route('frbr.index') }}" class="btn btn-outline-secondary">{{ __('Back to Dashboard') }}</a>
             </div>
           </form>
         </div>
@@ -68,23 +68,23 @@
 
     <div class="col-lg-4">
       <div class="card">
-        <div class="card-header">FRBR Entity Model</div>
+        <div class="card-header">{{ __('FRBR Entity Model') }}</div>
         <div class="card-body small">
           <dl class="row mb-1">
-            <dt class="col-4">Work</dt>
-            <dd class="col-8">Distinct intellectual creation</dd>
+            <dt class="col-4">{{ __('Work') }}</dt>
+            <dd class="col-8">{{ __('Distinct intellectual creation') }}</dd>
           </dl>
           <dl class="row mb-1">
-            <dt class="col-4">Expression</dt>
-            <dd class="col-8">Text, translation, or edition</dd>
+            <dt class="col-4">{{ __('Expression') }}</dt>
+            <dd class="col-8">{{ __('Text, translation, or edition') }}</dd>
           </dl>
           <dl class="row mb-1">
-            <dt class="col-4">Manifestation</dt>
-            <dd class="col-8">Carrier and format</dd>
+            <dt class="col-4">{{ __('Manifestation') }}</dt>
+            <dd class="col-8">{{ __('Carrier and format') }}</dd>
           </dl>
           <dl class="row mb-0">
-            <dt class="col-4">Item</dt>
-            <dd class="col-8">Concrete copy</dd>
+            <dt class="col-4">{{ __('Item') }}</dt>
+            <dd class="col-8">{{ __('Concrete copy') }}</dd>
           </dl>
           <hr>
           <p class="mb-0 text-muted">

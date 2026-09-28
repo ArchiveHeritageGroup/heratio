@@ -10,7 +10,7 @@
     <h5 class="mb-0">{{ __('Export Preview') }}</h5>
   </div>
   <div class="card-body">
-    <p class="text-muted">Content for Export Preview.</p>
+    <p class="text-muted">{{ __('Content for Export Preview.') }}</p>
   </div>
 </div>
 @endsection

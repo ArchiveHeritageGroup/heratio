@@ -5,7 +5,7 @@
 
 @section('content')
 <div class="container-fluid py-4">
-  <h1 class="h3 mb-3"><i class="fas fa-palette me-2"></i>Request an artwork for placement</h1>
+  <h1 class="h3 mb-3"><i class="fas fa-palette me-2"></i>{{ __('Request an artwork for placement') }}</h1>
 
   <p class="text-muted">Ask to place one or more works in an office or shared space. The gallery is notified and
     records the decision - the conversation itself stays with people.</p>
@@ -24,7 +24,7 @@
     <div class="row g-4">
       <div class="col-lg-7">
         <div class="card mb-3">
-          <div class="card-header">Works</div>
+          <div class="card-header">{{ __('Works') }}</div>
           <div class="card-body">
             <label class="form-label" for="object_ids_manual">{{ __('Record id(s)') }}</label>
             <input type="text" class="form-control" id="object_ids_manual" name="object_ids_manual"
@@ -53,7 +53,7 @@
         </div>
 
         <div class="card mb-3">
-          <div class="card-header">Placement</div>
+          <div class="card-header">{{ __('Placement') }}</div>
           <div class="card-body">
             <div class="row g-3">
               <div class="col-md-6"><label class="form-label" for="placement_building">{{ __('Building') }}</label>
@@ -75,7 +75,7 @@
 
       <div class="col-lg-5">
         <div class="card mb-3">
-          <div class="card-header">When and why</div>
+          <div class="card-header">{{ __('When and why') }}</div>
           <div class="card-body">
             <div class="row g-3">
               <div class="col-6"><label class="form-label" for="requested_from">{{ __('From') }}</label>
@@ -95,7 +95,7 @@
         </div>
 
         <div class="d-grid">
-          <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-paper-plane me-1"></i> Submit request</button>
+          <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-paper-plane me-1"></i> {{ __('Submit request') }}</button>
         </div>
         <p class="form-text mt-2">Availability is shown as a warning only. A clash does not stop you asking - the gallery decides.</p>
       </div>

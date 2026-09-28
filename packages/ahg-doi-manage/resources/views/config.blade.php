@@ -48,10 +48,10 @@
       <div class="col-lg-8">
         {{-- DataCite API Credentials --}}
         <div class="card mb-4">
-          <div class="card-header fw-bold" >DataCite API Credentials</div>
+          <div class="card-header fw-bold" >{{ __('DataCite API Credentials') }}</div>
           <div class="card-body">
             <div class="row mb-3">
-              <label for="datacite_repository_id" class="col-sm-3 col-form-label">Repository ID <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="datacite_repository_id" class="col-sm-3 col-form-label">{{ __('Repository ID') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="col-sm-9">
                 <input type="text" class="form-control" id="datacite_repository_id" name="datacite_repository_id"
                        value="{{ old('datacite_repository_id', $settings['datacite_repository_id'] ?? '') }}"
@@ -61,21 +61,21 @@
             </div>
 
             <div class="row mb-3">
-              <label for="datacite_prefix" class="col-sm-3 col-form-label">DOI Prefix <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="datacite_prefix" class="col-sm-3 col-form-label">{{ __('DOI Prefix') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="col-sm-9">
                 <input type="text" class="form-control" id="datacite_prefix" name="datacite_prefix"
                        value="{{ old('datacite_prefix', $settings['datacite_prefix'] ?? '') }}"
                        placeholder="{{ __('e.g. 10.12345') }}">
-                <div class="form-text">Your assigned DOI prefix</div>
+                <div class="form-text">{{ __('Your assigned DOI prefix') }}</div>
               </div>
             </div>
 
             <div class="row mb-3">
-              <label for="datacite_password" class="col-sm-3 col-form-label">Password <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="datacite_password" class="col-sm-3 col-form-label">{{ __('Password') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="col-sm-9">
                 <input type="password" class="form-control" id="datacite_password" name="datacite_password"
                        value="{{ old('datacite_password', $settings['datacite_password'] ?? '') }}">
-                <div class="form-text">DataCite API password</div>
+                <div class="form-text">{{ __('DataCite API password') }}</div>
               </div>
             </div>
 
@@ -94,17 +94,17 @@
             </div>
 
             <div class="row mb-3">
-              <label for="datacite_environment" class="col-sm-3 col-form-label">Environment <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="datacite_environment" class="col-sm-3 col-form-label">{{ __('Environment') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="col-sm-9">
                 <select class="form-select" id="datacite_environment" name="datacite_environment">
                   <option value="test" {{ (old('datacite_environment', $settings['datacite_environment'] ?? '') === 'test') ? 'selected' : '' }}>
-                    Test
+                    {{ __('Test') }}
                   </option>
                   <option value="production" {{ (old('datacite_environment', $settings['datacite_environment'] ?? '') === 'production') ? 'selected' : '' }}>
-                    Production
+                    {{ __('Production') }}
                   </option>
                 </select>
-                <div class="form-text">Use 'test' until ready for production DOIs</div>
+                <div class="form-text">{{ __('Use \'test\' until ready for production DOIs') }}</div>
               </div>
             </div>
 
@@ -121,23 +121,23 @@
 
         {{-- Minting Settings --}}
         <div class="card mb-4">
-          <div class="card-header fw-bold" >Minting Settings</div>
+          <div class="card-header fw-bold" >{{ __('Minting Settings') }}</div>
           <div class="card-body">
             <div class="row mb-3">
-              <label for="auto_mint" class="col-sm-3 col-form-label">Auto-mint DOIs <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="auto_mint" class="col-sm-3 col-form-label">{{ __('Auto-mint DOIs') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="col-sm-9">
                 <div class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" name="auto_mint" value="1" id="auto_mint"
                          {{ (old('auto_mint', $settings['auto_mint'] ?? '0') === '1') ? 'checked' : '' }}>
                   <label class="form-check-label" for="auto_mint">
-                    Auto-mint DOIs when records are published
+                    {{ __('Auto-mint DOIs when records are published') }}
                    <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 </div>
               </div>
             </div>
 
             <div class="row mb-3">
-              <label class="col-sm-3 col-form-label">Auto-mint levels <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="col-sm-3 col-form-label">{{ __('Auto-mint levels') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="col-sm-9">
                 @php
                   $autoMintLevels = json_decode($settings['auto_mint_levels'] ?? '[]', true) ?: [];
@@ -153,7 +153,7 @@
                      <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                 @endforeach
-                <div class="form-text">Only auto-mint for these levels of description</div>
+                <div class="form-text">{{ __('Only auto-mint for these levels of description') }}</div>
               </div>
             </div>
 
@@ -163,7 +163,7 @@
                   <input type="checkbox" name="require_digital_object" value="1" class="form-check-input" id="require_digital_object"
                          {{ (old('require_digital_object', $settings['require_digital_object'] ?? '0') === '1') ? 'checked' : '' }}>
                   <label class="form-check-label" for="require_digital_object">
-                    Only auto-mint if record has a digital object
+                    {{ __('Only auto-mint if record has a digital object') }}
                    <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 </div>
               </div>
@@ -173,20 +173,20 @@
 
         {{-- Metadata Defaults --}}
         <div class="card mb-4">
-          <div class="card-header fw-bold" >Metadata Defaults</div>
+          <div class="card-header fw-bold" >{{ __('Metadata Defaults') }}</div>
           <div class="card-body">
             <div class="row mb-3">
-              <label for="default_publisher" class="col-sm-3 col-form-label">Default Publisher <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="default_publisher" class="col-sm-3 col-form-label">{{ __('Default Publisher') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="col-sm-9">
                 <input type="text" class="form-control" id="default_publisher" name="default_publisher"
                        value="{{ old('default_publisher', $settings['default_publisher'] ?? '') }}"
                        placeholder="{{ __('e.g. The Archive and Heritage Group') }}">
-                <div class="form-text">Used when no repository-specific publisher is set</div>
+                <div class="form-text">{{ __('Used when no repository-specific publisher is set') }}</div>
               </div>
             </div>
 
             <div class="row mb-3">
-              <label for="default_resource_type" class="col-sm-3 col-form-label">Default Resource Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="default_resource_type" class="col-sm-3 col-form-label">{{ __('Default Resource Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="col-sm-9">
                 @php
                   $resourceTypes = [
@@ -211,7 +211,7 @@
             </div>
 
             <div class="row mb-3">
-              <label for="suffix_pattern" class="col-sm-3 col-form-label">DOI Suffix Pattern <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="suffix_pattern" class="col-sm-3 col-form-label">{{ __('DOI Suffix Pattern') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="col-sm-9">
                 <input type="text" class="form-control" id="suffix_pattern" name="suffix_pattern"
                        value="{{ old('suffix_pattern', $settings['suffix_pattern'] ?? '{repository_code}/{year}/{object_id}') }}">
@@ -227,16 +227,16 @@
       <div class="col-lg-4">
         {{-- Help --}}
         <div class="card mb-4">
-          <div class="card-header fw-bold" >Help</div>
+          <div class="card-header fw-bold" >{{ __('Help') }}</div>
           <div class="card-body">
             <h6>{{ __('Getting Started') }}</h6>
             <ol class="small">
-              <li>Register at <a href="https://doi.datacite.org/" target="_blank">DataCite Fabrica</a></li>
-              <li>Create a repository</li>
-              <li>Copy your repository ID and password</li>
-              <li>Enter credentials above</li>
-              <li>Test the connection</li>
-              <li>Start minting DOIs</li>
+              <li>{{ __('Register at') }} <a href="https://doi.datacite.org/" target="_blank">{{ __('DataCite Fabrica') }}</a></li>
+              <li>{{ __('Create a repository') }}</li>
+              <li>{{ __('Copy your repository ID and password') }}</li>
+              <li>{{ __('Enter credentials above') }}</li>
+              <li>{{ __('Test the connection') }}</li>
+              <li>{{ __('Start minting DOIs') }}</li>
             </ol>
 
             <h6 class="mt-3">{{ __('Test Mode') }}</h6>

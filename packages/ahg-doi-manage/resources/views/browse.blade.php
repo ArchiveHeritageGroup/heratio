@@ -36,23 +36,23 @@
     <div class="d-flex flex-wrap gap-2 mb-3">
       <a href="{{ route('doi.browse') }}"
          class="btn btn-sm {{ $currentStatus === '' ? 'btn-outline-secondary' : 'btn-outline-secondary' }}">
-        All
+        {{ __('All') }}
       </a>
       <a href="{{ route('doi.browse', ['status' => 'findable']) }}"
          class="btn btn-sm {{ $currentStatus === 'findable' ? 'btn-success' : 'btn-success' }}">
-        Findable
+        {{ __('Findable') }}
       </a>
       <a href="{{ route('doi.browse', ['status' => 'registered']) }}"
          class="btn btn-sm {{ $currentStatus === 'registered' ? 'btn-outline-secondary' : 'btn-outline-secondary' }}">
-        Registered
+        {{ __('Registered') }}
       </a>
       <a href="{{ route('doi.browse', ['status' => 'draft']) }}"
          class="btn btn-sm {{ $currentStatus === 'draft' ? 'btn-outline-secondary' : 'btn-outline-secondary' }}">
-        Draft
+        {{ __('Draft') }}
       </a>
       <a href="{{ route('doi.browse', ['status' => 'deleted']) }}"
          class="btn btn-sm {{ $currentStatus === 'deleted' ? 'btn-danger' : 'btn-danger' }}">
-        Deleted
+        {{ __('Deleted') }}
       </a>
     </div>
 
@@ -120,8 +120,8 @@
     @else
       <div class="text-center text-muted py-4">
         <i class="fas fa-link fa-3x mb-3"></i>
-        <p>No DOIs found matching the criteria.</p>
-        <a href="{{ route('doi.queue') }}" class="btn btn-outline-secondary">Mint DOIs</a>
+        <p>{{ __('No DOIs found matching the criteria.') }}</p>
+        <a href="{{ route('doi.queue') }}" class="btn btn-outline-secondary">{{ __('Mint DOIs') }}</a>
       </div>
     @endif
   @endif

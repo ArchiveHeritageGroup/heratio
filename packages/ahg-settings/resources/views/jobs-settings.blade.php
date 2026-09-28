@@ -13,7 +13,7 @@
 
 @section('title-block')
   <h1><i class="fas fa-tasks me-2"></i>{{ __('Background Jobs') }}</h1>
-  <p class="text-muted small mb-0">Job queue and scheduling settings</p>
+  <p class="text-muted small mb-0">{{ __('Job queue and scheduling settings') }}</p>
 @endsection
 
 @section('content')
@@ -49,7 +49,7 @@
             <input type="number" class="form-control" id="jobs_max_concurrent"
                    name="settings[jobs_max_concurrent]"
                    value="{{ $settings['jobs_max_concurrent'] ?? 2 }}" min="1" max="10">
-            <div class="form-text">Maximum number of jobs to run simultaneously</div>
+            <div class="form-text">{{ __('Maximum number of jobs to run simultaneously') }}</div>
           </div>
         </div>
 
@@ -83,7 +83,7 @@
                      value="{{ $settings['jobs_cleanup_days'] ?? 30 }}" min="1" max="365">
               <span class="input-group-text">days</span>
             </div>
-            <div class="form-text">Delete completed jobs after this many days</div>
+            <div class="form-text">{{ __('Delete completed jobs after this many days') }}</div>
           </div>
         </div>
 
@@ -117,9 +117,9 @@
         <div class="alert alert-info mb-0">
           <i class="fas fa-info-circle me-1"></i>
           @if(\Route::has('job.browse'))
-            <a href="{{ route('job.browse') }}">View all jobs in Job Manager</a>
+            <a href="{{ route('job.browse') }}">{{ __('View all jobs in Job Manager') }}</a>
           @else
-            <a href="{{ url('/jobs/browse') }}">View all jobs in Job Manager</a>
+            <a href="{{ url('/jobs/browse') }}">{{ __('View all jobs in Job Manager') }}</a>
           @endif
         </div>
       </div>

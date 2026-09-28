@@ -14,7 +14,7 @@
 
 @section('title-block')
 <h1><i class="fas fa-clipboard-check me-2"></i>{{ __('Compliance') }}</h1>
-<p class="text-muted">Regulatory compliance settings</p>
+<p class="text-muted">{{ __('Regulatory compliance settings') }}</p>
 @endsection
 
 @section('content')
@@ -33,7 +33,7 @@
         <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>{{ __('Regulatory Compliance') }}</h5>
       </div>
       <div class="card-body">
-        <p class="text-muted mb-3">Configure regulatory compliance features. For detailed compliance management (DSARs, breaches, ROPA), see the @if(\Illuminate\Support\Facades\Route::has('privacy.dashboard'))<a href="{{ route('privacy.dashboard') }}">Privacy Compliance module</a>@else Privacy Compliance module @endif.</p>
+        <p class="text-muted mb-3">Configure regulatory compliance features. For detailed compliance management (DSARs, breaches, ROPA), see the @if(\Illuminate\Support\Facades\Route::has('privacy.dashboard'))<a href="{{ route('privacy.dashboard') }}">{{ __('Privacy Compliance module') }}</a>@else Privacy Compliance module @endif.</p>
 
         @php
           // Hide internal {audit_last_pruned_*} stamps from the form - they're
@@ -50,7 +50,7 @@
               @if($lastPrunedAt)
                 <br><span class="text-muted">Last run: {{ $lastPrunedAt }} - {{ (int) $lastPrunedRows }} row(s) removed.</span>
               @else
-                <br><span class="text-muted">Has not run yet.</span>
+                <br><span class="text-muted">{{ __('Has not run yet.') }}</span>
               @endif
             </div>
             @if(\Illuminate\Support\Facades\Route::has('audit.prune'))

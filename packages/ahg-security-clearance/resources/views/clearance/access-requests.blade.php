@@ -5,8 +5,8 @@
 @section('content')
 <div class="container-fluid mt-3">
   <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">Security Dashboard</a></li>
-    <li class="breadcrumb-item active">Access Requests</li>
+    <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">{{ __('Security Dashboard') }}</a></li>
+    <li class="breadcrumb-item active">{{ __('Access Requests') }}</li>
   </ol></nav>
 
   <h1><i class="fas fa-inbox"></i> {{ __('Pending Access Requests') }}</h1>
@@ -39,7 +39,7 @@
             <td>{{ \Illuminate\Support\Str::limit(e($req->justification ?? ''), 50) }}</td>
             <td>{{ isset($req->created_at) ? date('Y-m-d H:i', strtotime($req->created_at)) : '' }}</td>
             <td>
-              <a href="{{ route('security-clearance.view-request', ['id' => $req->id]) }}" class="btn btn-sm btn-primary">Review</a>
+              <a href="{{ route('security-clearance.view-request', ['id' => $req->id]) }}" class="btn btn-sm btn-primary">{{ __('Review') }}</a>
               <form method="POST" action="{{ route('security-clearance.approve-request', ['id' => $req->id]) }}" class="d-inline">
                 @csrf
                 <button class="btn btn-sm btn-success" onclick="return confirm('Approve this request?')"><i class="fas fa-check"></i></button>
@@ -51,7 +51,7 @@
             </td>
           </tr>
           @empty
-          <tr><td colspan="7" class="text-muted">No pending requests.</td></tr>
+          <tr><td colspan="7" class="text-muted">{{ __('No pending requests.') }}</td></tr>
           @endforelse
         </tbody>
       </table>

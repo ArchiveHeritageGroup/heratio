@@ -21,8 +21,8 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('ahgnaz.closures') }}">Closures</a></li>
-                    <li class="breadcrumb-item active">Edit Closure</li>
+                    <li class="breadcrumb-item"><a href="{{ route('ahgnaz.closures') }}">{{ __('Closures') }}</a></li>
+                    <li class="breadcrumb-item active">{{ __('Edit Closure') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-lock me-2"></i>{{ __('Edit Closure Period') }}</h1>
@@ -40,26 +40,26 @@
                 <div class="card-header"><h5 class="mb-0">{{ __('Closure Details') }}</h5></div>
                 <div class="card-body">
                     <dl class="row">
-                        <dt class="col-sm-4">Record</dt>
+                        <dt class="col-sm-4">{{ __('Record') }}</dt>
                         <dd class="col-sm-8">{{ $ioTitle ?? ('Record #' . ($closure->information_object_id ?? '')) }}</dd>
                     </dl>
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Closure Type') }}</label>
                             <select name="closure_type" class="form-select">
-                                <option value="standard" @if(($closure->closure_type ?? '') === 'standard') selected @endif>Standard</option>
-                                <option value="extended" @if(($closure->closure_type ?? '') === 'extended') selected @endif>Extended</option>
-                                <option value="indefinite" @if(($closure->closure_type ?? '') === 'indefinite') selected @endif>Indefinite</option>
-                                <option value="ministerial" @if(($closure->closure_type ?? '') === 'ministerial') selected @endif>Ministerial</option>
+                                <option value="standard" @if(($closure->closure_type ?? '') === 'standard') selected @endif>{{ __('Standard') }}</option>
+                                <option value="extended" @if(($closure->closure_type ?? '') === 'extended') selected @endif>{{ __('Extended') }}</option>
+                                <option value="indefinite" @if(($closure->closure_type ?? '') === 'indefinite') selected @endif>{{ __('Indefinite') }}</option>
+                                <option value="ministerial" @if(($closure->closure_type ?? '') === 'ministerial') selected @endif>{{ __('Ministerial') }}</option>
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Status') }}</label>
                             <select name="status" class="form-select">
-                                <option value="active" @if(($closure->status ?? '') === 'active') selected @endif>Active</option>
-                                <option value="expired" @if(($closure->status ?? '') === 'expired') selected @endif>Expired</option>
-                                <option value="extended" @if(($closure->status ?? '') === 'extended') selected @endif>Extended</option>
-                                <option value="released" @if(($closure->status ?? '') === 'released') selected @endif>Released</option>
+                                <option value="active" @if(($closure->status ?? '') === 'active') selected @endif>{{ __('Active') }}</option>
+                                <option value="expired" @if(($closure->status ?? '') === 'expired') selected @endif>{{ __('Expired') }}</option>
+                                <option value="extended" @if(($closure->status ?? '') === 'extended') selected @endif>{{ __('Extended') }}</option>
+                                <option value="released" @if(($closure->status ?? '') === 'released') selected @endif>{{ __('Released') }}</option>
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -87,7 +87,7 @@
             <div class="card">
                 <div class="card-body d-grid gap-2">
                     <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>{{ __('Save Changes') }}</button>
-                    <a href="{{ route('ahgnaz.closures') }}" class="btn btn-outline-secondary">Cancel</a>
+                    <a href="{{ route('ahgnaz.closures') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
                 </div>
             </div>
         </div>

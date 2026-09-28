@@ -25,7 +25,7 @@
   {{-- Breadcrumb --}}
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
       <li class="breadcrumb-item"><a href="{{ url($object->slug ?? '') }}">{{ e($object->title ?? 'Object') }}</a></li>
       <li class="breadcrumb-item active">Upload 3D Model</li>
     </ol>
@@ -70,7 +70,7 @@
 
             {{-- Title --}}
             <div class="mb-3">
-              <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="title" class="form-label">{{ __('Title') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" class="form-control" id="title" name="title"
                      value="{{ old('title') }}" placeholder="{{ __('e.g., Bronze Statue - Front View') }}">
               <div class="form-text">A descriptive title for this 3D model</div>
@@ -78,7 +78,7 @@
 
             {{-- Description --}}
             <div class="mb-3">
-              <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="description" class="form-label">{{ __('Description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea class="form-control" id="description" name="description" rows="3"
                         placeholder="{{ __('Describe the 3D model, its origin, scanning method, etc.') }}">{{ old('description') }}</textarea>
             </div>
@@ -127,7 +127,7 @@
 
                 <div class="alert alert-info small mb-0">
                   <i class="fas fa-info-circle me-1"></i>
-                  For best results, use <strong>GLB</strong> format with embedded textures.
+                  {{ __('For best results, use') }} <strong>GLB</strong> format with embedded textures.
                 </div>
               </div>
             </div>

@@ -40,7 +40,7 @@
 </head>
 <body>
 @if(!$model)
-  <div class="error-message"><p>Model not found</p></div>
+  <div class="error-message"><p>{{ __('Model not found') }}</p></div>
 @else
 @php
   // #1469: quick-look (iOS AR) is advertised only when a USDZ actually backs it,

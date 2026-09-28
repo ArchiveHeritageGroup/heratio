@@ -4,11 +4,11 @@
         <div class="flex items-center justify-between mb-8">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">{{ __('Z39.50 Client & Server') }}</h1>
-                <p class="text-sm text-gray-500 mt-1">Search remote bibliographic targets and import records.</p>
+                <p class="text-sm text-gray-500 mt-1">{{ __('Search remote bibliographic targets and import records.') }}</p>
             </div>
             <a href="{{ route('z3950.admin') }}"
                class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition">
-                Admin
+                {{ __('Admin') }}
             </a>
         </div>
 
@@ -35,15 +35,15 @@
         <div class="grid grid-cols-3 gap-4 mb-8">
             <div class="bg-white rounded-xl border border-gray-200 px-5 py-4">
                 <div class="text-2xl font-bold text-gray-900">{{ number_format($stats['total_targets']) }}</div>
-                <div class="text-sm text-gray-500 mt-1">Configured targets</div>
+                <div class="text-sm text-gray-500 mt-1">{{ __('Configured targets') }}</div>
             </div>
             <div class="bg-white rounded-xl border border-gray-200 px-5 py-4">
                 <div class="text-2xl font-bold text-gray-900">{{ number_format($stats['total_searches']) }}</div>
-                <div class="text-sm text-gray-500 mt-1">Searches run</div>
+                <div class="text-sm text-gray-500 mt-1">{{ __('Searches run') }}</div>
             </div>
             <div class="bg-white rounded-xl border border-gray-200 px-5 py-4">
                 <div class="text-2xl font-bold text-gray-900">{{ number_format($stats['total_imports']) }}</div>
-                <div class="text-sm text-gray-500 mt-1">Records imported</div>
+                <div class="text-sm text-gray-500 mt-1">{{ __('Records imported') }}</div>
             </div>
         </div>
 
@@ -57,7 +57,7 @@
                     </svg>
                 </div>
                 <div>
-                    <div class="font-semibold text-gray-900">Search remote target</div>
+                    <div class="font-semibold text-gray-900">{{ __('Search remote target') }}</div>
                     <div class="text-sm text-gray-500 mt-0.5">Query a Z39.50 server using bib-1 attributes</div>
                 </div>
             </a>
@@ -70,7 +70,7 @@
                     </svg>
                 </div>
                 <div>
-                    <div class="font-semibold text-gray-900">Manage targets</div>
+                    <div class="font-semibold text-gray-900">{{ __('Manage targets') }}</div>
                     <div class="text-sm text-gray-500 mt-0.5">Add, edit, or remove Z39.50 target profiles</div>
                 </div>
             </a>
@@ -107,8 +107,8 @@
             </div>
         @else
             <div class="text-center py-10 text-gray-400 border border-dashed border-gray-200 rounded-xl">
-                <p>No targets configured.</p>
-                <a href="{{ route('z3950.admin') }}" class="text-indigo-600 hover:underline text-sm mt-1 inline-block">Add your first target</a>
+                <p>{{ __('No targets configured.') }}</p>
+                <a href="{{ route('z3950.admin') }}" class="text-indigo-600 hover:underline text-sm mt-1 inline-block">{{ __('Add your first target') }}</a>
             </div>
         @endif
 

@@ -9,19 +9,19 @@
   @include('ahg-artwork-request::_flash')
 
   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <h1 class="h3 mb-0"><i class="fas fa-palette me-2"></i>My artwork requests</h1>
+    <h1 class="h3 mb-0"><i class="fas fa-palette me-2"></i>{{ __('My artwork requests') }}</h1>
     <div class="d-flex gap-2">
-      <a href="{{ route('artwork-request.new') }}" class="btn btn-primary"><i class="fas fa-plus me-1"></i> New request</a>
+      <a href="{{ route('artwork-request.new') }}" class="btn btn-primary"><i class="fas fa-plus me-1"></i> {{ __('New request') }}</a>
       @if(\AhgCore\Services\AclService::hasPermission(auth()->id(), 'update'))
-        <a href="{{ route('artwork-request.review') }}" class="btn btn-outline-secondary">Review queue</a>
-        <a href="{{ route('artwork-request.placements') }}" class="btn btn-outline-secondary">Out on campus</a>
+        <a href="{{ route('artwork-request.review') }}" class="btn btn-outline-secondary">{{ __('Review queue') }}</a>
+        <a href="{{ route('artwork-request.placements') }}" class="btn btn-outline-secondary">{{ __('Out on campus') }}</a>
       @endif
     </div>
   </div>
 
   @if(empty($requests))
-    <div class="alert alert-info">You have not requested any artworks yet.
-      <a href="{{ route('artwork-request.new') }}" class="alert-link">Make a request</a>.</div>
+    <div class="alert alert-info">{{ __('You have not requested any artworks yet.') }}
+      <a href="{{ route('artwork-request.new') }}" class="alert-link">{{ __('Make a request') }}</a>.</div>
   @else
     <div class="table-responsive">
       <table class="table table-hover align-middle">

@@ -31,7 +31,7 @@
             {{-- Finding Aids enabled (radio group) --}}
             <div class="mb-3">
               <fieldset>
-                <legend class="fs-6">Finding Aids enabled</legend>
+                <legend class="fs-6">{{ __('Finding Aids enabled') }}</legend>
                 <input class="form-check-input" type="radio" name="finding_aid[finding_aids_enabled]" id="finding_aid_finding_aids_enabled_1" value="1" {{ $settings['finding_aids_enabled'] === '1' ? 'checked="checked"' : '' }}>
                 <label class="form-check-label" for="finding_aid_finding_aids_enabled_1">{{ __('Enabled') }}</label>
                 <input class="form-check-input" type="radio" name="finding_aid[finding_aids_enabled]" id="finding_aid_finding_aids_enabled_0" value="0" {{ $settings['finding_aids_enabled'] !== '1' ? 'checked="checked"' : '' }}>
@@ -58,7 +58,7 @@
                 <option value="full-details" {{ $settings['finding_aid_model'] === 'full-details' ? 'selected="selected"' : '' }}>{{ __('Full details') }}</option>
               </select>
               <div class="form-text">
-                Finding Aid model:<br>
+                {{ __('Finding Aid model:') }}<br>
                 - Inventory summary: will include only key details for lower-level descriptions (file, item, part) in a table<br>
                 - Full details: includes full lower-level descriptions in the same format used throughout the finding aid
               </div>
@@ -67,7 +67,7 @@
             {{-- Generate Finding Aid from public records (radio group) --}}
             <div class="mb-3">
               <fieldset>
-                <legend class="fs-6">Generate Finding Aid from public records</legend>
+                <legend class="fs-6">{{ __('Generate Finding Aid from public records') }}</legend>
                 <input class="form-check-input" type="radio" name="finding_aid[public_finding_aid]" id="finding_aid_public_finding_aid_1" value="1" {{ $settings['public_finding_aid'] === '1' ? 'checked="checked"' : '' }}>
                 <label class="form-check-label" for="finding_aid_public_finding_aid_1">{{ __('Yes') }}</label>
                 <input class="form-check-input" type="radio" name="finding_aid[public_finding_aid]" id="finding_aid_public_finding_aid_0" value="0" {{ $settings['public_finding_aid'] !== '1' ? 'checked="checked"' : '' }}>

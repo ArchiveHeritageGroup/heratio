@@ -11,7 +11,7 @@ $showHits = $config['show_hits'] ?? false;
   <h2 class="h5 mb-3">{{ e($title) }}</h2>
 @endif
 @if (empty($items))
-  <p class="text-muted">No holdings available.</p>
+  <p class="text-muted">{{ __('No holdings available.') }}</p>
 @else
   <ul class="list-group list-group-flush">
     @foreach ($items as $item)

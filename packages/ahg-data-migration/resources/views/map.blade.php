@@ -14,9 +14,9 @@
 
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">Data Migration</a></li>
-      <li class="breadcrumb-item"><a href="{{ route('data-migration.upload') }}">Upload</a></li>
-      <li class="breadcrumb-item active">Map Fields</li>
+      <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">{{ __('Data Migration') }}</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('data-migration.upload') }}">{{ __('Upload') }}</a></li>
+      <li class="breadcrumb-item active">{{ __('Map Fields') }}</li>
     </ol>
   </nav>
 
@@ -29,7 +29,7 @@
 
   <div class="alert alert-info">
     <i class="fas fa-info-circle"></i>
-    File: <strong>{{ $fileName }}</strong> |
+    {{ __('File:') }} <strong>{{ $fileName }}</strong> |
     Target: <strong>{{ $targetType }}</strong> |
     Rows: <strong>{{ number_format($totalRows) }}</strong> |
     Columns: <strong>{{ count($sourceColumns) }}</strong>
@@ -140,11 +140,11 @@
     <div class="card-body">
       <div class="row mb-3">
         <div class="col-md-4">
-          <label for="mappingName" class="form-label">Mapping Name <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label for="mappingName" class="form-label">{{ __('Mapping Name') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <input type="text" class="form-control" id="mappingName" placeholder="{{ __('e.g. ISAD CSV Import') }}">
         </div>
         <div class="col-md-3">
-          <label for="mappingCategory" class="form-label">Category <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label for="mappingCategory" class="form-label">{{ __('Category') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <input type="text" class="form-control" id="mappingCategory" value="Custom" placeholder="{{ __('Category') }}">
         </div>
         <div class="col-md-3 d-flex align-items-end">

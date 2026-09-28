@@ -7,7 +7,7 @@
 
 <div class="row mb-4">
   <div class="col-md-8">
-    <p class="text-muted">Manage security clearances for all users.</p>
+    <p class="text-muted">{{ __('Manage security clearances for all users.') }}</p>
   </div>
   <div class="col-md-4 text-end">
     <a href="{{ route('acl.groups') }}" class="btn btn-outline-secondary me-1">
@@ -165,7 +165,7 @@
             </tr>
           @empty
             <tr>
-              <td colspan="9" class="text-center text-muted py-4">No users found.</td>
+              <td colspan="9" class="text-center text-muted py-4">{{ __('No users found.') }}</td>
             </tr>
           @endforelse
         </tbody>
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="modal-body">
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">User <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label class="form-label">{{ __('User') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select name="user_id" class="form-select" required>
                 <option value="">-- Select User --</option>
                 @foreach($users as $user)
@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function() {
               </select>
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">Clearance Level <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label class="form-label">{{ __('Clearance Level') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select name="classification_id" class="form-select" required>
                 <option value="">-- Select Level --</option>
                 @foreach($classifications as $cls)
@@ -290,30 +290,30 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">Granted Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label">{{ __('Granted Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="date" name="granted_date" class="form-control" value="{{ date('Y-m-d') }}">
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">Expiry Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label">{{ __('Expiry Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="date" name="expiry_date" class="form-control">
             </div>
           </div>
           <div class="row">
             <div class="col-md-4 mb-3">
-              <label class="form-label">Vetting Reference <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label">{{ __('Vetting Reference') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="vetting_reference" class="form-control">
             </div>
             <div class="col-md-4 mb-3">
-              <label class="form-label">Vetting Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label">{{ __('Vetting Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="date" name="vetting_date" class="form-control">
             </div>
             <div class="col-md-4 mb-3">
-              <label class="form-label">Vetting Authority <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label">{{ __('Vetting Authority') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="vetting_authority" class="form-control">
             </div>
           </div>
           <div class="mb-3">
-            <label class="form-label">Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Notes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <textarea name="notes" class="form-control" rows="2"></textarea>
           </div>
         </div>

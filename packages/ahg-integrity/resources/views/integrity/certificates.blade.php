@@ -39,7 +39,7 @@
       </tbody>
     </table>
     @else
-    <div class="text-center py-4 text-muted">No destruction certificates found.</div>
+    <div class="text-center py-4 text-muted">{{ __('No destruction certificates found.') }}</div>
     @endif
   </div>
 </div>

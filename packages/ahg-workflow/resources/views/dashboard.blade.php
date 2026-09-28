@@ -26,7 +26,7 @@
         </div>
         <div class="card-footer bg-transparent border-0">
           <a href="{{ route('workflow.my-tasks') }}" class="text-white text-decoration-none small">
-            View all <i class="fas fa-arrow-right ms-1" aria-hidden="true"></i>
+            {{ __('View all') }} <i class="fas fa-arrow-right ms-1" aria-hidden="true"></i>
           </a>
         </div>
       </div>
@@ -44,7 +44,7 @@
         </div>
         <div class="card-footer bg-transparent border-0">
           <a href="{{ route('workflow.pool') }}" class="text-dark text-decoration-none small">
-            Browse pool <i class="fas fa-arrow-right ms-1" aria-hidden="true"></i>
+            {{ __('Browse pool') }} <i class="fas fa-arrow-right ms-1" aria-hidden="true"></i>
           </a>
         </div>
       </div>
@@ -83,13 +83,13 @@
       <div class="card h-100">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0"><i class="fas fa-clipboard-check me-2" aria-hidden="true"></i>{{ __('My Tasks') }}</h5>
-          <a href="{{ route('workflow.my-tasks') }}" class="btn btn-sm btn-outline-secondary">View All</a>
+          <a href="{{ route('workflow.my-tasks') }}" class="btn btn-sm btn-outline-secondary">{{ __('View All') }}</a>
         </div>
         <div class="card-body p-0">
           @if(count($myTasks) === 0)
             <div class="text-center text-muted py-4">
               <i class="fas fa-inbox fa-3x mb-2 opacity-50" aria-hidden="true"></i>
-              <p class="mb-0">No tasks assigned to you</p>
+              <p class="mb-0">{{ __('No tasks assigned to you') }}</p>
             </div>
           @else
             <div class="list-group list-group-flush">
@@ -119,13 +119,13 @@
       <div class="card h-100">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0"><i class="fas fa-layer-group me-2" aria-hidden="true"></i>{{ __('Available Tasks') }}</h5>
-          <a href="{{ route('workflow.pool') }}" class="btn btn-sm btn-outline-secondary">Browse Pool</a>
+          <a href="{{ route('workflow.pool') }}" class="btn btn-sm btn-outline-secondary">{{ __('Browse Pool') }}</a>
         </div>
         <div class="card-body p-0">
           @if(count($poolTasks) === 0)
             <div class="text-center text-muted py-4">
               <i class="fas fa-check-double fa-3x mb-2 opacity-50" aria-hidden="true"></i>
-              <p class="mb-0">No tasks available to claim</p>
+              <p class="mb-0">{{ __('No tasks available to claim') }}</p>
             </div>
           @else
             <div class="list-group list-group-flush">
@@ -156,12 +156,12 @@
   <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
       <h5 class="mb-0"><i class="fas fa-history me-2" aria-hidden="true"></i>{{ __('Recent Activity') }}</h5>
-      <a href="{{ route('workflow.history') }}" class="btn btn-sm btn-outline-secondary">View All</a>
+      <a href="{{ route('workflow.history') }}" class="btn btn-sm btn-outline-secondary">{{ __('View All') }}</a>
     </div>
     <div class="card-body p-0">
       @if(count($recentHistory) === 0)
         <div class="text-center text-muted py-4">
-          <p class="mb-0">No recent activity</p>
+          <p class="mb-0">{{ __('No recent activity') }}</p>
         </div>
       @else
         <div class="table-responsive">

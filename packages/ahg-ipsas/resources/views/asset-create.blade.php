@@ -25,8 +25,8 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.index') }}">IPSAS</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('ipsas.assets') }}">Assets</a></li>
-                    <li class="breadcrumb-item active">New Asset</li>
+                    <li class="breadcrumb-item"><a href="{{ route('ipsas.assets') }}">{{ __('Assets') }}</a></li>
+                    <li class="breadcrumb-item active">{{ __('New Asset') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-plus-circle me-2"></i>{{ __('Register Heritage Asset') }}</h1>
@@ -41,7 +41,7 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label">Title <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
                             <input type="text" name="title" class="form-control" required>
                         </div>
                         <div class="col-12">
@@ -140,7 +140,7 @@
             <div class="card">
                 <div class="card-body d-grid gap-2">
                     <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>{{ __('Register Asset') }}</button>
-                    <a href="{{ route('ipsas.assets') }}" class="btn btn-outline-secondary">Cancel</a>
+                    <a href="{{ route('ipsas.assets') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
                 </div>
             </div>
         </div>

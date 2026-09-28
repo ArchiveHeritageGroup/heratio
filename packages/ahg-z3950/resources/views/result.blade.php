@@ -6,7 +6,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
-                New search
+                {{ __('New search') }}
             </a>
         </div>
 
@@ -20,14 +20,14 @@
                 <input type="hidden" name="result_set" value="{{ $resultSet }}">
                 <input type="hidden" name="record_numbers" value="all">
                 <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition">
-                    Import all records
+                    {{ __('Import all records') }}
                 </button>
             </form>
         </div>
 
         @if(count($records) === 0)
             <div class="text-center py-12 text-gray-400">
-                <p>No records in this result set.</p>
+                <p>{{ __('No records in this result set.') }}</p>
             </div>
         @else
             <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -60,7 +60,7 @@
                                 <td class="px-5 py-3 text-right">
                                     <a href="{{ route('z3950.import', [$resultSet, $i]) }}"
                                        class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition">
-                                        Import
+                                        {{ __('Import') }}
                                     </a>
                                 </td>
                             </tr>
@@ -87,7 +87,7 @@
                                 <div class="mt-3 flex gap-2">
                                     <a href="{{ route('z3950.import', [$resultSet, $i]) }}"
                                        class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition">
-                                        Import this record
+                                        {{ __('Import this record') }}
                                     </a>
                                 </div>
                             </div>

@@ -18,8 +18,8 @@
 <div class="container-fluid px-4 py-3">
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('statistics.dashboard') }}">Statistics</a></li>
-            <li class="breadcrumb-item active">Settings</li>
+            <li class="breadcrumb-item"><a href="{{ route('statistics.dashboard') }}">{{ __('Statistics') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('Settings') }}</li>
         </ol>
     </nav>
 
@@ -103,7 +103,7 @@
                     </a>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted">Configure which bots and crawlers to filter from statistics.</p>
+                    <p class="text-muted">{{ __('Configure which bots and crawlers to filter from statistics.') }}</p>
                     <p><strong>{{ $dbStats['bot_patterns'] ?? 0 }}</strong> bot patterns configured</p>
                 </div>
             </div>
@@ -133,7 +133,7 @@
             <div class="card bg-light">
                 <div class="card-body">
                     <h6><i class="fas fa-terminal me-1"></i>{{ __('CLI Commands') }}</h6>
-                    <p class="small text-muted mb-2">Run these via cron for scheduled processing:</p>
+                    <p class="small text-muted mb-2">{{ __('Run these via cron for scheduled processing:') }}</p>
                     <code class="d-block small mb-2">php artisan statistics:aggregate --all</code>
                     <code class="d-block small mb-2">php artisan statistics:report --type=summary</code>
                 </div>

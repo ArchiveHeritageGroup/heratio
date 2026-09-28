@@ -8,7 +8,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>{{ __('Chatbot Review Queue') }}</h2>
         <a href="{{ route('admin.chatbot.index') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+            <i class="fas fa-arrow-left me-1"></i> {{ __('Back to Dashboard') }}
         </a>
     </div>
 

@@ -35,24 +35,24 @@
           <div class="row">
             <div class="col-md-6">
               <dl>
-                @if($right['basis'] ?? null)<dt>Basis</dt><dd>{{ $right['basis'] }}</dd>@endif
-                @if($right['start_date'] ?? null)<dt>Start date</dt><dd>{{ $right['start_date'] }}</dd>@endif
-                @if($right['end_date'] ?? null)<dt>End date</dt><dd>{{ $right['end_date'] }}</dd>@endif
-                @if($right['rights_holder_name'] ?? null)<dt>Rights holder</dt><dd>{{ $right['rights_holder_name'] }}</dd>@endif
+                @if($right['basis'] ?? null)<dt>{{ __('Basis') }}</dt><dd>{{ $right['basis'] }}</dd>@endif
+                @if($right['start_date'] ?? null)<dt>{{ __('Start date') }}</dt><dd>{{ $right['start_date'] }}</dd>@endif
+                @if($right['end_date'] ?? null)<dt>{{ __('End date') }}</dt><dd>{{ $right['end_date'] }}</dd>@endif
+                @if($right['rights_holder_name'] ?? null)<dt>{{ __('Rights holder') }}</dt><dd>{{ $right['rights_holder_name'] }}</dd>@endif
               </dl>
             </div>
             <div class="col-md-6">
               <dl>
-                @if($right['rights_note'] ?? null)<dt>Rights note</dt><dd>{{ $right['rights_note'] }}</dd>@endif
-                @if($right['copyright_status'] ?? null)<dt>Copyright status</dt><dd>{{ $right['copyright_status'] }}</dd>@endif
-                @if($right['copyright_status_date'] ?? null)<dt>Copyright status date</dt><dd>{{ $right['copyright_status_date'] }}</dd>@endif
-                @if($right['copyright_jurisdiction'] ?? null)<dt>Copyright jurisdiction</dt><dd>{{ $right['copyright_jurisdiction'] }}</dd>@endif
-                @if($right['copyright_note'] ?? null)<dt>Copyright note</dt><dd>{{ $right['copyright_note'] }}</dd>@endif
-                @if($right['license_terms'] ?? null)<dt>License terms</dt><dd>{{ $right['license_terms'] }}</dd>@endif
-                @if($right['license_note'] ?? null)<dt>License note</dt><dd>{{ $right['license_note'] }}</dd>@endif
-                @if($right['statute_jurisdiction'] ?? null)<dt>Statute jurisdiction</dt><dd>{{ $right['statute_jurisdiction'] }}</dd>@endif
-                @if($right['statute_note'] ?? null)<dt>Statute note</dt><dd>{{ $right['statute_note'] }}</dd>@endif
-                @if($right['statute_determination_date'] ?? null)<dt>Statute determination date</dt><dd>{{ $right['statute_determination_date'] }}</dd>@endif
+                @if($right['rights_note'] ?? null)<dt>{{ __('Rights note') }}</dt><dd>{{ $right['rights_note'] }}</dd>@endif
+                @if($right['copyright_status'] ?? null)<dt>{{ __('Copyright status') }}</dt><dd>{{ $right['copyright_status'] }}</dd>@endif
+                @if($right['copyright_status_date'] ?? null)<dt>{{ __('Copyright status date') }}</dt><dd>{{ $right['copyright_status_date'] }}</dd>@endif
+                @if($right['copyright_jurisdiction'] ?? null)<dt>{{ __('Copyright jurisdiction') }}</dt><dd>{{ $right['copyright_jurisdiction'] }}</dd>@endif
+                @if($right['copyright_note'] ?? null)<dt>{{ __('Copyright note') }}</dt><dd>{{ $right['copyright_note'] }}</dd>@endif
+                @if($right['license_terms'] ?? null)<dt>{{ __('License terms') }}</dt><dd>{{ $right['license_terms'] }}</dd>@endif
+                @if($right['license_note'] ?? null)<dt>{{ __('License note') }}</dt><dd>{{ $right['license_note'] }}</dd>@endif
+                @if($right['statute_jurisdiction'] ?? null)<dt>{{ __('Statute jurisdiction') }}</dt><dd>{{ $right['statute_jurisdiction'] }}</dd>@endif
+                @if($right['statute_note'] ?? null)<dt>{{ __('Statute note') }}</dt><dd>{{ $right['statute_note'] }}</dd>@endif
+                @if($right['statute_determination_date'] ?? null)<dt>{{ __('Statute determination date') }}</dt><dd>{{ $right['statute_determination_date'] }}</dd>@endif
               </dl>
             </div>
           </div>
@@ -61,9 +61,9 @@
           @if(($right['identifier_type'] ?? null) || ($right['identifier_value'] ?? null) || ($right['identifier_role'] ?? null))
             <h6 class="text-muted mt-2">{{ __('Documentation identifier') }}</h6>
             <dl class="row">
-              @if($right['identifier_type'] ?? null)<dt class="col-sm-3">Type</dt><dd class="col-sm-9">{{ $right['identifier_type'] }}</dd>@endif
-              @if($right['identifier_value'] ?? null)<dt class="col-sm-3">Value</dt><dd class="col-sm-9">{{ $right['identifier_value'] }}</dd>@endif
-              @if($right['identifier_role'] ?? null)<dt class="col-sm-3">Role</dt><dd class="col-sm-9">{{ $right['identifier_role'] }}</dd>@endif
+              @if($right['identifier_type'] ?? null)<dt class="col-sm-3">{{ __('Type') }}</dt><dd class="col-sm-9">{{ $right['identifier_type'] }}</dd>@endif
+              @if($right['identifier_value'] ?? null)<dt class="col-sm-3">{{ __('Value') }}</dt><dd class="col-sm-9">{{ $right['identifier_value'] }}</dd>@endif
+              @if($right['identifier_role'] ?? null)<dt class="col-sm-3">{{ __('Role') }}</dt><dd class="col-sm-9">{{ $right['identifier_role'] }}</dd>@endif
             </dl>
           @endif
 
@@ -103,7 +103,7 @@
       </div>
     @endforeach
   @else
-    <div class="alert alert-info">No rights records found for this object.</div>
+    <div class="alert alert-info">{{ __('No rights records found for this object.') }}</div>
   @endif
 
   {{-- Add new rights record form --}}
@@ -347,7 +347,7 @@
                         }
                     }
                   @endphp
-                  <a href="{{ route($cancelRoute, $resource->slug) }}" class="btn atom-btn-outline-light">Cancel</a>
+                  <a href="{{ route($cancelRoute, $resource->slug) }}" class="btn atom-btn-outline-light">{{ __('Cancel') }}</a>
                 </li>
                 <li>
                   <input type="submit" class="btn atom-btn-outline-success" value="Save">
@@ -367,7 +367,7 @@
 @section('after-content')
   @auth
     <ul class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
-      <li><a href="{{ route('rights.add', $resource->slug ?? '') }}" class="btn atom-btn-outline-light">Add new rights</a></li>
+      <li><a href="{{ route('rights.add', $resource->slug ?? '') }}" class="btn atom-btn-outline-light">{{ __('Add new rights') }}</a></li>
     </ul>
   @endauth
 @endsection

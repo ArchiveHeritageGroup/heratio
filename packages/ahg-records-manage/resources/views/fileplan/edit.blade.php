@@ -27,7 +27,7 @@
     @method('PUT')
 
     <div class="card mb-3">
-        <div class="card-header">Node Details</div>
+        <div class="card-header">{{ __('Node Details') }}</div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6 mb-3">
@@ -45,25 +45,25 @@
                 </div>
 
                 <div class="col-md-6 mb-3">
-                    <label for="node_type" class="form-label">Node Type <span class="text-danger">*</span></label>
+                    <label for="node_type" class="form-label">{{ __('Node Type') }} <span class="text-danger">*</span></label>
                     <select name="node_type" id="node_type" class="form-select" required>
-                        <option value="plan" {{ old('node_type', $node->node_type) === 'plan' ? 'selected' : '' }}>Plan</option>
-                        <option value="series" {{ old('node_type', $node->node_type) === 'series' ? 'selected' : '' }}>Series</option>
-                        <option value="sub_series" {{ old('node_type', $node->node_type) === 'sub_series' ? 'selected' : '' }}>Sub-series</option>
-                        <option value="file_group" {{ old('node_type', $node->node_type) === 'file_group' ? 'selected' : '' }}>File Group</option>
-                        <option value="volume" {{ old('node_type', $node->node_type) === 'volume' ? 'selected' : '' }}>Volume</option>
+                        <option value="plan" {{ old('node_type', $node->node_type) === 'plan' ? 'selected' : '' }}>{{ __('Plan') }}</option>
+                        <option value="series" {{ old('node_type', $node->node_type) === 'series' ? 'selected' : '' }}>{{ __('Series') }}</option>
+                        <option value="sub_series" {{ old('node_type', $node->node_type) === 'sub_series' ? 'selected' : '' }}>{{ __('Sub-series') }}</option>
+                        <option value="file_group" {{ old('node_type', $node->node_type) === 'file_group' ? 'selected' : '' }}>{{ __('File Group') }}</option>
+                        <option value="volume" {{ old('node_type', $node->node_type) === 'volume' ? 'selected' : '' }}>{{ __('Volume') }}</option>
                     </select>
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-md-4 mb-3">
-                    <label for="code" class="form-label">Code <span class="text-danger">*</span></label>
+                    <label for="code" class="form-label">{{ __('Code') }} <span class="text-danger">*</span></label>
                     <input type="text" name="code" id="code" class="form-control" value="{{ old('code', $node->code) }}" required maxlength="50">
                 </div>
 
                 <div class="col-md-8 mb-3">
-                    <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+                    <label for="title" class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
                     <input type="text" name="title" id="title" class="form-control" value="{{ old('title', $node->title) }}" required maxlength="255">
                 </div>
             </div>
@@ -76,9 +76,9 @@
             <div class="mb-3">
                 <label for="status" class="form-label">{{ __('Status') }}</label>
                 <select name="status" id="status" class="form-select">
-                    <option value="active" {{ old('status', $node->status) === 'active' ? 'selected' : '' }}>Active</option>
-                    <option value="closed" {{ old('status', $node->status) === 'closed' ? 'selected' : '' }}>Closed</option>
-                    <option value="deprecated" {{ old('status', $node->status) === 'deprecated' ? 'selected' : '' }}>Deprecated</option>
+                    <option value="active" {{ old('status', $node->status) === 'active' ? 'selected' : '' }}>{{ __('Active') }}</option>
+                    <option value="closed" {{ old('status', $node->status) === 'closed' ? 'selected' : '' }}>{{ __('Closed') }}</option>
+                    <option value="deprecated" {{ old('status', $node->status) === 'deprecated' ? 'selected' : '' }}>{{ __('Deprecated') }}</option>
                 </select>
             </div>
         </div>
@@ -102,10 +102,10 @@
                     <label for="disposal_action" class="form-label">{{ __('Disposal Action') }}</label>
                     <select name="disposal_action" id="disposal_action" class="form-select">
                         <option value="">-- Select --</option>
-                        <option value="destroy" {{ old('disposal_action', $node->disposal_action) === 'destroy' ? 'selected' : '' }}>Destroy</option>
-                        <option value="transfer" {{ old('disposal_action', $node->disposal_action) === 'transfer' ? 'selected' : '' }}>Transfer</option>
-                        <option value="archive" {{ old('disposal_action', $node->disposal_action) === 'archive' ? 'selected' : '' }}>Archive</option>
-                        <option value="review" {{ old('disposal_action', $node->disposal_action) === 'review' ? 'selected' : '' }}>Review</option>
+                        <option value="destroy" {{ old('disposal_action', $node->disposal_action) === 'destroy' ? 'selected' : '' }}>{{ __('Destroy') }}</option>
+                        <option value="transfer" {{ old('disposal_action', $node->disposal_action) === 'transfer' ? 'selected' : '' }}>{{ __('Transfer') }}</option>
+                        <option value="archive" {{ old('disposal_action', $node->disposal_action) === 'archive' ? 'selected' : '' }}>{{ __('Archive') }}</option>
+                        <option value="review" {{ old('disposal_action', $node->disposal_action) === 'review' ? 'selected' : '' }}>{{ __('Review') }}</option>
                     </select>
                 </div>
             </div>
@@ -113,7 +113,7 @@
     </div>
 
     <div class="d-flex justify-content-between">
-        <a href="{{ route('records.fileplan.show', $node->id) }}" class="btn btn-secondary">Cancel</a>
+        <a href="{{ route('records.fileplan.show', $node->id) }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
         <button type="submit" class="btn btn-primary">{{ __('Update Node') }}</button>
     </div>
 </form>

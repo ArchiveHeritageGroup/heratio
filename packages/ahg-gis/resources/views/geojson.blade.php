@@ -10,7 +10,7 @@
     <h5 class="mb-0">{{ __('Geojson') }}</h5>
   </div>
   <div class="card-body">
-    <p class="text-muted">Content for Geojson.</p>
+    <p class="text-muted">{{ __('Content for Geojson.') }}</p>
   </div>
 </div>
 @endsection

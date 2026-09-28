@@ -29,8 +29,8 @@
     <div class="col-12">
       <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{{ route('tenant.index') }}">Tenant Administration</a></li>
-          <li class="breadcrumb-item active">Super Users</li>
+          <li class="breadcrumb-item"><a href="{{ route('tenant.index') }}">{{ __('Tenant Administration') }}</a></li>
+          <li class="breadcrumb-item active">{{ __('Super Users') }}</li>
         </ol>
       </nav>
 
@@ -82,7 +82,7 @@
               @else
                 <div class="text-center text-muted py-4">
                   <i class="fas fa-user-slash fa-2x mb-2"></i>
-                  <p>No super users assigned.</p>
+                  <p>{{ __('No super users assigned.') }}</p>
                 </div>
               @endif
             </div>
@@ -114,7 +114,7 @@
               @else
                 <div class="text-center text-muted py-3">
                   <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
-                  <p>All users are already assigned.</p>
+                  <p>{{ __('All users are already assigned.') }}</p>
                 </div>
               @endif
             </div>

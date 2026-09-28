@@ -49,7 +49,7 @@
     <div class="row mb-4">
         <div class="col">
             <h1><i class="fas fa-coins me-2"></i>{{ __('Heritage Asset Management') }}</h1>
-            <p class="text-muted">IPSAS-Compliant Heritage Asset Accounting</p>
+            <p class="text-muted">{{ __('IPSAS-Compliant Heritage Asset Accounting') }}</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('ipsas.reports') }}" class="btn btn-outline-primary">
@@ -72,7 +72,7 @@
                 @elseif(!empty($compliance['warnings']))
                     <p class="mb-0">{{ count($compliance['warnings']) }} warning(s) to review</p>
                 @else
-                    <p class="mb-0">All IPSAS requirements met</p>
+                    <p class="mb-0">{{ __('All IPSAS requirements met') }}</p>
                 @endif
             </div>
         </div>
@@ -84,7 +84,7 @@
             <div class="card border-primary">
                 <div class="card-body text-center">
                     <h3>{{ number_format($statsAssets['total'] ?? 0) }}</h3>
-                    <p class="text-muted mb-0">Total Assets</p>
+                    <p class="text-muted mb-0">{{ __('Total Assets') }}</p>
                     <small class="text-muted">{{ $statsAssets['active'] ?? 0 }} active</small>
                 </div>
             </div>
@@ -93,7 +93,7 @@
             <div class="card">
                 <div class="card-body text-center">
                     <h3>${{ number_format($statsValues['total'] ?? 0, 0) }}</h3>
-                    <p class="text-muted mb-0">Total Value</p>
+                    <p class="text-muted mb-0">{{ __('Total Value') }}</p>
                     <small class="text-muted">{{ $config['default_currency'] ?? 'USD' }}</small>
                 </div>
             </div>
@@ -102,7 +102,7 @@
             <div class="card">
                 <div class="card-body text-center">
                     <h3>${{ number_format($statsValues['insured'] ?? 0, 0) }}</h3>
-                    <p class="text-muted mb-0">Insured Value</p>
+                    <p class="text-muted mb-0">{{ __('Insured Value') }}</p>
                     <small class="text-muted">{{ __('Total insurance coverage') }}</small>
                 </div>
             </div>
@@ -111,7 +111,7 @@
             <div class="card {{ ($statsInsurance['expiring_soon'] ?? 0) > 0 ? 'border-warning' : '' }}">
                 <div class="card-body text-center">
                     <h3>{{ $statsInsurance['expiring_soon'] ?? 0 }}</h3>
-                    <p class="text-muted mb-0">Insurance Expiring</p>
+                    <p class="text-muted mb-0">{{ __('Insurance Expiring') }}</p>
                     <small class="text-warning">{{ __('Within 30 days') }}</small>
                 </div>
             </div>
@@ -127,14 +127,14 @@
                 </div>
                 <div class="list-group list-group-flush">
                     <a href="{{ route('ipsas.assets') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-archive me-2"></i> Asset Register
+                        <i class="fas fa-archive me-2"></i> {{ __('Asset Register') }}
                         <span class="badge bg-primary float-end">{{ $statsAssets['total'] ?? 0 }}</span>
                     </a>
                     <a href="{{ route('ipsas.asset.create') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-plus me-2"></i> {{ __('Add New Asset') }}
                     </a>
                     <a href="{{ route('ipsas.valuations') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-calculator me-2"></i> Valuations
+                        <i class="fas fa-calculator me-2"></i> {{ __('Valuations') }}
                         <span class="badge bg-info float-end">{{ $statsRecentValuations }} this year</span>
                     </a>
                     <a href="{{ route('ipsas.impairments') }}" class="list-group-item list-group-item-action">
@@ -170,7 +170,7 @@
                             @endforeach
                         </ul>
                     @else
-                        <p class="text-muted text-center">No assets registered</p>
+                        <p class="text-muted text-center">{{ __('No assets registered') }}</p>
                     @endif
                 </div>
             </div>
@@ -196,7 +196,7 @@
                             @endforeach
                         </ul>
                     @else
-                        <p class="text-muted text-center">No categorized assets</p>
+                        <p class="text-muted text-center">{{ __('No categorized assets') }}</p>
                     @endif
                 </div>
             </div>
@@ -215,7 +215,7 @@
                 </div>
                 <div class="card-body p-0">
                     @if(empty($recentAssets) || (is_object($recentAssets) && method_exists($recentAssets, 'isEmpty') && $recentAssets->isEmpty()))
-                        <div class="p-3 text-center text-muted">No assets registered yet</div>
+                        <div class="p-3 text-center text-muted">{{ __('No assets registered yet') }}</div>
                     @else
                         <ul class="list-group list-group-flush">
                             @foreach($recentAssets as $asset)

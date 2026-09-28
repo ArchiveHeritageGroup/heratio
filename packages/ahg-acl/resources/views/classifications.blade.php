@@ -7,9 +7,9 @@
 
   <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Admin</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">{{ __('Admin') }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('acl.groups') }}">ACL</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Security Classifications</li>
+      <li class="breadcrumb-item active" aria-current="page">{{ __('Security Classifications') }}</li>
     </ol>
   </nav>
 
@@ -105,7 +105,7 @@
               </tr>
             @empty
               <tr>
-                <td colspan="12" class="text-center text-muted py-4">No classification levels defined.</td>
+                <td colspan="12" class="text-center text-muted py-4">{{ __('No classification levels defined.') }}</td>
               </tr>
             @endforelse
           </tbody>

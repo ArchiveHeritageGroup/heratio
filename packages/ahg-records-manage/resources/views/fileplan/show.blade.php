@@ -5,7 +5,7 @@
 @section('title-block')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb mb-1">
-        <li class="breadcrumb-item"><a href="{{ route('records.fileplan.index') }}">File Plan</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('records.fileplan.index') }}">{{ __('File Plan') }}</a></li>
         @foreach($breadcrumb as $crumb)
             @if($crumb->id === $node->id)
                 <li class="breadcrumb-item active" aria-current="page">{{ $crumb->code }}</li>
@@ -21,7 +21,7 @@
         {{ $node->title }}
     </h1>
     <div>
-        <a href="{{ route('records.fileplan.edit', $node->id) }}" class="btn btn-outline-primary btn-sm">Edit</a>
+        <a href="{{ route('records.fileplan.edit', $node->id) }}" class="btn btn-outline-primary btn-sm">{{ __('Edit') }}</a>
         <form method="post" action="{{ route('records.fileplan.destroy', $node->id) }}" class="d-inline" onsubmit="return confirm('Delete this node?');">
             @csrf @method('DELETE')
             <button type="submit" class="btn btn-outline-danger btn-sm">{{ __('Delete') }}</button>
@@ -42,7 +42,7 @@
 <div class="row mb-3">
     <div class="col-md-8">
         <div class="card mb-3">
-            <div class="card-header">Node Details</div>
+            <div class="card-header">{{ __('Node Details') }}</div>
             <div class="card-body">
                 <table class="table table-sm mb-0">
                     <tbody>
@@ -70,7 +70,7 @@
                             @if($node->parent_id)
                                 <a href="{{ route('records.fileplan.show', $node->parent_id) }}">{{ $node->parent_code }} - {{ $node->parent_title }}</a>
                             @else
-                                <em>Root node</em>
+                                <em>{{ __('Root node') }}</em>
                             @endif
                         </td></tr>
                         <tr><th>{{ __('Depth') }}</th><td>{{ $node->depth }}</td></tr>
@@ -107,7 +107,7 @@
 
     <div class="col-md-4">
         <div class="card mb-3">
-            <div class="card-header">Move Node</div>
+            <div class="card-header">{{ __('Move Node') }}</div>
             <div class="card-body">
                 <form method="post" action="{{ route('records.fileplan.move', $node->id) }}">
                     @csrf
@@ -130,7 +130,7 @@
         </div>
 
         <div class="card mb-3">
-            <div class="card-header">Summary</div>
+            <div class="card-header">{{ __('Summary') }}</div>
             <div class="card-body">
                 <p class="mb-1"><strong>{{ $node->child_count }}</strong> child node(s)</p>
                 <p class="mb-1"><strong>{{ $node->record_count }}</strong> linked record(s)</p>
@@ -211,5 +211,5 @@
 </div>
 @endif
 
-<a href="{{ route('records.fileplan.index') }}" class="btn btn-secondary">Back to File Plan</a>
+<a href="{{ route('records.fileplan.index') }}" class="btn btn-secondary">{{ __('Back to File Plan') }}</a>
 @endsection

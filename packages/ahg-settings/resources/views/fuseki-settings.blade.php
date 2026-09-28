@@ -15,7 +15,7 @@
 
 @section('title-block')
 <h1><i class="fas fa-project-diagram me-2"></i>{{ __('Fuseki / RIC Triplestore') }}</h1>
-<p class="text-muted">Apache Fuseki RDF triplestore synchronisation</p>
+<p class="text-muted">{{ __('Apache Fuseki RDF triplestore synchronisation') }}</p>
 @endsection
 
 @section('content')
@@ -85,7 +85,7 @@
                 <strong>{{ __('Enable Automatic Sync') }}</strong>
               </label>
             </div>
-            <div class="form-text">Master switch for all RIC sync operations</div>
+            <div class="form-text">{{ __('Master switch for all RIC sync operations') }}</div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch">
@@ -96,7 +96,7 @@
                 <strong>{{ __('Use Async Queue') }}</strong>
               </label>
             </div>
-            <div class="form-text">Queue sync operations for background processing</div>
+            <div class="form-text">{{ __('Queue sync operations for background processing') }}</div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch">
@@ -105,7 +105,7 @@
                      {{ ($settings['fuseki_sync_on_save'] ?? '1') === '1' || ($settings['fuseki_sync_on_save'] ?? '') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="fuseki_sync_on_save">{{ __('Sync on Record Save') }}</label>
             </div>
-            <div class="form-text">Automatically sync to Fuseki when records are created/updated</div>
+            <div class="form-text">{{ __('Automatically sync to Fuseki when records are created/updated') }}</div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch">
@@ -114,7 +114,7 @@
                      {{ ($settings['fuseki_sync_on_delete'] ?? '1') === '1' || ($settings['fuseki_sync_on_delete'] ?? '') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="fuseki_sync_on_delete">{{ __('Sync on Record Delete') }}</label>
             </div>
-            <div class="form-text">Remove from Fuseki when records are deleted</div>
+            <div class="form-text">{{ __('Remove from Fuseki when records are deleted') }}</div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch">
@@ -123,13 +123,13 @@
                      {{ ($settings['fuseki_cascade_delete'] ?? '1') === '1' || ($settings['fuseki_cascade_delete'] ?? '') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="fuseki_cascade_delete">{{ __('Cascade Delete References') }}</label>
             </div>
-            <div class="form-text">Also remove triples where deleted record is the object</div>
+            <div class="form-text">{{ __('Also remove triples where deleted record is the object') }}</div>
           </div>
           <div class="col-md-6">
             <label for="fuseki_batch_size" class="form-label fw-bold">{{ __('Batch Size') }}</label>
             <input type="number" class="form-control" id="fuseki_batch_size" name="fuseki_batch_size"
                    value="{{ $settings['fuseki_batch_size'] ?? '100' }}" min="10" max="1000" step="10">
-            <div class="form-text">Records per batch for bulk sync operations</div>
+            <div class="form-text">{{ __('Records per batch for bulk sync operations') }}</div>
           </div>
         </div>
       </div>
@@ -156,7 +156,7 @@
             <label for="fuseki_orphan_retention_days" class="form-label fw-bold">{{ __('Orphan Retention (days)') }}</label>
             <input type="number" class="form-control" id="fuseki_orphan_retention_days" name="fuseki_orphan_retention_days"
                    value="{{ $settings['fuseki_orphan_retention_days'] ?? '30' }}" min="1" max="365">
-            <div class="form-text">Days to retain orphaned triples before cleanup</div>
+            <div class="form-text">{{ __('Days to retain orphaned triples before cleanup') }}</div>
           </div>
         </div>
       </div>

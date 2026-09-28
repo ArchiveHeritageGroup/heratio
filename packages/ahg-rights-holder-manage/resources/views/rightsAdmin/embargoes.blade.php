@@ -32,13 +32,13 @@
               <td>{{ $e->start_date ?? '-' }}</td>
               <td>{{ $e->end_date ?? 'Indefinite' }}</td>
               <td><span class="badge bg-{{ ($e->is_active ?? true) ? 'success' : 'secondary' }}">{{ ($e->is_active ?? true) ? 'Active' : 'Inactive' }}</span></td>
-              <td><a href="{{ route('rights-admin.embargo-edit', $e->id) }}" class="btn btn-sm atom-btn-white">Edit</a></td>
+              <td><a href="{{ route('rights-admin.embargo-edit', $e->id) }}" class="btn btn-sm atom-btn-white">{{ __('Edit') }}</a></td>
             </tr>
           @endforeach
         </tbody>
       </table>
     @else
-      <div class="text-center py-4 text-muted">No embargo records found.</div>
+      <div class="text-center py-4 text-muted">{{ __('No embargo records found.') }}</div>
     @endif
   </div>
 </div>

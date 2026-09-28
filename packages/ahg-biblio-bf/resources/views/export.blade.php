@@ -6,7 +6,7 @@
 
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h1 class="h4 mb-0"><i class="bi bi-box-arrow-up-right"></i> BIBFRAME Export</h1>
+      <h1 class="h4 mb-0"><i class="bi bi-box-arrow-up-right"></i> {{ __('BIBFRAME Export') }}</h1>
       <p class="small text-muted mb-0">Convert catalogue works to BIBFRAME 2.0 RDF</p>
     </div>
     <a href="{{ route('bibframe.index') }}" class="btn btn-outline-secondary btn-sm">
@@ -18,7 +18,7 @@
     @csrf
 
     <div class="card mb-3">
-      <div class="card-header">Select works to export</div>
+      <div class="card-header">{{ __('Select works to export') }}</div>
       <div class="card-body">
         <div class="mb-3">
           <label for="work_id" class="form-label">{{ __('Single work') }}</label>
@@ -43,14 +43,14 @@
         <div class="form-check">
           <input class="form-check-input" type="checkbox" name="batch" id="batch" value="1">
           <label class="form-check-label" for="batch">
-            Batch mode - return all works as JSON
+            {{ __('Batch mode - return all works as JSON') }}
           </label>
         </div>
       </div>
     </div>
 
     <button type="submit" class="btn btn-primary">
-      <i class="bi bi-download"></i> Export
+      <i class="bi bi-download"></i> {{ __('Export') }}
     </button>
   </form>
 

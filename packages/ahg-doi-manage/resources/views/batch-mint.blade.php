@@ -9,7 +9,7 @@
     <div class="row mb-4">
         <div class="col">
             <h1><i class="fas fa-plus me-2"></i>{{ __('Batch Mint DOIs') }}</h1>
-            <p class="text-muted">Queue multiple records for DOI minting</p>
+            <p class="text-muted">{{ __('Queue multiple records for DOI minting') }}</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('doi.index') }}" class="btn atom-btn-outline-secondary">
@@ -50,8 +50,8 @@
                 @if ($records->isEmpty())
                     <div class="p-4 text-center text-muted">
                         <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
-                        <p>All records have DOIs!</p>
-                        <a href="{{ route('doi.browse') }}" class="btn atom-btn-outline-primary">View All DOIs</a>
+                        <p>{{ __('All records have DOIs!') }}</p>
+                        <a href="{{ route('doi.browse') }}" class="btn atom-btn-outline-primary">{{ __('View All DOIs') }}</a>
                     </div>
                 @else
                     <table class="table table-hover mb-0">

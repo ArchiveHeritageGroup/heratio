@@ -67,7 +67,7 @@
     </div>
 
     <div class="text-center mt-3">
-      <a href="{{ url('/') }}" class="text-muted">Cancel and return home</a>
+      <a href="{{ url('/') }}" class="text-muted">{{ __('Cancel and return home') }}</a>
     </div>
   </div>
 </div>

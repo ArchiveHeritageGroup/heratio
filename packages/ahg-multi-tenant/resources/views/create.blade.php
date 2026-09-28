@@ -48,7 +48,7 @@
           <div class="card-body">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="name" class="form-label">Tenant Name <span class="text-danger">*</span></label>
+                <label for="name" class="form-label">{{ __('Tenant Name') }} <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="name" name="name" required autofocus>
                 <small class="form-text text-muted">{{ __('Display name for the tenant') }}</small>
               </div>
@@ -138,7 +138,7 @@
         </div>
 
         <div class="d-flex justify-content-end gap-2">
-          <a href="{{ route('tenant.index') }}" class="btn btn-outline-secondary">Cancel</a>
+          <a href="{{ route('tenant.index') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
           <button type="submit" class="btn btn-primary">
             <i class="fas fa-save me-2"></i>{{ __('Create Tenant') }}
           </button>

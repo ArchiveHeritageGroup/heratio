@@ -28,7 +28,7 @@
                class="form-control" style="width: 8rem;" value="{{ $days }}">
       </div>
       <button type="submit" class="btn btn-primary">
-        <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>Refresh
+        <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i>{{ __('Refresh') }}
       </button>
     </div>
   </form>
@@ -38,7 +38,7 @@
     <div class="col-md-3">
       <div class="card h-100">
         <div class="card-body">
-          <div class="text-muted small">Total searches</div>
+          <div class="text-muted small">{{ __('Total searches') }}</div>
           <div class="fs-3 fw-semibold">{{ number_format($totals['total']) }}</div>
         </div>
       </div>
@@ -46,7 +46,7 @@
     <div class="col-md-3">
       <div class="card h-100">
         <div class="card-body">
-          <div class="text-muted small">Unique queries</div>
+          <div class="text-muted small">{{ __('Unique queries') }}</div>
           <div class="fs-3 fw-semibold">{{ number_format($totals['unique_queries']) }}</div>
         </div>
       </div>
@@ -54,7 +54,7 @@
     <div class="col-md-3">
       <div class="card h-100">
         <div class="card-body">
-          <div class="text-muted small">Zero-result searches</div>
+          <div class="text-muted small">{{ __('Zero-result searches') }}</div>
           <div class="fs-3 fw-semibold text-danger">{{ number_format($totals['zero']) }}</div>
         </div>
       </div>
@@ -62,7 +62,7 @@
     <div class="col-md-3">
       <div class="card h-100">
         <div class="card-body">
-          <div class="text-muted small">Overall CTR</div>
+          <div class="text-muted small">{{ __('Overall CTR') }}</div>
           <div class="fs-3 fw-semibold">{{ number_format($totals['ctr'] * 100, 1) }}%</div>
         </div>
       </div>
@@ -73,7 +73,7 @@
   <div class="card mb-4">
     <div class="card-header d-flex align-items-center">
       <i class="bi bi-bar-chart-fill me-2" aria-hidden="true"></i>
-      <strong>Top queries</strong>
+      <strong>{{ __('Top queries') }}</strong>
       <span class="badge bg-secondary ms-2">{{ count($top) }}</span>
     </div>
     <div class="table-responsive">
@@ -107,7 +107,7 @@
             </td>
           </tr>
         @empty
-          <tr><td colspan="7" class="text-center text-muted py-3">No data in this window.</td></tr>
+          <tr><td colspan="7" class="text-center text-muted py-3">{{ __('No data in this window.') }}</td></tr>
         @endforelse
         </tbody>
       </table>
@@ -118,10 +118,10 @@
   <div class="card mb-4">
     <div class="card-header d-flex align-items-center">
       <i class="bi bi-exclamation-triangle-fill text-warning me-2" aria-hidden="true"></i>
-      <strong>Zero-result queries</strong>
+      <strong>{{ __('Zero-result queries') }}</strong>
       <span class="badge bg-secondary ms-2">{{ count($zero) }}</span>
       <small class="text-muted ms-3">
-        Signal for content gaps or missing synonym-dictionary entries.
+        {{ __('Signal for content gaps or missing synonym-dictionary entries.') }}
       </small>
     </div>
     <div class="table-responsive">
@@ -149,7 +149,7 @@
             </td>
           </tr>
         @empty
-          <tr><td colspan="4" class="text-center text-muted py-3">No zero-result queries in this window.</td></tr>
+          <tr><td colspan="4" class="text-center text-muted py-3">{{ __('No zero-result queries in this window.') }}</td></tr>
         @endforelse
         </tbody>
       </table>

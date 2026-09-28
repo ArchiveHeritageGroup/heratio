@@ -42,7 +42,7 @@
         <div class="card text-center border-warning">
           <div class="card-body py-2">
             <div class="fs-3 fw-bold text-warning">{{ number_format($statusCounts['pending']) }}</div>
-            <div class="small text-muted">Pending</div>
+            <div class="small text-muted">{{ __('Pending') }}</div>
           </div>
         </div>
       </div>
@@ -50,7 +50,7 @@
         <div class="card text-center border-primary">
           <div class="card-body py-2">
             <div class="fs-3 fw-bold text-primary">{{ number_format($statusCounts['processing']) }}</div>
-            <div class="small text-muted">Processing</div>
+            <div class="small text-muted">{{ __('Processing') }}</div>
           </div>
         </div>
       </div>
@@ -58,7 +58,7 @@
         <div class="card text-center border-danger">
           <div class="card-body py-2">
             <div class="fs-3 fw-bold text-danger">{{ number_format($statusCounts['failed']) }}</div>
-            <div class="small text-muted">Failed</div>
+            <div class="small text-muted">{{ __('Failed') }}</div>
           </div>
         </div>
       </div>
@@ -66,7 +66,7 @@
         <div class="card text-center border-success">
           <div class="card-body py-2">
             <div class="fs-3 fw-bold text-success">{{ number_format($statusCounts['completed']) }}</div>
-            <div class="small text-muted">Completed</div>
+            <div class="small text-muted">{{ __('Completed') }}</div>
           </div>
         </div>
       </div>
@@ -83,23 +83,23 @@
     <div class="d-flex flex-wrap gap-2 mb-3">
       <a href="{{ route('doi.queue') }}"
          class="btn btn-sm {{ $currentStatus === '' ? 'btn-outline-secondary' : 'btn-outline-secondary' }}">
-        All
+        {{ __('All') }}
       </a>
       <a href="{{ route('doi.queue', ['status' => 'pending']) }}"
          class="btn btn-sm {{ $currentStatus === 'pending' ? 'btn-outline-secondary' : 'btn-outline-secondary' }}">
-        Pending
+        {{ __('Pending') }}
       </a>
       <a href="{{ route('doi.queue', ['status' => 'processing']) }}"
          class="btn btn-sm {{ $currentStatus === 'processing' ? 'btn-outline-secondary' : 'btn-outline-secondary' }}">
-        Processing
+        {{ __('Processing') }}
       </a>
       <a href="{{ route('doi.queue', ['status' => 'failed']) }}"
          class="btn btn-sm {{ $currentStatus === 'failed' ? 'btn-danger' : 'btn-danger' }}">
-        Failed
+        {{ __('Failed') }}
       </a>
       <a href="{{ route('doi.queue', ['status' => 'completed']) }}"
          class="btn btn-sm {{ $currentStatus === 'completed' ? 'btn-success' : 'btn-success' }}">
-        Completed
+        {{ __('Completed') }}
       </a>
     </div>
 
@@ -179,8 +179,8 @@
     @else
       <div class="text-center text-muted py-4">
         <i class="fas fa-tasks fa-3x mb-3"></i>
-        <p>The queue is empty.</p>
-        <a href="{{ route('doi.queue') }}?batch=1" class="btn btn-outline-secondary">Queue Records for Minting</a>
+        <p>{{ __('The queue is empty.') }}</p>
+        <a href="{{ route('doi.queue') }}?batch=1" class="btn btn-outline-secondary">{{ __('Queue Records for Minting') }}</a>
       </div>
     @endif
   @endif

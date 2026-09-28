@@ -26,11 +26,11 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.index') }}">IPSAS</a></li>
-                    <li class="breadcrumb-item active">Insurance</li>
+                    <li class="breadcrumb-item active">{{ __('Insurance') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-shield-alt me-2"></i>{{ __('Insurance Policies') }}</h1>
-            <p class="text-muted">Manage insurance coverage for heritage assets</p>
+            <p class="text-muted">{{ __('Manage insurance coverage for heritage assets') }}</p>
         </div>
     </div>
 
@@ -59,7 +59,7 @@
             @if(empty($policies) || (is_object($policies) && method_exists($policies, 'isEmpty') && $policies->isEmpty()) || (is_countable($policies) && count($policies) === 0))
                 <div class="p-4 text-center text-muted">
                     <i class="fas fa-shield-alt fa-3x mb-3"></i>
-                    <p>No insurance policies found.</p>
+                    <p>{{ __('No insurance policies found.') }}</p>
                 </div>
             @else
                 <table class="table table-hover mb-0">

@@ -24,7 +24,7 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('ahgnaz.permits') }}">Permits</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('ahgnaz.permits') }}">{{ __('Permits') }}</a></li>
                     <li class="breadcrumb-item active">{{ $permit->permit_number ?? '' }}</li>
                 </ol>
             </nav>
@@ -47,15 +47,15 @@
                 <div class="card-header"><h5 class="mb-0">{{ __('Researcher') }}</h5></div>
                 <div class="card-body">
                     <dl class="row mb-0">
-                        <dt class="col-sm-4">Name</dt>
+                        <dt class="col-sm-4">{{ __('Name') }}</dt>
                         <dd class="col-sm-8">
                             <a href="{{ route('ahgnaz.researcher-view', ['id' => $permit->researcher_id ?? 0]) }}">
                                 {{ ($researcher->first_name ?? '') }} {{ ($researcher->last_name ?? '') }}
                             </a>
                         </dd>
-                        <dt class="col-sm-4">Type</dt>
+                        <dt class="col-sm-4">{{ __('Type') }}</dt>
                         <dd class="col-sm-8">{{ ucfirst($researcher->researcher_type ?? '') }}</dd>
-                        <dt class="col-sm-4">Institution</dt>
+                        <dt class="col-sm-4">{{ __('Institution') }}</dt>
                         <dd class="col-sm-8">{{ $researcher->institution ?? '-' }}</dd>
                     </dl>
                 </div>
@@ -65,11 +65,11 @@
                 <div class="card-header"><h5 class="mb-0">{{ __('Research Details') }}</h5></div>
                 <div class="card-body">
                     <dl class="row mb-0">
-                        <dt class="col-sm-4">Topic</dt>
+                        <dt class="col-sm-4">{{ __('Topic') }}</dt>
                         <dd class="col-sm-8">{{ $permit->research_topic ?? '' }}</dd>
-                        <dt class="col-sm-4">Purpose</dt>
+                        <dt class="col-sm-4">{{ __('Purpose') }}</dt>
                         <dd class="col-sm-8">{!! nl2br(e($permit->research_purpose ?? '-')) !!}</dd>
-                        <dt class="col-sm-4">Permit Type</dt>
+                        <dt class="col-sm-4">{{ __('Permit Type') }}</dt>
                         <dd class="col-sm-8">{{ ucfirst($permit->permit_type ?? '') }}</dd>
                     </dl>
                 </div>
@@ -79,13 +79,13 @@
                 <div class="card-header"><h5 class="mb-0">{{ __('Validity & Fees') }}</h5></div>
                 <div class="card-body">
                     <dl class="row mb-0">
-                        <dt class="col-sm-4">Valid From</dt>
+                        <dt class="col-sm-4">{{ __('Valid From') }}</dt>
                         <dd class="col-sm-8">@if(!empty($permit->start_date)){{ \Carbon\Carbon::parse($permit->start_date)->format('j F Y') }}@endif</dd>
-                        <dt class="col-sm-4">Valid Until</dt>
+                        <dt class="col-sm-4">{{ __('Valid Until') }}</dt>
                         <dd class="col-sm-8">@if(!empty($permit->end_date)){{ \Carbon\Carbon::parse($permit->end_date)->format('j F Y') }}@endif</dd>
-                        <dt class="col-sm-4">Fee</dt>
+                        <dt class="col-sm-4">{{ __('Fee') }}</dt>
                         <dd class="col-sm-8">{{ $permit->fee_currency ?? '' }} {{ number_format($permit->fee_amount ?? 0, 2) }}</dd>
-                        <dt class="col-sm-4">Payment Status</dt>
+                        <dt class="col-sm-4">{{ __('Payment Status') }}</dt>
                         <dd class="col-sm-8">
                             <span class="badge bg-{{ !empty($permit->fee_paid) ? 'success' : 'warning' }}">
                                 {{ !empty($permit->fee_paid) ? 'Paid' : 'Pending' }}

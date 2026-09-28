@@ -58,7 +58,7 @@
     <form method="get" action="{{ route('metadata-extraction.index') }}" class="mb-4">
       <div class="row g-3">
         <div class="col-md-4">
-          <label class="form-label">MIME Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label">{{ __('MIME Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="mime_type" class="form-select form-select-sm">
             <option value="">{{ __('All types') }}</option>
             @foreach($mimeTypes as $mime)
@@ -67,7 +67,7 @@
           </select>
         </div>
         <div class="col-md-4">
-          <label class="form-label">Has Metadata <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label">{{ __('Has Metadata') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="extracted" class="form-select form-select-sm">
             <option value="">{{ __('All') }}</option>
             <option value="yes" {{ $filterExtracted === 'yes' ? 'selected' : '' }}>{{ __('Yes - has metadata') }}</option>
@@ -76,7 +76,7 @@
         </div>
         <div class="col-md-4 d-flex align-items-end">
           <button type="submit" class="btn atom-btn-outline-light btn-sm me-2">{{ __('Filter') }}</button>
-          <a href="{{ route('metadata-extraction.index') }}" class="btn atom-btn-white btn-sm">Clear</a>
+          <a href="{{ route('metadata-extraction.index') }}" class="btn atom-btn-white btn-sm">{{ __('Clear') }}</a>
         </div>
       </div>
     </form>
@@ -168,7 +168,7 @@
 
     @else
       <div class="alert alert-info">
-        No digital objects found matching your criteria.
+        {{ __('No digital objects found matching your criteria.') }}
       </div>
     @endif
 

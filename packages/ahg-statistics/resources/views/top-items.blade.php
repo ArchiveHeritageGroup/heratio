@@ -18,7 +18,7 @@
 <div class="container-fluid px-4 py-3">
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('statistics.dashboard') }}">Statistics</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('statistics.dashboard') }}">{{ __('Statistics') }}</a></li>
             <li class="breadcrumb-item active">Top {{ ucfirst($eventType) }}s</li>
         </ol>
     </nav>
@@ -110,7 +110,7 @@
                             </tr>
                         @endforeach
                         @if(empty($items))
-                            <tr><td colspan="5" class="text-center text-muted py-4">No data for this period</td></tr>
+                            <tr><td colspan="5" class="text-center text-muted py-4">{{ __('No data for this period') }}</td></tr>
                         @endif
                     </tbody>
                 </table>

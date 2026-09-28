@@ -15,7 +15,7 @@
 
 @section('title-block')
 <h1><i class="fas fa-play-circle me-2"></i>{{ __('Media Player') }}</h1>
-<p class="text-muted">Media player behaviour and display options</p>
+<p class="text-muted">{{ __('Media player behaviour and display options') }}</p>
 @endsection
 
 @section('content')
@@ -65,7 +65,7 @@
                      {{ ($settings['media_autoplay'] ?? 'false') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="media_autoplay">{{ __('Auto-play media on load') }}</label>
             </div>
-            <div class="form-text">Note: Most browsers block autoplay with sound</div>
+            <div class="form-text">{{ __('Note: Most browsers block autoplay with sound') }}</div>
           </div>
         </div>
 

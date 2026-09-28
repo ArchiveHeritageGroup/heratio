@@ -14,9 +14,9 @@
     <code>/user/profile/plugins</code>{{ __(' - that is a separate visibility layer.') }}
   </p>
   <ul class="text-muted small">
-    <li><strong>Inherit</strong> - follow the global enable/disable on Settings → Plugins (default).</li>
-    <li><strong>Allow</strong>  - user has access even if globally disabled (use for beta-testers).</li>
-    <li><strong>Deny</strong>   - user is blocked even if globally enabled. Plugin URLs return 403.</li>
+    <li><strong>{{ __('Inherit') }}</strong> - follow the global enable/disable on Settings → Plugins (default).</li>
+    <li><strong>{{ __('Allow') }}</strong>  - user has access even if globally disabled (use for beta-testers).</li>
+    <li><strong>{{ __('Deny') }}</strong>   - user is blocked even if globally enabled. Plugin URLs return 403.</li>
   </ul>
 
   @if(session('status'))

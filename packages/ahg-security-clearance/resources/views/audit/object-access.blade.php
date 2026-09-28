@@ -5,9 +5,9 @@
 @section('content')
 <div class="container-fluid mt-3">
   <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">Security Dashboard</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('security-clearance.audit-dashboard') }}">Audit</a></li>
-    <li class="breadcrumb-item active">Object Access</li>
+    <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">{{ __('Security Dashboard') }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('security-clearance.audit-dashboard') }}">{{ __('Audit') }}</a></li>
+    <li class="breadcrumb-item active">{{ __('Object Access') }}</li>
   </ol></nav>
 
   <h1><i class="fas fa-folder-open"></i> {{ __('Object Access Audit') }}</h1>
@@ -89,7 +89,7 @@
             <td>{{ e($log->access_type ?? 'view') }}</td>
           </tr>
           @empty
-          <tr><td colspan="4" class="text-muted">No access logs.</td></tr>
+          <tr><td colspan="4" class="text-muted">{{ __('No access logs.') }}</td></tr>
           @endforelse
         </tbody>
       </table>
@@ -116,14 +116,14 @@
             <td><code>{{ e($log->ip_address ?? '') }}</code></td>
           </tr>
           @empty
-          <tr><td colspan="5" class="text-muted">No security events.</td></tr>
+          <tr><td colspan="5" class="text-muted">{{ __('No security events.') }}</td></tr>
           @endforelse
         </tbody>
       </table>
     </div>
   </div>
   @elseif(request('object_id'))
-    <div class="alert alert-warning">Object not found.</div>
+    <div class="alert alert-warning">{{ __('Object not found.') }}</div>
   @endif
 </div>
 @endsection

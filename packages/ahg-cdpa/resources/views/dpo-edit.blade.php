@@ -37,13 +37,13 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Full Name') }} <span class="text-danger">*</span></label>
                             <input type="text" name="name" class="form-control"
                                    autocomplete="off"
                                    value="{{ $dpo->name ?? '' }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Email') }} <span class="text-danger">*</span></label>
                             <input type="email" name="email" class="form-control"
                                    value="{{ $dpo->email ?? '' }}" required>
                         </div>
@@ -62,7 +62,7 @@
                             <textarea name="qualifications" class="form-control" rows="3">{{ $dpo->qualifications ?? '' }}</textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Appointment Date <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Appointment Date') }} <span class="text-danger">*</span></label>
                             <input type="date" name="appointment_date" class="form-control"
                                    value="{{ $dpo->appointment_date ?? '' }}" required>
                         </div>
@@ -110,7 +110,7 @@
                         <i class="fas fa-save me-2"></i>{{ __('Save DPO') }}
                     </button>
                     <a href="{{ route('ahgcdpa.dpo') }}" class="btn btn-outline-secondary">
-                        Cancel
+                        {{ __('Cancel') }}
                     </a>
                 </div>
             </div>

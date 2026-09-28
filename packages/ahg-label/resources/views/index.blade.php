@@ -29,7 +29,7 @@
     <div class="col-md-8 no-print">
         <div class="card mb-3">
             <div class="card-header">
-                <i class="fas fa-cog me-2"></i>Label Configuration
+                <i class="fas fa-cog me-2"></i>{{ __('Label Configuration') }}
                 <span class="badge bg-secondary ms-2">{{ $sectorLabel }}</span>
             </div>
             <div class="card-body">
@@ -37,7 +37,7 @@
                     {{-- Barcode Source Dropdown --}}
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-semibold">
-                            <i class="fas fa-barcode me-1"></i>Barcode Source
+                            <i class="fas fa-barcode me-1"></i>{{ __('Barcode Source') }}
                         </label>
                         <select class="form-select" id="barcodeSource" onchange="updateBarcodeSource()">
                             @foreach ($barcodeSources as $key => $source)
@@ -106,7 +106,7 @@
     {{-- Preview panel --}}
     <div class="col-md-4">
         <div class="card">
-            <div class="card-header">Preview</div>
+            <div class="card-header">{{ __('Preview') }}</div>
             <div class="card-body text-center">
                 <div class="label-preview" id="labelContent" style="max-width: 300px;">
                     <div id="labelTitle" class="fw-bold mb-2" style="font-size: 11pt;">
@@ -126,7 +126,7 @@
                                  alt="{{ __('Barcode') }}">
                             <div class="small mt-1" id="barcodeText">{{ e($defaultBarcodeData) }}</div>
                         @else
-                            <div class="text-muted small" id="barcodeText">No barcode data available</div>
+                            <div class="text-muted small" id="barcodeText">{{ __('No barcode data available') }}</div>
                         @endif
                     </div>
 

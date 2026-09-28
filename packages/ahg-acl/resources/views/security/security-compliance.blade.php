@@ -70,7 +70,7 @@
                         </tbody>
                     </table>
                 @else
-                    <p class="text-muted text-center">No recent logs</p>
+                    <p class="text-muted text-center">{{ __('No recent logs') }}</p>
                 @endif
             </div>
         </div>
@@ -95,7 +95,7 @@
                         </tbody>
                     </table>
                 @else
-                    <p class="text-muted text-center">No retention schedules</p>
+                    <p class="text-muted text-center">{{ __('No retention schedules') }}</p>
                 @endif
             </div>
         </div>

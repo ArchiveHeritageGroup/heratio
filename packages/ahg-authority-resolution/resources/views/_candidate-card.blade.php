@@ -127,7 +127,7 @@
                 <i class="bi bi-person-badge me-1"></i>{{ $authorityName ?? ('authority #' . (int) $candidate->candidate_authority_id) }}
             </span>
         @else
-            <span class="text-muted small">No authority link available</span>
+            <span class="text-muted small">{{ __('No authority link available') }}</span>
         @endif
 
         @if($isPlaceCand)

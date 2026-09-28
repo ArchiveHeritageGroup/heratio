@@ -34,7 +34,7 @@
         </div>
         <div class="card-body">
           <div class="mb-3">
-            <label class="form-label">Title <span class="text-danger">*</span></label>
+            <label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
             <input type="text" name="title" class="form-control" autocomplete="off" required value="{{ $data->title ?? '' }}">
           </div>
 
@@ -152,7 +152,7 @@
       </div>
 
       <div class="d-flex justify-content-between">
-        <a href="{{ route('exhibition.show', ['id' => $exId]) }}" class="btn btn-outline-secondary">Cancel</a>
+        <a href="{{ route('exhibition.show', ['id' => $exId]) }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
         <button type="submit" class="btn btn-primary">{{ __('Save Changes') }}</button>
       </div>
     </form>

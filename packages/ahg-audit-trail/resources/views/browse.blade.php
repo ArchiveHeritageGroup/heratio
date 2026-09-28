@@ -56,16 +56,16 @@
         </div>
         <div class="d-grid gap-2">
           <button type="submit" class="btn btn-primary btn-sm">{{ __('Apply Filters') }}</button>
-          <a href="{{ route('audit.browse') }}" class="btn btn-outline-secondary btn-sm">Clear</a>
+          <a href="{{ route('audit.browse') }}" class="btn btn-outline-secondary btn-sm">{{ __('Clear') }}</a>
         </div>
       </form>
       <hr class="my-4">
       <h4>{{ __('Quick Links') }}</h4>
       <ul class="list-unstyled">
-        <li><a href="{{ route('audit.authentication') }}">Authentication Log</a></li>
-        <li><a href="{{ route('audit.security-access') }}">Security Access Log</a></li>
-        <li><a href="{{ route('audit.statistics') }}">Statistics Dashboard</a></li>
-        <li><a href="{{ route('audit.settings') }}">Settings</a></li>
+        <li><a href="{{ route('audit.authentication') }}">{{ __('Authentication Log') }}</a></li>
+        <li><a href="{{ route('audit.security-access') }}">{{ __('Security Access Log') }}</a></li>
+        <li><a href="{{ route('audit.statistics') }}">{{ __('Statistics Dashboard') }}</a></li>
+        <li><a href="{{ route('audit.settings') }}">{{ __('Settings') }}</a></li>
       </ul>
     </div>
   </section>
@@ -135,7 +135,7 @@
           </tr>
         @endforeach
         @if($pager['total'] === 0)
-          <tr><td colspan="7" class="text-center text-muted py-4">No audit log entries found.</td></tr>
+          <tr><td colspan="7" class="text-center text-muted py-4">{{ __('No audit log entries found.') }}</td></tr>
         @endif
       </tbody>
     </table>

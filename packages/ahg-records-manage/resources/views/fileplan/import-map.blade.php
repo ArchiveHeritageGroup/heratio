@@ -19,7 +19,7 @@
     <input type="hidden" name="agency_code" value="{{ $agencyCode }}">
 
     <div class="card mb-3">
-        <div class="card-header">Column Mapping</div>
+        <div class="card-header">{{ __('Column Mapping') }}</div>
         <div class="card-body">
             <p class="text-muted">Map spreadsheet columns to file plan fields. Auto-detected mappings are highlighted.</p>
 
@@ -103,7 +103,7 @@
     </div>
 
     <div class="d-flex justify-content-between">
-        <a href="{{ route('records.fileplan.import') }}" class="btn btn-secondary">Back</a>
+        <a href="{{ route('records.fileplan.import') }}" class="btn btn-secondary">{{ __('Back') }}</a>
         <button type="submit" class="btn btn-primary">{{ __('Next: Preview') }}</button>
     </div>
 </form>

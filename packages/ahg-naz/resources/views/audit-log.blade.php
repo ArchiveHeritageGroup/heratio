@@ -64,7 +64,7 @@
       <td>{{ \Illuminate\Support\Str::limit($row->notes, 80) }}</td>
     </tr>
     @empty
-    <tr><td colspan="7" class="text-muted">No audit log entries.</td></tr>
+    <tr><td colspan="7" class="text-muted">{{ __('No audit log entries.') }}</td></tr>
     @endforelse
   </tbody>
 </table>

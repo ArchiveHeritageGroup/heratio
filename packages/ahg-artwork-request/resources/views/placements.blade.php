@@ -9,10 +9,10 @@
   @include('ahg-artwork-request::_flash')
 
   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <h1 class="h3 mb-0"><i class="fas fa-map-marker-alt me-2"></i>Artworks out on campus</h1>
+    <h1 class="h3 mb-0"><i class="fas fa-map-marker-alt me-2"></i>{{ __('Artworks out on campus') }}</h1>
     <div class="btn-group">
-      <a href="{{ route('artwork-request.placements') }}" class="btn btn-outline-secondary {{ $overdueOnly ? '' : 'active' }}">All</a>
-      <a href="{{ route('artwork-request.placements', ['overdue' => 1]) }}" class="btn btn-outline-danger {{ $overdueOnly ? 'active' : '' }}">Overdue only</a>
+      <a href="{{ route('artwork-request.placements') }}" class="btn btn-outline-secondary {{ $overdueOnly ? '' : 'active' }}">{{ __('All') }}</a>
+      <a href="{{ route('artwork-request.placements', ['overdue' => 1]) }}" class="btn btn-outline-danger {{ $overdueOnly ? 'active' : '' }}">{{ __('Overdue only') }}</a>
     </div>
   </div>
 

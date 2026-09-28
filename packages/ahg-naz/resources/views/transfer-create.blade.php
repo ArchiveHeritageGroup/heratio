@@ -21,8 +21,8 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('ahgnaz.transfers') }}">Transfers</a></li>
-                    <li class="breadcrumb-item active">New Transfer</li>
+                    <li class="breadcrumb-item"><a href="{{ route('ahgnaz.transfers') }}">{{ __('Transfers') }}</a></li>
+                    <li class="breadcrumb-item active">{{ __('New Transfer') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-truck me-2"></i>{{ __('Create Records Transfer') }}</h1>
@@ -37,7 +37,7 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label">Agency Name <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Agency Name') }} <span class="text-danger">*</span></label>
                             <input type="text" name="transferring_agency" class="form-control" required>
                         </div>
                         <div class="col-md-6">
@@ -70,7 +70,7 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label">Description <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Description') }} <span class="text-danger">*</span></label>
                             <textarea name="description" class="form-control" rows="4" required placeholder="{{ __('Describe the records being transferred') }}"></textarea>
                         </div>
                         <div class="col-md-6">
@@ -124,7 +124,7 @@
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="contains_restricted" id="contains_restricted">
                                 <label class="form-check-label" for="contains_restricted">
-                                    Contains restricted records
+                                    {{ __('Contains restricted records') }}
                                 </label>
                             </div>
                         </div>
@@ -148,7 +148,7 @@
                         <i class="fas fa-save me-2"></i>{{ __('Create Transfer') }}
                     </button>
                     <a href="{{ route('ahgnaz.transfers') }}" class="btn btn-outline-secondary">
-                        Cancel
+                        {{ __('Cancel') }}
                     </a>
                 </div>
             </div>

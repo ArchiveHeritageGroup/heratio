@@ -42,7 +42,7 @@
 
       {{-- Search Mode Selector --}}
       <div class="mt-3 d-flex align-items-center gap-2">
-        <small class="text-muted me-1"><i class="fas fa-sliders-h me-1"></i>Search mode:</small>
+        <small class="text-muted me-1"><i class="fas fa-sliders-h me-1"></i>{{ __('Search mode:') }}</small>
         <div class="btn-group btn-group-sm" role="group" id="discovery-mode-group">
           <button type="button" class="btn btn-outline-primary active" data-mode="standard" title="{{ __('Keyword search') }}">
             <i class="fas fa-search me-1"></i>{{ __('Standard') }}
@@ -89,7 +89,7 @@
     <div class="spinner-border text-primary" role="status">
       <span class="visually-hidden">{{ __('Searching...') }}</span>
     </div>
-    <p class="text-muted mt-3">Searching across collections...</p>
+    <p class="text-muted mt-3">{{ __('Searching across collections...') }}</p>
   </div>
 
   {{-- AJAX Results Summary --}}
@@ -118,7 +118,7 @@
   <div id="discovery-no-results" class="text-center py-5 d-none">
     <i class="fas fa-search fa-3x text-muted mb-3"></i>
     <h4 class="text-muted">{{ __('No results found') }}</h4>
-    <p class="text-muted">Try different keywords or a broader search term.</p>
+    <p class="text-muted">{{ __('Try different keywords or a broader search term.') }}</p>
   </div>
 
   {{-- AJAX Pagination --}}
@@ -138,16 +138,16 @@
           <div class="card-header"><h6 class="mb-0">{{ __('Entity Type') }}</h6></div>
           <div class="list-group list-group-flush">
             <a href="?q={{ urlencode($query) }}&type=all" class="list-group-item list-group-item-action d-flex justify-content-between {{ ($type ?? '') === 'all' ? 'active' : '' }}">
-              All <span class="badge bg-secondary">{{ array_sum($counts) }}</span>
+              {{ __('All') }} <span class="badge bg-secondary">{{ array_sum($counts) }}</span>
             </a>
             <a href="?q={{ urlencode($query) }}&type=information_object" class="list-group-item list-group-item-action d-flex justify-content-between {{ ($type ?? '') === 'information_object' ? 'active' : '' }}">
-              Archival descriptions <span class="badge bg-secondary">{{ $counts['information_object'] ?? 0 }}</span>
+              {{ __('Archival descriptions') }} <span class="badge bg-secondary">{{ $counts['information_object'] ?? 0 }}</span>
             </a>
             <a href="?q={{ urlencode($query) }}&type=actor" class="list-group-item list-group-item-action d-flex justify-content-between {{ ($type ?? '') === 'actor' ? 'active' : '' }}">
-              Authority records <span class="badge bg-secondary">{{ $counts['actor'] ?? 0 }}</span>
+              {{ __('Authority records') }} <span class="badge bg-secondary">{{ $counts['actor'] ?? 0 }}</span>
             </a>
             <a href="?q={{ urlencode($query) }}&type=repository" class="list-group-item list-group-item-action d-flex justify-content-between {{ ($type ?? '') === 'repository' ? 'active' : '' }}">
-              Repositories <span class="badge bg-secondary">{{ $counts['repository'] ?? 0 }}</span>
+              {{ __('Repositories') }} <span class="badge bg-secondary">{{ $counts['repository'] ?? 0 }}</span>
             </a>
           </div>
         </div>
@@ -178,14 +178,14 @@
           </div>
         </div>
         @empty
-        <div class="alert alert-info">No results found.</div>
+        <div class="alert alert-info">{{ __('No results found.') }}</div>
         @endforelse
 
         @if (($totalPages ?? 1) > 1)
         <nav class="mt-3">
           <ul class="pagination">
             @if ($page > 1)
-              <li class="page-item"><a class="page-link" href="?{{ http_build_query(['q' => $query, 'type' => $type, 'page' => $page - 1]) }}">Prev</a></li>
+              <li class="page-item"><a class="page-link" href="?{{ http_build_query(['q' => $query, 'type' => $type, 'page' => $page - 1]) }}">{{ __('Prev') }}</a></li>
             @endif
             @for ($i = max(1, $page - 3); $i <= min($totalPages, $page + 3); $i++)
               <li class="page-item {{ $i == $page ? 'active' : '' }}"><a class="page-link" href="?{{ http_build_query(['q' => $query, 'type' => $type, 'page' => $i]) }}">{{ $i }}</a></li>

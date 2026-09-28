@@ -205,7 +205,7 @@
               @empty
                 <tr>
                   <td colspan="8" class="text-center text-muted py-4">
-                    No tenants found. <a href="{{ route('tenant.create') }}">Create your first tenant</a>.
+                    {{ __('No tenants found.') }} <a href="{{ route('tenant.create') }}">{{ __('Create your first tenant') }}</a>.
                   </td>
                 </tr>
               @endforelse
@@ -223,7 +223,7 @@
               <li><strong>{{ __('Status:') }}</strong>
                 <span class="badge bg-success">{{ __('Active') }}</span> Full access |
                 <span class="badge bg-info">{{ __('Trial') }}</span> Limited time access |
-                <span class="badge bg-danger">{{ __('Suspended') }}</span> No access
+                <span class="badge bg-danger">{{ __('Suspended') }}</span> {{ __('No access') }}
               </li>
               <li><strong>{{ __('Roles:') }}</strong> Owner &gt; Super User &gt; Editor &gt; Contributor &gt; Viewer</li>
             </ul>

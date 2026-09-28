@@ -12,30 +12,30 @@
 
 @section('content')
     <div class="card mb-4">
-      <div class="card-header bg-primary text-white">Server environment</div>
+      <div class="card-header bg-primary text-white">{{ __('Server environment') }}</div>
       <div class="card-body p-0">
         <table class="table table-bordered table-striped mb-0">
           <tbody>
-            <tr><td class="fw-bold" style="width:35%">PHP version</td><td>{{ $info['php_version'] }}</td></tr>
-            <tr><td class="fw-bold">Laravel version</td><td>{{ $info['laravel_version'] }}</td></tr>
-            <tr><td class="fw-bold">Server software</td><td>{{ $info['server_software'] }}</td></tr>
-            <tr><td class="fw-bold">Operating system</td><td>{{ $info['os'] }}</td></tr>
-            <tr><td class="fw-bold">Memory limit</td><td>{{ $info['memory_limit'] }}</td></tr>
-            <tr><td class="fw-bold">Max execution time</td><td>{{ $info['max_execution_time'] }}s</td></tr>
-            <tr><td class="fw-bold">Upload max filesize</td><td>{{ $info['upload_max_filesize'] }}</td></tr>
-            <tr><td class="fw-bold">Post max size</td><td>{{ $info['post_max_size'] }}</td></tr>
+            <tr><td class="fw-bold" style="width:35%">{{ __('PHP version') }}</td><td>{{ $info['php_version'] }}</td></tr>
+            <tr><td class="fw-bold">{{ __('Laravel version') }}</td><td>{{ $info['laravel_version'] }}</td></tr>
+            <tr><td class="fw-bold">{{ __('Server software') }}</td><td>{{ $info['server_software'] }}</td></tr>
+            <tr><td class="fw-bold">{{ __('Operating system') }}</td><td>{{ $info['os'] }}</td></tr>
+            <tr><td class="fw-bold">{{ __('Memory limit') }}</td><td>{{ $info['memory_limit'] }}</td></tr>
+            <tr><td class="fw-bold">{{ __('Max execution time') }}</td><td>{{ $info['max_execution_time'] }}s</td></tr>
+            <tr><td class="fw-bold">{{ __('Upload max filesize') }}</td><td>{{ $info['upload_max_filesize'] }}</td></tr>
+            <tr><td class="fw-bold">{{ __('Post max size') }}</td><td>{{ $info['post_max_size'] }}</td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
     <div class="card mb-4">
-      <div class="card-header">Database</div>
+      <div class="card-header">{{ __('Database') }}</div>
       <div class="card-body p-0">
         <table class="table table-bordered table-striped mb-0">
           <tbody>
-            <tr><td class="fw-bold" style="width:35%">Database size</td><td>{{ $info['database_size_mb'] }} MB</td></tr>
-            <tr><td class="fw-bold">Table count</td><td>{{ $info['table_count'] }}</td></tr>
+            <tr><td class="fw-bold" style="width:35%">{{ __('Database size') }}</td><td>{{ $info['database_size_mb'] }} MB</td></tr>
+            <tr><td class="fw-bold">{{ __('Table count') }}</td><td>{{ $info['table_count'] }}</td></tr>
           </tbody>
         </table>
       </div>

@@ -11,8 +11,8 @@
   </div>
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">Data Migration</a></li>
-      <li class="breadcrumb-item active">Export</li>
+      <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">{{ __('Data Migration') }}</a></li>
+      <li class="breadcrumb-item active">{{ __('Export') }}</li>
     </ol>
   </nav>
   <div class="card">
@@ -24,7 +24,7 @@
         @csrf
         <div class="mb-3">
           <label for="export_type" class="form-label fw-bold">
-            Export Format <span class="badge bg-danger ms-1">{{ __('Required') }}</span>
+            {{ __('Export Format') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span>
           </label>
           <select class="form-select" id="export_type" name="export_type" required>
             <option value="">-- Select format --</option>
@@ -36,7 +36,7 @@
         </div>
         <div class="mb-3">
           <label for="target_type" class="form-label fw-bold">
-            Record Type <span class="badge bg-danger ms-1">{{ __('Required') }}</span>
+            {{ __('Record Type') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span>
           </label>
           <select class="form-select" id="target_type" name="target_type" required>
             <option value="">-- Select record type --</option>
@@ -48,7 +48,7 @@
         </div>
         <div class="mb-3">
           <label for="repository_id" class="form-label fw-bold">
-            Limit to Repository <span class="badge bg-warning text-dark ms-1">{{ __('Recommended') }}</span>
+            {{ __('Limit to Repository') }} <span class="badge bg-warning text-dark ms-1">{{ __('Recommended') }}</span>
           </label>
           <select class="form-select" id="repository_id" name="repository_id">
             <option value="">-- All repositories --</option>
@@ -59,14 +59,14 @@
         </div>
         <div class="mb-3">
           <label for="date_from" class="form-label fw-bold">
-            Created From <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+            {{ __('Created From') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
           </label>
           <input type="date" class="form-control" id="date_from" name="date_from"
                  value="{{ old('date_from') }}">
         </div>
         <div class="mb-3">
           <label for="date_to" class="form-label fw-bold">
-            Created To <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+            {{ __('Created To') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
           </label>
           <input type="date" class="form-control" id="date_to" name="date_to"
                  value="{{ old('date_to') }}">
@@ -75,7 +75,7 @@
           <button type="submit" class="{{ $btnSave ?? 'atom-btn-outline-success' }}">
             <i class="fas fa-download"></i> {{ __('Export') }}
           </button>
-          <a href="{{ route('data-migration.index') }}" class="atom-btn-white">Cancel</a>
+          <a href="{{ route('data-migration.index') }}" class="atom-btn-white">{{ __('Cancel') }}</a>
         </div>
       </form>
     </div>

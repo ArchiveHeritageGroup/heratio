@@ -8,7 +8,7 @@
 
   @include('ahg-artwork-request::_flash')
 
-  <h1 class="h3 mb-3"><i class="fas fa-user-check me-2"></i>Artwork request approvers</h1>
+  <h1 class="h3 mb-3"><i class="fas fa-user-check me-2"></i>{{ __('Artwork request approvers') }}</h1>
   <p class="text-muted">Who is notified when a request comes in, and who may decide it. Leave the department blank
     for the general queue - those people see every request.</p>
 
@@ -17,7 +17,7 @@
   @endif
 
   <div class="card mb-4">
-    <div class="card-header">Add an approver</div>
+    <div class="card-header">{{ __('Add an approver') }}</div>
     <div class="card-body">
       <form method="post" action="{{ route('artwork-request.approvers') }}" class="row g-3 align-items-end">
         @csrf

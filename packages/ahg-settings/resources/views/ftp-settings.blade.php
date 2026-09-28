@@ -15,7 +15,7 @@
 
 @section('title-block')
 <h1><i class="fas fa-server me-2"></i>{{ __('FTP / SFTP Upload') }}</h1>
-<p class="text-muted">FTP / SFTP connection settings</p>
+<p class="text-muted">{{ __('FTP / SFTP connection settings') }}</p>
 @endsection
 
 @section('content')

@@ -11,8 +11,8 @@
   </div>
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">Data Migration</a></li>
-      <li class="breadcrumb-item active">Preservica Export</li>
+      <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">{{ __('Data Migration') }}</a></li>
+      <li class="breadcrumb-item active">{{ __('Preservica Export') }}</li>
     </ol>
   </nav>
   <div class="card">
@@ -24,7 +24,7 @@
         @csrf
         <div class="mb-3">
           <label for="preservica_url" class="form-label fw-bold">
-            Preservica URL <span class="badge bg-danger ms-1">{{ __('Required') }}</span>
+            {{ __('Preservica URL') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span>
           </label>
           <input type="url" class="form-control" id="preservica_url" name="preservica_url"
                  placeholder="{{ __('https://your-institution.preservica.com') }}"
@@ -32,20 +32,20 @@
         </div>
         <div class="mb-3">
           <label for="preservica_user" class="form-label fw-bold">
-            Username <span class="badge bg-danger ms-1">{{ __('Required') }}</span>
+            {{ __('Username') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span>
           </label>
           <input type="text" class="form-control" id="preservica_user" name="preservica_user"
                  value="{{ old('preservica_user') }}" required>
         </div>
         <div class="mb-3">
           <label for="preservica_pass" class="form-label fw-bold">
-            Password <span class="badge bg-danger ms-1">{{ __('Required') }}</span>
+            {{ __('Password') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span>
           </label>
           <input type="password" class="form-control" id="preservica_pass" name="preservica_pass" required>
         </div>
         <div class="mb-3">
           <label for="source_repository" class="form-label fw-bold">
-            Source Repository <span class="badge bg-warning text-dark ms-1">{{ __('Recommended') }}</span>
+            {{ __('Source Repository') }} <span class="badge bg-warning text-dark ms-1">{{ __('Recommended') }}</span>
           </label>
           <select class="form-select" id="source_repository" name="source_repository">
             <option value="">-- All repositories --</option>
@@ -58,7 +58,7 @@
           <button type="submit" class="atom-btn-outline-success">
             <i class="fas fa-sync"></i> {{ __('Start Export') }}
           </button>
-          <a href="{{ route('data-migration.index') }}" class="atom-btn-white">Cancel</a>
+          <a href="{{ route('data-migration.index') }}" class="atom-btn-white">{{ __('Cancel') }}</a>
         </div>
       </form>
     </div>

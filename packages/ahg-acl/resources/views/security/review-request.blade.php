@@ -21,33 +21,33 @@
       </div>
       <div class="card-body">
         <dl class="row">
-          <dt class="col-sm-3">Requester</dt>
+          <dt class="col-sm-3">{{ __('Requester') }}</dt>
           <dd class="col-sm-9">
             <strong>{{ e($accessRequest->username ?? '') }}</strong><br>
             <small>{{ e($accessRequest->email ?? '') }}</small>
           </dd>
 
-          <dt class="col-sm-3">Resource</dt>
+          <dt class="col-sm-3">{{ __('Resource') }}</dt>
           <dd class="col-sm-9">
             {{ e($accessRequest->object_title ?? 'N/A') }}
           </dd>
 
-          <dt class="col-sm-3">Request Type</dt>
+          <dt class="col-sm-3">{{ __('Request Type') }}</dt>
           <dd class="col-sm-9">
             {{ ucfirst(str_replace('_', ' ', $accessRequest->request_type ?? '')) }}
           </dd>
 
-          <dt class="col-sm-3">Priority</dt>
+          <dt class="col-sm-3">{{ __('Priority') }}</dt>
           <dd class="col-sm-9">
             <span class="badge bg-{{ ($accessRequest->priority ?? '') === 'immediate' ? 'danger' : (($accessRequest->priority ?? '') === 'urgent' ? 'warning' : 'secondary') }}">
               {{ ucfirst($accessRequest->priority ?? 'normal') }}
             </span>
           </dd>
 
-          <dt class="col-sm-3">Duration Requested</dt>
+          <dt class="col-sm-3">{{ __('Duration Requested') }}</dt>
           <dd class="col-sm-9">{{ $accessRequest->duration_hours ?? '' }} hours</dd>
 
-          <dt class="col-sm-3">Submitted</dt>
+          <dt class="col-sm-3">{{ __('Submitted') }}</dt>
           <dd class="col-sm-9">{{ ($accessRequest->created_at ?? null) ? date('Y-m-d H:i:s', strtotime($accessRequest->created_at)) : '' }}</dd>
         </dl>
 
@@ -99,10 +99,10 @@
       </div>
       <div class="card-body">
         <a href="{{ route('acl.view-classification', ['id' => $accessRequest->user_id ?? 0]) }}" class="btn btn-sm btn-outline-primary">
-          View User Clearance
+          {{ __('View User Clearance') }}
         </a>
         <a href="{{ route('acl.user-security', ['id' => $accessRequest->user_id ?? 0]) }}" class="btn btn-sm btn-outline-secondary">
-          View Access History
+          {{ __('View Access History') }}
         </a>
       </div>
     </div>

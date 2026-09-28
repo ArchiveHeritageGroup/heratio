@@ -10,7 +10,7 @@
     <h5 class="mb-0">{{ __('Unknown Domain') }}</h5>
   </div>
   <div class="card-body">
-    <p class="text-muted">Content for Unknown Domain.</p>
+    <p class="text-muted">{{ __('Content for Unknown Domain.') }}</p>
   </div>
 </div>
 @endsection

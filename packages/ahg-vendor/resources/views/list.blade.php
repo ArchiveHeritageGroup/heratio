@@ -87,7 +87,7 @@
     {{-- Results --}}
     <div class="card">
         <div class="card-header">
-            <span class="badge bg-secondary me-2">{{ $vendors->count() }}</span> Vendors
+            <span class="badge bg-secondary me-2">{{ $vendors->count() }}</span> {{ __('Vendors') }}
         </div>
         <div class="card-body p-0">
             @if ($vendors->count() > 0)
@@ -174,7 +174,7 @@
             @else
             <div class="text-center py-5 text-muted">
                 <i class="fas fa-building fa-3x mb-3"></i>
-                <p>No vendors found matching your criteria</p>
+                <p>{{ __('No vendors found matching your criteria') }}</p>
                 <a href="{{ route('ahgvendor.add') }}" class="btn btn-primary">
                     <i class="fas fa-plus me-1"></i>{{ __('Add First Vendor') }}
                 </a>
@@ -198,7 +198,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p>Are you sure you want to delete vendor <strong id="deleteVendorName"></strong>?</p>
+                <p>{{ __('Are you sure you want to delete vendor') }} <strong id="deleteVendorName"></strong>?</p>
                 <p class="text-danger mb-0"><small>{{ __('This action cannot be undone. All associated data will be permanently removed.') }}</small></p>
             </div>
             <div class="modal-footer">

@@ -21,7 +21,7 @@
       <div class="card text-center h-100">
         <div class="card-body py-3">
           <div class="fs-3 fw-bold">{{ (int) ($stats['total'] ?? 0) }}</div>
-          <div class="text-muted small">Total</div>
+          <div class="text-muted small">{{ __('Total') }}</div>
         </div>
       </div>
     </div>
@@ -29,7 +29,7 @@
       <div class="card text-center h-100 border-primary">
         <div class="card-body py-3">
           <div class="fs-3 fw-bold text-primary">{{ (int) ($stats['running'] ?? 0) }}</div>
-          <div class="text-muted small">Active</div>
+          <div class="text-muted small">{{ __('Active') }}</div>
         </div>
       </div>
     </div>
@@ -37,7 +37,7 @@
       <div class="card text-center h-100 border-success">
         <div class="card-body py-3">
           <div class="fs-3 fw-bold text-success">{{ (int) ($stats['completed'] ?? 0) }}</div>
-          <div class="text-muted small">Completed</div>
+          <div class="text-muted small">{{ __('Completed') }}</div>
         </div>
       </div>
     </div>
@@ -45,7 +45,7 @@
       <div class="card text-center h-100 border-danger">
         <div class="card-body py-3">
           <div class="fs-3 fw-bold text-danger">{{ (int) ($stats['error'] ?? 0) }}</div>
-          <div class="text-muted small">Failed</div>
+          <div class="text-muted small">{{ __('Failed') }}</div>
         </div>
       </div>
     </div>
@@ -54,7 +54,7 @@
   {{-- Admin tip --}}
   @if(auth()->check() && $pager->getNbResults() > 0)
     <div class="alert alert-info alert-dismissible fade show" role="alert">
-      <i class="fas fa-info-circle me-1"></i> You may only clear jobs belonging to you.
+      <i class="fas fa-info-circle me-1"></i> {{ __('You may only clear jobs belonging to you.') }}
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
   @endif
@@ -64,22 +64,22 @@
     <ul class="nav nav-pills">
       <li class="nav-item">
         <a href="{{ route('job.browse') }}" class="nav-link {{ ($currentStatus === '' || $currentStatus === 'all') ? 'active' : '' }}">
-          All
+          {{ __('All') }}
         </a>
       </li>
       <li class="nav-item">
         <a href="{{ route('job.browse', ['status' => 'running']) }}" class="nav-link {{ $currentStatus === 'running' ? 'active' : '' }}">
-          Active
+          {{ __('Active') }}
         </a>
       </li>
       <li class="nav-item">
         <a href="{{ route('job.browse', ['status' => 'completed']) }}" class="nav-link {{ $currentStatus === 'completed' ? 'active' : '' }}">
-          Completed
+          {{ __('Completed') }}
         </a>
       </li>
       <li class="nav-item">
         <a href="{{ route('job.browse', ['status' => 'error']) }}" class="nav-link {{ $currentStatus === 'error' ? 'active' : '' }}">
-          Failed
+          {{ __('Failed') }}
         </a>
       </li>
     </ul>
@@ -89,7 +89,7 @@
         <i class="fas fa-sync-alt"></i> {{ __('Refresh') }}
       </a>
       <button type="button" class="btn btn-outline-secondary btn-sm" id="auto-refresh-toggle" title="{{ __('Toggle auto refresh') }}">
-        <i class="fas fa-sync"></i> Auto refresh: <span id="auto-refresh-label">off</span>
+        <i class="fas fa-sync"></i> {{ __('Auto refresh:') }} <span id="auto-refresh-label">off</span>
       </button>
       @if(Route::has('job.export-csv'))
         <a href="{{ route('job.export-csv') }}" class="btn btn-outline-secondary btn-sm" title="{{ __('Export CSV') }}">
@@ -165,7 +165,7 @@
       </table>
     </div>
   @else
-    <div class="alert alert-info">No jobs found.</div>
+    <div class="alert alert-info">{{ __('No jobs found.') }}</div>
   @endif
 @endsection
 

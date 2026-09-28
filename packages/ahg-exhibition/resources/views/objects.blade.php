@@ -27,9 +27,9 @@
   <div class="col-md-8">
     <nav aria-label="{{ __('breadcrumb') }}">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('exhibition.index') }}">Exhibitions</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('exhibition.index') }}">{{ __('Exhibitions') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('exhibition.show', ['id' => $exId]) }}">{{ $exhibition->title ?? '' }}</a></li>
-        <li class="breadcrumb-item active">Objects</li>
+        <li class="breadcrumb-item active">{{ __('Objects') }}</li>
       </ol>
     </nav>
 
@@ -45,7 +45,7 @@
         <div class="card-body text-center py-5">
           <i class="fas fa-archive fa-3x text-muted mb-3"></i>
           <h5>{{ __('No objects added yet') }}</h5>
-          <p class="text-muted">Add objects from the collection to this exhibition.</p>
+          <p class="text-muted">{{ __('Add objects from the collection to this exhibition.') }}</p>
           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addObjectModal">
             <i class="fas fa-plus"></i> {{ __('Add First Object') }}
           </button>
@@ -57,7 +57,7 @@
           <div class="card-body py-2">
             <div class="d-flex align-items-center gap-2 flex-wrap">
               <span class="small text-muted">{{ __('Filter by section:') }}</span>
-              <a href="?" class="btn btn-sm {{ empty($currentSection) ? 'btn-primary' : 'btn-outline-primary' }}">All</a>
+              <a href="?" class="btn btn-sm {{ empty($currentSection) ? 'btn-primary' : 'btn-outline-primary' }}">{{ __('All') }}</a>
               @foreach($sections as $section)
                 @php $sec = (object) $section; @endphp
                 <a href="?section={{ $sec->id ?? '' }}" class="btn btn-sm {{ $currentSection == ($sec->id ?? '') ? 'btn-primary' : 'btn-outline-secondary' }}">

@@ -86,7 +86,7 @@
         @if($themeData['showBranding'] ?? true)
           <div class="mt-1 text-white-50">
             @if($ftCustomText){{ $ftCustomText }} &middot; @endif
-            {{ __('Powered by') }} <strong>Heratio</strong>{{ $version ? ' v' . $version : '' }}
+            {{ __('Powered by') }} <strong>{{ __('Heratio') }}</strong>{{ $version ? ' v' . $version : '' }}
           </div>
         @elseif($ftCustomText)
           <div class="mt-1 text-white-50">{{ $ftCustomText }}</div>

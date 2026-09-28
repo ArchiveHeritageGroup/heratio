@@ -133,7 +133,7 @@
               <i class="fas fa-paper-plane"></i> {{ __('Submit Request') }}
             </button>
             <a href="{{ route('security.my-requests') }}" class="btn btn-outline-secondary">
-              View My Requests
+              {{ __('View My Requests') }}
             </a>
           </div>
         </form>

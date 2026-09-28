@@ -96,21 +96,21 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label">Default Viewer <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Default Viewer') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select class="form-select" name="default_viewer">
                     <option value="model-viewer" {{ getSetting3d($settings, 'default_viewer') == 'model-viewer' ? 'selected' : '' }}>
                       Model Viewer (Google WebXR)
                     </option>
                     <option value="threejs" {{ getSetting3d($settings, 'default_viewer') == 'threejs' ? 'selected' : '' }}>
-                      Three.js
+                      {{ __('Three.js') }}
                     </option>
                   </select>
-                  <div class="form-text">Model Viewer provides AR support on mobile devices</div>
+                  <div class="form-text">{{ __('Model Viewer provides AR support on mobile devices') }}</div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label">Default Background Color <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Default Background Color') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <div class="input-group">
                     <input type="color" class="form-control form-control-color" id="bg_picker"
                            value="{{ getSetting3d($settings, 'default_background', '#f5f5f5') }}"
@@ -125,7 +125,7 @@
             <div class="row">
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Default Exposure <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Default Exposure') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="number" class="form-control" name="default_exposure"
                          value="{{ getSetting3d($settings, 'default_exposure', '1.0') }}"
                          min="0" max="2" step="0.1">
@@ -133,7 +133,7 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Default Shadow Intensity <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Default Shadow Intensity') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="number" class="form-control" name="default_shadow_intensity"
                          value="{{ getSetting3d($settings, 'default_shadow_intensity', '1.0') }}"
                          min="0" max="2" step="0.1">
@@ -154,14 +154,14 @@
                 <div class="form-check mb-2">
                   <input class="form-check-input" type="checkbox" id="enable_auto_rotate" name="enable_auto_rotate" value="1"
                          {{ isSettingEnabled3d($settings, 'enable_auto_rotate') ? 'checked' : '' }}>
-                  <label class="form-check-label" for="enable_auto_rotate">Enable Auto-Rotate by Default <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-check-label" for="enable_auto_rotate">{{ __('Enable Auto-Rotate by Default') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-check mb-2">
                   <input class="form-check-input" type="checkbox" id="enable_fullscreen" name="enable_fullscreen" value="1"
                          {{ isSettingEnabled3d($settings, 'enable_fullscreen') ? 'checked' : '' }}>
-                  <label class="form-check-label" for="enable_fullscreen">Enable Fullscreen Button <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-check-label" for="enable_fullscreen">{{ __('Enable Fullscreen Button') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 </div>
               </div>
             </div>
@@ -184,11 +184,11 @@
             </div>
             <div class="alert alert-info small mb-0">
               <i class="fas fa-info-circle me-1"></i>
-              AR requires HTTPS and is supported on:
+              {{ __('AR requires HTTPS and is supported on:') }}
               <ul class="mb-0 mt-1">
                 <li>iOS 12+ (Safari with Quick Look)</li>
                 <li>Android 7+ (Chrome with Scene Viewer)</li>
-                <li>WebXR-capable browsers</li>
+                <li>{{ __('WebXR-capable browsers') }}</li>
               </ul>
             </div>
           </div>
@@ -212,7 +212,7 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Allowed Formats <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label">{{ __('Allowed Formats') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               @php
                 $allowedFormats = json_decode(getSetting3d($settings, 'allowed_formats', '["glb","gltf","usdz"]'), true) ?: [];
                 $allFormats = ['glb', 'gltf', 'usdz', 'obj', 'stl', 'ply'];
@@ -229,14 +229,14 @@
                   </div>
                 @endforeach
               </div>
-              <div class="form-text">GLB and GLTF are recommended for web viewing</div>
+              <div class="form-text">{{ __('GLB and GLTF are recommended for web viewing') }}</div>
             </div>
 
             <div class="form-check">
               <input class="form-check-input" type="checkbox" id="enable_download" name="enable_download" value="1"
                      {{ isSettingEnabled3d($settings, 'enable_download') ? 'checked' : '' }}>
               <label class="form-check-label" for="enable_download">
-                Allow Model Downloads <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                {{ __('Allow Model Downloads') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                 <br><small class="text-muted">{{ __('Let users download 3D model files') }}</small>
               </label>
             </div>
@@ -272,7 +272,7 @@
               <label class="form-check-label" for="watermark_enabled"><strong>{{ __('Enable Watermark') }}</strong> <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
             <div class="mb-3">
-              <label class="form-label">Watermark Text <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label">{{ __('Watermark Text') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" class="form-control" name="watermark_text"
                      value="{{ e(getSetting3d($settings, 'watermark_text', 'The Archive and Heritage Group')) }}">
             </div>
@@ -337,13 +337,13 @@
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label">Processing Mode <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Processing Mode') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select class="form-select" name="triposr_mode" id="triposr_mode">
                     <option value="local" {{ getSetting3d($settings, 'triposr_mode', 'local') == 'local' ? 'selected' : '' }}>
                       Local (CPU/GPU)
                     </option>
                     <option value="remote" {{ getSetting3d($settings, 'triposr_mode') == 'remote' ? 'selected' : '' }}>
-                      Remote GPU Server
+                      {{ __('Remote GPU Server') }}
                     </option>
                   </select>
                 </div>
@@ -358,7 +358,7 @@
               <div class="row">
                 <div class="col-md-8">
                   <div class="mb-3">
-                    <label class="form-label">Remote GPU Server URL <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-label">{{ __('Remote GPU Server URL') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <input type="url" class="form-control" name="triposr_remote_url"
                            value="{{ e(getSetting3d($settings, 'triposr_remote_url')) }}"
                            placeholder="{{ __('https://gpu-server.example.com:5050') }}">
@@ -366,7 +366,7 @@
                 </div>
                 <div class="col-md-4">
                   <div class="mb-3">
-                    <label class="form-label">API Key <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-label">{{ __('API Key') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     @php $apiKey = getSetting3d($settings, 'triposr_remote_api_key'); @endphp
                     <input type="password" class="form-control" name="triposr_remote_api_key"
                            value="{{ $apiKey ? '***' : '' }}" placeholder="{{ __('API key') }}">
@@ -383,12 +383,12 @@
                 <div class="form-check mb-3">
                   <input class="form-check-input" type="checkbox" id="triposr_remove_bg" name="triposr_remove_bg" value="1"
                          {{ getSetting3d($settings, 'triposr_remove_bg', '1') === '1' ? 'checked' : '' }}>
-                  <label class="form-check-label" for="triposr_remove_bg">Remove Background <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-check-label" for="triposr_remove_bg">{{ __('Remove Background') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 </div>
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Foreground Ratio <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Foreground Ratio') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="number" class="form-control" name="triposr_foreground_ratio"
                          value="{{ getSetting3d($settings, 'triposr_foreground_ratio', '0.85') }}"
                          min="0.5" max="1" step="0.05">
@@ -396,7 +396,7 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Resolution <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Resolution') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select class="form-select" name="triposr_mc_resolution">
                     <option value="128" {{ getSetting3d($settings, 'triposr_mc_resolution', '256') == '128' ? 'selected' : '' }}>128 (Fast)</option>
                     <option value="256" {{ getSetting3d($settings, 'triposr_mc_resolution', '256') == '256' ? 'selected' : '' }}>256 (Balanced)</option>
@@ -424,7 +424,7 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Local API URL <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Local API URL') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" class="form-control" name="triposr_api_url"
                          value="{{ e(getSetting3d($settings, 'triposr_api_url', 'http://127.0.0.1:5050')) }}">
                 </div>
@@ -446,7 +446,7 @@
           </div>
           <div class="card-body">
             @if(empty($formatStats))
-              <p class="text-muted mb-0">No models uploaded yet.</p>
+              <p class="text-muted mb-0">{{ __('No models uploaded yet.') }}</p>
             @else
               <canvas id="formatChart" height="200"></canvas>
             @endif

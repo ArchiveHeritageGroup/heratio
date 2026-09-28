@@ -66,14 +66,14 @@
                 </td>
                 <td>{{ $embargo->reason ?? '-' }}</td>
                 <td>
-                  <a href="{{ route('embargo.show', $embargo->id) }}" class="btn btn-sm atom-btn-white">View</a>
+                  <a href="{{ route('embargo.show', $embargo->id) }}" class="btn btn-sm atom-btn-white">{{ __('View') }}</a>
                 </td>
               </tr>
             @endforeach
           </tbody>
         </table>
       @else
-        <p class="text-muted text-center py-4">No active embargoes.</p>
+        <p class="text-muted text-center py-4">{{ __('No active embargoes.') }}</p>
       @endif
     </div>
   </div>

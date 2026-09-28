@@ -40,7 +40,7 @@
           <div class="accordion-body">
             <div class="mb-3">
               <label for="authorized_form_of_name" class="form-label">
-                Authorized form of name
+                {{ __('Authorized form of name') }}
                 <span class="form-required text-danger" title="{{ __('This is a mandatory element.') }}">*</span>
                 <span class="badge bg-danger ms-1">{{ __('Required') }}</span>
               </label>
@@ -71,10 +71,10 @@
 
     <ul class="actions mb-3 nav gap-2">
       @if($rightsHolder)
-        <li><a href="{{ route('rightsholder.show', $rightsHolder->slug) }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+        <li><a href="{{ route('rightsholder.show', $rightsHolder->slug) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
         <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
       @else
-        <li><a href="{{ route('rightsholder.browse') }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+        <li><a href="{{ route('rightsholder.browse') }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
         <li><input class="btn atom-btn-outline-success" type="submit" value="Create"></li>
       @endif
     </ul>

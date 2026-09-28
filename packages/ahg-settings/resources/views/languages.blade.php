@@ -65,7 +65,7 @@
               @csrf
               <input type="hidden" name="action" value="add">
               <div class="col-auto">
-                <label class="form-label">Language code <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Language code') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="languageCode" class="form-control" placeholder="{{ __('e.g. fr') }}" maxlength="3" style="width: 100px">
               </div>
               <div class="col-auto">

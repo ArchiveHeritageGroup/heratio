@@ -32,7 +32,7 @@ $message = $embargoInfo['public_message'] ?? $typeMessages[$type] ?? $typeMessag
                 </small>
             @elseif($embargoInfo['is_perpetual'] ?? false)
                 <small class="text-muted">
-                    <i class="fas fa-ban me-1"></i> Indefinite restriction
+                    <i class="fas fa-ban me-1"></i> {{ __('Indefinite restriction') }}
                 </small>
             @endif
         </div>

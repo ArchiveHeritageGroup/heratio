@@ -10,7 +10,7 @@
     <h5 class="mb-0">{{ __('Object Consultations') }}</h5>
   </div>
   <div class="card-body">
-    <p class="text-muted">Content for Object Consultations.</p>
+    <p class="text-muted">{{ __('Content for Object Consultations.') }}</p>
   </div>
 </div>
 @endsection

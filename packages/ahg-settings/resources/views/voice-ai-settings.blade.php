@@ -15,7 +15,7 @@
 
 @section('title-block')
 <h1><i class="fas fa-microphone me-2"></i>{{ __('Voice & AI') }}</h1>
-<p class="text-muted">Voice interface and AI assistant settings</p>
+<p class="text-muted">{{ __('Voice interface and AI assistant settings') }}</p>
 @endsection
 
 @section('content')
@@ -66,7 +66,7 @@
 
         <div class="row g-3 mt-2">
           <div class="col-md-6">
-            <label class="form-label" for="voice_confidence_threshold">Confidence Threshold: <span id="voice_confidence_threshold_val">{{ $settings['voice_confidence_threshold'] ?? '0.4' }}</span></label>
+            <label class="form-label" for="voice_confidence_threshold">{{ __('Confidence Threshold:') }} <span id="voice_confidence_threshold_val">{{ $settings['voice_confidence_threshold'] ?? '0.4' }}</span></label>
             <input type="range" class="form-range" id="voice_confidence_threshold"
                    name="settings[voice_confidence_threshold]"
                    min="0.3" max="0.95" step="0.05"
@@ -75,7 +75,7 @@
             <div class="form-text">Minimum confidence score for voice recognition (0.3 = lenient, 0.95 = strict).</div>
           </div>
           <div class="col-md-6">
-            <label class="form-label" for="voice_speech_rate">Speech Rate: <span id="voice_speech_rate_val">{{ $settings['voice_speech_rate'] ?? '1.0' }}</span></label>
+            <label class="form-label" for="voice_speech_rate">{{ __('Speech Rate:') }} <span id="voice_speech_rate_val">{{ $settings['voice_speech_rate'] ?? '1.0' }}</span></label>
             <input type="range" class="form-range" id="voice_speech_rate"
                    name="settings[voice_speech_rate]"
                    min="0.5" max="2.0" step="0.1"
@@ -123,7 +123,7 @@
             <div class="form-text">Read button and link text aloud when hovering with the mouse (when voice mode is active).</div>
           </div>
           <div class="col-md-6">
-            <label class="form-label" for="voice_hover_read_delay">Hover Read Delay: <span id="voice_hover_read_delay_val">{{ $settings['voice_hover_read_delay'] ?? '400' }}</span>ms</label>
+            <label class="form-label" for="voice_hover_read_delay">{{ __('Hover Read Delay:') }} <span id="voice_hover_read_delay_val">{{ $settings['voice_hover_read_delay'] ?? '400' }}</span>ms</label>
             <input type="range" class="form-range" id="voice_hover_read_delay"
                    name="settings[voice_hover_read_delay]"
                    min="100" max="1000" step="50"
@@ -149,7 +149,7 @@
               <option value="cloud" {{ ($settings['voice_llm_provider'] ?? '') === 'cloud' ? 'selected' : '' }}>{{ __('Cloud Only') }}</option>
               <option value="hybrid" {{ ($settings['voice_llm_provider'] ?? 'hybrid') === 'hybrid' ? 'selected' : '' }}>{{ __('Hybrid (Local + Cloud Fallback)') }}</option>
             </select>
-            <div class="form-text">Choose where AI image descriptions are processed.</div>
+            <div class="form-text">{{ __('Choose where AI image descriptions are processed.') }}</div>
           </div>
           <div class="col-md-6">
             <label class="form-label" for="voice_daily_cloud_limit">{{ __('Daily Cloud Limit') }}</label>
@@ -169,7 +169,7 @@
                    name="settings[voice_local_llm_url]"
                    value="{{ e($settings['voice_local_llm_url'] ?? 'http://localhost:11434') }}"
                    placeholder="{{ __('http://localhost:11434') }}">
-            <div class="form-text">Ollama or compatible API endpoint.</div>
+            <div class="form-text">{{ __('Ollama or compatible API endpoint.') }}</div>
           </div>
           <div class="col-md-4">
             <label class="form-label" for="voice_local_llm_model">{{ __('Local LLM Model') }}</label>
@@ -184,7 +184,7 @@
             <input type="number" class="form-control" id="voice_local_llm_timeout"
                    name="settings[voice_local_llm_timeout]"
                    value="{{ e($settings['voice_local_llm_timeout'] ?? '30') }}" min="5" max="300">
-            <div class="form-text">Request timeout for local LLM API calls.</div>
+            <div class="form-text">{{ __('Request timeout for local LLM API calls.') }}</div>
           </div>
         </div>
 
@@ -197,7 +197,7 @@
                    name="settings[voice_anthropic_api_key]"
                    value="" autocomplete="new-password"
                    placeholder="{{ __('Leave blank to keep current') }}"> {{-- #1395(D) write-only --}}
-            <div class="form-text">API key for Claude cloud vision. Stored encrypted.</div>
+            <div class="form-text">{{ __('API key for Claude cloud vision. Stored encrypted.') }}</div>
           </div>
           <div class="col-md-4">
             <label class="form-label" for="voice_cloud_model">{{ __('Cloud Model') }}</label>
@@ -205,7 +205,7 @@
                    name="settings[voice_cloud_model]"
                    value="{{ e($settings['voice_cloud_model'] ?? 'claude-sonnet-4-20250514') }}"
                    placeholder="{{ __('claude-sonnet-4-20250514') }}">
-            <div class="form-text">Anthropic model ID for image descriptions.</div>
+            <div class="form-text">{{ __('Anthropic model ID for image descriptions.') }}</div>
           </div>
           <div class="col-md-4">
             <div class="form-check form-switch mt-4">
@@ -216,7 +216,7 @@
                 <strong>{{ __('Audit AI Calls') }}</strong>
               </label>
             </div>
-            <div class="form-text">Log all AI image description requests to the audit trail.</div>
+            <div class="form-text">{{ __('Log all AI image description requests to the audit trail.') }}</div>
           </div>
         </div>
       </div>

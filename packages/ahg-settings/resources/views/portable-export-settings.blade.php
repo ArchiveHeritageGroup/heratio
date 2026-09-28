@@ -15,7 +15,7 @@
 
 @section('title-block')
 <h1><i class="fas fa-compact-disc me-2"></i>{{ __('Portable Export') }}</h1>
-<p class="text-muted">Standalone portable catalogue viewer for offline access</p>
+<p class="text-muted">{{ __('Standalone portable catalogue viewer for offline access') }}</p>
 @endsection
 
 @section('content')
@@ -44,13 +44,13 @@
                      {{ ($settings['portable_export_enabled'] ?? 'true') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="portable_export_enabled"><strong>{{ __('Enable Portable Export') }}</strong></label>
             </div>
-            <div class="form-text">Allow creation of offline portable catalogues from Admin UI.</div>
+            <div class="form-text">{{ __('Allow creation of offline portable catalogues from Admin UI.') }}</div>
           </div>
           <div class="col-md-6">
             <label class="form-label">{{ __('Retention (days)') }}</label>
             <input type="number" class="form-control" name="settings[portable_export_retention_days]"
                    value="{{ $settings['portable_export_retention_days'] ?? '30' }}" min="1" max="365">
-            <div class="form-text">Completed exports are auto-deleted after this many days.</div>
+            <div class="form-text">{{ __('Completed exports are auto-deleted after this many days.') }}</div>
           </div>
         </div>
 

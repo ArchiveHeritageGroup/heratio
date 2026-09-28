@@ -112,7 +112,7 @@
                 </div>
                 <div class="col-md-3">
                     <button type="submit" class="btn btn-primary">{{ __('Filter') }}</button>
-                    <a href="{{ route('jobs.browse') }}" class="btn btn-outline-secondary">Clear</a>
+                    <a href="{{ route('jobs.browse') }}" class="btn btn-outline-secondary">{{ __('Clear') }}</a>
                 </div>
                 <div class="col-md-3 text-end">
                     <form action="{{ route('jobs.clear-inactive') }}" method="POST" class="d-inline">
@@ -187,7 +187,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" class="text-center">No jobs found</td>
+                            <td colspan="8" class="text-center">{{ __('No jobs found') }}</td>
                         </tr>
                         @endforelse
                     </tbody>

@@ -24,8 +24,8 @@
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ url('/admin/settings') }}">Settings</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('semantic-search.admin.templates') }}">Search Templates</a></li>
+    <li class="breadcrumb-item"><a href="{{ url('/admin/settings') }}">{{ __('Settings') }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('semantic-search.admin.templates') }}">{{ __('Search Templates') }}</a></li>
     <li class="breadcrumb-item active">{{ $isNew ? 'New' : 'Edit' }}</li>
   </ol>
 </nav>
@@ -62,9 +62,9 @@
             <div class="col-md-6">
               <label class="form-label">{{ __('Entity Type') }}</label>
               <select name="entity_type" class="form-select">
-                <option value="informationobject" {{ ($template->entity_type ?? '') === 'informationobject' ? 'selected' : '' }}>Information Objects</option>
-                <option value="actor" {{ ($template->entity_type ?? '') === 'actor' ? 'selected' : '' }}>Authority Records</option>
-                <option value="repository" {{ ($template->entity_type ?? '') === 'repository' ? 'selected' : '' }}>Repositories</option>
+                <option value="informationobject" {{ ($template->entity_type ?? '') === 'informationobject' ? 'selected' : '' }}>{{ __('Information Objects') }}</option>
+                <option value="actor" {{ ($template->entity_type ?? '') === 'actor' ? 'selected' : '' }}>{{ __('Authority Records') }}</option>
+                <option value="repository" {{ ($template->entity_type ?? '') === 'repository' ? 'selected' : '' }}>{{ __('Repositories') }}</option>
               </select>
             </div>
           </div>
@@ -94,7 +94,7 @@
               <input type="text" name="icon" class="form-control"
                      value="{{ $template->icon ?? 'fa-search' }}">
             </div>
-            <div class="form-text">FontAwesome class</div>
+            <div class="form-text">{{ __('FontAwesome class') }}</div>
           </div>
           <div class="mb-3">
             <label class="form-label">{{ __('Color') }}</label>

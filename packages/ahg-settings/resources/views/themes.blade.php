@@ -22,24 +22,24 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label">Logo Path <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Logo Path') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" class="form-control" name="ahg_logo_path" value="{{ e($settings['ahg_logo_path'] ?? '') }}">
-            <div class="form-text">Path relative to web root, e.g. /images/logo.png</div>
+            <div class="form-text">{{ __('Path relative to web root, e.g. /images/logo.png') }}</div>
           </div>
           <div class="col-md-6 mb-3">
-            <label class="form-label">Footer Text <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Footer Text') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" class="form-control" name="ahg_footer_text" value="{{ e($settings['ahg_footer_text'] ?? '') }}">
           </div>
           <div class="col-md-3 mb-3">
             <div class="form-check form-switch mt-4">
               <input class="form-check-input" type="checkbox" name="ahg_theme_enabled" value="true" {{ ($settings['ahg_theme_enabled'] ?? '') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label">Theme Enabled <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-check-label">{{ __('Theme Enabled') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
           </div>
           <div class="col-md-3 mb-3">
             <div class="form-check form-switch mt-4">
               <input class="form-check-input" type="checkbox" name="ahg_show_branding" value="true" {{ ($settings['ahg_show_branding'] ?? '') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label">Show Branding <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-check-label">{{ __('Show Branding') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
           </div>
         </div>
@@ -52,14 +52,14 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
-            <label class="form-label">Background <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Background') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_header_bg" value="{{ $settings['ahg_header_bg'] ?? '#212529' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_header_bg'] ?? '#212529' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Text Colour <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Text Colour') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_header_text" value="{{ $settings['ahg_header_text'] ?? '#ffffff' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_header_text'] ?? '#ffffff' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
@@ -75,21 +75,21 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
-            <label class="form-label">Background <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Background') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_descbar_bg" value="{{ $settings['ahg_descbar_bg'] ?? '#005837' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_descbar_bg'] ?? '#005837' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Text Colour <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Text Colour') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_descbar_text" value="{{ $settings['ahg_descbar_text'] ?? '#ffffff' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_descbar_text'] ?? '#ffffff' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Text Alignment <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Text Alignment') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="ahg_descbar_align" class="form-select">
               <option value="left" {{ ($settings['ahg_descbar_align'] ?? 'left') === 'left' ? 'selected' : '' }}>{{ __('Left') }}</option>
               <option value="center" {{ ($settings['ahg_descbar_align'] ?? '') === 'center' ? 'selected' : '' }}>{{ __('Centre') }}</option>
@@ -106,21 +106,21 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
-            <label class="form-label">Primary Colour <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Primary Colour') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_primary_color" value="{{ $settings['ahg_primary_color'] ?? '#005837' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_primary_color'] ?? '#005837' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Secondary Colour <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Secondary Colour') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_secondary_color" value="{{ $settings['ahg_secondary_color'] ?? '#37A07F' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_secondary_color'] ?? '#37A07F' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Link Colour <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Link Colour') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_link_color" value="{{ $settings['ahg_link_color'] ?? '#005837' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_link_color'] ?? '#005837' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
@@ -136,15 +136,15 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
-            <label class="form-label">Background Colour <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Background Colour') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_body_bg" value="{{ $settings['ahg_body_bg'] ?? '#ffffff' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_body_bg'] ?? '#ffffff' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
-            <div class="form-text">Background colour applied to the page body and content area</div>
+            <div class="form-text">{{ __('Background colour applied to the page body and content area') }}</div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Text Colour <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Text Colour') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_body_text" value="{{ $settings['ahg_body_text'] ?? '#212529' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_body_text'] ?? '#212529' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
@@ -160,26 +160,26 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
-            <label class="form-label">Background <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Background') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_card_header_bg" value="{{ $settings['ahg_card_header_bg'] ?? '#005837' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_card_header_bg'] ?? '#005837' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Text Colour <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Text Colour') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_card_header_text" value="{{ $settings['ahg_card_header_text'] ?? '#ffffff' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_card_header_text'] ?? '#ffffff' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
           </div>
           <div class="col-md-6 mb-3">
-            <label class="form-label">Preview <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Preview') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="card">
               <div class="card-header bg-primary text-white" id="preview-header">
                 <h5 class="mb-0" style="color: inherit !important;">{{ __('Sample Card Header') }}</h5>
               </div>
-              <div class="card-body"><p class="mb-0 text-muted">Card body content</p></div>
+              <div class="card-body"><p class="mb-0 text-muted">{{ __('Card body content') }}</p></div>
             </div>
           </div>
         </div>
@@ -192,14 +192,14 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
-            <label class="form-label">Button Background <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Button Background') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_button_bg" value="{{ $settings['ahg_button_bg'] ?? '#005837' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_button_bg'] ?? '#005837' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Button Text <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Button Text') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_button_text" value="{{ $settings['ahg_button_text'] ?? '#ffffff' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_button_text'] ?? '#ffffff' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
@@ -215,14 +215,14 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
-            <label class="form-label">Sidebar Background <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Sidebar Background') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_sidebar_bg" value="{{ $settings['ahg_sidebar_bg'] ?? '#f8f9fa' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_sidebar_bg'] ?? '#f8f9fa' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Sidebar Text <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Sidebar Text') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_sidebar_text" value="{{ $settings['ahg_sidebar_text'] ?? '#333333' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_sidebar_text'] ?? '#333333' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
@@ -238,21 +238,21 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
-            <label class="form-label">Background <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Background') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_footer_bg" value="{{ $settings['ahg_footer_bg'] ?? '#005837' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_footer_bg'] ?? '#005837' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Text Colour <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Text Colour') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_footer_text_color" value="{{ $settings['ahg_footer_text_color'] ?? '#ffffff' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_footer_text_color'] ?? '#ffffff' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Copyright Start Year <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Copyright Start Year') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" class="form-control" name="ahg_footer_copyright" value="{{ $settings['ahg_footer_copyright'] ?? date('Y') }}" placeholder="2019">
           </div>
         </div>
@@ -260,35 +260,35 @@
           <div class="alert alert-info py-2 small">{{ __('Footer text below is saved for the current interface language (:locale). Switch the interface language to edit another translation; English is the fallback.', ['locale' => $settingsLocale]) }}</div>
         @endif
         <div class="mb-3">
-          <label class="form-label">Disclaimer <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label">{{ __('Disclaimer') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <textarea class="form-control" name="ahg_footer_disclaimer" rows="2" placeholder="{{ __('Research use only...') }}">{{ $settings['ahg_footer_disclaimer'] ?? '' }}</textarea>
         </div>
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label class="form-label">System Name <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('System Name') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" class="form-control" name="ahg_footer_system_name" value="{{ $settings['ahg_footer_system_name'] ?? '' }}" placeholder="{{ __('Public Service Information System') }}">
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Organisation Name <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Organisation Name') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" class="form-control" name="ahg_footer_org_name" value="{{ $settings['ahg_footer_org_name'] ?? '' }}" placeholder="{{ __('The Archive and Heritage Group') }}">
           </div>
           <div class="col-md-4 mb-3">
-            <label class="form-label">Organisation URL <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Organisation URL') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="url" class="form-control" name="ahg_footer_org_url" value="{{ $settings['ahg_footer_org_url'] ?? '' }}" placeholder="{{ __('https://theahg.co.za') }}">
           </div>
         </div>
         <div class="mb-3">
-          <label class="form-label">Standards Badges <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label">{{ __('Standards Badges') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <input type="text" class="form-control" name="ahg_footer_standards" value="{{ $settings['ahg_footer_standards'] ?? '' }}" placeholder="{{ __('ISAD(G), RiC-O, OAIS/BagIt, WCAG 2.1 AA') }}">
-          <div class="form-text">Comma-separated list of standards. Each becomes a badge.</div>
+          <div class="form-text">{{ __('Comma-separated list of standards. Each becomes a badge.') }}</div>
         </div>
         <div class="mb-3">
-          <label class="form-label">Policy Links <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label">{{ __('Policy Links') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <textarea class="form-control font-monospace" name="ahg_footer_links" rows="4" placeholder="{{ __('Privacy policy|/privacy&#10;Terms of use|/terms') }}">{{ $settings['ahg_footer_links'] ?? '' }}</textarea>
           <div class="form-text">One per line: <code>Label|/url</code></div>
         </div>
         <div class="mb-3">
-          <label class="form-label">Utility Links <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label">{{ __('Utility Links') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <textarea class="form-control font-monospace" name="ahg_footer_utility_links" rows="2" placeholder="{{ __('Help|/help&#10;Contact|/contact') }}">{{ $settings['ahg_footer_utility_links'] ?? '' }}</textarea>
           <div class="form-text">One per line: <code>Label|/url</code></div>
         </div>
@@ -301,56 +301,56 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
-            <label class="form-label">Success <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Success') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_success_color" value="{{ $settings['ahg_success_color'] ?? '#28a745' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_success_color'] ?? '#28a745' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Danger <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Danger') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_danger_color" value="{{ $settings['ahg_danger_color'] ?? '#dc3545' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_danger_color'] ?? '#dc3545' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Warning <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Warning') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_warning_color" value="{{ $settings['ahg_warning_color'] ?? '#ffc107' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_warning_color'] ?? '#ffc107' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Info <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Info') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_info_color" value="{{ $settings['ahg_info_color'] ?? '#17a2b8' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_info_color'] ?? '#17a2b8' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Light <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Light') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_light_color" value="{{ $settings['ahg_light_color'] ?? '#f8f9fa' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_light_color'] ?? '#f8f9fa' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Dark <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Dark') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_dark_color" value="{{ $settings['ahg_dark_color'] ?? '#343a40' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_dark_color'] ?? '#343a40' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Muted <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Muted') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_muted_color" value="{{ $settings['ahg_muted_color'] ?? '#6c757d' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_muted_color'] ?? '#6c757d' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
             </div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Border <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Border') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="input-group">
               <input type="color" class="form-control form-control-color" name="ahg_border_color" value="{{ $settings['ahg_border_color'] ?? '#dee2e6' }}" oninput="this.nextElementSibling.value=this.value">
               <input type="text" class="form-control" value="{{ $settings['ahg_border_color'] ?? '#dee2e6' }}" oninput="this.previousElementSibling.value=this.value" pattern="#[0-9a-fA-F]{6}">
@@ -366,37 +366,37 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-3 mb-3">
-            <label class="form-label">Body Font Size <span class="badge bg-secondary ms-1">rem</span></label>
+            <label class="form-label">{{ __('Body Font Size') }} <span class="badge bg-secondary ms-1">rem</span></label>
             <select name="ahg_font_size_body" class="form-select">
               @foreach(['0.80','0.85','0.90','0.95','1.00','1.05','1.10'] as $s)
               <option value="{{ $s }}" {{ ($settings['ahg_font_size_body'] ?? '0.95') === $s ? 'selected' : '' }}>{{ $s }}rem</option>
               @endforeach
             </select>
-            <div class="form-text">Main content area text size</div>
+            <div class="form-text">{{ __('Main content area text size') }}</div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Sidebar Font Size <span class="badge bg-secondary ms-1">rem</span></label>
+            <label class="form-label">{{ __('Sidebar Font Size') }} <span class="badge bg-secondary ms-1">rem</span></label>
             <select name="ahg_font_size_sidebar" class="form-select">
               @foreach(['0.75','0.78','0.80','0.83','0.85','0.88','0.90','0.95'] as $s)
               <option value="{{ $s }}" {{ ($settings['ahg_font_size_sidebar'] ?? '0.85') === $s ? 'selected' : '' }}>{{ $s }}rem</option>
               @endforeach
             </select>
-            <div class="form-text">Left and right sidebar text</div>
+            <div class="form-text">{{ __('Left and right sidebar text') }}</div>
           </div>
           <div class="col-md-3 mb-3">
-            <label class="form-label">Sidebar Header Size <span class="badge bg-secondary ms-1">rem</span></label>
+            <label class="form-label">{{ __('Sidebar Header Size') }} <span class="badge bg-secondary ms-1">rem</span></label>
             <select name="ahg_font_size_sidebar_header" class="form-select">
               @foreach(['0.75','0.78','0.80','0.82','0.85','0.88','0.90'] as $s)
               <option value="{{ $s }}" {{ ($settings['ahg_font_size_sidebar_header'] ?? '0.82') === $s ? 'selected' : '' }}>{{ $s }}rem</option>
               @endforeach
             </select>
-            <div class="form-text">Sidebar card header text</div>
+            <div class="form-text">{{ __('Sidebar card header text') }}</div>
           </div>
           <div class="col-md-3 mb-3">
             <label class="form-label">{{ __('Preview') }}</label>
             <div class="border rounded p-2" style="font-size: 0.85rem;">
-              <div class="fw-bold mb-1" style="font-size: 0.82rem;">Card Header</div>
-              <div>Sidebar body text sample</div>
+              <div class="fw-bold mb-1" style="font-size: 0.82rem;">{{ __('Card Header') }}</div>
+              <div>{{ __('Sidebar body text sample') }}</div>
             </div>
           </div>
         </div>
@@ -417,7 +417,7 @@
       <button type="button" class="btn atom-btn-white" id="btnLivePreview">
         <i class="fas fa-eye me-1"></i>{{ __('Live Preview') }}
       </button>
-      <a href="{{ route('settings.index') }}" class="btn atom-btn-white">Back to Settings</a>
+      <a href="{{ route('settings.index') }}" class="btn atom-btn-white">{{ __('Back to Settings') }}</a>
       <button type="button" class="btn atom-btn-outline-danger ms-auto" id="btnResetDefaults"
               onclick="return confirm('Reset all theme settings to defaults? This cannot be undone.');">
         <i class="fas fa-undo me-1"></i>{{ __('Reset to Defaults') }}

@@ -5,9 +5,9 @@
 @section('content')
 <div class="container-fluid mt-3">
   <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">Security Dashboard</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('security-clearance.audit-dashboard') }}">Audit</a></li>
-    <li class="breadcrumb-item active">Full Log</li>
+    <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">{{ __('Security Dashboard') }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('security-clearance.audit-dashboard') }}">{{ __('Audit') }}</a></li>
+    <li class="breadcrumb-item active">{{ __('Full Log') }}</li>
   </ol></nav>
 
   <h1><i class="fas fa-list"></i> {{ __('Security Audit Log') }}</h1>
@@ -49,7 +49,7 @@
         </div>
         <div class="col-md-2 d-flex align-items-end gap-1">
           <button type="submit" class="btn btn-sm btn-primary">{{ __('Filter') }}</button>
-          <a href="{{ route('security-clearance.audit-index') }}" class="btn btn-sm btn-secondary">Clear</a>
+          <a href="{{ route('security-clearance.audit-index') }}" class="btn btn-sm btn-secondary">{{ __('Clear') }}</a>
           <a href="{{ route('security-clearance.audit-export') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-download"></i></a>
         </div>
       </form>
@@ -80,7 +80,7 @@
             <td><small>{{ e(\Illuminate\Support\Str::limit($log->details ?? '', 50)) }}</small></td>
           </tr>
           @empty
-          <tr><td colspan="8" class="text-muted">No audit log entries.</td></tr>
+          <tr><td colspan="8" class="text-muted">{{ __('No audit log entries.') }}</td></tr>
           @endforelse
         </tbody>
       </table>
@@ -92,7 +92,7 @@
   <nav class="mt-3">
     <ul class="pagination">
       @if($page > 1)
-        <li class="page-item"><a class="page-link" href="?{{ http_build_query(array_merge(request()->query(), ['page' => $page - 1])) }}">Prev</a></li>
+        <li class="page-item"><a class="page-link" href="?{{ http_build_query(array_merge(request()->query(), ['page' => $page - 1])) }}">{{ __('Prev') }}</a></li>
       @endif
       @for($i = max(1, $page - 3); $i <= min($totalPages, $page + 3); $i++)
         <li class="page-item {{ $i == $page ? 'active' : '' }}"><a class="page-link" href="?{{ http_build_query(array_merge(request()->query(), ['page' => $i])) }}">{{ $i }}</a></li>

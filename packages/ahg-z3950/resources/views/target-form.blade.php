@@ -6,7 +6,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
-                Back to admin
+                {{ __('Back to admin') }}
             </a>
         </div>
 
@@ -90,10 +90,10 @@
 
             <div class="mt-6 flex gap-3">
                 <button type="submit" class="px-6 py-2.5 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition">
-                    Save target
+                    {{ __('Save target') }}
                 </button>
                 <a href="{{ route('z3950.admin') }}" class="px-6 py-2.5 text-gray-600 font-medium rounded-lg hover:bg-gray-100 transition">
-                    Cancel
+                    {{ __('Cancel') }}
                 </a>
             </div>
         </form>

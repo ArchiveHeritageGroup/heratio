@@ -18,7 +18,7 @@ $showSidebar = $config['show_sidebar'] ?? true;
     <div class="spinner-border text-success mb-3" role="status">
       <span class="visually-hidden">{{ __('Loading...') }}</span>
     </div>
-    <p class="text-muted">Loading collections...</p>
+    <p class="text-muted">{{ __('Loading collections...') }}</p>
   </div>
 
   <!-- Content loaded via AJAX -->
@@ -28,9 +28,9 @@ $showSidebar = $config['show_sidebar'] ?? true;
   <div class="glam-browser-error" style="display: none;">
     <div class="alert alert-warning">
       <i class="fas fa-exclamation-triangle me-2"></i>
-      Unable to load browse interface.
+      {{ __('Unable to load browse interface.') }}
       <a href="{{ route('informationobject.browse') }}" class="alert-link">
-        Click here to browse collections
+        {{ __('Click here to browse collections') }}
       </a>
     </div>
   </div>

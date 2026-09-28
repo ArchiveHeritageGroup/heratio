@@ -18,7 +18,7 @@
     </div>
     <div class="card-body p-0">
         @if(empty($compartments) || (is_countable($compartments) && count($compartments) === 0))
-        <p class="text-muted text-center py-4">No compartments defined</p>
+        <p class="text-muted text-center py-4">{{ __('No compartments defined') }}</p>
         @else
         <table class="table table-hover table-striped mb-0">
             <thead class="table-light">

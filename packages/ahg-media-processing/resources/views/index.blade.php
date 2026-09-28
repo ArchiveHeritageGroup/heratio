@@ -42,7 +42,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <div class="text-muted small text-uppercase">Total Masters</div>
+              <div class="text-muted small text-uppercase">{{ __('Total Masters') }}</div>
               <div class="h3 mb-0">{{ number_format($stats['total_masters']) }}</div>
             </div>
             <div class="text-primary opacity-50"><i class="fas fa-images fa-2x"></i></div>
@@ -55,7 +55,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <div class="text-muted small text-uppercase">With Thumbnails</div>
+              <div class="text-muted small text-uppercase">{{ __('With Thumbnails') }}</div>
               <div class="h3 mb-0">{{ number_format($stats['with_thumbnails']) }}</div>
             </div>
             <div class="text-success opacity-50"><i class="fas fa-th-large fa-2x"></i></div>
@@ -73,7 +73,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <div class="text-muted small text-uppercase">With References</div>
+              <div class="text-muted small text-uppercase">{{ __('With References') }}</div>
               <div class="h3 mb-0">{{ number_format($stats['with_references']) }}</div>
             </div>
             <div class="text-info opacity-50"><i class="fas fa-expand fa-2x"></i></div>
@@ -91,7 +91,7 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <div class="text-muted small text-uppercase">Missing Derivatives</div>
+              <div class="text-muted small text-uppercase">{{ __('Missing Derivatives') }}</div>
               <div class="h3 mb-0">{{ number_format(max($stats['missing_thumbnails'], $stats['missing_references'])) }}</div>
             </div>
             <div class="text-warning opacity-50"><i class="fas fa-exclamation-triangle fa-2x"></i></div>
@@ -268,7 +268,7 @@
             </tr>
             @empty
             <tr>
-              <td colspan="7" class="text-center text-muted py-4">No derivatives found.</td>
+              <td colspan="7" class="text-center text-muted py-4">{{ __('No derivatives found.') }}</td>
             </tr>
             @endforelse
           </tbody>

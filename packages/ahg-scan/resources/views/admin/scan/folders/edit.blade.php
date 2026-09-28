@@ -6,9 +6,9 @@
 
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ url('/admin') }}">Admin</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('scan.dashboard') }}">Scan</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('scan.folders.index') }}">Watched folders</a></li>
+        <li class="breadcrumb-item"><a href="{{ url('/admin') }}">{{ __('Admin') }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('scan.dashboard') }}">{{ __('Scan') }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('scan.folders.index') }}">{{ __('Watched folders') }}</a></li>
         <li class="breadcrumb-item active">{{ $folder->id ? $folder->label : 'New' }}</li>
     </ol>
 </nav>
@@ -25,7 +25,7 @@
         <div class="card-header"><strong>{{ __('Folder') }}</strong></div>
         <div class="card-body">
             <div class="mb-3">
-                <label class="form-label">Code <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Code') }} <span class="text-danger">*</span></label>
                 <input type="text" name="code" value="{{ old('code', $folder->code) }}"
                        class="form-control" {{ $folder->id ? 'readonly' : '' }}
                        pattern="[a-z0-9][a-z0-9_-]*" maxlength="64" required>
@@ -33,12 +33,12 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Label <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Label') }} <span class="text-danger">*</span></label>
                 <input type="text" name="label" value="{{ old('label', $folder->label) }}" class="form-control" maxlength="255" required>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Absolute path <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Absolute path') }} <span class="text-danger">*</span></label>
                 <input type="text" name="path" value="{{ old('path', $folder->path) }}" class="form-control" maxlength="1024" required>
                 <div class="form-text">e.g. <code>/mnt/nas/heratio/scan_inbox/archive-main</code> - must be readable by the Heratio user.</div>
             </div>
@@ -47,7 +47,7 @@
                 <div class="col-md-4 mb-3">
                     <label class="form-label">{{ __('Layout') }}</label>
                     <select name="layout" class="form-select">
-                        <option value="path" {{ old('layout', $folder->layout) === 'path' ? 'selected' : '' }}>Path as destination</option>
+                        <option value="path" {{ old('layout', $folder->layout) === 'path' ? 'selected' : '' }}>{{ __('Path as destination') }}</option>
                         <option value="flat-sidecar" {{ old('layout', $folder->layout) === 'flat-sidecar' ? 'selected' : '' }}>Flat files + XML sidecar</option>
                     </select>
                     <div class="form-text">
@@ -58,7 +58,7 @@
                 <div class="col-md-4 mb-3">
                     <label class="form-label">{{ __('Quiet period (seconds)') }}</label>
                     <input type="number" name="min_quiet_seconds" value="{{ old('min_quiet_seconds', $folder->min_quiet_seconds) }}" min="1" max="3600" class="form-control">
-                    <div class="form-text">File must be idle for this long before ingest.</div>
+                    <div class="form-text">{{ __('File must be idle for this long before ingest.') }}</div>
                 </div>
                 <div class="col-md-4 mb-3">
                     <label class="form-label">{{ __('Enabled') }}</label>
@@ -162,7 +162,7 @@
             <div class="mb-2">
                 <label class="form-label">{{ __('Recipients') }}</label>
                 <input type="text" name="notify_emails" value="{{ old('notify_emails', $folder->notify_emails ?? '') }}" class="form-control" maxlength="1024" placeholder="{{ __('archivist@example.org, ops@example.org') }}">
-                <div class="form-text">Comma-separated email addresses. Leave empty to disable.</div>
+                <div class="form-text">{{ __('Comma-separated email addresses. Leave empty to disable.') }}</div>
             </div>
         </div>
     </div>
@@ -174,16 +174,16 @@
                 <div class="col-md-6 mb-3">
                     <label class="form-label">{{ __('On success') }}</label>
                     <select name="disposition_success" class="form-select">
-                        <option value="move" {{ old('disposition_success', $folder->disposition_success) === 'move' ? 'selected' : '' }}>Move to archive folder</option>
-                        <option value="leave" {{ old('disposition_success', $folder->disposition_success) === 'leave' ? 'selected' : '' }}>Leave in place</option>
+                        <option value="move" {{ old('disposition_success', $folder->disposition_success) === 'move' ? 'selected' : '' }}>{{ __('Move to archive folder') }}</option>
+                        <option value="leave" {{ old('disposition_success', $folder->disposition_success) === 'leave' ? 'selected' : '' }}>{{ __('Leave in place') }}</option>
                         <option value="delete" {{ old('disposition_success', $folder->disposition_success) === 'delete' ? 'selected' : '' }}>Delete (not recommended)</option>
                     </select>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">{{ __('On failure') }}</label>
                     <select name="disposition_failure" class="form-select">
-                        <option value="quarantine" {{ old('disposition_failure', $folder->disposition_failure) === 'quarantine' ? 'selected' : '' }}>Move to quarantine</option>
-                        <option value="leave" {{ old('disposition_failure', $folder->disposition_failure) === 'leave' ? 'selected' : '' }}>Leave in place</option>
+                        <option value="quarantine" {{ old('disposition_failure', $folder->disposition_failure) === 'quarantine' ? 'selected' : '' }}>{{ __('Move to quarantine') }}</option>
+                        <option value="leave" {{ old('disposition_failure', $folder->disposition_failure) === 'leave' ? 'selected' : '' }}>{{ __('Leave in place') }}</option>
                     </select>
                 </div>
                 <div class="col-md-6 mb-3">
@@ -201,7 +201,7 @@
     </div>
 
     <div class="d-flex justify-content-between">
-        <a href="{{ route('scan.folders.index') }}" class="btn btn-outline-secondary">Cancel</a>
+        <a href="{{ route('scan.folders.index') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
         <button type="submit" class="btn btn-primary">
             <i class="fas fa-save me-1"></i>{{ $folder->id ? 'Save' : 'Create' }}
         </button>

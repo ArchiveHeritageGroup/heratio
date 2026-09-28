@@ -76,7 +76,7 @@
                     <div class="card-body small">
                         <p><strong>{{ __('POPIA (South Africa):') }}</strong> Information Officer must be registered with the Information Regulator.</p>
                         <p><strong>{{ __('GDPR (EU):') }}</strong> Data Protection Officer required for public authorities and large-scale processing.</p>
-                        <p><strong>{{ __('NDPA (Nigeria):') }}</strong> Data Protection Officer required for major data controllers.</p>
+                        <p><strong>{{ __('NDPA (Nigeria):') }}</strong> {{ __('Data Protection Officer required for major data controllers.') }}</p>
                     </div>
                 </div>
 

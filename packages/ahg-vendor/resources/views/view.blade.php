@@ -29,8 +29,8 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
 
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.index') }}">Vendor Management</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.list') }}">Vendors</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.index') }}">{{ __('Vendor Management') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.list') }}">{{ __('Vendors') }}</a></li>
             <li class="breadcrumb-item active">{{ e($vendor->name) }}</li>
         </ol>
     </nav>
@@ -139,7 +139,7 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
                         @endforeach
                     </div>
                     @else
-                    <p class="text-muted mb-0">No services assigned</p>
+                    <p class="text-muted mb-0">{{ __('No services assigned') }}</p>
                     @endif
                 </div>
             </div>
@@ -201,7 +201,7 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
                     @else
                     <div class="text-center py-4 text-muted">
                         <i class="fas fa-users fa-2x mb-2"></i>
-                        <p class="mb-0">No contacts added yet</p>
+                        <p class="mb-0">{{ __('No contacts added yet') }}</p>
                     </div>
                     @endif
                 </div>
@@ -212,7 +212,7 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span><i class="fas fa-exchange-alt me-2"></i>{{ __('Recent Transactions') }}</span>
                     <a href="{{ route('ahgvendor.transactions', ['vendor_id' => $vendor->id]) }}" class="btn btn-sm btn-outline-primary">
-                        View All
+                        {{ __('View All') }}
                     </a>
                 </div>
                 <div class="card-body p-0">
@@ -271,7 +271,7 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
                     @else
                     <div class="text-center py-4 text-muted">
                         <i class="fas fa-exchange-alt fa-2x mb-2"></i>
-                        <p class="mb-0">No transactions yet</p>
+                        <p class="mb-0">{{ __('No transactions yet') }}</p>
                     </div>
                     @endif
                 </div>

@@ -21,8 +21,8 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('ahgnaz.schedules') }}">Schedules</a></li>
-                    <li class="breadcrumb-item active">New Schedule</li>
+                    <li class="breadcrumb-item"><a href="{{ route('ahgnaz.schedules') }}">{{ __('Schedules') }}</a></li>
+                    <li class="breadcrumb-item active">{{ __('New Schedule') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-calendar-alt me-2"></i>{{ __('Create Records Schedule') }}</h1>
@@ -37,7 +37,7 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-8">
-                            <label class="form-label">Agency Name <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Agency Name') }} <span class="text-danger">*</span></label>
                             <input type="text" name="agency_name" class="form-control" required>
                         </div>
                         <div class="col-md-4">
@@ -45,7 +45,7 @@
                             <input type="text" name="agency_code" class="form-control">
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Record Series <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Record Series') }} <span class="text-danger">*</span></label>
                             <input type="text" name="record_series" class="form-control" required>
                         </div>
                         <div class="col-12">
@@ -69,7 +69,7 @@
                             <input type="number" name="retention_period_semi" class="form-control" min="0" value="0">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Disposal Action <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Disposal Action') }} <span class="text-danger">*</span></label>
                             <select name="disposal_action" class="form-select" required>
                                 <option value="destroy">{{ __('Destroy') }}</option>
                                 <option value="transfer">{{ __('Transfer to NAZ') }}</option>
@@ -119,7 +119,7 @@
                         <i class="fas fa-save me-2"></i>{{ __('Create Schedule') }}
                     </button>
                     <a href="{{ route('ahgnaz.schedules') }}" class="btn btn-outline-secondary">
-                        Cancel
+                        {{ __('Cancel') }}
                     </a>
                 </div>
             </div>

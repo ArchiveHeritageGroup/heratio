@@ -148,14 +148,14 @@
                                 <td>{{ $item->initiated_by_name ?? 'User #' . $item->initiated_by }}</td>
                                 <td>{{ $item->initiated_at ? \Carbon\Carbon::parse($item->initiated_at)->format('Y-m-d H:i') : '' }}</td>
                                 <td>
-                                    <a href="{{ route('records.disposal.show', $item->id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                                    <a href="{{ route('records.disposal.show', $item->id) }}" class="btn btn-sm btn-outline-primary">{{ __('View') }}</a>
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             @else
-                <div class="p-4 text-center text-muted">No disposal actions found.</div>
+                <div class="p-4 text-center text-muted">{{ __('No disposal actions found.') }}</div>
             @endif
         </div>
     </div>

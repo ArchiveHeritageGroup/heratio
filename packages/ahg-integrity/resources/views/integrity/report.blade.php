@@ -14,7 +14,7 @@
     @if(isset($items) && count($items) > 0)
     <table class="table table-striped table-hover mb-0"><thead><tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><th>{{ __('ID') }}</th><th>{{ __('Name') }}</th><th>{{ __('Date') }}</th><th>{{ __('Status') }}</th></tr></thead>
     <tbody>@foreach($items as $item)<tr><td>{{ $item->id ?? '' }}</td><td>{{ $item->name ?? $item->title ?? '' }}</td><td>{{ $item->created_at ?? $item->started_at ?? '' }}</td><td>{{ ucfirst($item->status ?? '') }}</td></tr>@endforeach</tbody></table>
-    @else<div class="text-center py-4 text-muted">No records found.</div>@endif
+    @else<div class="text-center py-4 text-muted">{{ __('No records found.') }}</div>@endif
   </div>
 </div>
 <div class="mt-3"><a href="{{ route('integrity.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Dashboard') }}</a></div>

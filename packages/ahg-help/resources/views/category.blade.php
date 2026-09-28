@@ -12,7 +12,7 @@
   <div class="col-lg-9 col-md-8">
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('help.index') }}">Help Center</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('help.index') }}">{{ __('Help Center') }}</a></li>
         <li class="breadcrumb-item active">{{ $category }}</li>
       </ol>
     </nav>

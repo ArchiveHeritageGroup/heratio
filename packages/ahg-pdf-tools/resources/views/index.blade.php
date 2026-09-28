@@ -25,7 +25,7 @@
               {{ $pdftotextAvailable ? 'Installed' : 'Not Installed' }}
             </span>
             <h6 class="card-title">{{ __('pdftotext') }}</h6>
-            <p class="card-text small text-muted">PDF text extraction</p>
+            <p class="card-text small text-muted">{{ __('PDF text extraction') }}</p>
             @if($pdftotextVersion)
               <code class="small">{{ $pdftotextVersion }}</code>
             @elseif(!$pdftotextAvailable)
@@ -42,7 +42,7 @@
               {{ $imageMagickAvailable ? 'Installed' : 'Not Installed' }}
             </span>
             <h6 class="card-title">{{ __('ImageMagick') }}</h6>
-            <p class="card-text small text-muted">Image/TIFF to PDF conversion</p>
+            <p class="card-text small text-muted">{{ __('Image/TIFF to PDF conversion') }}</p>
             @if($imageMagickVersion)
               <code class="small">{{ $imageMagickVersion }}</code>
             @elseif(!$imageMagickAvailable)
@@ -59,7 +59,7 @@
               {{ $ghostscriptAvailable ? 'Installed' : 'Not Installed' }}
             </span>
             <h6 class="card-title">{{ __('Ghostscript') }}</h6>
-            <p class="card-text small text-muted">PDF/A generation</p>
+            <p class="card-text small text-muted">{{ __('PDF/A generation') }}</p>
             @if($ghostscriptVersion)
               <code class="small">{{ $ghostscriptVersion }}</code>
             @elseif(!$ghostscriptAvailable)
@@ -155,15 +155,15 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">Upload PDF File <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+            <label class="form-label">{{ __('Upload PDF File') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <input type="file" class="form-control" name="pdf_file" accept=".pdf" required>
             <div class="form-text">Maximum 100 MB</div>
           </div>
           <div class="text-muted small">OR</div>
           <div class="mb-3 mt-2">
-            <label class="form-label">Digital Object ID <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Digital Object ID') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="number" class="form-control" name="digital_object_id" placeholder="{{ __('Enter digital object ID') }}">
-            <div class="form-text">Extract text from an existing PDF in the repository</div>
+            <div class="form-text">{{ __('Extract text from an existing PDF in the repository') }}</div>
           </div>
         </div>
         <div class="modal-footer">

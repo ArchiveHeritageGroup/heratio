@@ -63,7 +63,7 @@
       @if($__provOverview && $__provOverview->current_status)
         <span class="badge bg-info">{{ ucfirst($__provOverview->current_status) }}</span>
       @endif
-      <a href="{{ route('io.provenance', $__slug) }}" class="btn btn-sm btn-outline-secondary ms-1">View</a>
+      <a href="{{ route('io.provenance', $__slug) }}" class="btn btn-sm btn-outline-secondary ms-1">{{ __('View') }}</a>
     </div>
   </div>
 @endif

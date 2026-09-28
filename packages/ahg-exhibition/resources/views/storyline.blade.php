@@ -30,9 +30,9 @@
   <div class="col-md-8">
     <nav aria-label="{{ __('breadcrumb') }}">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('exhibition.index') }}">Exhibitions</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('exhibition.index') }}">{{ __('Exhibitions') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('exhibition.show', ['id' => $exId]) }}">{{ $exhibition->title ?? '' }}</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('exhibition.storylines', ['id' => $exId]) }}">Storylines</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('exhibition.storylines', ['id' => $exId]) }}">{{ __('Storylines') }}</a></li>
         <li class="breadcrumb-item active">{{ $storyline->title ?? '' }}</li>
       </ol>
     </nav>
@@ -183,7 +183,7 @@
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Stop Title <span class="text-danger">*</span></label>
+            <label class="form-label">{{ __('Stop Title') }} <span class="text-danger">*</span></label>
             <input type="text" name="title" class="form-control" required>
           </div>
           <div class="mb-3">

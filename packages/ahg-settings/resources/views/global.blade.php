@@ -30,7 +30,7 @@
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[check_for_updates]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[check_for_updates]" value="1" id="check_for_updates" {{ ($settings['check_for_updates'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="check_for_updates">Check for updates <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-check-label" for="check_for_updates">{{ __('Check for updates') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               </div>
             </div>
           </div>
@@ -42,7 +42,7 @@
           <div id="search-collapse" class="accordion-collapse collapse show">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Hits per page <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Hits per page') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="number" name="settings[hits_per_page]" class="form-control" value="{{ $settings['hits_per_page'] ?? '10' }}" min="5" max="100">
               </div>
               <div class="mb-3">
@@ -78,7 +78,7 @@
                 </select>
               </div>
               <div class="mb-3">
-                <label class="form-label">Default archival description browse view <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Default archival description browse view') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="settings[default_archival_description_browse_view]" class="form-select">
                   @foreach(['table' => 'Table', 'card' => 'Card'] as $val => $label)
                     <option value="{{ $val }}" {{ ($settings['default_archival_description_browse_view'] ?? '') == $val ? 'selected' : '' }}>{{ $label }}</option>
@@ -86,7 +86,7 @@
                 </select>
               </div>
               <div class="mb-3">
-                <label class="form-label">Default repository browse view <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Default repository browse view') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="settings[default_repository_browse_view]" class="form-select">
                   @foreach(['table' => 'Table', 'card' => 'Card'] as $val => $label)
                     <option value="{{ $val }}" {{ ($settings['default_repository_browse_view'] ?? '') == $val ? 'selected' : '' }}>{{ $label }}</option>
@@ -96,7 +96,7 @@
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[escape_queries]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[escape_queries]" value="1" id="escape_queries" {{ ($settings['escape_queries'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="escape_queries">Escape special characters in search queries <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-check-label" for="escape_queries">{{ __('Escape special characters in search queries') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               </div>
             </div>
           </div>
@@ -110,12 +110,12 @@
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[show_tooltips]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[show_tooltips]" value="1" id="show_tooltips" {{ ($settings['show_tooltips'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="show_tooltips">Show tooltips <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-check-label" for="show_tooltips">{{ __('Show tooltips') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               </div>
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[draft_notification_enabled]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[draft_notification_enabled]" value="1" id="draft_notification_enabled" {{ ($settings['draft_notification_enabled'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="draft_notification_enabled">Show draft record notification <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-check-label" for="draft_notification_enabled">{{ __('Show draft record notification') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               </div>
             </div>
           </div>
@@ -129,12 +129,12 @@
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[multi_repository]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[multi_repository]" value="1" id="multi_repository" {{ ($settings['multi_repository'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="multi_repository">Enable multi-repository <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-check-label" for="multi_repository">{{ __('Enable multi-repository') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               </div>
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[enable_institutional_scoping]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[enable_institutional_scoping]" value="1" id="enable_institutional_scoping" {{ ($settings['enable_institutional_scoping'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="enable_institutional_scoping">Enable institutional scoping <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-check-label" for="enable_institutional_scoping">{{ __('Enable institutional scoping') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               </div>
             </div>
           </div>
@@ -170,20 +170,20 @@
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[audit_log_enabled]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[audit_log_enabled]" value="1" id="audit_log_enabled" {{ ($settings['audit_log_enabled'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="audit_log_enabled">Enable audit logging <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-check-label" for="audit_log_enabled">{{ __('Enable audit logging') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               </div>
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[generate_reports_as_pub_user]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[generate_reports_as_pub_user]" value="1" id="generate_reports_as_pub_user" {{ ($settings['generate_reports_as_pub_user'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="generate_reports_as_pub_user">Generate reports as public user <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-check-label" for="generate_reports_as_pub_user">{{ __('Generate reports as public user') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               </div>
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[cache_xml_on_save]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[cache_xml_on_save]" value="1" id="cache_xml_on_save" {{ ($settings['cache_xml_on_save'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="cache_xml_on_save">Cache XML on save <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-check-label" for="cache_xml_on_save">{{ __('Cache XML on save') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               </div>
               <div class="mb-3">
-                <label class="form-label">Default publication status <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Default publication status') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="settings[defaultPubStatus]" class="form-select">
                   <option value="159" {{ ($settings['defaultPubStatus'] ?? '') == '159' ? 'selected' : '' }}>{{ __('Draft') }}</option>
                   <option value="160" {{ ($settings['defaultPubStatus'] ?? '') == '160' ? 'selected' : '' }}>{{ __('Published') }}</option>
@@ -199,11 +199,11 @@
           <div id="integrations-collapse" class="accordion-collapse collapse">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Google Maps API key <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Google Maps API key') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="password" name="settings[google_maps_api_key]" class="form-control" value="" autocomplete="new-password" placeholder="{{ __('Leave blank to keep current') }}"> {{-- #1395(D) write-only --}}
               </div>
               <div class="mb-3">
-                <label class="form-label">SWORD deposit directory <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('SWORD deposit directory') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="settings[sword_deposit_dir]" class="form-control" value="{{ $settings['sword_deposit_dir'] ?? '' }}">
               </div>
             </div>

@@ -61,7 +61,7 @@
   </div>
   <div class="col-md-3">
     <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-filter me-1"></i>{{ __('Filter') }}</button>
-    <a href="{{ route('records.reviews.index') }}" class="btn btn-sm btn-outline-secondary">Reset</a>
+    <a href="{{ route('records.reviews.index') }}" class="btn btn-sm btn-outline-secondary">{{ __('Reset') }}</a>
   </div>
 </form>
 

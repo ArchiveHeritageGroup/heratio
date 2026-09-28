@@ -26,11 +26,11 @@
       <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
-          <li class="breadcrumb-item active">Heritage Impact Assessments</li>
+          <li class="breadcrumb-item active">{{ __('Heritage Impact Assessments') }}</li>
         </ol>
       </nav>
       <h1><i class="fas fa-clipboard-check me-2"></i>{{ __('Heritage Impact Assessments') }}</h1>
-      <p class="text-muted">HIA submissions</p>
+      <p class="text-muted">{{ __('HIA submissions') }}</p>
     </div>
     <div class="col-auto">
       <a href="{{ route('nmmz.hia.create') }}" class="btn btn-primary">
@@ -71,8 +71,8 @@
       @if($hias->isEmpty())
         <div class="p-4 text-center text-muted">
           <i class="fas fa-clipboard-check fa-3x mb-3"></i>
-          <p>No heritage impact assessments found.</p>
-          <a href="{{ route('nmmz.hia.create') }}" class="btn btn-primary">Submit Assessment</a>
+          <p>{{ __('No heritage impact assessments found.') }}</p>
+          <a href="{{ route('nmmz.hia.create') }}" class="btn btn-primary">{{ __('Submit Assessment') }}</a>
         </div>
       @else
         <table class="table table-hover mb-0">

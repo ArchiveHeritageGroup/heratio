@@ -28,7 +28,7 @@
       <div class="card text-center">
         <div class="card-body py-2">
           <div class="fs-3 fw-bold">{{ number_format($stats['master_objects']) }}</div>
-          <div class="small text-muted">Master Objects</div>
+          <div class="small text-muted">{{ __('Master Objects') }}</div>
         </div>
       </div>
     </div>
@@ -36,7 +36,7 @@
       <div class="card text-center border-primary">
         <div class="card-body py-2">
           <div class="fs-3 fw-bold text-primary">{{ number_format($stats['total_verifications']) }}</div>
-          <div class="small text-muted">Total Verifications</div>
+          <div class="small text-muted">{{ __('Total Verifications') }}</div>
         </div>
       </div>
     </div>
@@ -44,7 +44,7 @@
       <div class="card text-center border-success">
         <div class="card-body py-2">
           <div class="fs-3 fw-bold text-success">{{ $stats['pass_rate'] }}%</div>
-          <div class="small text-muted">Pass Rate</div>
+          <div class="small text-muted">{{ __('Pass Rate') }}</div>
         </div>
       </div>
     </div>
@@ -52,7 +52,7 @@
       <div class="card text-center {{ $stats['open_dead_letters'] > 0 ? 'border-danger' : 'border-secondary' }}">
         <div class="card-body py-2">
           <div class="fs-3 fw-bold {{ $stats['open_dead_letters'] > 0 ? 'text-danger' : '' }}">{{ number_format($stats['open_dead_letters']) }}</div>
-          <div class="small text-muted">Open Dead Letters</div>
+          <div class="small text-muted">{{ __('Open Dead Letters') }}</div>
         </div>
       </div>
     </div>
@@ -60,7 +60,7 @@
       <div class="card text-center border-warning">
         <div class="card-body py-2">
           <div class="fs-3 fw-bold text-warning">{{ number_format($stats['never_verified']) }}</div>
-          <div class="small text-muted">Never Verified</div>
+          <div class="small text-muted">{{ __('Never Verified') }}</div>
         </div>
       </div>
     </div>
@@ -76,7 +76,7 @@
       <div class="card text-center border-secondary">
         <div class="card-body py-2">
           <div class="fs-3 fw-bold text-secondary">{{ number_format($stats['total_verifications']) }}</div>
-          <div class="small text-muted">Storage Scanned</div>
+          <div class="small text-muted">{{ __('Storage Scanned') }}</div>
         </div>
       </div>
     </div>
@@ -85,7 +85,7 @@
   {{-- Repository filter --}}
   <div class="d-flex flex-wrap gap-2 mb-3">
     <div class="d-flex align-items-center gap-2">
-      <label for="repository_filter" class="form-label mb-0 fw-bold">Filter by repository: <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+      <label for="repository_filter" class="form-label mb-0 fw-bold">{{ __('Filter by repository:') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
       <select id="repository_filter" class="form-select form-select-sm" style="width: auto; min-width: 200px;">
         <option value="">{{ __('All repositories') }}</option>
         @foreach($repositories as $repo)
@@ -121,7 +121,7 @@
       @if(!$configured)
         <p class="text-muted mb-0">Integrity tables are not available. No verification runs to display.</p>
       @elseif($recentRuns->isEmpty())
-        <p class="text-muted mb-0">No verification runs have been executed yet.</p>
+        <p class="text-muted mb-0">{{ __('No verification runs have been executed yet.') }}</p>
       @else
         <div class="table-responsive">
           <table class="table table-bordered table-striped mb-0">

@@ -10,7 +10,7 @@
     <h5 class="mb-0">{{ __('Site View') }}</h5>
   </div>
   <div class="card-body">
-    <p class="text-muted">Content for Site View.</p>
+    <p class="text-muted">{{ __('Content for Site View.') }}</p>
   </div>
 </div>
 @endsection

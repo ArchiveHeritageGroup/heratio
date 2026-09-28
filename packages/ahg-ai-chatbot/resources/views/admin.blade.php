@@ -20,7 +20,7 @@
         <div class="col-md-3">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
-                    <div class="small text-muted text-uppercase">Total Messages</div>
+                    <div class="small text-muted text-uppercase">{{ __('Total Messages') }}</div>
                     <div class="display-6">{{ $stats['total_messages'] ?? 0 }}</div>
                 </div>
             </div>
@@ -57,7 +57,7 @@
     @if (!empty($reviewQueue))
         <div class="card shadow-sm">
             <div class="card-header bg-warning bg-opacity-25">
-                <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i> Responses Needing Review</h5>
+                <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i> {{ __('Responses Needing Review') }}</h5>
                 <p class="small text-muted mb-0">Responses below the grounding threshold ({{ config('ahg-ai-chatbot.grounding_threshold') }}).</p>
             </div>
             <div class="table-responsive">
@@ -91,7 +91,7 @@
                                 <td>
                                     <button class="btn btn-outline-primary btn-sm"
                                             onclick="showDetail({{ $row['id'] }})">
-                                        View
+                                        {{ __('View') }}
                                     </button>
                                 </td>
                             </tr>

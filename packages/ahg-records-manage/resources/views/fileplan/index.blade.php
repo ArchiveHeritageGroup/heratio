@@ -61,7 +61,7 @@
 
 @if(empty($tree))
     <div class="alert alert-info">
-        No file plan nodes found. <a href="{{ route('records.fileplan.create') }}">Create one</a> or
+        {{ __('No file plan nodes found.') }} <a href="{{ route('records.fileplan.create') }}">{{ __('Create one') }}</a> or
         <a href="{{ route('records.fileplan.import') }}">import a file plan</a>.
     </div>
 @else

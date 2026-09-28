@@ -15,7 +15,7 @@
         <div>
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb mb-1">
-                    <li class="breadcrumb-item"><a href="{{ route('federation.index') }}">Federation</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('federation.index') }}">{{ __('Federation') }}</a></li>
                     <li class="breadcrumb-item active">Governance &amp; Discovery</li>
                 </ol>
             </nav>

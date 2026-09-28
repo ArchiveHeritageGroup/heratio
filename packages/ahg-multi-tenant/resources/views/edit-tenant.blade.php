@@ -64,7 +64,7 @@
               </div>
               <div class="card-body">
                 <div class="mb-3">
-                  <label for="name" class="form-label">Tenant Name <span class="text-danger">*</span></label>
+                  <label for="name" class="form-label">{{ __('Tenant Name') }} <span class="text-danger">*</span></label>
                   <input type="text" class="form-control" id="name" name="name" value="{{ $tenant->name ?? '' }}" required>
                 </div>
 
@@ -115,8 +115,8 @@
                 <div class="mb-3">
                   <label for="is_active" class="form-label">{{ __('Status') }}</label>
                   <select class="form-select" id="is_active" name="is_active">
-                    <option value="1" {{ !empty($tenant->is_active) ? 'selected' : '' }}>Active</option>
-                    <option value="0" {{ empty($tenant->is_active) ? 'selected' : '' }}>Suspended</option>
+                    <option value="1" {{ !empty($tenant->is_active) ? 'selected' : '' }}>{{ __('Active') }}</option>
+                    <option value="0" {{ empty($tenant->is_active) ? 'selected' : '' }}>{{ __('Suspended') }}</option>
                   </select>
                 </div>
 
@@ -178,7 +178,7 @@
                     </tr>
                   @empty
                     <tr>
-                      <td colspan="3" class="text-center text-muted py-3">No users assigned</td>
+                      <td colspan="3" class="text-center text-muted py-3">{{ __('No users assigned') }}</td>
                     </tr>
                   @endforelse
                 </tbody>

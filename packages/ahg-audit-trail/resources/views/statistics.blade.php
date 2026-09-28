@@ -98,7 +98,7 @@
           </table>
         </div>
       @else
-        <p class="text-muted p-3 mb-0">No user activity in the selected period.</p>
+        <p class="text-muted p-3 mb-0">{{ __('No user activity in the selected period.') }}</p>
       @endif
     </div>
   </div>
@@ -143,7 +143,7 @@
           </table>
         </div>
       @else
-        <p class="text-muted p-3 mb-0">No failed actions in the selected period.</p>
+        <p class="text-muted p-3 mb-0">{{ __('No failed actions in the selected period.') }}</p>
       @endif
     </div>
   </div>

@@ -176,11 +176,11 @@
 <body>
     <header class="site">
         <div class="wrap">
-            <a class="brand" href="/">Heratio</a>
+            <a class="brand" href="/">{{ __('Heratio') }}</a>
             <nav>
-                <a href="/compare/atom">Compare</a>
-                <a href="/migration/assessment">Migrate from AtoM</a>
-                <a href="/help">Help</a>
+                <a href="/compare/atom">{{ __('Compare') }}</a>
+                <a href="/migration/assessment">{{ __('Migrate from AtoM') }}</a>
+                <a href="/help">{{ __('Help') }}</a>
             </nav>
         </div>
     </header>
@@ -193,10 +193,10 @@
 
     <footer class="site">
         <div class="wrap">
-            <p>Heratio is published by <a href="https://theahg.co.za">The Archive and Heritage Digital Commons Group (Pty) Ltd (The AHG)</a>,
-            with software by <a href="https://plainsailingisystems.co.za">Plain Sailing Information Systems</a>.
-            Records in Contexts ecosystem: <a href="https://openric.org">OpenRiC</a>.</p>
-            <p>Open source under AGPL-3.0. <a href="https://github.com/ArchiveHeritageGroup/heratio">Source on GitHub</a>.
+            <p>{{ __('Heratio is published by') }} <a href="https://theahg.co.za">The Archive and Heritage Digital Commons Group (Pty) Ltd (The AHG)</a>,
+            with software by <a href="https://plainsailingisystems.co.za">{{ __('Plain Sailing Information Systems') }}</a>.
+            Records in Contexts ecosystem: <a href="https://openric.org">{{ __('OpenRiC') }}</a>.</p>
+            <p>Open source under AGPL-3.0. <a href="https://github.com/ArchiveHeritageGroup/heratio">{{ __('Source on GitHub') }}</a>.
             &copy; {{ date('Y') }} Plain Sailing Information Systems.</p>
         </div>
     </footer>

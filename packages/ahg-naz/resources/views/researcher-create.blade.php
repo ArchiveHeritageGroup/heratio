@@ -21,7 +21,7 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('ahgnaz.researchers') }}">Researchers</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('ahgnaz.researchers') }}">{{ __('Researchers') }}</a></li>
                     <li class="breadcrumb-item active">{{ $researcher ?? null ? 'Edit' : 'Register' }}</li>
                 </ol>
             </nav>
@@ -57,15 +57,15 @@
                             </select>
                         </div>
                         <div class="col-md-5">
-                            <label class="form-label">First Name <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('First Name') }} <span class="text-danger">*</span></label>
                             <input type="text" name="first_name" class="form-control" value="{{ old('first_name', $r->first_name ?? '') }}" required>
                         </div>
                         <div class="col-md-5">
-                            <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Last Name') }} <span class="text-danger">*</span></label>
                             <input type="text" name="last_name" class="form-control" value="{{ old('last_name', $r->last_name ?? '') }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Email') }} <span class="text-danger">*</span></label>
                             <input type="email" name="email" class="form-control" value="{{ old('email', $r->email ?? '') }}" required>
                         </div>
                         <div class="col-md-6">
@@ -73,7 +73,7 @@
                             <input type="tel" name="phone" class="form-control" value="{{ old('phone', $r->phone ?? '') }}">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Researcher Type <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Researcher Type') }} <span class="text-danger">*</span></label>
                             @php $selType = old('researcher_type', $r->researcher_type ?? 'local'); @endphp
                             <select name="researcher_type" class="form-select" required>
                                 @foreach(['local' => 'Local', 'foreign' => 'Foreign', 'institutional' => 'Institutional'] as $v => $label)
@@ -97,7 +97,7 @@
                           simply be dropped from the rules.
                         --}}
                         <div class="col-md-4">
-                            <label class="form-label">Registration Date <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Registration Date') }} <span class="text-danger">*</span></label>
                             <input type="date" name="registration_date" class="form-control" required
                                    value="{{ old('registration_date', isset($r->registration_date) ? substr((string) $r->registration_date, 0, 10) : date('Y-m-d')) }}">
                         </div>
@@ -138,12 +138,12 @@
         <div class="col-lg-4">
             <div class="alert alert-info">
                 <h6><i class="fas fa-info-circle"></i> {{ __('Permit Fees') }}</h6>
-                <p class="small mb-0">Foreign researchers: US$200<br>Local researchers: Free</p>
+                <p class="small mb-0">Foreign researchers: US$200<br>{{ __('Local researchers: Free') }}</p>
             </div>
             <div class="card">
                 <div class="card-body d-grid gap-2">
                     <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>{{ $r ? __('Save Changes') : __('Register') }}</button>
-                    <a href="{{ route('ahgnaz.researchers') }}" class="btn btn-outline-secondary">Cancel</a>
+                    <a href="{{ route('ahgnaz.researchers') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
                 </div>
             </div>
         </div>

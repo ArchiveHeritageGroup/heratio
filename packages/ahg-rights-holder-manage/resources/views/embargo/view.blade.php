@@ -15,7 +15,7 @@
 
 <div class="card mb-4">
   <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-    <h4 class="mb-0">Embargo Information
+    <h4 class="mb-0">{{ __('Embargo Information') }}
       <span class="badge bg-{{ $statusColors[$status] ?? 'secondary' }} float-end">{{ ucfirst($status) }}</span>
     </h4>
   </div>
@@ -23,13 +23,13 @@
     <div class="row">
       <div class="col-md-6">
         <dl>
-          <dt>Object</dt>
+          <dt>{{ __('Object') }}</dt>
           <dd>#{{ $embargo['object_id'] ?? '' }}</dd>
-          <dt>Type</dt>
+          <dt>{{ __('Type') }}</dt>
           <dd>{{ ucfirst(str_replace('_', ' ', $embargo['embargo_type'] ?? 'full')) }}</dd>
-          <dt>Start Date</dt>
+          <dt>{{ __('Start Date') }}</dt>
           <dd>{{ $embargo['start_date'] ?? '-' }}</dd>
-          <dt>End Date</dt>
+          <dt>{{ __('End Date') }}</dt>
           <dd>
             @if($embargo['is_perpetual'] ?? false)
               <span class="text-danger">{{ __('Perpetual') }}</span>
@@ -44,15 +44,15 @@
       <div class="col-md-6">
         <dl>
           @if(!empty($embargo['reason']))
-            <dt>Reason</dt>
+            <dt>{{ __('Reason') }}</dt>
             <dd>{{ $embargo['reason'] }}</dd>
           @endif
           @if(!empty($embargo['public_message']))
-            <dt>Public Message</dt>
+            <dt>{{ __('Public Message') }}</dt>
             <dd>{{ $embargo['public_message'] }}</dd>
           @endif
           @if(!empty($embargo['notes']))
-            <dt>Internal Notes</dt>
+            <dt>{{ __('Internal Notes') }}</dt>
             <dd>{!! nl2br(e($embargo['notes'])) !!}</dd>
           @endif
         </dl>
@@ -107,7 +107,7 @@
         </tbody>
       </table>
     @else
-      <p class="text-muted">No exceptions defined.</p>
+      <p class="text-muted">{{ __('No exceptions defined.') }}</p>
     @endif
   </div>
 </div>
@@ -135,7 +135,7 @@
         </tbody>
       </table>
     @else
-      <p class="text-muted">No audit log entries.</p>
+      <p class="text-muted">{{ __('No audit log entries.') }}</p>
     @endif
   </div>
 </div>
@@ -148,7 +148,7 @@
       @if($status === 'active')
         <li><a href="{{ route('embargo.liftForm', $embargo['id']) }}" class="btn atom-btn-white"><i class="fas fa-unlock me-1"></i> {{ __('Lift Embargo') }}</a></li>
       @endif
-      <li><a href="{{ route('embargo.index') }}" class="btn atom-btn-outline-light">Back to Embargoes</a></li>
+      <li><a href="{{ route('embargo.index') }}" class="btn atom-btn-outline-light">{{ __('Back to Embargoes') }}</a></li>
     </ul>
   @endauth
 @endsection

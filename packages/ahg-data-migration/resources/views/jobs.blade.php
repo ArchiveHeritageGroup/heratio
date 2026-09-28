@@ -14,8 +14,8 @@
 
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">Data Migration</a></li>
-      <li class="breadcrumb-item active">Jobs</li>
+      <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">{{ __('Data Migration') }}</a></li>
+      <li class="breadcrumb-item active">{{ __('Jobs') }}</li>
     </ol>
   </nav>
 

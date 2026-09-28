@@ -8,8 +8,8 @@
 
   <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-      <li class="breadcrumb-item active">Access Requests</li>
+      <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
+      <li class="breadcrumb-item active">{{ __('Access Requests') }}</li>
     </ol>
   </nav>
 
@@ -71,7 +71,7 @@
       @if($requests->isEmpty())
         <div class="p-4 text-center text-muted">
           <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
-          <p>No pending requests. All caught up!</p>
+          <p>{{ __('No pending requests. All caught up!') }}</p>
         </div>
       @else
         <div class="table-responsive">
@@ -141,9 +141,9 @@
                               <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body text-start">
-                              <p>Approve access request from <strong>{{ e($req->user_name ?? $req->username ?? '') }}</strong>?</p>
+                              <p>{{ __('Approve access request from') }} <strong>{{ e($req->user_name ?? $req->username ?? '') }}</strong>?</p>
                               <div class="mb-3">
-                                <label for="approve_notes_{{ $req->id }}" class="form-label">Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                                <label for="approve_notes_{{ $req->id }}" class="form-label">{{ __('Notes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <textarea name="notes" id="approve_notes_{{ $req->id }}" class="form-control" rows="3"></textarea>
                               </div>
                             </div>
@@ -168,9 +168,9 @@
                               <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body text-start">
-                              <p>Deny access request from <strong>{{ e($req->user_name ?? $req->username ?? '') }}</strong>?</p>
+                              <p>{{ __('Deny access request from') }} <strong>{{ e($req->user_name ?? $req->username ?? '') }}</strong>?</p>
                               <div class="mb-3">
-                                <label for="deny_notes_{{ $req->id }}" class="form-label">Reason for denial <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                                <label for="deny_notes_{{ $req->id }}" class="form-label">{{ __('Reason for denial') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                                 <textarea name="notes" id="deny_notes_{{ $req->id }}" class="form-control" rows="3"></textarea>
                               </div>
                             </div>

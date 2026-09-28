@@ -22,7 +22,7 @@
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.index') }}">CDPA</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.dpia') }}">DPIA</a></li>
-                    <li class="breadcrumb-item active">New DPIA</li>
+                    <li class="breadcrumb-item active">{{ __('New DPIA') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-clipboard-check me-2"></i>{{ __('New Data Protection Impact Assessment') }}</h1>
@@ -37,7 +37,7 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label">DPIA Name <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('DPIA Name') }} <span class="text-danger">*</span></label>
                             <input type="text" name="name" class="form-control" autocomplete="off" required>
                         </div>
                         <div class="col-md-6">
@@ -50,15 +50,15 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Assessor Name <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Assessor Name') }} <span class="text-danger">*</span></label>
                             <input type="text" name="assessor_name" class="form-control" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Assessment Date <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Assessment Date') }} <span class="text-danger">*</span></label>
                             <input type="date" name="assessment_date" class="form-control" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}" required>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Description <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Description') }} <span class="text-danger">*</span></label>
                             <textarea name="description" class="form-control" rows="4" required placeholder="{{ __('Describe the processing activity and why a DPIA is needed...') }}"></textarea>
                         </div>
                     </div>
@@ -68,7 +68,7 @@
             <div class="card mb-4">
                 <div class="card-header"><h5 class="mb-0">{{ __('Necessity & Proportionality') }}</h5></div>
                 <div class="card-body">
-                    <label class="form-label">Assessment of necessity and proportionality <span class="text-danger">*</span></label>
+                    <label class="form-label">{{ __('Assessment of necessity and proportionality') }} <span class="text-danger">*</span></label>
                     <textarea name="necessity_assessment" class="form-control" rows="4" required placeholder="{{ __('Why is this processing necessary? Is it proportionate to the purpose?') }}"></textarea>
                 </div>
             </div>
@@ -76,7 +76,7 @@
             <div class="card">
                 <div class="card-header"><h5 class="mb-0">{{ __('Risk Assessment') }}</h5></div>
                 <div class="card-body">
-                    <label class="form-label">Overall Risk Level <span class="text-danger">*</span></label>
+                    <label class="form-label">{{ __('Overall Risk Level') }} <span class="text-danger">*</span></label>
                     <select name="risk_level" class="form-select" required>
                         <option value="">{{ __('Select...') }}</option>
                         <option value="low">{{ __('Low - Minimal impact on data subjects') }}</option>
@@ -92,12 +92,12 @@
             <div class="alert alert-info">
                 <h6><i class="fas fa-info-circle me-1"></i> {{ __('When is DPIA Required?') }}</h6>
                 <ul class="small mb-0">
-                    <li>Large-scale processing</li>
-                    <li>Systematic monitoring</li>
-                    <li>Automated decisions with legal effects</li>
-                    <li>Special categories of data</li>
-                    <li>Cross-border transfers</li>
-                    <li>Innovative technologies</li>
+                    <li>{{ __('Large-scale processing') }}</li>
+                    <li>{{ __('Systematic monitoring') }}</li>
+                    <li>{{ __('Automated decisions with legal effects') }}</li>
+                    <li>{{ __('Special categories of data') }}</li>
+                    <li>{{ __('Cross-border transfers') }}</li>
+                    <li>{{ __('Innovative technologies') }}</li>
                 </ul>
             </div>
 
@@ -107,7 +107,7 @@
                         <i class="fas fa-save me-2"></i>{{ __('Create DPIA') }}
                     </button>
                     <a href="{{ route('ahgcdpa.dpia') }}" class="btn btn-outline-secondary">
-                        Cancel
+                        {{ __('Cancel') }}
                     </a>
                 </div>
             </div>

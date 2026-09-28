@@ -10,7 +10,7 @@
       You can create pages such as About, Contact, Privacy, or any other informational page.
     </p>
     <p class="small text-muted">
-      Pages with the slugs <strong>home</strong>, <strong>about</strong>, and <strong>contact</strong>
+      {{ __('Pages with the slugs') }} <strong>home</strong>, <strong>about</strong>, and <strong>contact</strong>
       are protected and cannot be deleted as they are core to the site.
     </p>
   </div>
@@ -49,7 +49,7 @@
 
   @auth
     <section class="actions mb-3">
-      <a class="btn atom-btn-outline-light" href="{{ url('/staticpage/add') }}" title="{{ __('Add new') }}">Add new</a>
+      <a class="btn atom-btn-outline-light" href="{{ url('/staticpage/add') }}" title="{{ __('Add new') }}">{{ __('Add new') }}</a>
     </section>
   @endauth
 @endsection

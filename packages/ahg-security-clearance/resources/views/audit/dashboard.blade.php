@@ -5,8 +5,8 @@
 @section('content')
 <div class="container-fluid mt-3">
   <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">Security Dashboard</a></li>
-    <li class="breadcrumb-item active">Audit Dashboard</li>
+    <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">{{ __('Security Dashboard') }}</a></li>
+    <li class="breadcrumb-item active">{{ __('Audit Dashboard') }}</li>
   </ol></nav>
 
   <h1><i class="fas fa-history"></i> {{ __('Security Audit Dashboard') }}</h1>
@@ -50,7 +50,7 @@
                 <td>{{ $user->count ?? 0 }}</td>
               </tr>
               @empty
-              <tr><td colspan="2" class="text-muted">No data.</td></tr>
+              <tr><td colspan="2" class="text-muted">{{ __('No data.') }}</td></tr>
               @endforelse
             </tbody>
           </table>
@@ -76,7 +76,7 @@
                 <td>{{ $action->count ?? 0 }}</td>
               </tr>
               @empty
-              <tr><td colspan="2" class="text-muted">No data.</td></tr>
+              <tr><td colspan="2" class="text-muted">{{ __('No data.') }}</td></tr>
               @endforelse
             </tbody>
           </table>

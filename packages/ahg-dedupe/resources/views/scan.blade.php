@@ -27,7 +27,7 @@
           <form method="post" action="{{ route('dedupe.scan.start') }}">
             @csrf
             <div class="mb-4">
-              <label class="form-label fw-bold">Scan Scope <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label fw-bold">{{ __('Scan Scope') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="form-check mb-2">
                 <input class="form-check-input" type="radio" name="scope" id="scopeAll" value="all" checked>
                 <label class="form-check-label" for="scopeAll">
@@ -45,7 +45,7 @@
             </div>
 
             <div class="mb-4" id="repositorySelect" style="display: none;">
-              <label for="repository_id" class="form-label">Select Repository <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="repository_id" class="form-label">{{ __('Select Repository') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select name="repository_id" id="repository_id" class="form-select">
                 <option value="">-- Select Repository --</option>
                 @foreach($repositories as $repo)
@@ -56,14 +56,14 @@
 
             <div class="alert alert-info">
               <i class="fas fa-info-circle me-2"></i>
-              <strong>{{ __('Note:') }}</strong> This will create a scan job. To process the scan, run:
+              <strong>{{ __('Note:') }}</strong> {{ __('This will create a scan job. To process the scan, run:') }}
               <br><code>php artisan dedupe:scan --all</code> or <code>php artisan dedupe:scan --repository=ID</code>
             </div>
 
             <button type="submit" class="btn atom-btn-outline-success">
               <i class="fas fa-play me-1"></i> {{ __('Start Scan Job') }}
             </button>
-            <a href="{{ route('dedupe.index') }}" class="btn atom-btn-white">Cancel</a>
+            <a href="{{ route('dedupe.index') }}" class="btn atom-btn-white">{{ __('Cancel') }}</a>
           </form>
         </div>
       </div>
@@ -75,11 +75,11 @@
           <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('About Scanning') }}</h5>
         </div>
         <div class="card-body">
-          <p>The duplicate scan will:</p>
+          <p>{{ __('The duplicate scan will:') }}</p>
           <ul>
             <li>Compare all records against each other using configured detection rules</li>
             <li>Apply title similarity, identifier matching, and other algorithms</li>
-            <li>Record detected duplicates for review</li>
+            <li>{{ __('Record detected duplicates for review') }}</li>
           </ul>
           <p class="mb-0"><strong>{{ __('Tip:') }}</strong> For large collections, start with a single repository to test results before scanning the entire system.</p>
         </div>

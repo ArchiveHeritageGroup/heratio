@@ -2,9 +2,9 @@
 
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb mb-0">
-      <li class="breadcrumb-item"><a href="@php echo route('researcher.dashboard') @endphp">Researcher</a></li>
+      <li class="breadcrumb-item"><a href="@php echo route('researcher.dashboard') @endphp">{{ __('Researcher') }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('researcher.viewSubmission', ['id' => $submission->id]) }}">@php echo htmlspecialchars($submission->title) @endphp</a></li>
-      <li class="breadcrumb-item active">Publish</li>
+      <li class="breadcrumb-item active">{{ __('Publish') }}</li>
     </ol>
   </nav>
 
@@ -26,11 +26,11 @@
             </div>
 
             <dl class="row">
-              <dt class="col-3">Submission</dt>
+              <dt class="col-3">{{ __('Submission') }}</dt>
               <dd class="col-9">@php echo htmlspecialchars($submission->title) @endphp</dd>
-              <dt class="col-3">Items</dt>
+              <dt class="col-3">{{ __('Items') }}</dt>
               <dd class="col-9">@php echo $submission->total_items @endphp items, @php echo $submission->total_files @endphp files</dd>
-              <dt class="col-3">Status</dt>
+              <dt class="col-3">{{ __('Status') }}</dt>
               <dd class="col-9"><span class="badge bg-success">{{ __('Approved') }}</span></dd>
             </dl>
 

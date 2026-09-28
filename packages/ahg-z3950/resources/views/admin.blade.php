@@ -13,7 +13,7 @@
         <div class="flex items-center justify-between mb-8">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">{{ __('Z39.50 Admin') }}</h1>
-                <p class="text-sm text-gray-500 mt-1">Manage targets and view connection history.</p>
+                <p class="text-sm text-gray-500 mt-1">{{ __('Manage targets and view connection history.') }}</p>
             </div>
             <a href="{{ route('z3950.target.create') }}"
                class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition">
@@ -28,7 +28,7 @@
             </div>
             @if($targets->isEmpty())
                 <div class="text-center py-10 text-gray-400">
-                    No targets configured.
+                    {{ __('No targets configured.') }}
                 </div>
             @else
                 <table class="w-full text-sm">
@@ -53,9 +53,9 @@
                                 <td class="px-5 py-3 text-gray-500">{{ $target->syntax }}</td>
                                 <td class="px-5 py-3">
                                     @if($target->active)
-                                        <span class="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-50 px-2 py-1 rounded-full">Active</span>
+                                        <span class="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-50 px-2 py-1 rounded-full">{{ __('Active') }}</span>
                                     @else
-                                        <span class="inline-flex items-center gap-1 text-xs font-medium text-gray-400 bg-gray-100 px-2 py-1 rounded-full">Inactive</span>
+                                        <span class="inline-flex items-center gap-1 text-xs font-medium text-gray-400 bg-gray-100 px-2 py-1 rounded-full">{{ __('Inactive') }}</span>
                                     @endif
                                 </td>
                                 <td class="px-5 py-3 text-right">
@@ -78,7 +78,7 @@
                 <h2 class="font-semibold text-gray-900">{{ __('Recent queries') }}</h2>
             </div>
             @if($recentQueries->isEmpty())
-                <div class="text-center py-8 text-gray-400 text-sm">No queries yet.</div>
+                <div class="text-center py-8 text-gray-400 text-sm">{{ __('No queries yet.') }}</div>
             @else
                 <table class="w-full text-sm">
                     <thead class="bg-gray-50">
@@ -101,7 +101,7 @@
                                 <td class="px-5 py-3 text-gray-500">{{ $log->elapsed_ms }}ms</td>
                                 <td class="px-5 py-3">
                                     @if($log->error)
-                                        <span class="text-xs text-red-600">Error</span>
+                                        <span class="text-xs text-red-600">{{ __('Error') }}</span>
                                     @else
                                         <span class="text-xs text-green-600">OK</span>
                                     @endif
@@ -119,7 +119,7 @@
                 <h2 class="font-semibold text-gray-900">{{ __('Recent imports') }}</h2>
             </div>
             @if($recentImports->isEmpty())
-                <div class="text-center py-8 text-gray-400 text-sm">No imports yet.</div>
+                <div class="text-center py-8 text-gray-400 text-sm">{{ __('No imports yet.') }}</div>
             @else
                 <table class="w-full text-sm">
                     <thead class="bg-gray-50">

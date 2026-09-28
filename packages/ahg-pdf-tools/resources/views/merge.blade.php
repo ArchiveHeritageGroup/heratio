@@ -30,7 +30,7 @@
 
       {{-- File Upload --}}
       <div class="mb-4">
-        <label class="form-label fw-bold">Files to Merge <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+        <label class="form-label fw-bold">{{ __('Files to Merge') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
         <input type="file" class="form-control" name="files[]" multiple required
                accept=".{{ implode(',.', $formats) }},.pdf"
                id="fileInput">
@@ -49,7 +49,7 @@
 
       {{-- Selected Files Preview --}}
       <div class="mb-4 d-none" id="fileList">
-        <label class="form-label fw-bold">Selected Files <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label class="form-label fw-bold">{{ __('Selected Files') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <ul class="list-group list-group-flush" id="fileListItems"></ul>
       </div>
 
@@ -59,7 +59,7 @@
       <div class="row g-4">
         {{-- Quality --}}
         <div class="col-md-6">
-          <label class="form-label fw-bold" for="quality">Quality <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label fw-bold" for="quality">{{ __('Quality') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <div class="d-flex align-items-center gap-3">
             <input type="range" class="form-range flex-grow-1" id="quality" name="quality"
                    min="0" max="100" value="90" step="5">
@@ -82,7 +82,7 @@
 
         {{-- Page Size --}}
         <div class="col-md-6">
-          <label class="form-label fw-bold" for="page_size">Page Size <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label fw-bold" for="page_size">{{ __('Page Size') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select class="form-select" id="page_size" name="page_size">
             @foreach($pageSizes as $size)
               <option value="{{ $size }}" {{ $size === 'a4' ? 'selected' : '' }}>
@@ -94,18 +94,18 @@
 
         {{-- Orientation --}}
         <div class="col-md-6">
-          <label class="form-label fw-bold">Orientation <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label fw-bold">{{ __('Orientation') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <div class="d-flex gap-3 mt-1">
             <div class="form-check">
               <input class="form-check-input" type="radio" name="orientation" id="orientPortrait" value="portrait" checked>
               <label class="form-check-label" for="orientPortrait">
-                <i class="bi bi-phone me-1"></i>Portrait <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                <i class="bi bi-phone me-1"></i>{{ __('Portrait') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
               </label>
             </div>
             <div class="form-check">
               <input class="form-check-input" type="radio" name="orientation" id="orientLandscape" value="landscape">
               <label class="form-check-label" for="orientLandscape">
-                <i class="bi bi-phone-landscape me-1"></i>Landscape <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                <i class="bi bi-phone-landscape me-1"></i>{{ __('Landscape') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
               </label>
             </div>
           </div>
@@ -117,7 +117,7 @@
             <input class="form-check-input" type="checkbox" id="pdfa" name="pdfa" value="1"
                    {{ !$ghostscriptAvailable ? 'disabled' : '' }}>
             <label class="form-check-label fw-bold" for="pdfa">
-              Generate PDF/A <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+              {{ __('Generate PDF/A') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
             </label>
           </div>
           @if(!$ghostscriptAvailable)
@@ -129,7 +129,7 @@
 
         {{-- PDF/A Version --}}
         <div class="col-md-6" id="pdfaVersionGroup" style="display: none;">
-          <label class="form-label fw-bold" for="pdfa_version">PDF/A Version <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label fw-bold" for="pdfa_version">{{ __('PDF/A Version') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select class="form-select" id="pdfa_version" name="pdfa_version">
             @foreach($pdfaVersions as $ver)
               <option value="{{ $ver }}" {{ $ver === '2b' ? 'selected' : '' }}>
@@ -147,7 +147,7 @@
         <button type="submit" class="btn atom-btn-outline-success" id="mergeBtn">
           <i class="bi bi-files me-1"></i>{{ __('Merge to PDF') }}
         </button>
-        <a href="{{ route('pdf-tools.index') }}" class="btn atom-btn-white">Cancel</a>
+        <a href="{{ route('pdf-tools.index') }}" class="btn atom-btn-white">{{ __('Cancel') }}</a>
       </div>
     </form>
 

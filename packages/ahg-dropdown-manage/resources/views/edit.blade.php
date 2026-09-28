@@ -4,9 +4,9 @@
 @section('body-class', 'admin dropdowns-edit')
 
 @section('breadcrumbs')
-  <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-  <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Admin</a></li>
-  <li class="breadcrumb-item"><a href="{{ route('dropdown.index') }}">Dropdown Manager</a></li>
+  <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
+  <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">{{ __('Admin') }}</a></li>
+  <li class="breadcrumb-item"><a href="{{ route('dropdown.index') }}">{{ __('Dropdown Manager') }}</a></li>
   <li class="breadcrumb-item active">{{ $taxonomyLabel }}</li>
 @endsection
 
@@ -165,7 +165,7 @@
         <span><i class="fas fa-grip-lines me-2"></i>{{ __('Drag to reorder') }}</span>
         <div class="form-check form-switch mb-0">
           <input class="form-check-input" type="checkbox" id="showInactive" checked>
-          <label class="form-check-label" for="showInactive">Show inactive <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-check-label" for="showInactive">{{ __('Show inactive') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         </div>
       </div>
       <div class="table-responsive">
@@ -315,21 +315,21 @@
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label">Label <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+          <label class="form-label">{{ __('Label') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
           <input type="text" id="addTermLabel" class="form-control" placeholder="{{ __('e.g., Approved') }}">
         </div>
         <div class="mb-3">
-          <label class="form-label">Code <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+          <label class="form-label">{{ __('Code') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
           <input type="text" id="addTermCode" class="form-control" placeholder="{{ __('e.g., approved') }}">
-          <div class="form-text">Lowercase letters, numbers, and underscores only</div>
+          <div class="form-text">{{ __('Lowercase letters, numbers, and underscores only') }}</div>
         </div>
         <div class="row">
           <div class="col-6">
-            <label class="form-label">Color <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Color') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="color" id="addTermColor" class="form-control form-control-color w-100" value="#6c757d">
           </div>
           <div class="col-6">
-            <label class="form-label">Icon <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Icon') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" id="addTermIcon" class="form-control" placeholder="{{ __('fa-check') }}">
           </div>
         </div>

@@ -12,7 +12,7 @@
 
 @section('content')
     @if($settings->isEmpty())
-      <div class="alert alert-info">No editable settings found in this section.</div>
+      <div class="alert alert-info">{{ __('No editable settings found in this section.') }}</div>
     @else
       <form method="post" action="{{ route('settings.section', $section) }}">
         @csrf
@@ -47,7 +47,7 @@
                         </div>
                         <div class="form-check form-check-inline">
                           <input class="form-check-input" type="radio" name="settings[{{ $setting->id }}]" id="setting-{{ $setting->id }}-yes" value="1" {{ in_array(strtolower($val), ['1', 'true', 'yes']) ? 'checked' : '' }}>
-                          <label class="form-check-label" for="setting-{{ $setting->id }}-yes">Yes</label>
+                          <label class="form-check-label" for="setting-{{ $setting->id }}-yes">{{ __('Yes') }}</label>
                         </div>
                       </div>
                     </div>

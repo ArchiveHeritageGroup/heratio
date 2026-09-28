@@ -12,7 +12,7 @@
 <p class="text-muted">Tasks available for claiming. Claim a task to assign it to yourself.</p>
 
   @if(count($tasks) === 0)
-    <div class="alert alert-info">No tasks available in the pool.</div>
+    <div class="alert alert-info">{{ __('No tasks available in the pool.') }}</div>
   @else
     <div class="card">
       <div class="card-body p-0">

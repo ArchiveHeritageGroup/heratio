@@ -19,7 +19,7 @@
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.dashboard') }}">ICIP</a></li>
-      <li class="breadcrumb-item"><a href="{{ route('ahgicip.consultations') }}">Consultations</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('ahgicip.consultations') }}">{{ __('Consultations') }}</a></li>
       <li class="breadcrumb-item active">{{ $id ? 'Edit' : 'Log' }} Consultation</li>
     </ol>
   </nav>
@@ -47,7 +47,7 @@
           <div class="card-body">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Community <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Community') }} <span class="text-danger">*</span></label>
                 <select name="community_id" class="form-select" required>
                   <option value="">{{ __('Select community') }}</option>
                   @foreach($communities as $c)
@@ -56,7 +56,7 @@
                 </select>
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Consultation Type <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Consultation Type') }} <span class="text-danger">*</span></label>
                 <select name="consultation_type" class="form-select" required>
                   @foreach($consultationTypes as $value => $label)
                     <option value="{{ $value }}" @selected(($consultation->consultation_type ?? '') === $value)>{{ $label }}</option>
@@ -67,11 +67,11 @@
 
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label class="form-label">Date <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Date') }} <span class="text-danger">*</span></label>
                 <input type="date" name="consultation_date" class="form-control" required value="{{ $consultation->consultation_date ?? date('Y-m-d') }}">
               </div>
               <div class="col-md-4 mb-3">
-                <label class="form-label">Method <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Method') }} <span class="text-danger">*</span></label>
                 <select name="consultation_method" class="form-select" required>
                   @foreach($consultationMethods as $value => $label)
                     <option value="{{ $value }}" @selected(($consultation->consultation_method ?? '') === $value)>{{ $label }}</option>
@@ -118,7 +118,7 @@
           <div class="card-header"><h5 class="mb-0">{{ __('Summary & Outcomes') }}</h5></div>
           <div class="card-body">
             <div class="mb-3">
-              <label class="form-label">Summary <span class="text-danger">*</span></label>
+              <label class="form-label">{{ __('Summary') }} <span class="text-danger">*</span></label>
               <textarea name="summary" class="form-control" rows="5" required placeholder="{{ __('Describe what was discussed...') }}">{{ $consultation->summary ?? '' }}</textarea>
             </div>
             <div class="mb-3">
@@ -137,7 +137,7 @@
                 <input type="date" name="follow_up_date" class="form-control" value="{{ $consultation->follow_up_date ?? '' }}">
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Status <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Status') }} <span class="text-danger">*</span></label>
                 <select name="status" class="form-select" required>
                   @foreach($consultationStatuses as $value => $label)
                     <option value="{{ $value }}" @selected(($consultation->status ?? 'completed') === $value)>{{ $label }}</option>
@@ -160,7 +160,7 @@
               <i class="bi bi-check-circle me-1"></i>
               {{ $id ? 'Save Changes' : 'Log Consultation' }}
             </button>
-            <a href="{{ route('ahgicip.consultations') }}" class="btn btn-outline-secondary w-100">Cancel</a>
+            <a href="{{ route('ahgicip.consultations') }}" class="btn btn-outline-secondary w-100">{{ __('Cancel') }}</a>
           </div>
         </div>
 

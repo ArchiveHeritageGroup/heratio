@@ -12,7 +12,7 @@ $mapId = 'map-' . uniqid();
 @endif
 
 @if (empty($locations))
-  <p class="text-muted">No locations with coordinates available.</p>
+  <p class="text-muted">{{ __('No locations with coordinates available.') }}</p>
 @else
   <div id="{{ $mapId }}" style="height: {{ $height }};" class="rounded border"></div>
 

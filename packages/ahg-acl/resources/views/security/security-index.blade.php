@@ -9,9 +9,9 @@
     <div class="col-12">
       <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-          <li class="breadcrumb-item"><a href="{{ route('acl.security-dashboard') }}">Security</a></li>
-          <li class="breadcrumb-item active">Security Clearances</li>
+          <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
+          <li class="breadcrumb-item"><a href="{{ route('acl.security-dashboard') }}">{{ __('Security') }}</a></li>
+          <li class="breadcrumb-item active">{{ __('Security Clearances') }}</li>
         </ol>
       </nav>
 
@@ -179,7 +179,7 @@
         </div>
         <div class="modal-body">
           <input type="hidden" name="user_id" id="grantUserId">
-          <p>Granting clearance to: <strong id="grantUsername"></strong></p>
+          <p>{{ __('Granting clearance to:') }} <strong id="grantUsername"></strong></p>
 
           <div class="mb-3">
             <label for="grantClassification" class="form-label">{{ __('Clearance Level') }}</label>

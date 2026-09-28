@@ -13,8 +13,8 @@
             </h1>
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a href="{{ route('ahgdiscovery.pageindex') }}">PageIndex</a></li>
-                    <li class="breadcrumb-item active">Build</li>
+                    <li class="breadcrumb-item"><a href="{{ route('ahgdiscovery.pageindex') }}">{{ __('PageIndex') }}</a></li>
+                    <li class="breadcrumb-item active">{{ __('Build') }}</li>
                 </ol>
             </nav>
         </div>
@@ -85,20 +85,20 @@
             <table class="table table-sm table-borderless mb-0">
                 <tbody>
                     <tr>
-                        <td class="text-muted" style="width: 200px;">Indexed at</td>
+                        <td class="text-muted" style="width: 200px;">{{ __('Indexed at') }}</td>
                         <td>{{ $status['indexed_at'] }}</td>
                     </tr>
                     <tr>
-                        <td class="text-muted">Model used</td>
+                        <td class="text-muted">{{ __('Model used') }}</td>
                         <td><code>{{ $status['model_used'] }}</code></td>
                     </tr>
                     <tr>
-                        <td class="text-muted">Node count</td>
+                        <td class="text-muted">{{ __('Node count') }}</td>
                         <td>{{ $status['node_count'] }}</td>
                     </tr>
                     @if (!empty($status['source_hash']))
                     <tr>
-                        <td class="text-muted">Source hash</td>
+                        <td class="text-muted">{{ __('Source hash') }}</td>
                         <td><code class="small">{{ substr($status['source_hash'], 0, 16) }}...</code></td>
                     </tr>
                     @endif

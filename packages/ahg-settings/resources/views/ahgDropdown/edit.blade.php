@@ -17,15 +17,15 @@
         <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-info-circle me-2"></i>{{ __('Dropdown Details') }}</div>
         <div class="card-body">
           <div class="mb-3">
-            <label class="form-label">Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+            <label class="form-label">{{ __('Name') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <input type="text" name="name" class="form-control" autocomplete="off" value="{{ $dropdown->name ?? '' }}" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Slug <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Slug') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" name="slug" class="form-control" value="{{ $dropdown->slug ?? '' }}" placeholder="{{ __('Auto-generated from name') }}">
           </div>
           <div class="mb-3">
-            <label class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <textarea name="description" class="form-control" rows="2">{{ $dropdown->description ?? '' }}</textarea>
           </div>
         </div>
@@ -49,7 +49,7 @@
       </div>
 
       <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
-      <a href="{{ route('settings.dropdown.index') }}" class="btn atom-btn-white ms-2">Cancel</a>
+      <a href="{{ route('settings.dropdown.index') }}" class="btn atom-btn-white ms-2">{{ __('Cancel') }}</a>
     </form>
   </div>
 </div>

@@ -14,8 +14,8 @@
 
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">Data Migration</a></li>
-      <li class="breadcrumb-item active">Import Results</li>
+      <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">{{ __('Data Migration') }}</a></li>
+      <li class="breadcrumb-item active">{{ __('Import Results') }}</li>
     </ol>
   </nav>
 
@@ -35,7 +35,7 @@
         <div class="card text-center border-success">
           <div class="card-body py-3">
             <div class="fs-2 fw-bold text-success">{{ number_format($result['imported'] ?? 0) }}</div>
-            <div class="text-muted">Records Imported</div>
+            <div class="text-muted">{{ __('Records Imported') }}</div>
           </div>
         </div>
       </div>
@@ -43,7 +43,7 @@
         <div class="card text-center border-primary">
           <div class="card-body py-3">
             <div class="fs-2 fw-bold text-primary">{{ number_format($result['updated'] ?? 0) }}</div>
-            <div class="text-muted">Records Updated</div>
+            <div class="text-muted">{{ __('Records Updated') }}</div>
           </div>
         </div>
       </div>
@@ -51,7 +51,7 @@
         <div class="card text-center border-warning">
           <div class="card-body py-3">
             <div class="fs-2 fw-bold text-warning">{{ number_format($result['skipped'] ?? 0) }}</div>
-            <div class="text-muted">Records Skipped</div>
+            <div class="text-muted">{{ __('Records Skipped') }}</div>
           </div>
         </div>
       </div>
@@ -59,7 +59,7 @@
         <div class="card text-center border-danger">
           <div class="card-body py-3">
             <div class="fs-2 fw-bold text-danger">{{ number_format($result['errors'] ?? 0) }}</div>
-            <div class="text-muted">Errors</div>
+            <div class="text-muted">{{ __('Errors') }}</div>
           </div>
         </div>
       </div>

@@ -26,9 +26,9 @@
   <div class="col-md-8">
     <nav aria-label="{{ __('breadcrumb') }}">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('exhibition.index') }}">Exhibitions</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('exhibition.index') }}">{{ __('Exhibitions') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('exhibition.show', ['id' => $exId]) }}">{{ $exhibition->title ?? '' }}</a></li>
-        <li class="breadcrumb-item active">Sections</li>
+        <li class="breadcrumb-item active">{{ __('Sections') }}</li>
       </ol>
     </nav>
 
@@ -44,7 +44,7 @@
         <div class="card-body text-center py-5">
           <i class="fas fa-th-large fa-3x text-muted mb-3"></i>
           <h5>{{ __('No sections created yet') }}</h5>
-          <p class="text-muted">Organize your exhibition by creating sections or galleries.</p>
+          <p class="text-muted">{{ __('Organize your exhibition by creating sections or galleries.') }}</p>
           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSectionModal">
             <i class="fas fa-plus"></i> {{ __('Create First Section') }}
           </button>
@@ -112,10 +112,10 @@
       <div class="card-body">
         <p class="small text-muted mb-2"><strong>{{ __('Sections') }}</strong> help organize your exhibition into logical groupings or physical spaces.</p>
         <ul class="small text-muted mb-0">
-          <li>Drag sections to reorder them</li>
-          <li>Assign objects to sections for better organization</li>
-          <li>Use themes to create narrative flow</li>
-          <li>Link to physical galleries if applicable</li>
+          <li>{{ __('Drag sections to reorder them') }}</li>
+          <li>{{ __('Assign objects to sections for better organization') }}</li>
+          <li>{{ __('Use themes to create narrative flow') }}</li>
+          <li>{{ __('Link to physical galleries if applicable') }}</li>
         </ul>
       </div>
     </div>
@@ -133,7 +133,7 @@
         @csrf
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">Section Title <span class="text-danger">*</span></label>
+            <label class="form-label">{{ __('Section Title') }} <span class="text-danger">*</span></label>
             <input type="text" name="title" class="form-control" required>
           </div>
           <div class="mb-3">

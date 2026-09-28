@@ -18,7 +18,7 @@
 
 <div class="card">
   <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-    <h5 class="mb-0">Overdue Reviews <span class="badge bg-danger ms-2">{{ count($records) }}</span></h5>
+    <h5 class="mb-0">{{ __('Overdue Reviews') }} <span class="badge bg-danger ms-2">{{ count($records) }}</span></h5>
   </div>
   <div class="card-body p-0">
     @if(count($records) > 0)
@@ -53,7 +53,7 @@
       </tbody>
     </table>
     @else
-    <div class="text-center py-4 text-muted">No overdue reviews. All vital records are up to date.</div>
+    <div class="text-center py-4 text-muted">{{ __('No overdue reviews. All vital records are up to date.') }}</div>
     @endif
   </div>
 </div>

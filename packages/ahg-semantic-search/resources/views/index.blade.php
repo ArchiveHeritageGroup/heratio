@@ -44,7 +44,7 @@
             </div>
             @unless($enabled)
             <a href="{{ route('semantic-search.config') }}" class="btn btn-warning ms-auto">
-                Enable Now
+                {{ __('Enable Now') }}
             </a>
             @endunless
         </div>
@@ -70,7 +70,7 @@
                 </div>
                 <div class="card-footer bg-transparent">
                     <a href="{{ route('semantic-search.terms') }}" class="text-primary">
-                        Browse terms <i class="fas fa-arrow-right ms-1"></i>
+                        {{ __('Browse terms') }} <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
             </div>
@@ -91,7 +91,7 @@
                 </div>
                 <div class="card-footer bg-transparent">
                     <a href="{{ route('semantic-search.searchLogs') }}" class="text-success">
-                        View logs <i class="fas fa-arrow-right ms-1"></i>
+                        {{ __('View logs') }} <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
             </div>
@@ -112,7 +112,7 @@
                 </div>
                 <div class="card-footer bg-transparent">
                     <a href="{{ route('semantic-search.syncLogs') }}" class="text-info">
-                        View logs <i class="fas fa-arrow-right ms-1"></i>
+                        {{ __('View logs') }} <i class="fas fa-arrow-right ms-1"></i>
                     </a>
                 </div>
             </div>

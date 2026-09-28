@@ -15,7 +15,7 @@
 
 @section('title-block')
 <h1><i class="fas fa-check-double me-2"></i>{{ __('Integrity') }}</h1>
-<p class="text-muted">Fixity checking and integrity monitoring</p>
+<p class="text-muted">{{ __('Fixity checking and integrity monitoring') }}</p>
 @endsection
 
 @section('content')
@@ -45,7 +45,7 @@
                 <strong>{{ __('Enable Integrity Assurance') }}</strong>
               </label>
             </div>
-            <div class="form-text mb-3">Master switch for all integrity verification functionality.</div>
+            <div class="form-text mb-3">{{ __('Master switch for all integrity verification functionality.') }}</div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch mb-3">
@@ -79,7 +79,7 @@
             <input type="number" class="form-control" id="integrity_io_throttle_ms"
                    name="settings[integrity_io_throttle_ms]"
                    value="{{ e($settings['integrity_io_throttle_ms'] ?? '10') }}" min="0" max="1000">
-            <div class="form-text">Millisecond pause between objects to reduce disk pressure.</div>
+            <div class="form-text">{{ __('Millisecond pause between objects to reduce disk pressure.') }}</div>
           </div>
         </div>
         <div class="row g-3 mt-2">
@@ -100,7 +100,7 @@
             <input type="number" class="form-control" id="integrity_dead_letter_threshold"
                    name="settings[integrity_dead_letter_threshold]"
                    value="{{ e($settings['integrity_dead_letter_threshold'] ?? '3') }}" min="1" max="100">
-            <div class="form-text">Consecutive failures before escalation to dead letter queue.</div>
+            <div class="form-text">{{ __('Consecutive failures before escalation to dead letter queue.') }}</div>
           </div>
         </div>
       </div>

@@ -66,7 +66,7 @@
   </div>
   <div class="card-body">
     @if(empty($scheduled))
-    <p class="text-muted text-center">No future declassifications scheduled.</p>
+    <p class="text-muted text-center">{{ __('No future declassifications scheduled.') }}</p>
     @else
     <table class="table table-striped">
       <thead>

@@ -14,7 +14,7 @@
     <div class="card bg-light mb-4">
       <div class="card-body text-center py-5">
         <h1 class="mb-3"><i class="fas fa-question-circle me-2"></i>{{ __('Help Center') }}</h1>
-        <p class="lead mb-4">Search the documentation or browse by category</p>
+        <p class="lead mb-4">{{ __('Search the documentation or browse by category') }}</p>
         <div class="row justify-content-center">
           <div class="col-lg-8 col-md-10">
             <form action="{{ route('help.search') }}" method="get" class="input-group input-group-lg">

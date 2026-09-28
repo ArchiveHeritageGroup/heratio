@@ -25,9 +25,9 @@
   <div class="col-md-8">
     <nav aria-label="{{ __('breadcrumb') }}">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('exhibition.index') }}">Exhibitions</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('exhibition.index') }}">{{ __('Exhibitions') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('exhibition.show', ['id' => $exId]) }}">{{ $exhibition->title ?? '' }}</a></li>
-        <li class="breadcrumb-item active">Storylines</li>
+        <li class="breadcrumb-item active">{{ __('Storylines') }}</li>
       </ol>
     </nav>
 
@@ -78,12 +78,12 @@
               </div>
               @if(!empty($sl->target_audience))
                 <div class="col-md-4">
-                  <p class="small mb-1"><i class="fas fa-users me-1"></i> Audience: <strong class="text-capitalize">{{ str_replace('_', ' ', $sl->target_audience) }}</strong></p>
+                  <p class="small mb-1"><i class="fas fa-users me-1"></i> {{ __('Audience:') }} <strong class="text-capitalize">{{ str_replace('_', ' ', $sl->target_audience) }}</strong></p>
                 </div>
               @endif
               @if(!empty($sl->duration_minutes))
                 <div class="col-md-4">
-                  <p class="small mb-1"><i class="fas fa-clock me-1"></i> Duration: <strong>{{ $sl->duration_minutes }} min</strong></p>
+                  <p class="small mb-1"><i class="fas fa-clock me-1"></i> {{ __('Duration:') }} <strong>{{ $sl->duration_minutes }} min</strong></p>
                 </div>
               @endif
             </div>
@@ -133,10 +133,10 @@
       <div class="card-body">
         <p class="small text-muted mb-2"><strong>{{ __('Storylines') }}</strong> create narrative paths through your exhibition.</p>
         <ul class="small text-muted mb-0">
-          <li>Add stops to guide visitors</li>
-          <li>Link stops to specific objects</li>
-          <li>Include interpretive content</li>
-          <li>Create multiple tours for different audiences</li>
+          <li>{{ __('Add stops to guide visitors') }}</li>
+          <li>{{ __('Link stops to specific objects') }}</li>
+          <li>{{ __('Include interpretive content') }}</li>
+          <li>{{ __('Create multiple tours for different audiences') }}</li>
         </ul>
       </div>
     </div>
@@ -154,7 +154,7 @@
         @csrf
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">Title <span class="text-danger">*</span></label>
+            <label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
             <input type="text" name="title" class="form-control" required>
           </div>
           <div class="mb-3">

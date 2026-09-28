@@ -5,7 +5,7 @@
 @section('content')
 <div class="container-fluid mt-3">
   <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ route('security-clearance.index') }}">Security Clearances</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('security-clearance.index') }}">{{ __('Security Clearances') }}</a></li>
     <li class="breadcrumb-item active">{{ e($targetUser->authorized_form_of_name ?? $targetUser->username ?? 'User') }}</li>
   </ol></nav>
 
@@ -40,7 +40,7 @@
               <p><strong>{{ __('Notes:') }}</strong> {{ e($clearance->notes) }}</p>
             @endif
           @else
-            <p class="text-muted">No clearance granted.</p>
+            <p class="text-muted">{{ __('No clearance granted.') }}</p>
           @endif
         </div>
       </div>
@@ -103,7 +103,7 @@
                 </td>
               </tr>
               @empty
-              <tr><td colspan="5" class="text-muted">No object access grants.</td></tr>
+              <tr><td colspan="5" class="text-muted">{{ __('No object access grants.') }}</td></tr>
               @endforelse
             </tbody>
           </table>
@@ -130,7 +130,7 @@
                 <td>{{ $entry->created_at ?? '' }}</td>
               </tr>
               @empty
-              <tr><td colspan="5" class="text-muted">No history records.</td></tr>
+              <tr><td colspan="5" class="text-muted">{{ __('No history records.') }}</td></tr>
               @endforelse
             </tbody>
           </table>

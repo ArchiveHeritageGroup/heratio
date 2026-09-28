@@ -122,7 +122,7 @@
                             <tr>
                                 <td colspan="6" class="text-center text-muted py-5">
                                     <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
-                                    No terms found
+                                    {{ __('No terms found') }}
                                     <br>
                                     <a href="{{ route('semantic-search.term.add') }}" class="btn btn-primary mt-3">
                                         <i class="fas fa-plus me-1"></i>{{ __('Add your first term') }}

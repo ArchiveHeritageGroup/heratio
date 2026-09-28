@@ -36,7 +36,7 @@
   </div>
   <div class="card-body">
     @if(empty($users))
-    <p class="text-muted text-center">No users have access to this compartment.</p>
+    <p class="text-muted text-center">{{ __('No users have access to this compartment.') }}</p>
     @else
     <table class="table table-striped">
       <thead>

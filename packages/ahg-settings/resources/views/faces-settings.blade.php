@@ -15,7 +15,7 @@
 
 @section('title-block')
 <h1><i class="fas fa-user-circle me-2"></i>{{ __('Face Detection') }}</h1>
-<p class="text-muted">Face detection and recognition settings</p>
+<p class="text-muted">{{ __('Face detection and recognition settings') }}</p>
 @endsection
 
 @section('content')
@@ -53,7 +53,7 @@
                      {{ ($settings['face_enabled'] ?? 'false') === 'true' || ($settings['face_enabled'] ?? '') === '1' ? 'checked' : '' }}>
               <label class="form-check-label fw-bold" for="face_enabled">{{ __('Enable Face Detection') }}</label>
             </div>
-            <div class="form-text">Detect faces in uploaded images</div>
+            <div class="form-text">{{ __('Detect faces in uploaded images') }}</div>
           </div>
           <div class="col-md-6">
             <label for="face_backend" class="form-label fw-bold">{{ __('Backend') }}</label>

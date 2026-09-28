@@ -8,8 +8,8 @@
         <div class="col-12">
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('homepage') }}">Home</a></li>
-                    <li class="breadcrumb-item active">Request Object Access</li>
+                    <li class="breadcrumb-item"><a href="{{ route('homepage') }}">{{ __('Home') }}</a></li>
+                    <li class="breadcrumb-item active">{{ __('Request Object Access') }}</li>
                 </ol>
             </nav>
 
@@ -25,19 +25,19 @@
                     <h5 class="mb-0"><i class="fas fa-lock-open me-2"></i>{{ __('Request Access to Object') }}</h5>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted">You are requesting access to the record: <strong>{{ $slug }}</strong></p>
+                    <p class="text-muted">{{ __('You are requesting access to the record:') }} <strong>{{ $slug }}</strong></p>
 
                     <form method="post" action="{{ route('accessRequest.store') }}">
                         @csrf
                         <input type="hidden" name="object_slug" value="{{ $slug }}">
 
                         <div class="mb-3">
-                            <label for="reason" class="form-label">Reason for Access <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                            <label for="reason" class="form-label">{{ __('Reason for Access') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                             <textarea class="form-control" id="reason" name="reason" rows="4" required>{{ old('reason') }}</textarea>
                         </div>
 
                         <div class="mb-3">
-                            <label for="access_type" class="form-label">Access Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                            <label for="access_type" class="form-label">{{ __('Access Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select class="form-select" id="access_type" name="access_type">
                                 <option value="view">{{ __('View only') }}</option>
                                 <option value="download">{{ __('Download') }}</option>
@@ -46,7 +46,7 @@
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            <a href="{{ url()->previous() }}" class="atom-btn-white">Cancel</a>
+                            <a href="{{ url()->previous() }}" class="atom-btn-white">{{ __('Cancel') }}</a>
                             <button type="submit" class="atom-btn-white">
                                 <i class="fas fa-paper-plane me-1"></i>{{ __('Submit Request') }}
                             </button>

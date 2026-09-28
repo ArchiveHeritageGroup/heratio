@@ -21,8 +21,8 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.index') }}">CDPA</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.breaches') }}">Breaches</a></li>
-                    <li class="breadcrumb-item active">Report Breach</li>
+                    <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.breaches') }}">{{ __('Breaches') }}</a></li>
+                    <li class="breadcrumb-item active">{{ __('Report Breach') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Report Data Breach') }}</h1>
@@ -42,15 +42,15 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Incident Date <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Incident Date') }} <span class="text-danger">*</span></label>
                             <input type="datetime-local" name="incident_date" class="form-control" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Discovery Date <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Discovery Date') }} <span class="text-danger">*</span></label>
                             <input type="datetime-local" name="discovery_date" class="form-control" required value="{{ \Carbon\Carbon::now()->format('Y-m-d\TH:i') }}">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Breach Type <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Breach Type') }} <span class="text-danger">*</span></label>
                             <select name="breach_type" class="form-select" required>
                                 <option value="">{{ __('Select...') }}</option>
                                 <option value="unauthorized_access">{{ __('Unauthorized Access') }}</option>
@@ -64,7 +64,7 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Severity <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Severity') }} <span class="text-danger">*</span></label>
                             <select name="severity" class="form-select" required>
                                 <option value="">{{ __('Select...') }}</option>
                                 <option value="low">{{ __('Low - Limited impact') }}</option>
@@ -74,7 +74,7 @@
                             </select>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Description <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Description') }} <span class="text-danger">*</span></label>
                             <textarea name="description" class="form-control" rows="4" required placeholder="{{ __('Describe what happened...') }}"></textarea>
                         </div>
                     </div>
@@ -113,7 +113,7 @@
                         <i class="fas fa-exclamation-triangle me-2"></i>{{ __('Report Breach') }}
                     </button>
                     <a href="{{ route('ahgcdpa.breaches') }}" class="btn btn-outline-secondary">
-                        Cancel
+                        {{ __('Cancel') }}
                     </a>
                 </div>
             </div>

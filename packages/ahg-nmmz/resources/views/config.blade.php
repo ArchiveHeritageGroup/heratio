@@ -21,7 +21,7 @@
       <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
-          <li class="breadcrumb-item active">Configuration</li>
+          <li class="breadcrumb-item active">{{ __('Configuration') }}</li>
         </ol>
       </nav>
       <h1><i class="fas fa-cog me-2"></i>{{ __('NMMZ Configuration') }}</h1>

@@ -8,8 +8,8 @@
 
   <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-      <li class="breadcrumb-item active">My Access Requests</li>
+      <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
+      <li class="breadcrumb-item active">{{ __('My Access Requests') }}</li>
     </ol>
   </nav>
 
@@ -120,7 +120,7 @@
       @if($requests->isEmpty())
         <div class="p-4 text-center text-muted">
           <i class="fas fa-inbox fa-3x mb-3"></i>
-          <p>You haven't submitted any access requests yet.</p>
+          <p>{{ __('You haven\'t submitted any access requests yet.') }}</p>
         </div>
       @else
         <div class="table-responsive">

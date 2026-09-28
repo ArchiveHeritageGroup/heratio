@@ -8,7 +8,7 @@ $showHoldingsCount = $config['show_holdings_count'] ?? true;
 @endphp
 
 @if (empty($repo))
-  <p class="text-muted">No repository selected.</p>
+  <p class="text-muted">{{ __('No repository selected.') }}</p>
 @else
   <div class="repository-spotlight">
     <div class="row align-items-center">
@@ -48,7 +48,7 @@ $showHoldingsCount = $config['show_holdings_count'] ?? true;
 
           <a href="{{ route('repository.show', ['slug' => $repo['slug']]) }}"
              class="btn btn-outline-primary btn-sm">
-            View Repository <i class="bi bi-arrow-right"></i>
+            {{ __('View Repository') }} <i class="bi bi-arrow-right"></i>
           </a>
         </div>
 

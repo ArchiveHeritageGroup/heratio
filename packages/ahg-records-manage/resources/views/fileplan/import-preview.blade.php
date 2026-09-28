@@ -37,7 +37,7 @@
 
 @if(!empty($validationErrors))
 <div class="card mb-3">
-    <div class="card-header bg-warning text-dark">Validation Warnings</div>
+    <div class="card-header bg-warning text-dark">{{ __('Validation Warnings') }}</div>
     <div class="card-body">
         <ul class="mb-0">
             @foreach($validationErrors as $err)
@@ -52,7 +52,7 @@
     <div class="card-header">Preview Tree (first 50 nodes)</div>
     <div class="card-body">
         @if(empty($previewNodes))
-            <p class="text-muted">No nodes to preview.</p>
+            <p class="text-muted">{{ __('No nodes to preview.') }}</p>
         @else
             <ul class="list-unstyled mb-0">
                 @foreach($previewNodes as $pn)
@@ -76,7 +76,7 @@
     @endforeach
 
     <div class="d-flex justify-content-between">
-        <a href="{{ route('records.fileplan.import') }}" class="btn btn-secondary">Back</a>
+        <a href="{{ route('records.fileplan.import') }}" class="btn btn-secondary">{{ __('Back') }}</a>
         <button type="submit" class="btn btn-success" onclick="return confirm('Proceed with import? This will create {{ $totalRows }} nodes.');">
             Import {{ $totalRows }} Node(s)
         </button>

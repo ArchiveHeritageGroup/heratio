@@ -95,7 +95,7 @@
     {{-- Results --}}
     <div class="card">
         <div class="card-header">
-            <span class="badge bg-secondary me-2">{{ $transactions->count() }}</span> Transactions
+            <span class="badge bg-secondary me-2">{{ $transactions->count() }}</span> {{ __('Transactions') }}
         </div>
         <div class="card-body p-0">
             @if ($transactions->count() > 0)
@@ -174,7 +174,7 @@
             @else
             <div class="text-center py-5 text-muted">
                 <i class="fas fa-exchange-alt fa-3x mb-3"></i>
-                <p>No transactions found</p>
+                <p>{{ __('No transactions found') }}</p>
                 <a href="{{ route('ahgvendor.add-transaction') }}" class="btn btn-primary">
                     <i class="fas fa-plus me-1"></i>{{ __('Create First Transaction') }}
                 </a>

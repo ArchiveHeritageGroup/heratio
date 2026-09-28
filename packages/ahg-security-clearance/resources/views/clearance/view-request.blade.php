@@ -5,9 +5,9 @@
 @section('content')
 <div class="container-fluid mt-3">
   <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">Security Dashboard</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('security-clearance.access-requests') }}">Access Requests</a></li>
-    <li class="breadcrumb-item active">Review</li>
+    <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">{{ __('Security Dashboard') }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('security-clearance.access-requests') }}">{{ __('Access Requests') }}</a></li>
+    <li class="breadcrumb-item active">{{ __('Review') }}</li>
   </ol></nav>
 
   <h1><i class="fas fa-clipboard-check"></i> {{ __('Review Access Request') }}</h1>
@@ -51,12 +51,12 @@
         <div class="card-header"><h5 class="mb-0">{{ __('User Clearance') }}</h5></div>
         <div class="card-body">
           @if(!empty($accessRequest->clearance_name))
-            <p>Current: <span class="badge" style="background-color: {{ $accessRequest->clearance_color ?? '#666' }}">{{ e($accessRequest->clearance_name) }}</span></p>
+            <p>{{ __('Current:') }} <span class="badge" style="background-color: {{ $accessRequest->clearance_color ?? '#666' }}">{{ e($accessRequest->clearance_name) }}</span></p>
           @else
-            <p class="text-muted">No clearance assigned.</p>
+            <p class="text-muted">{{ __('No clearance assigned.') }}</p>
           @endif
           @if(!empty($accessRequest->object_classification_name))
-            <p>Required: <span class="badge" style="background-color: {{ $accessRequest->object_classification_color ?? '#666' }}">{{ e($accessRequest->object_classification_name) }}</span></p>
+            <p>{{ __('Required:') }} <span class="badge" style="background-color: {{ $accessRequest->object_classification_color ?? '#666' }}">{{ e($accessRequest->object_classification_name) }}</span></p>
           @endif
         </div>
       </div>

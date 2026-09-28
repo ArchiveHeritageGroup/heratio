@@ -12,23 +12,23 @@
     <div class="row">
         <div class="col-md-8">
             <div class="mb-3">
-                <label for="cf-field-label" class="form-label">Field Label <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                <label for="cf-field-label" class="form-label">{{ __('Field Label') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                 <input type="text" class="form-control" id="cf-field-label" name="field_label"
                        autocomplete="off"
                        value="{{ $def->field_label ?? old('field_label', '') }}" required>
             </div>
 
             <div class="mb-3">
-                <label for="cf-machine-name" class="form-label">Machine Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                <label for="cf-machine-name" class="form-label">{{ __('Machine Name') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                 <input type="text" class="form-control" id="cf-machine-name" name="machine_name"
                        value="{{ $def->machine_name ?? old('machine_name', '') }}" required
                        pattern="[a-z0-9_]+" title="{{ __('Lowercase letters, numbers, and underscores only') }}">
-                <div class="form-text">Used internally. Lowercase letters, numbers, underscores only.</div>
+                <div class="form-text">{{ __('Used internally. Lowercase letters, numbers, underscores only.') }}</div>
             </div>
 
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label for="cf-entity-type" class="form-label">Entity Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                    <label for="cf-entity-type" class="form-label">{{ __('Entity Type') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                     <select class="form-select" id="cf-entity-type" name="entity_type" required>
                         <option value="">-- Select --</option>
                         @foreach($entityTypes as $key => $label)
@@ -37,7 +37,7 @@
                     </select>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label for="cf-field-type" class="form-label">Field Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                    <label for="cf-field-type" class="form-label">{{ __('Field Type') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                     <select class="form-select" id="cf-field-type" name="field_type" required>
                         <option value="">-- Select --</option>
                         @foreach($fieldTypes as $key => $label)
@@ -55,13 +55,13 @@
             </div>
 
             <div class="mb-3">
-                <label for="cf-help-text" class="form-label">Help Text <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label for="cf-help-text" class="form-label">{{ __('Help Text') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control" id="cf-help-text" name="help_text"
                        value="{{ $def->help_text ?? old('help_text', '') }}">
             </div>
 
             <div class="mb-3">
-                <label for="cf-default-value" class="form-label">Default Value <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label for="cf-default-value" class="form-label">{{ __('Default Value') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control" id="cf-default-value" name="default_value"
                        value="{{ $def->default_value ?? old('default_value', '') }}">
             </div>
@@ -76,29 +76,29 @@
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" id="cf-required" name="is_required" value="1"
                                {{ ($def->is_required ?? false) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="cf-required">Required <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label class="form-check-label" for="cf-required">{{ __('Required') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     </div>
 
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" id="cf-active" name="is_active" value="1"
                                {{ ($def->is_active ?? true) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="cf-active">Active <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label class="form-check-label" for="cf-active">{{ __('Active') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     </div>
 
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" id="cf-searchable" name="is_searchable" value="1"
                                {{ ($def->is_searchable ?? false) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="cf-searchable">Searchable <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label class="form-check-label" for="cf-searchable">{{ __('Searchable') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     </div>
 
                     <div class="mb-3">
-                        <label for="cf-sort-order" class="form-label">Sort Order <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label for="cf-sort-order" class="form-label">{{ __('Sort Order') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <input type="number" class="form-control" id="cf-sort-order" name="sort_order"
                                value="{{ $def->sort_order ?? old('sort_order', 0) }}" min="0">
                     </div>
 
                     <div class="mb-3">
-                        <label for="cf-field-group" class="form-label">Field Group <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label for="cf-field-group" class="form-label">{{ __('Field Group') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <input type="text" class="form-control" id="cf-field-group" name="field_group"
                                value="{{ $def->field_group ?? old('field_group', '') }}">
                     </div>
@@ -109,7 +109,7 @@
 
     <hr>
     <div class="d-flex justify-content-between">
-        <a href="{{ route('customFields.index') }}" class="atom-btn-white">Cancel</a>
+        <a href="{{ route('customFields.index') }}" class="atom-btn-white">{{ __('Cancel') }}</a>
         <button type="submit" class="atom-btn-white">
             <i class="bi bi-check-lg me-1"></i>{{ $isEdit ? 'Update Field' : 'Create Field' }}
         </button>

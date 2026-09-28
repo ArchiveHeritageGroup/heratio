@@ -20,7 +20,7 @@
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ url('/'.$object->slug) }}">{{ $object->title ?? 'Record' }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.object-icip', ['slug' => $object->slug]) }}">ICIP</a></li>
-      <li class="breadcrumb-item active">Cultural Notices</li>
+      <li class="breadcrumb-item active">{{ __('Cultural Notices') }}</li>
     </ol>
   </nav>
 
@@ -39,7 +39,7 @@
         <div class="card-header"><h5 class="mb-0">{{ __('Active Notices') }}</h5></div>
         <div class="card-body">
           @if($notices->isEmpty())
-            <p class="text-muted">No cultural notices applied to this record.</p>
+            <p class="text-muted">{{ __('No cultural notices applied to this record.') }}</p>
           @else
             @foreach($notices as $notice)
               @php
@@ -86,7 +86,7 @@
             <input type="hidden" name="form_action" value="add">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Notice Type <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Notice Type') }} <span class="text-danger">*</span></label>
                 <select name="notice_type_id" class="form-select" required>
                   <option value="">{{ __('Select notice type') }}</option>
                   @foreach($noticeTypes as $type)
@@ -108,14 +108,14 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Custom Text (optional)') }}</label>
               <textarea name="custom_text" class="form-control" rows="3" placeholder="{{ __('Override the default notice text...') }}"></textarea>
-              <div class="form-text">Leave blank to use the default text for this notice type</div>
+              <div class="form-text">{{ __('Leave blank to use the default text for this notice type') }}</div>
             </div>
 
             <div class="row">
               <div class="col-md-4 mb-3">
                 <label class="form-label">{{ __('Start Date') }}</label>
                 <input type="date" name="start_date" class="form-control">
-                <div class="form-text">For seasonal notices</div>
+                <div class="form-text">{{ __('For seasonal notices') }}</div>
               </div>
               <div class="col-md-4 mb-3">
                 <label class="form-label">{{ __('End Date') }}</label>

@@ -8,8 +8,8 @@
         <div>
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb mb-1">
-                    <li class="breadcrumb-item"><a href="{{ route('federation.index') }}">Federation</a></li>
-                    <li class="breadcrumb-item active">Harvest Logs</li>
+                    <li class="breadcrumb-item"><a href="{{ route('federation.index') }}">{{ __('Federation') }}</a></li>
+                    <li class="breadcrumb-item active">{{ __('Harvest Logs') }}</li>
                 </ol>
             </nav>
             <h4 class="mb-0"><i class="bi bi-journal-text me-2"></i>{{ __('Harvest Logs') }}</h4>
@@ -20,7 +20,7 @@
         <div class="card-body">
             <form method="get" class="row g-3 align-items-end">
                 <div class="col-auto">
-                    <label for="peer_id" class="form-label">Filter by Peer <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label for="peer_id" class="form-label">{{ __('Filter by Peer') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <select class="form-select" id="peer_id" name="peer_id">
                         <option value="">{{ __('All peers') }}</option>
                         @foreach($peers as $peer)
@@ -38,7 +38,7 @@
     <div class="card">
         <div class="card-body p-0">
             @if($logs->isEmpty())
-                <div class="p-4 text-center text-muted">No harvest logs found.</div>
+                <div class="p-4 text-center text-muted">{{ __('No harvest logs found.') }}</div>
             @else
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">

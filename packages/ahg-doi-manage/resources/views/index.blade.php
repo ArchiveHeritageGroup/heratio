@@ -52,7 +52,7 @@
         <div class="card text-center border-primary">
           <div class="card-body py-2">
             <div class="fs-3 fw-bold text-primary">{{ number_format($stats['total']) }}</div>
-            <div class="small text-muted">Total DOIs</div>
+            <div class="small text-muted">{{ __('Total DOIs') }}</div>
           </div>
         </div>
       </div>
@@ -60,7 +60,7 @@
         <div class="card text-center border-success">
           <div class="card-body py-2">
             <div class="fs-3 fw-bold text-success">{{ number_format($stats['findable']) }}</div>
-            <div class="small text-muted">Findable</div>
+            <div class="small text-muted">{{ __('Findable') }}</div>
           </div>
         </div>
       </div>
@@ -68,7 +68,7 @@
         <div class="card text-center border-info">
           <div class="card-body py-2">
             <div class="fs-3 fw-bold text-info">{{ number_format($stats['registered']) }}</div>
-            <div class="small text-muted">Registered</div>
+            <div class="small text-muted">{{ __('Registered') }}</div>
           </div>
         </div>
       </div>
@@ -80,7 +80,7 @@
         <div class="card text-center border-secondary">
           <div class="card-body py-2">
             <div class="fs-3 fw-bold text-secondary">{{ number_format($stats['draft']) }}</div>
-            <div class="small text-muted">Draft</div>
+            <div class="small text-muted">{{ __('Draft') }}</div>
           </div>
         </div>
       </div>
@@ -88,7 +88,7 @@
         <div class="card text-center border-warning">
           <div class="card-body py-2">
             <div class="fs-3 fw-bold text-warning">{{ number_format($stats['pending']) }}</div>
-            <div class="small text-muted">Queue Pending</div>
+            <div class="small text-muted">{{ __('Queue Pending') }}</div>
           </div>
         </div>
       </div>
@@ -96,7 +96,7 @@
         <div class="card text-center border-danger">
           <div class="card-body py-2">
             <div class="fs-3 fw-bold text-danger">{{ number_format($stats['failed']) }}</div>
-            <div class="small text-muted">Failed</div>
+            <div class="small text-muted">{{ __('Failed') }}</div>
           </div>
         </div>
       </div>
@@ -108,8 +108,8 @@
         <a href="{{ route('doi.browse') }}" class="card text-decoration-none h-100">
           <div class="card-body text-center">
             <i class="fas fa-2x fa-list text-primary mb-2"></i>
-            <div class="fw-bold">Browse DOIs</div>
-            <p class="small text-muted mb-0">View and manage all minted DOIs</p>
+            <div class="fw-bold">{{ __('Browse DOIs') }}</div>
+            <p class="small text-muted mb-0">{{ __('View and manage all minted DOIs') }}</p>
           </div>
         </a>
       </div>
@@ -117,8 +117,8 @@
         <a href="{{ route('doi.queue') }}" class="card text-decoration-none h-100">
           <div class="card-body text-center">
             <i class="fas fa-2x fa-tasks text-warning mb-2"></i>
-            <div class="fw-bold">Queue</div>
-            <p class="small text-muted mb-0">View pending minting operations</p>
+            <div class="fw-bold">{{ __('Queue') }}</div>
+            <p class="small text-muted mb-0">{{ __('View pending minting operations') }}</p>
           </div>
         </a>
       </div>
@@ -126,8 +126,8 @@
         <a href="{{ route('doi.report') }}" class="card text-decoration-none h-100">
           <div class="card-body text-center">
             <i class="fas fa-2x fa-chart-bar text-info mb-2"></i>
-            <div class="fw-bold">Reports</div>
-            <p class="small text-muted mb-0">DOI statistics and reports</p>
+            <div class="fw-bold">{{ __('Reports') }}</div>
+            <p class="small text-muted mb-0">{{ __('DOI statistics and reports') }}</p>
           </div>
         </a>
       </div>
@@ -135,8 +135,8 @@
         <a href="{{ route('doi.config') }}" class="card text-decoration-none h-100">
           <div class="card-body text-center">
             <i class="fas fa-2x fa-cog text-secondary mb-2"></i>
-            <div class="fw-bold">Configuration</div>
-            <p class="small text-muted mb-0">DataCite API settings</p>
+            <div class="fw-bold">{{ __('Configuration') }}</div>
+            <p class="small text-muted mb-0">{{ __('DataCite API settings') }}</p>
           </div>
         </a>
       </div>
@@ -191,13 +191,13 @@
         </table>
       </div>
       <div class="text-end">
-        <a href="{{ route('doi.browse') }}" class="btn btn-sm btn-outline-secondary">View All</a>
+        <a href="{{ route('doi.browse') }}" class="btn btn-sm btn-outline-secondary">{{ __('View All') }}</a>
       </div>
     @else
       <div class="text-center text-muted py-4">
         <i class="fas fa-link fa-3x mb-3"></i>
-        <p>No DOIs minted yet.</p>
-        <a href="{{ route('doi.queue') }}?batch=1" class="btn btn-outline-secondary">Mint Your First DOI</a>
+        <p>{{ __('No DOIs minted yet.') }}</p>
+        <a href="{{ route('doi.queue') }}?batch=1" class="btn btn-outline-secondary">{{ __('Mint Your First DOI') }}</a>
       </div>
     @endif
   @endif

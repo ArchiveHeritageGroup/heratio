@@ -51,9 +51,9 @@
   <div class="col-md-8">
     <nav aria-label="{{ __('breadcrumb') }}">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('exhibition.index') }}">Exhibitions</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('exhibition.index') }}">{{ __('Exhibitions') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('exhibition.show', ['id' => $exId]) }}">{{ $exhibition->title ?? '' }}</a></li>
-        <li class="breadcrumb-item active">Checklists</li>
+        <li class="breadcrumb-item active">{{ __('Checklists') }}</li>
       </ol>
     </nav>
 
@@ -157,7 +157,7 @@
               </ul>
             @else
               <div class="p-4 text-center text-muted">
-                <p class="mb-0">No items in this checklist</p>
+                <p class="mb-0">{{ __('No items in this checklist') }}</p>
               </div>
             @endif
           </div>
@@ -254,7 +254,7 @@
             <input type="text" id="addItemChecklistName" class="form-control" readonly>
           </div>
           <div class="mb-3">
-            <label class="form-label">Task Name <span class="text-danger">*</span></label>
+            <label class="form-label">{{ __('Task Name') }} <span class="text-danger">*</span></label>
             <input type="text" name="task_name" class="form-control" required>
           </div>
           <div class="row">

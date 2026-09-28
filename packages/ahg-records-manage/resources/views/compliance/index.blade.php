@@ -70,7 +70,7 @@
         <td class="text-end"><a href="{{ route('records.compliance.show', $a->id) }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-arrow-right"></i></a></td>
       </tr>
     @empty
-      <tr><td colspan="7" class="text-center text-muted py-4">No assessments yet. Click <strong>{{ __('New assessment') }}</strong> to run the first one.</td></tr>
+      <tr><td colspan="7" class="text-center text-muted py-4">{{ __('No assessments yet. Click') }} <strong>{{ __('New assessment') }}</strong> to run the first one.</td></tr>
     @endforelse
     </tbody>
   </table>

@@ -10,7 +10,7 @@
     <h5 class="mb-0">{{ __('Dpia View') }}</h5>
   </div>
   <div class="card-body">
-    <p class="text-muted">Content for Dpia View.</p>
+    <p class="text-muted">{{ __('Content for Dpia View.') }}</p>
   </div>
 </div>
 @endsection

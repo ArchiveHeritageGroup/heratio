@@ -7,9 +7,9 @@
 
   <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Admin</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">{{ __('Admin') }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('acl.groups') }}">ACL</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Access Requests</li>
+      <li class="breadcrumb-item active" aria-current="page">{{ __('Access Requests') }}</li>
     </ol>
   </nav>
 
@@ -125,9 +125,9 @@
                               <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
                             </div>
                             <div class="modal-body text-start">
-                              <p>Approve access request from <strong>{{ $req->user_name ?? $req->username }}</strong>?</p>
+                              <p>{{ __('Approve access request from') }} <strong>{{ $req->user_name ?? $req->username }}</strong>?</p>
                               <div class="mb-3">
-                                <label for="approve_notes_{{ $req->id }}" class="form-label">Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                                <label for="approve_notes_{{ $req->id }}" class="form-label">{{ __('Notes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <textarea name="notes" id="approve_notes_{{ $req->id }}" class="form-control" rows="3"></textarea>
                               </div>
                             </div>
@@ -154,9 +154,9 @@
                               <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
                             </div>
                             <div class="modal-body text-start">
-                              <p>Deny access request from <strong>{{ $req->user_name ?? $req->username }}</strong>?</p>
+                              <p>{{ __('Deny access request from') }} <strong>{{ $req->user_name ?? $req->username }}</strong>?</p>
                               <div class="mb-3">
-                                <label for="deny_notes_{{ $req->id }}" class="form-label">Reason for denial <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                                <label for="deny_notes_{{ $req->id }}" class="form-label">{{ __('Reason for denial') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                                 <textarea name="notes" id="deny_notes_{{ $req->id }}" class="form-control" rows="3"></textarea>
                               </div>
                             </div>
@@ -255,7 +255,7 @@
           </div>
           <div class="col-md-4 d-flex align-items-end">
             <button type="submit" class="btn btn-sm btn-primary me-2"><i class="fas fa-filter me-1"></i> {{ __('Apply') }}</button>
-            <a href="{{ route('acl.access-requests', ['status' => $status]) }}" class="btn btn-sm atom-btn-white">Reset</a>
+            <a href="{{ route('acl.access-requests', ['status' => $status]) }}" class="btn btn-sm atom-btn-white">{{ __('Reset') }}</a>
           </div>
         </form>
       </div>
@@ -264,7 +264,7 @@
     {{-- Log table --}}
     <div class="card">
       <div class="card-header bg-primary text-white">
-        <i class="fas fa-list me-2"></i> Audit Log
+        <i class="fas fa-list me-2"></i> {{ __('Audit Log') }}
         <span class="badge bg-light text-dark ms-2">{{ number_format($total ?? 0) }} entries</span>
       </div>
       @if (empty($logs) || $logs->isEmpty())

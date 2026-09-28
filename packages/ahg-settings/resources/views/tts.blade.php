@@ -38,11 +38,11 @@
                  {{ ($settings['all']['enabled'] ?? '1') === '1' ? 'checked' : '' }}>
           <label class="form-check-label" for="tts_enabled"><strong>{{ __('Enable Text-to-Speech') }}</strong></label>
         </div>
-        <div class="form-text">Show the read-aloud button on record detail pages.</div>
+        <div class="form-text">{{ __('Show the read-aloud button on record detail pages.') }}</div>
       </div>
 
       <div class="mb-3">
-        <label class="form-label" for="tts_rate">Speech Rate: <span id="tts_rate_val">{{ $settings['all']['default_rate'] ?? '1.0' }}</span></label>
+        <label class="form-label" for="tts_rate">{{ __('Speech Rate:') }} <span id="tts_rate_val">{{ $settings['all']['default_rate'] ?? '1.0' }}</span></label>
         <input type="range" class="form-range" id="tts_rate"
                name="tts[all][default_rate]"
                min="0.5" max="2.0" step="0.1"
@@ -133,7 +133,7 @@
         </select>
       </div>
       <div class="mb-3">
-        <label class="form-label" for="tts_pitch">Pitch: <span id="tts_pitch_val">{{ $settings['all']['default_pitch'] ?? '1.0' }}</span></label>
+        <label class="form-label" for="tts_pitch">{{ __('Pitch:') }} <span id="tts_pitch_val">{{ $settings['all']['default_pitch'] ?? '1.0' }}</span></label>
         <input type="range" class="form-range" id="tts_pitch"
                name="tts[all][default_pitch]"
                min="0.5" max="2.0" step="0.1"
@@ -145,7 +145,7 @@
 
   <div class="d-flex gap-2">
     <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
-    <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary">Cancel</a>
+    <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
   </div>
 </form>
 @endsection

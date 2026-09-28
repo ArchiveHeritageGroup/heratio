@@ -26,7 +26,7 @@
       <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
-          <li class="breadcrumb-item active">National Monuments</li>
+          <li class="breadcrumb-item active">{{ __('National Monuments') }}</li>
         </ol>
       </nav>
       <h1><i class="fas fa-monument me-2"></i>{{ __('National Monuments') }}</h1>
@@ -81,7 +81,7 @@
       @if($monuments->isEmpty())
         <div class="p-4 text-center text-muted">
           <i class="fas fa-monument fa-3x mb-3"></i>
-          <p>No monuments found.</p>
+          <p>{{ __('No monuments found.') }}</p>
         </div>
       @else
         <table class="table table-hover mb-0">

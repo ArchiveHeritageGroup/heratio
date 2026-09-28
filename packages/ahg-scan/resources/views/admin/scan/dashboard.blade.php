@@ -6,8 +6,8 @@
 
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ url('/admin') }}">Admin</a></li>
-        <li class="breadcrumb-item active">Scan</li>
+        <li class="breadcrumb-item"><a href="{{ url('/admin') }}">{{ __('Admin') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Scan') }}</li>
     </ol>
 </nav>
 
@@ -16,7 +16,7 @@
 @endif
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <p class="text-muted mb-0">Live view of watched folders and the ingest pipeline.</p>
+    <p class="text-muted mb-0">{{ __('Live view of watched folders and the ingest pipeline.') }}</p>
     <div>
         <a href="{{ route('scan.folders.index') }}" class="btn btn-outline-secondary me-2">
             <i class="fas fa-folder-open me-1"></i>{{ __('Watched folders') }}
@@ -66,7 +66,7 @@
 
 <h4 class="mt-4">{{ __('Per-folder throughput') }}</h4>
 @if($folders->isEmpty())
-    <p class="text-muted">No watched folders yet. <a href="{{ route('scan.folders.create') }}">Add one</a>.</p>
+    <p class="text-muted">{{ __('No watched folders yet.') }} <a href="{{ route('scan.folders.create') }}">{{ __('Add one') }}</a>.</p>
 @else
     <div class="table-responsive mb-4">
         <table class="table table-sm table-hover">
@@ -102,7 +102,7 @@
 
 <h4 class="mt-4">{{ __('Recent activity') }}</h4>
 @if($recent->isEmpty())
-    <p class="text-muted">No files in the pipeline yet.</p>
+    <p class="text-muted">{{ __('No files in the pipeline yet.') }}</p>
 @else
     <div class="table-responsive">
         <table class="table table-sm table-hover">

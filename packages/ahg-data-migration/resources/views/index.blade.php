@@ -108,7 +108,7 @@
         @if(count($mappings) > 0)
           <div class="card-footer text-end">
             <label for="importMappingFile" class="btn btn-outline-secondary mb-0" style="cursor:pointer">
-              <i class="fas fa-file-import"></i> Import Mapping File <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+              <i class="fas fa-file-import"></i> {{ __('Import Mapping File') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
             </label>
             <form method="POST" action="{{ route('data-migration.import-mapping') }}"
                   enctype="multipart/form-data" class="d-inline">
@@ -129,7 +129,7 @@
              >
           <h5 class="mb-0"><i class="fas fa-history"></i> {{ __('Recent Jobs') }}</h5>
           <a href="{{ route('data-migration.jobs') }}" class="badge bg-light text-dark text-decoration-none">
-            View all
+            {{ __('View all') }}
           </a>
         </div>
         <div class="card-body p-0">
@@ -186,7 +186,7 @@
       <div class="card text-center">
         <div class="card-body">
           <div class="h3 mb-0">{{ $stats['total_imports'] ?? 0 }}</div>
-          <div class="text-muted small">Total Imports</div>
+          <div class="text-muted small">{{ __('Total Imports') }}</div>
         </div>
       </div>
     </div>
@@ -194,7 +194,7 @@
       <div class="card text-center">
         <div class="card-body">
           <div class="h3 mb-0 text-success">{{ $stats['successful'] ?? 0 }}</div>
-          <div class="text-muted small">Successful</div>
+          <div class="text-muted small">{{ __('Successful') }}</div>
         </div>
       </div>
     </div>
@@ -202,7 +202,7 @@
       <div class="card text-center">
         <div class="card-body">
           <div class="h3 mb-0 text-danger">{{ $stats['failed'] ?? 0 }}</div>
-          <div class="text-muted small">Failed</div>
+          <div class="text-muted small">{{ __('Failed') }}</div>
         </div>
       </div>
     </div>
@@ -210,7 +210,7 @@
       <div class="card text-center">
         <div class="card-body">
           <div class="h3 mb-0 text-info">{{ $stats['total_records'] ?? 0 }}</div>
-          <div class="text-muted small">Records Migrated</div>
+          <div class="text-muted small">{{ __('Records Migrated') }}</div>
         </div>
       </div>
     </div>

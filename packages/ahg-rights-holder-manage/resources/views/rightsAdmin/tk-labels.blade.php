@@ -37,7 +37,7 @@
         </tbody>
       </table>
     @else
-      <div class="text-center py-4 text-muted">No TK Labels configured.</div>
+      <div class="text-center py-4 text-muted">{{ __('No TK Labels configured.') }}</div>
     @endif
   </div>
 </div>

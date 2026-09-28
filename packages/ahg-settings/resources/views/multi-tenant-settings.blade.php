@@ -15,7 +15,7 @@
 
 @section('title-block')
 <h1><i class="fas fa-building me-2"></i>{{ __('Multi-Tenancy') }}</h1>
-<p class="text-muted">Repository-based multi-tenancy with user hierarchy</p>
+<p class="text-muted">{{ __('Repository-based multi-tenancy with user hierarchy') }}</p>
 @endsection
 
 @section('content')
@@ -45,7 +45,7 @@
                        {{ ($settings['tenant_enabled'] ?? '') === 'true' ? 'checked' : '' }}>
                 <label class="form-check-label" for="tenant_enabled"><strong>{{ __('Enable Multi-Tenancy') }}</strong></label>
               </div>
-              <div class="form-text">Enable repository-based access control and filtering.</div>
+              <div class="form-text">{{ __('Enable repository-based access control and filtering.') }}</div>
             </div>
           </div>
 
@@ -57,7 +57,7 @@
                        {{ ($settings['tenant_enforce_filter'] ?? '') === 'true' ? 'checked' : '' }}>
                 <label class="form-check-label" for="tenant_enforce_filter"><strong>{{ __('Enforce Repository Filtering') }}</strong></label>
               </div>
-              <div class="form-text">Automatically filter browse/search results by current tenant.</div>
+              <div class="form-text">{{ __('Automatically filter browse/search results by current tenant.') }}</div>
             </div>
           </div>
 

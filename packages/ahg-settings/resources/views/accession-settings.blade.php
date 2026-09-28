@@ -65,7 +65,7 @@
                 <strong>{{ __('Auto-Assign to Archivist') }}</strong>
               </label>
             </div>
-            <div class="form-text">Automatically assign new accessions to the creating archivist.</div>
+            <div class="form-text">{{ __('Automatically assign new accessions to the creating archivist.') }}</div>
           </div>
           <div class="col-md-4">
             <div class="form-check form-switch mb-3">
@@ -109,7 +109,7 @@
                 <strong>{{ __('Allow Container Barcodes') }}</strong>
               </label>
             </div>
-            <div class="form-text">Enable barcode scanning for linking containers to accessions.</div>
+            <div class="form-text">{{ __('Enable barcode scanning for linking containers to accessions.') }}</div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch mb-3">

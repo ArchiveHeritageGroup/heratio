@@ -5,7 +5,7 @@
 @section('content')
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Settings</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">{{ __('Settings') }}</a></li>
       <li class="breadcrumb-item active" aria-current="page">{{ $groupLabel }}</li>
     </ol>
   </nav>
@@ -28,7 +28,7 @@
 
 
       @if($settings->isEmpty())
-        <div class="alert alert-info">No settings found in this group.</div>
+        <div class="alert alert-info">{{ __('No settings found in this group.') }}</div>
       @else
         <form method="post" action="{{ route('settings.ahg', $group) }}">
           @csrf
@@ -188,7 +188,7 @@
 
           <div class="d-flex gap-2">
             <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
-            <a href="{{ route('settings.index') }}" class="btn atom-btn-white">Back</a>
+            <a href="{{ route('settings.index') }}" class="btn atom-btn-white">{{ __('Back') }}</a>
           </div>
         </form>
       @endif

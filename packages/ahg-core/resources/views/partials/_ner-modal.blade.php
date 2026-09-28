@@ -12,7 +12,7 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <p class="text-muted small mb-3">Extract persons, organizations, places, dates from <strong>{{ $objectTitle ?? 'this record' }}</strong></p>
+        <p class="text-muted small mb-3">{{ __('Extract persons, organizations, places, dates from') }} <strong>{{ $objectTitle ?? 'this record' }}</strong></p>
         <div class="text-center mb-3"><button type="button" class="btn btn-primary btn-lg" id="nerExtractBtn"><i class="fas fa-brain me-2"></i>{{ __('Extract Entities') }}</button></div>
         <div id="nerResults" style="display:none">
           <span class="text-muted small" id="nerResultsMeta"></span>

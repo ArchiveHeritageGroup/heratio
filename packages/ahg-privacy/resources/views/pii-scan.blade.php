@@ -22,7 +22,7 @@
             <div class="card bg-primary text-white">
                 <div class="card-body text-center">
                     <h2 class="display-5">{{ number_format($stats['total_scanned']) }}</h2>
-                    <p class="mb-0">Objects Scanned</p>
+                    <p class="mb-0">{{ __('Objects Scanned') }}</p>
                 </div>
             </div>
         </div>
@@ -30,7 +30,7 @@
             <div class="card bg-warning text-dark">
                 <div class="card-body text-center">
                     <h2 class="display-5">{{ number_format($stats['with_pii']) }}</h2>
-                    <p class="mb-0">With PII Detected</p>
+                    <p class="mb-0">{{ __('With PII Detected') }}</p>
                 </div>
             </div>
         </div>
@@ -38,7 +38,7 @@
             <div class="card bg-danger text-white">
                 <div class="card-body text-center">
                     <h2 class="display-5">{{ number_format($stats['high_risk_entities']) }}</h2>
-                    <p class="mb-0">High-Risk Entities</p>
+                    <p class="mb-0">{{ __('High-Risk Entities') }}</p>
                 </div>
             </div>
         </div>
@@ -46,7 +46,7 @@
             <div class="card bg-info text-white">
                 <div class="card-body text-center">
                     <h2 class="display-5">{{ number_format($stats['coverage_percent'], 1) }}%</h2>
-                    <p class="mb-0">Coverage</p>
+                    <p class="mb-0">{{ __('Coverage') }}</p>
                 </div>
             </div>
         </div>
@@ -147,7 +147,7 @@ $badges = [
                     @if(empty($highRiskObjects) || count($highRiskObjects) === 0)
                         <div class="text-center text-muted py-5">
                             <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
-                            <p>No high-risk PII detected</p>
+                            <p>{{ __('No high-risk PII detected') }}</p>
                         </div>
                     @else
                         <table class="table table-hover mb-0">

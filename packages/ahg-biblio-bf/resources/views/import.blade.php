@@ -6,8 +6,8 @@
 
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h1 class="h4 mb-0"><i class="bi bi-box-arrow-down-left"></i> BIBFRAME Import</h1>
-      <p class="small text-muted mb-0">Import a BIBFRAME RDF document into the catalogue</p>
+      <h1 class="h4 mb-0"><i class="bi bi-box-arrow-down-left"></i> {{ __('BIBFRAME Import') }}</h1>
+      <p class="small text-muted mb-0">{{ __('Import a BIBFRAME RDF document into the catalogue') }}</p>
     </div>
     <a href="{{ route('bibframe.index') }}" class="btn btn-outline-secondary btn-sm">&larr; Back</a>
   </div>
@@ -16,7 +16,7 @@
     @csrf
 
     <div class="card mb-3">
-      <div class="card-header">Upload BIBFRAME document</div>
+      <div class="card-header">{{ __('Upload BIBFRAME document') }}</div>
       <div class="card-body">
         <div class="mb-3">
           <label for="rdf_file" class="form-label">{{ __('RDF/XML, .rdf, or .ttl file (max 10 MB)') }}</label>
@@ -34,7 +34,7 @@
     </div>
 
     <button type="submit" class="btn btn-success">
-      <i class="bi bi-upload"></i> Import
+      <i class="bi bi-upload"></i> {{ __('Import') }}
     </button>
   </form>
 

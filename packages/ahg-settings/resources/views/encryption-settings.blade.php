@@ -15,7 +15,7 @@
 
 @section('title-block')
 <h1><i class="fas fa-lock me-2"></i>{{ __('Encryption') }}</h1>
-<p class="text-muted">Field-level encryption and key management</p>
+<p class="text-muted">{{ __('Field-level encryption and key management') }}</p>
 @endsection
 
 @section('content')
@@ -124,7 +124,7 @@
                      name="encryption_field_contact_details" value="1"
                      {{ ($settings['encryption_field_contact_details'] ?? '') === 'true' || ($settings['encryption_field_contact_details'] ?? '') === '1' ? 'checked' : '' }}>
               <label class="form-check-label" for="encryption_field_contact_details">
-                <strong><i class="fas fa-address-card me-1 text-primary"></i>Contact Details</strong>
+                <strong><i class="fas fa-address-card me-1 text-primary"></i>{{ __('Contact Details') }}</strong>
               </label>
             </div>
             <div class="form-text">Email, address, telephone, fax, contact person (contact_information tables).</div>
@@ -135,10 +135,10 @@
                      name="encryption_field_financial_data" value="1"
                      {{ ($settings['encryption_field_financial_data'] ?? '') === 'true' || ($settings['encryption_field_financial_data'] ?? '') === '1' ? 'checked' : '' }}>
               <label class="form-check-label" for="encryption_field_financial_data">
-                <strong><i class="fas fa-coins me-1 text-warning"></i>Financial Data</strong>
+                <strong><i class="fas fa-coins me-1 text-warning"></i>{{ __('Financial Data') }}</strong>
               </label>
             </div>
-            <div class="form-text">Appraisal values in accession records.</div>
+            <div class="form-text">{{ __('Appraisal values in accession records.') }}</div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch">
@@ -146,7 +146,7 @@
                      name="encryption_field_donor_information" value="1"
                      {{ ($settings['encryption_field_donor_information'] ?? '') === 'true' || ($settings['encryption_field_donor_information'] ?? '') === '1' ? 'checked' : '' }}>
               <label class="form-check-label" for="encryption_field_donor_information">
-                <strong><i class="fas fa-user-shield me-1 text-success"></i>Donor Information</strong>
+                <strong><i class="fas fa-user-shield me-1 text-success"></i>{{ __('Donor Information') }}</strong>
               </label>
             </div>
             <div class="form-text">Actor history (biographical/administrative history for donors).</div>
@@ -157,7 +157,7 @@
                      name="encryption_field_personal_notes" value="1"
                      {{ ($settings['encryption_field_personal_notes'] ?? '') === 'true' || ($settings['encryption_field_personal_notes'] ?? '') === '1' ? 'checked' : '' }}>
               <label class="form-check-label" for="encryption_field_personal_notes">
-                <strong><i class="fas fa-sticky-note me-1 text-info"></i>Personal Notes</strong>
+                <strong><i class="fas fa-sticky-note me-1 text-info"></i>{{ __('Personal Notes') }}</strong>
               </label>
             </div>
             <div class="form-text">Note content (internal staff notes on records).</div>
@@ -168,7 +168,7 @@
                      name="encryption_field_access_restrictions" value="1"
                      {{ ($settings['encryption_field_access_restrictions'] ?? '') === 'true' || ($settings['encryption_field_access_restrictions'] ?? '') === '1' ? 'checked' : '' }}>
               <label class="form-check-label" for="encryption_field_access_restrictions">
-                <strong><i class="fas fa-ban me-1 text-danger"></i>Access Restrictions</strong>
+                <strong><i class="fas fa-ban me-1 text-danger"></i>{{ __('Access Restrictions') }}</strong>
               </label>
             </div>
             <div class="form-text">Rights notes (access restriction details in rights statements).</div>
@@ -192,7 +192,7 @@
         <h5 class="mb-0"><i class="fas fa-gavel me-2"></i>{{ __('Compliance') }}</h5>
       </div>
       <div class="card-body">
-        <p class="mb-2">Encryption at rest satisfies requirements from:</p>
+        <p class="mb-2">{{ __('Encryption at rest satisfies requirements from:') }}</p>
         <ul class="mb-0">
           <li><strong>POPIA</strong> -- Protection of Personal Information Act (South Africa), Section 19</li>
           <li><strong>GDPR</strong> -- General Data Protection Regulation (EU), Article 32</li>

@@ -20,8 +20,8 @@
         <div class="card-body p-0">
             @if($definitions->isEmpty())
                 <div class="p-4 text-center text-muted">
-                    <p>No custom fields defined.</p>
-                    <a href="{{ route('customFields.add') }}" class="atom-btn-white">Create your first custom field</a>
+                    <p>{{ __('No custom fields defined.') }}</p>
+                    <a href="{{ route('customFields.add') }}" class="atom-btn-white">{{ __('Create your first custom field') }}</a>
                 </div>
             @else
                 <div class="table-responsive">
@@ -61,7 +61,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{ route('customFields.edit', $def->id) }}" class="atom-btn-white btn-sm me-1">Edit</a>
+                                        <a href="{{ route('customFields.edit', $def->id) }}" class="atom-btn-white btn-sm me-1">{{ __('Edit') }}</a>
                                         <form method="post" action="{{ route('customFields.delete', $def->id) }}" class="d-inline">
                                             @csrf
                                             @method('DELETE')

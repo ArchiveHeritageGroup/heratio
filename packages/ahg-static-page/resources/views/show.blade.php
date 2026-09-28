@@ -30,7 +30,7 @@
       <section class="border-bottom mb-3" id="adminArea">
         <h2 class="h5 mb-0 atom-section-header">
           <div class="d-flex p-3 border-bottom text-primary">
-            Administration area
+            {{ __('Administration area') }}
           </div>
         </h2>
         <div>

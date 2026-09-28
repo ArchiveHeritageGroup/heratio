@@ -24,8 +24,8 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.index') }}">IPSAS</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('ipsas.valuations') }}">Valuations</a></li>
-                    <li class="breadcrumb-item active">New Valuation</li>
+                    <li class="breadcrumb-item"><a href="{{ route('ipsas.valuations') }}">{{ __('Valuations') }}</a></li>
+                    <li class="breadcrumb-item active">{{ __('New Valuation') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-calculator me-2"></i>{{ __('Record Valuation') }}</h1>
@@ -45,7 +45,7 @@
             <div class="card mb-4">
                 <div class="card-header"><h5 class="mb-0">{{ __('Select Asset') }}</h5></div>
                 <div class="card-body">
-                    <label class="form-label">Asset <span class="text-danger">*</span></label>
+                    <label class="form-label">{{ __('Asset') }} <span class="text-danger">*</span></label>
                     <input type="number" name="asset_id" class="form-control" required placeholder="{{ __('Enter Asset ID') }}">
                 </div>
             </div>
@@ -56,7 +56,7 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Valuation Date <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Valuation Date') }} <span class="text-danger">*</span></label>
                             <input type="date" name="valuation_date" class="form-control" required value="{{ date('Y-m-d') }}">
                         </div>
                         <div class="col-md-6">
@@ -90,7 +90,7 @@
                             <input type="number" name="previous_value" class="form-control" step="0.01" min="0" value="{{ $asset->current_value ?? '' }}">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">New Value <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('New Value') }} <span class="text-danger">*</span></label>
                             <input type="number" name="new_value" class="form-control" step="0.01" min="0" required>
                         </div>
                     </div>
@@ -142,7 +142,7 @@
             <div class="card">
                 <div class="card-body d-grid gap-2">
                     <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>{{ __('Record Valuation') }}</button>
-                    <a href="{{ route('ipsas.valuations') }}" class="btn btn-outline-secondary">Cancel</a>
+                    <a href="{{ route('ipsas.valuations') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
                 </div>
             </div>
         </div>

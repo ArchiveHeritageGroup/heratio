@@ -18,8 +18,8 @@
   <div class="card-body">
     <div class="alert alert-info">
       <strong>Disposition Queue #{{ $disposition->id }}</strong><br>
-      Information Object: <strong>{{ $ioTitle }}</strong> (ID: {{ $disposition->information_object_id }})<br>
-      Status: <span class="badge bg-secondary">{{ ucfirst($disposition->status) }}</span>
+      {{ __('Information Object:') }} <strong>{{ $ioTitle }}</strong> (ID: {{ $disposition->information_object_id }})<br>
+      {{ __('Status:') }} <span class="badge bg-secondary">{{ ucfirst($disposition->status) }}</span>
     </div>
 
     <form method="post" action="{{ route('integrity.certificates.store') }}">
@@ -62,7 +62,7 @@
 
       <div class="d-flex gap-2">
         <button type="submit" class="btn btn-danger"><i class="fas fa-certificate me-1"></i>{{ __('Generate Certificate') }}</button>
-        <a href="{{ route('integrity.certificates') }}" class="btn atom-btn-white">Cancel</a>
+        <a href="{{ route('integrity.certificates') }}" class="btn atom-btn-white">{{ __('Cancel') }}</a>
       </div>
     </form>
   </div>

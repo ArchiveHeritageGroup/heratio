@@ -144,7 +144,7 @@
             </td>
           </tr>
           @empty
-          <tr><td colspan="7" class="text-muted">No users found.</td></tr>
+          <tr><td colspan="7" class="text-muted">{{ __('No users found.') }}</td></tr>
           @endforelse
         </tbody>
       </table>

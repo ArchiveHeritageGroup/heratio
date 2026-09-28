@@ -7,9 +7,9 @@
 
   <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Admin</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">{{ __('Admin') }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('acl.groups') }}">ACL</a></li>
-      <li class="breadcrumb-item active" aria-current="page">Access Request Approvers</li>
+      <li class="breadcrumb-item active" aria-current="page">{{ __('Access Request Approvers') }}</li>
     </ol>
   </nav>
 
@@ -104,7 +104,7 @@
                   </tr>
                 @empty
                   <tr>
-                    <td colspan="5" class="text-center text-muted py-4">No approvers configured.</td>
+                    <td colspan="5" class="text-center text-muted py-4">{{ __('No approvers configured.') }}</td>
                   </tr>
                 @endforelse
               </tbody>
@@ -125,7 +125,7 @@
             @csrf
 
             <div class="mb-3">
-              <label for="approver_user_id" class="form-label">User <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label for="approver_user_id" class="form-label">{{ __('User') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select name="user_id" id="approver_user_id" class="form-select" required>
                 <option value="">-- Select User --</option>
                 @foreach($availableUsers as $user)
@@ -136,7 +136,7 @@
 
             <div class="row mb-3">
               <div class="col-6">
-                <label for="min_classification_level" class="form-label">Min Level <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                <label for="min_classification_level" class="form-label">{{ __('Min Level') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                 <select name="min_classification_level" id="min_classification_level" class="form-select" required>
                   @foreach($classifications as $cls)
                     <option value="{{ $cls->level }}">{{ $cls->level }} - {{ $cls->name }}</option>
@@ -144,7 +144,7 @@
                 </select>
               </div>
               <div class="col-6">
-                <label for="max_classification_level" class="form-label">Max Level <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                <label for="max_classification_level" class="form-label">{{ __('Max Level') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                 <select name="max_classification_level" id="max_classification_level" class="form-select" required>
                   @foreach($classifications as $cls)
                     <option value="{{ $cls->level }}" @if($loop->last) selected @endif>{{ $cls->level }} - {{ $cls->name }}</option>
@@ -156,7 +156,7 @@
             <div class="mb-3 form-check">
               <input type="hidden" name="email_notifications" value="0">
               <input type="checkbox" class="form-check-input" name="email_notifications" id="email_notifications" value="1" checked>
-              <label class="form-check-label" for="email_notifications">Email Notifications <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-check-label" for="email_notifications">{{ __('Email Notifications') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
 
             <button type="submit" class="btn atom-btn-outline-success w-100">

@@ -38,7 +38,7 @@
         </p>
       </div>
       <div class="card-footer text-end">
-        <a href="{{ route('ahgicip.dashboard') }}" class="btn btn-outline-secondary">Cancel</a>
+        <a href="{{ route('ahgicip.dashboard') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
         <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
       </div>
     </div>

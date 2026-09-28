@@ -154,7 +154,7 @@
   {{-- Detection Details --}}
   @if(!empty($duplicate->detection_details))
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong><i class="fas fa-microscope me-2"></i>Detection Details</strong></div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong><i class="fas fa-microscope me-2"></i>{{ __('Detection Details') }}</strong></div>
       <div class="card-body">
         <pre class="mb-0">{{ json_encode(json_decode($duplicate->detection_details), JSON_PRETTY_PRINT) }}</pre>
       </div>
@@ -173,7 +173,7 @@
     </div>
   @else
     <div class="alert alert-info">
-      This duplicate pair has been <strong>{{ $duplicate->status }}</strong>.
+      {{ __('This duplicate pair has been') }} <strong>{{ $duplicate->status }}</strong>.
       @if($duplicate->reviewed_at)
         Reviewed at {{ \Carbon\Carbon::parse($duplicate->reviewed_at)->format('Y-m-d H:i') }}.
       @endif

@@ -11,7 +11,7 @@
 @endsection
 
 @section('content')
-    <p class="text-muted">Configure backup replication targets for digital preservation</p>
+    <p class="text-muted">{{ __('Configure backup replication targets for digital preservation') }}</p>
 
     <div class="row mb-4">
       <div class="col-md-3">
@@ -68,12 +68,12 @@
                 </td>
               </tr>
             @empty
-              <tr><td colspan="6" class="text-center text-muted py-4"><i class="fas fa-server fa-2x d-block mb-2"></i>No replication targets configured.</td></tr>
+              <tr><td colspan="6" class="text-center text-muted py-4"><i class="fas fa-server fa-2x d-block mb-2"></i>{{ __('No replication targets configured.') }}</td></tr>
             @endforelse
           </tbody>
         </table>
       </div>
     </div>
 
-    <a href="{{ route('settings.index') }}" class="btn atom-btn-white">Back to Settings</a>
+    <a href="{{ route('settings.index') }}" class="btn atom-btn-white">{{ __('Back to Settings') }}</a>
 @endsection

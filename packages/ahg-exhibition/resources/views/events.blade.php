@@ -40,9 +40,9 @@
   <div class="col-md-8">
     <nav aria-label="{{ __('breadcrumb') }}">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('exhibition.index') }}">Exhibitions</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('exhibition.index') }}">{{ __('Exhibitions') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('exhibition.show', ['id' => $exId]) }}">{{ $exhibition->title ?? '' }}</a></li>
-        <li class="breadcrumb-item active">Events</li>
+        <li class="breadcrumb-item active">{{ __('Events') }}</li>
       </ol>
     </nav>
 
@@ -57,9 +57,9 @@
       <div class="card-body py-2">
         <div class="d-flex align-items-center gap-2">
           <span class="small text-muted">{{ __('Filter:') }}</span>
-          <a href="?" class="btn btn-sm {{ empty($filter) ? 'btn-primary' : 'btn-outline-primary' }}">All</a>
-          <a href="?filter=upcoming" class="btn btn-sm {{ $filter == 'upcoming' ? 'btn-primary' : 'btn-outline-secondary' }}">Upcoming</a>
-          <a href="?filter=past" class="btn btn-sm {{ $filter == 'past' ? 'btn-primary' : 'btn-outline-secondary' }}">Past</a>
+          <a href="?" class="btn btn-sm {{ empty($filter) ? 'btn-primary' : 'btn-outline-primary' }}">{{ __('All') }}</a>
+          <a href="?filter=upcoming" class="btn btn-sm {{ $filter == 'upcoming' ? 'btn-primary' : 'btn-outline-secondary' }}">{{ __('Upcoming') }}</a>
+          <a href="?filter=past" class="btn btn-sm {{ $filter == 'past' ? 'btn-primary' : 'btn-outline-secondary' }}">{{ __('Past') }}</a>
         </div>
       </div>
     </div>
@@ -69,7 +69,7 @@
         <div class="card-body text-center py-5">
           <i class="fas fa-calendar fa-3x text-muted mb-3"></i>
           <h5>{{ __('No events scheduled') }}</h5>
-          <p class="text-muted">Schedule events like openings, talks, workshops, and tours.</p>
+          <p class="text-muted">{{ __('Schedule events like openings, talks, workshops, and tours.') }}</p>
           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEventModal">
             <i class="fas fa-plus"></i> {{ __('Schedule First Event') }}
           </button>
@@ -217,7 +217,7 @@
         @csrf
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">Event Title <span class="text-danger">*</span></label>
+            <label class="form-label">{{ __('Event Title') }} <span class="text-danger">*</span></label>
             <input type="text" name="title" class="form-control" required>
           </div>
           <div class="row">
@@ -235,7 +235,7 @@
               </select>
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">Date <span class="text-danger">*</span></label>
+              <label class="form-label">{{ __('Date') }} <span class="text-danger">*</span></label>
               <input type="date" name="event_date" class="form-control" required>
             </div>
           </div>

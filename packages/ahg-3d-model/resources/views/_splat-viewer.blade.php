@@ -28,7 +28,7 @@
 
   <small class="text-muted mt-2 d-block">
     <i class="fas fa-mouse me-1"></i>Drag to rotate |
-    <i class="fas fa-search-plus me-1"></i>Scroll to zoom
+    <i class="fas fa-search-plus me-1"></i>{{ __('Scroll to zoom') }}
   </small>
 </div>
 

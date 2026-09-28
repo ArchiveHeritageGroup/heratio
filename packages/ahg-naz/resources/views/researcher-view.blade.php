@@ -34,7 +34,7 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('ahgnaz.researchers') }}">Researchers</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('ahgnaz.researchers') }}">{{ __('Researchers') }}</a></li>
                     <li class="breadcrumb-item active" aria-current="page">
                         {{ $researcher->first_name ?? '' }} {{ $researcher->last_name ?? '' }}
                     </li>
@@ -44,11 +44,11 @@
         <div class="col-auto">
             <a href="{{ route('ahgnaz.researcher-edit', ['id' => $researcher->id]) }}"
                class="btn btn-outline-primary me-1">
-                <i class="fas fa-edit me-1"></i> Edit
+                <i class="fas fa-edit me-1"></i> {{ __('Edit') }}
             </a>
             <a href="{{ route('ahgnaz.permits') }}?query={{ urlencode($researcher->last_name ?? '') }}"
                class="btn btn-outline-secondary">
-                <i class="fas fa-id-card me-1"></i> Permits
+                <i class="fas fa-id-card me-1"></i> {{ __('Permits') }}
             </a>
         </div>
     </div>
@@ -60,34 +60,34 @@
             {{-- Personal Information --}}
             <div class="card mb-3">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Personal Information</h5>
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>{{ __('Personal Information') }}</h5>
                 </div>
                 <div class="card-body">
                     <dl class="row mb-0">
-                        <dt class="col-sm-3">Full Name</dt>
+                        <dt class="col-sm-3">{{ __('Full Name') }}</dt>
                         <dd class="col-sm-9">
                             @if(!empty($researcher->title)){{ $researcher->title }} @endif
                             {{ $researcher->first_name ?? '' }} {{ $researcher->last_name ?? '' }}
                         </dd>
 
-                        <dt class="col-sm-3">Type</dt>
+                        <dt class="col-sm-3">{{ __('Type') }}</dt>
                         <dd class="col-sm-9">
                             <span class="badge bg-{{ $typeColors[$researcher->researcher_type ?? ''] ?? 'secondary' }}">
                                 {{ ucfirst($researcher->researcher_type ?? '') }}
                             </span>
                         </dd>
 
-                        <dt class="col-sm-3">Status</dt>
+                        <dt class="col-sm-3">{{ __('Status') }}</dt>
                         <dd class="col-sm-9">
                             <span class="badge bg-{{ $statusColors[$researcher->status ?? ''] ?? 'secondary' }}">
                                 {{ ucfirst($researcher->status ?? '') }}
                             </span>
                         </dd>
 
-                        <dt class="col-sm-3">Nationality</dt>
+                        <dt class="col-sm-3">{{ __('Nationality') }}</dt>
                         <dd class="col-sm-9">{{ $researcher->nationality ?? '-' }}</dd>
 
-                        <dt class="col-sm-3">National ID</dt>
+                        <dt class="col-sm-3">{{ __('National ID') }}</dt>
                         <dd class="col-sm-9">
                             @if(!empty($researcher->national_id))
                                 <code class="text-dark">{{ $researcher->national_id }}</code>
@@ -96,7 +96,7 @@
                             @endif
                         </dd>
 
-                        <dt class="col-sm-3">Passport Number</dt>
+                        <dt class="col-sm-3">{{ __('Passport Number') }}</dt>
                         <dd class="col-sm-9">
                             @if(!empty($researcher->passport_number))
                                 <code class="text-dark">{{ $researcher->passport_number }}</code>
@@ -111,11 +111,11 @@
             {{-- Contact Information --}}
             <div class="card mb-3">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-envelope me-2"></i>Contact Information</h5>
+                    <h5 class="mb-0"><i class="fas fa-envelope me-2"></i>{{ __('Contact Information') }}</h5>
                 </div>
                 <div class="card-body">
                     <dl class="row mb-0">
-                        <dt class="col-sm-3">Email</dt>
+                        <dt class="col-sm-3">{{ __('Email') }}</dt>
                         <dd class="col-sm-9">
                             @if(!empty($researcher->email))
                                 <a href="mailto:{{ $researcher->email }}">{{ $researcher->email }}</a>
@@ -124,7 +124,7 @@
                             @endif
                         </dd>
 
-                        <dt class="col-sm-3">Phone</dt>
+                        <dt class="col-sm-3">{{ __('Phone') }}</dt>
                         <dd class="col-sm-9">
                             @if(!empty($researcher->phone))
                                 <a href="tel:{{ $researcher->phone }}">{{ $researcher->phone }}</a>
@@ -133,7 +133,7 @@
                             @endif
                         </dd>
 
-                        <dt class="col-sm-3">Address</dt>
+                        <dt class="col-sm-3">{{ __('Address') }}</dt>
                         <dd class="col-sm-9">
                             @if(!empty($researcher->address))
                                 {!! nl2br(e($researcher->address)) !!}
@@ -142,7 +142,7 @@
                             @endif
                         </dd>
 
-                        <dt class="col-sm-3">City / Country</dt>
+                        <dt class="col-sm-3">{{ __('City / Country') }}</dt>
                         <dd class="col-sm-9">
                             @if(!empty($researcher->city) || !empty($researcher->country))
                                 {{ $researcher->city ?? '' }}{{ !empty($researcher->city) && !empty($researcher->country) ? ', ' : '' }}{{ $researcher->country ?? '' }}
@@ -157,18 +157,18 @@
             {{-- Affiliation --}}
             <div class="card mb-3">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-building me-2"></i>Affiliation</h5>
+                    <h5 class="mb-0"><i class="fas fa-building me-2"></i>{{ __('Affiliation') }}</h5>
                 </div>
                 <div class="card-body">
                     <dl class="row mb-0">
-                        <dt class="col-sm-3">Institution</dt>
+                        <dt class="col-sm-3">{{ __('Institution') }}</dt>
                         <dd class="col-sm-9">{{ $researcher->institution ?? '-' }}</dd>
 
-                        <dt class="col-sm-3">Position</dt>
+                        <dt class="col-sm-3">{{ __('Position') }}</dt>
                         <dd class="col-sm-9">{{ $researcher->position ?? '-' }}</dd>
 
                         @if(!empty($researcher->research_interests))
-                        <dt class="col-sm-3">Research Interests</dt>
+                        <dt class="col-sm-3">{{ __('Research Interests') }}</dt>
                         <dd class="col-sm-9">{{ $researcher->research_interests }}</dd>
                         @endif
                     </dl>
@@ -179,7 +179,7 @@
             @if(!empty($researcher->notes))
             <div class="card mb-3">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Notes</h5>
+                    <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>{{ __('Notes') }}</h5>
                 </div>
                 <div class="card-body">
                     {!! nl2br(e($researcher->notes)) !!}
@@ -224,20 +224,20 @@
             {{-- Status card --}}
             <div class="card mb-3">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Registration Details</h5>
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Registration Details') }}</h5>
                 </div>
                 <div class="card-body">
                     <dl class="mb-0">
-                        <dt>Registered</dt>
+                        <dt>{{ __('Registered') }}</dt>
                         <dd>{{ !empty($researcher->registration_date) ? \Carbon\Carbon::parse($researcher->registration_date)->format('j F Y') : '-' }}</dd>
 
-                        <dt>Last Updated</dt>
+                        <dt>{{ __('Last Updated') }}</dt>
                         <dd>{{ !empty($researcher->updated_at) ? \Carbon\Carbon::parse($researcher->updated_at)->format('j F Y H:i') : '-' }}</dd>
 
                         @if(!empty($researcher->notes))
-                        <dt>Internal Notes</dt>
+                        <dt>{{ __('Internal Notes') }}</dt>
                         <dd>
-                            <span class="badge bg-info">Present</span>
+                            <span class="badge bg-info">{{ __('Present') }}</span>
                         </dd>
                         @endif
                     </dl>
@@ -249,14 +249,14 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Permits ({{ $permits->count() }})</h5>
                     <a href="{{ route('ahgnaz.permit-create') }}" class="btn btn-sm btn-outline-primary">
-                        <i class="fas fa-plus"></i> New Permit
+                        <i class="fas fa-plus"></i> {{ __('New Permit') }}
                     </a>
                 </div>
                 <div class="card-body p-0">
                     @if($permits->isEmpty())
                         <div class="p-3 text-center text-muted">
                             <i class="fas fa-id-card fa-2x mb-2 d-block"></i>
-                            No permits on record.
+                            {{ __('No permits on record.') }}
                         </div>
                     @else
                         <table class="table table-sm table-hover mb-0">
@@ -291,15 +291,15 @@
             {{-- Quick actions --}}
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>{{ __('Quick Actions') }}</h5>
                 </div>
                 <div class="card-body d-grid gap-2">
                     <a href="{{ route('ahgnaz.permit-create') }}" class="btn btn-primary btn-sm">
-                        <i class="fas fa-plus me-1"></i> Issue Permit
+                        <i class="fas fa-plus me-1"></i> {{ __('Issue Permit') }}
                     </a>
                     <a href="{{ route('ahgnaz.reports', ['type' => 'permits']) }}"
                        class="btn btn-outline-secondary btn-sm">
-                        <i class="fas fa-chart-bar me-1"></i> View Reports
+                        <i class="fas fa-chart-bar me-1"></i> {{ __('View Reports') }}
                     </a>
                 </div>
             </div>

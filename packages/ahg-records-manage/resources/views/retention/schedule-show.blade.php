@@ -97,7 +97,7 @@
       </tbody>
     </table>
     @else
-      <div class="text-center py-4 text-muted">No disposal classes defined for this schedule.</div>
+      <div class="text-center py-4 text-muted">{{ __('No disposal classes defined for this schedule.') }}</div>
     @endif
   </div>
 </div>

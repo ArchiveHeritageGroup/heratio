@@ -18,9 +18,9 @@
 <div class="container-fluid px-4 py-3">
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('statistics.dashboard') }}">Statistics</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('statistics.admin') }}">Settings</a></li>
-            <li class="breadcrumb-item active">Bot List</li>
+            <li class="breadcrumb-item"><a href="{{ route('statistics.dashboard') }}">{{ __('Statistics') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('statistics.admin') }}">{{ __('Settings') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('Bot List') }}</li>
         </ol>
     </nav>
 

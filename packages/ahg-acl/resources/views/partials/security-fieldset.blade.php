@@ -119,7 +119,7 @@ $normalisePosition = function ($value) {
           <input class="form-check-input" type="checkbox" id="security_inherit_to_children" name="security_inherit_to_children" value="1"
                  {{ (!$currentClassification || ($currentClassification->inherit_to_children ?? true)) ? 'checked' : '' }}>
           <label class="form-check-label" for="security_inherit_to_children">
-            Apply to child records
+            {{ __('Apply to child records') }}
           </label>
         </div>
       </div>
@@ -144,7 +144,7 @@ $normalisePosition = function ($value) {
           <input class="form-check-input" type="checkbox" id="watermark_enabled" name="watermark_enabled"
                  value="1" {{ $watermarkEnabled ? 'checked' : '' }}>
           <label class="form-check-label" for="watermark_enabled">
-            Enable watermark for this object
+            {{ __('Enable watermark for this object') }}
           </label>
         </div>
       </div>

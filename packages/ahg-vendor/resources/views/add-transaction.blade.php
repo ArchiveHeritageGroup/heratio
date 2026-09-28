@@ -26,9 +26,9 @@
 
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.index') }}">Vendor Management</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.transactions') }}">Transactions</a></li>
-            <li class="breadcrumb-item active">New Transaction</li>
+            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.index') }}">{{ __('Vendor Management') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.transactions') }}">{{ __('Transactions') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('New Transaction') }}</li>
         </ol>
     </nav>
 
@@ -143,7 +143,7 @@
                             </table>
                             <div id="noItemsMessage" class="text-center text-muted py-3">
                                 <i class="fas fa-archive fa-2x mb-2"></i>
-                                <p class="mb-0">No items added yet. Use the search above to add items.</p>
+                                <p class="mb-0">{{ __('No items added yet. Use the search above to add items.') }}</p>
                             </div>
                         </div>
                     </div>

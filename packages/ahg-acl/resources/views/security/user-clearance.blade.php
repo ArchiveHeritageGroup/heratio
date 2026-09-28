@@ -94,7 +94,7 @@
         @endif
 
         @else
-        <p class="text-muted">No active clearance.</p>
+        <p class="text-muted">{{ __('No active clearance.') }}</p>
         @endif
       </div>
     </div>
@@ -191,7 +191,7 @@
       </div>
       <div class="card-body">
         @if(empty($compartments))
-        <p class="text-muted">No compartment access granted.</p>
+        <p class="text-muted">{{ __('No compartment access granted.') }}</p>
         @else
         <table class="table table-sm">
           <thead>
@@ -275,7 +275,7 @@
       </div>
       <div class="card-body" style="max-height: 400px; overflow-y: auto;">
         @if(empty($history))
-        <p class="text-muted">No history.</p>
+        <p class="text-muted">{{ __('No history.') }}</p>
         @else
         <ul class="list-unstyled">
           @foreach($history as $h)

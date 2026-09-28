@@ -17,7 +17,7 @@
       <i class="fas fa-paper-plane fa-2x text-primary me-3" aria-hidden="true"></i>
       <div>
         <h1 class="h3 mb-0">{{ __('Request to Publish') }}</h1>
-        <p class="text-muted mb-0">Manage image publication requests</p>
+        <p class="text-muted mb-0">{{ __('Manage image publication requests') }}</p>
       </div>
     </div>
     <div class="alert alert-warning">
@@ -43,28 +43,28 @@
         <li class="nav-item">
           <a class="nav-link {{ $status === 'all' ? 'active' : '' }}"
              href="{{ route('request-publish.browse', array_merge(request()->except('status', 'page'), ['status' => 'all'])) }}">
-            <i class="fas fa-list me-1"></i>All Requests
+            <i class="fas fa-list me-1"></i>{{ __('All Requests') }}
             <span class="badge bg-secondary ms-1">{{ $allCount }}</span>
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link {{ $status === 'review' ? 'active' : '' }}"
              href="{{ route('request-publish.browse', array_merge(request()->except('status', 'page'), ['status' => 'review'])) }}">
-            <i class="fas fa-clock me-1"></i>In Review
+            <i class="fas fa-clock me-1"></i>{{ __('In Review') }}
             <span class="badge bg-warning text-dark ms-1">{{ $pendingCount }}</span>
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link {{ $status === 'rejected' ? 'active' : '' }}"
              href="{{ route('request-publish.browse', array_merge(request()->except('status', 'page'), ['status' => 'rejected'])) }}">
-            <i class="fas fa-times me-1"></i>Rejected
+            <i class="fas fa-times me-1"></i>{{ __('Rejected') }}
             <span class="badge bg-danger ms-1">{{ $rejectedCount }}</span>
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link {{ $status === 'approved' ? 'active' : '' }}"
              href="{{ route('request-publish.browse', array_merge(request()->except('status', 'page'), ['status' => 'approved'])) }}">
-            <i class="fas fa-check me-1"></i>Approved
+            <i class="fas fa-check me-1"></i>{{ __('Approved') }}
             <span class="badge bg-success ms-1">{{ $approvedCount }}</span>
           </a>
         </li>
@@ -78,19 +78,19 @@
           <span class="btn atom-btn-white disabled">{{ __('Sort by:') }}</span>
           <a href="{{ route('request-publish.browse', array_merge(request()->except('sort', 'page'), ['sort' => 'nameUp'])) }}"
              class="btn atom-btn-white {{ $sort === 'nameUp' ? 'active' : '' }}">
-            Name <i class="fas fa-arrow-up"></i>
+            {{ __('Name') }} <i class="fas fa-arrow-up"></i>
           </a>
           <a href="{{ route('request-publish.browse', array_merge(request()->except('sort', 'page'), ['sort' => 'nameDown'])) }}"
              class="btn atom-btn-white {{ $sort === 'nameDown' ? 'active' : '' }}">
-            Name <i class="fas fa-arrow-down"></i>
+            {{ __('Name') }} <i class="fas fa-arrow-down"></i>
           </a>
           <a href="{{ route('request-publish.browse', array_merge(request()->except('sort', 'page'), ['sort' => 'instUp'])) }}"
              class="btn atom-btn-white {{ $sort === 'instUp' ? 'active' : '' }}">
-            Institution <i class="fas fa-arrow-up"></i>
+            {{ __('Institution') }} <i class="fas fa-arrow-up"></i>
           </a>
           <a href="{{ route('request-publish.browse', array_merge(request()->except('sort', 'page'), ['sort' => 'instDown'])) }}"
              class="btn atom-btn-white {{ $sort === 'instDown' ? 'active' : '' }}">
-            Institution <i class="fas fa-arrow-down"></i>
+            {{ __('Institution') }} <i class="fas fa-arrow-down"></i>
           </a>
         </div>
       </div>
@@ -196,15 +196,15 @@
                           <div class="accordion-body bg-light py-2 px-3">
                             <div class="row">
                               <div class="col-md-4">
-                                <label class="form-label text-muted small fw-semibold mb-0">Motivation <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                                <label class="form-label text-muted small fw-semibold mb-0">{{ __('Motivation') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <p class="small mb-2">{{ $row['rtp_motivation'] ?: '-' }}</p>
                               </div>
                               <div class="col-md-4">
-                                <label class="form-label text-muted small fw-semibold mb-0">Planned Use <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                                <label class="form-label text-muted small fw-semibold mb-0">{{ __('Planned Use') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <p class="small mb-2">{{ $row['rtp_planned_use'] ?: '-' }}</p>
                               </div>
                               <div class="col-md-4">
-                                <label class="form-label text-muted small fw-semibold mb-0">Admin Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                                <label class="form-label text-muted small fw-semibold mb-0">{{ __('Admin Notes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <p class="small mb-2">{{ $row['rtp_admin_notes'] ?: '-' }}</p>
                               </div>
                             </div>
@@ -224,7 +224,7 @@
         <div class="text-center py-5">
           <i class="fas fa-paper-plane fa-3x text-muted mb-3"></i>
           <h5 class="text-muted">{{ __('No requests found') }}</h5>
-          <p class="text-muted mb-0">There are no publication requests matching your filter.</p>
+          <p class="text-muted mb-0">{{ __('There are no publication requests matching your filter.') }}</p>
         </div>
       @endif
     </div>

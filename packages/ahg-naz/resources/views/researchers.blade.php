@@ -28,11 +28,11 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
-                    <li class="breadcrumb-item active">Researcher Registry</li>
+                    <li class="breadcrumb-item active">{{ __('Researcher Registry') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-users me-2"></i>{{ __('Researcher Registry') }}</h1>
-            <p class="text-muted">Registered researchers and their permit history</p>
+            <p class="text-muted">{{ __('Registered researchers and their permit history') }}</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgnaz.researcher-create') }}" class="btn btn-primary">
@@ -48,13 +48,13 @@
                 <div class="col-md-6">
                     <div class="btn-group">
                         <a href="{{ route('ahgnaz.researchers') }}"
-                           class="btn btn-{{ !$currentType ? 'primary' : 'outline-primary' }}">All</a>
+                           class="btn btn-{{ !$currentType ? 'primary' : 'outline-primary' }}">{{ __('All') }}</a>
                         <a href="{{ route('ahgnaz.researchers', ['type' => 'local']) }}"
-                           class="btn btn-{{ $currentType === 'local' ? 'success' : 'outline-success' }}">Local</a>
+                           class="btn btn-{{ $currentType === 'local' ? 'success' : 'outline-success' }}">{{ __('Local') }}</a>
                         <a href="{{ route('ahgnaz.researchers', ['type' => 'foreign']) }}"
-                           class="btn btn-{{ $currentType === 'foreign' ? 'info' : 'outline-info' }}">Foreign</a>
+                           class="btn btn-{{ $currentType === 'foreign' ? 'info' : 'outline-info' }}">{{ __('Foreign') }}</a>
                         <a href="{{ route('ahgnaz.researchers', ['type' => 'institutional']) }}"
-                           class="btn btn-{{ $currentType === 'institutional' ? 'secondary' : 'outline-secondary' }}">Institutional</a>
+                           class="btn btn-{{ $currentType === 'institutional' ? 'secondary' : 'outline-secondary' }}">{{ __('Institutional') }}</a>
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -76,7 +76,7 @@
             @if(empty($researchers) || (is_countable($researchers) && count($researchers) === 0))
                 <div class="p-4 text-center text-muted">
                     <i class="fas fa-users fa-3x mb-3"></i>
-                    <p>No researchers found.</p>
+                    <p>{{ __('No researchers found.') }}</p>
                 </div>
             @else
                 <table class="table table-hover mb-0">

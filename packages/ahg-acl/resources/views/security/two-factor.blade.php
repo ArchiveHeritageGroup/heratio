@@ -54,7 +54,7 @@
 
         <div class="text-center">
           <p class="text-muted small">
-            Don't have your authenticator app handy?
+            {{ __('Don\'t have your authenticator app handy?') }}
           </p>
           <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-send-email">
             <i class="fas fa-envelope"></i> {{ __('Send code via email') }}
@@ -65,7 +65,7 @@
     </div>
 
     <div class="text-center mt-3">
-      <a href="{{ url('/') }}" class="text-muted">Return to Home</a>
+      <a href="{{ url('/') }}" class="text-muted">{{ __('Return to Home') }}</a>
     </div>
   </div>
 </div>

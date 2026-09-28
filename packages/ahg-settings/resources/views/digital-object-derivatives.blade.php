@@ -19,7 +19,7 @@
           <div id="derivatives-collapse" class="accordion-collapse collapse show">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">PDF page number for image derivative <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('PDF page number for image derivative') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="number" name="settings[digital_object_derivatives_pdf_page_number]" class="form-control" value="{{ $settings['digital_object_derivatives_pdf_page_number'] ?? '1' }}" min="1">
                 <small class="text-muted">{{ __('If the page number does not exist, the derivative will be generated from the previous closest one.') }}</small>
               </div>

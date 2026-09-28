@@ -10,7 +10,7 @@
   </div>
 
   @if(count($history) === 0)
-    <div class="alert alert-info">No workflow activity recorded yet.</div>
+    <div class="alert alert-info">{{ __('No workflow activity recorded yet.') }}</div>
   @else
     <div class="card">
       <div class="card-body p-0">

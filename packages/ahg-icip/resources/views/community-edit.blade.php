@@ -19,7 +19,7 @@
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.dashboard') }}">ICIP</a></li>
-      <li class="breadcrumb-item"><a href="{{ route('ahgicip.communities') }}">Communities</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('ahgicip.communities') }}">{{ __('Communities') }}</a></li>
       <li class="breadcrumb-item active">{{ $id ? 'Edit' : 'Add' }} Community</li>
     </ol>
   </nav>
@@ -38,9 +38,9 @@
           <div class="card-header"><h5 class="mb-0">{{ __('Basic Information') }}</h5></div>
           <div class="card-body">
             <div class="mb-3">
-              <label class="form-label">Community Name <span class="text-danger">*</span></label>
+              <label class="form-label">{{ __('Community Name') }} <span class="text-danger">*</span></label>
               <input type="text" name="name" class="form-control" required autocomplete="off" value="{{ $community->name ?? '' }}">
-              <div class="form-text">Official name of the community</div>
+              <div class="form-text">{{ __('Official name of the community') }}</div>
             </div>
 
             <div class="mb-3">
@@ -52,7 +52,7 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Alternate Names') }}</label>
               <input type="text" name="alternate_names" class="form-control" value="{{ $community && !empty($community->alternate_names) ? implode(', ', json_decode($community->alternate_names, true) ?? []) : '' }}">
-              <div class="form-text">Separate multiple names with commas</div>
+              <div class="form-text">{{ __('Separate multiple names with commas') }}</div>
             </div>
 
             <div class="row">
@@ -142,7 +142,7 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Prescribed Body Corporate (PBC)') }}</label>
               <input type="text" name="prescribed_body_corporate" class="form-control" value="{{ $community->prescribed_body_corporate ?? '' }}">
-              <div class="form-text">Name of the PBC holding Native Title rights</div>
+              <div class="form-text">{{ __('Name of the PBC holding Native Title rights') }}</div>
             </div>
             <div class="mb-3">
               <label class="form-label">{{ __('PBC Contact Email') }}</label>
@@ -178,7 +178,7 @@
               <i class="bi bi-check-circle me-1"></i>
               {{ $id ? 'Save Changes' : 'Create Community' }}
             </button>
-            <a href="{{ route('ahgicip.communities') }}" class="btn btn-outline-secondary w-100">Cancel</a>
+            <a href="{{ route('ahgicip.communities') }}" class="btn btn-outline-secondary w-100">{{ __('Cancel') }}</a>
           </div>
         </div>
 

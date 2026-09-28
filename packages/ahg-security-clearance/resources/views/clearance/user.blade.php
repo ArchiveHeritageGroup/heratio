@@ -5,7 +5,7 @@
 @section('content')
 <div class="container-fluid mt-3">
   <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ route('security-clearance.index') }}">Security Clearances</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('security-clearance.index') }}">{{ __('Security Clearances') }}</a></li>
     <li class="breadcrumb-item active">{{ e($targetUser->authorized_form_of_name ?? $targetUser->username ?? 'User') }}</li>
   </ol></nav>
 
@@ -23,7 +23,7 @@
               <p><strong>{{ __('Notes:') }}</strong> {{ e($clearance->notes) }}</p>
             @endif
           @else
-            <p class="text-muted">No clearance assigned.</p>
+            <p class="text-muted">{{ __('No clearance assigned.') }}</p>
           @endif
         </div>
       </div>
@@ -100,7 +100,7 @@
                 <td>{{ $entry->created_at ?? '' }}</td>
               </tr>
               @empty
-              <tr><td colspan="5" class="text-muted">No history.</td></tr>
+              <tr><td colspan="5" class="text-muted">{{ __('No history.') }}</td></tr>
               @endforelse
             </tbody>
           </table>

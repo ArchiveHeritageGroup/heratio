@@ -53,7 +53,7 @@
 
       {{-- Results Table --}}
       @if(count($evaluation['results']) === 0)
-        <p class="text-muted">No gate rules are configured.</p>
+        <p class="text-muted">{{ __('No gate rules are configured.') }}</p>
       @else
         <div class="table-responsive">
           <table class="table table-bordered table-hover mb-0">

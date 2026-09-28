@@ -45,7 +45,7 @@
               <strong>{{ $primary->rightsStatement->name ?? '' }}</strong>
               <p class="text-muted mb-1">{{ $primary->rightsStatement->definition ?? '' }}</p>
               @if($primary->rightsStatement->uri ?? null)
-                <a href="{{ $primary->rightsStatement->uri }}" target="_blank" class="small">Learn more <i class="fas fa-external-link-alt"></i></a>
+                <a href="{{ $primary->rightsStatement->uri }}" target="_blank" class="small">{{ __('Learn more') }} <i class="fas fa-external-link-alt"></i></a>
               @endif
             </div>
           </div>
@@ -63,7 +63,7 @@
             <div class="ms-3">
               <strong>{{ $primary->creativeCommonsLicense->name ?? '' }}</strong><br>
               @if($primary->creativeCommonsLicense->uri ?? null)
-                <a href="{{ $primary->creativeCommonsLicense->uri }}" target="_blank" class="small">View license <i class="fas fa-external-link-alt"></i></a>
+                <a href="{{ $primary->creativeCommonsLicense->uri }}" target="_blank" class="small">{{ __('View license') }} <i class="fas fa-external-link-alt"></i></a>
               @endif
             </div>
           </div>
@@ -120,7 +120,7 @@
 @auth
 <section id="extended-rights-area" class="card mb-3">
   <div class="card-body text-center">
-    <p class="text-muted mb-2">No extended rights information has been added.</p>
+    <p class="text-muted mb-2">{{ __('No extended rights information has been added.') }}</p>
     <a href="{{ route('extended-rights.edit', $resource->slug ?? '') }}" class="btn atom-btn-white"><i class="fas fa-plus"></i> {{ __('Add Rights Information') }}</a>
   </div>
 </section>

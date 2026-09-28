@@ -14,7 +14,7 @@
     @if(isset($deadLetters) && count($deadLetters) > 0)
     <table class="table table-striped table-hover mb-0"><thead><tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><th>{{ __('ID') }}</th><th>{{ __('Object') }}</th><th>{{ __('Failure Type') }}</th><th>{{ __('Message') }}</th><th>{{ __('Date') }}</th><th>{{ __('Status') }}</th></tr></thead>
     <tbody>@foreach($deadLetters as $dl)<tr><td>{{ $dl->id }}</td><td>#{{ $dl->digital_object_id ?? '' }}</td><td>{{ $dl->failure_type ?? '' }}</td><td>{{ Str::limit($dl->message ?? '', 60) }}</td><td>{{ $dl->created_at ?? '' }}</td><td><span class="badge bg-{{ ($dl->status ?? 'open') === 'open' ? 'danger' : 'success' }}">{{ ucfirst($dl->status ?? 'open') }}</span></td></tr>@endforeach</tbody></table>
-    @else<div class="text-center py-4 text-muted">No dead letter entries found.</div>@endif
+    @else<div class="text-center py-4 text-muted">{{ __('No dead letter entries found.') }}</div>@endif
   </div>
 </div>
 <div class="mt-3"><a href="{{ route('integrity.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Dashboard') }}</a></div>

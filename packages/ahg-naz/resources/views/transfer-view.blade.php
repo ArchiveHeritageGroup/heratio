@@ -10,7 +10,7 @@
     <h5 class="mb-0">{{ __('Transfer View') }}</h5>
   </div>
   <div class="card-body">
-    <p class="text-muted">Content for Transfer View.</p>
+    <p class="text-muted">{{ __('Content for Transfer View.') }}</p>
   </div>
 </div>
 @endsection

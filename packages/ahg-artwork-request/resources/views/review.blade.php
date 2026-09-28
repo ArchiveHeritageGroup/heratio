@@ -9,12 +9,12 @@
   @include('ahg-artwork-request::_flash')
 
   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <h1 class="h3 mb-0"><i class="fas fa-clipboard-check me-2"></i>Review queue</h1>
-    <a href="{{ route('artwork-request.placements') }}" class="btn btn-outline-secondary">Out on campus</a>
+    <h1 class="h3 mb-0"><i class="fas fa-clipboard-check me-2"></i>{{ __('Review queue') }}</h1>
+    <a href="{{ route('artwork-request.placements') }}" class="btn btn-outline-secondary">{{ __('Out on campus') }}</a>
   </div>
 
   @if(empty($pending))
-    <div class="alert alert-info">Nothing is waiting for review.</div>
+    <div class="alert alert-info">{{ __('Nothing is waiting for review.') }}</div>
   @else
     @foreach($pending as $r)
       <div class="card mb-4">
@@ -25,10 +25,10 @@
         </div>
         <div class="card-body">
           <div class="row mb-3 small">
-            <div class="col-md-4"><strong>Placement:</strong> {{ trim(($r->placement_building ?? '').' '.($r->placement_room ?? '')) ?: '-' }}
+            <div class="col-md-4"><strong>{{ __('Placement:') }}</strong> {{ trim(($r->placement_building ?? '').' '.($r->placement_room ?? '')) ?: '-' }}
               @if($r->placement_occupant) ({{ $r->placement_occupant }}) @endif</div>
-            <div class="col-md-2"><strong>Purpose:</strong> {{ $r->purpose ?: '-' }}</div>
-            <div class="col-md-2"><strong>Dept:</strong> {{ $r->department ?: '-' }}</div>
+            <div class="col-md-2"><strong>{{ __('Purpose:') }}</strong> {{ $r->purpose ?: '-' }}</div>
+            <div class="col-md-2"><strong>{{ __('Dept:') }}</strong> {{ $r->department ?: '-' }}</div>
           </div>
           @if($r->justification)<p class="text-muted"><em>{{ $r->justification }}</em></p>@endif
 
@@ -46,9 +46,9 @@
                     <td>
                       <div class="btn-group btn-group-sm" role="group">
                         <input type="radio" class="btn-check" name="decision[{{ $w->id }}]" id="a{{ $w->id }}" value="approved" checked>
-                        <label class="btn btn-outline-success" for="a{{ $w->id }}">Approve</label>
+                        <label class="btn btn-outline-success" for="a{{ $w->id }}">{{ __('Approve') }}</label>
                         <input type="radio" class="btn-check" name="decision[{{ $w->id }}]" id="d{{ $w->id }}" value="declined">
-                        <label class="btn btn-outline-danger" for="d{{ $w->id }}">Decline</label>
+                        <label class="btn btn-outline-danger" for="d{{ $w->id }}">{{ __('Decline') }}</label>
                       </div>
                     </td>
                     <td class="small {{ $w->conflict_note ? 'text-warning' : 'text-muted' }}">{{ $w->conflict_note ?: 'No clash recorded' }}</td>
@@ -58,9 +58,9 @@
             </table>
 
             <div class="row g-3 align-items-end">
-              <div class="col-md-7"><label class="form-label" for="notes{{ $r->id }}">Notes to the requester</label>
+              <div class="col-md-7"><label class="form-label" for="notes{{ $r->id }}">{{ __('Notes to the requester') }}</label>
                 <input type="text" class="form-control" id="notes{{ $r->id }}" name="review_notes"></div>
-              <div class="col-md-3"><label class="form-label" for="chan{{ $r->id }}">Decided</label>
+              <div class="col-md-3"><label class="form-label" for="chan{{ $r->id }}">{{ __('Decided') }}</label>
                 <select class="form-select" id="chan{{ $r->id }}" name="decision_channel">
                   <option value="system">{{ __('Here, now') }}</option>
                   <option value="offline">{{ __('Offline (recording a decision already made)') }}</option>

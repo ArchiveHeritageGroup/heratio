@@ -19,7 +19,7 @@
     <div class="row mb-4">
         <div class="col">
             <h1><i class="fas fa-book me-2"></i>{{ __('Template Library') }}</h1>
-            <p class="text-muted">Pre-built form templates ready to install</p>
+            <p class="text-muted">{{ __('Pre-built form templates ready to install') }}</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('forms.index') }}" class="btn btn-outline-secondary">

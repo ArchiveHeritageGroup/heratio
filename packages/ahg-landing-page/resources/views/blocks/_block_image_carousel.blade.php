@@ -78,7 +78,7 @@ $carouselId = 'carousel-' . uniqid();
             : url('/'.$collectionSlug);
       @endphp
       <a href="{{ $viewAllUrl }}" class="btn btn-outline-primary">
-        View All <i class="bi bi-arrow-right"></i>
+        {{ __('View All') }} <i class="bi bi-arrow-right"></i>
       </a>
     </div>
   @endif

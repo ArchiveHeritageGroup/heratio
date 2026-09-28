@@ -15,7 +15,7 @@
 
 @section('title-block')
 <h1><i class="fas fa-archive me-2"></i>{{ __('Museum / Collections') }}</h1>
-<p class="text-muted">Spectrum collections management procedures</p>
+<p class="text-muted">{{ __('Spectrum collections management procedures') }}</p>
 @endsection
 
 @section('content')
@@ -66,7 +66,7 @@
                      value="{{ $settings['spectrum_valuation_reminder_days'] ?? 365 }}" min="30" max="1825">
               <span class="input-group-text">days</span>
             </div>
-            <div class="form-text">Remind to re-value after this many days</div>
+            <div class="form-text">{{ __('Remind to re-value after this many days') }}</div>
           </div>
         </div>
 
@@ -91,7 +91,7 @@
                      value="{{ $settings['spectrum_condition_check_interval'] ?? 180 }}" min="30" max="730">
               <span class="input-group-text">days</span>
             </div>
-            <div class="form-text">Recommended interval between condition checks</div>
+            <div class="form-text">{{ __('Recommended interval between condition checks') }}</div>
           </div>
         </div>
 
@@ -128,7 +128,7 @@
                      {{ ($settings['spectrum_email_notifications'] ?? 'true') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="spectrum_email_notifications">{{ __('Send email notifications for task assignments and state transitions') }}</label>
             </div>
-            <div class="form-text">Requires SMTP to be configured in Email settings</div>
+            <div class="form-text">{{ __('Requires SMTP to be configured in Email settings') }}</div>
           </div>
         </div>
       </div>

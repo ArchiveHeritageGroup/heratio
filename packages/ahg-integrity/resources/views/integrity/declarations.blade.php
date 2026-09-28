@@ -58,8 +58,8 @@
 </div>
 
 <ul class="nav nav-tabs mb-3" id="declTabs" role="tablist">
-  <li class="nav-item"><a class="nav-link active" id="pending-tab" data-bs-toggle="tab" href="#pending" role="tab">Pending <span class="badge bg-warning text-dark">{{ count($pending) }}</span></a></li>
-  <li class="nav-item"><a class="nav-link" id="all-tab" data-bs-toggle="tab" href="#all" role="tab">All Declarations <span class="badge bg-secondary">{{ $total }}</span></a></li>
+  <li class="nav-item"><a class="nav-link active" id="pending-tab" data-bs-toggle="tab" href="#pending" role="tab">{{ __('Pending') }} <span class="badge bg-warning text-dark">{{ count($pending) }}</span></a></li>
+  <li class="nav-item"><a class="nav-link" id="all-tab" data-bs-toggle="tab" href="#all" role="tab">{{ __('All Declarations') }} <span class="badge bg-secondary">{{ $total }}</span></a></li>
 </ul>
 
 <div class="tab-content">
@@ -92,7 +92,7 @@
           </tbody>
         </table>
         @else
-        <div class="text-center py-4 text-muted">No pending declarations.</div>
+        <div class="text-center py-4 text-muted">{{ __('No pending declarations.') }}</div>
         @endif
       </div>
     </div>
@@ -140,7 +140,7 @@
         </nav>
         @endif
         @else
-        <div class="text-center py-4 text-muted">No declarations found.</div>
+        <div class="text-center py-4 text-muted">{{ __('No declarations found.') }}</div>
         @endif
       </div>
     </div>

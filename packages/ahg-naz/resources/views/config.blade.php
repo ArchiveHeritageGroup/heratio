@@ -25,7 +25,7 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
-                    <li class="breadcrumb-item active">Configuration</li>
+                    <li class="breadcrumb-item active">{{ __('Configuration') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-cog me-2"></i>{{ __('NAZ Configuration') }}</h1>

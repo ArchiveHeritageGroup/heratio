@@ -6,7 +6,7 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 mb-0">{{ __('DoD 5015.2 Destruction Verification') }}</h1>
-        <a href="{{ route('records.disposal.show', $action->id) }}" class="btn btn-outline-secondary btn-sm">Back to Disposal Action</a>
+        <a href="{{ route('records.disposal.show', $action->id) }}" class="btn btn-outline-secondary btn-sm">{{ __('Back to Disposal Action') }}</a>
     </div>
 
     <div class="card mb-3">
@@ -28,7 +28,7 @@
                         <i class="fas fa-times-circle"></i>
                     </div>
                     <h2 class="text-danger">{{ __('FAILED') }}</h2>
-                    <p class="text-muted">One or more verification checks failed. See details below.</p>
+                    <p class="text-muted">{{ __('One or more verification checks failed. See details below.') }}</p>
                 @endif
             </div>
 
@@ -103,7 +103,7 @@
             {{-- Re-verify Button --}}
             <div class="mt-4">
                 <a href="{{ route('records.disposal.verify', $action->id) }}" class="btn btn-outline-primary">
-                    Re-verify
+                    {{ __('Re-verify') }}
                 </a>
             </div>
         </div>

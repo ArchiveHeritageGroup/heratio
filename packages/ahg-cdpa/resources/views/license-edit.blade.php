@@ -21,7 +21,7 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.index') }}">CDPA</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.license') }}">License</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.license') }}">{{ __('License') }}</a></li>
                     <li class="breadcrumb-item active">{{ ($license ?? null) ? 'Edit' : 'Register' }}</li>
                 </ol>
             </nav>
@@ -37,13 +37,13 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">License Number <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('License Number') }} <span class="text-danger">*</span></label>
                             <input type="text" name="license_number" class="form-control"
                                    autocomplete="off"
                                    value="{{ $license->license_number ?? '' }}" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Tier <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Tier') }} <span class="text-danger">*</span></label>
                             <select name="tier" class="form-select" required>
                                 <option value="">{{ __('Select...') }}</option>
                                 <option value="tier1" {{ ($license->tier ?? '') === 'tier1' ? 'selected' : '' }}>Tier 1 - Small Scale</option>
@@ -52,7 +52,7 @@
                             </select>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Organization Name <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Organization Name') }} <span class="text-danger">*</span></label>
                             <input type="text" name="organization_name" class="form-control"
                                    value="{{ $license->organization_name ?? '' }}" required>
                         </div>
@@ -85,7 +85,7 @@
                                    value="{{ $license->issue_date ?? '' }}">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Expiry Date <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Expiry Date') }} <span class="text-danger">*</span></label>
                             <input type="date" name="expiry_date" class="form-control"
                                    value="{{ $license->expiry_date ?? '' }}" required>
                         </div>
@@ -108,7 +108,7 @@
                         <i class="fas fa-save me-2"></i>{{ __('Save License') }}
                     </button>
                     <a href="{{ route('ahgcdpa.license') }}" class="btn btn-outline-secondary">
-                        Cancel
+                        {{ __('Cancel') }}
                     </a>
                 </div>
             </div>

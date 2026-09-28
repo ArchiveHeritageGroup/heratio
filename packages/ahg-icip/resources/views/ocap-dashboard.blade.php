@@ -31,25 +31,25 @@
     <div class="col-md-3">
       <div class="card border-success"><div class="card-body text-center">
         <div class="display-6 text-success">{{ $agg['green'] }}</div>
-        <div class="text-muted small">All four principles satisfied</div>
+        <div class="text-muted small">{{ __('All four principles satisfied') }}</div>
       </div></div>
     </div>
     <div class="col-md-3">
       <div class="card border-warning"><div class="card-body text-center">
         <div class="display-6 text-warning">{{ $agg['amber'] }}</div>
-        <div class="text-muted small">Partial compliance</div>
+        <div class="text-muted small">{{ __('Partial compliance') }}</div>
       </div></div>
     </div>
     <div class="col-md-3">
       <div class="card border-danger"><div class="card-body text-center">
         <div class="display-6 text-danger">{{ $agg['red'] }}</div>
-        <div class="text-muted small">Action required</div>
+        <div class="text-muted small">{{ __('Action required') }}</div>
       </div></div>
     </div>
     <div class="col-md-3">
       <div class="card"><div class="card-body text-center">
         <div class="display-6 text-muted">{{ $agg['total'] }}</div>
-        <div class="text-muted small">Records assessed</div>
+        <div class="text-muted small">{{ __('Records assessed') }}</div>
       </div></div>
     </div>
   </div>
@@ -119,7 +119,7 @@
               </td>
             </tr>
           @empty
-            <tr><td colspan="7" class="text-center text-muted py-4">No records with ICIP signal yet.</td></tr>
+            <tr><td colspan="7" class="text-center text-muted py-4">{{ __('No records with ICIP signal yet.') }}</td></tr>
           @endforelse
         </tbody>
       </table>

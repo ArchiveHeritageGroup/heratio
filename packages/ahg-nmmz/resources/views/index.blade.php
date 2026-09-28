@@ -64,7 +64,7 @@
                 @elseif(!empty($compliance['warnings']))
                     <p class="mb-0">{{ count($compliance['warnings']) }} warning(s)</p>
                 @else
-                    <p class="mb-0">Heritage protection requirements met</p>
+                    <p class="mb-0">{{ __('Heritage protection requirements met') }}</p>
                 @endif
             </div>
         </div>
@@ -76,7 +76,7 @@
             <div class="card border-primary">
                 <div class="card-body text-center">
                     <h3>{{ $statsMonuments['total'] ?? 0 }}</h3>
-                    <p class="text-muted mb-0">National Monuments</p>
+                    <p class="text-muted mb-0">{{ __('National Monuments') }}</p>
                     <small class="text-success">{{ $statsMonuments['gazetted'] ?? 0 }} gazetted</small>
                     @if(($statsMonuments['at_risk'] ?? 0) > 0)
                         <small class="text-danger ms-2">{{ $statsMonuments['at_risk'] }} at risk</small>
@@ -88,7 +88,7 @@
             <div class="card">
                 <div class="card-body text-center">
                     <h3>{{ $statsAntiquities['total'] ?? 0 }}</h3>
-                    <p class="text-muted mb-0">Antiquities</p>
+                    <p class="text-muted mb-0">{{ __('Antiquities') }}</p>
                     <small class="text-muted">{{ $statsAntiquities['in_collection'] ?? 0 }} in collection</small>
                 </div>
             </div>
@@ -97,7 +97,7 @@
             <div class="card {{ ($statsPermits['pending'] ?? 0) > 0 ? 'border-warning' : '' }}">
                 <div class="card-body text-center">
                     <h3>{{ $statsPermits['pending'] ?? 0 }}</h3>
-                    <p class="text-muted mb-0">Pending Permits</p>
+                    <p class="text-muted mb-0">{{ __('Pending Permits') }}</p>
                     <small class="text-muted">{{ $statsPermits['this_year'] ?? 0 }} this year</small>
                 </div>
             </div>
@@ -106,7 +106,7 @@
             <div class="card">
                 <div class="card-body text-center">
                     <h3>{{ $statsSites['total'] ?? 0 }}</h3>
-                    <p class="text-muted mb-0">Archaeological Sites</p>
+                    <p class="text-muted mb-0">{{ __('Archaeological Sites') }}</p>
                     @if(($statsSites['at_risk'] ?? 0) > 0)
                         <small class="text-danger">{{ $statsSites['at_risk'] }} at risk</small>
                     @endif
@@ -124,11 +124,11 @@
                 </div>
                 <div class="list-group list-group-flush">
                     <a href="{{ route('nmmz.monuments') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-monument me-2"></i> National Monuments
+                        <i class="fas fa-monument me-2"></i> {{ __('National Monuments') }}
                         <span class="badge bg-primary float-end">{{ $statsMonuments['total'] ?? 0 }}</span>
                     </a>
                     <a href="{{ route('nmmz.antiquities') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-vase me-2"></i> Antiquities Register
+                        <i class="fas fa-vase me-2"></i> {{ __('Antiquities Register') }}
                         <span class="badge bg-secondary float-end">{{ $statsAntiquities['total'] ?? 0 }}</span>
                     </a>
                     <a href="{{ route('nmmz.permits') }}" class="list-group-item list-group-item-action">
@@ -161,7 +161,7 @@
                 </div>
                 <div class="card-body p-0">
                     @if(empty($recentMonuments) || (is_object($recentMonuments) && method_exists($recentMonuments, 'isEmpty') && $recentMonuments->isEmpty()))
-                        <div class="p-3 text-center text-muted">No monuments registered</div>
+                        <div class="p-3 text-center text-muted">{{ __('No monuments registered') }}</div>
                     @else
                         <ul class="list-group list-group-flush">
                             @foreach($recentMonuments as $m)

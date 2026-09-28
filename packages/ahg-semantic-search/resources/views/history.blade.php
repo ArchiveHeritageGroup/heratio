@@ -10,7 +10,7 @@
     <h5 class="mb-0">{{ __('Search History') }}</h5>
   </div>
   <div class="card-body">
-    <p class="text-muted">Content for Search History.</p>
+    <p class="text-muted">{{ __('Content for Search History.') }}</p>
   </div>
 </div>
 @endsection

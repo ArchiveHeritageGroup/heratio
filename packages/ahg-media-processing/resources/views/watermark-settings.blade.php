@@ -39,7 +39,7 @@
                   <label class="form-check-label" for="default_watermark_enabled">
                     <strong>{{ __('Enable default watermark') }}</strong> <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                   </label>
-                  <div class="form-text">Apply watermark to all images by default</div>
+                  <div class="form-text">{{ __('Apply watermark to all images by default') }}</div>
                 </div>
               </div>
               <div class="col-md-6">
@@ -50,7 +50,7 @@
                   <label class="form-check-label" for="security_watermark_override">
                     <strong>{{ __('Security classification override') }}</strong> <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                   </label>
-                  <div class="form-text">Security classification watermarks take priority</div>
+                  <div class="form-text">{{ __('Security classification watermarks take priority') }}</div>
                 </div>
               </div>
             </div>
@@ -72,7 +72,7 @@
                     name="apply_watermark_on_download" value="1"
                     {{ ($settings['apply_watermark_on_download'] ?? '1') === '1' ? 'checked' : '' }}>
                   <label class="form-check-label" for="apply_watermark_on_download">
-                    Apply watermark on download <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                    {{ __('Apply watermark on download') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                   </label>
                 </div>
               </div>
@@ -80,7 +80,7 @@
 
             <div class="row mb-3">
               <div class="col-md-6">
-                <label for="default_watermark_type" class="form-label">Default Watermark Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label for="default_watermark_type" class="form-label">{{ __('Default Watermark Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select class="form-select" id="default_watermark_type" name="default_watermark_type">
                   @foreach($watermarkTypes as $type)
                     <option value="{{ $type->code }}"
@@ -92,7 +92,7 @@
                     </option>
                   @endforeach
                 </select>
-                <div class="form-text">Watermark type applied when no per-object setting exists</div>
+                <div class="form-text">{{ __('Watermark type applied when no per-object setting exists') }}</div>
               </div>
               <div class="col-md-6">
                 <label for="watermark_min_size" class="form-label">Minimum Image Size (px) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
@@ -104,7 +104,7 @@
 
             @if($customWatermarks->isNotEmpty())
             <div class="mb-3">
-              <label for="default_custom_watermark_id" class="form-label">Default Custom Watermark <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="default_custom_watermark_id" class="form-label">{{ __('Default Custom Watermark') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select class="form-select" id="default_custom_watermark_id" name="default_custom_watermark_id">
                 <option value="">-- Use system watermark type --</option>
                 @foreach($customWatermarks as $cw)
@@ -136,15 +136,15 @@
           <div class="position-preview-grid mx-auto" style="max-width: 400px;">
             <div class="border rounded p-2 bg-light">
               <div class="row g-1 text-center" style="font-size: 0.8rem;">
-                <div class="col-4"><span class="badge bg-secondary w-100 py-2">Top Left<br><small>{{ __('NorthWest') }}</small></span></div>
-                <div class="col-4"><span class="badge bg-secondary w-100 py-2">Top Center<br><small>{{ __('North') }}</small></span></div>
-                <div class="col-4"><span class="badge bg-secondary w-100 py-2">Top Right<br><small>{{ __('NorthEast') }}</small></span></div>
-                <div class="col-4"><span class="badge bg-secondary w-100 py-2">Center Left<br><small>{{ __('West') }}</small></span></div>
-                <div class="col-4"><span class="badge bg-primary w-100 py-2">Center<br><small>{{ __('Center') }}</small></span></div>
-                <div class="col-4"><span class="badge bg-secondary w-100 py-2">Center Right<br><small>{{ __('East') }}</small></span></div>
-                <div class="col-4"><span class="badge bg-secondary w-100 py-2">Bottom Left<br><small>{{ __('SouthWest') }}</small></span></div>
-                <div class="col-4"><span class="badge bg-secondary w-100 py-2">Bottom Center<br><small>{{ __('South') }}</small></span></div>
-                <div class="col-4"><span class="badge bg-secondary w-100 py-2">Bottom Right<br><small>{{ __('SouthEast') }}</small></span></div>
+                <div class="col-4"><span class="badge bg-secondary w-100 py-2">{{ __('Top Left') }}<br><small>{{ __('NorthWest') }}</small></span></div>
+                <div class="col-4"><span class="badge bg-secondary w-100 py-2">{{ __('Top Center') }}<br><small>{{ __('North') }}</small></span></div>
+                <div class="col-4"><span class="badge bg-secondary w-100 py-2">{{ __('Top Right') }}<br><small>{{ __('NorthEast') }}</small></span></div>
+                <div class="col-4"><span class="badge bg-secondary w-100 py-2">{{ __('Center Left') }}<br><small>{{ __('West') }}</small></span></div>
+                <div class="col-4"><span class="badge bg-primary w-100 py-2">{{ __('Center') }}<br><small>{{ __('Center') }}</small></span></div>
+                <div class="col-4"><span class="badge bg-secondary w-100 py-2">{{ __('Center Right') }}<br><small>{{ __('East') }}</small></span></div>
+                <div class="col-4"><span class="badge bg-secondary w-100 py-2">{{ __('Bottom Left') }}<br><small>{{ __('SouthWest') }}</small></span></div>
+                <div class="col-4"><span class="badge bg-secondary w-100 py-2">{{ __('Bottom Center') }}<br><small>{{ __('South') }}</small></span></div>
+                <div class="col-4"><span class="badge bg-secondary w-100 py-2">{{ __('Bottom Right') }}<br><small>{{ __('SouthEast') }}</small></span></div>
               </div>
               <div class="text-center mt-2">
                 <span class="badge bg-info w-100 py-2">Repeat (Tile)<br><small>{{ __('Covers entire image') }}</small></span>
@@ -167,20 +167,20 @@
             @csrf
 
             <div class="mb-3">
-              <label for="custom_watermark_name" class="form-label">Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label for="custom_watermark_name" class="form-label">{{ __('Name') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="text" class="form-control" id="custom_watermark_name"
                 name="custom_watermark_name" required maxlength="100" placeholder="{{ __('e.g. Company Logo') }}">
             </div>
 
             <div class="mb-3">
-              <label for="custom_watermark_file" class="form-label">Watermark Image <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label for="custom_watermark_file" class="form-label">{{ __('Watermark Image') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="file" class="form-control" id="custom_watermark_file"
                 name="custom_watermark_file" required accept="image/png,image/jpeg,image/gif">
               <div class="form-text">PNG, JPEG, or GIF. Max 5 MB. Transparent PNG recommended.</div>
             </div>
 
             <div class="mb-3">
-              <label for="custom_watermark_position" class="form-label">Position <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="custom_watermark_position" class="form-label">{{ __('Position') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select class="form-select" id="custom_watermark_position" name="custom_watermark_position">
                 @foreach($positions as $value => $label)
                   <option value="{{ strtolower(str_replace(['North', 'South', 'East', 'West'], ['top', 'bottom', 'right', 'left'], $value)) }}"
@@ -193,7 +193,7 @@
 
             <div class="mb-3">
               <label for="custom_watermark_opacity" class="form-label">
-                Opacity: <span id="opacity_value">40</span>% <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                {{ __('Opacity:') }} <span id="opacity_value">40</span>% <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="range" class="form-range" id="custom_watermark_opacity"
                 name="custom_watermark_opacity" min="0" max="1" step="0.05" value="0.40"
                 oninput="document.getElementById('opacity_value').textContent = Math.round(this.value * 100)">
@@ -231,7 +231,7 @@
             </form>
           </div>
           @empty
-          <div class="p-3 text-muted text-center">No custom watermarks uploaded yet.</div>
+          <div class="p-3 text-muted text-center">{{ __('No custom watermarks uploaded yet.') }}</div>
           @endforelse
         </div>
       </div>

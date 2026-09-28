@@ -19,7 +19,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr><td colspan="3" class="text-muted text-center">No records found.</td></tr>
+      <tr><td colspan="3" class="text-muted text-center">{{ __('No records found.') }}</td></tr>
     </tbody>
   </table>
 </div>

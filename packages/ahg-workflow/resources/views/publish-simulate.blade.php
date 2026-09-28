@@ -12,6 +12,6 @@
       </div>
       @endforeach
       <div class="mt-3"><span class="badge bg-{{ ($allPassed ?? false) ? 'success' : 'danger' }} fs-6">{{ ($allPassed ?? false) ? 'Ready to Publish' : 'Not Ready' }}</span></div>
-    @else<p class="text-muted">No gates configured.</p>@endif
+    @else<p class="text-muted">{{ __('No gates configured.') }}</p>@endif
   </div></div>
 @endsection

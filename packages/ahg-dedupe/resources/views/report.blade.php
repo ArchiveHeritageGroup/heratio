@@ -24,7 +24,7 @@
         <div class="card text-center">
           <div class="card-body">
             <h2 class="text-primary">{{ number_format($efficiency['total_detected'] ?? 0) }}</h2>
-            <p class="text-muted mb-0">Total Detected</p>
+            <p class="text-muted mb-0">{{ __('Total Detected') }}</p>
           </div>
         </div>
       </div>
@@ -32,7 +32,7 @@
         <div class="card text-center">
           <div class="card-body">
             <h2 class="text-success">{{ number_format($efficiency['total_merged'] ?? 0) }}</h2>
-            <p class="text-muted mb-0">Merged</p>
+            <p class="text-muted mb-0">{{ __('Merged') }}</p>
           </div>
         </div>
       </div>
@@ -40,7 +40,7 @@
         <div class="card text-center">
           <div class="card-body">
             <h2 class="text-secondary">{{ number_format($efficiency['total_dismissed'] ?? 0) }}</h2>
-            <p class="text-muted mb-0">Dismissed</p>
+            <p class="text-muted mb-0">{{ __('Dismissed') }}</p>
           </div>
         </div>
       </div>
@@ -48,7 +48,7 @@
         <div class="card text-center">
           <div class="card-body">
             <h2 class="text-warning">{{ $efficiency['false_positive_rate'] ?? 0 }}%</h2>
-            <p class="text-muted mb-0">False Positive Rate</p>
+            <p class="text-muted mb-0">{{ __('False Positive Rate') }}</p>
           </div>
         </div>
       </div>
@@ -59,10 +59,10 @@
     {{-- Monthly Trend --}}
     <div class="col-lg-8">
       <div class="card mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong><i class="fas fa-chart-line me-2"></i>Monthly Detection Trend</strong></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong><i class="fas fa-chart-line me-2"></i>{{ __('Monthly Detection Trend') }}</strong></div>
         <div class="card-body p-0">
           @if($monthlyStats->isEmpty())
-            <div class="p-3 text-muted text-center">No data available yet.</div>
+            <div class="p-3 text-muted text-center">{{ __('No data available yet.') }}</div>
           @else
             <div class="table-responsive">
               <table class="table table-bordered table-striped mb-0">
@@ -104,10 +104,10 @@
     {{-- Top Duplicate Clusters --}}
     <div class="col-lg-4">
       <div class="card mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong><i class="fas fa-clone me-2"></i>Top Duplicate Clusters</strong></div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong><i class="fas fa-clone me-2"></i>{{ __('Top Duplicate Clusters') }}</strong></div>
         <div class="card-body p-0">
           @if(!isset($topClusters) || $topClusters->isEmpty())
-            <div class="p-3 text-muted text-center">No pending duplicate clusters.</div>
+            <div class="p-3 text-muted text-center">{{ __('No pending duplicate clusters.') }}</div>
           @else
             <ul class="list-group list-group-flush">
               @foreach($topClusters as $cluster)
@@ -132,7 +132,7 @@
     <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong>{{ __('By Detection Method') }}</strong></div>
     <div class="card-body p-0">
       @if($methodBreakdown->isEmpty())
-        <div class="p-3 text-muted">No data available.</div>
+        <div class="p-3 text-muted">{{ __('No data available.') }}</div>
       @else
         <div class="table-responsive">
           <table class="table table-bordered table-striped mb-0">
@@ -164,9 +164,9 @@
 
   {{-- Export Options --}}
   <div class="card mb-4">
-    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong><i class="fas fa-download me-2"></i>Export Reports</strong></div>
+    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><strong><i class="fas fa-download me-2"></i>{{ __('Export Reports') }}</strong></div>
     <div class="card-body">
-      <p>Use the CLI to export detailed reports:</p>
+      <p>{{ __('Use the CLI to export detailed reports:') }}</p>
       <div class="row">
         <div class="col-md-6">
           <h6>{{ __('CSV Export') }}</h6>

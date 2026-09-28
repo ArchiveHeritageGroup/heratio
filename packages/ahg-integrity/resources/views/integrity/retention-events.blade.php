@@ -68,7 +68,7 @@
           </tbody>
         </table>
         @else
-        <div class="text-center py-3 text-muted">No retention policies configured.</div>
+        <div class="text-center py-3 text-muted">{{ __('No retention policies configured.') }}</div>
         @endif
       </div>
     </div>
@@ -77,7 +77,7 @@
 
 <div class="card">
   <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-    <h5 class="mb-0">Retention Trigger Events <span class="badge bg-light text-dark ms-2">{{ $total }}</span></h5>
+    <h5 class="mb-0">{{ __('Retention Trigger Events') }} <span class="badge bg-light text-dark ms-2">{{ $total }}</span></h5>
   </div>
   <div class="card-body p-0">
     @if(count($events) > 0)
@@ -112,7 +112,7 @@
     </nav>
     @endif
     @else
-    <div class="text-center py-4 text-muted">No retention trigger events recorded.</div>
+    <div class="text-center py-4 text-muted">{{ __('No retention trigger events recorded.') }}</div>
     @endif
   </div>
 </div>

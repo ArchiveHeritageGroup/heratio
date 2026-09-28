@@ -76,7 +76,7 @@
           </tbody>
         </table>
         <a href="{{ route('acl.security-index') }}" class="btn btn-sm btn-outline-primary">
-          Manage Clearances
+          {{ __('Manage Clearances') }}
         </a>
       </div>
     </div>
@@ -146,7 +146,7 @@
           <td>{{ date('Y-m-d H:i', strtotime($req->created_at)) }}</td>
           <td>
             <a href="{{ route('acl.review-access-request', ['id' => $req->request_id ?? $req->id]) }}" class="btn btn-sm btn-primary">
-              Review
+              {{ __('Review') }}
             </a>
           </td>
         </tr>
@@ -195,7 +195,7 @@
           </td>
           <td>
             <a href="{{ route('acl.view-classification', ['id' => $exp->user_id]) }}" class="btn btn-sm btn-outline-primary">
-              Manage
+              {{ __('Manage') }}
             </a>
           </td>
         </tr>

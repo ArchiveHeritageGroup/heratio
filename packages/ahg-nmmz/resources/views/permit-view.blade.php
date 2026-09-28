@@ -25,7 +25,7 @@
       <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
-          <li class="breadcrumb-item"><a href="{{ route('nmmz.permits') }}">Export Permits</a></li>
+          <li class="breadcrumb-item"><a href="{{ route('nmmz.permits') }}">{{ __('Export Permits') }}</a></li>
           <li class="breadcrumb-item active">{{ $permit->permit_number ?? 'EXP-'.$permit->id }}</li>
         </ol>
       </nav>
@@ -44,19 +44,19 @@
         <div class="card-header"><h5 class="mb-0">{{ __('Applicant Information') }}</h5></div>
         <div class="card-body">
           <dl class="row mb-0">
-            <dt class="col-sm-4">Applicant Name</dt>
+            <dt class="col-sm-4">{{ __('Applicant Name') }}</dt>
             <dd class="col-sm-8">{{ $permit->applicant_name ?? '-' }}</dd>
 
-            <dt class="col-sm-4">Applicant Type</dt>
+            <dt class="col-sm-4">{{ __('Applicant Type') }}</dt>
             <dd class="col-sm-8">{{ ucfirst($permit->applicant_type ?? '-') }}</dd>
 
-            <dt class="col-sm-4">Address</dt>
+            <dt class="col-sm-4">{{ __('Address') }}</dt>
             <dd class="col-sm-8">{!! nl2br(e($permit->applicant_address ?? '-')) !!}</dd>
 
-            <dt class="col-sm-4">Email</dt>
+            <dt class="col-sm-4">{{ __('Email') }}</dt>
             <dd class="col-sm-8">{{ $permit->applicant_email ?? '-' }}</dd>
 
-            <dt class="col-sm-4">Phone</dt>
+            <dt class="col-sm-4">{{ __('Phone') }}</dt>
             <dd class="col-sm-8">{{ $permit->applicant_phone ?? '-' }}</dd>
           </dl>
         </div>
@@ -67,19 +67,19 @@
         <div class="card-body">
           <dl class="row mb-0">
             @if($permit->antiquity_id)
-              <dt class="col-sm-4">Linked Antiquity</dt>
+              <dt class="col-sm-4">{{ __('Linked Antiquity') }}</dt>
               <dd class="col-sm-8">
                 <a href="{{ route('nmmz.antiquity.view', $permit->antiquity_id) }}">ANT-{{ $permit->antiquity_id }}</a>
               </dd>
             @endif
 
-            <dt class="col-sm-4">Description</dt>
+            <dt class="col-sm-4">{{ __('Description') }}</dt>
             <dd class="col-sm-8">{!! nl2br(e($permit->object_description ?? '-')) !!}</dd>
 
-            <dt class="col-sm-4">Quantity</dt>
+            <dt class="col-sm-4">{{ __('Quantity') }}</dt>
             <dd class="col-sm-8">{{ $permit->quantity ?? 1 }}</dd>
 
-            <dt class="col-sm-4">Estimated Value</dt>
+            <dt class="col-sm-4">{{ __('Estimated Value') }}</dt>
             <dd class="col-sm-8">{{ $permit->estimated_value ? '$'.number_format($permit->estimated_value, 2) : '-' }}</dd>
           </dl>
         </div>
@@ -89,22 +89,22 @@
         <div class="card-header"><h5 class="mb-0">{{ __('Export Details') }}</h5></div>
         <div class="card-body">
           <dl class="row mb-0">
-            <dt class="col-sm-4">Export Purpose</dt>
+            <dt class="col-sm-4">{{ __('Export Purpose') }}</dt>
             <dd class="col-sm-8">{{ ucfirst($permit->export_purpose ?? '-') }}</dd>
 
-            <dt class="col-sm-4">Purpose Details</dt>
+            <dt class="col-sm-4">{{ __('Purpose Details') }}</dt>
             <dd class="col-sm-8">{!! nl2br(e($permit->purpose_details ?? '-')) !!}</dd>
 
-            <dt class="col-sm-4">Destination Country</dt>
+            <dt class="col-sm-4">{{ __('Destination Country') }}</dt>
             <dd class="col-sm-8">{{ $permit->destination_country ?? '-' }}</dd>
 
-            <dt class="col-sm-4">Destination Institution</dt>
+            <dt class="col-sm-4">{{ __('Destination Institution') }}</dt>
             <dd class="col-sm-8">{{ $permit->destination_institution ?? '-' }}</dd>
 
-            <dt class="col-sm-4">Proposed Export Date</dt>
+            <dt class="col-sm-4">{{ __('Proposed Export Date') }}</dt>
             <dd class="col-sm-8">{{ $permit->export_date_proposed ? \Carbon\Carbon::parse($permit->export_date_proposed)->format('j F Y') : '-' }}</dd>
 
-            <dt class="col-sm-4">Return Date</dt>
+            <dt class="col-sm-4">{{ __('Return Date') }}</dt>
             <dd class="col-sm-8">{{ $permit->return_date ? \Carbon\Carbon::parse($permit->return_date)->format('j F Y') : 'Not specified (permanent)' }}</dd>
           </dl>
         </div>

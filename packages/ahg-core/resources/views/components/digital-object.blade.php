@@ -85,7 +85,7 @@
           <i class="fas fa-file-alt fa-3x text-muted"></i>
           <p class="mt-2">{{ $master->name }}</p>
           <a href="{{ \AhgCore\Services\DigitalObjectService::getUrl($master) }}" class="btn btn-sm atom-btn-white" target="_blank">
-            View document
+            {{ __('View document') }}
           </a>
         </div>
       </div>
@@ -95,7 +95,7 @@
           <i class="fas fa-file fa-3x text-muted"></i>
           <p class="mt-2">{{ $master->name }}</p>
           <a href="{{ \AhgCore\Services\DigitalObjectService::getUrl($master) }}" class="btn btn-sm atom-btn-white" target="_blank">
-            Download
+            {{ __('Download') }}
           </a>
         </div>
       </div>

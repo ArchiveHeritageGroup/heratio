@@ -5,9 +5,9 @@
 @section('content')
 <div class="container-fluid mt-3">
   <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">Security Dashboard</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('security-clearance.compartments') }}">Compartments</a></li>
-    <li class="breadcrumb-item active">Access Grants</li>
+    <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">{{ __('Security Dashboard') }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('security-clearance.compartments') }}">{{ __('Compartments') }}</a></li>
+    <li class="breadcrumb-item active">{{ __('Access Grants') }}</li>
   </ol></nav>
 
   <h1><i class="fas fa-key"></i> {{ __('Compartment Access Grants') }}</h1>
@@ -33,7 +33,7 @@
             </td>
           </tr>
           @empty
-          <tr><td colspan="6" class="text-muted">No compartment access grants.</td></tr>
+          <tr><td colspan="6" class="text-muted">{{ __('No compartment access grants.') }}</td></tr>
           @endforelse
         </tbody>
       </table>

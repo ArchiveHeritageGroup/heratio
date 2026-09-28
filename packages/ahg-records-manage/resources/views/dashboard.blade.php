@@ -21,7 +21,7 @@
 
 <p class="text-muted">
   Records lifecycle: retention schedules → file plan classification → review triggers → disposal workflow → certificate of destruction or transfer to archives.
-  See <a href="{{ url('/help') }}">Help</a> for the full workflow.
+  See <a href="{{ url('/help') }}">{{ __('Help') }}</a> for the full workflow.
 </p>
 
 <div class="row g-3">
@@ -96,7 +96,7 @@
       <div class="card h-100 border-secondary">
         <div class="card-body">
           <h5 class="card-title text-secondary"><i class="fas fa-envelope me-1"></i> {{ __('Email Capture') }}</h5>
-          <p class="card-text text-muted small">Capture and classify business email as records of activity.</p>
+          <p class="card-text text-muted small">{{ __('Capture and classify business email as records of activity.') }}</p>
           <div class="mt-2"><span class="badge bg-secondary">{{ $stats['captured_emails'] }}</span> captured</div>
         </div>
       </div>
@@ -153,7 +153,7 @@
 </div>
 
 <div class="mt-4 small text-muted">
-  Status badges marked <em>(P2.4)</em>, <em>(P2.6)</em>, <em>(P2.8)</em>, <em>(P4.2)</em> mark roadmap phases.
+  {{ __('Status badges marked') }} <em>(P2.4)</em>, <em>(P2.6)</em>, <em>(P2.8)</em>, <em>(P4.2)</em> mark roadmap phases.
   Database tables exist; UI/services pending. See README roadmap for full status.
 </div>
 @endsection

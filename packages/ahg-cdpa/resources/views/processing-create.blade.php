@@ -21,8 +21,8 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.index') }}">CDPA</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.processing') }}">Processing</a></li>
-                    <li class="breadcrumb-item active">Add Activity</li>
+                    <li class="breadcrumb-item"><a href="{{ route('ahgcdpa.processing') }}">{{ __('Processing') }}</a></li>
+                    <li class="breadcrumb-item active">{{ __('Add Activity') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-cogs me-2"></i>{{ __('Add Processing Activity') }}</h1>
@@ -37,7 +37,7 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-8">
-                            <label class="form-label">Activity Name <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Activity Name') }} <span class="text-danger">*</span></label>
                             <input type="text" name="name" class="form-control" autocomplete="off" required>
                         </div>
                         <div class="col-md-4">
@@ -58,11 +58,11 @@
                             <input type="text" name="data_types" class="form-control" placeholder="{{ __('e.g., Names, addresses, contact details, ID numbers') }}">
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Purpose of Processing <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Purpose of Processing') }} <span class="text-danger">*</span></label>
                             <textarea name="purpose" class="form-control" rows="3" required></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Legal Basis <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Legal Basis') }} <span class="text-danger">*</span></label>
                             <select name="legal_basis" class="form-select" required>
                                 <option value="">{{ __('Select...') }}</option>
                                 <option value="consent">{{ __('Consent') }}</option>
@@ -151,7 +151,7 @@
                         <i class="fas fa-save me-2"></i>{{ __('Save Activity') }}
                     </button>
                     <a href="{{ route('ahgcdpa.processing') }}" class="btn btn-outline-secondary">
-                        Cancel
+                        {{ __('Cancel') }}
                     </a>
                 </div>
             </div>

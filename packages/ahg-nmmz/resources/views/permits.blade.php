@@ -24,11 +24,11 @@
       <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
-          <li class="breadcrumb-item active">Export Permits</li>
+          <li class="breadcrumb-item active">{{ __('Export Permits') }}</li>
         </ol>
       </nav>
       <h1><i class="fas fa-file-export me-2"></i>{{ __('Export Permits') }}</h1>
-      <p class="text-muted">Export permit applications</p>
+      <p class="text-muted">{{ __('Export permit applications') }}</p>
     </div>
     <div class="col-auto">
       <a href="{{ route('nmmz.permit.create') }}" class="btn btn-primary">
@@ -61,8 +61,8 @@
       @if($permits->isEmpty())
         <div class="p-4 text-center text-muted">
           <i class="fas fa-file-export fa-3x mb-3"></i>
-          <p>No export permits found.</p>
-          <a href="{{ route('nmmz.permit.create') }}" class="btn btn-primary">Create Application</a>
+          <p>{{ __('No export permits found.') }}</p>
+          <a href="{{ route('nmmz.permit.create') }}" class="btn btn-primary">{{ __('Create Application') }}</a>
         </div>
       @else
         <table class="table table-hover mb-0">

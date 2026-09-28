@@ -154,7 +154,7 @@
             @elseif((int) $task->assigned_to === (int) auth()->id())
               {{-- Approve / Reject / Release --}}
               <div class="mb-3">
-                <label for="comment" class="form-label">Comment <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                <label for="comment" class="form-label">{{ __('Comment') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                 <textarea id="comment" class="form-control" rows="3" form="approve-form" name="comment" placeholder="{{ __('Optional comment for approval, required for rejection...') }}"></textarea>
               </div>
 
@@ -194,7 +194,7 @@
         <div class="card-header"><h5 class="mb-0"><i class="fas fa-history"></i> {{ __('Task History') }}</h5></div>
         <div class="card-body">
           @if(empty($task->history))
-            <p class="text-muted mb-0">No history recorded.</p>
+            <p class="text-muted mb-0">{{ __('No history recorded.') }}</p>
           @else
             <div class="timeline">
               @foreach($task->history as $entry)

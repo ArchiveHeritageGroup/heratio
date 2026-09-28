@@ -14,8 +14,8 @@
 
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">Data Migration</a></li>
-      <li class="breadcrumb-item active">Upload</li>
+      <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">{{ __('Data Migration') }}</a></li>
+      <li class="breadcrumb-item active">{{ __('Upload') }}</li>
     </ol>
   </nav>
 
@@ -61,7 +61,7 @@
 
         {{-- Step 1: File Upload with Drag & Drop --}}
         <div class="mb-4">
-          <h6 class="text-primary"><span class="badge bg-primary me-2">1</span>Select File</h6>
+          <h6 class="text-primary"><span class="badge bg-primary me-2">1</span>{{ __('Select File') }}</h6>
           <div class="border rounded p-4 bg-light text-center" id="dropZone" style="cursor:pointer">
             <input type="file" name="file" id="importFile" class="d-none"
                    accept=".csv,.xls,.xlsx,.xml,.json,.opex,.pax,.zip,.txt">
@@ -73,14 +73,14 @@
             <div id="fileInfo" class="d-none">
               <p class="mb-1"><strong id="fileName"></strong></p>
               <small class="text-muted" id="fileSize"></small>
-              <br><a href="#" onclick="clearFile(); return false;" class="text-danger small">Remove</a>
+              <br><a href="#" onclick="clearFile(); return false;" class="text-danger small">{{ __('Remove') }}</a>
             </div>
           </div>
         </div>
 
         {{-- Step 2: File Options (shown after file selected) --}}
         <div class="mb-4 d-none" id="fileOptions">
-          <h6 class="text-primary"><span class="badge bg-primary me-2">2</span>File Options</h6>
+          <h6 class="text-primary"><span class="badge bg-primary me-2">2</span>{{ __('File Options') }}</h6>
           <div class="row g-3">
             {{-- Excel Sheet Selection (only for Excel files) --}}
             <div class="col-md-6 d-none" id="sheetSelectGroup">
@@ -169,7 +169,7 @@
 
         {{-- Step 2c: Source Format --}}
         <div class="mb-4 d-none" id="sourceFormatSection">
-          <h6 class="text-primary"><span class="badge bg-primary me-2">2c</span>Source Format</h6>
+          <h6 class="text-primary"><span class="badge bg-primary me-2">2c</span>{{ __('Source Format') }}</h6>
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label">{{ __('Import From') }}</label>
@@ -218,7 +218,7 @@
           <h6 class="text-primary"><span class="badge bg-primary me-2">3</span>Import Target & Mapping</h6>
           <div class="row g-3">
             <div class="col-md-6">
-              <label for="target_type" class="form-label">Target Record Type <span class="text-danger">*</span></label>
+              <label for="target_type" class="form-label">{{ __('Target Record Type') }} <span class="text-danger">*</span></label>
               <select class="form-select @error('target_type') is-invalid @enderror" id="target_type" name="target_type" required>
                 <option value="">-- Select target type --</option>
                 <option value="archives" {{ old('target_type') === 'archives' ? 'selected' : '' }}>{{ __('Archives (ISAD-G)') }}</option>
@@ -251,16 +251,16 @@
         <div class="mb-4">
           <div class="row g-3">
             <div class="col-md-6">
-              <label for="import_type" class="form-label">Import Type <span class="text-danger">*</span></label>
+              <label for="import_type" class="form-label">{{ __('Import Type') }} <span class="text-danger">*</span></label>
               <select class="form-select @error('import_type') is-invalid @enderror" id="import_type" name="import_type" required>
                 <option value="create" {{ old('import_type', 'create') === 'create' ? 'selected' : '' }}>{{ __('Create new records') }}</option>
                 <option value="update" {{ old('import_type') === 'update' ? 'selected' : '' }}>{{ __('Match and update existing') }}</option>
                 <option value="replace" {{ old('import_type') === 'replace' ? 'selected' : '' }}>{{ __('Delete and replace') }}</option>
               </select>
               <div class="form-text">
-                <strong>{{ __('Create new:') }}</strong> All rows create new records.<br>
-                <strong>{{ __('Match and update:') }}</strong> Match by identifier/name and update existing records.<br>
-                <strong>{{ __('Delete and replace:') }}</strong> Delete matched records and re-create from CSV.
+                <strong>{{ __('Create new:') }}</strong> {{ __('All rows create new records.') }}<br>
+                <strong>{{ __('Match and update:') }}</strong> {{ __('Match by identifier/name and update existing records.') }}<br>
+                <strong>{{ __('Delete and replace:') }}</strong> {{ __('Delete matched records and re-create from CSV.') }}
               </div>
               @error('import_type')
                 <div class="invalid-feedback">{{ $message }}</div>
@@ -271,7 +271,7 @@
 
         {{-- Step 4: File Preview --}}
         <div class="mb-4 d-none" id="previewSection">
-          <h6 class="text-primary"><span class="badge bg-primary me-2">4</span>Preview</h6>
+          <h6 class="text-primary"><span class="badge bg-primary me-2">4</span>{{ __('Preview') }}</h6>
           <div class="table-responsive border rounded" style="max-height: 200px; overflow: auto;">
             <table class="table table-sm table-striped mb-0" id="previewTable">
               <thead class="table-light sticky-top" id="previewHead"></thead>
@@ -283,7 +283,7 @@
 
         {{-- Submit --}}
         <div class="d-flex justify-content-between">
-          <a href="{{ route('data-migration.index') }}" class="btn btn btn-outline-secondary">Cancel</a>
+          <a href="{{ route('data-migration.index') }}" class="btn btn btn-outline-secondary">{{ __('Cancel') }}</a>
           <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" disabled>
             <i class="fas fa-arrow-right me-1"></i>{{ __('Continue to Field Mapping') }}
           </button>

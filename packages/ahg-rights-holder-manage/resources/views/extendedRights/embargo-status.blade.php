@@ -20,7 +20,7 @@
         <i class="fas fa-info-circle me-2"></i>{{ __('No object specified. Please select a record to view its embargo status.') }}
       </div>
       <h5 class="mt-4">{{ __('View All Embargoes') }}</h5>
-      <p>You can view and manage all embargoes from the embargoes list.</p>
+      <p>{{ __('You can view and manage all embargoes from the embargoes list.') }}</p>
       <a href="{{ route('extended-rights.embargoes') }}" class="btn atom-btn-white"><i class="fas fa-list me-1"></i>{{ __('View All Embargoes') }}</a>
     @endif
   </div>

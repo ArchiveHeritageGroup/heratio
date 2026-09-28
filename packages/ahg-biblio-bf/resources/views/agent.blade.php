@@ -6,7 +6,7 @@
 
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h1 class="h4 mb-0"><i class="bi bi-person"></i> BIBFRAME Agents</h1>
+      <h1 class="h4 mb-0"><i class="bi bi-person"></i> {{ __('BIBFRAME Agents') }}</h1>
       <p class="small text-muted mb-0">Authority records for persons and corporate bodies linked to BIBFRAME works</p>
     </div>
     <a href="{{ route('bibframe.index') }}" class="btn btn-outline-secondary btn-sm">&larr; Back</a>

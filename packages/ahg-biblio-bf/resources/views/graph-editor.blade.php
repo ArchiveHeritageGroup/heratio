@@ -17,7 +17,7 @@
         <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-work">bf:Work + bf:Instance</a></li>
         <li class="nav-item"><a class="nav-link"        data-bs-toggle="tab" href="#tab-contributors">bf:Contribution</a></li>
         <li class="nav-item"><a class="nav-link"        data-bs-toggle="tab" href="#tab-subjects">bf:Topic (Subjects)</a></li>
-        <li class="nav-item"><a class="nav-link"        data-bs-toggle="tab" href="#tab-rdf">RDF preview</a></li>
+        <li class="nav-item"><a class="nav-link"        data-bs-toggle="tab" href="#tab-rdf">{{ __('RDF preview') }}</a></li>
     </ul>
 
     <div class="tab-content">

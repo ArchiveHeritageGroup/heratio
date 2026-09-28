@@ -28,7 +28,7 @@
   <div class="card-header bg-white">
     <div class="row align-items-center">
       <div class="col-auto">
-        <strong><i class="fas fa-filter me-2"></i>Category</strong>
+        <strong><i class="fas fa-filter me-2"></i>{{ __('Category') }}</strong>
         <div class="btn-group btn-group-sm ms-2" role="group">
           <button type="button" class="btn btn-outline-primary active" data-filter="all">{{ __('All') }}</button>
           @foreach($categories as $key => $cat)
@@ -39,7 +39,7 @@
         </div>
       </div>
       <div class="col-auto">
-        <strong><i class="fas fa-toggle-on me-2"></i>Status</strong>
+        <strong><i class="fas fa-toggle-on me-2"></i>{{ __('Status') }}</strong>
         <div class="btn-group btn-group-sm ms-2" role="group">
           <button type="button" class="btn btn-outline-primary active" data-status="all">{{ __('All') }}</button>
           <button type="button" class="btn btn-outline-success" data-status="enabled"><i class="fas fa-check me-1"></i>{{ __('Enabled') }}</button>

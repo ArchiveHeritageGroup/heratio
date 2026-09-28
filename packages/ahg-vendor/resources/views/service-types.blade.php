@@ -25,8 +25,8 @@
 
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.index') }}">Vendor Management</a></li>
-            <li class="breadcrumb-item active">Service Types</li>
+            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.index') }}">{{ __('Vendor Management') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('Service Types') }}</li>
         </ol>
     </nav>
 
@@ -51,9 +51,9 @@
             <table class="table table-striped table-hover mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th class="sortable" data-sort="name" style="cursor:pointer">Name <i class="fas fa-sort text-muted"></i></th>
-                        <th class="sortable" data-sort="description" style="cursor:pointer">Description <i class="fas fa-sort text-muted"></i></th>
-                        <th class="sortable" data-sort="status" style="cursor:pointer">Status <i class="fas fa-sort text-muted"></i></th>
+                        <th class="sortable" data-sort="name" style="cursor:pointer">{{ __('Name') }} <i class="fas fa-sort text-muted"></i></th>
+                        <th class="sortable" data-sort="description" style="cursor:pointer">{{ __('Description') }} <i class="fas fa-sort text-muted"></i></th>
+                        <th class="sortable" data-sort="status" style="cursor:pointer">{{ __('Status') }} <i class="fas fa-sort text-muted"></i></th>
                         <th class="text-end" style="width: 120px;">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
@@ -92,7 +92,7 @@
             @else
             <div class="text-center py-5 text-muted">
                 <i class="fas fa-tags display-4 mb-3 d-block"></i>
-                <p>No service types defined yet.</p>
+                <p>{{ __('No service types defined yet.') }}</p>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addServiceTypeModal">
                     <i class="fas fa-plus me-1"></i>{{ __('Add First Service Type') }}
                 </button>
@@ -115,7 +115,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label" for="addTypeName">Name <span class="text-danger">*</span></label>
+                        <label class="form-label" for="addTypeName">{{ __('Name') }} <span class="text-danger">*</span></label>
                         <input type="text" name="name" id="addTypeName" class="form-control" required placeholder="{{ __('e.g., Conservation, Digitisation, Storage') }}">
                     </div>
                     <div class="mb-3">
@@ -150,7 +150,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label" for="editTypeName">Name <span class="text-danger">*</span></label>
+                        <label class="form-label" for="editTypeName">{{ __('Name') }} <span class="text-danger">*</span></label>
                         <input type="text" name="name" id="editTypeName" class="form-control" required>
                     </div>
                     <div class="mb-3">

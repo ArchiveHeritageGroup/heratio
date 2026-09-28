@@ -41,16 +41,16 @@
 
   <h2>{{ __('Context sheet') }}</h2>
   <table class="kv">
-    <tr><td class="k">Type</td><td>{{ $context->type_name ?: '-' }}</td>
-        <td class="k">Phase</td><td>{{ $context->phase_name ?: '-' }}</td></tr>
-    <tr><td class="k">Top elevation</td><td>{{ $fmtEl($context->top_elevation_m) }}</td>
-        <td class="k">Bottom elevation</td><td>{{ $fmtEl($context->bottom_elevation_m) }}</td></tr>
-    <tr><td class="k">Excavation ref.</td><td>{{ $context->excavation_reference ?: '-' }}</td>
-        <td class="k">Excavator</td><td>{{ $context->excavator ?: '-' }}</td></tr>
-    <tr><td class="k">Excavated</td><td>{{ $context->excavation_date ?: '-' }}</td>
-        <td class="k">Date range</td><td>{{ ($context->date_earliest ?: '?') }} - {{ ($context->date_latest ?: '?') }}</td></tr>
+    <tr><td class="k">{{ __('Type') }}</td><td>{{ $context->type_name ?: '-' }}</td>
+        <td class="k">{{ __('Phase') }}</td><td>{{ $context->phase_name ?: '-' }}</td></tr>
+    <tr><td class="k">{{ __('Top elevation') }}</td><td>{{ $fmtEl($context->top_elevation_m) }}</td>
+        <td class="k">{{ __('Bottom elevation') }}</td><td>{{ $fmtEl($context->bottom_elevation_m) }}</td></tr>
+    <tr><td class="k">{{ __('Excavation ref.') }}</td><td>{{ $context->excavation_reference ?: '-' }}</td>
+        <td class="k">{{ __('Excavator') }}</td><td>{{ $context->excavator ?: '-' }}</td></tr>
+    <tr><td class="k">{{ __('Excavated') }}</td><td>{{ $context->excavation_date ?: '-' }}</td>
+        <td class="k">{{ __('Date range') }}</td><td>{{ ($context->date_earliest ?: '?') }} - {{ ($context->date_latest ?: '?') }}</td></tr>
     @if($context->dating_note)
-      <tr><td class="k">Dating note</td><td colspan="3">{{ $context->dating_note }}</td></tr>
+      <tr><td class="k">{{ __('Dating note') }}</td><td colspan="3">{{ $context->dating_note }}</td></tr>
     @endif
   </table>
 
@@ -65,12 +65,12 @@
 
   <h2>{{ __('Stratigraphic relationships') }}</h2>
   @if(collect($relationships)->isEmpty())
-    <p class="muted">No relationships recorded.</p>
+    <p class="muted">{{ __('No relationships recorded.') }}</p>
   @else
     <ul class="rels">
       @foreach($relTypes as $code => $meta)
         @foreach(($byType[$code] ?? []) as $r)
-          <li>This context <strong>{{ $meta['label'] }}</strong> context {{ $r->related_number }}@if($r->note) <span class="muted">- {{ $r->note }}</span>@endif</li>
+          <li>{{ __('This context') }} <strong>{{ $meta['label'] }}</strong> context {{ $r->related_number }}@if($r->note) <span class="muted">- {{ $r->note }}</span>@endif</li>
         @endforeach
       @endforeach
     </ul>
@@ -78,7 +78,7 @@
 
   <h2>Finds in this context ({{ collect($context->finds)->count() }})</h2>
   @if(collect($context->finds)->isEmpty())
-    <p class="muted">No finds catalogued to this context.</p>
+    <p class="muted">{{ __('No finds catalogued to this context.') }}</p>
   @else
     <table class="grid">
       <thead><tr><th style="width:30%">{{ __('Accession no.') }}</th><th>{{ __('Title') }}</th></tr></thead>

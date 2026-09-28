@@ -5,8 +5,8 @@
 @section('content')
 <div class="container-fluid mt-3">
   <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">Security Dashboard</a></li>
-    <li class="breadcrumb-item active">Reports</li>
+    <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">{{ __('Security Dashboard') }}</a></li>
+    <li class="breadcrumb-item active">{{ __('Reports') }}</li>
   </ol></nav>
 
   <h1><i class="fas fa-chart-bar"></i> {{ __('Security Reports') }}</h1>
@@ -91,7 +91,7 @@
             <td>{{ e($activity->notes ?? '') }}</td>
           </tr>
           @empty
-          <tr><td colspan="5" class="text-muted">No activity in this period.</td></tr>
+          <tr><td colspan="5" class="text-muted">{{ __('No activity in this period.') }}</td></tr>
           @endforelse
         </tbody>
       </table>

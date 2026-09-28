@@ -15,7 +15,7 @@
 
 @section('title-block')
 <h1><i class="fas fa-images me-2"></i>{{ __('IIIF Viewer') }}</h1>
-<p class="text-muted">IIIF image viewer and annotation settings</p>
+<p class="text-muted">{{ __('IIIF image viewer and annotation settings') }}</p>
 @endsection
 
 @section('content')

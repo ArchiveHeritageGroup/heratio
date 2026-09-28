@@ -25,9 +25,9 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.index') }}">IPSAS</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('ipsas.assets') }}">Assets</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('ipsas.assets') }}">{{ __('Assets') }}</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.asset.view', ['id' => $asset->id ?? 0]) }}">{{ $asset->asset_number ?? 'Asset' }}</a></li>
-                    <li class="breadcrumb-item active">Edit</li>
+                    <li class="breadcrumb-item active">{{ __('Edit') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-edit me-2"></i>{{ __('Edit Asset') }}</h1>
@@ -42,7 +42,7 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label">Title <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
                             <input type="text" name="title" class="form-control" required value="{{ $asset->title ?? '' }}">
                         </div>
                         <div class="col-12">
@@ -56,12 +56,12 @@
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Status') }}</label>
                             <select name="status" class="form-select">
-                                <option value="active" {{ 'active' === ($asset->status ?? '') ? 'selected' : '' }}>Active</option>
-                                <option value="on_loan" {{ 'on_loan' === ($asset->status ?? '') ? 'selected' : '' }}>On Loan</option>
-                                <option value="in_storage" {{ 'in_storage' === ($asset->status ?? '') ? 'selected' : '' }}>In Storage</option>
-                                <option value="under_conservation" {{ 'under_conservation' === ($asset->status ?? '') ? 'selected' : '' }}>Under Conservation</option>
-                                <option value="disposed" {{ 'disposed' === ($asset->status ?? '') ? 'selected' : '' }}>Disposed</option>
-                                <option value="lost" {{ 'lost' === ($asset->status ?? '') ? 'selected' : '' }}>Lost</option>
+                                <option value="active" {{ 'active' === ($asset->status ?? '') ? 'selected' : '' }}>{{ __('Active') }}</option>
+                                <option value="on_loan" {{ 'on_loan' === ($asset->status ?? '') ? 'selected' : '' }}>{{ __('On Loan') }}</option>
+                                <option value="in_storage" {{ 'in_storage' === ($asset->status ?? '') ? 'selected' : '' }}>{{ __('In Storage') }}</option>
+                                <option value="under_conservation" {{ 'under_conservation' === ($asset->status ?? '') ? 'selected' : '' }}>{{ __('Under Conservation') }}</option>
+                                <option value="disposed" {{ 'disposed' === ($asset->status ?? '') ? 'selected' : '' }}>{{ __('Disposed') }}</option>
+                                <option value="lost" {{ 'lost' === ($asset->status ?? '') ? 'selected' : '' }}>{{ __('Lost') }}</option>
                             </select>
                         </div>
                     </div>
@@ -75,21 +75,21 @@
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Condition Rating') }}</label>
                             <select name="condition_rating" class="form-select">
-                                <option value="excellent" {{ 'excellent' === ($asset->condition_rating ?? '') ? 'selected' : '' }}>Excellent</option>
-                                <option value="good" {{ 'good' === ($asset->condition_rating ?? '') ? 'selected' : '' }}>Good</option>
-                                <option value="fair" {{ 'fair' === ($asset->condition_rating ?? '') ? 'selected' : '' }}>Fair</option>
-                                <option value="poor" {{ 'poor' === ($asset->condition_rating ?? '') ? 'selected' : '' }}>Poor</option>
-                                <option value="critical" {{ 'critical' === ($asset->condition_rating ?? '') ? 'selected' : '' }}>Critical</option>
+                                <option value="excellent" {{ 'excellent' === ($asset->condition_rating ?? '') ? 'selected' : '' }}>{{ __('Excellent') }}</option>
+                                <option value="good" {{ 'good' === ($asset->condition_rating ?? '') ? 'selected' : '' }}>{{ __('Good') }}</option>
+                                <option value="fair" {{ 'fair' === ($asset->condition_rating ?? '') ? 'selected' : '' }}>{{ __('Fair') }}</option>
+                                <option value="poor" {{ 'poor' === ($asset->condition_rating ?? '') ? 'selected' : '' }}>{{ __('Poor') }}</option>
+                                <option value="critical" {{ 'critical' === ($asset->condition_rating ?? '') ? 'selected' : '' }}>{{ __('Critical') }}</option>
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Risk Level') }}</label>
                             <select name="risk_level" class="form-select">
                                 <option value="">{{ __('Not Assessed') }}</option>
-                                <option value="low" {{ 'low' === ($asset->risk_level ?? '') ? 'selected' : '' }}>Low</option>
-                                <option value="medium" {{ 'medium' === ($asset->risk_level ?? '') ? 'selected' : '' }}>Medium</option>
-                                <option value="high" {{ 'high' === ($asset->risk_level ?? '') ? 'selected' : '' }}>High</option>
-                                <option value="critical" {{ 'critical' === ($asset->risk_level ?? '') ? 'selected' : '' }}>Critical</option>
+                                <option value="low" {{ 'low' === ($asset->risk_level ?? '') ? 'selected' : '' }}>{{ __('Low') }}</option>
+                                <option value="medium" {{ 'medium' === ($asset->risk_level ?? '') ? 'selected' : '' }}>{{ __('Medium') }}</option>
+                                <option value="high" {{ 'high' === ($asset->risk_level ?? '') ? 'selected' : '' }}>{{ __('High') }}</option>
+                                <option value="critical" {{ 'critical' === ($asset->risk_level ?? '') ? 'selected' : '' }}>{{ __('Critical') }}</option>
                             </select>
                         </div>
                         <div class="col-12">
@@ -105,7 +105,7 @@
             <div class="card">
                 <div class="card-body d-grid gap-2">
                     <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>{{ __('Save Changes') }}</button>
-                    <a href="{{ route('ipsas.asset.view', ['id' => $asset->id ?? 0]) }}" class="btn btn-outline-secondary">Cancel</a>
+                    <a href="{{ route('ipsas.asset.view', ['id' => $asset->id ?? 0]) }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
                 </div>
             </div>
         </div>

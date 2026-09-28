@@ -2,7 +2,7 @@
 @if(isset($rights) && $rights->isNotEmpty())
 <section class="section border-bottom" id="rightsPanel">
   <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-    Rights area
+    {{ __('Rights area') }}
   </h2>
   <div>
     <div class="table-responsive">

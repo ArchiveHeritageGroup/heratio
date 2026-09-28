@@ -16,8 +16,8 @@
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">Data Migration</a></li>
-        <li class="breadcrumb-item active">Batch Export</li>
+        <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">{{ __('Data Migration') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Batch Export') }}</li>
     </ol>
 </nav>
 
@@ -48,10 +48,10 @@
             @csrf
 
             <div class="mb-4">
-                <h6 class="text-primary"><span class="badge bg-primary me-2">1</span>Export Format</h6>
+                <h6 class="text-primary"><span class="badge bg-primary me-2">1</span>{{ __('Export Format') }}</h6>
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label class="form-label">Sector Format <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                        <label class="form-label">{{ __('Sector Format') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <select name="sector" id="sectorSelect" class="form-select" required>
                             @foreach (($sectors ?? []) as $code => $label)
                                 <option value="{{ $code }}">{{ $label }}</option>
@@ -66,7 +66,7 @@
                 <h6 class="text-primary"><span class="badge bg-primary me-2">2</span>Filter Records (Optional)</h6>
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label class="form-label">Repository <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label class="form-label">{{ __('Repository') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <select name="repository_id" id="repositorySelect" class="form-select">
                             <option value="">{{ __('All repositories') }}</option>
                             @foreach (($repositories ?? []) as $repo)
@@ -75,7 +75,7 @@
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Level of Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label class="form-label">{{ __('Level of Description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <select name="level_ids[]" id="levelSelect" class="form-select" multiple size="4">
                             @foreach (($levels ?? []) as $level)
                                 <option value="{{ $level->id }}">{{ $level->name }}</option>
@@ -102,16 +102,16 @@
             </div>
 
             <div class="mb-4">
-                <h6 class="text-primary"><span class="badge bg-primary me-2">3</span>Export</h6>
+                <h6 class="text-primary"><span class="badge bg-primary me-2">3</span>{{ __('Export') }}</h6>
                 <div class="alert alert-warning mb-3">
                     <i class="fas fa-exclamation-triangle me-2"></i>
                     <strong>{{ __('Note:') }}</strong> Exports with more than 500 records will be queued as a background job.
-                    You can check progress on the <a href="{{ route('data-migration.jobs') }}">Jobs page</a>.
+                    You can check progress on the <a href="{{ route('data-migration.jobs') }}">{{ __('Jobs page') }}</a>.
                 </div>
             </div>
 
             <div class="d-flex justify-content-between">
-                <a href="{{ route('data-migration.index') }}" class="btn atom-btn-outline-secondary">Cancel</a>
+                <a href="{{ route('data-migration.index') }}" class="btn atom-btn-outline-secondary">{{ __('Cancel') }}</a>
                 <button type="submit" class="btn btn-primary btn-lg" id="exportBtn">
                     <i class="fas fa-download me-2"></i>{{ __('Export CSV') }}
                 </button>
@@ -129,7 +129,7 @@
             <dt class="col-sm-3">Archives (ISAD-G)</dt>
             <dd class="col-sm-9">Standard archival description fields following ISAD(G) standard. Best for archives and manuscript collections.</dd>
 
-            <dt class="col-sm-3">Museum</dt>
+            <dt class="col-sm-3">{{ __('Museum') }}</dt>
             <dd class="col-sm-9">Museum object standard fields (CCO) including production, acquisition, and location data.</dd>
 
             <dt class="col-sm-3">Library (MARC/RDA)</dt>
@@ -138,7 +138,7 @@
             <dt class="col-sm-3">Gallery (CCO/VRA)</dt>
             <dd class="col-sm-9">Cataloging Cultural Objects (CCO) and VRA Core fields for artworks and visual resources.</dd>
 
-            <dt class="col-sm-3">Digital Assets</dt>
+            <dt class="col-sm-3">{{ __('Digital Assets') }}</dt>
             <dd class="col-sm-9">Dublin Core and IPTC metadata fields for digital asset management including technical metadata.</dd>
         </dl>
     </div>

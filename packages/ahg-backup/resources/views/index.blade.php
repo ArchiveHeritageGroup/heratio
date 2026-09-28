@@ -128,7 +128,7 @@
             @endforeach
           </ul>
         @else
-          <p class="text-muted text-center py-3 mb-0">No schedules configured</p>
+          <p class="text-muted text-center py-3 mb-0">{{ __('No schedules configured') }}</p>
         @endif
       </div>
       <div class="card-footer small text-muted">
@@ -225,7 +225,7 @@
         @else
           <div class="text-center text-muted py-5">
             <i class="fas fa-inbox fa-3x mb-3"></i>
-            <p>No backups found</p>
+            <p>{{ __('No backups found') }}</p>
             <button type="button" class="btn btn-primary btn-quick-backup" onclick="quickBackup('database')">
               <i class="fas fa-plus me-1"></i>{{ __('Create First Backup') }}
             </button>
@@ -245,31 +245,31 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
       </div>
       <div class="modal-body">
-        <p class="text-muted">Select components to include in this backup:</p>
+        <p class="text-muted">{{ __('Select components to include in this backup:') }}</p>
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="backup-database" checked>
           <label class="form-check-label" for="backup-database">
-            <i class="fas fa-database me-1 text-success"></i>Database
+            <i class="fas fa-database me-1 text-success"></i>{{ __('Database') }}
             <small class="text-muted">(Required)</small>
           </label>
         </div>
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="backup-uploads">
           <label class="form-check-label" for="backup-uploads">
-            <i class="fas fa-images me-1 text-warning"></i>Uploads
+            <i class="fas fa-images me-1 text-warning"></i>{{ __('Uploads') }}
             <small class="text-muted">(Digital objects)</small>
           </label>
         </div>
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="backup-plugins">
           <label class="form-check-label" for="backup-plugins">
-            <i class="fas fa-puzzle-piece me-1 text-info"></i>Custom Plugins
+            <i class="fas fa-puzzle-piece me-1 text-info"></i>{{ __('Custom Plugins') }}
           </label>
         </div>
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="backup-framework">
           <label class="form-check-label" for="backup-framework">
-            <i class="fas fa-code me-1 text-secondary"></i>Framework
+            <i class="fas fa-code me-1 text-secondary"></i>{{ __('Framework') }}
           </label>
         </div>
         <div id="backup-progress" class="mt-3 d-none">
@@ -299,30 +299,30 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <p class="text-muted">Select components to include:</p>
+        <p class="text-muted">{{ __('Select components to include:') }}</p>
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="db-opt-database" checked disabled>
           <label class="form-check-label" for="db-opt-database">
-            <i class="fas fa-database me-1 text-success"></i>Database
+            <i class="fas fa-database me-1 text-success"></i>{{ __('Database') }}
             <small class="text-muted">(Required)</small>
           </label>
         </div>
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="db-opt-uploads">
           <label class="form-check-label" for="db-opt-uploads">
-            <i class="fas fa-images me-1 text-warning"></i>Uploads / Digital Objects
+            <i class="fas fa-images me-1 text-warning"></i>{{ __('Uploads / Digital Objects') }}
           </label>
         </div>
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="db-opt-plugins">
           <label class="form-check-label" for="db-opt-plugins">
-            <i class="fas fa-puzzle-piece me-1 text-info"></i>Custom Plugins
+            <i class="fas fa-puzzle-piece me-1 text-info"></i>{{ __('Custom Plugins') }}
           </label>
         </div>
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="db-opt-framework">
           <label class="form-check-label" for="db-opt-framework">
-            <i class="fas fa-code me-1 text-secondary"></i>Framework
+            <i class="fas fa-code me-1 text-secondary"></i>{{ __('Framework') }}
           </label>
         </div>
         <div id="db-backup-progress" class="mt-3 d-none">
@@ -351,30 +351,30 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <p class="text-muted">Select components to include:</p>
+        <p class="text-muted">{{ __('Select components to include:') }}</p>
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="full-opt-database" checked disabled>
           <label class="form-check-label" for="full-opt-database">
-            <i class="fas fa-database me-1 text-success"></i>Database
+            <i class="fas fa-database me-1 text-success"></i>{{ __('Database') }}
             <small class="text-muted">(Required)</small>
           </label>
         </div>
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="full-opt-uploads" checked>
           <label class="form-check-label" for="full-opt-uploads">
-            <i class="fas fa-images me-1 text-warning"></i>Uploads / Digital Objects
+            <i class="fas fa-images me-1 text-warning"></i>{{ __('Uploads / Digital Objects') }}
           </label>
         </div>
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="full-opt-plugins" checked>
           <label class="form-check-label" for="full-opt-plugins">
-            <i class="fas fa-puzzle-piece me-1 text-info"></i>Custom Plugins
+            <i class="fas fa-puzzle-piece me-1 text-info"></i>{{ __('Custom Plugins') }}
           </label>
         </div>
         <div class="form-check mb-2">
           <input class="form-check-input" type="checkbox" id="full-opt-framework" checked>
           <label class="form-check-label" for="full-opt-framework">
-            <i class="fas fa-code me-1 text-secondary"></i>Framework
+            <i class="fas fa-code me-1 text-secondary"></i>{{ __('Framework') }}
           </label>
         </div>
         <hr>
@@ -450,22 +450,22 @@
           </div>
         </div>
         <hr>
-        <p class="text-muted small mb-2">Components to include:</p>
+        <p class="text-muted small mb-2">{{ __('Components to include:') }}</p>
         <div class="form-check form-check-inline">
           <input class="form-check-input" type="checkbox" id="sched-db" value="1" checked>
           <label class="form-check-label" for="sched-db"><i class="fas fa-database text-success"></i> DB</label>
         </div>
         <div class="form-check form-check-inline">
           <input class="form-check-input" type="checkbox" id="sched-uploads" value="1">
-          <label class="form-check-label" for="sched-uploads"><i class="fas fa-images text-warning"></i> Uploads</label>
+          <label class="form-check-label" for="sched-uploads"><i class="fas fa-images text-warning"></i> {{ __('Uploads') }}</label>
         </div>
         <div class="form-check form-check-inline">
           <input class="form-check-input" type="checkbox" id="sched-plugins" value="1" checked>
-          <label class="form-check-label" for="sched-plugins"><i class="fas fa-puzzle-piece text-info"></i> Plugins</label>
+          <label class="form-check-label" for="sched-plugins"><i class="fas fa-puzzle-piece text-info"></i> {{ __('Plugins') }}</label>
         </div>
         <div class="form-check form-check-inline">
           <input class="form-check-input" type="checkbox" id="sched-fw" value="1" checked>
-          <label class="form-check-label" for="sched-fw"><i class="fas fa-code text-secondary"></i> Framework</label>
+          <label class="form-check-label" for="sched-fw"><i class="fas fa-code text-secondary"></i> {{ __('Framework') }}</label>
         </div>
       </div>
       <div class="modal-footer">

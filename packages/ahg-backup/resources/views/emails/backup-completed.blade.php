@@ -1,5 +1,5 @@
 {{-- BackupCompletedMail HTML body --}}
-<p>Hi,</p>
+<p>{{ __('Hi,') }}</p>
 
 <p>A Heratio backup run has completed
 @if(($backup['status'] ?? 'success') === 'success_with_warnings')
@@ -11,27 +11,27 @@
 
 <table cellpadding="6" cellspacing="0" border="0" style="border-collapse:collapse;">
   <tr>
-    <td><strong>Run ID:</strong></td>
+    <td><strong>{{ __('Run ID:') }}</strong></td>
     <td>{{ $backup['id'] ?? '(unknown)' }}</td>
   </tr>
   <tr>
-    <td><strong>Components:</strong></td>
+    <td><strong>{{ __('Components:') }}</strong></td>
     <td>{{ implode(', ', $backup['components'] ?? []) }}</td>
   </tr>
   <tr>
-    <td><strong>Files written:</strong></td>
+    <td><strong>{{ __('Files written:') }}</strong></td>
     <td>{{ count($backup['files'] ?? []) }}</td>
   </tr>
   <tr>
-    <td><strong>Total size:</strong></td>
+    <td><strong>{{ __('Total size:') }}</strong></td>
     <td>{{ $backup['size_human'] ?? ($backup['size_bytes'] ?? 0 . ' bytes') }}</td>
   </tr>
   <tr>
-    <td><strong>Duration:</strong></td>
+    <td><strong>{{ __('Duration:') }}</strong></td>
     <td>{{ number_format(($backup['duration_ms'] ?? 0) / 1000, 2) }} s</td>
   </tr>
   <tr>
-    <td><strong>Completed:</strong></td>
+    <td><strong>{{ __('Completed:') }}</strong></td>
     <td>{{ $backup['completed_at'] ?? now()->toIso8601String() }}</td>
   </tr>
 </table>
@@ -55,7 +55,7 @@
 @endif
 
 <p>
-  <a href="{{ url('/admin/backup') }}">Open the backup dashboard</a> to review or download artefacts.
+  <a href="{{ url('/admin/backup') }}">{{ __('Open the backup dashboard') }}</a> to review or download artefacts.
 </p>
 
-<p>Thanks,<br>{{ config('app.name', 'Heratio') }}</p>
+<p>{{ __('Thanks,') }}<br>{{ config('app.name', 'Heratio') }}</p>

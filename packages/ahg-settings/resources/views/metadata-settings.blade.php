@@ -15,7 +15,7 @@
 
 @section('title-block')
 <h1><i class="fas fa-tags me-2"></i>{{ __('Metadata Extraction') }}</h1>
-<p class="text-muted">Automatic metadata extraction from uploaded files</p>
+<p class="text-muted">{{ __('Automatic metadata extraction from uploaded files') }}</p>
 @endsection
 
 @section('content')
@@ -73,7 +73,7 @@
             <div class="form-check form-switch mb-2">
               <input class="form-check-input" type="checkbox" id="meta_images" name="settings[meta_images]" value="true"
                      {{ ($settings['meta_images'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="meta_images"><i class="fas fa-image text-success me-1"></i> Images</label>
+              <label class="form-check-label" for="meta_images"><i class="fas fa-image text-success me-1"></i> {{ __('Images') }}</label>
             </div>
             <div class="form-check form-switch mb-2">
               <input class="form-check-input" type="checkbox" id="meta_pdf" name="settings[meta_pdf]" value="true"
@@ -83,19 +83,19 @@
             <div class="form-check form-switch mb-2">
               <input class="form-check-input" type="checkbox" id="meta_office" name="settings[meta_office]" value="true"
                      {{ ($settings['meta_office'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="meta_office"><i class="fas fa-file-word text-primary me-1"></i> Office</label>
+              <label class="form-check-label" for="meta_office"><i class="fas fa-file-word text-primary me-1"></i> {{ __('Office') }}</label>
             </div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch mb-2">
               <input class="form-check-input" type="checkbox" id="meta_video" name="settings[meta_video]" value="true"
                      {{ ($settings['meta_video'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="meta_video"><i class="fas fa-video text-info me-1"></i> Video</label>
+              <label class="form-check-label" for="meta_video"><i class="fas fa-video text-info me-1"></i> {{ __('Video') }}</label>
             </div>
             <div class="form-check form-switch mb-2">
               <input class="form-check-input" type="checkbox" id="meta_audio" name="settings[meta_audio]" value="true"
                      {{ ($settings['meta_audio'] ?? 'true') === 'true' ? 'checked' : '' }}>
-              <label class="form-check-label" for="meta_audio"><i class="fas fa-music text-warning me-1"></i> Audio</label>
+              <label class="form-check-label" for="meta_audio"><i class="fas fa-music text-warning me-1"></i> {{ __('Audio') }}</label>
             </div>
           </div>
         </div>
@@ -108,7 +108,7 @@
         <h5 class="mb-0"><i class="fas fa-random me-2"></i>{{ __('Field Mapping') }}</h5>
       </div>
       <div class="card-body">
-        <p class="text-muted">Configure where extracted metadata is saved:</p>
+        <p class="text-muted">{{ __('Configure where extracted metadata is saved:') }}</p>
         <div class="table-responsive">
           <table class="table table-sm table-bordered">
             <thead class="table-dark">
@@ -121,7 +121,7 @@
             </thead>
             <tbody>
               <tr>
-                <td><i class="fas fa-heading text-muted me-1"></i> Title</td>
+                <td><i class="fas fa-heading text-muted me-1"></i> {{ __('Title') }}</td>
                 <td><select class="form-select form-select-sm" name="settings[map_title_isad]">
                   <option value="title" {{ ($settings['map_title_isad'] ?? 'title') === 'title' ? 'selected' : '' }}>{{ __('Title') }}</option>
                   <option value="alternateTitle" {{ ($settings['map_title_isad'] ?? '') === 'alternateTitle' ? 'selected' : '' }}>{{ __('Alternate Title') }}</option>
@@ -139,7 +139,7 @@
                 </select></td>
               </tr>
               <tr>
-                <td><i class="fas fa-user text-muted me-1"></i> Creator/Author</td>
+                <td><i class="fas fa-user text-muted me-1"></i> {{ __('Creator/Author') }}</td>
                 <td><select class="form-select form-select-sm" name="settings[map_creator_isad]">
                   <option value="nameAccessPoints" {{ ($settings['map_creator_isad'] ?? 'nameAccessPoints') === 'nameAccessPoints' ? 'selected' : '' }}>{{ __('Name Access Points') }}</option>
                   <option value="creators" {{ ($settings['map_creator_isad'] ?? '') === 'creators' ? 'selected' : '' }}>{{ __('Creators (Event)') }}</option>
@@ -157,7 +157,7 @@
                 </select></td>
               </tr>
               <tr>
-                <td><i class="fas fa-tags text-muted me-1"></i> Keywords</td>
+                <td><i class="fas fa-tags text-muted me-1"></i> {{ __('Keywords') }}</td>
                 <td><select class="form-select form-select-sm" name="settings[map_keywords_isad]">
                   <option value="subjectAccessPoints" {{ ($settings['map_keywords_isad'] ?? 'subjectAccessPoints') === 'subjectAccessPoints' ? 'selected' : '' }}>{{ __('Subject Access Points') }}</option>
                   <option value="genreAccessPoints" {{ ($settings['map_keywords_isad'] ?? '') === 'genreAccessPoints' ? 'selected' : '' }}>{{ __('Genre Access Points') }}</option>
@@ -175,7 +175,7 @@
                 </select></td>
               </tr>
               <tr>
-                <td><i class="fas fa-align-left text-muted me-1"></i> Description</td>
+                <td><i class="fas fa-align-left text-muted me-1"></i> {{ __('Description') }}</td>
                 <td><select class="form-select form-select-sm" name="settings[map_description_isad]">
                   <option value="scopeAndContent" {{ ($settings['map_description_isad'] ?? 'scopeAndContent') === 'scopeAndContent' ? 'selected' : '' }}>{{ __('Scope and Content') }}</option>
                   <option value="archivalHistory" {{ ($settings['map_description_isad'] ?? '') === 'archivalHistory' ? 'selected' : '' }}>{{ __('Archival History') }}</option>
@@ -193,7 +193,7 @@
                 </select></td>
               </tr>
               <tr>
-                <td><i class="fas fa-calendar text-muted me-1"></i> Date Created</td>
+                <td><i class="fas fa-calendar text-muted me-1"></i> {{ __('Date Created') }}</td>
                 <td><select class="form-select form-select-sm" name="settings[map_date_isad]">
                   <option value="creationEvent" {{ ($settings['map_date_isad'] ?? 'creationEvent') === 'creationEvent' ? 'selected' : '' }}>{{ __('Creation Event Date') }}</option>
                   <option value="none" {{ ($settings['map_date_isad'] ?? '') === 'none' ? 'selected' : '' }}>{{ __('Do not map') }}</option>
@@ -209,7 +209,7 @@
                 </select></td>
               </tr>
               <tr>
-                <td><i class="fas fa-copyright text-muted me-1"></i> Copyright</td>
+                <td><i class="fas fa-copyright text-muted me-1"></i> {{ __('Copyright') }}</td>
                 <td><select class="form-select form-select-sm" name="settings[map_copyright_isad]">
                   <option value="accessConditions" {{ ($settings['map_copyright_isad'] ?? 'accessConditions') === 'accessConditions' ? 'selected' : '' }}>{{ __('Access Conditions') }}</option>
                   <option value="reproductionConditions" {{ ($settings['map_copyright_isad'] ?? '') === 'reproductionConditions' ? 'selected' : '' }}>{{ __('Reproduction Conditions') }}</option>
@@ -226,7 +226,7 @@
                 </select></td>
               </tr>
               <tr>
-                <td><i class="fas fa-camera text-muted me-1"></i> Technical Data</td>
+                <td><i class="fas fa-camera text-muted me-1"></i> {{ __('Technical Data') }}</td>
                 <td><select class="form-select form-select-sm" name="settings[map_technical_isad]">
                   <option value="physicalCharacteristics" {{ ($settings['map_technical_isad'] ?? 'physicalCharacteristics') === 'physicalCharacteristics' ? 'selected' : '' }}>{{ __('Physical Characteristics') }}</option>
                   <option value="extentAndMedium" {{ ($settings['map_technical_isad'] ?? '') === 'extentAndMedium' ? 'selected' : '' }}>{{ __('Extent and Medium') }}</option>
@@ -243,7 +243,7 @@
                 </select></td>
               </tr>
               <tr>
-                <td><i class="fas fa-map-marker-alt text-muted me-1"></i> GPS Location</td>
+                <td><i class="fas fa-map-marker-alt text-muted me-1"></i> {{ __('GPS Location') }}</td>
                 <td><select class="form-select form-select-sm" name="settings[map_gps_isad]">
                   <option value="placeAccessPoints" {{ ($settings['map_gps_isad'] ?? 'placeAccessPoints') === 'placeAccessPoints' ? 'selected' : '' }}>{{ __('Place Access Points') }}</option>
                   <option value="physicalCharacteristics" {{ ($settings['map_gps_isad'] ?? '') === 'physicalCharacteristics' ? 'selected' : '' }}>{{ __('Physical Characteristics') }}</option>

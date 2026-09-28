@@ -66,7 +66,7 @@
               <option value="{{ $opt->id }}" @if(in_array($opt->id, $selectedDcTypeIds)) selected @endif>{{ $opt->name }}</option>
             @endforeach
           </select>
-          <div class="form-text">Hold Ctrl/Cmd to select multiple.</div>
+          <div class="form-text">{{ __('Hold Ctrl/Cmd to select multiple.') }}</div>
         </div>
       </div>
     </div>
@@ -106,7 +106,7 @@
             <span class="badge bg-secondary me-1">{{ $lang }}</span>
           @endforeach
           @if($materialLanguages->isEmpty())
-            <p class="text-muted">None recorded.</p>
+            <p class="text-muted">{{ __('None recorded.') }}</p>
           @endif
         </div>
       </div>

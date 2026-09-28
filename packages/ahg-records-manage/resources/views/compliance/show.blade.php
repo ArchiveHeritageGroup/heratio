@@ -46,7 +46,7 @@
           <div class="display-4 text-{{ $bandClass }}">{{ $pct }}%</div>
           <div class="text-muted small">{{ rtrim(rtrim((string) $assessment->score_total, '0'), '.') }} / {{ rtrim(rtrim((string) $assessment->score_max, '0'), '.') }} weighted</div>
         @else
-          <div class="text-muted">No score yet</div>
+          <div class="text-muted">{{ __('No score yet') }}</div>
         @endif
 
         @if($assessment->status !== 'finalised')
@@ -82,7 +82,7 @@
         <td><small>{{ $c['finding'] ?? '' }}</small></td>
       </tr>
     @empty
-      <tr><td colspan="5" class="text-muted text-center py-3">No checks have run yet - click <em>Re-run checks</em>.</td></tr>
+      <tr><td colspan="5" class="text-muted text-center py-3">{{ __('No checks have run yet - click') }} <em>{{ __('Re-run checks') }}</em>.</td></tr>
     @endforelse
     </tbody>
   </table>

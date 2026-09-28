@@ -12,8 +12,8 @@
   <div class="col-lg-9 col-md-8">
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
       <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('help.index') }}">Help Center</a></li>
-        <li class="breadcrumb-item active">Search Results</li>
+        <li class="breadcrumb-item"><a href="{{ route('help.index') }}">{{ __('Help Center') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Search Results') }}</li>
       </ol>
     </nav>
 
@@ -25,7 +25,7 @@
     </form>
 
     @if(empty($query))
-      <p class="text-muted">Enter a search term to find help articles.</p>
+      <p class="text-muted">{{ __('Enter a search term to find help articles.') }}</p>
     @elseif(empty($articleResults) && empty($sectionResults))
       <div class="alert alert-info">
         <i class="fas fa-info-circle me-1"></i>
@@ -34,7 +34,7 @@
     @else
       @if(!empty($articleResults))
         <h2 class="h5 mb-3">
-          Articles
+          {{ __('Articles') }}
           <span class="badge bg-primary ms-1">{{ count($articleResults) }}</span>
         </h2>
         <div class="list-group mb-4">
@@ -59,7 +59,7 @@
 
       @if(!empty($sectionResults))
         <h2 class="h5 mb-3">
-          Sections
+          {{ __('Sections') }}
           <span class="badge bg-secondary ms-1">{{ count($sectionResults) }}</span>
         </h2>
         <div class="list-group mb-4">

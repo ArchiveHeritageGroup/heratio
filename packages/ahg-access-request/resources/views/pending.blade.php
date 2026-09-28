@@ -8,8 +8,8 @@
         <div class="col-12">
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('homepage') }}">Home</a></li>
-                    <li class="breadcrumb-item active">Pending Access Requests</li>
+                    <li class="breadcrumb-item"><a href="{{ route('homepage') }}">{{ __('Home') }}</a></li>
+                    <li class="breadcrumb-item active">{{ __('Pending Access Requests') }}</li>
                 </ol>
             </nav>
 
@@ -31,7 +31,7 @@
                 <div class="card-body p-0">
                     @if($requests->isEmpty())
                         <div class="p-4 text-center text-muted">
-                            <p>No pending access requests.</p>
+                            <p>{{ __('No pending access requests.') }}</p>
                         </div>
                     @else
                         <div class="table-responsive">
@@ -57,7 +57,7 @@
                                             <td>@include('ahg-access-request::partials.scope-badge', ['request' => $req])</td>
                                             <td>{{ $req->created_at ?? '' }}</td>
                                             <td>
-                                                <a href="{{ route('accessRequest.view', $req->id) }}" class="btn btn-outline-secondary btn-sm">Review</a>
+                                                <a href="{{ route('accessRequest.view', $req->id) }}" class="btn btn-outline-secondary btn-sm">{{ __('Review') }}</a>
                                             </td>
                                         </tr>
                                     @endforeach

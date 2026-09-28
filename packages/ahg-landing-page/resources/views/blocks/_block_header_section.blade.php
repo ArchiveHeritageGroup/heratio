@@ -42,9 +42,9 @@ $displayTitle = !empty($customTitle) ? $customTitle : $siteTitle;
       <!-- Navigation -->
       @if ($showNav)
         <nav class="d-none d-md-flex gap-3">
-          <a href="{{ route('informationobject.browse') }}" class="text-decoration-none text-dark">Browse</a>
-          <a href="{{ route('search.advanced') }}" class="text-decoration-none text-dark">Search</a>
-          <a href="{{ route('repository.browse') }}" class="text-decoration-none text-dark">Repositories</a>
+          <a href="{{ route('informationobject.browse') }}" class="text-decoration-none text-dark">{{ __('Browse') }}</a>
+          <a href="{{ route('search.advanced') }}" class="text-decoration-none text-dark">{{ __('Search') }}</a>
+          <a href="{{ route('repository.browse') }}" class="text-decoration-none text-dark">{{ __('Repositories') }}</a>
         </nav>
 
         <!-- Mobile Menu Toggle -->
@@ -58,9 +58,9 @@ $displayTitle = !empty($customTitle) ? $customTitle : $siteTitle;
       <!-- Mobile Navigation -->
       <div class="collapse d-md-none pb-3" id="mobileNav">
         <nav class="d-flex flex-column gap-2">
-          <a href="{{ route('informationobject.browse') }}" class="text-decoration-none">Browse</a>
-          <a href="{{ route('search.advanced') }}" class="text-decoration-none">Search</a>
-          <a href="{{ route('repository.browse') }}" class="text-decoration-none">Repositories</a>
+          <a href="{{ route('informationobject.browse') }}" class="text-decoration-none">{{ __('Browse') }}</a>
+          <a href="{{ route('search.advanced') }}" class="text-decoration-none">{{ __('Search') }}</a>
+          <a href="{{ route('repository.browse') }}" class="text-decoration-none">{{ __('Repositories') }}</a>
         </nav>
       </div>
     @endif

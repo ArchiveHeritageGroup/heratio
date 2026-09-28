@@ -21,11 +21,11 @@
       <div class="card-header bg-secondary text-white"><i class="fas fa-globe me-2"></i>{{ __('Current Global Identifier Settings (Reference)') }}</div>
       <div class="card-body">
         <dl class="row small mb-0">
-          <dt class="col-sm-3">Mask Enabled</dt>
+          <dt class="col-sm-3">{{ __('Mask Enabled') }}</dt>
           <dd class="col-sm-3"><code>{{ ($globalValues['identifier_mask_enabled'] ?? '0') ? 'Yes' : 'No' }}</code></dd>
-          <dt class="col-sm-3">Mask</dt>
+          <dt class="col-sm-3">{{ __('Mask') }}</dt>
           <dd class="col-sm-3"><code>{{ $globalValues['identifier_mask'] ?? '-' }}</code></dd>
-          <dt class="col-sm-3">Counter</dt>
+          <dt class="col-sm-3">{{ __('Counter') }}</dt>
           <dd class="col-sm-3"><code>{{ $globalValues['identifier_counter'] ?? '-' }}</code></dd>
         </dl>
         <div class="text-end mt-2">
@@ -55,18 +55,18 @@
                 <div class="form-check form-switch mb-3">
                   <input type="hidden" name="sector_{{ $code }}__identifier_mask_enabled" value="0">
                   <input class="form-check-input" type="checkbox" name="sector_{{ $code }}__identifier_mask_enabled" value="1" id="mask_{{ $code }}" {{ ($sectorSettings[$code]['identifier_mask_enabled'] ?? '0') == '1' ? 'checked' : '' }}>
-                  <label class="form-check-label" for="mask_{{ $code }}">Mask enabled <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-check-label" for="mask_{{ $code }}">{{ __('Mask enabled') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 </div>
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Identifier mask <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Identifier mask') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" name="sector_{{ $code }}__identifier_mask" class="form-control" value="{{ $sectorSettings[$code]['identifier_mask'] ?? '' }}" placeholder="{{ $sectorDefaults[$code] ?? '' }}">
                 </div>
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Counter <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Counter') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="number" name="sector_{{ $code }}__identifier_counter" class="form-control" value="{{ $sectorSettings[$code]['identifier_counter'] ?? '0' }}" min="0">
                 </div>
               </div>
@@ -78,6 +78,6 @@
       @endforelse
 
       <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
-      <a href="{{ route('settings.index') }}" class="btn atom-btn-white ms-2">Cancel</a>
+      <a href="{{ route('settings.index') }}" class="btn atom-btn-white ms-2">{{ __('Cancel') }}</a>
     </form>
 @endsection

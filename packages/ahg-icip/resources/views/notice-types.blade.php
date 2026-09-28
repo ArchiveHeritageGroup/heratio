@@ -19,8 +19,8 @@
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.dashboard') }}">ICIP</a></li>
-      <li class="breadcrumb-item"><a href="{{ route('ahgicip.notices') }}">Cultural Notices</a></li>
-      <li class="breadcrumb-item active">Notice Types</li>
+      <li class="breadcrumb-item"><a href="{{ route('ahgicip.notices') }}">{{ __('Cultural Notices') }}</a></li>
+      <li class="breadcrumb-item active">{{ __('Notice Types') }}</li>
     </ol>
   </nav>
 
@@ -34,7 +34,7 @@
   @endif
 
   @if(!($tablesExist ?? true))
-    <div class="alert alert-warning">ICIP tables have not been provisioned for this installation.</div>
+    <div class="alert alert-warning">{{ __('ICIP tables have not been provisioned for this installation.') }}</div>
   @endif
 
   <div class="row">
@@ -107,12 +107,12 @@
             <input type="hidden" name="form_action" value="add">
             <div class="row">
               <div class="col-md-4 mb-3">
-                <label class="form-label">Code <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Code') }} <span class="text-danger">*</span></label>
                 <input type="text" name="code" class="form-control" required placeholder="{{ __('e.g., custom_notice') }}">
                 <div class="form-text">Unique identifier (lowercase, no spaces)</div>
               </div>
               <div class="col-md-4 mb-3">
-                <label class="form-label">Name <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Name') }} <span class="text-danger">*</span></label>
                 <input type="text" name="name" class="form-control" required placeholder="{{ __('e.g., Custom Notice') }}">
               </div>
               <div class="col-md-4 mb-3">
@@ -137,7 +137,7 @@
                 <div class="form-check">
                   <input type="checkbox" name="requires_acknowledgement" value="1" class="form-check-input" id="reqAck">
                   <label class="form-check-label" for="reqAck">
-                    Requires Acknowledgement
+                    {{ __('Requires Acknowledgement') }}
                     <br><small class="text-muted">{{ __('User must acknowledge before viewing') }}</small>
                   </label>
                 </div>
@@ -146,7 +146,7 @@
                 <div class="form-check">
                   <input type="checkbox" name="blocks_access" value="1" class="form-check-input" id="blockAccess">
                   <label class="form-check-label" for="blockAccess">
-                    Blocks Access
+                    {{ __('Blocks Access') }}
                     <br><small class="text-muted">{{ __('Prevents viewing until acknowledged') }}</small>
                   </label>
                 </div>

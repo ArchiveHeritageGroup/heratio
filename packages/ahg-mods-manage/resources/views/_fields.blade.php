@@ -207,7 +207,7 @@
             <span class="badge bg-secondary me-1">{{ $lang }}</span>
           @endforeach
           @if($materialLanguages->isEmpty())
-            <p class="text-muted">None recorded.</p>
+            <p class="text-muted">{{ __('None recorded.') }}</p>
           @endif
         </div>
       </div>

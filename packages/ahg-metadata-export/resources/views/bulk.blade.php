@@ -22,14 +22,14 @@
 @endphp
 
 <h1>
-  Bulk Export
+  {{ __('Bulk Export') }}
   <small class="text-muted">- {{ $formatInfo['name'] ?? strtoupper($format) }}</small>
 </h1>
 
 <nav aria-label="{{ __('breadcrumb') }}">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ route('ahgmetadataexport.index') }}">Metadata Export</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Bulk Export</li>
+    <li class="breadcrumb-item"><a href="{{ route('ahgmetadataexport.index') }}">{{ __('Metadata Export') }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ __('Bulk Export') }}</li>
   </ol>
 </nav>
 
@@ -53,7 +53,7 @@
           <input type="hidden" name="format" value="{{ $format }}">
 
           <div class="mb-3">
-            <label for="repository_id" class="form-label">Repository <span class="text-danger">*</span></label>
+            <label for="repository_id" class="form-label">{{ __('Repository') }} <span class="text-danger">*</span></label>
             <select name="repository_id" id="repository_id" class="form-select" required>
               <option value="">{{ __('Select repository...') }}</option>
               @foreach($repositories as $repo)
@@ -62,7 +62,7 @@
                 </option>
               @endforeach
             </select>
-            <div class="form-text">Select the repository to export records from.</div>
+            <div class="form-text">{{ __('Select the repository to export records from.') }}</div>
           </div>
 
           <hr>
@@ -73,7 +73,7 @@
             <div class="form-check">
               <input type="checkbox" name="include_children" value="1" id="include_children" class="form-check-input" checked>
               <label class="form-check-label" for="include_children">{{ __('Include child records') }}</label>
-              <div class="form-text">Export the full hierarchy including all descendants.</div>
+              <div class="form-text">{{ __('Export the full hierarchy including all descendants.') }}</div>
             </div>
           </div>
 
@@ -81,7 +81,7 @@
             <div class="form-check">
               <input type="checkbox" name="include_digital_objects" value="1" id="include_digital_objects" class="form-check-input" checked>
               <label class="form-check-label" for="include_digital_objects">{{ __('Include digital objects') }}</label>
-              <div class="form-text">Include references to attached digital objects.</div>
+              <div class="form-text">{{ __('Include references to attached digital objects.') }}</div>
             </div>
           </div>
 
@@ -89,7 +89,7 @@
             <div class="form-check">
               <input type="checkbox" name="include_drafts" value="1" id="include_drafts" class="form-check-input">
               <label class="form-check-label" for="include_drafts">{{ __('Include draft records') }}</label>
-              <div class="form-text">Also export records with draft publication status.</div>
+              <div class="form-text">{{ __('Also export records with draft publication status.') }}</div>
             </div>
           </div>
 
@@ -121,9 +121,9 @@
       </div>
       <div class="card-body">
         <dl>
-          <dt>Format</dt>
+          <dt>{{ __('Format') }}</dt>
           <dd><strong>{{ $formatInfo['name'] ?? strtoupper($format) }}</strong></dd>
-          <dt>Code</dt>
+          <dt>{{ __('Code') }}</dt>
           <dd><span class="badge bg-secondary">{{ $format }}</span></dd>
         </dl>
       </div>

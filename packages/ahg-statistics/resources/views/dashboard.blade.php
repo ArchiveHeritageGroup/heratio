@@ -113,7 +113,7 @@
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>{{ __('Views Over Time') }}</h5>
-                    <a href="{{ route('statistics.views', ['start' => $startDate, 'end' => $endDate]) }}" class="btn btn-sm btn-outline-secondary">Details</a>
+                    <a href="{{ route('statistics.views', ['start' => $startDate, 'end' => $endDate]) }}" class="btn btn-sm btn-outline-secondary">{{ __('Details') }}</a>
                 </div>
                 <div class="card-body">
                     <canvas id="viewsChart" height="250"></canvas>
@@ -124,7 +124,7 @@
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-globe me-2"></i>{{ __('Top Countries') }}</h5>
-                    <a href="{{ route('statistics.geographic', ['start' => $startDate, 'end' => $endDate]) }}" class="btn btn-sm btn-outline-secondary">All</a>
+                    <a href="{{ route('statistics.geographic', ['start' => $startDate, 'end' => $endDate]) }}" class="btn btn-sm btn-outline-secondary">{{ __('All') }}</a>
                 </div>
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
@@ -135,7 +135,7 @@
                             </div>
                         @endforeach
                         @if(empty($geoStats))
-                            <div class="list-group-item text-muted text-center">No geographic data</div>
+                            <div class="list-group-item text-muted text-center">{{ __('No geographic data') }}</div>
                         @endif
                     </div>
                 </div>
@@ -148,7 +148,7 @@
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>{{ __('Top Viewed Items') }}</h5>
-                    <a href="{{ route('statistics.topItems', ['type' => 'view', 'start' => $startDate, 'end' => $endDate]) }}" class="btn btn-sm btn-outline-secondary">View All</a>
+                    <a href="{{ route('statistics.topItems', ['type' => 'view', 'start' => $startDate, 'end' => $endDate]) }}" class="btn btn-sm btn-outline-secondary">{{ __('View All') }}</a>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -177,7 +177,7 @@
                                     </tr>
                                 @endforeach
                                 @if(empty($topItems))
-                                    <tr><td colspan="3" class="text-center text-muted">No data</td></tr>
+                                    <tr><td colspan="3" class="text-center text-muted">{{ __('No data') }}</td></tr>
                                 @endif
                             </tbody>
                         </table>
@@ -189,7 +189,7 @@
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-download me-2"></i>{{ __('Top Downloads') }}</h5>
-                    <a href="{{ route('statistics.topItems', ['type' => 'download', 'start' => $startDate, 'end' => $endDate]) }}" class="btn btn-sm btn-outline-secondary">View All</a>
+                    <a href="{{ route('statistics.topItems', ['type' => 'download', 'start' => $startDate, 'end' => $endDate]) }}" class="btn btn-sm btn-outline-secondary">{{ __('View All') }}</a>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -218,7 +218,7 @@
                                     </tr>
                                 @endforeach
                                 @if(empty($topDownloads))
-                                    <tr><td colspan="3" class="text-center text-muted">No data</td></tr>
+                                    <tr><td colspan="3" class="text-center text-muted">{{ __('No data') }}</td></tr>
                                 @endif
                             </tbody>
                         </table>

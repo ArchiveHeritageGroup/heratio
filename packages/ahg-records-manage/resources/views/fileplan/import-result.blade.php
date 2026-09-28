@@ -55,7 +55,7 @@
 </div>
 
 <div class="card mb-3">
-    <div class="card-header">Session Details</div>
+    <div class="card-header">{{ __('Session Details') }}</div>
     <div class="card-body">
         <table class="table table-sm mb-0">
             <tbody>
@@ -95,8 +95,8 @@
 
 <div class="d-flex justify-content-between">
     <div>
-        <a href="{{ route('records.fileplan.index') }}" class="btn btn-primary me-1">View File Plan</a>
-        <a href="{{ route('records.fileplan.import') }}" class="btn btn-outline-primary">New Import</a>
+        <a href="{{ route('records.fileplan.index') }}" class="btn btn-primary me-1">{{ __('View File Plan') }}</a>
+        <a href="{{ route('records.fileplan.import') }}" class="btn btn-outline-primary">{{ __('New Import') }}</a>
     </div>
     <div>
         @if($session->status === 'completed')

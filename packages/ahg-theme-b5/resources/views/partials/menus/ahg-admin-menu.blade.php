@@ -133,7 +133,7 @@
     {{-- RiC (gated by ahgRicExplorerPlugin) --}}
     @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgRicExplorerPlugin'))
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header">RiC</h6></li>
+    <li><h6 class="dropdown-header">{{ __('RiC') }}</h6></li>
     <li><a class="dropdown-item" href="{{ route('ric.index') }}"><i class="fas fa-sitemap me-2"></i>{{ __('RiC Dashboard') }}</a></li>
     @if(Route::has('ric.connections'))
     <li><a class="dropdown-item" href="{{ route('ric.connections') }}"><i class="fas fa-diagram-project me-2"></i>{{ __('Cross-collection Connections') }}</a></li>

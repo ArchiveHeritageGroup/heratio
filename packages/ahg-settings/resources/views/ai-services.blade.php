@@ -128,22 +128,22 @@
           <div class="form-check form-check-inline">
             <input class="form-check-input" type="checkbox" name="entity_PERSON" id="entity_person" value="1"
               {{ in_array('PERSON', $selectedEntityTypes) ? 'checked' : '' }}>
-            <label class="form-check-label" for="entity_person"><i class="fas fa-user me-1"></i>People</label>
+            <label class="form-check-label" for="entity_person"><i class="fas fa-user me-1"></i>{{ __('People') }}</label>
           </div>
           <div class="form-check form-check-inline">
             <input class="form-check-input" type="checkbox" name="entity_ORG" id="entity_org" value="1"
               {{ in_array('ORG', $selectedEntityTypes) ? 'checked' : '' }}>
-            <label class="form-check-label" for="entity_org"><i class="fas fa-building me-1"></i>Organizations</label>
+            <label class="form-check-label" for="entity_org"><i class="fas fa-building me-1"></i>{{ __('Organizations') }}</label>
           </div>
           <div class="form-check form-check-inline">
             <input class="form-check-input" type="checkbox" name="entity_GPE" id="entity_gpe" value="1"
               {{ in_array('GPE', $selectedEntityTypes) ? 'checked' : '' }}>
-            <label class="form-check-label" for="entity_gpe"><i class="fas fa-map-marker-alt me-1"></i>Places</label>
+            <label class="form-check-label" for="entity_gpe"><i class="fas fa-map-marker-alt me-1"></i>{{ __('Places') }}</label>
           </div>
           <div class="form-check form-check-inline">
             <input class="form-check-input" type="checkbox" name="entity_DATE" id="entity_date" value="1"
               {{ in_array('DATE', $selectedEntityTypes) ? 'checked' : '' }}>
-            <label class="form-check-label" for="entity_date"><i class="fas fa-calendar me-1"></i>Dates</label>
+            <label class="form-check-label" for="entity_date"><i class="fas fa-calendar me-1"></i>{{ __('Dates') }}</label>
           </div>
         </div>
       </div>
@@ -500,7 +500,7 @@
               </tbody>
             </table>
           @else
-            <div class="text-muted">No collections found.</div>
+            <div class="text-muted">{{ __('No collections found.') }}</div>
           @endif
         @else
           <div class="alert alert-danger py-2">
@@ -515,7 +515,7 @@
         <div class="col-md-6">
           <label class="form-label fw-bold">{{ __('Qdrant URL') }}</label>
           <input type="text" class="form-control" name="qdrant_url" value="{{ $settings['qdrant_url'] ?? 'http://localhost:6333' }}">
-          <div class="form-text">Qdrant REST endpoint</div>
+          <div class="form-text">{{ __('Qdrant REST endpoint') }}</div>
         </div>
         <div class="col-md-6">
           <label class="form-label fw-bold">{{ __('Collection Name') }}</label>
@@ -531,7 +531,7 @@
             <option value="all-mpnet-base-v2" {{ ($settings['qdrant_model'] ?? '') === 'all-mpnet-base-v2' ? 'selected' : '' }}>all-mpnet-base-v2 (768d, higher quality)</option>
             <option value="multi-qa-MiniLM-L6-cos-v1" {{ ($settings['qdrant_model'] ?? '') === 'multi-qa-MiniLM-L6-cos-v1' ? 'selected' : '' }}>multi-qa-MiniLM-L6-cos-v1 (384d, QA optimized)</option>
           </select>
-          <div class="form-text">Sentence-transformers model for embeddings</div>
+          <div class="form-text">{{ __('Sentence-transformers model for embeddings') }}</div>
         </div>
         <div class="col-md-6">
           <label class="form-label fw-bold">{{ __('Minimum Similarity Score') }}</label>
@@ -543,7 +543,7 @@
         <i class="fas fa-info-circle me-1 text-primary"></i>
         <strong>{{ __('Indexing:') }}</strong> Run the Qdrant indexer from the CLI or cron. See
         @if(\Route::has('settings.cron-jobs'))
-          <a href="{{ route('settings.cron-jobs') }}">Cron Jobs</a>
+          <a href="{{ route('settings.cron-jobs') }}">{{ __('Cron Jobs') }}</a>
         @else
           Cron Jobs
         @endif

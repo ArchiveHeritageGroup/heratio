@@ -25,7 +25,7 @@
       <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
-          <li class="breadcrumb-item active">Antiquities</li>
+          <li class="breadcrumb-item active">{{ __('Antiquities') }}</li>
         </ol>
       </nav>
       <h1><i class="fas fa-vase me-2"></i>{{ __('Antiquities Register') }}</h1>
@@ -73,8 +73,8 @@
       @if($antiquities->isEmpty())
         <div class="p-4 text-center text-muted">
           <i class="fas fa-vase fa-3x mb-3"></i>
-          <p>No antiquities found.</p>
-          <a href="{{ route('nmmz.antiquity.create') }}" class="btn btn-primary">Register First Antiquity</a>
+          <p>{{ __('No antiquities found.') }}</p>
+          <a href="{{ route('nmmz.antiquity.create') }}" class="btn btn-primary">{{ __('Register First Antiquity') }}</a>
         </div>
       @else
         <table class="table table-hover mb-0">

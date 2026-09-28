@@ -31,7 +31,7 @@
           <li><i class="fas fa-user me-1"></i>Rights Holder: {{ $currentRights->rights_holder->name ?? '' }}</li>
         @endif
         @if(!($currentRights->rights_statement ?? null) && !($currentRights->cc_license ?? null) && empty($currentRights->tk_labels ?? []) && !($currentRights->rights_holder ?? null))
-          <li class="text-muted"><em>No extended rights currently assigned</em></li>
+          <li class="text-muted"><em>{{ __('No extended rights currently assigned') }}</em></li>
         @endif
       </ul>
     </div>

@@ -57,7 +57,7 @@
           <li><strong>{{ __('Future AI Services') }}</strong> - Access to upcoming cloud-based AI features</li>
           <li><strong>{{ __('Usage Analytics') }}</strong> - Optional aggregate statistics to improve the platform</li>
         </ul>
-        <div class="alert alert-success small mb-2 mt-3"><i class="fas fa-check-circle me-1"></i><strong>Status (May 2026):</strong> AHG Central is <strong>live at central.theahg.co.za</strong>. The client integration - this form, the <code>AhgCentralService</code> class, and the <code>ahg:central-ping</code> / <code>ahg:central-heartbeat</code> / <code>ahg:central-sync-errors</code> artisan commands - is wired to it. Onboarding is automatic: a fresh install carrying the fleet key auto-enrols on its first heartbeat, with no registration step. Error-log sync (below) is opt-in.</div>
+        <div class="alert alert-success small mb-2 mt-3"><i class="fas fa-check-circle me-1"></i><strong>Status (May 2026):</strong> {{ __('AHG Central is') }} <strong>live at central.theahg.co.za</strong>. The client integration - this form, the <code>AhgCentralService</code> class, and the <code>ahg:central-ping</code> / <code>ahg:central-heartbeat</code> / <code>ahg:central-sync-errors</code> artisan commands - is wired to it. Onboarding is automatic: a fresh install carrying the fleet key auto-enrols on its first heartbeat, with no registration step. Error-log sync (below) is opt-in.</div>
         <p class="text-muted small mb-0"><i class="fas fa-info-circle me-1"></i>Note: This is separate from local AI services configured in the AI Services settings. Local AI services run on your own infrastructure while AHG Central is a cloud service.</p>
       </div>
     </div>
@@ -88,7 +88,7 @@
           <div class="mb-3">
             <label for="ahg_central_api_url" class="form-label">{{ __('AHG Central API URL') }}</label>
             <input type="url" name="settings[ahg_central_api_url]" id="ahg_central_api_url" class="form-control" value="{{ $settings['ahg_central_api_url'] ?? 'https://central.theahg.co.za/api/v1' }}" {{ $allLocked ? 'readonly' : '' }}>
-            <div class="form-text">Base URL for the AHG Central API endpoint.</div>
+            <div class="form-text">{{ __('Base URL for the AHG Central API endpoint.') }}</div>
           </div>
 
           <div class="mb-3">
@@ -97,7 +97,7 @@
               <input type="password" name="settings[ahg_central_api_key]" class="form-control" id="ahg_central_api_key" value="" autocomplete="new-password" placeholder="{{ __('Leave blank to keep current') }}" {{ $allLocked ? 'readonly' : '' }}> {{-- #1395(D) write-only --}}
               <button class="btn btn-outline-secondary" type="button" onclick="var i=document.getElementById('ahg_central_api_key');i.type=i.type==='password'?'text':'password';" {{ $disabledAttr }}><i class="fas fa-eye"></i></button>
             </div>
-            <div class="form-text">Authentication key provided by AHG Central.</div>
+            <div class="form-text">{{ __('Authentication key provided by AHG Central.') }}</div>
           </div>
 
           <div class="mb-3">
@@ -171,7 +171,7 @@
           <i class="fas fa-save me-1"></i> {{ __('Save Settings') }}
         </button>
         <a href="{{ route('settings.index') }}" class="btn btn-secondary">
-          Cancel
+          {{ __('Cancel') }}
         </a>
       </div>
     </form>

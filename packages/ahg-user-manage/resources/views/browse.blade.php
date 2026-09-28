@@ -16,10 +16,10 @@
   <nav>
     <ul class="nav nav-pills mb-3 d-flex gap-2">
       <li class="nav-item">
-        <a class="btn atom-btn-white active-primary text-wrap {{ request('filter', 'onlyActive') !== 'onlyInactive' ? 'active' : '' }}" href="?filter=onlyActive" {{ request('filter', 'onlyActive') !== 'onlyInactive' ? 'aria-current=page' : '' }}>Show active only</a>
+        <a class="btn atom-btn-white active-primary text-wrap {{ request('filter', 'onlyActive') !== 'onlyInactive' ? 'active' : '' }}" href="?filter=onlyActive" {{ request('filter', 'onlyActive') !== 'onlyInactive' ? 'aria-current=page' : '' }}>{{ __('Show active only') }}</a>
       </li>
       <li class="nav-item">
-        <a class="btn atom-btn-white active-primary text-wrap {{ request('filter') === 'onlyInactive' ? 'active' : '' }}" href="?filter=onlyInactive" {{ request('filter') === 'onlyInactive' ? 'aria-current=page' : '' }}>Show inactive only</a>
+        <a class="btn atom-btn-white active-primary text-wrap {{ request('filter') === 'onlyInactive' ? 'active' : '' }}" href="?filter=onlyInactive" {{ request('filter') === 'onlyInactive' ? 'aria-current=page' : '' }}>{{ __('Show inactive only') }}</a>
       </li>
     </ul>
   </nav>
@@ -68,6 +68,6 @@
   @include('ahg-core::components.pager', ['pager' => $pager])
 
   <section class="actions mb-3">
-    <a class="btn atom-btn-outline-light" href="{{ route('user.add') }}">Add new</a>
+    <a class="btn atom-btn-outline-light" href="{{ route('user.add') }}">{{ __('Add new') }}</a>
   </section>
 @endsection

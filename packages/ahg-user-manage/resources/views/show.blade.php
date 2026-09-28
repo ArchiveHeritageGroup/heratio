@@ -16,7 +16,7 @@
 
   @if(!$user->active)
     <div class="alert alert-danger" role="alert">
-      This user is inactive
+      {{ __('This user is inactive') }}
     </div>
   @endif
 @endsection
@@ -27,7 +27,7 @@
   <section class="section border-bottom" id="basicInfo">
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
-        @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">Basic info</a>@else Basic info @endauth
+        @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">{{ __('Basic info') }}</a>@else Basic info @endauth
       </div>
     </h2>
     <div>
@@ -63,7 +63,7 @@
     <section class="section border-bottom" id="profile">
       <h2 class="h5 mb-0 atom-section-header">
         <div class="d-flex p-3 border-bottom text-primary">
-          @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">Profile</a>@else Profile @endauth
+          @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">{{ __('Profile') }}</a>@else Profile @endauth
         </div>
       </h2>
       <div>
@@ -80,7 +80,7 @@
     <section class="section border-bottom" id="contactInfo">
       <h2 class="h5 mb-0 atom-section-header">
         <div class="d-flex p-3 border-bottom text-primary">
-          @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">Contact information</a>@else Contact information @endauth
+          @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">{{ __('Contact information') }}</a>@else Contact information @endauth
         </div>
       </h2>
       <div>
@@ -146,7 +146,7 @@
   <section class="section border-bottom" id="accessControl">
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
-        @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">Access control</a>@else Access control @endauth
+        @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">{{ __('Access control') }}</a>@else Access control @endauth
       </div>
     </h2>
     <div>
@@ -156,7 +156,7 @@
           @if(isset($groups) && $groups->isNotEmpty())
             {{ $groups->pluck('name')->implode(', ') }}
           @else
-            <em>None</em>
+            <em>{{ __('None') }}</em>
           @endif
         </div>
       </div>
@@ -177,7 +177,7 @@
   <section class="section border-bottom" id="translate">
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
-        @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">Allowed languages for translation</a>@else Allowed languages for translation @endauth
+        @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">{{ __('Allowed languages for translation') }}</a>@else Allowed languages for translation @endauth
       </div>
     </h2>
     <div>
@@ -187,7 +187,7 @@
           @if(isset($user->translateLanguages) && count($user->translateLanguages) > 0)
             {{ implode(', ', array_map('strtoupper', $user->translateLanguages)) }}
           @else
-            <em>None</em>
+            <em>{{ __('None') }}</em>
           @endif
         </div>
       </div>
@@ -198,7 +198,7 @@
   <section class="section border-bottom" id="apiKeys">
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
-        @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">API keys</a>@else API keys @endauth
+        @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">{{ __('API keys') }}</a>@else API keys @endauth
       </div>
     </h2>
     <div>
@@ -208,7 +208,7 @@
           @if(isset($restApiKey))
             <code>{{ $restApiKey }}</code>
           @else
-            <em>Not generated yet.</em>
+            <em>{{ __('Not generated yet.') }}</em>
           @endif
         </div>
       </div>
@@ -218,7 +218,7 @@
           @if(isset($oaiApiKey))
             <code>{{ $oaiApiKey }}</code>
           @else
-            <em>Not generated yet.</em>
+            <em>{{ __('Not generated yet.') }}</em>
           @endif
         </div>
       </div>
@@ -229,7 +229,7 @@
   @if(class_exists(\AhgSecurityClearance\Services\SecurityClearanceService::class))
     <section class="section border-bottom" id="securityClearance">
       <h2 class="h5 mb-0 atom-section-header">
-        <div class="d-flex p-3 border-bottom text-primary">Security clearance</div>
+        <div class="d-flex p-3 border-bottom text-primary">{{ __('Security clearance') }}</div>
       </h2>
       <div>
         @if(!empty($clearance))
@@ -242,7 +242,7 @@
                 {{ $clearance->classification_name ?? 'None' }}
               @endif
               @auth
-                <a href="{{ route('security-clearance.user', $user->slug) }}" class="btn btn-sm atom-btn-outline-light ms-2">Manage</a>
+                <a href="{{ route('security-clearance.user', $user->slug) }}" class="btn btn-sm atom-btn-outline-light ms-2">{{ __('Manage') }}</a>
               @endauth
             </div>
           </div>
@@ -268,9 +268,9 @@
           <div class="field row g-0">
             <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Clearance level') }}</h3>
             <div class="col-9 p-2">
-              <em>None</em>
+              <em>{{ __('None') }}</em>
               @auth
-                <a href="{{ route('security-clearance.user', $user->slug) }}" class="btn btn-sm atom-btn-outline-light ms-2">Grant clearance</a>
+                <a href="{{ route('security-clearance.user', $user->slug) }}" class="btn btn-sm atom-btn-outline-light ms-2">{{ __('Grant clearance') }}</a>
               @endauth
             </div>
           </div>
@@ -324,7 +324,7 @@
     @if(auth()->user()->is_admin && ($user->created_at || $user->updated_at))
       <section class="section border-bottom" id="userAdmin">
         <h2 class="h5 mb-0 atom-section-header">
-          <div class="d-flex p-3 border-bottom text-primary">Administration area</div>
+          <div class="d-flex p-3 border-bottom text-primary">{{ __('Administration area') }}</div>
         </h2>
         <div>
           @if($user->created_at)

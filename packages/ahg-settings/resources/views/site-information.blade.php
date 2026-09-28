@@ -24,12 +24,12 @@
           <div id="site-information-collapse" class="accordion-collapse collapse" aria-labelledby="site-information-heading">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Site title <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Site title') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="siteTitle" class="form-control" value="{{ e($settings['siteTitle']) }}">
                 <small class="text-muted">{{ __('The name of the website for display in the header') }}</small>
               </div>
               <div class="mb-3">
-                <label class="form-label">Site description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Site description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="siteDescription" class="form-control" value="{{ e($settings['siteDescription']) }}">
                 <small class="text-muted">{{ __('A brief site description or "tagline" for the header') }}</small>
               </div>

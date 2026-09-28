@@ -14,8 +14,8 @@
 
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">Data Migration</a></li>
-      <li class="breadcrumb-item"><a href="{{ route('data-migration.jobs') }}">Jobs</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">{{ __('Data Migration') }}</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('data-migration.jobs') }}">{{ __('Jobs') }}</a></li>
       <li class="breadcrumb-item active">Job #{{ $job['id'] }}</li>
     </ol>
   </nav>
@@ -51,37 +51,37 @@
         <div class="col-6 col-md-2">
           <div class="text-center">
             <div class="fs-4 fw-bold">{{ number_format($job['total_records']) }}</div>
-            <div class="small text-muted">Total Records</div>
+            <div class="small text-muted">{{ __('Total Records') }}</div>
           </div>
         </div>
         <div class="col-6 col-md-2">
           <div class="text-center">
             <div class="fs-4 fw-bold">{{ number_format($job['processed_records']) }}</div>
-            <div class="small text-muted">Processed</div>
+            <div class="small text-muted">{{ __('Processed') }}</div>
           </div>
         </div>
         <div class="col-6 col-md-2">
           <div class="text-center">
             <div class="fs-4 fw-bold text-success">{{ number_format($job['imported_records']) }}</div>
-            <div class="small text-muted">Imported</div>
+            <div class="small text-muted">{{ __('Imported') }}</div>
           </div>
         </div>
         <div class="col-6 col-md-2">
           <div class="text-center">
             <div class="fs-4 fw-bold text-primary">{{ number_format($job['updated_records']) }}</div>
-            <div class="small text-muted">Updated</div>
+            <div class="small text-muted">{{ __('Updated') }}</div>
           </div>
         </div>
         <div class="col-6 col-md-2">
           <div class="text-center">
             <div class="fs-4 fw-bold text-warning">{{ number_format($job['skipped_records']) }}</div>
-            <div class="small text-muted">Skipped</div>
+            <div class="small text-muted">{{ __('Skipped') }}</div>
           </div>
         </div>
         <div class="col-6 col-md-2">
           <div class="text-center">
             <div class="fs-4 fw-bold text-danger">{{ number_format($job['error_count']) }}</div>
-            <div class="small text-muted">Errors</div>
+            <div class="small text-muted">{{ __('Errors') }}</div>
           </div>
         </div>
       </div>

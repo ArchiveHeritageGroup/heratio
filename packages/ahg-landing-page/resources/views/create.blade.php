@@ -8,9 +8,9 @@
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-4">
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
-        <a href="{{ route('landing-page.list') }}">Landing Pages</a>
+        <a href="{{ route('landing-page.list') }}">{{ __('Landing Pages') }}</a>
       </li>
-      <li class="breadcrumb-item active">Create New</li>
+      <li class="breadcrumb-item active">{{ __('Create New') }}</li>
     </ol>
   </nav>
 
@@ -32,15 +32,15 @@
         @csrf
 
         <div class="mb-3">
-          <label class="form-label" for="name">Page Name <span class="text-danger">*</span></label>
+          <label class="form-label" for="name">{{ __('Page Name') }} <span class="text-danger">*</span></label>
           <input type="text" name="name" id="name" class="form-control" required
                  value="{{ old('name', '') }}"
                  placeholder="{{ __('e.g., Home Page, About Us') }}">
-          <div class="form-text">Internal name for this landing page</div>
+          <div class="form-text">{{ __('Internal name for this landing page') }}</div>
         </div>
 
         <div class="mb-3">
-          <label class="form-label" for="slug">URL Slug <span class="text-danger">*</span></label>
+          <label class="form-label" for="slug">{{ __('URL Slug') }} <span class="text-danger">*</span></label>
           <div class="input-group">
             <span class="input-group-text">/</span>
             <input type="text" name="slug" id="slug" class="form-control" required
@@ -63,10 +63,10 @@
             <input type="checkbox" name="is_default" id="is_default" class="form-check-input" value="1"
                    {{ old('is_default') ? 'checked' : '' }}>
             <label class="form-check-label" for="is_default">
-              Set as default home page
+              {{ __('Set as default home page') }}
             </label>
           </div>
-          <div class="form-text">This page will be shown when visitors access the root URL</div>
+          <div class="form-text">{{ __('This page will be shown when visitors access the root URL') }}</div>
         </div>
 
         <div class="mb-4">
@@ -84,7 +84,7 @@
             <i class="bi bi-check-lg"></i> {{ __('Create Page') }}
           </button>
           <a href="{{ route('landing-page.list') }}" class="btn btn-outline-secondary">
-            Cancel
+            {{ __('Cancel') }}
           </a>
         </div>
       </form>

@@ -19,7 +19,7 @@
 
           @if($clearance)
             <div class="alert alert-info text-center">
-              Clearance: <span class="badge" style="background-color: {{ $clearance->color ?? '#666' }}">{{ e($clearance->classification_name ?? '') }}</span>
+              {{ __('Clearance:') }} <span class="badge" style="background-color: {{ $clearance->color ?? '#666' }}">{{ e($clearance->classification_name ?? '') }}</span>
             </div>
           @endif
 

@@ -24,8 +24,8 @@
       <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
-          <li class="breadcrumb-item"><a href="{{ route('nmmz.monuments') }}">National Monuments</a></li>
-          <li class="breadcrumb-item active">Register Monument</li>
+          <li class="breadcrumb-item"><a href="{{ route('nmmz.monuments') }}">{{ __('National Monuments') }}</a></li>
+          <li class="breadcrumb-item active">{{ __('Register Monument') }}</li>
         </ol>
       </nav>
       <h1><i class="fas fa-monument me-2"></i>{{ __('Register National Monument') }}</h1>
@@ -40,7 +40,7 @@
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-8">
-              <label class="form-label">Monument Name <span class="text-danger">*</span></label>
+              <label class="form-label">{{ __('Monument Name') }} <span class="text-danger">*</span></label>
               <input type="text" name="name" class="form-control" required>
             </div>
             <div class="col-md-4">
@@ -151,7 +151,7 @@
           <button type="submit" class="btn btn-primary btn-lg">
             <i class="fas fa-save me-2"></i>{{ __('Register Monument') }}
           </button>
-          <a href="{{ route('nmmz.monuments') }}" class="btn btn-outline-secondary">Cancel</a>
+          <a href="{{ route('nmmz.monuments') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
         </div>
       </div>
     </div>

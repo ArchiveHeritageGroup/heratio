@@ -7,7 +7,7 @@
     <div class="row mb-4">
         <div class="col">
             <h1><i class="fas fa-wpforms me-2"></i>{{ __('Form Templates') }}</h1>
-            <p class="text-muted">Manage configurable metadata entry forms</p>
+            <p class="text-muted">{{ __('Manage configurable metadata entry forms') }}</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('forms.template.create') }}" class="btn btn-primary">
@@ -25,7 +25,7 @@
             <div class="card bg-primary text-white">
                 <div class="card-body">
                     <h4>{{ array_sum((array) ($stats['templates_by_type'] ?? [0])) }}</h4>
-                    <p class="mb-0">Total Templates</p>
+                    <p class="mb-0">{{ __('Total Templates') }}</p>
                 </div>
             </div>
         </div>
@@ -33,7 +33,7 @@
             <div class="card bg-success text-white">
                 <div class="card-body">
                     <h4>{{ $stats['active_assignments'] ?? 0 }}</h4>
-                    <p class="mb-0">Active Assignments</p>
+                    <p class="mb-0">{{ __('Active Assignments') }}</p>
                 </div>
             </div>
         </div>
@@ -41,7 +41,7 @@
             <div class="card bg-info text-white">
                 <div class="card-body">
                     <h4>{{ $stats['pending_drafts'] ?? 0 }}</h4>
-                    <p class="mb-0">Pending Drafts</p>
+                    <p class="mb-0">{{ __('Pending Drafts') }}</p>
                 </div>
             </div>
         </div>
@@ -61,8 +61,8 @@
             <div class="card h-100">
                 <div class="card-body">
                     <h5 class="card-title"><i class="fas fa-list me-2"></i>{{ __('Templates') }}</h5>
-                    <p class="card-text">Create and manage form templates with drag-drop field builder.</p>
-                    <a href="{{ route('forms.templates') }}" class="btn btn-outline-primary">Manage Templates</a>
+                    <p class="card-text">{{ __('Create and manage form templates with drag-drop field builder.') }}</p>
+                    <a href="{{ route('forms.templates') }}" class="btn btn-outline-primary">{{ __('Manage Templates') }}</a>
                 </div>
             </div>
         </div>
@@ -70,8 +70,8 @@
             <div class="card h-100">
                 <div class="card-body">
                     <h5 class="card-title"><i class="fas fa-link me-2"></i>{{ __('Assignments') }}</h5>
-                    <p class="card-text">Assign templates to repositories and description levels.</p>
-                    <a href="{{ route('forms.assignments') }}" class="btn btn-outline-primary">Manage Assignments</a>
+                    <p class="card-text">{{ __('Assign templates to repositories and description levels.') }}</p>
+                    <a href="{{ route('forms.assignments') }}" class="btn btn-outline-primary">{{ __('Manage Assignments') }}</a>
                 </div>
             </div>
         </div>
@@ -79,8 +79,8 @@
             <div class="card h-100">
                 <div class="card-body">
                     <h5 class="card-title"><i class="fas fa-book me-2"></i>{{ __('Library') }}</h5>
-                    <p class="card-text">Pre-built templates: ISAD-G, Dublin Core, Accession forms.</p>
-                    <a href="{{ route('forms.library') }}" class="btn btn-outline-primary">Browse Library</a>
+                    <p class="card-text">{{ __('Pre-built templates: ISAD-G, Dublin Core, Accession forms.') }}</p>
+                    <a href="{{ route('forms.library') }}" class="btn btn-outline-primary">{{ __('Browse Library') }}</a>
                 </div>
             </div>
         </div>

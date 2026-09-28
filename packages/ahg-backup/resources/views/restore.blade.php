@@ -13,9 +13,9 @@
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ url('/admin') }}">Admin</a></li>
+    <li class="breadcrumb-item"><a href="{{ url('/admin') }}">{{ __('Admin') }}</a></li>
     <li class="breadcrumb-item"><a href="{{ route('backup.index') }}">Backup &amp; Restore</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Restore</li>
+    <li class="breadcrumb-item active" aria-current="page">{{ __('Restore') }}</li>
   </ol>
 </nav>
 
@@ -95,7 +95,7 @@
       </div>
       <div class="card-body p-0">
         @if (empty($schedules))
-          <p class="text-muted text-center py-3 mb-0">No schedules configured</p>
+          <p class="text-muted text-center py-3 mb-0">{{ __('No schedules configured') }}</p>
         @else
           <ul class="list-group list-group-flush">
             @foreach ($schedules as $sched)
@@ -126,7 +126,7 @@
   <div class="card-header" ><i class="fas fa-file-archive me-1"></i> {{ __('Select Backup') }}</div>
   <div class="card-body">
     <div class="mb-3">
-      <label for="backup-select" class="form-label">Available Backups <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+      <label for="backup-select" class="form-label">{{ __('Available Backups') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
       <select class="form-select" id="backup-select" onchange="onBackupSelected()">
         <option value="">-- Select a backup --</option>
         @foreach($backups as $backup)
@@ -148,19 +148,19 @@
           <h6 class="card-title">{{ __('Backup Details') }}</h6>
           <table class="table table-bordered table-sm table-borderless mb-0">
             <tr>
-              <td class="text-muted" style="width:100px;">File</td>
+              <td class="text-muted" style="width:100px;">{{ __('File') }}</td>
               <td id="detail-filename"></td>
             </tr>
             <tr>
-              <td class="text-muted">Date</td>
+              <td class="text-muted">{{ __('Date') }}</td>
               <td id="detail-date"></td>
             </tr>
             <tr>
-              <td class="text-muted">Size</td>
+              <td class="text-muted">{{ __('Size') }}</td>
               <td id="detail-size"></td>
             </tr>
             <tr>
-              <td class="text-muted">Contains</td>
+              <td class="text-muted">{{ __('Contains') }}</td>
               <td id="detail-components"></td>
             </tr>
           </table>
@@ -172,30 +172,30 @@
         <div class="form-check mb-2" id="restore-comp-database-wrap" style="display:none;">
           <input class="form-check-input restore-component" type="checkbox" id="restore-comp-database" value="database">
           <label class="form-check-label" for="restore-comp-database">
-            <i class="fas fa-database text-primary me-1"></i> Database
+            <i class="fas fa-database text-primary me-1"></i> {{ __('Database') }}
            <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-          <div class="form-text">Restore the MySQL database from the backup dump.</div>
+          <div class="form-text">{{ __('Restore the MySQL database from the backup dump.') }}</div>
         </div>
         <div class="form-check mb-2" id="restore-comp-uploads-wrap" style="display:none;">
           <input class="form-check-input restore-component" type="checkbox" id="restore-comp-uploads" value="uploads">
           <label class="form-check-label" for="restore-comp-uploads">
-            <i class="fas fa-upload text-info me-1"></i> Uploads
+            <i class="fas fa-upload text-info me-1"></i> {{ __('Uploads') }}
            <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-          <div class="form-text">Restore uploaded digital objects and files.</div>
+          <div class="form-text">{{ __('Restore uploaded digital objects and files.') }}</div>
         </div>
         <div class="form-check mb-2" id="restore-comp-plugins-wrap" style="display:none;">
           <input class="form-check-input restore-component" type="checkbox" id="restore-comp-plugins" value="plugins">
           <label class="form-check-label" for="restore-comp-plugins">
-            <i class="fas fa-puzzle-piece text-warning me-1"></i> Plugins
+            <i class="fas fa-puzzle-piece text-warning me-1"></i> {{ __('Plugins') }}
            <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-          <div class="form-text">Restore all packages from the backup.</div>
+          <div class="form-text">{{ __('Restore all packages from the backup.') }}</div>
         </div>
         <div class="form-check mb-2" id="restore-comp-framework-wrap" style="display:none;">
           <input class="form-check-input restore-component" type="checkbox" id="restore-comp-framework" value="framework">
           <label class="form-check-label" for="restore-comp-framework">
-            <i class="fas fa-code text-secondary me-1"></i> Framework
+            <i class="fas fa-code text-secondary me-1"></i> {{ __('Framework') }}
            <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-          <div class="form-text">Restore application framework files.</div>
+          <div class="form-text">{{ __('Restore application framework files.') }}</div>
         </div>
       </div>
 
@@ -230,7 +230,7 @@
   <div class="card">
     <div class="card-body text-center py-5 text-muted">
       <i class="fas fa-3x fa-box-open mb-3 d-block"></i>
-      <p class="mb-2">No backups available for restore.</p>
+      <p class="mb-2">{{ __('No backups available for restore.') }}</p>
       <a href="{{ route('backup.index') }}" class="btn btn-primary">
         <i class="fas fa-plus me-1"></i> {{ __('Create a Backup First') }}
       </a>

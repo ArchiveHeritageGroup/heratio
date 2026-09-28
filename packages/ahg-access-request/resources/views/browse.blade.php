@@ -8,8 +8,8 @@
         <div class="col-12">
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('homepage') }}">Home</a></li>
-                    <li class="breadcrumb-item active">Access Requests</li>
+                    <li class="breadcrumb-item"><a href="{{ route('homepage') }}">{{ __('Home') }}</a></li>
+                    <li class="breadcrumb-item active">{{ __('Access Requests') }}</li>
                 </ol>
             </nav>
 
@@ -42,7 +42,7 @@
                 <div class="card-body p-0">
                     @if($requests->isEmpty())
                         <div class="p-4 text-center text-muted">
-                            <p>No access requests found.</p>
+                            <p>{{ __('No access requests found.') }}</p>
                         </div>
                     @else
                         <div class="table-responsive">
@@ -76,7 +76,7 @@
                                             </td>
                                             <td>{{ $req->created_at ?? '' }}</td>
                                             <td>
-                                                <a href="{{ route('accessRequest.view', $req->id) }}" class="atom-btn-white btn-sm">View</a>
+                                                <a href="{{ route('accessRequest.view', $req->id) }}" class="atom-btn-white btn-sm">{{ __('View') }}</a>
                                             </td>
                                         </tr>
                                     @endforeach

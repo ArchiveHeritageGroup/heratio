@@ -26,9 +26,9 @@
 
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.index') }}">Vendor Management</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.list') }}">Vendors</a></li>
-            <li class="breadcrumb-item active">Add Vendor</li>
+            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.index') }}">{{ __('Vendor Management') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.list') }}">{{ __('Vendors') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('Add Vendor') }}</li>
         </ol>
     </nav>
 
@@ -213,7 +213,7 @@
                         <i class="fas fa-tools me-2"></i>{{ __('Services Offered') }}
                     </div>
                     <div class="card-body">
-                        <p class="text-muted small">Select services this vendor provides:</p>
+                        <p class="text-muted small">{{ __('Select services this vendor provides:') }}</p>
                         @foreach (($serviceTypes ?? []) as $service)
                         <div class="form-check mb-2">
                             <input type="checkbox" name="service_ids[]" value="{{ $service->id }}" class="form-check-input" id="service_{{ $service->id }}">
@@ -240,7 +240,7 @@
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save me-1"></i>{{ __('Save Vendor') }}
                 </button>
-                <a href="{{ route('ahgvendor.list') }}" class="btn btn-secondary">Cancel</a>
+                <a href="{{ route('ahgvendor.list') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
             </div>
         </div>
     </form>

@@ -8,7 +8,7 @@
   <h1 class="mb-0"><i class="fas fa-cogs"></i> {{ __('AHG Plugin Settings') }}</h1>
   <a href="{{ route('settings.global') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Admin Settings') }}</a>
 </div>
-<p class="text-muted mb-4">Configure AHG theme and plugin settings</p>
+<p class="text-muted mb-4">{{ __('Configure AHG theme and plugin settings') }}</p>
 
 <div class="row">
   @foreach($scopeCards ?? [] as $card)

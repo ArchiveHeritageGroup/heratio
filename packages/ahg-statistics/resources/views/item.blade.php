@@ -18,8 +18,8 @@
 <div class="container-fluid px-4 py-3">
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('statistics.dashboard') }}">Statistics</a></li>
-            <li class="breadcrumb-item active">Item Statistics</li>
+            <li class="breadcrumb-item"><a href="{{ route('statistics.dashboard') }}">{{ __('Statistics') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('Item Statistics') }}</li>
         </ol>
     </nav>
 
@@ -119,7 +119,7 @@
                             </div>
                         @endforeach
                         @if(empty($stats['top_countries']))
-                            <div class="list-group-item text-muted text-center">No geographic data</div>
+                            <div class="list-group-item text-muted text-center">{{ __('No geographic data') }}</div>
                         @endif
                     </div>
                 </div>

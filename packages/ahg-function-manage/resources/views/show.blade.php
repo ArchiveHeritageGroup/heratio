@@ -9,7 +9,7 @@
   {{-- Breadcrumb --}}
   <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('function.browse') }}">Functions</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('function.browse') }}">{{ __('Functions') }}</a></li>
       <li class="breadcrumb-item active" aria-current="page">{{ $function->authorized_form_of_name ?: '[Untitled]' }}</li>
     </ol>
   </nav>
@@ -38,7 +38,7 @@
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
         @if($canUpdate)
-          <a href="{{ route('function.edit', $function->slug) }}#identity-collapse" class="text-primary text-decoration-none">Identity area</a>
+          <a href="{{ route('function.edit', $function->slug) }}#identity-collapse" class="text-primary text-decoration-none">{{ __('Identity area') }}</a>
           <a href="{{ route('function.edit', $function->slug) }}#identity-collapse" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></a>
         @else
           Identity area
@@ -102,7 +102,7 @@
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
         @if($canUpdate)
-          <a href="{{ route('function.edit', $function->slug) }}#context-collapse" class="text-primary text-decoration-none">Context area</a>
+          <a href="{{ route('function.edit', $function->slug) }}#context-collapse" class="text-primary text-decoration-none">{{ __('Context area') }}</a>
           <a href="{{ route('function.edit', $function->slug) }}#context-collapse" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></a>
         @else
           Context area
@@ -147,7 +147,7 @@
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
         @if($canUpdate)
-          <a href="{{ route('function.edit', $function->slug) }}#relationships-collapse" class="text-primary text-decoration-none">Relationships area</a>
+          <a href="{{ route('function.edit', $function->slug) }}#relationships-collapse" class="text-primary text-decoration-none">{{ __('Relationships area') }}</a>
           <a href="{{ route('function.edit', $function->slug) }}#relationships-collapse" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></a>
         @else
           Relationships area
@@ -281,7 +281,7 @@
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
         @if($canUpdate)
-          <a href="{{ route('function.edit', $function->slug) }}#control-collapse" class="text-primary text-decoration-none">Control area</a>
+          <a href="{{ route('function.edit', $function->slug) }}#control-collapse" class="text-primary text-decoration-none">{{ __('Control area') }}</a>
           <a href="{{ route('function.edit', $function->slug) }}#control-collapse" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></a>
         @else
           Control area
@@ -413,13 +413,13 @@
   @if($canUpdate || $canDelete || $canCreate)
     <ul class="actions mb-3 nav gap-2">
       @if($canUpdate)
-        <li><a href="{{ route('function.edit', $function->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
+        <li><a href="{{ route('function.edit', $function->slug) }}" class="btn atom-btn-outline-light">{{ __('Edit') }}</a></li>
       @endif
       @if($canDelete)
-        <li><a href="{{ route('function.confirmDelete', $function->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
+        <li><a href="{{ route('function.confirmDelete', $function->slug) }}" class="btn atom-btn-outline-danger">{{ __('Delete') }}</a></li>
       @endif
       @if($canCreate)
-        <li><a href="{{ route('function.create') }}" class="btn atom-btn-outline-light">Add new</a></li>
+        <li><a href="{{ route('function.create') }}" class="btn atom-btn-outline-light">{{ __('Add new') }}</a></li>
       @endif
     </ul>
   @endif

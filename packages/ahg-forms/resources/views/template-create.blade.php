@@ -19,7 +19,7 @@
     <div class="row mb-4">
         <div class="col">
             <h1><i class="fas fa-plus me-2"></i>{{ __('Create Form Template') }}</h1>
-            <p class="text-muted">Create a new form template</p>
+            <p class="text-muted">{{ __('Create a new form template') }}</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('forms.templates') }}" class="btn btn-outline-secondary">
@@ -69,7 +69,7 @@
 
                 <div class="d-flex justify-content-between">
                     <a href="{{ route('forms.templates') }}" class="btn btn-outline-secondary">
-                        Cancel
+                        {{ __('Cancel') }}
                     </a>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-plus me-1"></i> {{ __('Create Template') }}

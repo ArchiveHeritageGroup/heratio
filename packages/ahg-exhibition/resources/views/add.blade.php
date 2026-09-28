@@ -33,7 +33,7 @@
         </div>
         <div class="card-body">
           <div class="mb-3">
-            <label class="form-label">Title <span class="text-danger">*</span></label>
+            <label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
             <input type="text" name="title" class="form-control" autocomplete="off" required value="{{ $data->title ?? '' }}">
           </div>
 
@@ -151,7 +151,7 @@
       </div>
 
       <div class="d-flex justify-content-between">
-        <a href="{{ route('exhibition.index') }}" class="btn btn-outline-secondary">Cancel</a>
+        <a href="{{ route('exhibition.index') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
         <button type="submit" class="btn btn-primary">{{ __('Create Exhibition') }}</button>
       </div>
     </form>
@@ -173,13 +173,13 @@
         </ul>
 
         <h6 class="mt-3">{{ __('After Creating') }}</h6>
-        <p class="small text-muted">After creating the exhibition, you can:</p>
+        <p class="small text-muted">{{ __('After creating the exhibition, you can:') }}</p>
         <ul class="small text-muted">
-          <li>Add sections/galleries</li>
-          <li>Add objects from the collection</li>
-          <li>Create storylines and narratives</li>
-          <li>Schedule events</li>
-          <li>Generate checklists</li>
+          <li>{{ __('Add sections/galleries') }}</li>
+          <li>{{ __('Add objects from the collection') }}</li>
+          <li>{{ __('Create storylines and narratives') }}</li>
+          <li>{{ __('Schedule events') }}</li>
+          <li>{{ __('Generate checklists') }}</li>
         </ul>
       </div>
     </div>

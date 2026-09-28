@@ -19,7 +19,7 @@
     <div class="row mb-4">
         <div class="col">
             <h1><i class="fas fa-wpforms me-2"></i>{{ __('Browse Form Templates') }}</h1>
-            <p class="text-muted">View and search available form templates</p>
+            <p class="text-muted">{{ __('View and search available form templates') }}</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('forms.index') }}" class="btn btn-outline-secondary">
@@ -72,10 +72,10 @@
             @if(count($templates ?? []) === 0)
                 <div class="p-4 text-center text-muted">
                     <i class="fas fa-inbox fa-3x mb-3"></i>
-                    <p>No form templates match your criteria.</p>
+                    <p>{{ __('No form templates match your criteria.') }}</p>
                     @if(!empty($type) || !empty($search))
                         <a href="{{ route('forms.browse') }}" class="btn btn-outline-primary">
-                            Clear Filters
+                            {{ __('Clear Filters') }}
                         </a>
                     @endif
                 </div>

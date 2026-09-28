@@ -14,13 +14,13 @@
 {{-- Filter Tabs --}}
   <ul class="nav nav-tabs mb-4">
     <li class="nav-item">
-      <a class="nav-link {{ !$currentStatus ? 'active' : '' }}" href="{{ route('workflow.my-tasks') }}">All Active</a>
+      <a class="nav-link {{ !$currentStatus ? 'active' : '' }}" href="{{ route('workflow.my-tasks') }}">{{ __('All Active') }}</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link {{ $currentStatus === 'claimed' ? 'active' : '' }}" href="{{ route('workflow.my-tasks', ['status' => 'claimed']) }}">Claimed</a>
+      <a class="nav-link {{ $currentStatus === 'claimed' ? 'active' : '' }}" href="{{ route('workflow.my-tasks', ['status' => 'claimed']) }}">{{ __('Claimed') }}</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link {{ $currentStatus === 'in_progress' ? 'active' : '' }}" href="{{ route('workflow.my-tasks', ['status' => 'in_progress']) }}">In Progress</a>
+      <a class="nav-link {{ $currentStatus === 'in_progress' ? 'active' : '' }}" href="{{ route('workflow.my-tasks', ['status' => 'in_progress']) }}">{{ __('In Progress') }}</a>
     </li>
   </ul>
 
@@ -28,7 +28,7 @@
     <div class="text-center text-muted py-5">
       <i class="fas fa-inbox fa-4x mb-3 opacity-50" aria-hidden="true"></i>
       <h4>{{ __('No tasks assigned to you') }}</h4>
-      <p>Browse the <a href="{{ route('workflow.pool') }}">task pool</a> to claim available tasks.</p>
+      <p>{{ __('Browse the') }} <a href="{{ route('workflow.pool') }}">task pool</a> to claim available tasks.</p>
     </div>
   @else
     <div class="card">

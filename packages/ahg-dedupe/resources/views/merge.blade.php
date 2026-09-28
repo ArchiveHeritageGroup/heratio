@@ -131,7 +131,7 @@
         <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Step 2: Review Merge Actions') }}</h5>
       </div>
       <div class="card-body">
-        <p>The following actions will be performed:</p>
+        <p>{{ __('The following actions will be performed:') }}</p>
         <ul class="list-group list-group-flush">
           <li class="list-group-item">
             <i class="fas fa-file me-2 text-primary"></i>
@@ -177,7 +177,7 @@
           <a href="{{ route('dedupe.compare', $duplicate->id) }}" class="btn atom-btn-white">
             <i class="fas fa-columns me-1"></i> {{ __('Back to Compare') }}
           </a>
-          <a href="{{ route('dedupe.browse') }}" class="btn atom-btn-white">Cancel</a>
+          <a href="{{ route('dedupe.browse') }}" class="btn atom-btn-white">{{ __('Cancel') }}</a>
         </div>
       </div>
     </div>

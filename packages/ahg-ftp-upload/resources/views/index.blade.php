@@ -6,9 +6,9 @@
 
   <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-      <li class="breadcrumb-item">Import</li>
-      <li class="breadcrumb-item active">FTP Upload</li>
+      <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
+      <li class="breadcrumb-item">{{ __('Import') }}</li>
+      <li class="breadcrumb-item active">{{ __('FTP Upload') }}</li>
     </ol>
   </nav>
 
@@ -34,13 +34,13 @@
           <i class="fa fa-copy"></i>
         </button>
       </div>
-      <small class="text-muted">Replace <em>your-filename.ext</em> with the actual filename you upload.</small>
+      <small class="text-muted">{{ __('Replace') }} <em>your-filename.ext</em> with the actual filename you upload.</small>
     </div>
 
     <!-- Upload Zone -->
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fa fa-cloud-upload-alt me-2"></i>Upload Files or Folders
+        <h5 class="mb-0"><i class="fa fa-cloud-upload-alt me-2"></i>{{ __('Upload Files or Folders') }}
           <small class="ms-2 opacity-75">(supports files up to 2 GB - chunked upload with resume)</small>
         </h5>
       </div>
@@ -62,7 +62,7 @@
         </div>
         <div class="row">
           <div class="col-md-4">
-            <small class="text-muted"><i class="fa fa-file me-1"></i>Accepted: CSV, XML, ZIP, images, documents</small>
+            <small class="text-muted"><i class="fa fa-file me-1"></i>{{ __('Accepted: CSV, XML, ZIP, images, documents') }}</small>
           </div>
           <div class="col-md-4 text-center">
             <small class="text-muted"><i class="fa fa-hdd me-1"></i>Max file size: 2 GB per file</small>

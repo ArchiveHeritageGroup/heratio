@@ -25,7 +25,7 @@
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.dashboard') }}">ICIP</a></li>
-      <li class="breadcrumb-item"><a href="{{ route('ahgicip.consent-list') }}">Consent Records</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('ahgicip.consent-list') }}">{{ __('Consent Records') }}</a></li>
       <li class="breadcrumb-item active">{{ $id ? 'Edit' : 'Add' }} Consent</li>
     </ol>
   </nav>
@@ -53,9 +53,9 @@
             <div class="card-header"><h5 class="mb-0">{{ __('Information Object') }}</h5></div>
             <div class="card-body">
               <div class="mb-3">
-                <label class="form-label">Object ID <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Object ID') }} <span class="text-danger">*</span></label>
                 <input type="number" name="information_object_id" class="form-control" required value="{{ $consent->information_object_id ?? $objectId ?? '' }}">
-                <div class="form-text">Enter the information object ID this consent applies to</div>
+                <div class="form-text">{{ __('Enter the information object ID this consent applies to') }}</div>
               </div>
             </div>
           </div>
@@ -77,7 +77,7 @@
                 </select>
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Consent Status <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Consent Status') }} <span class="text-danger">*</span></label>
                 <select name="consent_status" class="form-select" required>
                   @foreach($statusOptions as $value => $label)
                     <option value="{{ $value }}" @selected(($consent->consent_status ?? 'unknown') === $value)>{{ $label }}</option>
@@ -98,7 +98,7 @@
                   </div>
                 @endforeach
               </div>
-              <div class="form-text">Select all applicable consent scopes</div>
+              <div class="form-text">{{ __('Select all applicable consent scopes') }}</div>
             </div>
 
             <div class="row">
@@ -109,14 +109,14 @@
               <div class="col-md-6 mb-3">
                 <label class="form-label">{{ __('Expiry Date') }}</label>
                 <input type="date" name="consent_expiry_date" class="form-control" value="{{ $consent->consent_expiry_date ?? '' }}">
-                <div class="form-text">Leave blank for indefinite consent</div>
+                <div class="form-text">{{ __('Leave blank for indefinite consent') }}</div>
               </div>
             </div>
 
             <div class="mb-3">
               <label class="form-label">{{ __('Consent Granted By') }}</label>
               <input type="text" name="consent_granted_by" class="form-control" value="{{ $consent->consent_granted_by ?? '' }}">
-              <div class="form-text">Person or authority who granted consent</div>
+              <div class="form-text">{{ __('Person or authority who granted consent') }}</div>
             </div>
 
             <div class="mb-3">
@@ -133,12 +133,12 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Conditions') }}</label>
               <textarea name="conditions" class="form-control" rows="4">{{ $consent->conditions ?? '' }}</textarea>
-              <div class="form-text">Any conditions attached to this consent</div>
+              <div class="form-text">{{ __('Any conditions attached to this consent') }}</div>
             </div>
             <div class="mb-3">
               <label class="form-label">{{ __('Restrictions') }}</label>
               <textarea name="restrictions" class="form-control" rows="4">{{ $consent->restrictions ?? '' }}</textarea>
-              <div class="form-text">Specific usage restrictions that apply</div>
+              <div class="form-text">{{ __('Specific usage restrictions that apply') }}</div>
             </div>
             <div class="mb-3">
               <label class="form-label">{{ __('Notes') }}</label>
@@ -155,7 +155,7 @@
               <i class="bi bi-check-circle me-1"></i>
               {{ $id ? 'Save Changes' : 'Create Consent Record' }}
             </button>
-            <a href="{{ route('ahgicip.consent-list') }}" class="btn btn-outline-secondary w-100">Cancel</a>
+            <a href="{{ route('ahgicip.consent-list') }}" class="btn btn-outline-secondary w-100">{{ __('Cancel') }}</a>
           </div>
         </div>
 
@@ -163,18 +163,18 @@
           <div class="card-header"><h6 class="mb-0">{{ __('Status Guide') }}</h6></div>
           <div class="card-body small">
             <dl class="mb-0">
-              <dt class="text-muted">Not Required</dt>
-              <dd>No consent needed for this material</dd>
-              <dt class="text-warning">Pending Consultation</dt>
-              <dd>Awaiting initial community contact</dd>
-              <dt class="text-info">In Progress</dt>
-              <dd>Consultation underway</dd>
-              <dt class="text-success">Full Consent</dt>
-              <dd>Unrestricted consent granted</dd>
-              <dt class="text-primary">Conditional/Restricted</dt>
-              <dd>Consent with specific limitations</dd>
-              <dt class="text-danger">Denied</dt>
-              <dd>Consent refused by community</dd>
+              <dt class="text-muted">{{ __('Not Required') }}</dt>
+              <dd>{{ __('No consent needed for this material') }}</dd>
+              <dt class="text-warning">{{ __('Pending Consultation') }}</dt>
+              <dd>{{ __('Awaiting initial community contact') }}</dd>
+              <dt class="text-info">{{ __('In Progress') }}</dt>
+              <dd>{{ __('Consultation underway') }}</dd>
+              <dt class="text-success">{{ __('Full Consent') }}</dt>
+              <dd>{{ __('Unrestricted consent granted') }}</dd>
+              <dt class="text-primary">{{ __('Conditional/Restricted') }}</dt>
+              <dd>{{ __('Consent with specific limitations') }}</dd>
+              <dt class="text-danger">{{ __('Denied') }}</dt>
+              <dd>{{ __('Consent refused by community') }}</dd>
             </dl>
           </div>
         </div>

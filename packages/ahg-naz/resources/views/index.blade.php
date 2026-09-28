@@ -38,7 +38,7 @@
                 @elseif (!empty($compliance['warnings']))
                     <p class="mb-0">{{ count($compliance['warnings']) }} warning(s) to review</p>
                 @else
-                    <p class="mb-0">All compliance requirements met</p>
+                    <p class="mb-0">{{ __('All compliance requirements met') }}</p>
                 @endif
             </div>
         </div>
@@ -49,7 +49,7 @@
             <div class="card border-primary">
                 <div class="card-body text-center">
                     <h3>{{ $stats['closures']['active'] }}</h3>
-                    <p class="text-muted mb-0">Active Closures</p>
+                    <p class="text-muted mb-0">{{ __('Active Closures') }}</p>
                     @if ($stats['closures']['expiring_soon'] > 0)
                         <small class="text-warning">{{ $stats['closures']['expiring_soon'] }} expiring within 1 year</small>
                     @else
@@ -62,7 +62,7 @@
             <div class="card {{ $stats['permits']['pending'] > 0 ? 'border-warning' : '' }}">
                 <div class="card-body text-center">
                     <h3>{{ $stats['permits']['active'] }}</h3>
-                    <p class="text-muted mb-0">Active Permits</p>
+                    <p class="text-muted mb-0">{{ __('Active Permits') }}</p>
                     @if ($stats['permits']['pending'] > 0)
                         <small class="text-warning">{{ $stats['permits']['pending'] }} pending approval</small>
                     @else
@@ -75,7 +75,7 @@
             <div class="card">
                 <div class="card-body text-center">
                     <h3>{{ $stats['researchers']['total'] }}</h3>
-                    <p class="text-muted mb-0">Registered Researchers</p>
+                    <p class="text-muted mb-0">{{ __('Registered Researchers') }}</p>
                     <small class="text-muted">{{ $stats['researchers']['local'] }} local, {{ $stats['researchers']['foreign'] }} foreign</small>
                 </div>
             </div>
@@ -84,7 +84,7 @@
             <div class="card {{ $stats['transfers']['pending'] > 0 ? 'border-info' : '' }}">
                 <div class="card-body text-center">
                     <h3>{{ $stats['transfers']['pending'] }}</h3>
-                    <p class="text-muted mb-0">Pending Transfers</p>
+                    <p class="text-muted mb-0">{{ __('Pending Transfers') }}</p>
                     <small class="text-muted">{{ $stats['transfers']['this_year'] }} accessioned this year</small>
                 </div>
             </div>
@@ -114,7 +114,7 @@
                         <i class="fas fa-users me-2"></i> {{ __('Researcher Registry') }}
                     </a>
                     <a href="{{ route('ahgnaz.schedules') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-calendar-alt me-2"></i> Records Schedules
+                        <i class="fas fa-calendar-alt me-2"></i> {{ __('Records Schedules') }}
                         <span class="badge bg-secondary float-end">{{ $stats['schedules'] }}</span>
                     </a>
                     <a href="{{ route('ahgnaz.transfers') }}" class="list-group-item list-group-item-action">
@@ -145,7 +145,7 @@
                     @if ($pendingPermits->isEmpty())
                         <div class="p-3 text-center text-muted">
                             <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
-                            <p class="mb-0">No pending permit applications</p>
+                            <p class="mb-0">{{ __('No pending permit applications') }}</p>
                         </div>
                     @else
                         <ul class="list-group list-group-flush">
@@ -161,7 +161,7 @@
                                         </div>
                                         <div>
                                             <a href="{{ route('ahgnaz.permit-view', $permit->id) }}" class="btn btn-sm atom-btn-outline-primary">
-                                                Review
+                                                {{ __('Review') }}
                                             </a>
                                         </div>
                                     </div>
@@ -172,7 +172,7 @@
                 </div>
                 @if (!$pendingPermits->isEmpty())
                     <div class="card-footer text-center">
-                        <a href="{{ route('ahgnaz.permits', ['status' => 'pending']) }}">View All Pending</a>
+                        <a href="{{ route('ahgnaz.permits', ['status' => 'pending']) }}">{{ __('View All Pending') }}</a>
                     </div>
                 @endif
             </div>
@@ -214,7 +214,7 @@
                 </div>
                 @if (!$expiringClosures->isEmpty())
                     <div class="card-footer text-center">
-                        <a href="{{ route('ahgnaz.closures') }}">View All Closures</a>
+                        <a href="{{ route('ahgnaz.closures') }}">{{ __('View All Closures') }}</a>
                     </div>
                 @endif
             </div>

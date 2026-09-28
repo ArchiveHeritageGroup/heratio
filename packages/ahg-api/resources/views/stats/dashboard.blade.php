@@ -94,11 +94,11 @@
 
   <h2>{{ __('Headline figures') }}</h2>
   <div class="grid">
-    <div class="stat"><div class="num">{{ $fmt($s['published_records'] ?? 0) }}</div><div class="lab">Published records</div></div>
+    <div class="stat"><div class="num">{{ $fmt($s['published_records'] ?? 0) }}</div><div class="lab">{{ __('Published records') }}</div></div>
     <div class="stat"><div class="num">{{ $fmt($s['actors_total'] ?? 0) }}</div><div class="lab">People &amp; organisations</div></div>
     <div class="stat"><div class="num">{{ $fmt($s['terms_total'] ?? 0) }}</div><div class="lab">Subjects, places &amp; genres</div></div>
-    <div class="stat"><div class="num">{{ $fmt($s['relation_edges_total'] ?? 0) }}</div><div class="lab">Relation edges</div></div>
-    <div class="stat"><div class="num">{{ $fmt($s['repositories'] ?? 0) }}</div><div class="lab">Holding repositories</div></div>
+    <div class="stat"><div class="num">{{ $fmt($s['relation_edges_total'] ?? 0) }}</div><div class="lab">{{ __('Relation edges') }}</div></div>
+    <div class="stat"><div class="num">{{ $fmt($s['repositories'] ?? 0) }}</div><div class="lab">{{ __('Holding repositories') }}</div></div>
     <div class="stat"><div class="num">~{{ $fmt($s['triple_estimate'] ?? 0) }}</div><div class="lab">Triples (estimated)</div></div>
   </div>
 
@@ -157,9 +157,9 @@
 
   <h2>{{ __('Connections') }}</h2>
   <div class="grid">
-    <div class="stat"><div class="num">{{ $fmt($s['relation_edges_total'] ?? 0) }}</div><div class="lab">Total relation edges</div></div>
-    <div class="stat"><div class="num">{{ $fmt($s['relation_record_to_record'] ?? 0) }}</div><div class="lab">Record-to-record cross-links</div></div>
-    <div class="stat"><div class="num">{{ $fmt($s['records_with_uri'] ?? 0) }}</div><div class="lab">Records with a linked-data URI</div></div>
+    <div class="stat"><div class="num">{{ $fmt($s['relation_edges_total'] ?? 0) }}</div><div class="lab">{{ __('Total relation edges') }}</div></div>
+    <div class="stat"><div class="num">{{ $fmt($s['relation_record_to_record'] ?? 0) }}</div><div class="lab">{{ __('Record-to-record cross-links') }}</div></div>
+    <div class="stat"><div class="num">{{ $fmt($s['records_with_uri'] ?? 0) }}</div><div class="lab">{{ __('Records with a linked-data URI') }}</div></div>
   </div>
 
   <h2>{{ __('Descriptive coverage') }}</h2>
@@ -184,11 +184,11 @@
 
   <h2>{{ __('Explore the graph') }}</h2>
   <div class="links">
-    @if(!empty($links['graphExplorer']))<a href="{{ $links['graphExplorer'] }}">Graph explorer</a>@endif
+    @if(!empty($links['graphExplorer']))<a href="{{ $links['graphExplorer'] }}">{{ __('Graph explorer') }}</a>@endif
     @if(!empty($links['catalog']))<a href="{{ $links['catalog'] }}">Data catalogue (DCAT)</a>@endif
-    @if(!empty($links['protocol']))<a href="{{ $links['protocol'] }}">Open Memory Protocol</a>@endif
-    @if(!empty($links['void']))<a href="{{ $links['void'] }}">VoID description</a>@endif
-    <a href="{{ $links['json'] ?? url('/data/stats.json') }}">This page as JSON</a>
+    @if(!empty($links['protocol']))<a href="{{ $links['protocol'] }}">{{ __('Open Memory Protocol') }}</a>@endif
+    @if(!empty($links['void']))<a href="{{ $links['void'] }}">{{ __('VoID description') }}</a>@endif
+    <a href="{{ $links['json'] ?? url('/data/stats.json') }}">{{ __('This page as JSON') }}</a>
   </div>
 
   <p class="meta">

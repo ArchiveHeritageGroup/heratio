@@ -119,7 +119,7 @@
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label">Local API URL <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Local API URL') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" class="form-control" name="triposr_api_url"
                          value="{{ e(getTripoSetting3d($settings, 'triposr_api_url', 'http://127.0.0.1:5050')) }}">
                   <div class="form-text">Default: http://127.0.0.1:5050</div>
@@ -132,16 +132,16 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label">Processing Mode <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Processing Mode') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select class="form-select" name="triposr_mode" id="triposr_mode">
                     <option value="local" {{ getTripoSetting3d($settings, 'triposr_mode', 'local') == 'local' ? 'selected' : '' }}>
                       Local Processing (CPU/GPU)
                     </option>
                     <option value="remote" {{ getTripoSetting3d($settings, 'triposr_mode') == 'remote' ? 'selected' : '' }}>
-                      Remote GPU Server
+                      {{ __('Remote GPU Server') }}
                     </option>
                   </select>
-                  <div class="form-text">Local auto-detects GPU. Remote sends to GPU server.</div>
+                  <div class="form-text">{{ __('Local auto-detects GPU. Remote sends to GPU server.') }}</div>
                 </div>
               </div>
               <div class="col-md-6">
@@ -171,7 +171,7 @@
             <div class="row">
               <div class="col-md-8">
                 <div class="mb-3">
-                  <label class="form-label">Remote Server URL <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Remote Server URL') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="url" class="form-control" name="triposr_remote_url"
                          value="{{ e(getTripoSetting3d($settings, 'triposr_remote_url')) }}"
                          placeholder="{{ __('https://gpu-server.example.com:5050') }}">
@@ -180,7 +180,7 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">API Key <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('API Key') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   @php $apiKey = getTripoSetting3d($settings, 'triposr_remote_api_key'); @endphp
                   <input type="password" class="form-control" name="triposr_remote_api_key"
                          value="{{ $apiKey ? '***' : '' }}" placeholder="{{ __('Optional API key') }}">
@@ -209,7 +209,7 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Foreground Ratio <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Foreground Ratio') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="number" class="form-control" name="triposr_foreground_ratio"
                          value="{{ getTripoSetting3d($settings, 'triposr_foreground_ratio', '0.85') }}"
                          min="0.5" max="1" step="0.05">
@@ -218,7 +218,7 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Mesh Resolution <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Mesh Resolution') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select class="form-select" name="triposr_mc_resolution">
                     <option value="128" {{ getTripoSetting3d($settings, 'triposr_mc_resolution', '256') == '128' ? 'selected' : '' }}>
                       128 - Fast (lower quality)
@@ -255,7 +255,7 @@
           </div>
           <div class="card-body p-0">
             @if(count($recentJobs ?? []) === 0)
-              <div class="p-3 text-muted text-center">No jobs yet</div>
+              <div class="p-3 text-muted text-center">{{ __('No jobs yet') }}</div>
             @else
               <div class="table-responsive">
                 <table class="table table-sm table-hover mb-0">

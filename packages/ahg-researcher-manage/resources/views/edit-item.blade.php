@@ -2,7 +2,7 @@
 
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb mb-0">
-      <li class="breadcrumb-item"><a href="@php echo route('researcher.dashboard') @endphp">Researcher</a></li>
+      <li class="breadcrumb-item"><a href="@php echo route('researcher.dashboard') @endphp">{{ __('Researcher') }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('researcher.viewSubmission', ['id' => $submissionId]) }}">@php echo htmlspecialchars($submission->title) @endphp</a></li>
       <li class="breadcrumb-item active">@php echo $item ? 'Edit Item' : 'Add Item' @endphp</li>
     </ol>
@@ -34,16 +34,16 @@
           <div class="card-body">
             <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label fw-bold">Type <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                <label class="form-label fw-bold">{{ __('Type') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                 <select name="item_type" class="form-select" id="itemType">
                   <option value="description" @php echo ($item->item_type ?? 'description') === 'description' ? 'selected' : '' @endphp>Description (ISAD(G))</option>
-                  <option value="note" @php echo ($item->item_type ?? '') === 'note' ? 'selected' : '' @endphp>Research Note</option>
-                  <option value="creator" @php echo ($item->item_type ?? '') === 'creator' ? 'selected' : '' @endphp>New Creator</option>
-                  <option value="repository" @php echo ($item->item_type ?? '') === 'repository' ? 'selected' : '' @endphp>New Repository</option>
+                  <option value="note" @php echo ($item->item_type ?? '') === 'note' ? 'selected' : '' @endphp>{{ __('Research Note') }}</option>
+                  <option value="creator" @php echo ($item->item_type ?? '') === 'creator' ? 'selected' : '' @endphp>{{ __('New Creator') }}</option>
+                  <option value="repository" @php echo ($item->item_type ?? '') === 'repository' ? 'selected' : '' @endphp>{{ __('New Repository') }}</option>
                 </select>
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-bold">Parent Item <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label fw-bold">{{ __('Parent Item') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="parent_item_id" class="form-select">
                   <option value="">-- Root level --</option>
                   @php foreach ($items as $parentItem): @endphp
@@ -68,15 +68,15 @@
           <div class="card-body">
             <div class="row g-3">
               <div class="col-md-8">
-                <label class="form-label fw-bold">Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                <label class="form-label fw-bold">{{ __('Title') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                 <input type="text" name="title" class="form-control" required value="@php echo htmlspecialchars($item->title ?? '') @endphp">
               </div>
               <div class="col-md-4">
-                <label class="form-label fw-bold">Identifier <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label fw-bold">{{ __('Identifier') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="identifier" class="form-control" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" data-lpignore="true" data-1p-ignore="true" data-form-type="other" value="@php echo htmlspecialchars($item->identifier ?? '') @endphp" placeholder="{{ __('e.g., MS-2024-001') }}">
               </div>
               <div class="col-md-4">
-                <label class="form-label fw-bold">Level of Description <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
+                <label class="form-label fw-bold">{{ __('Level of Description') }} <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
                 <select name="level_of_description" class="form-select">
                   @php $levels = ['fonds', 'subfonds', 'collection', 'series', 'subseries', 'file', 'item'];
                     foreach ($levels as $level): @endphp
@@ -93,17 +93,17 @@
               <div class="col-md-4">
                 <div class="row g-2">
                   <div class="col-6">
-                    <label class="form-label fw-bold">Start Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-label fw-bold">{{ __('Start Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <input type="date" name="date_start" class="form-control" value="@php echo $item->date_start ?? '' @endphp">
                   </div>
                   <div class="col-6">
-                    <label class="form-label fw-bold">End Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-label fw-bold">{{ __('End Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <input type="date" name="date_end" class="form-control" value="@php echo $item->date_end ?? '' @endphp">
                   </div>
                 </div>
               </div>
               <div class="col-12">
-                <label class="form-label fw-bold">Extent and Medium <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
+                <label class="form-label fw-bold">{{ __('Extent and Medium') }} <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
                 <input type="text" name="extent_and_medium" class="form-control" value="@php echo htmlspecialchars($item->extent_and_medium ?? '') @endphp" placeholder="{{ __('e.g., 3 boxes, 150 photographs') }}">
               </div>
             </div>
@@ -115,7 +115,7 @@
           <div class="card-header"><h6 class="mb-0"><i class="bi bi-file-text me-2"></i>{{ __('Content and Structure') }}</h6></div>
           <div class="card-body">
             <div class="mb-3">
-              <label class="form-label fw-bold">Scope and Content <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
+              <label class="form-label fw-bold">{{ __('Scope and Content') }} <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
               <textarea name="scope_and_content" class="form-control" rows="4">@php echo htmlspecialchars($item->scope_and_content ?? '') @endphp</textarea>
             </div>
           </div>
@@ -127,7 +127,7 @@
           <div class="card-body">
             <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label fw-bold">Creators <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label fw-bold">{{ __('Creators') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="hidden" name="creators" id="creatorsValue" value="@php echo htmlspecialchars($item->creators ?? '') @endphp">
                 <div class="tag-container border rounded p-1 d-flex flex-wrap gap-1 mb-1" id="creatorsTags"></div>
                 <input type="text" class="form-control form-control-sm tag-autocomplete" id="creatorsInput"
@@ -135,21 +135,21 @@
                 <small class="text-muted">{{ __('Persons, organizations, families.') }}</small>
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-bold">Subjects <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label fw-bold">{{ __('Subjects') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="hidden" name="subjects" id="subjectsValue" value="@php echo htmlspecialchars($item->subjects ?? '') @endphp">
                 <div class="tag-container border rounded p-1 d-flex flex-wrap gap-1 mb-1" id="subjectsTags"></div>
                 <input type="text" class="form-control form-control-sm tag-autocomplete" id="subjectsInput"
                        data-target="subjects" data-source="term" data-taxonomy="35" placeholder="{{ __('Type to search subjects...') }}">
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-bold">Places <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
+                <label class="form-label fw-bold">{{ __('Places') }} <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
                 <input type="hidden" name="places" id="placesValue" value="@php echo htmlspecialchars($item->places ?? '') @endphp">
                 <div class="tag-container border rounded p-1 d-flex flex-wrap gap-1 mb-1" id="placesTags"></div>
                 <input type="text" class="form-control form-control-sm tag-autocomplete" id="placesInput"
                        data-target="places" data-source="term" data-taxonomy="42" placeholder="{{ __('Type to search places...') }}">
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-bold">Genre <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label fw-bold">{{ __('Genre') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="hidden" name="genres" id="genresValue" value="@php echo htmlspecialchars($item->genres ?? '') @endphp">
                 <div class="tag-container border rounded p-1 d-flex flex-wrap gap-1 mb-1" id="genresTags"></div>
                 <input type="text" class="form-control form-control-sm tag-autocomplete" id="genresInput"
@@ -165,11 +165,11 @@
           <div class="card-body">
             <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label fw-bold">Conditions Governing Access <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label fw-bold">{{ __('Conditions Governing Access') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <textarea name="access_conditions" class="form-control" rows="2">@php echo htmlspecialchars($item->access_conditions ?? '') @endphp</textarea>
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-bold">Conditions Governing Reproduction <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label fw-bold">{{ __('Conditions Governing Reproduction') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <textarea name="reproduction_conditions" class="form-control" rows="2">@php echo htmlspecialchars($item->reproduction_conditions ?? '') @endphp</textarea>
               </div>
             </div>
@@ -190,15 +190,15 @@
           <div class="card-body">
             <div class="row g-3">
               <div class="col-md-12">
-                <label class="form-label fw-bold">Repository Name <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label fw-bold">{{ __('Repository Name') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="repository_name" class="form-control" value="@php echo htmlspecialchars($item->repository_name ?? '') @endphp">
               </div>
               <div class="col-md-8">
-                <label class="form-label fw-bold">Address <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label fw-bold">{{ __('Address') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <textarea name="repository_address" class="form-control" rows="2">@php echo htmlspecialchars($item->repository_address ?? '') @endphp</textarea>
               </div>
               <div class="col-md-4">
-                <label class="form-label fw-bold">Contact <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label fw-bold">{{ __('Contact') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="repository_contact" class="form-control" value="@php echo htmlspecialchars($item->repository_contact ?? '') @endphp" placeholder="{{ __('Email or phone') }}">
               </div>
             </div>
@@ -228,7 +228,7 @@
             <!-- File list -->
             <div id="fileList">
               @if(empty($itemFiles))
-                <p class="text-muted small mb-0" id="noFilesMsg">No files attached.</p>
+                <p class="text-muted small mb-0" id="noFilesMsg">{{ __('No files attached.') }}</p>
               @endif
               @php foreach ($itemFiles as $f): @endphp
                 <div class="d-flex justify-content-between align-items-center mb-2 file-entry" data-id="@php echo $f->id @endphp">

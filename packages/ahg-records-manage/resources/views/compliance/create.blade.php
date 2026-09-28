@@ -47,7 +47,7 @@
   </div>
   <div class="col-12">
     <button type="submit" class="btn btn-primary"><i class="fas fa-play me-1"></i>{{ __('Create + run checks') }}</button>
-    <a href="{{ route('records.compliance.index') }}" class="btn btn-outline-secondary">Cancel</a>
+    <a href="{{ route('records.compliance.index') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
   </div>
 </form>
 

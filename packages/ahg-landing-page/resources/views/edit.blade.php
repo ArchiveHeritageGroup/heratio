@@ -23,7 +23,7 @@
     <div class="d-flex align-items-center gap-2">
       <button type="button" class="btn btn-outline-light btn-sm" id="btn-preview"
               data-url="{{ route('landing-page.show', $page->slug) }}">
-        Preview
+        {{ __('Preview') }}
       </button>
       <button type="button" class="btn btn-outline-light btn-sm" id="btn-settings"
               data-bs-toggle="offcanvas" data-bs-target="#pageSettingsPanel">
@@ -112,7 +112,7 @@
     <div class="builder-canvas flex-grow-1 bg-white" style="min-height: calc(100vh - 56px); overflow-y: auto;">
       <div class="canvas-header bg-light border-bottom p-2 d-flex align-items-center justify-content-between">
         <span class="small text-muted">
-          <i class="bi bi-grid-3x3"></i> Canvas
+          <i class="bi bi-grid-3x3"></i> {{ __('Canvas') }}
           <span id="block-count">({{ count($blocks) }} blocks)</span>
         </span>
         <div>
@@ -130,7 +130,7 @@
           @if (count($blocks) === 0)
             <div class="empty-canvas text-center py-5" id="empty-message">
               <i class="bi bi-inbox display-1 text-muted"></i>
-              <p class="text-muted mt-3">Drag blocks here to start building your page</p>
+              <p class="text-muted mt-3">{{ __('Drag blocks here to start building your page') }}</p>
             </div>
           @else
             @foreach ($blocks as $block)
@@ -217,7 +217,7 @@
             <i class="bi bi-trash"></i> {{ __('Delete Page') }}
           </button>
         @else
-          <p class="small text-muted">Default page cannot be deleted</p>
+          <p class="small text-muted">{{ __('Default page cannot be deleted') }}</p>
         @endif
       </div>
     </div>

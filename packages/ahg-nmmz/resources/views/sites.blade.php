@@ -25,11 +25,11 @@
       <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{ route('nmmz.index') }}">NMMZ</a></li>
-          <li class="breadcrumb-item active">Archaeological Sites</li>
+          <li class="breadcrumb-item active">{{ __('Archaeological Sites') }}</li>
         </ol>
       </nav>
       <h1><i class="fas fa-map-marker-alt me-2"></i>{{ __('Archaeological Sites') }}</h1>
-      <p class="text-muted">Protected archaeological sites</p>
+      <p class="text-muted">{{ __('Protected archaeological sites') }}</p>
     </div>
     <div class="col-auto">
       <a href="{{ route('nmmz.site.create') }}" class="btn btn-primary">
@@ -70,8 +70,8 @@
       @if($sites->isEmpty())
         <div class="p-4 text-center text-muted">
           <i class="fas fa-map-marker-alt fa-3x mb-3"></i>
-          <p>No archaeological sites found.</p>
-          <a href="{{ route('nmmz.site.create') }}" class="btn btn-primary">Register First Site</a>
+          <p>{{ __('No archaeological sites found.') }}</p>
+          <a href="{{ route('nmmz.site.create') }}" class="btn btn-primary">{{ __('Register First Site') }}</a>
         </div>
       @else
         <table class="table table-hover mb-0">

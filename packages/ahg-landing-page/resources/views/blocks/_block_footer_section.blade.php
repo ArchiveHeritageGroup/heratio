@@ -40,10 +40,10 @@ $col3Content = $config['col3_content'] ?? '';
             <h6 class="mb-2" style="color: {{ $textColor }};">{{ e($col2Title) }}</h6>
           @endif
           <ul class="list-unstyled small mb-0">
-            <li class="mb-1"><a href="{{ route('informationobject.browse') }}" class="text-decoration-none opacity-75" style="color: {{ $textColor }};">Browse Collections</a></li>
-            <li class="mb-1"><a href="{{ route('repository.browse') }}" class="text-decoration-none opacity-75" style="color: {{ $textColor }};">Repositories</a></li>
-            <li class="mb-1"><a href="{{ route('search.advanced') }}" class="text-decoration-none opacity-75" style="color: {{ $textColor }};">Advanced Search</a></li>
-            <li><a href="{{ url('/about') }}" class="text-decoration-none opacity-75" style="color: {{ $textColor }};">About Us</a></li>
+            <li class="mb-1"><a href="{{ route('informationobject.browse') }}" class="text-decoration-none opacity-75" style="color: {{ $textColor }};">{{ __('Browse Collections') }}</a></li>
+            <li class="mb-1"><a href="{{ route('repository.browse') }}" class="text-decoration-none opacity-75" style="color: {{ $textColor }};">{{ __('Repositories') }}</a></li>
+            <li class="mb-1"><a href="{{ route('search.advanced') }}" class="text-decoration-none opacity-75" style="color: {{ $textColor }};">{{ __('Advanced Search') }}</a></li>
+            <li><a href="{{ url('/about') }}" class="text-decoration-none opacity-75" style="color: {{ $textColor }};">{{ __('About Us') }}</a></li>
           </ul>
         </div>
       @endif

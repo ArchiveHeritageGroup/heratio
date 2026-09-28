@@ -24,7 +24,7 @@
             <div class="accordion-body">
               <div class="row">
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select name="settings[treeview_type]" class="form-select">
                     <option value="sidebar" {{ ($settings['treeview_type'] ?? '') == 'sidebar' ? 'selected' : '' }}>{{ __('Sidebar') }} ({{ __('default - card-wrapped sidebar tree') }})</option>
                     <option value="full" {{ ($settings['treeview_type'] ?? '') == 'full' ? 'selected' : '' }}>{{ __('Full width') }} ({{ __('chrome-free 2-column dense layout') }})</option>
@@ -33,14 +33,14 @@
                   </select>
                 </div>
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Show browse hierarchy page <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Show browse hierarchy page') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select name="settings[show_browse_hierarchy_page]" class="form-select">
                     <option value="1" {{ ($settings['show_browse_hierarchy_page'] ?? '') == '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
                     <option value="0" {{ ($settings['show_browse_hierarchy_page'] ?? '') == '0' ? 'selected' : '' }}>{{ __('No') }}</option>
                   </select>
                 </div>
                 <div class="col-md-6 mb-3">
-                  <label class="form-label">Make full width treeview collapsed on description pages <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Make full width treeview collapsed on description pages') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select name="settings[allow_full_width_treeview_collapse]" class="form-select">
                     <option value="1" {{ ($settings['allow_full_width_treeview_collapse'] ?? '') == '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
                     <option value="0" {{ ($settings['allow_full_width_treeview_collapse'] ?? '') == '0' ? 'selected' : '' }}>{{ __('No') }}</option>
@@ -85,25 +85,25 @@
                   <div class="form-check">
                     <input type="hidden" name="settings[treeview_show_identifier]" value="0">
                     <input class="form-check-input" type="checkbox" name="settings[treeview_show_identifier]" value="1" id="tv_id" {{ ($settings['treeview_show_identifier'] ?? '') == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="tv_id">Show identifier <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-check-label" for="tv_id">{{ __('Show identifier') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                 </div>
                 <div class="col-md-4 mb-3">
                   <div class="form-check">
                     <input type="hidden" name="settings[treeview_show_level_of_description]" value="0">
                     <input class="form-check-input" type="checkbox" name="settings[treeview_show_level_of_description]" value="1" id="tv_level" {{ ($settings['treeview_show_level_of_description'] ?? '') == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="tv_level">Show level of description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-check-label" for="tv_level">{{ __('Show level of description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                 </div>
                 <div class="col-md-4 mb-3">
                   <div class="form-check">
                     <input type="hidden" name="settings[treeview_show_dates]" value="0">
                     <input class="form-check-input" type="checkbox" name="settings[treeview_show_dates]" value="1" id="tv_dates" {{ ($settings['treeview_show_dates'] ?? '') == '1' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="tv_dates">Show dates <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-check-label" for="tv_dates">{{ __('Show dates') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                 </div>
                 <div class="col-md-12 mb-3">
-                  <label class="form-label">Items per page <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Items per page') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="number" name="settings[treeview_items_per_page]" class="form-control" value="{{ $settings['treeview_items_per_page'] ?? '50' }}" min="10" max="10000">
                 </div>
               </div>

@@ -15,7 +15,7 @@
     @if(empty($rightsHolder->authorized_form_of_name))
       <div class="alert alert-danger" role="alert">
         <ul class="list-unstyled mb-0">
-          <li>Authorized form of name - This is a mandatory element.</li>
+          <li>{{ __('Authorized form of name - This is a mandatory element.') }}</li>
         </ul>
       </div>
     @endif
@@ -36,7 +36,7 @@
 
   {{-- ===== Identity area ===== --}}
   <section class="section border-bottom" id="identityArea">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}#identity-collapse" class="text-primary text-decoration-none">Identity area</a>@else Identity area @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}#identity-collapse" class="text-primary text-decoration-none">{{ __('Identity area') }}</a>@else Identity area @endauth</div></h2>
     <div id="identity-collapse">
 
       @if($rightsHolder->authorized_form_of_name)
@@ -51,7 +51,7 @@
 
   {{-- ===== Contact area ===== --}}
   <section class="section border-bottom" id="contactArea">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}#contact-collapse" class="text-primary text-decoration-none">Contact area</a>@else Contact area @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}#contact-collapse" class="text-primary text-decoration-none">{{ __('Contact area') }}</a>@else Contact area @endauth</div></h2>
     <div id="contact-collapse">
 
       @if(isset($contacts) && $contacts->isNotEmpty())
@@ -166,7 +166,7 @@
   {{-- ===== Rights area (PREMIS rights linked to this rights holder) ===== --}}
   @if(isset($rights) && $rights->isNotEmpty())
     <section class="section border-bottom" id="rightsArea">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Rights area</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Rights area') }}</div></h2>
       <div>
         <div class="table-responsive">
           <table class="table table-bordered table-striped table-sm mb-0">
@@ -211,7 +211,7 @@
   {{-- ===== Extended rights area ===== --}}
   @if(isset($extendedRights) && $extendedRights->isNotEmpty())
     <section class="section border-bottom" id="extendedRightsArea">
-      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">Extended rights</div></h2>
+      <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">{{ __('Extended rights') }}</div></h2>
       <div>
         @foreach($extendedRights as $er)
           <div class="border-bottom p-3">
@@ -377,13 +377,13 @@
     @php $isAdmin = auth()->user()->is_admin; @endphp
     <ul class="actions mb-3 nav gap-2">
       {{-- Edit: any authenticated user --}}
-      <li><a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
+      <li><a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}" class="btn atom-btn-outline-light">{{ __('Edit') }}</a></li>
       {{-- Delete: admin only --}}
       @if($isAdmin)
-      <li><a href="{{ route('rightsholder.confirmDelete', $rightsHolder->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
+      <li><a href="{{ route('rightsholder.confirmDelete', $rightsHolder->slug) }}" class="btn atom-btn-outline-danger">{{ __('Delete') }}</a></li>
       @endif
       {{-- Add new: any authenticated user --}}
-      <li><a href="{{ route('rightsholder.create') }}" class="btn atom-btn-outline-light">Add new</a></li>
+      <li><a href="{{ route('rightsholder.create') }}" class="btn atom-btn-outline-light">{{ __('Add new') }}</a></li>
     </ul>
   @endauth
 @endsection

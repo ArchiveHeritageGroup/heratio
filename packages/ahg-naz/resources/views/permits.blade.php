@@ -17,11 +17,11 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
-                    <li class="breadcrumb-item active">Research Permits</li>
+                    <li class="breadcrumb-item active">{{ __('Research Permits') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-id-card me-2"></i>{{ __('Research Permits') }}</h1>
-            <p class="text-muted">Foreign researchers: fee applies - Local researchers: free</p>
+            <p class="text-muted">{{ __('Foreign researchers: fee applies - Local researchers: free') }}</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgnaz.permit-create') }}" class="btn btn-primary">
@@ -33,12 +33,12 @@
     <div class="card mb-4">
         <div class="card-body pb-0">
             <ul class="nav nav-tabs" role="tablist">
-                <li class="nav-item"><a class="nav-link {{ !$currentStatus ? 'active' : '' }}" href="{{ route('ahgnaz.permits') }}">All</a></li>
-                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'pending' ? 'active' : '' }}" href="{{ route('ahgnaz.permits', ['status' => 'pending']) }}">Pending</a></li>
-                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'approved' ? 'active' : '' }}" href="{{ route('ahgnaz.permits', ['status' => 'approved']) }}">Approved</a></li>
-                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'active' ? 'active' : '' }}" href="{{ route('ahgnaz.permits', ['status' => 'active']) }}">Active</a></li>
-                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'expired' ? 'active' : '' }}" href="{{ route('ahgnaz.permits', ['status' => 'expired']) }}">Expired</a></li>
-                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'rejected' ? 'active' : '' }}" href="{{ route('ahgnaz.permits', ['status' => 'rejected']) }}">Rejected</a></li>
+                <li class="nav-item"><a class="nav-link {{ !$currentStatus ? 'active' : '' }}" href="{{ route('ahgnaz.permits') }}">{{ __('All') }}</a></li>
+                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'pending' ? 'active' : '' }}" href="{{ route('ahgnaz.permits', ['status' => 'pending']) }}">{{ __('Pending') }}</a></li>
+                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'approved' ? 'active' : '' }}" href="{{ route('ahgnaz.permits', ['status' => 'approved']) }}">{{ __('Approved') }}</a></li>
+                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'active' ? 'active' : '' }}" href="{{ route('ahgnaz.permits', ['status' => 'active']) }}">{{ __('Active') }}</a></li>
+                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'expired' ? 'active' : '' }}" href="{{ route('ahgnaz.permits', ['status' => 'expired']) }}">{{ __('Expired') }}</a></li>
+                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'rejected' ? 'active' : '' }}" href="{{ route('ahgnaz.permits', ['status' => 'rejected']) }}">{{ __('Rejected') }}</a></li>
             </ul>
         </div>
     </div>
@@ -48,7 +48,7 @@
             @if ($permits->isEmpty())
                 <div class="p-4 text-center text-muted">
                     <i class="fas fa-id-card fa-3x mb-3"></i>
-                    <p>No permits found.</p>
+                    <p>{{ __('No permits found.') }}</p>
                 </div>
             @else
                 <table class="table table-hover mb-0">

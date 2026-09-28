@@ -66,7 +66,7 @@
                   </td>
                 </tr>
               @empty
-                <tr><td colspan="7" class="text-center text-muted py-4"><i class="fas fa-broadcast-tower fa-2x d-block mb-2"></i>No webhooks configured.</td></tr>
+                <tr><td colspan="7" class="text-center text-muted py-4"><i class="fas fa-broadcast-tower fa-2x d-block mb-2"></i>{{ __('No webhooks configured.') }}</td></tr>
               @endforelse
             </tbody>
           </table>

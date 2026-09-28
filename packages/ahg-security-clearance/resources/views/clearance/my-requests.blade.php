@@ -40,7 +40,7 @@
             <td>{{ e($req->review_notes ?? '') }}</td>
           </tr>
           @empty
-          <tr><td colspan="6" class="text-muted">No requests submitted.</td></tr>
+          <tr><td colspan="6" class="text-muted">{{ __('No requests submitted.') }}</td></tr>
           @endforelse
         </tbody>
       </table>

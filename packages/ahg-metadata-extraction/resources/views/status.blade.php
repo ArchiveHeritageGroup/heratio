@@ -55,9 +55,9 @@
         @if(!$exifToolAvailable)
           <div class="alert alert-warning">
             <h6>{{ __('Installation Instructions') }}</h6>
-            <p class="mb-2">ExifTool is required for metadata extraction. Install with:</p>
+            <p class="mb-2">{{ __('ExifTool is required for metadata extraction. Install with:') }}</p>
             <code>sudo apt install exiftool</code>
-            <p class="mt-2 mb-0 small text-muted">For other systems: https://exiftool.org/install.html</p>
+            <p class="mt-2 mb-0 small text-muted">{{ __('For other systems: https://exiftool.org/install.html') }}</p>
           </div>
         @endif
 
@@ -143,7 +143,7 @@
       </div>
     @else
       <div class="alert alert-info">
-        No digital objects found in the repository.
+        {{ __('No digital objects found in the repository.') }}
       </div>
     @endif
 
@@ -151,7 +151,7 @@
 
     {{-- Supported Formats --}}
     <h6>{{ __('Supported Formats') }}</h6>
-    <p class="text-muted small">ExifTool can extract metadata from the following file types:</p>
+    <p class="text-muted small">{{ __('ExifTool can extract metadata from the following file types:') }}</p>
 
     <div class="row">
       <div class="col-md-3">
@@ -162,16 +162,16 @@
           <li>TIFF</li>
           <li>GIF</li>
           <li>BMP</li>
-          <li>WebP</li>
-          <li>RAW formats</li>
+          <li>{{ __('WebP') }}</li>
+          <li>{{ __('RAW formats') }}</li>
         </ul>
       </div>
       <div class="col-md-3">
         <h6 class="text-muted small">{{ __('Documents') }}</h6>
         <ul class="small">
           <li>PDF</li>
-          <li>Office documents</li>
-          <li>OpenDocument</li>
+          <li>{{ __('Office documents') }}</li>
+          <li>{{ __('OpenDocument') }}</li>
         </ul>
       </div>
       <div class="col-md-3">

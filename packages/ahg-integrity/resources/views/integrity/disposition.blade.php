@@ -14,7 +14,7 @@
     @if(isset($dispositions) && count($dispositions) > 0)
     <table class="table table-striped table-hover mb-0"><thead><tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><th>{{ __('Object') }}</th><th>{{ __('Action') }}</th><th>{{ __('Scheduled') }}</th><th>{{ __('Status') }}</th></tr></thead>
     <tbody>@foreach($dispositions as $d)<tr><td>#{{ $d->object_id ?? '' }}</td><td>{{ ucfirst($d->action ?? '') }}</td><td>{{ $d->scheduled_date ?? '-' }}</td><td>{{ ucfirst($d->status ?? '') }}</td></tr>@endforeach</tbody></table>
-    @else<div class="text-center py-4 text-muted">No disposition records found.</div>@endif
+    @else<div class="text-center py-4 text-muted">{{ __('No disposition records found.') }}</div>@endif
   </div>
 </div>
 <div class="mt-3"><a href="{{ route('integrity.index') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Dashboard') }}</a></div>

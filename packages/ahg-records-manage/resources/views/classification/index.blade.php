@@ -75,7 +75,7 @@
         </td>
       </tr>
     @empty
-      <tr><td colspan="8" class="text-muted text-center py-4">No classification rules yet. Use <strong>{{ __('New rule') }}</strong> to add the first one.</td></tr>
+      <tr><td colspan="8" class="text-muted text-center py-4">{{ __('No classification rules yet. Use') }} <strong>{{ __('New rule') }}</strong> to add the first one.</td></tr>
     @endforelse
     </tbody>
   </table>

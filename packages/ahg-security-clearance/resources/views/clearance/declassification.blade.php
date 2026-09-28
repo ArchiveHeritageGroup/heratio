@@ -5,19 +5,19 @@
 @section('content')
 <div class="container-fluid mt-3">
   <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">Security Dashboard</a></li>
-    <li class="breadcrumb-item active">Declassification</li>
+    <li class="breadcrumb-item"><a href="{{ route('security-clearance.dashboard') }}">{{ __('Security Dashboard') }}</a></li>
+    <li class="breadcrumb-item active">{{ __('Declassification') }}</li>
   </ol></nav>
 
   <h1><i class="fas fa-unlock"></i> {{ __('Declassification') }}</h1>
-  <p>Object: <strong>{{ e($object->title ?? 'ID: ' . $object->id) }}</strong></p>
+  <p>{{ __('Object:') }} <strong>{{ e($object->title ?? 'ID: ' . $object->id) }}</strong></p>
 
   @if($currentClassification)
     <div class="alert alert-info">
-      Current classification: <span class="badge" style="background-color: {{ $currentClassification->color ?? '#666' }}">{{ e($currentClassification->name ?? '') }}</span>
+      {{ __('Current classification:') }} <span class="badge" style="background-color: {{ $currentClassification->color ?? '#666' }}">{{ e($currentClassification->name ?? '') }}</span>
     </div>
   @else
-    <div class="alert alert-warning">This object has no classification.</div>
+    <div class="alert alert-warning">{{ __('This object has no classification.') }}</div>
   @endif
 
   <form method="POST" action="{{ route('security-clearance.declassify-store') }}">
@@ -65,7 +65,7 @@
     </div>
 
     <button type="submit" class="btn btn-success"><i class="fas fa-unlock"></i> {{ __('Declassify') }}</button>
-    <a href="{{ route('security-clearance.dashboard') }}" class="btn btn-secondary">Cancel</a>
+    <a href="{{ route('security-clearance.dashboard') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
   </form>
 </div>
 

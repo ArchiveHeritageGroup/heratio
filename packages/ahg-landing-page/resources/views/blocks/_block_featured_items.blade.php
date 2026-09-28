@@ -41,7 +41,7 @@ $carouselId = 'featured-' . uniqid();
           <div class="d-flex align-items-center justify-content-center h-100 bg-light">
             <div class="text-center text-muted">
               <i class="bi bi-images display-1"></i>
-              <p class="mt-2">Featured Collection</p>
+              <p class="mt-2">{{ __('Featured Collection') }}</p>
             </div>
           </div>
         </div>
@@ -60,7 +60,7 @@ $carouselId = 'featured-' . uniqid();
   @if ($showViewAll)
     <div class="text-center mt-3">
       <a href="#" class="btn btn-outline-primary">
-        View All <i class="bi bi-arrow-right"></i>
+        {{ __('View All') }} <i class="bi bi-arrow-right"></i>
       </a>
     </div>
   @endif

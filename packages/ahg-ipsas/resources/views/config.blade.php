@@ -24,11 +24,11 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.index') }}">IPSAS</a></li>
-                    <li class="breadcrumb-item active">Configuration</li>
+                    <li class="breadcrumb-item active">{{ __('Configuration') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-cog me-2"></i>{{ __('IPSAS Configuration') }}</h1>
-            <p class="text-muted">Configure heritage asset accounting settings</p>
+            <p class="text-muted">{{ __('Configure heritage asset accounting settings') }}</p>
         </div>
     </div>
 
@@ -136,7 +136,7 @@
                 <h6><i class="fas fa-info-circle"></i> {{ __('IPSAS Heritage Assets') }}</h6>
                 <ul class="small mb-0">
                     <li>Heritage assets may be recognized at nominal value (IPSAS 17)</li>
-                    <li>Depreciation typically not applied to heritage items</li>
+                    <li>{{ __('Depreciation typically not applied to heritage items') }}</li>
                     <li>Regular impairment assessment required (IPSAS 21)</li>
                     <li>Fair value revaluation every 3-5 years</li>
                 </ul>
@@ -144,7 +144,7 @@
             <div class="card">
                 <div class="card-body d-grid gap-2">
                     <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-2"></i>{{ __('Save Configuration') }}</button>
-                    <a href="{{ route('ipsas.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                    <a href="{{ route('ipsas.index') }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
                 </div>
             </div>
         </div>

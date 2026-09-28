@@ -7,8 +7,8 @@
 
   <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Admin</a></li>
-      <li class="breadcrumb-item"><a href="{{ route('acl.groups') }}">ACL Groups</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">{{ __('Admin') }}</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('acl.groups') }}">{{ __('ACL Groups') }}</a></li>
       <li class="breadcrumb-item active" aria-current="page">{{ __('Add group') }}</li>
     </ol>
   </nav>

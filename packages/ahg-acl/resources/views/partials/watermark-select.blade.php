@@ -31,7 +31,7 @@ if (isset($resource) && ($resource->id ?? null)) {
         <input class="form-check-input" type="checkbox" id="watermark_enabled" name="watermark_enabled"
                value="1" {{ $watermarkEnabled ? 'checked' : '' }}>
         <label class="form-check-label" for="watermark_enabled">
-            Enable Watermark
+            {{ __('Enable Watermark') }}
         </label>
     </div>
 

@@ -81,7 +81,7 @@
 
 <div class="card">
   <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-    <h5 class="mb-0">Vital Records <span class="badge bg-light text-dark ms-2">{{ $total }}</span></h5>
+    <h5 class="mb-0">{{ __('Vital Records') }} <span class="badge bg-light text-dark ms-2">{{ $total }}</span></h5>
   </div>
   <div class="card-body p-0">
     @if(count($records) > 0)
@@ -135,7 +135,7 @@
     </nav>
     @endif
     @else
-    <div class="text-center py-4 text-muted">No vital records found.</div>
+    <div class="text-center py-4 text-muted">{{ __('No vital records found.') }}</div>
     @endif
   </div>
 </div>

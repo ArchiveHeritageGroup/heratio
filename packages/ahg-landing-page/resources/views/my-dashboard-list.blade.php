@@ -8,7 +8,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h1 class="h3 mb-1">{{ __('My Dashboards') }}</h1>
-      <p class="text-muted mb-0">Manage your personal dashboards</p>
+      <p class="text-muted mb-0">{{ __('Manage your personal dashboards') }}</p>
     </div>
     <a href="{{ route('landing-page.myDashboard.create') }}" class="btn btn-primary">
       <i class="bi bi-plus-lg"></i> {{ __('Create Dashboard') }}
@@ -19,7 +19,7 @@
     <div class="text-center py-5">
       <i class="bi bi-grid-3x3-gap display-1 text-muted"></i>
       <h3 class="mt-3 text-muted">{{ __('No Dashboards Yet') }}</h3>
-      <p class="text-muted">Create your first personal dashboard to get started</p>
+      <p class="text-muted">{{ __('Create your first personal dashboard to get started') }}</p>
       <a href="{{ route('landing-page.myDashboard.create') }}" class="btn btn-primary btn-lg mt-2">
         <i class="bi bi-plus-lg"></i> {{ __('Create Dashboard') }}
       </a>
@@ -45,18 +45,18 @@
                 @if ($page->description)
                   {{ e(\Illuminate\Support\Str::limit($page->description, 100)) }}
                 @else
-                  <em>No description</em>
+                  <em>{{ __('No description') }}</em>
                 @endif
               </p>
 
               <div class="d-flex gap-2">
                 <a href="{{ route('landing-page.myDashboard') }}"
                    class="btn btn-outline-secondary btn-sm flex-grow-1">
-                  View
+                  {{ __('View') }}
                 </a>
                 <a href="{{ route('landing-page.myDashboard') }}"
                    class="btn btn-primary btn-sm flex-grow-1">
-                  Edit
+                  {{ __('Edit') }}
                 </a>
               </div>
             </div>

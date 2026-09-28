@@ -26,10 +26,10 @@
 
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.index') }}">Vendor Management</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.list') }}">Vendors</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.index') }}">{{ __('Vendor Management') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('ahgvendor.list') }}">{{ __('Vendors') }}</a></li>
             <li class="breadcrumb-item"><a href="{{ route('ahgvendor.view', ['slug' => $vendor->slug]) }}">{{ e($vendor->name) }}</a></li>
-            <li class="breadcrumb-item active">Edit</li>
+            <li class="breadcrumb-item active">{{ __('Edit') }}</li>
         </ol>
     </nav>
 
@@ -204,9 +204,9 @@
                             <label class="form-label" for="bank_account_type">{{ __('Account Type') }}</label>
                             <select name="bank_account_type" id="bank_account_type" class="form-select">
                                 <option value="">{{ __('Select...') }}</option>
-                                <option value="cheque" {{ ($vendor->bank_account_type ?? '') === 'cheque' ? 'selected' : '' }}>Cheque Account</option>
-                                <option value="savings" {{ ($vendor->bank_account_type ?? '') === 'savings' ? 'selected' : '' }}>Savings Account</option>
-                                <option value="transmission" {{ ($vendor->bank_account_type ?? '') === 'transmission' ? 'selected' : '' }}>Transmission Account</option>
+                                <option value="cheque" {{ ($vendor->bank_account_type ?? '') === 'cheque' ? 'selected' : '' }}>{{ __('Cheque Account') }}</option>
+                                <option value="savings" {{ ($vendor->bank_account_type ?? '') === 'savings' ? 'selected' : '' }}>{{ __('Savings Account') }}</option>
+                                <option value="transmission" {{ ($vendor->bank_account_type ?? '') === 'transmission' ? 'selected' : '' }}>{{ __('Transmission Account') }}</option>
                             </select>
                         </div>
                     </div>

@@ -34,7 +34,7 @@
         <h2>{{ __('Scope and content') }}</h2>
         <div class="sl-scope">{!! nl2br(e($scopeAndContent)) !!}</div>
     @else
-        <p class="text-muted">No descriptive scope or content recorded.</p>
+        <p class="text-muted">{{ __('No descriptive scope or content recorded.') }}</p>
     @endif
 </div>
 

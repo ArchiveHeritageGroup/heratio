@@ -71,7 +71,7 @@
     @php $allCategories = $categories->keys()->sort(); @endphp
     <div class="mb-3">
       <div class="btn-group btn-group-sm flex-wrap" role="group">
-        <a href="#" class="btn atom-btn-white active category-filter" data-category="all">All</a>
+        <a href="#" class="btn atom-btn-white active category-filter" data-category="all">{{ __('All') }}</a>
         @foreach($allCategories as $cat)
           <a href="#" class="btn atom-btn-white category-filter" data-category="{{ Str::slug($cat) }}">{{ $cat }} <span class="badge bg-primary bg-opacity-25">{{ $categories[$cat]->count() }}</span></a>
         @endforeach
@@ -203,11 +203,11 @@
                         </div>
                         <div class="modal-body">
                           <div class="mb-3">
-                            <label class="form-label fw-bold">Command <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                            <label class="form-label fw-bold">{{ __('Command') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                             <input type="text" class="form-control" value="{{ $job->artisan_command }}" disabled>
                           </div>
                           <div class="mb-3">
-                            <label class="form-label fw-bold">Cron Expression <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                            <label class="form-label fw-bold">{{ __('Cron Expression') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <input type="text" name="cron_expression" class="form-control font-monospace" value="{{ $job->cron_expression }}" required>
                             <small class="text-muted">e.g. <code>*/5 * * * *</code> = every 5 min, <code>0 2 * * *</code> = daily 2am</small>
                           </div>
@@ -218,11 +218,11 @@
                           <div class="mb-3">
                             <div class="form-check">
                               <input class="form-check-input" type="checkbox" name="notify_on_failure" id="notify-{{ $job->id }}" {{ $job->notify_on_failure ? 'checked' : '' }}>
-                              <label class="form-check-label" for="notify-{{ $job->id }}">Notify on failure <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                              <label class="form-check-label" for="notify-{{ $job->id }}">{{ __('Notify on failure') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             </div>
                           </div>
                           <div class="mb-3">
-                            <label class="form-label fw-bold">Notification Email <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                            <label class="form-label fw-bold">{{ __('Notification Email') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <input type="email" name="notify_email" class="form-control" value="{{ $job->notify_email }}" placeholder="{{ __('admin@example.com') }}">
                           </div>
                           <div class="row text-muted small">
@@ -283,10 +283,10 @@
             <div class="col-md-6">
               <table class="table table-bordered table-sm mb-0">
                 <tbody>
-                  <tr><td><code>* * * * *</code></td><td>Every minute</td></tr>
+                  <tr><td><code>* * * * *</code></td><td>{{ __('Every minute') }}</td></tr>
                   <tr><td><code>*/5 * * * *</code></td><td>Every 5 minutes</td></tr>
                   <tr><td><code>*/15 * * * *</code></td><td>Every 15 minutes</td></tr>
-                  <tr><td><code>0 * * * *</code></td><td>Every hour</td></tr>
+                  <tr><td><code>0 * * * *</code></td><td>{{ __('Every hour') }}</td></tr>
                 </tbody>
               </table>
             </div>
@@ -309,7 +309,7 @@
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-terminal me-2"></i>{{ __('System Crontab') }}</h5></div>
       <div class="card-body">
-        <p class="mb-2">Only one system crontab entry is needed:</p>
+        <p class="mb-2">{{ __('Only one system crontab entry is needed:') }}</p>
         <div class="bg-dark text-light p-3 rounded">
           <code class="text-warning">* * * * * cd /usr/share/nginx/heratio && php artisan schedule:run >> /dev/null 2>&1</code>
         </div>

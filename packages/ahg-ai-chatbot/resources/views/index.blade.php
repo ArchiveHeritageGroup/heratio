@@ -59,7 +59,7 @@
             <span class="badge bg-secondary me-1" id="model-badge">model: -</span>
             <span class="badge bg-info" id="grounding-badge">grounding: -</span>
             <button class="btn btn-outline-secondary btn-sm ms-2" id="reset-btn" title="{{ __('Clear conversation') }}">
-                <i class="fas fa-trash-alt"></i> Clear
+                <i class="fas fa-trash-alt"></i> {{ __('Clear') }}
             </button>
         </div>
     </div>
@@ -85,7 +85,7 @@
         <div class="col-md-3">
             <div class="card border-0 bg-light">
                 <div class="card-body py-2 px-3">
-                    <div class="small text-muted text-uppercase">Total messages</div>
+                    <div class="small text-muted text-uppercase">{{ __('Total messages') }}</div>
                     <div class="fw-bold">{{ $stats['total_messages'] ?? 0 }}</div>
                 </div>
             </div>
@@ -113,7 +113,7 @@
                 <div class="d-flex flex-row justify-content-start mb-3">
                     <div class="bg-white border rounded-3 shadow-sm p-3" style="max-width: 75%;">
                         <div class="small text-muted mb-1">
-                            <i class="fas fa-robot me-1"></i> Heratio Assistant
+                            <i class="fas fa-robot me-1"></i> {{ __('Heratio Assistant') }}
                         </div>
                         <div class="message-text">
                             Welcome to the Heratio Archival Research Assistant.
@@ -127,7 +127,7 @@
                         <div class="d-flex flex-row justify-content-end mb-3">
                             <div class="bg-primary text-white rounded-3 shadow-sm p-3"
                                  style="max-width: 75%;">
-                                <div class="small opacity-75 mb-1">You</div>
+                                <div class="small opacity-75 mb-1">{{ __('You') }}</div>
                                 <div>{{ $msg['content'] }}</div>
                             </div>
                         </div>
@@ -147,7 +147,7 @@
 
                                 @if (!empty($msg['sources']))
                                     <div class="mt-small border-top pt-2">
-                                        <div class="small text-muted mb-1">Sources</div>
+                                        <div class="small text-muted mb-1">{{ __('Sources') }}</div>
                                         @foreach ($msg['sources'] as $src)
                                             <div class="small">
                                                 {{ $src['ref'] ?? '' }}
@@ -173,7 +173,7 @@
                 <div id="typing-indicator" class="d-flex flex-row justify-content-start mb-3" style="display: none;">
                     <div class="bg-white border rounded-3 shadow-sm p-3" style="max-width: 75%;">
                         <div class="small text-muted mb-1">
-                            <i class="fas fa-robot me-1"></i> Assistant
+                            <i class="fas fa-robot me-1"></i> {{ __('Assistant') }}
                         </div>
                         <span class="text-muted"><i class="fas fa-spinner fa-spin me-1"></i> thinking…</span>
                     </div>

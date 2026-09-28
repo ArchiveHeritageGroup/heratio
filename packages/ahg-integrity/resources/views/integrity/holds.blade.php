@@ -21,7 +21,7 @@
     <div class="card text-center">
       <div class="card-body">
         <h5 class="card-title text-danger">{{ $counts['active'] ?? 0 }}</h5>
-        <p class="card-text mb-0">Active Holds</p>
+        <p class="card-text mb-0">{{ __('Active Holds') }}</p>
       </div>
     </div>
   </div>
@@ -29,7 +29,7 @@
     <div class="card text-center">
       <div class="card-body">
         <h5 class="card-title text-secondary">{{ $counts['released'] ?? 0 }}</h5>
-        <p class="card-text mb-0">Released</p>
+        <p class="card-text mb-0">{{ __('Released') }}</p>
       </div>
     </div>
   </div>
@@ -37,7 +37,7 @@
     <div class="card text-center">
       <div class="card-body">
         <h5 class="card-title">{{ $counts['total'] ?? 0 }}</h5>
-        <p class="card-text mb-0">Total</p>
+        <p class="card-text mb-0">{{ __('Total') }}</p>
       </div>
     </div>
   </div>
@@ -103,7 +103,7 @@
       </tbody>
     </table>
     @else
-    <div class="text-center py-4 text-muted">No active legal holds found.</div>
+    <div class="text-center py-4 text-muted">{{ __('No active legal holds found.') }}</div>
     @endif
   </div>
 </div>

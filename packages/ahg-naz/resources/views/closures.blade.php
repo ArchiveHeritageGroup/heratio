@@ -18,7 +18,7 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ahgnaz.index') }}">NAZ</a></li>
-                    <li class="breadcrumb-item active">Closure Periods</li>
+                    <li class="breadcrumb-item active">{{ __('Closure Periods') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-lock me-2"></i>{{ __('Closure Periods') }}</h1>
@@ -34,10 +34,10 @@
     <div class="card mb-3">
         <div class="card-body pb-0">
             <ul class="nav nav-tabs" role="tablist">
-                <li class="nav-item"><a class="nav-link {{ !$currentStatus ? 'active' : '' }}" href="{{ route('ahgnaz.closures') }}">All</a></li>
-                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'active' ? 'active' : '' }}" href="{{ route('ahgnaz.closures', ['status' => 'active']) }}">Active</a></li>
-                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'expired' ? 'active' : '' }}" href="{{ route('ahgnaz.closures', ['status' => 'expired']) }}">Expired</a></li>
-                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'released' ? 'active' : '' }}" href="{{ route('ahgnaz.closures', ['status' => 'released']) }}">Released</a></li>
+                <li class="nav-item"><a class="nav-link {{ !$currentStatus ? 'active' : '' }}" href="{{ route('ahgnaz.closures') }}">{{ __('All') }}</a></li>
+                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'active' ? 'active' : '' }}" href="{{ route('ahgnaz.closures', ['status' => 'active']) }}">{{ __('Active') }}</a></li>
+                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'expired' ? 'active' : '' }}" href="{{ route('ahgnaz.closures', ['status' => 'expired']) }}">{{ __('Expired') }}</a></li>
+                <li class="nav-item"><a class="nav-link {{ $currentStatus === 'released' ? 'active' : '' }}" href="{{ route('ahgnaz.closures', ['status' => 'released']) }}">{{ __('Released') }}</a></li>
             </ul>
         </div>
     </div>
@@ -45,11 +45,11 @@
     <div class="card mb-4">
         <div class="card-body pb-0">
             <ul class="nav nav-tabs" role="tablist">
-                <li class="nav-item"><a class="nav-link {{ !$currentType ? 'active' : '' }}" href="{{ route('ahgnaz.closures', array_filter(['status' => $currentStatus])) }}">All Types</a></li>
-                <li class="nav-item"><a class="nav-link {{ $currentType === 'standard' ? 'active' : '' }}" href="{{ route('ahgnaz.closures', array_filter(['status' => $currentStatus, 'closure_type' => 'standard'])) }}">Standard</a></li>
-                <li class="nav-item"><a class="nav-link {{ $currentType === 'extended' ? 'active' : '' }}" href="{{ route('ahgnaz.closures', array_filter(['status' => $currentStatus, 'closure_type' => 'extended'])) }}">Extended</a></li>
-                <li class="nav-item"><a class="nav-link {{ $currentType === 'indefinite' ? 'active' : '' }}" href="{{ route('ahgnaz.closures', array_filter(['status' => $currentStatus, 'closure_type' => 'indefinite'])) }}">Indefinite</a></li>
-                <li class="nav-item"><a class="nav-link {{ $currentType === 'ministerial' ? 'active' : '' }}" href="{{ route('ahgnaz.closures', array_filter(['status' => $currentStatus, 'closure_type' => 'ministerial'])) }}">Ministerial</a></li>
+                <li class="nav-item"><a class="nav-link {{ !$currentType ? 'active' : '' }}" href="{{ route('ahgnaz.closures', array_filter(['status' => $currentStatus])) }}">{{ __('All Types') }}</a></li>
+                <li class="nav-item"><a class="nav-link {{ $currentType === 'standard' ? 'active' : '' }}" href="{{ route('ahgnaz.closures', array_filter(['status' => $currentStatus, 'closure_type' => 'standard'])) }}">{{ __('Standard') }}</a></li>
+                <li class="nav-item"><a class="nav-link {{ $currentType === 'extended' ? 'active' : '' }}" href="{{ route('ahgnaz.closures', array_filter(['status' => $currentStatus, 'closure_type' => 'extended'])) }}">{{ __('Extended') }}</a></li>
+                <li class="nav-item"><a class="nav-link {{ $currentType === 'indefinite' ? 'active' : '' }}" href="{{ route('ahgnaz.closures', array_filter(['status' => $currentStatus, 'closure_type' => 'indefinite'])) }}">{{ __('Indefinite') }}</a></li>
+                <li class="nav-item"><a class="nav-link {{ $currentType === 'ministerial' ? 'active' : '' }}" href="{{ route('ahgnaz.closures', array_filter(['status' => $currentStatus, 'closure_type' => 'ministerial'])) }}">{{ __('Ministerial') }}</a></li>
             </ul>
         </div>
     </div>
@@ -59,7 +59,7 @@
             @if ($closures->isEmpty())
                 <div class="p-4 text-center text-muted">
                     <i class="fas fa-lock-open fa-3x mb-3"></i>
-                    <p>No closure periods found.</p>
+                    <p>{{ __('No closure periods found.') }}</p>
                 </div>
             @else
                 <table class="table table-hover mb-0">

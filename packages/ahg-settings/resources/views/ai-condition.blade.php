@@ -62,7 +62,7 @@
 
 @section('title-block')
 <h1 class="h3 mb-0"><i class="fas fa-robot me-2"></i>{{ __('AI Condition Assessment') }}</h1>
-<p class="text-muted small mb-3">Settings and API client management</p>
+<p class="text-muted small mb-3">{{ __('Settings and API client management') }}</p>
 @endsection
 
 @section('content')
@@ -146,7 +146,7 @@
                         <option value="{{ $g }}" {{ ($settings['ai_condition_notify_grade'] ?? 'poor') === $g ? 'selected' : '' }}>{{ ucfirst($g) }}</option>
                         @endforeach
                     </select>
-                    <div class="form-text">Notify when condition grade is at or below this level</div>
+                    <div class="form-text">{{ __('Notify when condition grade is at or below this level') }}</div>
                 </div>
             </div>
         </div>
@@ -350,9 +350,9 @@
                 <p class="small"><strong>{{ __('Client:') }}</strong> <span id="consentClientName"></span></p>
                 <input type="hidden" id="consentClientId">
                 <div class="mb-3">
-                    <label class="form-label">Document <span class="text-danger">*</span></label>
+                    <label class="form-label">{{ __('Document') }} <span class="text-danger">*</span></label>
                     <input type="file" class="form-control form-control-sm" id="consentFile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-                    <div class="form-text">Accepted formats: PDF, DOC, DOCX, JPG, PNG</div>
+                    <div class="form-text">{{ __('Accepted formats: PDF, DOC, DOCX, JPG, PNG') }}</div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -376,7 +376,7 @@
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label">Name <span class="text-danger">*</span></label>
+                    <label class="form-label">{{ __('Name') }} <span class="text-danger">*</span></label>
                     <input type="text" class="form-control form-control-sm" name="name" required>
                 </div>
                 <div class="mb-3">
@@ -384,7 +384,7 @@
                     <input type="text" class="form-control form-control-sm" name="organization">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                    <label class="form-label">{{ __('Email') }} <span class="text-danger">*</span></label>
                     <input type="email" class="form-control form-control-sm" name="email" required>
                 </div>
                 <div class="mb-3">

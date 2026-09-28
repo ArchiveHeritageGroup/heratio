@@ -45,7 +45,7 @@
     <div class="row mb-4">
         <div class="col">
             <h1><i class="fas fa-plus me-2"></i>{{ __('Create Assignment') }}</h1>
-            <p class="text-muted">Assign a form template to specific contexts</p>
+            <p class="text-muted">{{ __('Assign a form template to specific contexts') }}</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('forms.assignments') }}" class="btn btn-outline-secondary">
@@ -108,7 +108,7 @@
 
                 <div class="d-flex justify-content-between">
                     <a href="{{ route('forms.assignments') }}" class="btn btn-outline-secondary">
-                        Cancel
+                        {{ __('Cancel') }}
                     </a>
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-plus me-1"></i> {{ __('Create Assignment') }}

@@ -6,8 +6,8 @@
 @section('content')
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('dedupe.index') }}">Duplicate Detection</a></li>
-      <li class="breadcrumb-item active">Detection Rules</li>
+      <li class="breadcrumb-item"><a href="{{ route('dedupe.index') }}">{{ __('Duplicate Detection') }}</a></li>
+      <li class="breadcrumb-item active">{{ __('Detection Rules') }}</li>
     </ol>
   </nav>
 
@@ -33,9 +33,9 @@
       @if($rules->isEmpty())
         <div class="p-4 text-center text-muted">
           <i class="fas fa-cog fa-3x mb-3"></i>
-          <p>No detection rules configured.</p>
+          <p>{{ __('No detection rules configured.') }}</p>
           <a href="{{ route('dedupe.rule.create') }}" class="btn btn-primary">
-            Create Your First Rule
+            {{ __('Create Your First Rule') }}
           </a>
         </div>
       @else
@@ -113,21 +113,21 @@
         <div class="col-md-6">
           <h6>{{ __('Rule Types') }}</h6>
           <ul class="list-unstyled">
-            <li><strong>{{ __('Title Similarity:') }}</strong> Compares titles using Levenshtein distance</li>
-            <li><strong>{{ __('Identifier Exact:') }}</strong> Matches identical identifiers</li>
+            <li><strong>{{ __('Title Similarity:') }}</strong> {{ __('Compares titles using Levenshtein distance') }}</li>
+            <li><strong>{{ __('Identifier Exact:') }}</strong> {{ __('Matches identical identifiers') }}</li>
             <li><strong>{{ __('Identifier Fuzzy:') }}</strong> Matches similar identifiers (Jaro-Winkler)</li>
-            <li><strong>{{ __('Date + Creator:') }}</strong> Matches records with same date range and creator</li>
-            <li><strong>{{ __('Checksum:') }}</strong> Matches identical files by hash</li>
-            <li><strong>{{ __('Combined:') }}</strong> Weighted combination of multiple factors</li>
+            <li><strong>{{ __('Date + Creator:') }}</strong> {{ __('Matches records with same date range and creator') }}</li>
+            <li><strong>{{ __('Checksum:') }}</strong> {{ __('Matches identical files by hash') }}</li>
+            <li><strong>{{ __('Combined:') }}</strong> {{ __('Weighted combination of multiple factors') }}</li>
           </ul>
         </div>
         <div class="col-md-6">
           <h6>{{ __('Settings') }}</h6>
           <ul class="list-unstyled">
-            <li><strong>{{ __('Priority:') }}</strong> Higher priority rules run first</li>
-            <li><strong>{{ __('Threshold:') }}</strong> Minimum similarity score to flag as duplicate</li>
-            <li><strong>{{ __('Blocking:') }}</strong> If enabled, prevents saving when duplicate found</li>
-            <li><strong>{{ __('Repository:') }}</strong> Apply rule only to specific repository, or globally</li>
+            <li><strong>{{ __('Priority:') }}</strong> {{ __('Higher priority rules run first') }}</li>
+            <li><strong>{{ __('Threshold:') }}</strong> {{ __('Minimum similarity score to flag as duplicate') }}</li>
+            <li><strong>{{ __('Blocking:') }}</strong> {{ __('If enabled, prevents saving when duplicate found') }}</li>
+            <li><strong>{{ __('Repository:') }}</strong> {{ __('Apply rule only to specific repository, or globally') }}</li>
           </ul>
         </div>
       </div>

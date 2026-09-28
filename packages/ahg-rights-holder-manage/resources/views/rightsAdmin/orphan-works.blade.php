@@ -30,13 +30,13 @@
               <td>{{ $ow->title ?? '#' . ($ow->object_id ?? '') }}</td>
               <td>{{ $ow->designation_date ?? '-' }}</td>
               <td><span class="badge bg-{{ ($ow->search_status ?? '') === 'diligent' ? 'success' : 'warning' }}">{{ ucfirst($ow->search_status ?? 'pending') }}</span></td>
-              <td><a href="{{ route('rights-admin.orphan-work-edit', $ow->id) }}" class="btn btn-sm atom-btn-white">Edit</a></td>
+              <td><a href="{{ route('rights-admin.orphan-work-edit', $ow->id) }}" class="btn btn-sm atom-btn-white">{{ __('Edit') }}</a></td>
             </tr>
           @endforeach
         </tbody>
       </table>
     @else
-      <div class="text-center py-4 text-muted">No orphan work designations found.</div>
+      <div class="text-center py-4 text-muted">{{ __('No orphan work designations found.') }}</div>
     @endif
   </div>
 </div>

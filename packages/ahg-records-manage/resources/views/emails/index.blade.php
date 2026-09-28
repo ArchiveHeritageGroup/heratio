@@ -53,7 +53,7 @@
   </div>
   <div class="col-md-2">
     <button type="submit" class="btn btn-sm btn-primary">{{ __('Filter') }}</button>
-    <a href="{{ route('records.emails.index') }}" class="btn btn-sm btn-outline-secondary">Reset</a>
+    <a href="{{ route('records.emails.index') }}" class="btn btn-sm btn-outline-secondary">{{ __('Reset') }}</a>
   </div>
 </form>
 
@@ -77,7 +77,7 @@
         <td class="text-end"><a href="{{ route('records.emails.show', $r->id) }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-arrow-right"></i></a></td>
       </tr>
       @empty
-      <tr><td colspan="7" class="text-center text-muted py-4">No captured emails. Use <strong>{{ __('Upload .eml') }}</strong> to capture one.</td></tr>
+      <tr><td colspan="7" class="text-center text-muted py-4">{{ __('No captured emails. Use') }} <strong>{{ __('Upload .eml') }}</strong> to capture one.</td></tr>
       @endforelse
     </tbody>
   </table>

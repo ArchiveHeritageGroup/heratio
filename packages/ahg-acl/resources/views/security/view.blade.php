@@ -10,8 +10,8 @@
     <div class="col-lg-10 mx-auto">
       <nav aria-label="{{ __('breadcrumb') }}">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-          <li class="breadcrumb-item"><a href="{{ route('acl.security-index') }}">Security Clearances</a></li>
+          <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
+          <li class="breadcrumb-item"><a href="{{ route('acl.security-index') }}">{{ __('Security Clearances') }}</a></li>
           <li class="breadcrumb-item active">{{ e($targetUser->username ?? '') }}</li>
         </ol>
       </nav>
@@ -109,7 +109,7 @@
             <div class="card-body p-0">
               @if(empty($accessGrants))
                 <div class="p-4 text-center text-muted">
-                  <p class="mb-0">No specific object access grants.</p>
+                  <p class="mb-0">{{ __('No specific object access grants.') }}</p>
                 </div>
               @else
                 <div class="table-responsive">
@@ -175,7 +175,7 @@
             <div class="card-body p-0">
               @if(empty($history))
                 <div class="p-4 text-center text-muted">
-                  <p class="mb-0">No clearance history.</p>
+                  <p class="mb-0">{{ __('No clearance history.') }}</p>
                 </div>
               @else
                 <ul class="list-group list-group-flush">
@@ -222,7 +222,7 @@
         </div>
         <div class="modal-body">
           <input type="hidden" name="user_id" value="{{ $targetUser->id ?? '' }}">
-          <p>Granting clearance to: <strong>{{ e($targetUser->username ?? '') }}</strong></p>
+          <p>{{ __('Granting clearance to:') }} <strong>{{ e($targetUser->username ?? '') }}</strong></p>
 
           <div class="mb-3">
             <label for="classification_id" class="form-label">{{ __('Clearance Level') }}</label>

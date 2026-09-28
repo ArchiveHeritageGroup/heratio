@@ -48,7 +48,7 @@
                             <label class="form-check-label" for="semantic_search_enabled">
                                 <strong>{{ __('Enable Semantic Search') }}</strong>
                             </label>
-                            <div class="form-text">When enabled, search queries will be expanded with synonyms.</div>
+                            <div class="form-text">{{ __('When enabled, search queries will be expanded with synonyms.') }}</div>
                         </div>
 
                         <div class="mb-3">
@@ -56,7 +56,7 @@
                             <input type="number" class="form-control" id="semantic_expansion_limit"
                                    name="semantic_expansion_limit"
                                    value="{{ $config['semantic_expansion_limit'] ?? 5 }}" min="1" max="20">
-                            <div class="form-text">Maximum number of synonyms per term.</div>
+                            <div class="form-text">{{ __('Maximum number of synonyms per term.') }}</div>
                         </div>
 
                         <div class="mb-3">
@@ -73,9 +73,9 @@
                                    name="semantic_show_expansion" value="1"
                                    {{ ($config['semantic_show_expansion'] ?? '1') == '1' || ($config['semantic_show_expansion'] ?? '') === 'true' ? 'checked' : '' }}>
                             <label class="form-check-label" for="semantic_show_expansion">
-                                Show Expansion Info
+                                {{ __('Show Expansion Info') }}
                             </label>
-                            <div class="form-text">Display which synonyms were used on search results page.</div>
+                            <div class="form-text">{{ __('Display which synonyms were used on search results page.') }}</div>
                         </div>
 
                         <div class="form-check form-switch">
@@ -83,9 +83,9 @@
                                    name="semantic_log_searches" value="1"
                                    {{ ($config['semantic_log_searches'] ?? '1') == '1' || ($config['semantic_log_searches'] ?? '') === 'true' ? 'checked' : '' }}>
                             <label class="form-check-label" for="semantic_log_searches">
-                                Log Searches
+                                {{ __('Log Searches') }}
                             </label>
-                            <div class="form-text">Keep a log of expanded searches for analysis.</div>
+                            <div class="form-text">{{ __('Keep a log of expanded searches for analysis.') }}</div>
                         </div>
                     </div>
                 </div>
@@ -103,9 +103,9 @@
                                    name="semantic_local_synonyms" value="1"
                                    {{ ($config['semantic_local_synonyms'] ?? '1') == '1' || ($config['semantic_local_synonyms'] ?? '') === 'true' ? 'checked' : '' }}>
                             <label class="form-check-label" for="semantic_local_synonyms">
-                                <i class="fas fa-file-alt me-1 text-secondary"></i>Local Synonyms
+                                <i class="fas fa-file-alt me-1 text-secondary"></i>{{ __('Local Synonyms') }}
                             </label>
-                            <div class="form-text">Use locally defined archival, museum, and library terms.</div>
+                            <div class="form-text">{{ __('Use locally defined archival, museum, and library terms.') }}</div>
                         </div>
 
                         <div class="form-check form-switch mb-3">
@@ -115,7 +115,7 @@
                             <label class="form-check-label" for="semantic_wordnet_enabled">
                                 <i class="fas fa-cloud me-1 text-info"></i>WordNet (Datamuse API)
                             </label>
-                            <div class="form-text">Fetch synonyms from WordNet via Datamuse API.</div>
+                            <div class="form-text">{{ __('Fetch synonyms from WordNet via Datamuse API.') }}</div>
                         </div>
 
                         <div class="form-check form-switch mb-3">
@@ -123,9 +123,9 @@
                                    name="semantic_wikidata_enabled" value="1"
                                    {{ ($config['semantic_wikidata_enabled'] ?? '0') == '1' || ($config['semantic_wikidata_enabled'] ?? '') === 'true' ? 'checked' : '' }}>
                             <label class="form-check-label" for="semantic_wikidata_enabled">
-                                <i class="fas fa-globe me-1 text-dark"></i>Wikidata
+                                <i class="fas fa-globe me-1 text-dark"></i>{{ __('Wikidata') }}
                             </label>
-                            <div class="form-text">Fetch heritage and archival terms from Wikidata SPARQL.</div>
+                            <div class="form-text">{{ __('Fetch heritage and archival terms from Wikidata SPARQL.') }}</div>
                         </div>
 
                         <hr>
@@ -135,9 +135,9 @@
                                    name="semantic_ollama_enabled" value="1"
                                    {{ ($config['semantic_ollama_enabled'] ?? '0') == '1' || ($config['semantic_ollama_enabled'] ?? '') === 'true' ? 'checked' : '' }}>
                             <label class="form-check-label" for="semantic_ollama_enabled">
-                                <i class="fas fa-robot me-1 text-purple"></i>Ollama Embeddings
+                                <i class="fas fa-robot me-1 text-purple"></i>{{ __('Ollama Embeddings') }}
                             </label>
-                            <div class="form-text">Use Ollama for vector embeddings and semantic similarity.</div>
+                            <div class="form-text">{{ __('Use Ollama for vector embeddings and semantic similarity.') }}</div>
                         </div>
 
                         <div class="mb-3">
@@ -179,7 +179,7 @@
                                     <input type="text" class="form-control" id="semantic_es_synonyms_path"
                                            name="semantic_es_synonyms_path"
                                            value="{{ $config['semantic_es_synonyms_path'] ?? '/etc/elasticsearch/synonyms/ahg_synonyms.txt' }}">
-                                    <div class="form-text">Path where the Elasticsearch synonyms file will be exported.</div>
+                                    <div class="form-text">{{ __('Path where the Elasticsearch synonyms file will be exported.') }}</div>
                                 </div>
                             </div>
                             <div class="col-md-6">

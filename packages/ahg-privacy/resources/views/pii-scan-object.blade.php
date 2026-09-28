@@ -45,7 +45,7 @@
             <div class="card {{ ($scanResult['summary']['total'] ?? 0) > 0 ? 'bg-warning text-dark' : 'bg-success text-white' }}">
                 <div class="card-body text-center">
                     <h2 class="display-5">{{ $scanResult['summary']['total'] ?? 0 }}</h2>
-                    <p class="mb-0">Total Entities</p>
+                    <p class="mb-0">{{ __('Total Entities') }}</p>
                 </div>
             </div>
         </div>
@@ -53,7 +53,7 @@
             <div class="card {{ ($scanResult['summary']['high_risk'] ?? 0) > 0 ? 'bg-danger text-white' : 'bg-light' }}">
                 <div class="card-body text-center">
                     <h2 class="display-5">{{ $scanResult['summary']['high_risk'] ?? 0 }}</h2>
-                    <p class="mb-0">High Risk</p>
+                    <p class="mb-0">{{ __('High Risk') }}</p>
                 </div>
             </div>
         </div>
@@ -61,7 +61,7 @@
             <div class="card bg-info text-white">
                 <div class="card-body text-center">
                     <h2 class="display-5">{{ $scanResult['summary']['medium_risk'] ?? 0 }}</h2>
-                    <p class="mb-0">Medium Risk</p>
+                    <p class="mb-0">{{ __('Medium Risk') }}</p>
                 </div>
             </div>
         </div>
@@ -69,7 +69,7 @@
             <div class="card bg-secondary text-white">
                 <div class="card-body text-center">
                     <h2 class="display-5">{{ $scanResult['summary']['low_risk'] ?? 0 }}</h2>
-                    <p class="mb-0">Low Risk</p>
+                    <p class="mb-0">{{ __('Low Risk') }}</p>
                 </div>
             </div>
         </div>
@@ -127,7 +127,7 @@ if ($scanResult['risk_score'] >= 70) echo 'bg-danger';
                     @if(empty($scanResult['entities']))
                         <div class="text-center text-muted py-5">
                             <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
-                            <p class="mb-0">No PII detected in this record</p>
+                            <p class="mb-0">{{ __('No PII detected in this record') }}</p>
                         </div>
                     @else
                         <table class="table table-hover mb-0">

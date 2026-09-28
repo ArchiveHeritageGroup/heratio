@@ -14,44 +14,44 @@
   <div class="card-body">
     <div class="row">
       <div class="col-md-4 mb-3">
-        <label for="schedule_ref" class="form-label">Schedule Reference <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
+        <label for="schedule_ref" class="form-label">{{ __('Schedule Reference') }} <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
         <input type="text" name="schedule_ref" id="schedule_ref" class="form-control" value="{{ old('schedule_ref') }}" required>
         @error('schedule_ref')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
       </div>
       <div class="col-md-8 mb-3">
-        <label for="title" class="form-label">Title <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
+        <label for="title" class="form-label">{{ __('Title') }} <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
         <input type="text" name="title" id="title" class="form-control" value="{{ old('title') }}" required>
         @error('title')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
       </div>
       <div class="col-12 mb-3">
-        <label for="description" class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="description" class="form-label">{{ __('Description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <textarea name="description" id="description" class="form-control" rows="3">{{ old('description') }}</textarea>
       </div>
       <div class="col-md-6 mb-3">
-        <label for="authority" class="form-label">Authority <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="authority" class="form-label">{{ __('Authority') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="text" name="authority" id="authority" class="form-control" value="{{ old('authority') }}">
       </div>
       <div class="col-md-6 mb-3">
-        <label for="jurisdiction" class="form-label">Jurisdiction <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="jurisdiction" class="form-label">{{ __('Jurisdiction') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="text" name="jurisdiction" id="jurisdiction" class="form-control" value="{{ old('jurisdiction') }}">
       </div>
       <div class="col-md-4 mb-3">
-        <label for="effective_date" class="form-label">Effective Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="effective_date" class="form-label">{{ __('Effective Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="date" name="effective_date" id="effective_date" class="form-control" value="{{ old('effective_date') }}">
       </div>
       <div class="col-md-4 mb-3">
-        <label for="review_date" class="form-label">Review Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="review_date" class="form-label">{{ __('Review Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="date" name="review_date" id="review_date" class="form-control" value="{{ old('review_date') }}">
       </div>
       <div class="col-md-4 mb-3">
-        <label for="expiry_date" class="form-label">Expiry Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="expiry_date" class="form-label">{{ __('Expiry Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="date" name="expiry_date" id="expiry_date" class="form-control" value="{{ old('expiry_date') }}">
       </div>
     </div>
   </div>
 </div>
 <section class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
-  <a href="{{ route('records.schedules.index') }}" class="btn atom-btn-outline-light">Cancel</a>
+  <a href="{{ route('records.schedules.index') }}" class="btn atom-btn-outline-light">{{ __('Cancel') }}</a>
   <button type="submit" class="btn atom-btn-outline-light">{{ __('Create Schedule') }}</button>
 </section>
 </form>

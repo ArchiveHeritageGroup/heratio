@@ -2,8 +2,8 @@
 
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb mb-0">
-      <li class="breadcrumb-item"><a href="@php echo route('researcher.dashboard') @endphp">Researcher</a></li>
-      <li class="breadcrumb-item active">New Submission</li>
+      <li class="breadcrumb-item"><a href="@php echo route('researcher.dashboard') @endphp">{{ __('Researcher') }}</a></li>
+      <li class="breadcrumb-item active">{{ __('New Submission') }}</li>
     </ol>
   </nav>
 
@@ -24,18 +24,18 @@
           <form method="post">
 
             <div class="mb-3">
-              <label class="form-label fw-bold">Title <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label class="form-label fw-bold">{{ __('Title') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="text" name="title" class="form-control" required placeholder="{{ __('e.g., Smith Family Papers 1950-1975') }}">
               <small class="text-muted">{{ __('A descriptive title for this submission package.') }}</small>
             </div>
 
             <div class="mb-3">
-              <label class="form-label fw-bold">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label fw-bold">{{ __('Description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea name="description" class="form-control" rows="3" placeholder="{{ __('Brief description of the collection being submitted...') }}"></textarea>
             </div>
 
             <div class="mb-3">
-              <label class="form-label fw-bold">Target Repository <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label fw-bold">{{ __('Target Repository') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select name="repository_id" class="form-select">
                 <option value="">-- Select repository --</option>
                 @php foreach ($repositories as $repo): @endphp
@@ -47,7 +47,7 @@
 
             @if(!empty($projects))
             <div class="mb-3">
-              <label class="form-label fw-bold">Linked Research Project <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label fw-bold">{{ __('Linked Research Project') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select name="project_id" class="form-select">
                 <option value="">-- None --</option>
                 @php foreach ($projects as $proj): @endphp

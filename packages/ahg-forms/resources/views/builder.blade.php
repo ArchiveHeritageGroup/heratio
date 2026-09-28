@@ -20,8 +20,8 @@
         <div class="col">
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('forms.index') }}">Form Templates</a></li>
-                    <li class="breadcrumb-item active">Form Builder</li>
+                    <li class="breadcrumb-item"><a href="{{ route('forms.index') }}">{{ __('Form Templates') }}</a></li>
+                    <li class="breadcrumb-item active">{{ __('Form Builder') }}</li>
                 </ol>
             </nav>
             <h1><i class="fas fa-edit me-2"></i>Form Builder: {{ $template->name ?? '' }}</h1>
@@ -99,7 +99,7 @@
                         @if(empty($fields) || count($fields) === 0)
                             <div class="empty-canvas text-center text-muted py-5">
                                 <i class="fas fa-arrows-alt fa-3x mb-3"></i>
-                                <p>Drag fields here to build your form</p>
+                                <p>{{ __('Drag fields here to build your form') }}</p>
                             </div>
                         @else
                             @foreach($fields as $field)
@@ -144,7 +144,7 @@
                 <div class="card-body">
                     <div id="no-field-selected" class="text-center text-muted py-4">
                         <i class="fas fa-mouse-pointer fa-2x mb-2"></i>
-                        <p>Select a field to edit its properties</p>
+                        <p>{{ __('Select a field to edit its properties') }}</p>
                     </div>
                     <form id="field-properties-form" style="display: none;">
                         @csrf
@@ -158,7 +158,7 @@
                         <div class="mb-3">
                             <label for="prop-name" class="form-label">{{ __('Field Name') }}</label>
                             <input type="text" class="form-control" id="prop-name" name="field_name">
-                            <div class="form-text">Internal field identifier</div>
+                            <div class="form-text">{{ __('Internal field identifier') }}</div>
                         </div>
 
                         <div class="mb-3">

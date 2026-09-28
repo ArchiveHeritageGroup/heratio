@@ -29,7 +29,7 @@
   <div class="alert alert-info py-2 px-3 mb-3 d-flex justify-content-between align-items-center">
     <div>
       <i class="fas fa-clipboard-list me-2"></i>
-      Editing with template: <strong>{{ $template->name }}</strong>
+      {{ __('Editing with template:') }} <strong>{{ $template->name }}</strong>
       @if(!empty($template->descriptive_standard))
         <span class="badge bg-secondary ms-2">{{ $template->descriptive_standard }}</span>
       @endif
@@ -37,7 +37,7 @@
         <span class="badge bg-success ms-1">default</span>
       @endif
     </div>
-    <a href="{{ $cancelUrl }}" class="btn btn-sm btn-outline-secondary">Switch to standard form</a>
+    <a href="{{ $cancelUrl }}" class="btn btn-sm btn-outline-secondary">{{ __('Switch to standard form') }}</a>
   </div>
 
   @foreach($sections as $sectionName => $fields)
@@ -119,7 +119,7 @@
   @endforeach
 
   <div class="d-flex justify-content-end gap-2 mt-3">
-    <a href="{{ $cancelUrl }}" class="btn btn-outline-secondary">Cancel</a>
+    <a href="{{ $cancelUrl }}" class="btn btn-outline-secondary">{{ __('Cancel') }}</a>
     <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
   </div>
 </form>
