@@ -3,7 +3,7 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'researchers'])@endsection
 @section('title', 'Request Triage')
 @section('content')
-<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Request Triage</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li><li class="breadcrumb-item active">{{ __('Request Triage') }}</li></ol></nav>
 <h1 class="h2 mb-4"><i class="fas fa-sort-amount-down text-primary me-2"></i>{{ __('Request Triage') }}</h1>
 <div class="card">
     <div class="card-body p-0">
@@ -29,7 +29,7 @@
             </tbody>
         </table>
         @else
-        <div class="text-center py-4 text-muted">No pending requests.</div>
+        <div class="text-center py-4 text-muted">{{ __('No pending requests.') }}</div>
         @endif
     </div>
 </div>

@@ -3,7 +3,7 @@
 @section('title', 'Research Statistics')
 
 @section('content')
-<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Statistics</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li><li class="breadcrumb-item active">{{ __('Statistics') }}</li></ol></nav>
 
 <h1 class="h2 mb-4"><i class="fas fa-chart-bar text-primary me-2"></i>{{ __('Research Statistics') }}</h1>
 
@@ -15,8 +15,8 @@
             <div class="col-md-3"><label class="form-label">{{ __('To') }}</label><input type="date" name="date_to" class="form-control" value="{{ $dateTo }}"></div>
             <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">{{ __('Apply') }}</button></div>
             <div class="col-md-4 text-end">
-                <a href="?date_from={{ date('Y-m-01') }}&date_to={{ date('Y-m-d') }}" class="btn btn-outline-secondary btn-sm">This Month</a>
-                <a href="?date_from={{ date('Y-01-01') }}&date_to={{ date('Y-m-d') }}" class="btn btn-outline-secondary btn-sm">This Year</a>
+                <a href="?date_from={{ date('Y-m-01') }}&date_to={{ date('Y-m-d') }}" class="btn btn-outline-secondary btn-sm">{{ __('This Month') }}</a>
+                <a href="?date_from={{ date('Y-01-01') }}&date_to={{ date('Y-m-d') }}" class="btn btn-outline-secondary btn-sm">{{ __('This Year') }}</a>
             </div>
         </form>
     </div>
@@ -52,11 +52,11 @@
             <div class="card-body p-0">
                 <table class="table table-sm mb-0">
                     <tbody>
-                        <tr><td>Total Projects</td><td class="text-end fw-bold">{{ number_format($stats['total_projects'] ?? 0) }}</td></tr>
-                        <tr><td>Active Projects</td><td class="text-end fw-bold">{{ number_format($stats['active_projects'] ?? 0) }}</td></tr>
-                        <tr><td>New in Period</td><td class="text-end fw-bold">{{ number_format($stats['new_projects_period'] ?? 0) }}</td></tr>
-                        <tr><td>Collections</td><td class="text-end fw-bold">{{ number_format($stats['total_collections'] ?? 0) }}</td></tr>
-                        <tr><td>Collection Items</td><td class="text-end fw-bold">{{ number_format($stats['total_collection_items'] ?? 0) }}</td></tr>
+                        <tr><td>{{ __('Total Projects') }}</td><td class="text-end fw-bold">{{ number_format($stats['total_projects'] ?? 0) }}</td></tr>
+                        <tr><td>{{ __('Active Projects') }}</td><td class="text-end fw-bold">{{ number_format($stats['active_projects'] ?? 0) }}</td></tr>
+                        <tr><td>{{ __('New in Period') }}</td><td class="text-end fw-bold">{{ number_format($stats['new_projects_period'] ?? 0) }}</td></tr>
+                        <tr><td>{{ __('Collections') }}</td><td class="text-end fw-bold">{{ number_format($stats['total_collections'] ?? 0) }}</td></tr>
+                        <tr><td>{{ __('Collection Items') }}</td><td class="text-end fw-bold">{{ number_format($stats['total_collection_items'] ?? 0) }}</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -68,12 +68,12 @@
             <div class="card-body p-0">
                 <table class="table table-sm mb-0">
                     <tbody>
-                        <tr><td>Bookings in Period</td><td class="text-end fw-bold">{{ number_format($stats['total_bookings'] ?? 0) }}</td></tr>
-                        <tr><td>Completed</td><td class="text-end fw-bold">{{ number_format($stats['completed_bookings'] ?? 0) }}</td></tr>
-                        <tr><td>No Shows</td><td class="text-end fw-bold">{{ number_format($stats['no_show_bookings'] ?? 0) }}</td></tr>
-                        <tr><td>This Week</td><td class="text-end fw-bold">{{ number_format($stats['bookings_this_week'] ?? 0) }}</td></tr>
-                        <tr><td>Materials Requested</td><td class="text-end fw-bold">{{ number_format($stats['materials_requested'] ?? 0) }}</td></tr>
-                        <tr><td>Currently In Use</td><td class="text-end fw-bold">{{ number_format($stats['materials_in_use'] ?? 0) }}</td></tr>
+                        <tr><td>{{ __('Bookings in Period') }}</td><td class="text-end fw-bold">{{ number_format($stats['total_bookings'] ?? 0) }}</td></tr>
+                        <tr><td>{{ __('Completed') }}</td><td class="text-end fw-bold">{{ number_format($stats['completed_bookings'] ?? 0) }}</td></tr>
+                        <tr><td>{{ __('No Shows') }}</td><td class="text-end fw-bold">{{ number_format($stats['no_show_bookings'] ?? 0) }}</td></tr>
+                        <tr><td>{{ __('This Week') }}</td><td class="text-end fw-bold">{{ number_format($stats['bookings_this_week'] ?? 0) }}</td></tr>
+                        <tr><td>{{ __('Materials Requested') }}</td><td class="text-end fw-bold">{{ number_format($stats['materials_requested'] ?? 0) }}</td></tr>
+                        <tr><td>{{ __('Currently In Use') }}</td><td class="text-end fw-bold">{{ number_format($stats['materials_in_use'] ?? 0) }}</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -116,7 +116,7 @@
                     </tbody>
                 </table>
                 @else
-                <div class="text-center text-muted py-4">No data available</div>
+                <div class="text-center text-muted py-4">{{ __('No data available') }}</div>
                 @endif
             </div>
         </div>
@@ -138,7 +138,7 @@
                     </tbody>
                 </table>
                 @else
-                <div class="text-center text-muted py-4">No data available</div>
+                <div class="text-center text-muted py-4">{{ __('No data available') }}</div>
                 @endif
             </div>
         </div>
@@ -166,7 +166,7 @@
             </tbody>
         </table>
         @else
-        <div class="text-center text-muted py-4">No data available</div>
+        <div class="text-center text-muted py-4">{{ __('No data available') }}</div>
         @endif
     </div>
 </div>
@@ -180,7 +180,7 @@
                 @forelse($stats['by_type'] ?? [] as $type)
                     <li class="list-group-item d-flex justify-content-between">{{ e($type->name ?? 'Unspecified') }}<span class="badge bg-secondary">{{ $type->count }}</span></li>
                 @empty
-                    <li class="list-group-item text-muted">No data</li>
+                    <li class="list-group-item text-muted">{{ __('No data') }}</li>
                 @endforelse
             </ul>
         </div>
@@ -192,7 +192,7 @@
                 @forelse($stats['projects_by_status'] ?? [] as $s)
                     <li class="list-group-item d-flex justify-content-between">{{ ucfirst($s->status) }}<span class="badge bg-secondary">{{ $s->count }}</span></li>
                 @empty
-                    <li class="list-group-item text-muted">No data</li>
+                    <li class="list-group-item text-muted">{{ __('No data') }}</li>
                 @endforelse
             </ul>
         </div>
@@ -204,7 +204,7 @@
                 @forelse($stats['reproductions_by_status'] ?? [] as $s)
                     <li class="list-group-item d-flex justify-content-between">{{ ucfirst(str_replace('_', ' ', $s->status)) }}<span class="badge bg-secondary">{{ $s->count }}</span></li>
                 @empty
-                    <li class="list-group-item text-muted">No data</li>
+                    <li class="list-group-item text-muted">{{ __('No data') }}</li>
                 @endforelse
             </ul>
         </div>

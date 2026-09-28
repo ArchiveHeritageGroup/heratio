@@ -10,9 +10,9 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li>
-        <li class="breadcrumb-item active">Invite Collaborator</li>
+        <li class="breadcrumb-item active">{{ __('Invite Collaborator') }}</li>
     </ol>
 </nav>
 
@@ -36,7 +36,7 @@
                 <form method="POST">
                     @csrf
                     <div class="mb-3">
-                        <label class="form-label">Email Address <span class="text-danger">*</span></label>
+                        <label class="form-label">{{ __('Email Address') }} <span class="text-danger">*</span></label>
                         <input type="email" name="email" class="form-control" required placeholder="{{ __('researcher@example.com') }}">
                     </div>
                     <div class="mb-3">
@@ -62,7 +62,7 @@
                     <span class="badge bg-secondary">{{ ucfirst($c->role ?? '') }}</span>
                 </li>
                 @empty
-                <li class="list-group-item text-muted small">No collaborators yet.</li>
+                <li class="list-group-item text-muted small">{{ __('No collaborators yet.') }}</li>
                 @endforelse
             </ul>
         </div>

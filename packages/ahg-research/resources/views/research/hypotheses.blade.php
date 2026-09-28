@@ -10,9 +10,9 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li>
-        <li class="breadcrumb-item active">Hypotheses</li>
+        <li class="breadcrumb-item active">{{ __('Hypotheses') }}</li>
     </ol>
 </nav>
 
@@ -40,7 +40,7 @@
                 @csrf
                 <input type="hidden" name="form_action" value="create">
                 <div class="mb-3">
-                    <label class="form-label">Statement <span class="text-danger">*</span></label>
+                    <label class="form-label">{{ __('Statement') }} <span class="text-danger">*</span></label>
                     <textarea name="statement" class="form-control" rows="3" required></textarea>
                 </div>
                 <div class="mb-3">
@@ -77,6 +77,6 @@
     @endforeach
 </div>
 @else
-<div class="alert alert-info">No hypotheses yet. Create one to get started.</div>
+<div class="alert alert-info">{{ __('No hypotheses yet. Create one to get started.') }}</div>
 @endif
 @endsection

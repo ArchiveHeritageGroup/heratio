@@ -22,8 +22,8 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-    <li class="breadcrumb-item active">Journal</li>
+    <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+    <li class="breadcrumb-item active">{{ __('Journal') }}</li>
   </ol>
 </nav>
 <div class="card mb-3">
@@ -96,15 +96,15 @@
     <form method="POST">@csrf <input type="hidden" name="do" value="create">
     <div class="modal-header"><h5 class="modal-title">{{ __('New Journal Entry') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
-        <div class="mb-3"><label class="form-label">Title <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" class="form-control" name="title"></div>
-        <div class="mb-3"><label class="form-label">Content <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><textarea class="form-control" name="content" rows="6" required></textarea></div>
+        <div class="mb-3"><label class="form-label">{{ __('Title') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" class="form-control" name="title"></div>
+        <div class="mb-3"><label class="form-label">{{ __('Content') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><textarea class="form-control" name="content" rows="6" required></textarea></div>
         <div class="row">
-            <div class="col-md-4"><div class="mb-3"><label class="form-label">Project <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="project_id" class="form-select"><option value="">{{ __('None') }}</option>@foreach($projects as $p)<option value="{{ $p->id }}">{{ e($p->title) }}</option>@endforeach</select></div></div>
-            <div class="col-md-3"><div class="mb-3"><label class="form-label">Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="entry_type" class="form-select"><option value="manual">{{ __('Manual') }}</option><option value="observation">{{ __('Observation') }}</option><option value="finding">{{ __('Finding') }}</option><option value="reflection">{{ __('Reflection') }}</option></select></div></div>
+            <div class="col-md-4"><div class="mb-3"><label class="form-label">{{ __('Project') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="project_id" class="form-select"><option value="">{{ __('None') }}</option>@foreach($projects as $p)<option value="{{ $p->id }}">{{ e($p->title) }}</option>@endforeach</select></div></div>
+            <div class="col-md-3"><div class="mb-3"><label class="form-label">{{ __('Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="entry_type" class="form-select"><option value="manual">{{ __('Manual') }}</option><option value="observation">{{ __('Observation') }}</option><option value="finding">{{ __('Finding') }}</option><option value="reflection">{{ __('Reflection') }}</option></select></div></div>
             <div class="col-md-2"><div class="mb-3"><label class="form-label">{{ __('Time (min)') }}</label><input type="number" class="form-control" name="time_spent_minutes"><span class="badge bg-secondary mt-1 d-inline-block">{{ __('Optional') }}</span></div></div>
-            <div class="col-md-3"><div class="mb-3"><label class="form-label">Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" class="form-control" name="entry_date" value="{{ date('Y-m-d') }}"></div></div>
+            <div class="col-md-3"><div class="mb-3"><label class="form-label">{{ __('Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" class="form-control" name="entry_date" value="{{ date('Y-m-d') }}"></div></div>
         </div>
-        <div class="mb-3"><label class="form-label">Tags <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" class="form-control" name="tags" placeholder="{{ __('Comma-separated') }}"></div>
+        <div class="mb-3"><label class="form-label">{{ __('Tags') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" class="form-control" name="tags" placeholder="{{ __('Comma-separated') }}"></div>
     </div>
     <div class="modal-footer"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ __('Create Entry') }}</button></div>
     </form>

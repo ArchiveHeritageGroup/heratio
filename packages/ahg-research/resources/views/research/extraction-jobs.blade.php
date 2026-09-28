@@ -5,9 +5,9 @@
 
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id) }}">{{ e($project->title) }}</a></li>
-        <li class="breadcrumb-item active">Extraction Jobs</li>
+        <li class="breadcrumb-item active">{{ __('Extraction Jobs') }}</li>
     </ol>
 </nav>
 
@@ -98,7 +98,7 @@
                 <div class="modal-header"><h5 class="modal-title">{{ __('New Extraction Job') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Collection <span class="text-danger">*</span></label>
+                        <label class="form-label">{{ __('Collection') }} <span class="text-danger">*</span></label>
                         <select id="jobCollectionSelect" name="collection_id" required></select>
                         <small class="text-muted">{{ __('Search for a collection to extract from.') }}</small>
                     </div>

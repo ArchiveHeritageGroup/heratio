@@ -5,8 +5,8 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('research.bibliographies') }}">Bibliographies</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.bibliographies') }}">{{ __('Bibliographies') }}</a></li>
         <li class="breadcrumb-item active">{{ e($bibliography->name) }}</li>
     </ol>
 </nav>
@@ -115,7 +115,7 @@
                 @else
                     <div class="text-center text-muted py-5">
                         <i class="fas fa-list fa-2x mb-2"></i>
-                        <p>No entries yet</p>
+                        <p>{{ __('No entries yet') }}</p>
                         <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addEntryModal">{{ __('Add your first entry') }}</button>
                     </div>
                 @endif

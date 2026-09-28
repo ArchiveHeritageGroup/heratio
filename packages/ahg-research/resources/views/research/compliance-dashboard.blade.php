@@ -10,9 +10,9 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li>
-        <li class="breadcrumb-item active">Compliance Dashboard</li>
+        <li class="breadcrumb-item active">{{ __('Compliance Dashboard') }}</li>
     </ol>
 </nav>
 
@@ -80,7 +80,7 @@
 <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h6 class="mb-0">{{ __('Ethics Milestones') }}</h6>
-        <a href="{{ route('research.ethicsMilestones', $project->id ?? 0) }}" class="btn btn-sm btn-outline-primary">Manage</a>
+        <a href="{{ route('research.ethicsMilestones', $project->id ?? 0) }}" class="btn btn-sm btn-outline-primary">{{ __('Manage') }}</a>
     </div>
     <div class="card-body p-0">
         @if(!empty($ethicsMilestones) && count($ethicsMilestones) > 0)
@@ -102,7 +102,7 @@
             </table>
         </div>
         @else
-        <div class="text-center py-3 text-muted small">No ethics milestones.</div>
+        <div class="text-center py-3 text-muted small">{{ __('No ethics milestones.') }}</div>
         @endif
     </div>
 </div>
@@ -111,7 +111,7 @@
 <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h6 class="mb-0">{{ __('ODRL Policies') }}</h6>
-        <a href="{{ route('research.odrlPolicies') }}" class="btn btn-sm btn-outline-primary">Manage</a>
+        <a href="{{ route('research.odrlPolicies') }}" class="btn btn-sm btn-outline-primary">{{ __('Manage') }}</a>
     </div>
     <div class="card-body p-0">
         @if(!empty($odrlPolicies) && count($odrlPolicies) > 0)
@@ -132,7 +132,7 @@
             </table>
         </div>
         @else
-        <div class="text-center py-3 text-muted small">No ODRL policies.</div>
+        <div class="text-center py-3 text-muted small">{{ __('No ODRL policies.') }}</div>
         @endif
     </div>
 </div>

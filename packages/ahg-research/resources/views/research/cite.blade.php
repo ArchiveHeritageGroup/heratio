@@ -12,14 +12,14 @@
             $itemRepository = $firstCitation['repository'] ?? '';
         @endphp
         <dl class="row mb-0">
-            <dt class="col-sm-3">Title</dt>
+            <dt class="col-sm-3">{{ __('Title') }}</dt>
             <dd class="col-sm-9">{{ e($itemTitle) }}</dd>
             @if($itemIdentifier)
-            <dt class="col-sm-3">Identifier</dt>
+            <dt class="col-sm-3">{{ __('Identifier') }}</dt>
             <dd class="col-sm-9">{{ e($itemIdentifier) }}</dd>
             @endif
             @if($itemRepository)
-            <dt class="col-sm-3">Repository</dt>
+            <dt class="col-sm-3">{{ __('Repository') }}</dt>
             <dd class="col-sm-9">{{ e($itemRepository) }}</dd>
             @endif
         </dl>

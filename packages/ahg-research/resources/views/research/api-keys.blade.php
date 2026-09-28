@@ -5,8 +5,8 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item active">API Keys</li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('API Keys') }}</li>
     </ol>
 </nav>
 
@@ -113,17 +113,17 @@
         <table class="table table-sm">
             <thead><tr><th>{{ __('Method') }}</th><th>{{ __('Endpoint') }}</th><th>{{ __('Description') }}</th></tr></thead>
             <tbody>
-                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/profile</td><td>Get your researcher profile</td></tr>
-                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/projects</td><td>List your projects</td></tr>
-                <tr><td><span class="badge bg-primary">{{ __('POST') }}</span></td><td>/projects</td><td>Create a project</td></tr>
-                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/collections</td><td>List your evidence sets</td></tr>
-                <tr><td><span class="badge bg-primary">{{ __('POST') }}</span></td><td>/collections</td><td>Create an evidence set</td></tr>
-                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/searches</td><td>List saved searches</td></tr>
-                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/bookings</td><td>List bookings</td></tr>
-                <tr><td><span class="badge bg-primary">{{ __('POST') }}</span></td><td>/bookings</td><td>Create a booking</td></tr>
-                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/bibliographies</td><td>List bibliographies</td></tr>
-                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/annotations</td><td>List annotations</td></tr>
-                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/stats</td><td>Get your usage statistics</td></tr>
+                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/profile</td><td>{{ __('Get your researcher profile') }}</td></tr>
+                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/projects</td><td>{{ __('List your projects') }}</td></tr>
+                <tr><td><span class="badge bg-primary">{{ __('POST') }}</span></td><td>/projects</td><td>{{ __('Create a project') }}</td></tr>
+                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/collections</td><td>{{ __('List your evidence sets') }}</td></tr>
+                <tr><td><span class="badge bg-primary">{{ __('POST') }}</span></td><td>/collections</td><td>{{ __('Create an evidence set') }}</td></tr>
+                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/searches</td><td>{{ __('List saved searches') }}</td></tr>
+                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/bookings</td><td>{{ __('List bookings') }}</td></tr>
+                <tr><td><span class="badge bg-primary">{{ __('POST') }}</span></td><td>/bookings</td><td>{{ __('Create a booking') }}</td></tr>
+                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/bibliographies</td><td>{{ __('List bibliographies') }}</td></tr>
+                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/annotations</td><td>{{ __('List annotations') }}</td></tr>
+                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/stats</td><td>{{ __('Get your usage statistics') }}</td></tr>
             </tbody>
         </table>
     </div>
@@ -135,20 +135,20 @@
     <div class="modal-header"><h5 class="modal-title">{{ __('Generate New API Key') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
         <div class="mb-3">
-            <label class="form-label">Key Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+            <label class="form-label">{{ __('Key Name') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <input type="text" class="form-control" name="name" required placeholder="{{ __('e.g. My Research App') }}" autocomplete="off">
             <div class="form-text">A descriptive name to identify this key.</div>
         </div>
         <div class="mb-3">
-            <label class="form-label">Permissions <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Permissions') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="form-check"><input type="checkbox" class="form-check-input" name="permissions[]" value="read" id="perm_read" checked><label class="form-check-label" for="perm_read">Read (collections, annotations, bibliographies) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
             <div class="form-check"><input type="checkbox" class="form-check-input" name="permissions[]" value="write" id="perm_write"><label class="form-check-label" for="perm_write">Write (create/update collections, annotations) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
             <div class="form-check"><input type="checkbox" class="form-check-input" name="permissions[]" value="search" id="perm_search"><label class="form-check-label" for="perm_search">Search (query the catalogue) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
         </div>
         <div class="mb-3">
-            <label class="form-label">Expiry Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Expiry Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="date" class="form-control" name="expires_at">
-            <div class="form-text">Leave empty for no expiration.</div>
+            <div class="form-text">{{ __('Leave empty for no expiration.') }}</div>
         </div>
         <div class="alert alert-warning mb-0">
             <i class="fas fa-exclamation-triangle me-2"></i>{{ __('The API key will only be shown once after generation. Make sure to copy it immediately.') }}

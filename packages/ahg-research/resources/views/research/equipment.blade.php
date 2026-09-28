@@ -81,7 +81,7 @@
                     </table>
                 </div>
                 @else
-                <div class="card-body text-center text-muted py-4"><i class="fas fa-info-circle fa-2x mb-2"></i><p>No equipment configured for this room.</p></div>
+                <div class="card-body text-center text-muted py-4"><i class="fas fa-info-circle fa-2x mb-2"></i><p>{{ __('No equipment configured for this room.') }}</p></div>
                 @endif
             </div>
         </div>
@@ -103,7 +103,7 @@
     </div>
 </div>
 @elseif(!($roomId ?? false))
-<div class="text-center text-muted py-5"><i class="fas fa-hand-pointer fa-3x mb-3"></i><p>Select a reading room above to manage its equipment.</p></div>
+<div class="text-center text-muted py-5"><i class="fas fa-hand-pointer fa-3x mb-3"></i><p>{{ __('Select a reading room above to manage its equipment.') }}</p></div>
 @endif
 
 {{-- Add/Edit Equipment Modal --}}
@@ -161,7 +161,7 @@
 
 {{-- Maintenance History Modal --}}
 <div class="modal fade" id="historyModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
-    <div class="modal-header"><h5 class="modal-title"><i class="fas fa-history me-2"></i>Maintenance History - <span id="historyEquipmentName"></span></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-header"><h5 class="modal-title"><i class="fas fa-history me-2"></i>{{ __('Maintenance History -') }} <span id="historyEquipmentName"></span></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body" id="historyBody"><div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div></div>
 </div></div></div>
 

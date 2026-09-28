@@ -5,9 +5,9 @@
 
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id) }}">{{ e($project->title) }}</a></li>
-        <li class="breadcrumb-item active">Assertion Batch Review</li>
+        <li class="breadcrumb-item active">{{ __('Assertion Batch Review') }}</li>
     </ol>
 </nav>
 
@@ -16,7 +16,7 @@
 @endif
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2">Assertion Batch Review <span class="badge bg-warning">{{ count($assertions) }} proposed</span></h1>
+    <h1 class="h2">{{ __('Assertion Batch Review') }} <span class="badge bg-warning">{{ count($assertions) }} proposed</span></h1>
 </div>
 
 <form method="post" action="{{ route('research.assertionBatchReview', $project->id) }}">

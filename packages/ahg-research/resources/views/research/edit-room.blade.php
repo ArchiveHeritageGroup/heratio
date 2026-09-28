@@ -5,8 +5,8 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('research.rooms') }}">Rooms</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.rooms') }}">{{ __('Rooms') }}</a></li>
         <li class="breadcrumb-item active">{{ $isNew ? 'Add' : 'Edit' }}</li>
     </ol>
 </nav>

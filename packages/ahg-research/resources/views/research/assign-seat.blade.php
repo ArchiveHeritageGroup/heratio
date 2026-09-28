@@ -10,9 +10,9 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('research.seats') }}">Seats</a></li>
-        <li class="breadcrumb-item active">Assign Seat</li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.seats') }}">{{ __('Seats') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Assign Seat') }}</li>
     </ol>
 </nav>
 
@@ -24,9 +24,9 @@
             <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-user me-2"></i>{{ __('Researcher') }}</div>
             <div class="card-body">
                 <dl class="row mb-0">
-                    <dt class="col-sm-4">Name</dt><dd class="col-sm-8">{{ e(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) }}</dd>
-                    <dt class="col-sm-4">Booking</dt><dd class="col-sm-8">{{ e($booking->booking_date ?? '') }} {{ e($booking->start_time ?? '') }}-{{ e($booking->end_time ?? '') }}</dd>
-                    <dt class="col-sm-4">Room</dt><dd class="col-sm-8">{{ e($booking->room_name ?? '') }}</dd>
+                    <dt class="col-sm-4">{{ __('Name') }}</dt><dd class="col-sm-8">{{ e(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) }}</dd>
+                    <dt class="col-sm-4">{{ __('Booking') }}</dt><dd class="col-sm-8">{{ e($booking->booking_date ?? '') }} {{ e($booking->start_time ?? '') }}-{{ e($booking->end_time ?? '') }}</dd>
+                    <dt class="col-sm-4">{{ __('Room') }}</dt><dd class="col-sm-8">{{ e($booking->room_name ?? '') }}</dd>
                 </dl>
             </div>
         </div>
@@ -39,7 +39,7 @@
                     @csrf
                     <input type="hidden" name="booking_id" value="{{ $booking->id ?? 0 }}">
                     <div class="mb-3">
-                        <label class="form-label">Select Seat <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                        <label class="form-label">{{ __('Select Seat') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <select name="seat_id" class="form-select" required>
                             <option value="">-- Choose a seat --</option>
                             @foreach($availableSeats ?? [] as $seat)
@@ -48,11 +48,11 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label class="form-label">{{ __('Notes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <textarea name="notes" class="form-control" rows="2"></textarea>
                     </div>
                     <button type="submit" class="btn atom-btn-white"><i class="fas fa-check me-1"></i>{{ __('Assign Seat') }}</button>
-                    <a href="{{ route('research.seats') }}" class="btn atom-btn-white">Cancel</a>
+                    <a href="{{ route('research.seats') }}" class="btn atom-btn-white">{{ __('Cancel') }}</a>
                 </form>
             </div>
         </div>

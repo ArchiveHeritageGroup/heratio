@@ -9,8 +9,8 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item active">ODRL Policies</li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('ODRL Policies') }}</li>
     </ol>
 </nav>
 
@@ -24,7 +24,7 @@
     <div class="card-body py-2">
         <form method="get" class="row g-2 align-items-end">
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Target Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label form-label-sm mb-0">{{ __('Target Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="filter_target_type" class="form-select form-select-sm">
                     <option value="">{{ __('All') }}</option>
                     @foreach(['archival_description', 'collection', 'project', 'snapshot', 'annotation', 'assertion'] as $tt)
@@ -33,7 +33,7 @@
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Policy Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label form-label-sm mb-0">{{ __('Policy Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="filter_policy_type" class="form-select form-select-sm">
                     <option value="">{{ __('All') }}</option>
                     <option value="permission" {{ request('filter_policy_type') === 'permission' ? 'selected' : '' }}>{{ __('Permission') }}</option>
@@ -42,7 +42,7 @@
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Action Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label form-label-sm mb-0">{{ __('Action Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="filter_action_type" class="form-select form-select-sm">
                     <option value="">{{ __('All') }}</option>
                     @foreach(['use', 'reproduce', 'distribute', 'modify', 'archive', 'display'] as $at)
@@ -56,7 +56,7 @@
 </div>
 
 @if(empty($policies['items'] ?? []))
-    <div class="alert alert-info">No ODRL policies found. Create one to get started.</div>
+    <div class="alert alert-info">{{ __('No ODRL policies found. Create one to get started.') }}</div>
 @else
 <div class="table-responsive">
     <table class="table table-bordered table-hover align-middle">
@@ -193,7 +193,7 @@
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Constraints <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Constraints') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           </div>
           <div class="mb-3">
             <label class="form-label small">{{ __('Restrict to Researchers') }}</label>

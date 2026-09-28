@@ -10,9 +10,9 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li>
-        <li class="breadcrumb-item active">Collaborators</li>
+        <li class="breadcrumb-item active">{{ __('Collaborators') }}</li>
     </ol>
 </nav>
 
@@ -73,7 +73,7 @@
         @else
         <div class="text-center py-4 text-muted">
             <i class="fas fa-users fa-2x mb-2 opacity-50"></i>
-            <p>No collaborators yet.</p>
+            <p>{{ __('No collaborators yet.') }}</p>
         </div>
         @endif
     </div>

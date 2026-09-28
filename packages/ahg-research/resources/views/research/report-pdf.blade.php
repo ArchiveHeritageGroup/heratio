@@ -67,13 +67,13 @@
                 @if($s->content ?? null)
                     {!! $s->content !!}
                 @else
-                    <p style="color:#999; font-style:italic;">No content yet.</p>
+                    <p style="color:#999; font-style:italic;">{{ __('No content yet.') }}</p>
                 @endif
             </div>
         </div>
         @endforeach
     @else
-        <p style="color:#999;">This report has no sections.</p>
+        <p style="color:#999;">{{ __('This report has no sections.') }}</p>
     @endif
 
     <div class="footer">

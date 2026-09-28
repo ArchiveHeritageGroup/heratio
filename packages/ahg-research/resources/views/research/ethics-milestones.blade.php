@@ -10,9 +10,9 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li>
-        <li class="breadcrumb-item active">Ethics Milestones</li>
+        <li class="breadcrumb-item active">{{ __('Ethics Milestones') }}</li>
     </ol>
 </nav>
 
@@ -126,7 +126,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Title <span class="text-danger">*</span></label>
+                        <label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
                         <input type="text" name="title" class="form-control" required>
                     </div>
                     <div class="mb-3">
@@ -161,7 +161,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Title <span class="text-danger">*</span></label>
+                        <label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
                         <input type="text" name="title" id="edit-title" class="form-control" required>
                     </div>
                     <div class="mb-3">

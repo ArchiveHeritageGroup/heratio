@@ -5,9 +5,9 @@
 
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id) }}">{{ e($project->title) }}</a></li>
-        <li class="breadcrumb-item active">Knowledge Graph</li>
+        <li class="breadcrumb-item active">{{ __('Knowledge Graph') }}</li>
     </ol>
 </nav>
 
@@ -26,7 +26,7 @@
         <div class="btn-group btn-group-sm">
             <button id="exportGraphMLBtn" class="btn btn-outline-secondary" title="{{ __('Export GraphML') }}"><i class="fas fa-download me-1"></i>{{ __('GraphML') }}</button>
         </div>
-        <a href="{{ route('research.assertions', $project->id) }}" class="btn btn-sm btn-outline-primary">List View</a>
+        <a href="{{ route('research.assertions', $project->id) }}" class="btn btn-sm btn-outline-primary">{{ __('List View') }}</a>
     </div>
 </div>
 
@@ -34,11 +34,11 @@
 <div class="card mb-3">
     <div class="card-body py-2 d-flex align-items-center gap-3 flex-wrap">
         <small class="text-muted me-1">{{ __('Node types:') }}</small>
-        <span><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#4e79a7"/></svg> Actor</span>
-        <span><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#f28e2c"/></svg> Object</span>
-        <span><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#59a14f"/></svg> Place</span>
-        <span><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#e15759"/></svg> Event</span>
-        <span><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#76b7b2"/></svg> Other</span>
+        <span><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#4e79a7"/></svg> {{ __('Actor') }}</span>
+        <span><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#f28e2c"/></svg> {{ __('Object') }}</span>
+        <span><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#59a14f"/></svg> {{ __('Place') }}</span>
+        <span><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#e15759"/></svg> {{ __('Event') }}</span>
+        <span><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="#76b7b2"/></svg> {{ __('Other') }}</span>
     </div>
 </div>
 
@@ -59,7 +59,7 @@
         <div class="card" id="detailPanel">
             <div class="card-header"><h5 class="mb-0">{{ __('Node Details') }}</h5></div>
             <div class="card-body" id="detailContent">
-                <p class="text-muted mb-0">Click a node to see details.</p>
+                <p class="text-muted mb-0">{{ __('Click a node to see details.') }}</p>
             </div>
         </div>
     </div>

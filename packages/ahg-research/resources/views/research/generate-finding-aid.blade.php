@@ -3,26 +3,26 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'reports'])@endsection
 @section('title', 'Generate Finding Aid')
 @section('content')
-<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.reports') }}">Reports</a></li><li class="breadcrumb-item active">Finding Aid</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li><li class="breadcrumb-item"><a href="{{ route('research.reports') }}">{{ __('Reports') }}</a></li><li class="breadcrumb-item active">{{ __('Finding Aid') }}</li></ol></nav>
 <h1 class="h2 mb-4"><i class="fas fa-sitemap text-primary me-2"></i>{{ __('Generate Finding Aid') }}</h1>
 <div class="row">
     <div class="col-md-8">
         <div class="card mb-4">
-            <div class="card-header" style="background:var(--ahg-primary);color:#fff">Finding Aid Configuration</div>
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff">{{ __('Finding Aid Configuration') }}</div>
             <div class="card-body">
                 <form method="POST">@csrf
-                    <div class="mb-3"><label class="form-label">Collection / Fonds <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                    <div class="mb-3"><label class="form-label">{{ __('Collection / Fonds') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <select name="collection_id" class="form-select" required><option value="">-- Select --</option>@foreach($collections ?? [] as $c)<option value="{{ $c->id }}">{{ e($c->title ?? '') }}</option>@endforeach</select>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-md-6"><label class="form-label">Format <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="format" class="form-select"><option value="ead">{{ __('EAD (XML)') }}</option><option value="pdf">PDF</option><option value="html">HTML</option></select></div>
-                        <div class="col-md-6"><label class="form-label">Depth <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="depth" class="form-select"><option value="full">{{ __('Full (all levels)') }}</option><option value="series">{{ __('Series level') }}</option><option value="file">{{ __('File level') }}</option></select></div>
+                        <div class="col-md-6"><label class="form-label">{{ __('Format') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="format" class="form-select"><option value="ead">{{ __('EAD (XML)') }}</option><option value="pdf">PDF</option><option value="html">HTML</option></select></div>
+                        <div class="col-md-6"><label class="form-label">{{ __('Depth') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="depth" class="form-select"><option value="full">{{ __('Full (all levels)') }}</option><option value="series">{{ __('Series level') }}</option><option value="file">{{ __('File level') }}</option></select></div>
                     </div>
-                    <div class="form-check mb-2"><input type="checkbox" name="include_dao" class="form-check-input" id="includeDao" checked><label class="form-check-label" for="includeDao">Include digital object links <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
-                    <div class="form-check mb-2"><input type="checkbox" name="include_access" class="form-check-input" id="includeAccess" checked><label class="form-check-label" for="includeAccess">Include access points <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
-                    <div class="form-check mb-3"><input type="checkbox" name="include_notes" class="form-check-input" id="includeNotes"><label class="form-check-label" for="includeNotes">Include archival notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
+                    <div class="form-check mb-2"><input type="checkbox" name="include_dao" class="form-check-input" id="includeDao" checked><label class="form-check-label" for="includeDao">{{ __('Include digital object links') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
+                    <div class="form-check mb-2"><input type="checkbox" name="include_access" class="form-check-input" id="includeAccess" checked><label class="form-check-label" for="includeAccess">{{ __('Include access points') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
+                    <div class="form-check mb-3"><input type="checkbox" name="include_notes" class="form-check-input" id="includeNotes"><label class="form-check-label" for="includeNotes">{{ __('Include archival notes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
                     <button type="submit" class="btn atom-btn-white"><i class="fas fa-file-export me-1"></i>{{ __('Generate') }}</button>
-                    <a href="{{ route('research.reports') }}" class="btn atom-btn-white">Cancel</a>
+                    <a href="{{ route('research.reports') }}" class="btn atom-btn-white">{{ __('Cancel') }}</a>
                 </form>
             </div>
         </div>

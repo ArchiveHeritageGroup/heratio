@@ -10,9 +10,9 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li>
-        <li class="breadcrumb-item active">Assertions</li>
+        <li class="breadcrumb-item active">{{ __('Assertions') }}</li>
     </ol>
 </nav>
 
@@ -55,7 +55,7 @@
             </div>
             <div class="col-md-4">
                 <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-filter me-1"></i>{{ __('Filter') }}</button>
-                <a href="{{ request()->url() }}" class="btn btn-sm btn-outline-secondary">Clear</a>
+                <a href="{{ request()->url() }}" class="btn btn-sm btn-outline-secondary">{{ __('Clear') }}</a>
             </div>
         </form>
     </div>
@@ -71,15 +71,15 @@
                 <input type="hidden" name="form_action" value="create">
                 <div class="row mb-3">
                     <div class="col-md-4">
-                        <label class="form-label">Subject <span class="text-danger">*</span></label>
+                        <label class="form-label">{{ __('Subject') }} <span class="text-danger">*</span></label>
                         <input type="text" name="subject" class="form-control" required>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Predicate <span class="text-danger">*</span></label>
+                        <label class="form-label">{{ __('Predicate') }} <span class="text-danger">*</span></label>
                         <input type="text" name="predicate" class="form-control" required>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Object <span class="text-danger">*</span></label>
+                        <label class="form-label">{{ __('Object') }} <span class="text-danger">*</span></label>
                         <input type="text" name="object" class="form-control" required>
                     </div>
                 </div>
@@ -95,7 +95,7 @@
                         </select>
                     </div>
                     <div class="col-md-8">
-                        <label class="form-label">Confidence <span id="confidenceValue">50</span>%</label>
+                        <label class="form-label">{{ __('Confidence') }} <span id="confidenceValue">50</span>%</label>
                         <input type="range" name="confidence" class="form-range" min="0" max="100" value="50" oninput="document.getElementById('confidenceValue').textContent=this.value">
                     </div>
                 </div>
@@ -144,7 +144,7 @@
         @else
         <div class="text-center py-4 text-muted">
             <i class="fas fa-gavel fa-2x mb-2 opacity-50"></i>
-            <p>No assertions found.</p>
+            <p>{{ __('No assertions found.') }}</p>
         </div>
         @endif
     </div>

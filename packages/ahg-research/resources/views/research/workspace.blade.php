@@ -29,7 +29,7 @@
 <div class="alert alert-danger d-flex justify-content-between align-items-center mb-4">
   <div>
     <i class="fas fa-exclamation-circle me-2"></i>
-    <strong>{{ __('Your researcher registration has expired.') }}</strong> Please request a renewal to continue using research features.
+    <strong>{{ __('Your researcher registration has expired.') }}</strong> {{ __('Please request a renewal to continue using research features.') }}
   </div>
   <a href="{{ route('research.renewal') }}" class="btn btn-danger"><i class="fas fa-sync-alt me-1"></i>{{ __('Request Renewal') }}</a>
 </div>
@@ -158,9 +158,9 @@
       @else
         <div class="card-body text-center text-muted py-4">
           <i class="fas fa-calendar fa-2x mb-2 opacity-50"></i>
-          <p class="mb-2">No upcoming visits</p>
+          <p class="mb-2">{{ __('No upcoming visits') }}</p>
           @if($canUseFeatures)
-            <a href="{{ route('research.book') }}" class="btn btn-sm btn-outline-primary">Book a visit</a>
+            <a href="{{ route('research.book') }}" class="btn btn-sm btn-outline-primary">{{ __('Book a visit') }}</a>
           @else
             <button class="btn btn-sm btn-outline-secondary" disabled>{{ __('Book a visit') }}</button>
           @endif
@@ -182,7 +182,7 @@
           @endforeach
         </ul>
       @else
-        <div class="card-body text-muted small py-3">No visit history yet</div>
+        <div class="card-body text-muted small py-3">{{ __('No visit history yet') }}</div>
       @endif
     </div>
   </div>
@@ -210,12 +210,12 @@
           @endforeach
         </ul>
         <div class="card-footer text-center py-2">
-          <a href="{{ route('research.collections') }}" class="small">Manage all evidence sets <i class="fas fa-arrow-right"></i></a>
+          <a href="{{ route('research.collections') }}" class="small">{{ __('Manage all evidence sets') }} <i class="fas fa-arrow-right"></i></a>
         </div>
       @else
         <div class="card-body text-center text-muted py-4">
           <i class="fas fa-folder-open fa-2x mb-2 opacity-50"></i>
-          <p class="mb-2">No evidence sets yet</p>
+          <p class="mb-2">{{ __('No evidence sets yet') }}</p>
           @if($canUseFeatures)
             <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#newCollectionModal">{{ __('Create your first evidence set') }}</button>
           @else
@@ -247,7 +247,7 @@
       @else
         <div class="card-body text-center text-muted py-3">
           <i class="fas fa-search fa-2x mb-2 opacity-50"></i>
-          <p class="mb-0 small">Save searches from browse results</p>
+          <p class="mb-0 small">{{ __('Save searches from browse results') }}</p>
         </div>
       @endif
     </div>
@@ -271,7 +271,7 @@
       @else
         <div class="card-body text-center text-muted py-3">
           <i class="fas fa-sticky-note fa-2x mb-2 opacity-50"></i>
-          <p class="mb-0 small">Add notes to items while browsing</p>
+          <p class="mb-0 small">{{ __('Add notes to items while browsing') }}</p>
         </div>
       @endif
     </div>

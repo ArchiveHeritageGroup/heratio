@@ -24,8 +24,8 @@
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item active">Notifications</li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Notifications') }}</li>
     </ol>
 </nav>
 
@@ -45,7 +45,7 @@
 {{-- Tabs --}}
 <ul class="nav nav-tabs mb-4">
     <li class="nav-item">
-        <a class="nav-link {{ ($currentTab === 'all' && empty($currentType)) ? 'active' : '' }}" href="{{ route('research.notifications', ['tab' => 'all']) }}">All</a>
+        <a class="nav-link {{ ($currentTab === 'all' && empty($currentType)) ? 'active' : '' }}" href="{{ route('research.notifications', ['tab' => 'all']) }}">{{ __('All') }}</a>
     </li>
     <li class="nav-item">
         <a class="nav-link {{ $currentTab === 'unread' ? 'active' : '' }}" href="{{ route('research.notifications', ['tab' => 'unread']) }}">
@@ -53,7 +53,7 @@
         </a>
     </li>
     <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle {{ !empty($currentType) ? 'active' : '' }}" data-bs-toggle="dropdown" href="#">By Type</a>
+        <a class="nav-link dropdown-toggle {{ !empty($currentType) ? 'active' : '' }}" data-bs-toggle="dropdown" href="#">{{ __('By Type') }}</a>
         <ul class="dropdown-menu">
             @foreach(['alert' => 'Alerts', 'invitation' => 'Invitations', 'comment' => 'Comments', 'reply' => 'Replies', 'system' => 'System', 'reminder' => 'Reminders', 'collaboration' => 'Collaboration', 'booking' => 'Bookings'] as $tk => $tl)
                 <li><a class="dropdown-item {{ $currentType === $tk ? 'active' : '' }}" href="{{ route('research.notifications', ['tab' => 'all', 'type' => $tk]) }}"><i class="{{ $typeIcons[$tk] ?? 'fas fa-bell' }} me-2"></i>{{ $tl }}</a></li>

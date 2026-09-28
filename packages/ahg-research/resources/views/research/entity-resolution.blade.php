@@ -9,8 +9,8 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item active">Entity Resolution</li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Entity Resolution') }}</li>
     </ol>
 </nav>
 
@@ -24,7 +24,7 @@
     <div class="card-body py-2">
         <form method="get" class="row g-2 align-items-end">
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Status <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label form-label-sm mb-0">{{ __('Status') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="status" class="form-select form-select-sm">
                     <option value="">{{ __('All') }}</option>
                     <option value="proposed" {{ request('status') === 'proposed' ? 'selected' : '' }}>{{ __('Proposed') }}</option>
@@ -33,7 +33,7 @@
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Entity Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label form-label-sm mb-0">{{ __('Entity Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="entity_type" class="form-select form-select-sm">
                     <option value="">{{ __('All') }}</option>
                     <option value="actor" {{ request('entity_type') === 'actor' ? 'selected' : '' }}>{{ __('Actor') }}</option>
@@ -42,7 +42,7 @@
                 </select>
             </div>
             <div class="col-auto">
-                <label class="form-label form-label-sm mb-0">Relationship <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label form-label-sm mb-0">{{ __('Relationship') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="relationship_type" class="form-select form-select-sm">
                     <option value="">{{ __('All') }}</option>
                     <option value="sameAs" {{ request('relationship_type') === 'sameAs' ? 'selected' : '' }}>sameAs</option>
@@ -57,7 +57,7 @@
 </div>
 
 @if(empty($proposals['items'] ?? []))
-    <div class="alert alert-info">No entity resolution proposals matching your filters.</div>
+    <div class="alert alert-info">{{ __('No entity resolution proposals matching your filters.') }}</div>
 @else
 <div class="table-responsive">
     <table class="table table-bordered table-hover align-middle">
@@ -144,7 +144,7 @@
                         <div class="col-md-6">
                             <h6>{{ __('Entity A') }}</h6>
                             <div class="mb-2">
-                                <label class="form-label form-label-sm">Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                                <label class="form-label form-label-sm">{{ __('Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <select name="entity_a_type" class="form-select form-select-sm">
                                     <option value="actor">{{ __('Actor') }}</option>
                                     <option value="information_object">{{ __('Information Object') }}</option>
@@ -159,7 +159,7 @@
                         <div class="col-md-6">
                             <h6>{{ __('Entity B') }}</h6>
                             <div class="mb-2">
-                                <label class="form-label form-label-sm">Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                                <label class="form-label form-label-sm">{{ __('Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <select name="entity_b_type" class="form-select form-select-sm">
                                     <option value="actor">{{ __('Actor') }}</option>
                                     <option value="information_object">{{ __('Information Object') }}</option>
@@ -173,7 +173,7 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label form-label-sm">Relationship Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label class="form-label form-label-sm">{{ __('Relationship Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <select name="relationship_type" class="form-select form-select-sm">
                             <option value="sameAs">sameAs (identical entities)</option>
                             <option value="relatedTo">relatedTo (associated entities)</option>
@@ -183,7 +183,7 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label form-label-sm">Match Method <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                            <label class="form-label form-label-sm">{{ __('Match Method') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select name="match_method" class="form-select form-select-sm">
                                 <option value="manual">{{ __('Manual') }}</option>
                                 <option value="name_similarity">{{ __('Name Similarity') }}</option>
@@ -197,7 +197,7 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label form-label-sm">Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label class="form-label form-label-sm">{{ __('Notes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <textarea name="notes" class="form-control form-control-sm" rows="2"></textarea>
                     </div>
                     <div class="mb-3">

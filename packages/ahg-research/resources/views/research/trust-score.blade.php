@@ -3,7 +3,7 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'workspace'])@endsection
 @section('title', 'Trust Score')
 @section('content')
-<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Trust Score</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li><li class="breadcrumb-item active">{{ __('Trust Score') }}</li></ol></nav>
 @php
     $score = $score ?? 0;
     $scoreColor = $score >= 80 ? 'success' : ($score >= 50 ? 'warning' : 'danger');

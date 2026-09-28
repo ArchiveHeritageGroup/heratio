@@ -134,7 +134,7 @@
   @else
   <div class="card-body text-center text-muted py-5">
     <i class="fas fa-inbox fa-3x mb-3 opacity-50"></i>
-    <p class="mb-0">This evidence set is empty. Use the search above to add items.</p>
+    <p class="mb-0">{{ __('This evidence set is empty. Use the search above to add items.') }}</p>
   </div>
   @endif
 </div>
@@ -187,7 +187,7 @@
       @method('DELETE')
       <div class="modal-content">
         <div class="modal-header bg-danger text-white"><h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Delete') }}</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-        <div class="modal-body"><p>Delete this evidence set?</p><p class="text-danger"><strong>{{ e($collection->name) }}</strong></p></div>
+        <div class="modal-body"><p>{{ __('Delete this evidence set?') }}</p><p class="text-danger"><strong>{{ e($collection->name) }}</strong></p></div>
         <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-danger"><i class="fas fa-trash me-1"></i>{{ __('Delete') }}</button></div>
       </div>
     </form>

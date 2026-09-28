@@ -3,7 +3,7 @@
 @section('title', 'Activity Log')
 
 @section('content')
-<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Activity Log</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li><li class="breadcrumb-item active">{{ __('Activity Log') }}</li></ol></nav>
 
 <h1 class="h2 mb-4"><i class="fas fa-stream text-primary me-2"></i>{{ __('Activity Log') }}</h1>
 
@@ -24,7 +24,7 @@
             <div class="col-md-2"><label class="form-label small">{{ __('To') }}</label><input type="date" class="form-control form-control-sm" name="date_to" value="{{ $dateTo ?? '' }}"></div>
             <div class="col-md-2"><button type="submit" class="btn btn-primary btn-sm w-100"><i class="fas fa-filter me-1"></i>{{ __('Filter') }}</button></div>
             @if(($typeFilter ?? '') || ($dateFrom ?? '') || ($dateTo ?? ''))
-                <div class="col-md-2"><a href="{{ route('research.activities') }}" class="btn btn-outline-secondary btn-sm w-100">Clear</a></div>
+                <div class="col-md-2"><a href="{{ route('research.activities') }}" class="btn btn-outline-secondary btn-sm w-100">{{ __('Clear') }}</a></div>
             @endif
         </form>
     </div>

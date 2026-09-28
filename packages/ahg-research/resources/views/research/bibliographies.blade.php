@@ -3,8 +3,8 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item active">Bibliographies</li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Bibliographies') }}</li>
     </ol>
 </nav>
 
@@ -37,8 +37,8 @@
                     <div class="card-footer bg-transparent">
                         <div class="btn-group btn-group-sm">
                             <a href="{{ route('research.viewBibliography', $bib->id) }}?export=ris" class="btn btn-outline-secondary" title="{{ __('Export RIS') }}">RIS</a>
-                            <a href="{{ route('research.viewBibliography', $bib->id) }}?export=bibtex" class="btn btn-outline-secondary" title="{{ __('Export BibTeX') }}">BibTeX</a>
-                            <a href="{{ route('research.viewBibliography', $bib->id) }}?export=zotero" class="btn btn-outline-secondary" title="{{ __('Export Zotero') }}">Zotero</a>
+                            <a href="{{ route('research.viewBibliography', $bib->id) }}?export=bibtex" class="btn btn-outline-secondary" title="{{ __('Export BibTeX') }}">{{ __('BibTeX') }}</a>
+                            <a href="{{ route('research.viewBibliography', $bib->id) }}?export=zotero" class="btn btn-outline-secondary" title="{{ __('Export Zotero') }}">{{ __('Zotero') }}</a>
                         </div>
                     </div>
                 </div>
@@ -50,7 +50,7 @@
         <div class="card-body text-center py-5">
             <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
             <h5>{{ __('No Bibliographies Yet') }}</h5>
-            <p class="text-muted">Create a bibliography to organize your research citations.</p>
+            <p class="text-muted">{{ __('Create a bibliography to organize your research citations.') }}</p>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBibModal">
                 <i class="fas fa-plus me-1"></i> {{ __('Create Bibliography') }}
             </button>

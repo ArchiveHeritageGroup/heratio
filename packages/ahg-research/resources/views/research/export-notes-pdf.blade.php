@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Research Notes Export</title>
+    <title>{{ __('Research Notes Export') }}</title>
     <style>
         body { font-family: 'Georgia', serif; margin: 40px; color: #333; line-height: 1.6; }
         h1 { font-size: 1.6rem; border-bottom: 2px solid #333; padding-bottom: 8px; }

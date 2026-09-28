@@ -9,8 +9,8 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item active">Workspaces</li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Workspaces') }}</li>
     </ol>
 </nav>
 
@@ -87,11 +87,11 @@
                         <input type="text" name="name" class="form-control" required placeholder="{{ __('e.g., Thesis Research Group') }}" autocomplete="off">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label class="form-label">{{ __('Description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <textarea name="description" class="form-control" rows="2"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Visibility <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label class="form-label">{{ __('Visibility') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <select name="visibility" class="form-select">
                             <option value="private">{{ __('Private') }}</option>
                             <option value="members">{{ __('Members Only') }}</option>

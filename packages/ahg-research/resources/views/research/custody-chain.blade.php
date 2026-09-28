@@ -5,16 +5,16 @@
 @endsection
 @section('title', 'Custody Chain')
 @section('content')
-<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.retrievalQueue') }}">Retrieval Queue</a></li><li class="breadcrumb-item active">Custody Chain</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li><li class="breadcrumb-item"><a href="{{ route('research.retrievalQueue') }}">{{ __('Retrieval Queue') }}</a></li><li class="breadcrumb-item active">{{ __('Custody Chain') }}</li></ol></nav>
 <h1 class="h2 mb-4"><i class="fas fa-link text-primary me-2"></i>{{ __('Chain of Custody') }}</h1>
 <div class="card mb-4">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-box me-2"></i>{{ __('Item Details') }}</div>
     <div class="card-body">
         <dl class="row mb-0">
-            <dt class="col-sm-3">Title</dt><dd class="col-sm-9">{{ e($item->title ?? 'Item #' . ($item->id ?? '')) }}</dd>
-            <dt class="col-sm-3">Identifier</dt><dd class="col-sm-9">{{ e($item->identifier ?? '-') }}</dd>
-            <dt class="col-sm-3">Current Location</dt><dd class="col-sm-9">{{ e($item->current_location ?? '-') }}</dd>
-            <dt class="col-sm-3">Current Holder</dt><dd class="col-sm-9">{{ e($item->current_holder ?? '-') }}</dd>
+            <dt class="col-sm-3">{{ __('Title') }}</dt><dd class="col-sm-9">{{ e($item->title ?? 'Item #' . ($item->id ?? '')) }}</dd>
+            <dt class="col-sm-3">{{ __('Identifier') }}</dt><dd class="col-sm-9">{{ e($item->identifier ?? '-') }}</dd>
+            <dt class="col-sm-3">{{ __('Current Location') }}</dt><dd class="col-sm-9">{{ e($item->current_location ?? '-') }}</dd>
+            <dt class="col-sm-3">{{ __('Current Holder') }}</dt><dd class="col-sm-9">{{ e($item->current_holder ?? '-') }}</dd>
         </dl>
     </div>
 </div>
@@ -38,7 +38,7 @@
             </tbody>
         </table>
         @else
-        <div class="text-center py-4 text-muted">No custody history.</div>
+        <div class="text-center py-4 text-muted">{{ __('No custody history.') }}</div>
         @endif
     </div>
 </div>

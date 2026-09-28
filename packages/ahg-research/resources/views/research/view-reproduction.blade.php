@@ -5,8 +5,8 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('research.reproductions') }}">Reproductions</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.reproductions') }}">{{ __('Reproductions') }}</a></li>
         <li class="breadcrumb-item active">{{ $reproRequest->reference_number ?: 'DRAFT-' . $reproRequest->id }}</li>
     </ol>
 </nav>
@@ -66,7 +66,7 @@
                 </table>
             </div>
             @else
-            <div class="card-body text-center text-muted py-4"><i class="fas fa-inbox fa-2x mb-2 opacity-50"></i><p>No items yet. Add items from the archive.</p></div>
+            <div class="card-body text-center text-muted py-4"><i class="fas fa-inbox fa-2x mb-2 opacity-50"></i><p>{{ __('No items yet. Add items from the archive.') }}</p></div>
             @endif
         </div>
     </div>

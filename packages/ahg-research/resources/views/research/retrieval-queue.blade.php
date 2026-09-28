@@ -53,7 +53,7 @@
         </h5>
         <div>
             @if(request('status'))
-                <a href="{{ route('research.retrievalQueue') }}" class="btn btn-sm btn-outline-secondary me-1">Show All</a>
+                <a href="{{ route('research.retrievalQueue') }}" class="btn btn-sm btn-outline-secondary me-1">{{ __('Show All') }}</a>
             @endif
             <button type="button" class="btn btn-sm btn-outline-primary" onclick="window.print()"><i class="fas fa-print me-1"></i>{{ __('Print List') }}</button>
         </div>

@@ -3,16 +3,16 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'rooms'])@endsection
 @section('title', 'Room Details')
 @section('content')
-<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item"><a href="{{ route('research.rooms') }}">Rooms</a></li><li class="breadcrumb-item active">{{ e($room->name ?? '') }}</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li><li class="breadcrumb-item"><a href="{{ route('research.rooms') }}">{{ __('Rooms') }}</a></li><li class="breadcrumb-item active">{{ e($room->name ?? '') }}</li></ol></nav>
 <h1 class="h2 mb-4"><i class="fas fa-door-open text-primary me-2"></i>{{ e($room->name ?? 'Room') }}</h1>
 <div class="row"><div class="col-md-8">
-<div class="card mb-4"><div class="card-header" style="background:var(--ahg-primary);color:#fff">Room Information</div><div class="card-body">
+<div class="card mb-4"><div class="card-header" style="background:var(--ahg-primary);color:#fff">{{ __('Room Information') }}</div><div class="card-body">
     <dl class="row mb-0">
-        <dt class="col-sm-3">Name</dt><dd class="col-sm-9">{{ e($room->name ?? '') }}</dd>
-        <dt class="col-sm-3">Code</dt><dd class="col-sm-9"><code>{{ e($room->code ?? '') }}</code></dd>
-        <dt class="col-sm-3">Capacity</dt><dd class="col-sm-9">{{ $room->capacity ?? '-' }}</dd>
-        <dt class="col-sm-3">Location</dt><dd class="col-sm-9">{{ e($room->location ?? '-') }}</dd>
-        <dt class="col-sm-3">Status</dt><dd class="col-sm-9"><span class="badge bg-{{ ($room->is_active ?? false) ? 'success' : 'danger' }}">{{ ($room->is_active ?? false) ? 'Active' : 'Inactive' }}</span></dd>
+        <dt class="col-sm-3">{{ __('Name') }}</dt><dd class="col-sm-9">{{ e($room->name ?? '') }}</dd>
+        <dt class="col-sm-3">{{ __('Code') }}</dt><dd class="col-sm-9"><code>{{ e($room->code ?? '') }}</code></dd>
+        <dt class="col-sm-3">{{ __('Capacity') }}</dt><dd class="col-sm-9">{{ $room->capacity ?? '-' }}</dd>
+        <dt class="col-sm-3">{{ __('Location') }}</dt><dd class="col-sm-9">{{ e($room->location ?? '-') }}</dd>
+        <dt class="col-sm-3">{{ __('Status') }}</dt><dd class="col-sm-9"><span class="badge bg-{{ ($room->is_active ?? false) ? 'success' : 'danger' }}">{{ ($room->is_active ?? false) ? 'Active' : 'Inactive' }}</span></dd>
     </dl>
     @if($room->description ?? false)<hr><p class="mb-0">{{ e($room->description) }}</p>@endif
 </div></div>

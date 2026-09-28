@@ -3,12 +3,12 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'workspace'])@endsection
 @section('title', 'External Access')
 @section('content')
-<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">External Access</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li><li class="breadcrumb-item active">{{ __('External Access') }}</li></ol></nav>
 <h1 class="h2 mb-4"><i class="fas fa-globe text-primary me-2"></i>{{ __('External Access') }}</h1>
 <div class="row">
     <div class="col-md-8">
         <div class="card mb-4">
-            <div class="card-header" style="background:var(--ahg-primary);color:#fff">Shared Links</div>
+            <div class="card-header" style="background:var(--ahg-primary);color:#fff">{{ __('Shared Links') }}</div>
             <div class="card-body p-0">
                 @if(!empty($sharedLinks))
                 <table class="table table-hover mb-0">
@@ -30,7 +30,7 @@
                     </tbody>
                 </table>
                 @else
-                <div class="text-center py-4 text-muted">No shared links yet.</div>
+                <div class="text-center py-4 text-muted">{{ __('No shared links yet.') }}</div>
                 @endif
             </div>
         </div>
@@ -40,11 +40,11 @@
             <div class="card-header"><h6 class="mb-0">{{ __('Create Shared Link') }}</h6></div>
             <div class="card-body">
                 <form method="POST">@csrf
-                    <div class="mb-3"><label class="form-label">Resource <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><select name="resource_id" class="form-select" required><option value="">-- Select --</option>
+                    <div class="mb-3"><label class="form-label">{{ __('Resource') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><select name="resource_id" class="form-select" required><option value="">-- Select --</option>
                         @foreach($resources ?? [] as $res)<option value="{{ $res->id }}">{{ e($res->title ?? '') }}</option>@endforeach
                     </select></div>
-                    <div class="mb-3"><label class="form-label">Access Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="access_type" class="form-select"><option value="view">{{ __('View Only') }}</option><option value="download">{{ __('Download') }}</option><option value="annotate">{{ __('Annotate') }}</option></select></div>
-                    <div class="mb-3"><label class="form-label">Expires <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="datetime-local" name="expires_at" class="form-control"></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Access Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="access_type" class="form-select"><option value="view">{{ __('View Only') }}</option><option value="download">{{ __('Download') }}</option><option value="annotate">{{ __('Annotate') }}</option></select></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Expires') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="datetime-local" name="expires_at" class="form-control"></div>
                     <div class="mb-3"><label class="form-label">Password (optional) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="password" class="form-control"></div>
                     <button type="submit" class="btn atom-btn-white w-100"><i class="fas fa-link me-1"></i>{{ __('Create Link') }}</button>
                 </form>

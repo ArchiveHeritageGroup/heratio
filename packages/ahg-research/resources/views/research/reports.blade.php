@@ -5,8 +5,8 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item active">Reports</li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Reports') }}</li>
     </ol>
 </nav>
 
@@ -22,7 +22,7 @@
 
 {{-- Status Tabs --}}
 <ul class="nav nav-tabs mb-4">
-    <li class="nav-item"><a class="nav-link {{ empty($currentStatus) ? 'active' : '' }}" href="{{ route('research.reports') }}">All</a></li>
+    <li class="nav-item"><a class="nav-link {{ empty($currentStatus) ? 'active' : '' }}" href="{{ route('research.reports') }}">{{ __('All') }}</a></li>
     @foreach(['draft' => 'Draft', 'in_progress' => 'In Progress', 'review' => 'Review', 'completed' => 'Completed'] as $sKey => $sLabel)
     <li class="nav-item"><a class="nav-link {{ ($currentStatus ?? '') === $sKey ? 'active' : '' }}" href="{{ route('research.reports', ['status' => $sKey]) }}">{{ $sLabel }}</a></li>
     @endforeach
@@ -85,7 +85,7 @@
 <div class="text-center py-5">
     <i class="fas fa-file-alt fa-4x text-muted mb-3 opacity-50"></i>
     <h4 class="text-muted">{{ __('No reports yet') }}</h4>
-    <p class="text-muted">Create a report to document your research findings.</p>
+    <p class="text-muted">{{ __('Create a report to document your research findings.') }}</p>
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newReportModal"><i class="fas fa-plus me-1"></i>{{ __('Create First Report') }}</button>
 </div>
 @endif
@@ -101,7 +101,7 @@
         <div class="modal-header"><h5 class="modal-title"><i class="fas fa-file-alt me-2"></i>{{ __('Create New Report') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
             {{-- Step 1: Template --}}
-            <h6 class="mb-3"><span class="badge bg-primary me-2">1</span>Choose a Template</h6>
+            <h6 class="mb-3"><span class="badge bg-primary me-2">1</span>{{ __('Choose a Template') }}</h6>
             @php
                 $tplIcons = [
                     'research_summary' => ['fas fa-clipboard-list', 'primary'],
@@ -135,7 +135,7 @@
             </div>
 
             {{-- Step 2: Details --}}
-            <h6 class="mb-3"><span class="badge bg-primary me-2">2</span>Report Details</h6>
+            <h6 class="mb-3"><span class="badge bg-primary me-2">2</span>{{ __('Report Details') }}</h6>
             <div class="mb-3"><label class="form-label">{{ __('Report Title *') }}</label><input type="text" name="title" class="form-control" required placeholder="{{ __('Enter report title...') }}"></div>
             <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" class="form-control" rows="2" placeholder="{{ __('Brief description...') }}"></textarea></div>
             <div class="mb-3">

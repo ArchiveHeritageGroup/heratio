@@ -10,9 +10,9 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li>
-        <li class="breadcrumb-item active">Mint DOI</li>
+        <li class="breadcrumb-item active">{{ __('Mint DOI') }}</li>
     </ol>
 </nav>
 
@@ -40,7 +40,7 @@
                 @endif
             </div>
         @else
-            <p class="text-muted mb-0">No DOI has been minted for this project yet.</p>
+            <p class="text-muted mb-0">{{ __('No DOI has been minted for this project yet.') }}</p>
         @endif
     </div>
 </div>

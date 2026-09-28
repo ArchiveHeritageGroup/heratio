@@ -5,9 +5,9 @@
 
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id) }}">{{ e($project->title) }}</a></li>
-        <li class="breadcrumb-item active">Map</li>
+        <li class="breadcrumb-item active">{{ __('Map') }}</li>
     </ol>
 </nav>
 
@@ -41,7 +41,7 @@
     <div class="card-header"><h5 class="mb-0">Points ({{ count($points) }})</h5></div>
     <div class="card-body">
         @if(empty($points))
-            <p class="text-muted">No map points yet.</p>
+            <p class="text-muted">{{ __('No map points yet.') }}</p>
         @else
         <div class="table-responsive">
             <table class="table table-sm">
@@ -86,11 +86,11 @@
             <div class="modal-content">
                 <div class="modal-header"><h5 class="modal-title">{{ __('Add Map Point') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
-                    <div class="mb-3"><label class="form-label">Label <span class="text-danger">*</span></label><input type="text" name="label" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Label') }} <span class="text-danger">*</span></label><input type="text" name="label" class="form-control" required></div>
                     <div class="mb-3"><label class="form-label">{{ __('Place Name') }}</label><input type="text" name="place_name" class="form-control"></div>
                     <div class="row mb-3">
-                        <div class="col"><label class="form-label">Latitude <span class="text-danger">*</span></label><input type="number" step="any" name="latitude" id="pointLat" class="form-control" required></div>
-                        <div class="col"><label class="form-label">Longitude <span class="text-danger">*</span></label><input type="number" step="any" name="longitude" id="pointLng" class="form-control" required></div>
+                        <div class="col"><label class="form-label">{{ __('Latitude') }} <span class="text-danger">*</span></label><input type="number" step="any" name="latitude" id="pointLat" class="form-control" required></div>
+                        <div class="col"><label class="form-label">{{ __('Longitude') }} <span class="text-danger">*</span></label><input type="number" step="any" name="longitude" id="pointLng" class="form-control" required></div>
                     </div>
                     <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" class="form-control" rows="2"></textarea></div>
                 </div>
@@ -110,11 +110,11 @@
             <div class="modal-content">
                 <div class="modal-header"><h5 class="modal-title">{{ __('Edit Map Point') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
-                    <div class="mb-3"><label class="form-label">Label <span class="text-danger">*</span></label><input type="text" name="label" id="editPointLabel" class="form-control" required></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Label') }} <span class="text-danger">*</span></label><input type="text" name="label" id="editPointLabel" class="form-control" required></div>
                     <div class="mb-3"><label class="form-label">{{ __('Place Name') }}</label><input type="text" name="place_name" id="editPointPlace" class="form-control"></div>
                     <div class="row mb-3">
-                        <div class="col"><label class="form-label">Latitude <span class="text-danger">*</span></label><input type="number" step="any" name="latitude" id="editPointLat" class="form-control" required></div>
-                        <div class="col"><label class="form-label">Longitude <span class="text-danger">*</span></label><input type="number" step="any" name="longitude" id="editPointLng" class="form-control" required></div>
+                        <div class="col"><label class="form-label">{{ __('Latitude') }} <span class="text-danger">*</span></label><input type="number" step="any" name="latitude" id="editPointLat" class="form-control" required></div>
+                        <div class="col"><label class="form-label">{{ __('Longitude') }} <span class="text-danger">*</span></label><input type="number" step="any" name="longitude" id="editPointLng" class="form-control" required></div>
                     </div>
                     <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" id="editPointDesc" class="form-control" rows="2"></textarea></div>
                 </div>

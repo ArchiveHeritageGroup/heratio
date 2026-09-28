@@ -5,9 +5,9 @@
 
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id) }}">{{ e($project->title) }}</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('research.snapshots', $project->id) }}">Snapshots</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.snapshots', $project->id) }}">{{ __('Snapshots') }}</a></li>
         <li class="breadcrumb-item active">{{ e($snapshot->title) }}</li>
     </ol>
 </nav>
@@ -23,21 +23,21 @@
     <div class="card-body">
         <dl class="row mb-0">
             @if($snapshot->description ?? null)
-            <dt class="col-sm-3">Description</dt>
+            <dt class="col-sm-3">{{ __('Description') }}</dt>
             <dd class="col-sm-9">{{ e($snapshot->description) }}</dd>
             @endif
-            <dt class="col-sm-3">Items</dt>
+            <dt class="col-sm-3">{{ __('Items') }}</dt>
             <dd class="col-sm-9">{{ (int)($snapshot->item_count ?? 0) }}</dd>
             <dt class="col-sm-3">SHA256 Hash</dt>
             <dd class="col-sm-9"><code>{{ $snapshot->hash_sha256 ?? 'Not computed' }}</code></dd>
-            <dt class="col-sm-3">Created</dt>
+            <dt class="col-sm-3">{{ __('Created') }}</dt>
             <dd class="col-sm-9">{{ $snapshot->created_at ?? '' }}</dd>
             @if($snapshot->frozen_at ?? null)
-            <dt class="col-sm-3">Frozen at</dt>
+            <dt class="col-sm-3">{{ __('Frozen at') }}</dt>
             <dd class="col-sm-9">{{ $snapshot->frozen_at }}</dd>
             @endif
             @if($snapshot->citation_id ?? null)
-            <dt class="col-sm-3">Citation ID</dt>
+            <dt class="col-sm-3">{{ __('Citation ID') }}</dt>
             <dd class="col-sm-9"><code>{{ $snapshot->citation_id }}</code></dd>
             @endif
         </dl>
@@ -75,7 +75,7 @@
         </table>
     </div>
     @else
-    <div class="card-body text-muted">No items in this snapshot.</div>
+    <div class="card-body text-muted">{{ __('No items in this snapshot.') }}</div>
     @endif
 </div>
 

@@ -10,9 +10,9 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li>
-        <li class="breadcrumb-item active">Share</li>
+        <li class="breadcrumb-item active">{{ __('Share') }}</li>
     </ol>
 </nav>
 
@@ -42,7 +42,7 @@
                 <small class="text-muted">{{ __('Anyone with this link can view the project.') }}</small>
             </div>
         @else
-            <p class="text-muted mb-3">No share link has been generated for this project yet.</p>
+            <p class="text-muted mb-3">{{ __('No share link has been generated for this project yet.') }}</p>
             <form method="POST">
                 @csrf
                 <input type="hidden" name="form_action" value="generate_token">

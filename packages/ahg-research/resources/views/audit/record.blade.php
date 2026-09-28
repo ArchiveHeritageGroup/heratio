@@ -7,7 +7,7 @@
 <h1><i class="fas fa-history text-primary me-2"></i>History: {{ $tableName ?? '' }} #{{ $recordId ?? '' }}</h1>
 
 @if(empty($timeline))
-  <div class="alert alert-info">No history found for this record.</div>
+  <div class="alert alert-info">{{ __('No history found for this record.') }}</div>
 @else
   @foreach($timeline as $date => $entries)
     <div class="card mb-3">

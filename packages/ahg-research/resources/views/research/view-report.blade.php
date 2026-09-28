@@ -9,8 +9,8 @@
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('research.reports') }}">Reports</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.reports') }}">{{ __('Reports') }}</a></li>
         <li class="breadcrumb-item active">{{ e($report->title) }}</li>
     </ol>
 </nav>
@@ -84,7 +84,7 @@
                             <p>{{ e($section->content) }}</p>
                         @endif
                     @else
-                        <p class="text-muted fst-italic">Click edit to add content to this section.</p>
+                        <p class="text-muted fst-italic">{{ __('Click edit to add content to this section.') }}</p>
                     @endif
                 </div>
                 {{-- Inline Edit (hidden) --}}
@@ -97,14 +97,14 @@
                         <div class="mb-2"><textarea name="content" class="form-control" rows="10">{{ e($section->content ?? '') }}</textarea></div>
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
-                            <button type="button" class="btn btn-sm btn-secondary cancel-edit-btn" data-id="{{ $section->id }}">Cancel</button>
+                            <button type="button" class="btn btn-sm btn-secondary cancel-edit-btn" data-id="{{ $section->id }}">{{ __('Cancel') }}</button>
                         </div>
                     </form>
                 </div>
                 {{-- Section Comments --}}
                 <div class="card-footer bg-transparent">
                     <details>
-                        <summary class="text-muted small" style="cursor:pointer;"><i class="fas fa-comments me-1"></i>Comments</summary>
+                        <summary class="text-muted small" style="cursor:pointer;"><i class="fas fa-comments me-1"></i>{{ __('Comments') }}</summary>
                         <div class="mt-2">
                             <form method="POST" class="mt-2">
                                 @csrf
@@ -122,7 +122,7 @@
         @empty
             <div class="text-center py-4 text-muted">
                 <i class="fas fa-file fa-2x mb-2 opacity-50"></i>
-                <p>No sections yet. Add a section to start building your report.</p>
+                <p>{{ __('No sections yet. Add a section to start building your report.') }}</p>
             </div>
         @endforelse
         </div>
@@ -131,9 +131,9 @@
         <div class="card border-dashed mb-4">
             <div class="card-body">
                 <ul class="nav nav-tabs nav-tabs-sm mb-3" role="tablist">
-                    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#addSingleSection">Add Section</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#addFromTemplate">Load Template</a></li>
-                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#addMultipleSections">Add Multiple</a></li>
+                    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#addSingleSection">{{ __('Add Section') }}</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#addFromTemplate">{{ __('Load Template') }}</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#addMultipleSections">{{ __('Add Multiple') }}</a></li>
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="addSingleSection">
@@ -156,7 +156,7 @@
                         <form method="POST">
                             @csrf
                             <input type="hidden" name="form_action" value="load_template">
-                            <p class="small text-muted mb-2">Load sections from a template. Existing sections are kept.</p>
+                            <p class="small text-muted mb-2">{{ __('Load sections from a template. Existing sections are kept.') }}</p>
                             <div class="row g-2 align-items-end">
                                 <div class="col-md-8">
                                     <select name="template_code" class="form-select form-select-sm">
@@ -175,7 +175,7 @@
                         <form method="POST">
                             @csrf
                             <input type="hidden" name="form_action" value="add_multiple">
-                            <p class="small text-muted mb-2">Select multiple section types to add at once.</p>
+                            <p class="small text-muted mb-2">{{ __('Select multiple section types to add at once.') }}</p>
                             <div class="row g-2 mb-2">
                                 @foreach(['title_page'=>'Title Page','toc'=>'Table of Contents','heading'=>'Heading','text'=>'Text','bibliography'=>'Bibliography','collection_list'=>'Collection List','annotation_list'=>'Annotation List','timeline'=>'Timeline'] as $tk=>$tl)
                                 <div class="col-auto"><div class="form-check"><input type="checkbox" name="section_types[]" value="{{ $tk }}" class="form-check-input" id="multi_{{ $tk }}"><label class="form-check-label small" for="multi_{{ $tk }}">{{ $tl }}</label></div></div>
@@ -205,7 +205,7 @@
         <div class="card border-danger">
             <div class="card-body">
                 <h6 class="card-title text-danger"><i class="fas fa-trash me-1"></i>{{ __('Delete Report') }}</h6>
-                <p class="small text-muted">This will permanently delete the report and all its sections.</p>
+                <p class="small text-muted">{{ __('This will permanently delete the report and all its sections.') }}</p>
                 <form method="POST" onsubmit="return confirm('Are you sure? This cannot be undone.')">
                     @csrf
                     <input type="hidden" name="form_action" value="delete_report">

@@ -10,9 +10,9 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('research.retrievalQueue') }}">Retrieval Queue</a></li>
-        <li class="breadcrumb-item active">Batch Return</li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.retrievalQueue') }}">{{ __('Retrieval Queue') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Batch Return') }}</li>
     </ol>
 </nav>
 
@@ -21,7 +21,7 @@
 <form method="POST">
     @csrf
     <div class="card mb-4">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff">Select Items to Return</div>
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff">{{ __('Select Items to Return') }}</div>
         <div class="card-body p-0">
             <table class="table table-hover mb-0">
                 <thead class="table-light">
@@ -48,7 +48,7 @@
         </div>
         <div class="card-footer">
             <button type="submit" class="btn atom-btn-white"><i class="fas fa-undo me-1"></i>{{ __('Return Selected') }}</button>
-            <a href="{{ route('research.retrievalQueue') }}" class="btn atom-btn-white">Cancel</a>
+            <a href="{{ route('research.retrievalQueue') }}" class="btn atom-btn-white">{{ __('Cancel') }}</a>
         </div>
     </div>
 </form>

@@ -3,27 +3,27 @@
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'projects'])@endsection
 @section('title', 'View Assertion')
 @section('content')
-<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li><li class="breadcrumb-item active">Assertion</li></ol></nav>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li><li class="breadcrumb-item active">{{ __('Assertion') }}</li></ol></nav>
 <h1 class="h2 mb-4"><i class="fas fa-gavel text-primary me-2"></i>{{ __('Assertion') }}</h1>
 <div class="row"><div class="col-md-8">
-<div class="card mb-4"><div class="card-header" style="background:var(--ahg-primary);color:#fff">Claim</div><div class="card-body">
+<div class="card mb-4"><div class="card-header" style="background:var(--ahg-primary);color:#fff">{{ __('Claim') }}</div><div class="card-body">
     <h5>{{ e($assertion->claim ?? '') }}</h5>
     <span class="badge bg-{{ match($assertion->status ?? '') { 'approved' => 'success', 'rejected' => 'danger', 'flagged' => 'warning', default => 'secondary' } }}">{{ ucfirst($assertion->status ?? 'pending') }}</span>
     <span class="badge bg-info ms-2">Confidence: {{ number_format(($assertion->confidence ?? 0) * 100) }}%</span>
 </div></div>
 @if($assertion->evidence ?? false)
-<div class="card mb-4"><div class="card-header">Evidence</div><div class="card-body">{{ e($assertion->evidence) }}</div></div>
+<div class="card mb-4"><div class="card-header">{{ __('Evidence') }}</div><div class="card-body">{{ e($assertion->evidence) }}</div></div>
 @endif
 @if($assertion->reasoning ?? false)
-<div class="card mb-4"><div class="card-header">Reasoning</div><div class="card-body">{{ e($assertion->reasoning) }}</div></div>
+<div class="card mb-4"><div class="card-header">{{ __('Reasoning') }}</div><div class="card-body">{{ e($assertion->reasoning) }}</div></div>
 @endif
 </div><div class="col-md-4">
 <div class="card mb-4"><div class="card-header"><h6 class="mb-0">{{ __('Details') }}</h6></div><div class="card-body small">
     <dl class="row mb-0">
-        <dt class="col-5">Researcher</dt><dd class="col-7">{{ e(($assertion->first_name ?? '') . ' ' . ($assertion->last_name ?? '')) }}</dd>
-        <dt class="col-5">Source</dt><dd class="col-7">{{ e($assertion->source_title ?? '-') }}</dd>
-        <dt class="col-5">Created</dt><dd class="col-7">{{ $assertion->created_at ?? '' }}</dd>
-        <dt class="col-5">Updated</dt><dd class="col-7">{{ $assertion->updated_at ?? '' }}</dd>
+        <dt class="col-5">{{ __('Researcher') }}</dt><dd class="col-7">{{ e(($assertion->first_name ?? '') . ' ' . ($assertion->last_name ?? '')) }}</dd>
+        <dt class="col-5">{{ __('Source') }}</dt><dd class="col-7">{{ e($assertion->source_title ?? '-') }}</dd>
+        <dt class="col-5">{{ __('Created') }}</dt><dd class="col-7">{{ $assertion->created_at ?? '' }}</dd>
+        <dt class="col-5">{{ __('Updated') }}</dt><dd class="col-7">{{ $assertion->updated_at ?? '' }}</dd>
     </dl>
 </div></div>
 @if(($assertion->status ?? '') === 'pending')

@@ -48,21 +48,21 @@
       <div class="row">
         <div class="col-md-6">
           <dl class="row mb-0">
-            <dt class="col-sm-4">Name</dt>
+            <dt class="col-sm-4">{{ __('Name') }}</dt>
             <dd class="col-sm-8">{{ e($researcher->title ?? '') }} {{ e($researcher->first_name ?? '') }} {{ e($researcher->last_name ?? '') }}</dd>
-            <dt class="col-sm-4">Email</dt>
+            <dt class="col-sm-4">{{ __('Email') }}</dt>
             <dd class="col-sm-8">{{ e($researcher->email ?? '') }}</dd>
-            <dt class="col-sm-4">Phone</dt>
+            <dt class="col-sm-4">{{ __('Phone') }}</dt>
             <dd class="col-sm-8">{{ e($researcher->phone ?? '-') }}</dd>
           </dl>
         </div>
         <div class="col-md-6">
           <dl class="row mb-0">
-            <dt class="col-sm-4">ID Type</dt>
+            <dt class="col-sm-4">{{ __('ID Type') }}</dt>
             <dd class="col-sm-8">{{ e(ucfirst(str_replace('_', ' ', $researcher->id_type ?? '-'))) }}</dd>
-            <dt class="col-sm-4">ID Number</dt>
+            <dt class="col-sm-4">{{ __('ID Number') }}</dt>
             <dd class="col-sm-8">{{ e($researcher->id_number ?? '-') }}</dd>
-            <dt class="col-sm-4">Student ID</dt>
+            <dt class="col-sm-4">{{ __('Student ID') }}</dt>
             <dd class="col-sm-8">{{ e($researcher->student_id ?? '-') }}</dd>
           </dl>
         </div>
@@ -75,15 +75,15 @@
     <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-university me-2"></i>{{ __('Affiliation') }}</div>
     <div class="card-body">
       <dl class="row mb-0">
-        <dt class="col-sm-3">Affiliation Type</dt>
+        <dt class="col-sm-3">{{ __('Affiliation Type') }}</dt>
         <dd class="col-sm-9">{{ e(ucfirst($researcher->affiliation_type ?? '-')) }}</dd>
-        <dt class="col-sm-3">Institution</dt>
+        <dt class="col-sm-3">{{ __('Institution') }}</dt>
         <dd class="col-sm-9">{{ e($researcher->institution ?? '-') }}</dd>
-        <dt class="col-sm-3">Department</dt>
+        <dt class="col-sm-3">{{ __('Department') }}</dt>
         <dd class="col-sm-9">{{ e($researcher->department ?? '-') }}</dd>
-        <dt class="col-sm-3">Position</dt>
+        <dt class="col-sm-3">{{ __('Position') }}</dt>
         <dd class="col-sm-9">{{ e($researcher->position ?? '-') }}</dd>
-        <dt class="col-sm-3">ORCID iD</dt>
+        <dt class="col-sm-3">{{ __('ORCID iD') }}</dt>
         <dd class="col-sm-9">{{ e($researcher->orcid_id ?? '-') }}</dd>
       </dl>
     </div>
@@ -140,7 +140,7 @@
           </table>
         </div>
       @else
-        <p class="text-muted mb-0">No booking history.</p>
+        <p class="text-muted mb-0">{{ __('No booking history.') }}</p>
       @endif
     </div>
   </div>
@@ -207,7 +207,7 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label for="rejection_reason" class="form-label">Reason for Rejection <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label for="rejection_reason" class="form-label">{{ __('Reason for Rejection') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <textarea name="rejection_reason" id="rejection_reason" class="form-control" rows="4" required></textarea>
             </div>
           </div>

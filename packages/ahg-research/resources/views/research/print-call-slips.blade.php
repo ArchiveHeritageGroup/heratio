@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Call Slips - Print</title>
+    <title>{{ __('Call Slips - Print') }}</title>
     <style>
         @media print { body { margin: 0; padding: 0; } .no-print { display: none !important; } @page { margin: 10mm; } }
         body { font-family: Arial, sans-serif; font-size: 10pt; line-height: 1.4; }

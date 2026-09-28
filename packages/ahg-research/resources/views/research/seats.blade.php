@@ -100,7 +100,7 @@
                 @else
                 <div class="card-body text-center text-muted py-4">
                     <i class="fas fa-info-circle fa-2x mb-2"></i>
-                    <p>No seats configured. Add seats or use Bulk Create.</p>
+                    <p>{{ __('No seats configured. Add seats or use Bulk Create.') }}</p>
                 </div>
                 @endif
             </div>
@@ -153,7 +153,7 @@
 @elseif(!($roomId ?? false))
 <div class="text-center text-muted py-5">
     <i class="fas fa-hand-pointer fa-3x mb-3"></i>
-    <p>Select a reading room above to manage its seats.</p>
+    <p>{{ __('Select a reading room above to manage its seats.') }}</p>
 </div>
 @endif
 
@@ -195,7 +195,7 @@
 {{-- Assign Seat Modal --}}
 <div class="modal fade" id="assignSeatModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
     <form method="POST">@csrf<input type="hidden" name="form_action" value="assign"><input type="hidden" name="seat_id" id="assignSeatId"><input type="hidden" name="room_id" value="{{ $roomId ?? '' }}">
-    <div class="modal-header"><h5 class="modal-title">Assign Seat <span id="assignSeatNumber"></span></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <div class="modal-header"><h5 class="modal-title">{{ __('Assign Seat') }} <span id="assignSeatNumber"></span></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
     <div class="modal-body">
         <div class="mb-3"><label class="form-label">{{ __('Researcher *') }}</label><select id="assignResearcherSearch" name="researcher_id" required></select></div>
     </div>

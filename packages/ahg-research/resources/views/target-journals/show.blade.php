@@ -15,7 +15,7 @@
       @if ($journal['publisher'])<div class="text-muted">{{ $journal['publisher'] }}</div>@endif
       <small class="text-muted">
         @if($journal['issn'])ISSN {{ $journal['issn'] }}@endif @if($journal['eissn'])· eISSN {{ $journal['eissn'] }}@endif
-        @if($journal['open_access'])· <span class="badge bg-success">Open access</span>@endif
+        @if($journal['open_access'])· <span class="badge bg-success">{{ __('Open access') }}</span>@endif
         @if($journal['status'] !== 'active')· <span class="badge bg-secondary">{{ ucfirst($journal['status']) }}</span>@endif
       </small>
     </div>

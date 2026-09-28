@@ -28,21 +28,21 @@
       <div class="row">
         <div class="col-md-6">
           <dl class="row mb-0">
-            <dt class="col-sm-4">Date</dt>
+            <dt class="col-sm-4">{{ __('Date') }}</dt>
             <dd class="col-sm-8">{{ e($booking->booking_date ?? '-') }}</dd>
-            <dt class="col-sm-4">Start Time</dt>
+            <dt class="col-sm-4">{{ __('Start Time') }}</dt>
             <dd class="col-sm-8">{{ e($booking->start_time ?? '-') }}</dd>
-            <dt class="col-sm-4">End Time</dt>
+            <dt class="col-sm-4">{{ __('End Time') }}</dt>
             <dd class="col-sm-8">{{ e($booking->end_time ?? '-') }}</dd>
           </dl>
         </div>
         <div class="col-md-6">
           <dl class="row mb-0">
-            <dt class="col-sm-4">Room</dt>
+            <dt class="col-sm-4">{{ __('Room') }}</dt>
             <dd class="col-sm-8">{{ e($booking->room_name ?? '-') }}</dd>
-            <dt class="col-sm-4">Check-in</dt>
+            <dt class="col-sm-4">{{ __('Check-in') }}</dt>
             <dd class="col-sm-8">{{ e($booking->checked_in_at ?? '-') }}</dd>
-            <dt class="col-sm-4">Check-out</dt>
+            <dt class="col-sm-4">{{ __('Check-out') }}</dt>
             <dd class="col-sm-8">{{ e($booking->checked_out_at ?? '-') }}</dd>
           </dl>
         </div>
@@ -55,7 +55,7 @@
     <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-user me-2"></i>{{ __('Researcher') }}</div>
     <div class="card-body">
       <dl class="row mb-0">
-        <dt class="col-sm-3">Name</dt>
+        <dt class="col-sm-3">{{ __('Name') }}</dt>
         <dd class="col-sm-9">
           @if($isAdmin ?? false)
             <a href="{{ route('research.viewResearcher', $booking->researcher_id ?? 0) }}">
@@ -65,9 +65,9 @@
             {{ e($booking->researcher_name ?? '-') }}
           @endif
         </dd>
-        <dt class="col-sm-3">Email</dt>
+        <dt class="col-sm-3">{{ __('Email') }}</dt>
         <dd class="col-sm-9">{{ e($booking->researcher_email ?? '-') }}</dd>
-        <dt class="col-sm-3">Institution</dt>
+        <dt class="col-sm-3">{{ __('Institution') }}</dt>
         <dd class="col-sm-9">{{ e($booking->researcher_institution ?? '-') }}</dd>
       </dl>
     </div>
@@ -122,7 +122,7 @@
           </table>
         </div>
       @else
-        <p class="text-muted mb-0">No materials requested.</p>
+        <p class="text-muted mb-0">{{ __('No materials requested.') }}</p>
       @endif
     </div>
   </div>

@@ -5,9 +5,9 @@
 
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id) }}">{{ e($project->title) }}</a></li>
-        <li class="breadcrumb-item active">Snapshots</li>
+        <li class="breadcrumb-item active">{{ __('Snapshots') }}</li>
     </ol>
 </nav>
 
@@ -37,7 +37,7 @@
                 <td><code class="small">{{ Str::limit($s->hash_sha256 ?? '', 12, '...') }}</code></td>
                 <td><span class="badge bg-{{ ($s->status ?? '') === 'active' ? 'success' : 'secondary' }}">{{ ucfirst($s->status ?? 'created') }}</span></td>
                 <td><small>{{ $s->created_at ?? '' }}</small></td>
-                <td><a href="{{ route('research.viewSnapshot', $s->id) }}" class="btn btn-sm btn-outline-primary">View</a></td>
+                <td><a href="{{ route('research.viewSnapshot', $s->id) }}" class="btn btn-sm btn-outline-primary">{{ __('View') }}</a></td>
             </tr>
         @endforeach
         </tbody>
@@ -55,7 +55,7 @@
                 <div class="modal-header"><h5 class="modal-title">{{ __('Create Snapshot') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Title <span class="text-danger">*</span></label>
+                        <label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
                         <input type="text" name="title" class="form-control" required>
                     </div>
                     <div class="mb-3">

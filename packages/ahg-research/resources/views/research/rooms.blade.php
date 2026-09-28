@@ -3,8 +3,8 @@
 @section('title-block')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.index') }}">Research</a></li>
-        <li class="breadcrumb-item active">Reading Rooms</li>
+        <li class="breadcrumb-item"><a href="{{ route('research.index') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Reading Rooms') }}</li>
     </ol>
 </nav>
 <h1><i class="fas fa-door-open me-2"></i>{{ __('Reading Rooms') }}</h1>

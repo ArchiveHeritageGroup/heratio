@@ -5,8 +5,8 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item active">Reproduction Requests</li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Reproduction Requests') }}</li>
     </ol>
 </nav>
 
@@ -73,7 +73,7 @@
     <div class="card-body text-center py-5">
         <i class="fas fa-copy fa-3x text-muted mb-3"></i>
         <h5>{{ __('No Reproduction Requests') }}</h5>
-        <p class="text-muted">Request copies or scans of archival materials.</p>
+        <p class="text-muted">{{ __('Request copies or scans of archival materials.') }}</p>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newRequestModal"><i class="fas fa-plus me-1"></i>{{ __('New Request') }}</button>
     </div>
 </div>
@@ -130,7 +130,7 @@
                 </div>
             </div>
             <hr>
-            <h6><span class="badge bg-primary me-1">{{ __('Optional') }}</span> Add First Item</h6>
+            <h6><span class="badge bg-primary me-1">{{ __('Optional') }}</span> {{ __('Add First Item') }}</h6>
             <input type="hidden" name="object_id" id="createReproObjectId">
             <div class="mb-3">
                 <label class="form-label">{{ __('Archive Item') }}</label>

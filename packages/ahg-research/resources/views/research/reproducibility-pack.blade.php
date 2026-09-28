@@ -5,9 +5,9 @@
 
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id) }}">{{ e($project->title) }}</a></li>
-        <li class="breadcrumb-item active">Reproducibility Pack</li>
+        <li class="breadcrumb-item active">{{ __('Reproducibility Pack') }}</li>
     </ol>
 </nav>
 
@@ -61,16 +61,16 @@
     <div class="card-header"><h5 class="mb-0">{{ __('Project Metadata') }}</h5></div>
     <div class="card-body">
         <dl class="row mb-0">
-            <dt class="col-sm-3">Title</dt><dd class="col-sm-9">{{ e($project->title) }}</dd>
-            <dt class="col-sm-3">Status</dt><dd class="col-sm-9"><span class="badge bg-{{ match($project->status ?? '') { 'active' => 'success', 'completed' => 'primary', 'on_hold' => 'warning', default => 'secondary' } }}">{{ ucfirst($project->status ?? 'unknown') }}</span></dd>
+            <dt class="col-sm-3">{{ __('Title') }}</dt><dd class="col-sm-9">{{ e($project->title) }}</dd>
+            <dt class="col-sm-3">{{ __('Status') }}</dt><dd class="col-sm-9"><span class="badge bg-{{ match($project->status ?? '') { 'active' => 'success', 'completed' => 'primary', 'on_hold' => 'warning', default => 'secondary' } }}">{{ ucfirst($project->status ?? 'unknown') }}</span></dd>
             @if($project->description ?? null)
-            <dt class="col-sm-3">Description</dt><dd class="col-sm-9">{{ e($project->description) }}</dd>
+            <dt class="col-sm-3">{{ __('Description') }}</dt><dd class="col-sm-9">{{ e($project->description) }}</dd>
             @endif
             @if($project->institution ?? null)
-            <dt class="col-sm-3">Institution</dt><dd class="col-sm-9">{{ e($project->institution) }}</dd>
+            <dt class="col-sm-3">{{ __('Institution') }}</dt><dd class="col-sm-9">{{ e($project->institution) }}</dd>
             @endif
-            <dt class="col-sm-3">Created</dt><dd class="col-sm-9">{{ $project->created_at ?? '' }}</dd>
-            <dt class="col-sm-3">Integrity Hash</dt><dd class="col-sm-9"><code>{{ hash('sha256', json_encode([$project->id, count($assertions ?? []), count($snapshots ?? []), count($milestones ?? [])])) }}</code></dd>
+            <dt class="col-sm-3">{{ __('Created') }}</dt><dd class="col-sm-9">{{ $project->created_at ?? '' }}</dd>
+            <dt class="col-sm-3">{{ __('Integrity Hash') }}</dt><dd class="col-sm-9"><code>{{ hash('sha256', json_encode([$project->id, count($assertions ?? []), count($snapshots ?? []), count($milestones ?? [])])) }}</code></dd>
         </dl>
     </div>
 </div>
@@ -79,7 +79,7 @@
 <div class="card mb-4">
     <div class="card-header d-flex justify-content-between">
         <h5 class="mb-0">Snapshots ({{ count($snapshots ?? []) }})</h5>
-        <a href="{{ route('research.snapshots', $project->id) }}" class="btn btn-sm btn-outline-primary">Manage</a>
+        <a href="{{ route('research.snapshots', $project->id) }}" class="btn btn-sm btn-outline-primary">{{ __('Manage') }}</a>
     </div>
     <div class="card-body">
         @if(!empty($snapshots))
@@ -98,7 +98,7 @@
             </table>
         </div>
         @else
-        <p class="text-muted mb-0">No snapshots.</p>
+        <p class="text-muted mb-0">{{ __('No snapshots.') }}</p>
         @endif
     </div>
 </div>
@@ -117,7 +117,7 @@
             @endforeach
         </ul>
         @else
-        <p class="text-muted mb-0">No search queries recorded.</p>
+        <p class="text-muted mb-0">{{ __('No search queries recorded.') }}</p>
         @endif
     </div>
 </div>
@@ -126,7 +126,7 @@
 <div class="card mb-4">
     <div class="card-header d-flex justify-content-between">
         <h5 class="mb-0">Milestones ({{ count($milestones ?? []) }})</h5>
-        <a href="{{ route('research.ethicsMilestones', $project->id) }}" class="btn btn-sm btn-outline-primary">Manage</a>
+        <a href="{{ route('research.ethicsMilestones', $project->id) }}" class="btn btn-sm btn-outline-primary">{{ __('Manage') }}</a>
     </div>
     <ul class="list-group list-group-flush">
         @forelse($milestones ?? [] as $m)
@@ -135,7 +135,7 @@
             <span class="badge bg-{{ match($m->status ?? '') { 'completed' => 'success', 'approved' => 'success', 'in_progress' => 'primary', default => 'secondary' } }}">{{ ucfirst(str_replace('_', ' ', $m->status ?? 'pending')) }}</span>
         </li>
         @empty
-        <li class="list-group-item text-muted small">No milestones.</li>
+        <li class="list-group-item text-muted small">{{ __('No milestones.') }}</li>
         @endforelse
     </ul>
 </div>
@@ -160,7 +160,7 @@
                     @endforeach
                 </ul>
                 @else
-                <p class="text-muted mb-0">No assertions.</p>
+                <p class="text-muted mb-0">{{ __('No assertions.') }}</p>
                 @endif
             </div>
         </div>
@@ -182,7 +182,7 @@
                     @endforeach
                 </ul>
                 @else
-                <p class="text-muted mb-0">No extraction jobs.</p>
+                <p class="text-muted mb-0">{{ __('No extraction jobs.') }}</p>
                 @endif
             </div>
         </div>
@@ -205,7 +205,7 @@
             <span class="badge bg-secondary">{{ ucfirst(str_replace('_', ' ', $r->resource_type ?? '')) }}</span>
         </li>
         @empty
-        <li class="list-group-item text-muted small">No resources.</li>
+        <li class="list-group-item text-muted small">{{ __('No resources.') }}</li>
         @endforelse
     </ul>
 </div>
@@ -220,7 +220,7 @@
             <span class="badge bg-{{ match($h->status ?? '') { 'supported' => 'success', 'refuted' => 'danger', 'testing' => 'info', default => 'warning' } }}">{{ ucfirst($h->status ?? 'proposed') }}</span>
         </li>
         @empty
-        <li class="list-group-item text-muted small">No hypotheses.</li>
+        <li class="list-group-item text-muted small">{{ __('No hypotheses.') }}</li>
         @endforelse
     </ul>
 </div>

@@ -31,27 +31,27 @@
   <ul class="nav nav-pills mb-4">
     <li class="nav-item">
       <a class="nav-link {{ $cs === 'all' ? 'active' : '' }}" href="{{ route('research.researchers') }}">
-        All <span class="badge bg-{{ $cs === 'all' ? 'white text-primary' : 'secondary' }} ms-1">{{ (int) ($counts['all'] ?? 0) }}</span>
+        {{ __('All') }} <span class="badge bg-{{ $cs === 'all' ? 'white text-primary' : 'secondary' }} ms-1">{{ (int) ($counts['all'] ?? 0) }}</span>
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link {{ $cs === 'pending' ? 'active' : '' }}" href="{{ route('research.researchers', ['filter' => 'pending']) }}">
-        Pending <span class="badge bg-{{ $cs === 'pending' ? 'white text-primary' : 'warning text-dark' }} ms-1">{{ (int) ($counts['pending'] ?? 0) }}</span>
+        {{ __('Pending') }} <span class="badge bg-{{ $cs === 'pending' ? 'white text-primary' : 'warning text-dark' }} ms-1">{{ (int) ($counts['pending'] ?? 0) }}</span>
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link {{ $cs === 'approved' ? 'active' : '' }}" href="{{ route('research.researchers', ['filter' => 'approved']) }}">
-        Approved <span class="badge bg-{{ $cs === 'approved' ? 'white text-primary' : 'success' }} ms-1">{{ (int) ($counts['approved'] ?? 0) }}</span>
+        {{ __('Approved') }} <span class="badge bg-{{ $cs === 'approved' ? 'white text-primary' : 'success' }} ms-1">{{ (int) ($counts['approved'] ?? 0) }}</span>
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link {{ $cs === 'suspended' ? 'active' : '' }}" href="{{ route('research.researchers', ['filter' => 'suspended']) }}">
-        Suspended <span class="badge bg-{{ $cs === 'suspended' ? 'white text-primary' : 'danger' }} ms-1">{{ (int) ($counts['suspended'] ?? 0) }}</span>
+        {{ __('Suspended') }} <span class="badge bg-{{ $cs === 'suspended' ? 'white text-primary' : 'danger' }} ms-1">{{ (int) ($counts['suspended'] ?? 0) }}</span>
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link {{ $cs === 'expired' ? 'active' : '' }}" href="{{ route('research.researchers', ['filter' => 'expired']) }}">
-        Expired <span class="badge bg-{{ $cs === 'expired' ? 'white text-primary' : 'secondary' }} ms-1">{{ (int) ($counts['expired'] ?? 0) }}</span>
+        {{ __('Expired') }} <span class="badge bg-{{ $cs === 'expired' ? 'white text-primary' : 'secondary' }} ms-1">{{ (int) ($counts['expired'] ?? 0) }}</span>
       </a>
     </li>
   </ul>
@@ -144,7 +144,7 @@
             </tr>
           @empty
             <tr>
-              <td colspan="7" class="text-center text-muted py-4">No researchers found.</td>
+              <td colspan="7" class="text-center text-muted py-4">{{ __('No researchers found.') }}</td>
             </tr>
           @endforelse
         </tbody>

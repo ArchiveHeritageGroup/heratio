@@ -8,8 +8,8 @@
 
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('research.projects') }}">Projects</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.projects') }}">{{ __('Projects') }}</a></li>
         <li class="breadcrumb-item active">{{ e($project->title) }}</li>
     </ol>
 </nav>
@@ -49,30 +49,30 @@
                 @if($project->description)
                     <p>{{ nl2br(e($project->description)) }}</p>
                 @else
-                    <p class="text-muted">No description provided.</p>
+                    <p class="text-muted">{{ __('No description provided.') }}</p>
                 @endif
 
                 <div class="row mt-4">
                     @if($project->institution)
                     <div class="col-md-6 mb-2">
-                        <strong><i class="fas fa-university me-1"></i> Institution:</strong><br>
+                        <strong><i class="fas fa-university me-1"></i> {{ __('Institution:') }}</strong><br>
                         {{ e($project->institution) }}
                     </div>
                     @endif
                     @if($project->supervisor ?? null)
                     <div class="col-md-6 mb-2">
-                        <strong><i class="fas fa-user-tie me-1"></i> Supervisor:</strong><br>
+                        <strong><i class="fas fa-user-tie me-1"></i> {{ __('Supervisor:') }}</strong><br>
                         {{ e($project->supervisor) }}
                     </div>
                     @endif
                     @if($project->funding_source ?? null)
                     <div class="col-md-6 mb-2">
-                        <strong><i class="fas fa-money-bill me-1"></i> Funding:</strong><br>
+                        <strong><i class="fas fa-money-bill me-1"></i> {{ __('Funding:') }}</strong><br>
                         {{ e($project->funding_source) }}
                     </div>
                     @endif
                     <div class="col-md-6 mb-2">
-                        <strong><i class="fas fa-calendar me-1"></i> Timeline:</strong><br>
+                        <strong><i class="fas fa-calendar me-1"></i> {{ __('Timeline:') }}</strong><br>
                         @if($project->start_date)
                             {{ date('M j, Y', strtotime($project->start_date)) }}
                             @if($project->expected_end_date) - {{ date('M j, Y', strtotime($project->expected_end_date)) }}@endif
@@ -164,7 +164,7 @@
                     @endforeach
                 </div>
                 @else
-                <p class="text-muted mb-0">No milestones defined.</p>
+                <p class="text-muted mb-0">{{ __('No milestones defined.') }}</p>
                 @endif
             </div>
         </div>
@@ -221,7 +221,7 @@
                     @endforeach
                 </div>
                 @else
-                <p class="text-muted mb-0">No timeline events yet.</p>
+                <p class="text-muted mb-0">{{ __('No timeline events yet.') }}</p>
                 @endif
             </div>
         </div>
@@ -349,7 +349,7 @@
                 @else
                 <div class="card-body text-center text-muted py-4">
                     <i class="fas fa-file-alt fa-2x mb-2 opacity-50"></i>
-                    <p class="mb-2">No reports yet</p>
+                    <p class="mb-2">{{ __('No reports yet') }}</p>
                     <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#newProjectReportModal">{{ __('Create first report') }}</button>
                 </div>
                 @endif
@@ -433,7 +433,7 @@
                 @endforeach
             </ul>
             @else
-            <div class="card-body text-muted">No collaborators</div>
+            <div class="card-body text-muted">{{ __('No collaborators') }}</div>
             @endif
         </div>
 
@@ -455,7 +455,7 @@
                 @endforeach
             </ul>
             @else
-            <div class="card-body text-muted">No activity recorded yet.</div>
+            <div class="card-body text-muted">{{ __('No activity recorded yet.') }}</div>
             @endif
         </div>
     </div>

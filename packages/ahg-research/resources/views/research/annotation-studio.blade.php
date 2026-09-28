@@ -10,11 +10,11 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
         @if(!empty($objectSlug))
             <li class="breadcrumb-item"><a href="/{{ e($objectSlug) }}">{{ e($objectTitle ?? '') }}</a></li>
         @endif
-        <li class="breadcrumb-item active">Annotation Studio</li>
+        <li class="breadcrumb-item active">{{ __('Annotation Studio') }}</li>
     </ol>
 </nav>
 
@@ -37,7 +37,7 @@
 
 @if($has3D && $hasImage)
 <ul class="nav nav-tabs mb-3" role="tablist">
-    <li class="nav-item"><a class="nav-link {{ $defaultMode === 'image' ? 'active' : '' }}" data-bs-toggle="tab" href="#imageTab">Image</a></li>
+    <li class="nav-item"><a class="nav-link {{ $defaultMode === 'image' ? 'active' : '' }}" data-bs-toggle="tab" href="#imageTab">{{ __('Image') }}</a></li>
     <li class="nav-item"><a class="nav-link {{ $defaultMode === '3d' ? 'active' : '' }}" data-bs-toggle="tab" href="#threeDTab">3D Model</a></li>
 </ul>
 @endif
@@ -52,7 +52,7 @@
                 @else
                 <div class="text-center py-5 text-muted">
                     <i class="fas fa-image fa-3x mb-3 opacity-50"></i>
-                    <p>No digital object available for annotation.</p>
+                    <p>{{ __('No digital object available for annotation.') }}</p>
                 </div>
                 @endif
             </div>
@@ -118,11 +118,11 @@
                     <input type="hidden" name="object_id" value="{{ $objectId ?? 0 }}">
                     <input type="hidden" name="target_selector" id="targetSelector" value="">
                     <div class="mb-3">
-                        <label class="form-label">Title <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                        <label class="form-label">{{ __('Title') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <input type="text" name="title" class="form-control form-control-sm" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label class="form-label">{{ __('Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <select name="annotation_type" class="form-select form-select-sm">
                             <option value="comment">{{ __('Comment') }}</option>
                             <option value="transcription">{{ __('Transcription') }}</option>
@@ -133,11 +133,11 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Content <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label class="form-label">{{ __('Content') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <textarea name="content" class="form-control form-control-sm" rows="4"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Tags <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label class="form-label">{{ __('Tags') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <input type="text" name="tags" class="form-control form-control-sm" placeholder="{{ __('comma-separated') }}">
                     </div>
                     <div class="d-flex gap-2">
@@ -168,8 +168,8 @@
             <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Object Info') }}</h6></div>
             <div class="card-body">
                 <dl class="row mb-0 small">
-                    <dt class="col-sm-4">Title</dt><dd class="col-sm-8">{{ e($objectTitle ?? 'N/A') }}</dd>
-                    <dt class="col-sm-4">Type</dt><dd class="col-sm-8">{{ e($objectType ?? 'N/A') }}</dd>
+                    <dt class="col-sm-4">{{ __('Title') }}</dt><dd class="col-sm-8">{{ e($objectTitle ?? 'N/A') }}</dd>
+                    <dt class="col-sm-4">{{ __('Type') }}</dt><dd class="col-sm-8">{{ e($objectType ?? 'N/A') }}</dd>
                     @if(!empty($objectIdentifier))
                     <dt class="col-sm-4">ID</dt><dd class="col-sm-8">{{ e($objectIdentifier) }}</dd>
                     @endif
@@ -186,7 +186,7 @@
             <div class="modal-header"><h5 class="modal-title">{{ __('Import IIIF Annotations') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label class="form-label">IIIF Annotation List URL or JSON <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-label">{{ __('IIIF Annotation List URL or JSON') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <textarea id="iiifImportData" class="form-control" rows="6" placeholder="{{ __('Paste IIIF annotation list JSON or URL...') }}"></textarea>
                 </div>
             </div>

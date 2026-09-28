@@ -9,13 +9,13 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item active">Validation Queue</li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Validation Queue') }}</li>
     </ol>
 </nav>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2">Validation Queue <span class="badge bg-warning">{{ (int) $pendingCount }} pending</span></h1>
+    <h1 class="h2">{{ __('Validation Queue') }} <span class="badge bg-warning">{{ (int) $pendingCount }} pending</span></h1>
 </div>
 
 <!-- Stats bar -->
@@ -68,7 +68,7 @@
 </div>
 
 @if(empty($queue['items'] ?? []))
-    <div class="alert alert-success">No items matching your filters.</div>
+    <div class="alert alert-success">{{ __('No items matching your filters.') }}</div>
 @else
 <div class="table-responsive">
     <table class="table table-hover align-middle">

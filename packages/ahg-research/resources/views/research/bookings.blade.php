@@ -19,7 +19,7 @@
   @if(count($pendingBookings ?? []) > 0)
   <div class="card mb-4">
     <div class="card-header bg-warning text-dark">
-      <i class="fas fa-clock me-2"></i>Pending Confirmation
+      <i class="fas fa-clock me-2"></i>{{ __('Pending Confirmation') }}
       <span class="badge bg-dark float-end">{{ count($pendingBookings) }}</span>
     </div>
     <div class="table-responsive">
@@ -90,7 +90,7 @@
         <tbody>
           @if(count($upcomingBookings ?? []) === 0)
             <tr>
-              <td colspan="6" class="text-center text-muted py-4">No upcoming bookings</td>
+              <td colspan="6" class="text-center text-muted py-4">{{ __('No upcoming bookings') }}</td>
             </tr>
           @else
             @foreach($upcomingBookings as $booking)

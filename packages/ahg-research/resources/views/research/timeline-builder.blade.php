@@ -5,9 +5,9 @@
 
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id) }}">{{ e($project->title) }}</a></li>
-        <li class="breadcrumb-item active">Timeline</li>
+        <li class="breadcrumb-item active">{{ __('Timeline') }}</li>
     </ol>
 </nav>
 
@@ -35,7 +35,7 @@
     <div class="card-header"><h5 class="mb-0">Events ({{ count($events) }})</h5></div>
     <div class="card-body">
         @if(empty($events))
-            <p class="text-muted">No events yet.</p>
+            <p class="text-muted">{{ __('No events yet.') }}</p>
         @else
         <div class="table-responsive">
             <table class="table table-sm">
@@ -73,10 +73,10 @@
         <div class="modal-content">
             <div class="modal-header"><h5 class="modal-title">{{ __('Add Event') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
-                <div class="mb-3"><label class="form-label">Label <span class="text-danger">*</span></label><input type="text" id="eventLabel" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label">{{ __('Label') }} <span class="text-danger">*</span></label><input type="text" id="eventLabel" class="form-control" required></div>
                 <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea id="eventDesc" class="form-control" rows="2"></textarea></div>
                 <div class="row mb-3">
-                    <div class="col"><label class="form-label">Start Date <span class="text-danger">*</span></label><input type="date" id="eventStart" class="form-control" required></div>
+                    <div class="col"><label class="form-label">{{ __('Start Date') }} <span class="text-danger">*</span></label><input type="date" id="eventStart" class="form-control" required></div>
                     <div class="col"><label class="form-label">{{ __('End Date') }}</label><input type="date" id="eventEnd" class="form-control"></div>
                 </div>
                 <div class="mb-3"><label class="form-label">{{ __('Type') }}</label>
@@ -100,10 +100,10 @@
             <div class="modal-header"><h5 class="modal-title">{{ __('Edit Event') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
                 <input type="hidden" id="editEventId">
-                <div class="mb-3"><label class="form-label">Label <span class="text-danger">*</span></label><input type="text" id="editEventLabel" class="form-control" required></div>
+                <div class="mb-3"><label class="form-label">{{ __('Label') }} <span class="text-danger">*</span></label><input type="text" id="editEventLabel" class="form-control" required></div>
                 <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea id="editEventDesc" class="form-control" rows="2"></textarea></div>
                 <div class="row mb-3">
-                    <div class="col"><label class="form-label">Start Date <span class="text-danger">*</span></label><input type="date" id="editEventStart" class="form-control" required></div>
+                    <div class="col"><label class="form-label">{{ __('Start Date') }} <span class="text-danger">*</span></label><input type="date" id="editEventStart" class="form-control" required></div>
                     <div class="col"><label class="form-label">{{ __('End Date') }}</label><input type="date" id="editEventEnd" class="form-control"></div>
                 </div>
                 <div class="mb-3"><label class="form-label">{{ __('Type') }}</label>

@@ -34,7 +34,7 @@
   <div class="card-body">
     <form method="get" class="row g-3">
       <div class="col-md-2">
-        <label class="form-label">Table <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label class="form-label">{{ __('Table') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <select name="table" class="form-select form-select-sm">
           <option value="">{{ __('All Tables') }}</option>
           @foreach($tables ?? [] as $table)
@@ -43,7 +43,7 @@
         </select>
       </div>
       <div class="col-md-2">
-        <label class="form-label">Action <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label class="form-label">{{ __('Action') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <select name="form_action" class="form-select form-select-sm">
           <option value="">{{ __('All Actions') }}</option>
           <option value="create" {{ request('form_action') === 'create' ? 'selected' : '' }}>{{ __('Create') }}</option>
@@ -52,15 +52,15 @@
         </select>
       </div>
       <div class="col-md-2">
-        <label class="form-label">From Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label class="form-label">{{ __('From Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="date" name="from_date" class="form-control form-control-sm" value="{{ request('from_date') }}">
       </div>
       <div class="col-md-2">
-        <label class="form-label">To Date <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label class="form-label">{{ __('To Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="date" name="to_date" class="form-control form-control-sm" value="{{ request('to_date') }}">
       </div>
       <div class="col-md-2">
-        <label class="form-label">Search <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label class="form-label">{{ __('Search') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="text" name="q" class="form-control form-control-sm" value="{{ request('q') }}" placeholder="{{ __('Search...') }}">
       </div>
       <div class="col-md-2 d-flex align-items-end">
@@ -80,7 +80,7 @@
     @if(empty($logs))
       <div class="text-center py-5 text-muted">
         <i class="fas fa-inbox fa-3x mb-3"></i>
-        <p>No audit entries found</p>
+        <p>{{ __('No audit entries found') }}</p>
       </div>
     @else
       <div class="table-responsive">

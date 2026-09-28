@@ -23,7 +23,7 @@
             <i class="fas fa-user-plus me-2"></i>{{ __('Register Now') }}
           </a>
           <div class="mt-2">
-            <small><a href="{{ route('login') }}">Already have an account? Login</a></small>
+            <small><a href="{{ route('login') }}">{{ __('Already have an account? Login') }}</a></small>
           </div>
         </div>
       </div>
@@ -155,7 +155,7 @@
       <div class="card text-center h-100">
         <div class="card-body">
           <h2 class="text-primary">{{ number_format($stats['researchers'] ?? 0) }}</h2>
-          <p class="mb-0">Registered Researchers</p>
+          <p class="mb-0">{{ __('Registered Researchers') }}</p>
         </div>
       </div>
     </div>
@@ -163,7 +163,7 @@
       <div class="card text-center h-100">
         <div class="card-body">
           <h2 class="text-success">{{ number_format($stats['todayBookings'] ?? $stats['bookings_today'] ?? 0) }}</h2>
-          <p class="mb-0">Today's Bookings</p>
+          <p class="mb-0">{{ __('Today\'s Bookings') }}</p>
         </div>
       </div>
     </div>
@@ -171,7 +171,7 @@
       <div class="card text-center h-100">
         <div class="card-body">
           <h2 class="text-info">{{ number_format($stats['weekBookings'] ?? $stats['bookings_week'] ?? 0) }}</h2>
-          <p class="mb-0">This Week</p>
+          <p class="mb-0">{{ __('This Week') }}</p>
         </div>
       </div>
     </div>
@@ -179,7 +179,7 @@
       <div class="card text-center h-100">
         <div class="card-body">
           <h2 class="text-warning">{{ number_format($stats['pendingRequests'] ?? $stats['pending_requests'] ?? 0) }}</h2>
-          <p class="mb-0">Pending Requests</p>
+          <p class="mb-0">{{ __('Pending Requests') }}</p>
         </div>
       </div>
     </div>
@@ -191,7 +191,7 @@
       @php $pending = $pendingApprovals ?? $pendingResearchers ?? collect(); @endphp
       <div class="card mb-4">
         <div class="card-header bg-warning">
-          <i class="fas fa-user-clock me-2"></i>Pending Approvals
+          <i class="fas fa-user-clock me-2"></i>{{ __('Pending Approvals') }}
           <span class="badge bg-dark float-end">{{ count($pending) }}</span>
         </div>
         <ul class="list-group list-group-flush">
@@ -201,13 +201,13 @@
                 <strong>{{ e($applicant->first_name ?? '') }} {{ e($applicant->last_name ?? '') }}</strong><br>
                 <small class="text-muted">{{ e($applicant->institution ?? 'Independent') }}</small>
               </div>
-              <a href="{{ route('research.viewResearcher', $applicant->id) }}" class="btn btn-sm atom-btn-white">Review</a>
+              <a href="{{ route('research.viewResearcher', $applicant->id) }}" class="btn btn-sm atom-btn-white">{{ __('Review') }}</a>
             </li>
           @endforeach
         </ul>
         @if(count($pending) > 5)
           <div class="card-footer text-center">
-            <a href="{{ route('research.researchers', ['status' => 'pending']) }}">View all pending</a>
+            <a href="{{ route('research.researchers', ['status' => 'pending']) }}">{{ __('View all pending') }}</a>
           </div>
         @endif
       </div>
@@ -219,7 +219,7 @@
     <div class="card-header d-flex justify-content-between align-items-center">
       <span><i class="fas fa-calendar-day me-2"></i>{{ __("Today's Schedule") }}</span>
       @auth
-        <a href="{{ route('research.bookings') }}" class="btn btn-sm atom-btn-white">View All</a>
+        <a href="{{ route('research.bookings') }}" class="btn btn-sm atom-btn-white">{{ __('View All') }}</a>
       @endauth
     </div>
     <div class="table-responsive">
@@ -245,7 +245,7 @@
               </td>
             </tr>
           @empty
-            <tr><td colspan="4" class="text-center text-muted py-4">No bookings scheduled for today</td></tr>
+            <tr><td colspan="4" class="text-center text-muted py-4">{{ __('No bookings scheduled for today') }}</td></tr>
           @endforelse
         </tbody>
       </table>
@@ -283,7 +283,7 @@
       <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
           <span><i class="fas fa-sticky-note me-2 text-warning"></i>{{ __('Recent Notes') }}</span>
-          <a href="{{ route('research.annotations') }}" class="btn btn-sm atom-btn-white">All Notes</a>
+          <a href="{{ route('research.annotations') }}" class="btn btn-sm atom-btn-white">{{ __('All Notes') }}</a>
         </div>
         <ul class="list-group list-group-flush">
           @foreach(collect($recentNotes)->take(5) as $note)
@@ -306,7 +306,7 @@
       <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
           <span><i class="fas fa-search me-2 text-info"></i>{{ __('Saved Search Alerts') }}</span>
-          <a href="{{ route('research.savedSearches') }}" class="btn btn-sm atom-btn-white">View All</a>
+          <a href="{{ route('research.savedSearches') }}" class="btn btn-sm atom-btn-white">{{ __('View All') }}</a>
         </div>
         <ul class="list-group list-group-flush">
           @foreach($searchAlerts as $alert)
@@ -326,14 +326,14 @@
     @if(!empty($pendingInvites))
       <div class="card mb-4">
         <div class="card-header">
-          <i class="fas fa-envelope me-2"></i>Pending Invitations
+          <i class="fas fa-envelope me-2"></i>{{ __('Pending Invitations') }}
           <span class="badge bg-white text-info float-end">{{ count($pendingInvites) }}</span>
         </div>
         <ul class="list-group list-group-flush">
           @foreach($pendingInvites as $invite)
             <li class="list-group-item py-2 d-flex justify-content-between align-items-center">
               <span>{{ e($invite->project_title ?? '') }}</span>
-              <a href="{{ route('research.viewProject', ['id' => $invite->project_id ?? 0]) }}" class="btn btn-sm atom-btn-white">View</a>
+              <a href="{{ route('research.viewProject', ['id' => $invite->project_id ?? 0]) }}" class="btn btn-sm atom-btn-white">{{ __('View') }}</a>
             </li>
           @endforeach
         </ul>
@@ -347,7 +347,7 @@
       <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
           <span><i class="fas fa-journal-whills me-2"></i>{{ __('Recent Journal Entries') }}</span>
-          <a href="{{ route('research.journal') }}" class="btn btn-sm atom-btn-white">View All</a>
+          <a href="{{ route('research.journal') }}" class="btn btn-sm atom-btn-white">{{ __('View All') }}</a>
         </div>
         <div class="card-body">
           @if(count($recentJournalEntries ?? []) > 0)
@@ -363,7 +363,7 @@
               @endforeach
             </ul>
           @else
-            <p class="text-muted mb-0">No journal entries yet. <a href="{{ route('research.journal.create') }}">Create your first entry</a>.</p>
+            <p class="text-muted mb-0">{{ __('No journal entries yet.') }} <a href="{{ route('research.journal.create') }}">{{ __('Create your first entry') }}</a>.</p>
           @endif
         </div>
       </div>

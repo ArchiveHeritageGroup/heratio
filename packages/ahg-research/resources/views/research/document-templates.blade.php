@@ -9,8 +9,8 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item active">Document Templates</li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Document Templates') }}</li>
     </ol>
 </nav>
 
@@ -20,7 +20,7 @@
 </div>
 
 @if(empty($templates))
-    <div class="alert alert-info">No document templates defined.</div>
+    <div class="alert alert-info">{{ __('No document templates defined.') }}</div>
 @else
 <div class="row">
     @foreach($templates as $t)
@@ -37,7 +37,7 @@
                     data-name="{{ e($t->name) }}"
                     data-type="{{ e($t->document_type) }}"
                     data-description="{{ e($t->description ?? '') }}"
-                    data-fields="{{ e($t->fields_json ?? '[]') }}">Edit</button>
+                    data-fields="{{ e($t->fields_json ?? '[]') }}">{{ __('Edit') }}</button>
             </div>
         </div>
     </div>
@@ -72,7 +72,7 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Description <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                        <label class="form-label">{{ __('Description') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <textarea name="description" class="form-control" rows="2"></textarea>
                     </div>
                     <div class="mb-3">
@@ -117,7 +117,7 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label class="form-label">{{ __('Description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <textarea name="description" id="editTemplateDescription" class="form-control" rows="2"></textarea>
                     </div>
                     <div class="mb-3">

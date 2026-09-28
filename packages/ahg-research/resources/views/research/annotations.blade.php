@@ -28,16 +28,16 @@
             <input type="text" name="q" class="form-control" placeholder="{{ __('Search notes...') }}" value="{{ e($query ?? '') }}">
             <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
             @if($query ?? '')
-                <a href="{{ route('research.annotations') }}" class="btn btn-outline-secondary">Clear</a>
+                <a href="{{ route('research.annotations') }}" class="btn btn-outline-secondary">{{ __('Clear') }}</a>
             @endif
         </form>
     </div>
     <div class="col-md-6 text-md-end">
         <div class="btn-group btn-group-sm">
-            <a href="{{ route('research.annotations') }}" class="btn btn-outline-secondary {{ empty($visibility ?? '') ? 'active' : '' }}">All</a>
-            <a href="{{ route('research.annotations', ['visibility' => 'private']) }}" class="btn btn-outline-secondary {{ ($visibility ?? '') === 'private' ? 'active' : '' }}">Private</a>
-            <a href="{{ route('research.annotations', ['visibility' => 'shared']) }}" class="btn btn-outline-secondary {{ ($visibility ?? '') === 'shared' ? 'active' : '' }}">Shared</a>
-            <a href="{{ route('research.annotations', ['visibility' => 'public']) }}" class="btn btn-outline-secondary {{ ($visibility ?? '') === 'public' ? 'active' : '' }}">Public</a>
+            <a href="{{ route('research.annotations') }}" class="btn btn-outline-secondary {{ empty($visibility ?? '') ? 'active' : '' }}">{{ __('All') }}</a>
+            <a href="{{ route('research.annotations', ['visibility' => 'private']) }}" class="btn btn-outline-secondary {{ ($visibility ?? '') === 'private' ? 'active' : '' }}">{{ __('Private') }}</a>
+            <a href="{{ route('research.annotations', ['visibility' => 'shared']) }}" class="btn btn-outline-secondary {{ ($visibility ?? '') === 'shared' ? 'active' : '' }}">{{ __('Shared') }}</a>
+            <a href="{{ route('research.annotations', ['visibility' => 'public']) }}" class="btn btn-outline-secondary {{ ($visibility ?? '') === 'public' ? 'active' : '' }}">{{ __('Public') }}</a>
         </div>
     </div>
 </div>
@@ -57,8 +57,8 @@
 @endphp
 @if(!empty($allTags))
 <div class="mb-3">
-    <small class="text-muted me-2"><i class="fas fa-tags"></i> Tags:</small>
-    <a href="{{ route('research.annotations', ['q' => $query ?? '']) }}" class="badge bg-{{ !$activeTag ? 'primary' : 'light text-dark' }} text-decoration-none me-1">All</a>
+    <small class="text-muted me-2"><i class="fas fa-tags"></i> {{ __('Tags:') }}</small>
+    <a href="{{ route('research.annotations', ['q' => $query ?? '']) }}" class="badge bg-{{ !$activeTag ? 'primary' : 'light text-dark' }} text-decoration-none me-1">{{ __('All') }}</a>
     @foreach($allTags as $tagName => $count)
         <a href="{{ route('research.annotations', ['tag' => $tagName, 'q' => $query ?? '']) }}" class="badge bg-{{ $activeTag === $tagName ? 'primary' : 'light text-dark' }} text-decoration-none me-1">{{ e($tagName) }} <small>({{ $count }})</small></a>
     @endforeach

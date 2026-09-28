@@ -5,8 +5,8 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item active">Researcher Types</li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Researcher Types') }}</li>
     </ol>
 </nav>
 
@@ -60,7 +60,7 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="8" class="text-center text-muted py-4">No researcher types configured</td></tr>
+                <tr><td colspan="8" class="text-center text-muted py-4">{{ __('No researcher types configured') }}</td></tr>
             @endforelse
             </tbody>
         </table>

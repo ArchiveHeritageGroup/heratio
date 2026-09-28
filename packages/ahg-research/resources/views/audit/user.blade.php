@@ -9,7 +9,7 @@
 <div class="row mb-4">
   <div class="col-md-6">
     <div class="card">
-      <div class="card-header">Activity by Table</div>
+      <div class="card-header">{{ __('Activity by Table') }}</div>
       <ul class="list-group list-group-flush">
         @foreach($tableStats ?? [] as $stat)
           <li class="list-group-item d-flex justify-content-between">{{ $stat->table_name }}<span class="badge bg-primary">{{ $stat->count }}</span></li>
@@ -19,7 +19,7 @@
   </div>
   <div class="col-md-6">
     <div class="card">
-      <div class="card-header">Activity by Action</div>
+      <div class="card-header">{{ __('Activity by Action') }}</div>
       <ul class="list-group list-group-flush">
         @foreach($actionStats ?? [] as $stat)
           @php $ac = match($stat->action) { 'create' => 'success', 'update' => 'warning', 'delete' => 'danger', default => 'secondary' }; @endphp

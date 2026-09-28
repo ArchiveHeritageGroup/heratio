@@ -7,8 +7,8 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">Research</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('research.workspaces') }}">Workspaces</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.workspaces') }}">{{ __('Workspaces') }}</a></li>
         <li class="breadcrumb-item active">{{ e($workspace->name) }}</li>
     </ol>
 </nav>
@@ -168,7 +168,7 @@
                 @else
                     <div class="text-center text-muted py-4">
                         <i class="fas fa-comments fa-2x mb-2"></i>
-                        <p>No discussions yet</p>
+                        <p>{{ __('No discussions yet') }}</p>
                     </div>
                 @endif
             </div>
@@ -224,7 +224,7 @@
                         @endforeach
                     </div>
                 @else
-                    <p class="text-muted mb-0">No resources shared yet</p>
+                    <p class="text-muted mb-0">{{ __('No resources shared yet') }}</p>
                 @endif
             </div>
         </div>
@@ -277,7 +277,7 @@
                 </li>
                 @endforeach
                 @if(empty($members))
-                <li class="list-group-item text-muted">No members yet</li>
+                <li class="list-group-item text-muted">{{ __('No members yet') }}</li>
                 @endif
             </ul>
         </div>
@@ -343,9 +343,9 @@
                     <div class="mb-3">
                         <label class="form-label">{{ __('Visibility') }}</label>
                         <select name="visibility" class="form-select">
-                            <option value="private" {{ ($workspace->visibility ?? '') === 'private' ? 'selected' : '' }}>Private</option>
-                            <option value="members" {{ ($workspace->visibility ?? '') === 'members' ? 'selected' : '' }}>Members Only</option>
-                            <option value="public" {{ ($workspace->visibility ?? '') === 'public' ? 'selected' : '' }}>Public</option>
+                            <option value="private" {{ ($workspace->visibility ?? '') === 'private' ? 'selected' : '' }}>{{ __('Private') }}</option>
+                            <option value="members" {{ ($workspace->visibility ?? '') === 'members' ? 'selected' : '' }}>{{ __('Members Only') }}</option>
+                            <option value="public" {{ ($workspace->visibility ?? '') === 'public' ? 'selected' : '' }}>{{ __('Public') }}</option>
                         </select>
                     </div>
                 </div>
