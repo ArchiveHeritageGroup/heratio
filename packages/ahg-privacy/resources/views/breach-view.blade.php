@@ -109,7 +109,7 @@ $severityClasses = [
                                 <div>
                                     <strong>{{ __('Regulator Not Notified') }}</strong>
                                     @if($breach->notification_required)
-                                    <br><small class="text-danger">{{ __('Notification required within %hours% hours', ['%hours%' => $jurisdictionInfo['breach_hours'] ?? 72]) }}</small>
+                                    <br><small class="text-danger">@if($jurisdictionInfo['breach_hours'] ?? 72){{ __('Notification required within %hours% hours', ['%hours%' => $jurisdictionInfo['breach_hours'] ?? 72]) }}@else{{ __('Notification required as soon as possible') }}@endif</small>
                                     @endif
                                 </div>
                                 @endif
@@ -226,7 +226,7 @@ $severityClasses = [
                 <div class="card-body small">
                     <p class="mb-2">
                         <strong>{{ __('Notification Deadline') }}:</strong><br>
-                        {{ $jurisdictionInfo['breach_hours'] ?? 72 }} {{ __('hours') }}
+                        {{ ($jurisdictionInfo['breach_hours'] ?? 72) ?: 'ASAP' }} {{ ($jurisdictionInfo['breach_hours'] ?? 72) ? __('hours') : '' }}
                     </p>
                     <p class="mb-0">
                         <strong>{{ __('Regulator') }}:</strong><br>
