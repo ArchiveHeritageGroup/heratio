@@ -46,7 +46,7 @@ class ServicesCheckCommand extends Command
         $timeout = max(1, (int) $this->option('timeout'));
         $checks = [
             $this->probeMysql(),
-            $this->probeHttp('elasticsearch', config('services.elasticsearch.host', env('ELASTICSEARCH_HOST', 'http://localhost:9200')), '/', $timeout),
+            $this->probeHttp('elasticsearch', config('services.elasticsearch.host', (config('ahg-env.elasticsearch_host') ?? 'http://localhost:9200')), '/', $timeout),
             $this->probeHttp('qdrant', AhgSettingsService::get('semantic_qdrant_url', 'http://localhost:6333'), '/readyz', $timeout),
             $this->probeHttp('ollama_embed', AhgSettingsService::get('semantic_embedding_url'), '/api/tags', $timeout),
             $this->probeHttp('ollama_image', AhgSettingsService::get('voice_local_llm_url'), '/api/tags', $timeout),

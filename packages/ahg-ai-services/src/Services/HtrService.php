@@ -57,7 +57,7 @@ class HtrService
         // a protection that has to be re-applied per instance is one that
         // eventually is not, which is exactly how a fix from #131 was still
         // being bypassed months later.
-        $override = (string) env('HTR_SERVICE_URL', '');
+        $override = (string) (config('ahg-env.htr_service_url') ?? '');
         $this->baseUrl = ($override !== '' && ! self::looksLikeNode($override))
             ? rtrim($override, '/')
             : $htrUrl . '/legacy';

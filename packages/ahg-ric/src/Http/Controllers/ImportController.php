@@ -61,7 +61,7 @@ class ImportController extends Controller
             ], 400);
         }
 
-        $maxRows = (int) env('OPENRIC_IMPORT_MAX_ROWS', self::DEFAULT_MAX_ROWS);
+        $maxRows = (int) (config('ahg-env.openric_import_max_rows') ?? self::DEFAULT_MAX_ROWS);
         $dryRun  = filter_var($request->query('dry_run', '0'), FILTER_VALIDATE_BOOLEAN);
 
         // Resolve rows from whatever shape was submitted.

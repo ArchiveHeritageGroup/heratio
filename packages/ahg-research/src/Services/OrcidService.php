@@ -486,11 +486,11 @@ class OrcidService
 
     // ─── Config helpers ────────────────────────────────────────────────
 
-    private function clientId(): ?string     { return env('ORCID_CLIENT_ID'); }
-    private function clientSecret(): ?string { return env('ORCID_CLIENT_SECRET'); }
-    private function redirectUri(): ?string  { return env('ORCID_REDIRECT_URI', url('/research/orcid/callback')); }
-    private function baseUrl(): string       { return rtrim(env('ORCID_BASE', 'https://orcid.org'), '/'); }
-    private function apiBase(): string       { return rtrim(env('ORCID_API_BASE', 'https://pub.orcid.org'), '/'); }
+    private function clientId(): ?string     { return config('ahg-env.orcid_client_id'); }
+    private function clientSecret(): ?string { return config('ahg-env.orcid_client_secret'); }
+    private function redirectUri(): ?string  { return (config('ahg-env.orcid_redirect_uri') ?? url('/research/orcid/callback')); }
+    private function baseUrl(): string       { return rtrim((config('ahg-env.orcid_base') ?? 'https://orcid.org'), '/'); }
+    private function apiBase(): string       { return rtrim((config('ahg-env.orcid_api_base') ?? 'https://pub.orcid.org'), '/'); }
 
     private function encrypt(string $s): string
     {

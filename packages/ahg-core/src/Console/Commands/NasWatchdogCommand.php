@@ -267,7 +267,7 @@ class NasWatchdogCommand extends Command
     private function writeWorkbenchInboxDrop(string $title, string $body, string $state): void
     {
         try {
-            $inbox = (string) (env('WORKBENCH_NOTIFICATIONS_INBOX') ?: self::NOTIFY_INBOX);
+            $inbox = (string) (config('ahg-env.workbench_notifications_inbox') ?: self::NOTIFY_INBOX);
             if (!is_dir($inbox) || !is_writable($inbox)) return;
 
             $payload = [

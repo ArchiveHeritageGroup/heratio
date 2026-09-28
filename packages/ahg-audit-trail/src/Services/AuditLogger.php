@@ -356,7 +356,7 @@ class AuditLogger
         }
         try {
             if (function_exists('env')) {
-                $envVal = env('AHG_TENANT_ID');
+                $envVal = config('ahg-env.ahg_tenant_id');
                 if ($envVal !== null && $envVal !== '') {
                     return (int) $envVal;
                 }

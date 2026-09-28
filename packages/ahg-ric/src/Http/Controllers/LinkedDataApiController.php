@@ -2239,7 +2239,7 @@ class LinkedDataApiController extends Controller
         $origMime = $file->getClientMimeType() ?: ($file->getMimeType() ?: 'application/octet-stream');
         $origSize = $file->getSize();
 
-        $maxBytes = (int) env('OPENRIC_UPLOAD_MAX_BYTES', 100 * 1024 * 1024); // 100 MB default
+        $maxBytes = (int) (config('ahg-env.openric_upload_max_bytes') ?? 100 * 1024 * 1024); // 100 MB default
         if ($origSize > $maxBytes) {
             return response()->json(['error' => 'too_large', 'message' => "Max upload size is {$maxBytes} bytes."], 413);
         }

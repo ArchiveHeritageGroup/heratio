@@ -33,7 +33,7 @@ class KeyRequestController extends Controller
         $status = $request->query('status');        // submitted / error
         $msg    = (string) $request->query('msg', '');
         $serverHost = $request->getHost();
-        $adminEmail = env('OPENRIC_ADMIN_EMAIL', 'admin@' . $serverHost);
+        $adminEmail = (config('ahg-env.openric_admin_email') ?? 'admin@' . $serverHost);
         $html = self::renderForm($serverHost, $adminEmail, $status, $msg);
         return response($html, 200, ['Content-Type' => 'text/html; charset=utf-8']);
     }
@@ -83,7 +83,7 @@ class KeyRequestController extends Controller
         ]);
 
         // Notify admin (best-effort - Mail misconfiguration shouldn't 500 the request).
-        $adminEmail = env('OPENRIC_ADMIN_EMAIL', 'johan@theahg.co.za');
+        $adminEmail = (config('ahg-env.openric_admin_email') ?? 'johan@theahg.co.za');
         try {
             $body = self::adminNotificationBody($id, $data, $scopesString, $ip, $request);
             Mail::raw($body, function ($m) use ($adminEmail, $data, $id) {

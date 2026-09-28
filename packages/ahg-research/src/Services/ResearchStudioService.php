@@ -406,8 +406,8 @@ class ResearchStudioService
 
         $transcript = (string) ($scriptResult['text'] ?? '');
 
-        $ttsEndpoint = config('heratio.tts_endpoint') ?: env('HERATIO_TTS_ENDPOINT');
-        $ttsKey      = config('heratio.tts_key')      ?: env('HERATIO_TTS_KEY');
+        $ttsEndpoint = config('heratio.tts_endpoint') ?: config('ahg-env.heratio_tts_endpoint');
+        $ttsKey      = config('heratio.tts_key')      ?: config('ahg-env.heratio_tts_key');
 
         if (empty($ttsEndpoint)) {
             return [

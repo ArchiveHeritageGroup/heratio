@@ -82,8 +82,8 @@ class OaiPmhController extends Controller
             ->min('o.created_at');
         $earliest = $earliest ? gmdate('Y-m-d\TH:i:s\Z', strtotime($earliest)) : '1970-01-01T00:00:00Z';
         $host = parse_url($base, PHP_URL_HOST) ?: 'openric';
-        $admin = htmlspecialchars(env('OPENRIC_ADMIN_EMAIL', 'admin@' . $host), ENT_XML1);
-        $name = htmlspecialchars(env('OPENRIC_REPOSITORY_NAME', 'OpenRiC Reference API'), ENT_XML1);
+        $admin = htmlspecialchars((config('ahg-env.openric_admin_email') ?? 'admin@' . $host), ENT_XML1);
+        $name = htmlspecialchars((config('ahg-env.openric_repository_name') ?? 'OpenRiC Reference API'), ENT_XML1);
 
         return <<<XML
   <Identify>

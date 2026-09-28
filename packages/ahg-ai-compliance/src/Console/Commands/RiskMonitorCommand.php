@@ -58,7 +58,7 @@ final class RiskMonitorCommand extends Command
 
     private function notifyWorkbench(string $user, array $digest): void
     {
-        $inbox = env('WORKBENCH_NOTIFICATIONS_INBOX', '/var/spool/workbench/notifications');
+        $inbox = (config('ahg-env.workbench_notifications_inbox') ?? '/var/spool/workbench/notifications');
         if (!is_dir($inbox) || !is_writable($inbox)) {
             $this->warn("Notification spool not writable at {$inbox}; skipping.");
             return;

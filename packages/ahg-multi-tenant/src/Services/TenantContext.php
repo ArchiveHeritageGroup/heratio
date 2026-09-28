@@ -252,7 +252,7 @@ class TenantContext
         }
         try {
             if (function_exists('env')) {
-                $env = env('AHG_TENANT_ID');
+                $env = config('ahg-env.ahg_tenant_id');
                 if ($env !== null && $env !== '') {
                     return (int) $env;
                 }

@@ -95,11 +95,11 @@ class VocabularyImportCommand extends Command
         $this->info('Uploading to Fuseki...');
         // Auth resolution: --fuseki-user/--fuseki-password flag > RIC_FUSEKI_* env > FUSEKI_* env > none
         $fusekiUser = (string) ($this->option('fuseki-user')
-            ?: env('RIC_FUSEKI_USER')
+            ?: config('ahg-env.ric_fuseki_user')
             ?: config('ahg-ric.ric_to_atom_sync.fuseki.user')
             ?: config('ric.fuseki.user', ''));
         $fusekiPassword = (string) ($this->option('fuseki-password')
-            ?: env('RIC_FUSEKI_PASS')
+            ?: config('ahg-env.ric_fuseki_pass')
             ?: config('ahg-ric.ric_to_atom_sync.fuseki.pass')
             ?: config('ric.fuseki.password', ''));
         try {
@@ -195,11 +195,11 @@ class VocabularyImportCommand extends Command
 
         // Auth resolution: --fuseki-user/--fuseki-password flag > RIC_FUSEKI_* env > FUSEKI_* env > none
         $fusekiUser = (string) ($this->option('fuseki-user')
-            ?: env('RIC_FUSEKI_USER')
+            ?: config('ahg-env.ric_fuseki_user')
             ?: config('ahg-ric.ric_to_atom_sync.fuseki.user')
             ?: config('ric.fuseki.user', ''));
         $fusekiPassword = (string) ($this->option('fuseki-password')
-            ?: env('RIC_FUSEKI_PASS')
+            ?: config('ahg-env.ric_fuseki_pass')
             ?: config('ahg-ric.ric_to_atom_sync.fuseki.pass')
             ?: config('ric.fuseki.password', ''));
         try {

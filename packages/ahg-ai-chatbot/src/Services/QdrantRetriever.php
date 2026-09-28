@@ -26,7 +26,7 @@ class QdrantRetriever
     public function __construct()
     {
         // Default: KM host as a proxy to Qdrant. Operator can override.
-        $this->url       = rtrim(env('QDRANT_URL', 'http://localhost:6333'), '/');
+        $this->url       = rtrim((config('ahg-env.qdrant_url') ?? 'http://localhost:6333'), '/');
         $this->collection = $this->resolveCollection();
         $this->topK      = (int) config('ahg-ai-chatbot.max_context_records', 5);
     }

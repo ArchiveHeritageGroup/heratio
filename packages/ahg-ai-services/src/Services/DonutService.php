@@ -43,7 +43,7 @@ class DonutService
         // (/ai/v1/donut/*), never a direct :5008 node. A raw-node
         // DONUT_SERVICE_URL override is ignored so a stale env value cannot
         // bypass the gateway (metering/quota/failover/logging).
-        $override = (string) env('DONUT_SERVICE_URL', '');
+        $override = (string) (config('ahg-env.donut_service_url') ?? '');
         $this->baseUrl = ($override !== '' && ! $this->looksLikeNode($override))
             ? rtrim($override, '/')
             : 'https://ai.theahg.co.za/ai/v1/donut';

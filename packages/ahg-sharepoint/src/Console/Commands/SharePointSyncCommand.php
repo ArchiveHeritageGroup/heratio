@@ -125,7 +125,7 @@ class SharePointSyncCommand extends Command
             }
         };
 
-        $push((string) (config('ahg.sharepoint.ops_email') ?? env('SHAREPOINT_OPS_EMAIL', '')));
+        $push((string) (config('ahg.sharepoint.ops_email') ?? (config('ahg-env.sharepoint_ops_email') ?? '')));
 
         try {
             if (Schema::hasTable('ahg_settings')) {

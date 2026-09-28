@@ -69,7 +69,7 @@ class AhgCoreServiceProvider extends ServiceProvider
         // missing ones are still checked live. See SchemaExistenceCache.
         // Off under unit tests so they keep seeing the live schema;
         // AHG_SCHEMA_CACHE=false switches it off anywhere.
-        if (filter_var(env('AHG_SCHEMA_CACHE', true), FILTER_VALIDATE_BOOL) && ! $this->app->runningUnitTests()) {
+        if (filter_var((config('ahg-env.ahg_schema_cache') ?? true), FILTER_VALIDATE_BOOL) && ! $this->app->runningUnitTests()) {
             \Illuminate\Database\Connection::resolverFor('mysql', fn ($pdo, $database, $prefix, $config) => new \AhgCore\Database\CachingMySqlConnection($pdo, $database, $prefix, $config));
             // A config file (ahg-archivematica) queries the database while
             // config loads, before this provider registers, so a stock
