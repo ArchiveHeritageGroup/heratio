@@ -116,4 +116,54 @@ WITH RECURSIVE paths (ancestor, descendant, depth) AS (
 )
 SELECT ancestor, descendant, depth FROM paths;
 
+-- Where a physical object is now. A small current-state index, written in the
+-- same transaction as the movement row below, the same split as parent_id and
+-- its closure: the log is the authoritative history, this is what browse reads
+-- so it never has to work out the latest movement per object.
+--
+-- A separate table rather than a column on physical_object, because plugins do
+-- not alter base AtoM tables.
+CREATE TABLE IF NOT EXISTS ahg_physical_object_location (
+    physical_object_id INT NOT NULL PRIMARY KEY,
+    location_id        BIGINT UNSIGNED NOT NULL,
+    created_at         TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at         TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX ix_pol_location (location_id),
+    CONSTRAINT fk_pol_object   FOREIGN KEY (physical_object_id) REFERENCES physical_object(id)      ON DELETE CASCADE,
+    CONSTRAINT fk_pol_location FOREIGN KEY (location_id)        REFERENCES ahg_storage_location(id) ON DELETE RESTRICT
+);
+
+-- Every move, append-only. A move recorded wrongly is corrected by a further
+-- move, never by editing or deleting a row: a history somebody can quietly edit
+-- demonstrates nothing about where the holdings have been.
+--
+-- NULL on one side is meaningful and load-bearing: from_location_id NULL is a
+-- first placement, to_location_id NULL is a removal from storage. That is why
+-- the foreign keys are RESTRICT and not SET NULL - nulling a deleted location's
+-- id would silently turn "moved out of Room A" into "taken out of storage".
+-- The name snapshots keep the row readable after a location is renamed, and
+-- readable at all if a location is ever force-deleted with checks off.
+CREATE TABLE IF NOT EXISTS ahg_storage_movement (
+    id                 BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    subject_type       VARCHAR(32) NOT NULL COMMENT 'physical_object, storage_location',
+    subject_id         BIGINT UNSIGNED NOT NULL,
+    subject_name       VARCHAR(255) DEFAULT NULL COMMENT 'snapshot, so history reads after a rename',
+    from_location_id   BIGINT UNSIGNED DEFAULT NULL COMMENT 'object: NULL is a first placement. location: the old parent, NULL is the root',
+    from_location_name VARCHAR(255) DEFAULT NULL,
+    to_location_id     BIGINT UNSIGNED DEFAULT NULL COMMENT 'object: NULL is removal from storage. location: the new parent, NULL is the root',
+    to_location_name   VARCHAR(255) DEFAULT NULL,
+    batch_id           CHAR(36) DEFAULT NULL COMMENT 'one row per subject; shared id groups a bulk move',
+    note               TEXT,
+    user_id            INT DEFAULT NULL COMMENT 'no FK: history outlives the account',
+    username           VARCHAR(255) DEFAULT NULL COMMENT 'snapshot, so a deleted account still reads',
+    moved_at           TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX ix_movement_subject (subject_type, subject_id, moved_at),
+    INDEX ix_movement_batch (batch_id),
+    INDEX ix_movement_from (from_location_id),
+    INDEX ix_movement_to (to_location_id),
+    INDEX ix_movement_moved_at (moved_at),
+    CONSTRAINT fk_movement_from FOREIGN KEY (from_location_id) REFERENCES ahg_storage_location(id) ON DELETE RESTRICT,
+    CONSTRAINT fk_movement_to   FOREIGN KEY (to_location_id)   REFERENCES ahg_storage_location(id) ON DELETE RESTRICT
+);
+
 SET FOREIGN_KEY_CHECKS = 1;

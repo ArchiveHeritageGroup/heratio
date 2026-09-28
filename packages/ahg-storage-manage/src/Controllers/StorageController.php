@@ -28,6 +28,8 @@ namespace AhgStorageManage\Controllers;
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\SettingHelper;
 use AhgStorageManage\Services\StorageBrowseService;
+use AhgStorageManage\Services\StorageLocationService;
+use AhgStorageManage\Services\StorageMovementService;
 use AhgStorageManage\Services\StorageService;
 use AhgStorageManage\Services\StrongroomService;
 use App\Http\Controllers\Controller;
@@ -96,13 +98,71 @@ class StorageController extends Controller
         $descriptions = $this->service->getLinkedDescriptions($storage->id);
         $accessions = $this->service->getLinkedAccessions($storage->id);
 
+        $movements = new StorageMovementService;
+        $locationId = $movements->currentLocationOf((int) $storage->id);
+        $locations = new StorageLocationService;
+
         return view('ahg-storage-manage::show', [
             'storage' => $storage,
             'typeName' => $typeName,
             'descriptions' => $descriptions,
             'accessions' => $accessions,
             'extendedData' => $this->service->getExtendedData($storage->id),
+            'currentLocation' => $locationId === null ? null : $locations->getById($locationId),
+            'locationPath' => $locationId === null ? [] : $locations->getPath($locationId),
+            'movements' => $movements->historyFor(StorageMovementService::SUBJECT_OBJECT, (int) $storage->id),
         ]);
+    }
+
+    /** heratio#1514 - the move form for one object. */
+    public function move(string $slug)
+    {
+        $storage = $this->service->getBySlug($slug);
+        if (! $storage) {
+            abort(404);
+        }
+
+        $movements = new StorageMovementService;
+        $locations = new StorageLocationService;
+
+        return view('ahg-storage-manage::move', [
+            'storage' => $storage,
+            'locations' => $locations->getLocations(),
+            'currentLocationId' => $movements->currentLocationOf((int) $storage->id),
+        ]);
+    }
+
+    /**
+     * Record the move. An empty destination is "out of storage", which is a
+     * deliberate choice in the form rather than a missing field, so it is a
+     * separate checkbox and not just a blank select.
+     */
+    public function moveStore(Request $request, string $slug)
+    {
+        $storage = $this->service->getBySlug($slug);
+        if (! $storage) {
+            abort(404);
+        }
+
+        $data = $request->validate([
+            'to_location_id' => ['nullable', 'integer', 'exists:ahg_storage_location,id'],
+            'remove_from_storage' => ['nullable', 'boolean'],
+            'note' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $to = $request->boolean('remove_from_storage') ? null : ($data['to_location_id'] ?? null);
+
+        if ($to === null && ! $request->boolean('remove_from_storage')) {
+            return back()->withInput()->withErrors(['to_location_id' => __('Choose a destination, or tick "remove from storage".')]);
+        }
+
+        try {
+            (new StorageMovementService)->moveObject((int) $storage->id, $to, ['note' => $data['note'] ?? null]);
+        } catch (\RuntimeException $e) {
+            return back()->withInput()->withErrors(['to_location_id' => $e->getMessage()]);
+        }
+
+        return redirect()->route('physicalobject.show', $slug)->with('success', __('Move recorded.'));
     }
 
     public function create()

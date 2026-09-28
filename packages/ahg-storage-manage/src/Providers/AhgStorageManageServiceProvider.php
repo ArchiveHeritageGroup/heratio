@@ -30,7 +30,11 @@ class AhgStorageManageServiceProvider extends ServiceProvider
     private function install(): void
     {
         try {
-            if (! Schema::hasTable('ahg_storage_location_closure')) {
+            // Both tables are checked, not just the closure: an install that
+            // predates the movement log (v1.155.x) already has the closure, so
+            // a closure-only guard would never give it the movement tables.
+            if (! Schema::hasTable('ahg_storage_location_closure')
+                || ! Schema::hasTable('ahg_storage_movement')) {
                 DB::unprepared((string) file_get_contents(__DIR__.'/../../database/install.sql'));
             }
         } catch (\Throwable $e) {

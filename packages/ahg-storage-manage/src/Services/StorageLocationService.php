@@ -48,9 +48,12 @@ class StorageLocationService
     /** Depth ceiling for in-memory tree assembly. */
     public const MAX_DEPTH = 100;
 
-    public function __construct(private ?ClosureMaintenanceService $closure = null)
-    {
+    public function __construct(
+        private ?ClosureMaintenanceService $closure = null,
+        private ?StorageMovementService $movements = null,
+    ) {
         $this->closure ??= new ClosureMaintenanceService;
+        $this->movements ??= new StorageMovementService;
     }
 
     // ---------- Dropdowns ---------------------------------------------
@@ -189,7 +192,7 @@ class StorageLocationService
 
         $row['updated_at'] = now();
 
-        DB::transaction(function () use ($id, $row, $moved) {
+        DB::transaction(function () use ($id, $row, $moved, $currentParent, $data) {
             DB::table('ahg_storage_location')->where('id', $id)->update($row);
 
             if ($moved) {
@@ -200,6 +203,15 @@ class StorageLocationService
                      SET l.level = ? + c.depth',
                     [$id, (int) $row['level']]
                 );
+
+                // One event for the location that actually moved, in the same
+                // transaction as the move itself: a hierarchy change the history
+                // does not show is a gap nobody can account for later. What sat
+                // underneath is a closure query, so logging the subtree too would
+                // only restate the tree and go stale the moment it changed.
+                $this->movements->recordLocationMove($id, $currentParent, $row['parent_id'], [
+                    'note' => $data['movement_note'] ?? null,
+                ]);
             }
         });
     }
@@ -209,6 +221,19 @@ class StorageLocationService
     {
         if (DB::table('ahg_storage_location')->where('parent_id', $id)->exists()) {
             throw new RuntimeException('Cannot delete a location that has children. Delete or move the children first.');
+        }
+
+        if (DB::table('ahg_physical_object_location')->where('location_id', $id)->exists()) {
+            throw new RuntimeException('Cannot delete a location that still holds objects. Move them elsewhere first.');
+        }
+
+        // The movement FKs are RESTRICT, so the database would refuse this anyway,
+        // with an integrity error nobody can act on. Said plainly here instead:
+        // the history is the point of the log, and a location named in it cannot
+        // be removed without taking part of that record away.
+        if (DB::table('ahg_storage_movement')
+            ->where('from_location_id', $id)->orWhere('to_location_id', $id)->exists()) {
+            throw new RuntimeException('Cannot delete a location that appears in the movement history. The history is kept as a record of where holdings have been.');
         }
 
         DB::transaction(function () use ($id) {

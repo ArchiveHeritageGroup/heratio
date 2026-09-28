@@ -14,6 +14,7 @@
 namespace AhgStorageManage\Controllers;
 
 use AhgStorageManage\Services\StorageLocationService;
+use AhgStorageManage\Services\StorageMovementService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -73,6 +74,8 @@ class StorageLocationController extends Controller
         $location = $this->find($slug);
         $id = (int) $location->id;
 
+        $movements = new StorageMovementService;
+
         return view('ahg-storage-manage::storage-location.show', [
             'location' => $location,
             'path' => $this->service->getPath($id),
@@ -81,7 +84,43 @@ class StorageLocationController extends Controller
             'subtree' => $this->service->getTree($id),
             'types' => $this->service->options(StorageLocationService::TYPE_TAXONOMY),
             'units' => $this->service->options(StorageLocationService::UNIT_TAXONOMY),
+            'objects' => $movements->objectsIn($id),
+            'movements' => $movements->historyForLocation($id),
+            'locations' => $this->service->getLocations(),
         ]);
+    }
+
+    /**
+     * heratio#1514 - move the selected objects out of this location in one
+     * batch. Started from the location that holds them, because the real task
+     * is emptying a shelf rather than moving one box at a time.
+     */
+    public function moveObjects(Request $request, string $slug)
+    {
+        $location = $this->find($slug);
+
+        $data = $request->validate([
+            'object_ids' => ['required', 'array', 'min:1'],
+            'object_ids.*' => ['integer'],
+            'to_location_id' => ['nullable', 'integer', 'exists:ahg_storage_location,id'],
+            'remove_from_storage' => ['nullable', 'boolean'],
+            'note' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $to = $request->boolean('remove_from_storage') ? null : ($data['to_location_id'] ?? null);
+
+        if ($to === null && ! $request->boolean('remove_from_storage')) {
+            return back()->withErrors(['to_location_id' => __('Choose a destination, or tick "remove from storage".')]);
+        }
+
+        try {
+            $written = (new StorageMovementService)->moveObjects($data['object_ids'], $to, ['note' => $data['note'] ?? null]);
+        } catch (\RuntimeException $e) {
+            return back()->withErrors(['to_location_id' => $e->getMessage()]);
+        }
+
+        return redirect()->route('storagelocation.show', $location->slug)
+            ->with('success', trans_choice('{0}Nothing moved: those objects are already there.|{1}One object moved.|[2,*]:count objects moved.', count($written), ['count' => count($written)]));
     }
 
     public function create(Request $request)

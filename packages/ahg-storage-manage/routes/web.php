@@ -33,6 +33,12 @@ Route::middleware('auth')->group(function () {
 Route::get('/physicalobject/autocomplete', [StorageController::class, 'autocomplete'])->name('physicalobject.autocomplete')->middleware('auth');
 Route::get('/physicalobject/boxList', fn () => redirect('/physicalobject/box-list', 301));
 
+// heratio#1514 - move one object between storage locations, or out of storage.
+Route::middleware('auth')->group(function () {
+    Route::get('/physicalobject/{slug}/move', [StorageController::class, 'move'])->name('physicalobject.move');
+    Route::post('/physicalobject/{slug}/move', [StorageController::class, 'moveStore'])->name('physicalobject.move.store')->middleware('acl:update');
+});
+
 Route::get('/physicalobject/{slug}', [StorageController::class, 'show'])
     ->name('physicalobject.show')
     ->middleware('auth')
@@ -78,6 +84,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/storagelocation/api/search', [StorageLocationController::class, 'apiSearch'])->name('storagelocation.api.search');
     Route::get('/storagelocation/{slug}/edit', [StorageLocationController::class, 'edit'])->name('storagelocation.edit');
     Route::post('/storagelocation/{slug}/edit', [StorageLocationController::class, 'update'])->name('storagelocation.update')->middleware('acl:update');
+    // Bulk move of the objects held here (heratio#1514).
+    Route::post('/storagelocation/{slug}/move-objects', [StorageLocationController::class, 'moveObjects'])->name('storagelocation.move-objects')->middleware('acl:update');
 });
 
 Route::middleware('admin')->group(function () {

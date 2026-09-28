@@ -281,6 +281,42 @@
       </div>
       @endif
 
+      {{-- Where it is, and where it has been (heratio#1514). The history is
+           append-only: a wrong move is corrected by another move. --}}
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>{{ __('Storage location') }}</h5>
+        </div>
+        <div class="card-body">
+          @if($currentLocation === null)
+            <p class="text-muted mb-0">{{ __('Not in storage.') }}</p>
+          @else
+            <p class="mb-2">
+              @foreach($locationPath as $step)
+                @if(! $loop->first) <span class="text-muted">/</span> @endif
+                <a href="{{ route('storagelocation.show', $step->slug) }}">{{ $step->name }}</a>
+              @endforeach
+            </p>
+          @endif
+
+          @if(count($movements) > 0)
+            <h6 class="mt-3">{{ __('Movement history') }}</h6>
+            <ul class="list-unstyled small mb-0">
+              @foreach($movements as $move)
+                <li class="mb-2">
+                  <span class="text-muted">{{ $move['moved_at'] }}</span> -
+                  {{ $move['from_location_name'] ?? __('not in storage') }}
+                  <i class="fas fa-arrow-right mx-1"></i>
+                  {{ $move['to_location_name'] ?? __('removed from storage') }}
+                  @if(! empty($move['username'])) <span class="text-muted">({{ $move['username'] }})</span> @endif
+                  @if(! empty($move['note'])) <div class="text-muted">{{ $move['note'] }}</div> @endif
+                </li>
+              @endforeach
+            </ul>
+          @endif
+        </div>
+      </div>
+
       {{-- Actions --}}
       @auth
       @php $isAdmin = auth()->user()->is_admin; @endphp
@@ -291,6 +327,9 @@
         <div class="card-body">
           <a href="{{ route('physicalobject.edit', $storage->slug) }}" class="btn atom-btn-outline-success w-100 mb-2">
             <i class="fas fa-edit me-1"></i>{{ __('Edit') }}
+          </a>
+          <a href="{{ route('physicalobject.move', $storage->slug) }}" class="btn atom-btn-outline-success w-100 mb-2">
+            <i class="fas fa-dolly me-1"></i>{{ __('Move') }}
           </a>
           <a href="{{ route('physicalobject.browse') }}" class="btn atom-btn-outline-light w-100 mb-2">
             <i class="fas fa-list me-1"></i>{{ __('Browse storage locations') }}

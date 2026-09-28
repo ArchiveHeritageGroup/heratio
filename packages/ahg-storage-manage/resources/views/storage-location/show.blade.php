@@ -98,7 +98,143 @@
     </div>
   @endif
 
+  {{-- Objects held here, and moving them on. Started from the location rather
+       than the object, because emptying a shelf is the task people actually have
+       (heratio#1514). --}}
+  <div class="card mb-3">
+    <div class="card-header">{{ __('Objects here') }} <span class="badge bg-secondary">{{ count($objects) }}</span></div>
+    <div class="card-body">
+      @if(count($objects) === 0)
+        <p class="text-muted mb-0">{{ __('No physical objects are in this location.') }}</p>
+      @else
+        <form method="POST" action="{{ route('storagelocation.move-objects', $location->slug) }}">
+          @csrf
+          <table class="table table-sm align-middle">
+            <thead>
+              <tr>
+                <th style="width:2rem">
+                  <input type="checkbox" class="form-check-input" id="checkAll" aria-label="{{ __('Select all') }}">
+                </th>
+                <th>{{ __('Object') }}</th>
+                <th>{{ __('Placed') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach($objects as $object)
+                <tr>
+                  <td>
+                    <input type="checkbox" class="form-check-input row-check" name="object_ids[]" value="{{ $object['physical_object_id'] }}"
+                           aria-label="{{ $object['name'] ?? __('Object') }}">
+                  </td>
+                  <td>{{ $object['name'] ?? '#'.$object['physical_object_id'] }}</td>
+                  <td class="text-muted">{{ $object['updated_at'] ?? '-' }}</td>
+                </tr>
+              @endforeach
+            </tbody>
+          </table>
+
+          <div class="row g-2 align-items-end">
+            <div class="col-md-5">
+              <label class="form-label" for="to_location_id">{{ __('Move selected to') }}</label>
+              <select class="form-select @error('to_location_id') is-invalid @enderror" id="to_location_id" name="to_location_id">
+                <option value="">{{ __('Choose a location') }}</option>
+                @foreach($locations as $option)
+                  @continue((int) $option->id === (int) $location->id)
+                  <option value="{{ $option->id }}">{{ str_repeat('- ', (int) $option->level).$option->name }}</option>
+                @endforeach
+              </select>
+              @error('to_location_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="bulk_note">{{ __('Note') }}</label>
+              <input type="text" class="form-control" id="bulk_note" name="note" maxlength="2000"
+                     placeholder="{{ __('Why they moved (optional)') }}">
+            </div>
+            <div class="col-md-3">
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="bulk_remove" name="remove_from_storage" value="1">
+                <label class="form-check-label" for="bulk_remove">{{ __('Remove from storage') }}</label>
+              </div>
+              <button type="submit" class="btn btn-primary btn-sm">
+                <i class="fas fa-dolly me-1"></i>{{ __('Move selected') }}
+              </button>
+            </div>
+          </div>
+        </form>
+      @endif
+    </div>
+  </div>
+
+  {{-- The record of what came and went. Append-only: a wrong move is corrected
+       by another move, never by editing this list. --}}
+  <div class="card mb-3">
+    <div class="card-header">{{ __('Movement history') }} <span class="badge bg-secondary">{{ count($movements) }}</span></div>
+    <div class="card-body">
+      @if(count($movements) === 0)
+        <p class="text-muted mb-0">{{ __('Nothing has moved into or out of this location yet.') }}</p>
+      @else
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>{{ __('When') }}</th>
+              <th>{{ __('What') }}</th>
+              <th>{{ __('From') }}</th>
+              <th>{{ __('To') }}</th>
+              <th>{{ __('By') }}</th>
+              <th>{{ __('Note') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach($movements as $move)
+              <tr>
+                <td class="text-nowrap">{{ $move['moved_at'] }}</td>
+                <td>
+                  {{ $move['subject_name'] ?? '#'.$move['subject_id'] }}
+                  @if($move['subject_type'] === 'storage_location')
+                    <span class="badge bg-light text-dark">{{ __('location') }}</span>
+                  @endif
+                </td>
+                {{-- A null side reads differently per subject: for an object it is
+                     storage itself, for a location it is the top of the tree. --}}
+                <td>{{ $move['from_location_name'] ?? ($move['subject_type'] === 'storage_location' ? __('Root') : __('Not in storage')) }}</td>
+                <td>{{ $move['to_location_name'] ?? ($move['subject_type'] === 'storage_location' ? __('Root') : __('Removed from storage')) }}</td>
+                <td>{{ $move['username'] ?? '-' }}</td>
+                <td>{{ $move['note'] ?? '' }}</td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+      @endif
+    </div>
+  </div>
+
   <a href="{{ route('storagelocation.create', ['parent_id' => $location->id]) }}" class="btn btn-primary btn-sm">
     <i class="fas fa-plus me-1"></i>{{ __('Add child location') }}
   </a>
 @endsection
+
+@push('js')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var checkAll = document.getElementById('checkAll');
+    var rowChecks = document.querySelectorAll('.row-check');
+
+    if (checkAll) {
+        checkAll.addEventListener('change', function () {
+            rowChecks.forEach(function (cb) { cb.checked = checkAll.checked; });
+        });
+    }
+
+    // Ticking "remove from storage" makes the destination meaningless, so the
+    // select is disabled rather than left to look like it still applies.
+    var remove = document.getElementById('bulk_remove');
+    var destination = document.getElementById('to_location_id');
+    if (remove && destination) {
+        remove.addEventListener('change', function () {
+            destination.disabled = remove.checked;
+            if (remove.checked) { destination.value = ''; }
+        });
+    }
+});
+</script>
+@endpush
