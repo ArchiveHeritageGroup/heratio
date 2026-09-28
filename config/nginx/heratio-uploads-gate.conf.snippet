@@ -1,0 +1,57 @@
+# =============================================================================
+# nginx snippet - redaction gate for /uploads/ (GHSA-wpfv-ccw6-g9jg)
+# =============================================================================
+# Without this, nginx serves every upload statically, so the original of a
+# file under visual redaction is one guessable URL away: the public show page
+# links the thumbnail, and the master sits in the same directory.
+#
+# REPLACE the plain `location ^~ /uploads/ { alias ...; }` block of the vhost
+# with the two blocks below. This is the exact form running on heratio-dev and
+# heratio.org since 2026-09-28; keep the details marked below.
+#
+# Placeholders:
+#   {{UPLOADS_PARENT}} - the directory CONTAINING `uploads/`
+#                        (e.g. /mnt/nas/heratio for /mnt/nas/heratio/uploads)
+#   {{GATE_URL}}       - how nginx reaches this same site's Laravel app from
+#                        the box, e.g. https://127.0.0.1/privacy/file-check
+#                        (use the scheme and port that do NOT redirect - a 301
+#                        here fails the subrequest and every upload with it)
+#
+# Order of operations matters: deploy the Heratio release that has
+# /privacy/file-check FIRST, confirm it returns 204 for a harmless path, then
+# switch nginx. nginx turns any non-2xx/401/403 from the gate into a 500 for
+# every upload.
+#
+#   curl -sk -o /dev/null -w '%{http_code}\n' -H 'Host: <site>' \
+#        -H 'X-Original-URI: /uploads/x' {{GATE_URL}}        # expect 204
+# =============================================================================
+
+location ^~ /uploads/ {
+    # root, not alias: it maps /uploads/ to the same directory AND is inherited
+    # by the nested thumbnail location, which alias handling makes fragile.
+    root {{UPLOADS_PARENT}};
+    auth_request /_heratio_upload_gate;
+    add_header Access-Control-Allow-Origin "*" always;
+
+    # Thumbnails stay public (redaction policy: too small to carry redactable
+    # content) and ungated. Both namings exist - legacy <name>_142.ext and
+    # newer thumbnail_<name> - and missing one costs a full Laravel boot
+    # (about 0.85 s on prod) per tile on every browse page.
+    # A nested add_header REPLACES the parent's, so repeat any headers here.
+    location ~ (_142\.[A-Za-z0-9]+|/thumbnail_[^/]+)$ {
+        auth_request off;
+        add_header Access-Control-Allow-Origin "*" always;
+    }
+}
+
+location = /_heratio_upload_gate {
+    internal;
+    proxy_pass {{GATE_URL}};
+    proxy_ssl_verify off;
+    proxy_pass_request_body off;
+    proxy_set_header Content-Length "";
+    # The site's own host, so the right Laravel app answers; cookies ride along
+    # with the subrequest, which is how administrators are recognised.
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Original-URI $request_uri;
+}

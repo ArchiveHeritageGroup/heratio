@@ -53,6 +53,13 @@ server {
     # Uploaded media — alias to HERATIO_STORAGE_PATH. The ^~ prefix is
     # critical so the static-file regex below doesn't intercept tile
     # / image requests.
+    #
+    # SECURITY: served as-is, this block hands out the unredacted original
+    # of any file under visual redaction (GHSA-wpfv-ccw6-g9jg). Once the
+    # site is up and on its final scheme (after certbot), replace it with
+    # config/nginx/heratio-uploads-gate.conf.snippet, which runs each
+    # upload past /privacy/file-check. Not done at render time because
+    # the gate URL depends on that final scheme and port.
     # ------------------------------------------------------------------
     location ^~ /uploads/ {
         alias {{UPLOADS_PATH}}/;
