@@ -121,7 +121,7 @@
                 <ul class="small mb-0">
                     <li>Foreign researchers: US$200</li>
                     <li>{{ __('Local researchers: Free') }}</li>
-                    <li>Validity: 12 months</li>
+                    <li>{{ __('Validity: 12 months') }}</li>
                 </ul>
             </div>
             <div class="card">

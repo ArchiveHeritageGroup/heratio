@@ -87,8 +87,7 @@
 
   @if($isEmpty)
     <div class="empty">
-      The published open graph is currently empty. Once records are described and published they will appear here,
-      counted by level, with their people, places, subjects and the connections between them.
+      {{ __('The published open graph is currently empty. Once records are described and published they will appear here, counted by level, with their people, places, subjects and the connections between them.') }}
     </div>
   @endif
 
@@ -99,7 +98,7 @@
     <div class="stat"><div class="num">{{ $fmt($s['terms_total'] ?? 0) }}</div><div class="lab">Subjects, places &amp; genres</div></div>
     <div class="stat"><div class="num">{{ $fmt($s['relation_edges_total'] ?? 0) }}</div><div class="lab">{{ __('Relation edges') }}</div></div>
     <div class="stat"><div class="num">{{ $fmt($s['repositories'] ?? 0) }}</div><div class="lab">{{ __('Holding repositories') }}</div></div>
-    <div class="stat"><div class="num">~{{ $fmt($s['triple_estimate'] ?? 0) }}</div><div class="lab">Triples (estimated)</div></div>
+    <div class="stat"><div class="num">~{{ $fmt($s['triple_estimate'] ?? 0) }}</div><div class="lab">{{ __('Triples (estimated)') }}</div></div>
   </div>
 
   @if(!empty($levels))
@@ -185,15 +184,14 @@
   <h2>{{ __('Explore the graph') }}</h2>
   <div class="links">
     @if(!empty($links['graphExplorer']))<a href="{{ $links['graphExplorer'] }}">{{ __('Graph explorer') }}</a>@endif
-    @if(!empty($links['catalog']))<a href="{{ $links['catalog'] }}">Data catalogue (DCAT)</a>@endif
+    @if(!empty($links['catalog']))<a href="{{ $links['catalog'] }}">{{ __('Data catalogue (DCAT)') }}</a>@endif
     @if(!empty($links['protocol']))<a href="{{ $links['protocol'] }}">{{ __('Open Memory Protocol') }}</a>@endif
     @if(!empty($links['void']))<a href="{{ $links['void'] }}">{{ __('VoID description') }}</a>@endif
     <a href="{{ $links['json'] ?? url('/data/stats.json') }}">{{ __('This page as JSON') }}</a>
   </div>
 
   <p class="meta">
-    Figures are aggregate counts over published records only and refresh on every request. The triple count is an
-    order-of-magnitude estimate for the VoID dataset description, not an exact statement count. Open data, licensed
+    {{ __('Figures are aggregate counts over published records only and refresh on every request. The triple count is an order-of-magnitude estimate for the VoID dataset description, not an exact statement count. Open data, licensed') }}
     <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>. Part of the
     {{ $appName }} open memory protocol (#1204).
   </p>

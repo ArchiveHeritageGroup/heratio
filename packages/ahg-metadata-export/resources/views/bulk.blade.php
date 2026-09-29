@@ -135,8 +135,7 @@
       </div>
       <div class="card-body">
         <p class="small text-muted">
-          This will export all top-level records from the selected repository. Each record will be
-          exported as a separate file, and all files will be packaged into a ZIP archive for download.
+          {{ __('This will export all top-level records from the selected repository. Each record will be exported as a separate file, and all files will be packaged into a ZIP archive for download.') }}
         </p>
 
         <div class="alert alert-info small">

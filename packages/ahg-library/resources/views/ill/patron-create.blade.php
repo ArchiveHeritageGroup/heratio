@@ -20,9 +20,7 @@
 
   <div class="alert alert-info mb-4">
     <i class="fas fa-info-circle me-1"></i>
-    Use this form to request books or articles that are not available in our collection.
-    Our staff will contact you when the item arrives. A due date will be set by the lending library.
-    Standard loan periods are <strong>28 days</strong>; some items may have shorter periods.
+    {{ __('Use this form to request books or articles that are not available in our collection. Our staff will contact you when the item arrives. A due date will be set by the lending library. Standard loan periods are') }} <strong>28 days</strong>; some items may have shorter periods.
   </div>
 
   @if($errors->any())

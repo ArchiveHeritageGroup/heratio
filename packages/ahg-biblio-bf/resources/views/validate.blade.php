@@ -41,7 +41,7 @@
       <h2 class="h5">{{ __('Validation report') }}</h2>
       @if(empty($result['fatal']) && empty($result['errors']))
         <div class="alert alert-success">
-          <i class="bi bi-check-circle"></i> Valid BIBFRAME 2.0 document.
+          <i class="bi bi-check-circle"></i> {{ __('Valid BIBFRAME 2.0 document.') }}
         </div>
       @else
         <div class="alert alert-danger">

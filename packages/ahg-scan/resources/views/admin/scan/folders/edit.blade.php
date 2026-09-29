@@ -48,7 +48,7 @@
                     <label class="form-label">{{ __('Layout') }}</label>
                     <select name="layout" class="form-select">
                         <option value="path" {{ old('layout', $folder->layout) === 'path' ? 'selected' : '' }}>{{ __('Path as destination') }}</option>
-                        <option value="flat-sidecar" {{ old('layout', $folder->layout) === 'flat-sidecar' ? 'selected' : '' }}>Flat files + XML sidecar</option>
+                        <option value="flat-sidecar" {{ old('layout', $folder->layout) === 'flat-sidecar' ? 'selected' : '' }}>{{ __('Flat files + XML sidecar') }}</option>
                     </select>
                     <div class="form-text">
                         Path: <code>&lt;folder&gt;/&lt;parent-slug&gt;/&lt;identifier&gt;/file.tiff</code><br>
@@ -143,9 +143,7 @@
                 </div>
             @else
                 <div class="alert alert-warning mb-0">
-                    Derivative and processing options (thumbnails, reference images, virus scan, OCR, SIP/AIP/DIP packaging)
-                    will be configurable in the Ingest wizard after this folder is created - a persistent ingest session is
-                    created on save.
+                    {{ __('Derivative and processing options (thumbnails, reference images, virus scan, OCR, SIP/AIP/DIP packaging) will be configurable in the Ingest wizard after this folder is created - a persistent ingest session is created on save.') }}
                 </div>
             @endif
         </div>
@@ -176,7 +174,7 @@
                     <select name="disposition_success" class="form-select">
                         <option value="move" {{ old('disposition_success', $folder->disposition_success) === 'move' ? 'selected' : '' }}>{{ __('Move to archive folder') }}</option>
                         <option value="leave" {{ old('disposition_success', $folder->disposition_success) === 'leave' ? 'selected' : '' }}>{{ __('Leave in place') }}</option>
-                        <option value="delete" {{ old('disposition_success', $folder->disposition_success) === 'delete' ? 'selected' : '' }}>Delete (not recommended)</option>
+                        <option value="delete" {{ old('disposition_success', $folder->disposition_success) === 'delete' ? 'selected' : '' }}>{{ __('Delete (not recommended)') }}</option>
                     </select>
                 </div>
                 <div class="col-md-6 mb-3">

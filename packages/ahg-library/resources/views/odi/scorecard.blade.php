@@ -19,8 +19,7 @@
                 <i class="fas fa-clipboard-check me-2"></i>{{ __('ODI Quality Scorecard') }}
             </h1>
             <p class="text-muted small mb-0">
-                Open Discovery Initiative (ODI) conformance metrics for each library collection:
-                link-resolver availability, open-access share, preprint indexing and ORCID coverage.
+                {{ __('Open Discovery Initiative (ODI) conformance metrics for each library collection: link-resolver availability, open-access share, preprint indexing and ORCID coverage.') }}
             </p>
         </div>
         <div>
@@ -89,7 +88,7 @@
                                     @if($card->link_resolver_present)
                                         <span class="badge bg-success"><i class="fas fa-check me-1"></i>{{ __('Yes') }}</span>
                                     @else
-                                        <span class="badge bg-secondary"><i class="fas fa-times me-1"></i>No</span>
+                                        <span class="badge bg-secondary"><i class="fas fa-times me-1"></i>{{ __('No') }}</span>
                                     @endif
                                 </td>
                                 <td class="text-end">{{ number_format((float) $card->oa_percentage, 1) }}%</td>
@@ -115,8 +114,7 @@
         </div>
 
         <p class="text-muted small mt-3 mb-0">
-            Quality score is a weighted composite (0-100): open-access share 35%,
-            link-resolver presence 25%, ORCID coverage 25%, preprint indexing 15%.
+            {{ __('Quality score is a weighted composite (0-100): open-access share 35%, link-resolver presence 25%, ORCID coverage 25%, preprint indexing 15%.') }}
         </p>
     @endif
 

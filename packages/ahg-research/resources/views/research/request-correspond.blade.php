@@ -31,7 +31,7 @@
 </div><div class="col-md-4">
 <div class="card"><div class="card-header"><h6 class="mb-0">{{ __('Request Details') }}</h6></div><div class="card-body">
     <dl class="row mb-0 small">
-        <dt class="col-sm-5">Request #</dt><dd class="col-sm-7">{{ $requestDetail->id ?? '' }}</dd>
+        <dt class="col-sm-5">{{ __('Request #') }}</dt><dd class="col-sm-7">{{ $requestDetail->id ?? '' }}</dd>
         <dt class="col-sm-5">{{ __('Status') }}</dt><dd class="col-sm-7"><span class="badge bg-{{ match($requestDetail->status ?? '') { 'approved' => 'success', 'denied' => 'danger', 'pending' => 'warning', default => 'secondary' } }}">{{ ucfirst($requestDetail->status ?? '') }}</span></dd>
         <dt class="col-sm-5">{{ __('Type') }}</dt><dd class="col-sm-7">{{ ucfirst(str_replace('_', ' ', $requestDetail->request_type ?? '')) }}</dd>
         <dt class="col-sm-5">{{ __('Created') }}</dt><dd class="col-sm-7">{{ $requestDetail->created_at ?? '' }}</dd>

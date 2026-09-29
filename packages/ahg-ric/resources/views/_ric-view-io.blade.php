@@ -283,14 +283,14 @@
               <div class="mb-3">
                 <h6 class="small fw-bold mb-1">{{ $usageLabel }} file</h6>
                 <table class="table table-sm table-borderless mb-1 small">
-                  <tr><td class="text-muted" style="width:80px">Filename</td><td class="text-break">{{ $dobj->name ?? '-' }}</td></tr>
-                  <tr><td class="text-muted">Media type</td><td>{{ ucfirst($dobjMediaType) }}</td></tr>
-                  <tr><td class="text-muted">MIME type</td><td><code>{{ $dobj->mime_type ?? '-' }}</code></td></tr>
+                  <tr><td class="text-muted" style="width:80px">{{ __('Filename') }}</td><td class="text-break">{{ $dobj->name ?? '-' }}</td></tr>
+                  <tr><td class="text-muted">{{ __('Media type') }}</td><td>{{ ucfirst($dobjMediaType) }}</td></tr>
+                  <tr><td class="text-muted">{{ __('MIME type') }}</td><td><code>{{ $dobj->mime_type ?? '-' }}</code></td></tr>
                   @if($dobj->byte_size)
-                    <tr><td class="text-muted">Filesize</td><td>{{ \AhgCore\Services\DigitalObjectService::formatFileSize($dobj->byte_size) }}</td></tr>
+                    <tr><td class="text-muted">{{ __('Filesize') }}</td><td>{{ \AhgCore\Services\DigitalObjectService::formatFileSize($dobj->byte_size) }}</td></tr>
                   @endif
                   @if($dobj->checksum ?? null)
-                    <tr><td class="text-muted">Checksum</td><td class="text-break" style="font-size:0.7rem;">{{ $dobj->checksum }}</td></tr>
+                    <tr><td class="text-muted">{{ __('Checksum') }}</td><td class="text-break" style="font-size:0.7rem;">{{ $dobj->checksum }}</td></tr>
                   @endif
                 </table>
                 @foreach($derivatives as $deriv)
@@ -301,17 +301,17 @@
                   @endphp
                   <h6 class="small fw-bold mb-1">{{ $derivLabel }}</h6>
                   <table class="table table-sm table-borderless mb-1 small">
-                    <tr><td class="text-muted" style="width:80px">Filename</td><td class="text-break">{{ $deriv->name ?? '-' }}</td></tr>
-                    <tr><td class="text-muted">MIME type</td><td><code>{{ $deriv->mime_type ?? '-' }}</code></td></tr>
+                    <tr><td class="text-muted" style="width:80px">{{ __('Filename') }}</td><td class="text-break">{{ $deriv->name ?? '-' }}</td></tr>
+                    <tr><td class="text-muted">{{ __('MIME type') }}</td><td><code>{{ $deriv->mime_type ?? '-' }}</code></td></tr>
                     @if($deriv->byte_size)
-                      <tr><td class="text-muted">Filesize</td><td>{{ \AhgCore\Services\DigitalObjectService::formatFileSize($deriv->byte_size) }}</td></tr>
+                      <tr><td class="text-muted">{{ __('Filesize') }}</td><td>{{ \AhgCore\Services\DigitalObjectService::formatFileSize($deriv->byte_size) }}</td></tr>
                     @endif
                   </table>
                 @endforeach
               </div>
             @endforeach
           @else
-            <p class="text-muted small mb-0">No instantiations.</p>
+            <p class="text-muted small mb-0">{{ __('No instantiations.') }}</p>
           @endif
         </div>
       </div>

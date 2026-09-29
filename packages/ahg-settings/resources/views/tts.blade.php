@@ -15,7 +15,7 @@
 
 @section('content')
 <h2><i class="fas fa-volume-up me-2"></i>{{ __('Text-to-Speech Settings') }}</h2>
-<p class="text-muted">Configure the read-aloud accessibility feature for record detail pages.</p>
+<p class="text-muted">{{ __('Configure the read-aloud accessibility feature for record detail pages.') }}</p>
 
 @if(session('notice') || session('success'))
   <div class="alert alert-success alert-dismissible fade show">
@@ -58,7 +58,7 @@
                  {{ ($settings['all']['read_labels'] ?? '1') === '1' ? 'checked' : '' }}>
           <label class="form-check-label" for="tts_labels">{{ __('Read field labels') }}</label>
         </div>
-        <div class="form-text">Include field labels (e.g. "Scope and content:") when reading aloud.</div>
+        <div class="form-text">{{ __('Include field labels (e.g. "Scope and content:") when reading aloud.') }}</div>
       </div>
 
       <div class="mb-3">
@@ -68,7 +68,7 @@
                  {{ ($settings['all']['keyboard_shortcuts'] ?? '1') === '1' ? 'checked' : '' }}>
           <label class="form-check-label" for="tts_shortcuts">{{ __('Keyboard shortcuts') }}</label>
         </div>
-        <div class="form-text">Enable keyboard shortcuts for play/pause/stop (Alt+P, Alt+S).</div>
+        <div class="form-text">{{ __('Enable keyboard shortcuts for play/pause/stop (Alt+P, Alt+S).') }}</div>
       </div>
     </div>
   </div>
@@ -77,7 +77,7 @@
   <div class="card mb-4">
     <div class="card-header"><i class="fas fa-list-check me-2"></i>{{ __('Fields to Read per Sector') }}</div>
     <div class="card-body">
-      <p class="text-muted mb-3">Select which metadata fields the TTS engine will read for each GLAM/DAM sector.</p>
+      <p class="text-muted mb-3">{{ __('Select which metadata fields the TTS engine will read for each GLAM/DAM sector.') }}</p>
 
       <ul class="nav nav-tabs" role="tablist">
         @foreach (['archive', 'library', 'museum', 'gallery', 'dam'] as $idx => $sector)

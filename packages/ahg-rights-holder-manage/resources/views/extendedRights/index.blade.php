@@ -14,7 +14,7 @@
     <div class="card h-100">
       <div class="card-header bg-primary text-white"><h5 class="mb-0">{{ __('RightsStatements.org') }}</h5></div>
       <div class="card-body">
-        <p class="text-muted small">Standardized rights statements for cultural heritage institutions.</p>
+        <p class="text-muted small">{{ __('Standardized rights statements for cultural heritage institutions.') }}</p>
         @if(!empty($rightsStatements) && count($rightsStatements) > 0)
           <ul class="list-unstyled">
             @foreach($rightsStatements as $rs)

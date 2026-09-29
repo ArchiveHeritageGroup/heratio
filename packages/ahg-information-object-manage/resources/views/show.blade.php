@@ -1281,7 +1281,7 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <p class="text-muted small mb-3">Named Entity Recognition - extract persons, organizations, places, dates from <strong>{{ $io->title ?? 'this record' }}</strong></p>
+        <p class="text-muted small mb-3">{{ __('Named Entity Recognition - extract persons, organizations, places, dates from') }} <strong>{{ $io->title ?? 'this record' }}</strong></p>
 
         {{-- Extract button --}}
         <div class="text-center mb-3" id="nerExtractSection">

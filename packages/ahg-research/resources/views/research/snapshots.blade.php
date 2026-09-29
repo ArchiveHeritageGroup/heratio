@@ -24,7 +24,7 @@
 </div>
 
 @if(empty($snapshots) || count($snapshots) === 0)
-    <div class="alert alert-info">No snapshots yet. Create one to freeze the current state of a collection.</div>
+    <div class="alert alert-info">{{ __('No snapshots yet. Create one to freeze the current state of a collection.') }}</div>
 @else
 <div class="table-responsive">
     <table class="table table-hover">

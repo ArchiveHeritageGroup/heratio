@@ -33,7 +33,7 @@
         <td><span class="badge bg-{{ in_array($o->condition_term ?? '', ['poor','critical']) ? 'danger' : (($o->condition_term ?? '') === 'good' ? 'success' : 'secondary') }}">{{ ucfirst($o->condition_term ?? '-') }}</span></td>
       </tr>
       @empty
-      <tr><td colspan="5" class="text-muted text-center py-4">No objects found.</td></tr>
+      <tr><td colspan="5" class="text-muted text-center py-4">{{ __('No objects found.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

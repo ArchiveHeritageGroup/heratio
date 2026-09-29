@@ -8,24 +8,24 @@
 <div class="row">
   <div class="col-md-6 mb-4">
     <div class="card">
-      <div class="card-header bg-dark text-white">By Style</div>
+      <div class="card-header bg-dark text-white">{{ __('By Style') }}</div>
       <ul class="list-group list-group-flush">
         @forelse($byStyle as $s)
         <li class="list-group-item d-flex justify-content-between">{{ e($s->style ?? '') }} <span class="badge bg-primary">{{ $s->count ?? 0 }}</span></li>
         @empty
-        <li class="list-group-item text-muted">No styles recorded</li>
+        <li class="list-group-item text-muted">{{ __('No styles recorded') }}</li>
         @endforelse
       </ul>
     </div>
   </div>
   <div class="col-md-6 mb-4">
     <div class="card">
-      <div class="card-header bg-dark text-white">By Period</div>
+      <div class="card-header bg-dark text-white">{{ __('By Period') }}</div>
       <ul class="list-group list-group-flush">
         @forelse($byPeriod as $p)
         <li class="list-group-item d-flex justify-content-between">{{ e($p->period ?? '') }} <span class="badge bg-primary">{{ $p->count ?? 0 }}</span></li>
         @empty
-        <li class="list-group-item text-muted">No periods recorded</li>
+        <li class="list-group-item text-muted">{{ __('No periods recorded') }}</li>
         @endforelse
       </ul>
     </div>

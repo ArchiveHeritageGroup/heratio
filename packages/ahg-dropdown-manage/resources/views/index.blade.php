@@ -12,7 +12,7 @@
         <h5 class="mb-0"><i class="fas fa-list-alt me-2"></i>{{ __('Dropdown Manager') }}</h5>
       </div>
       <div class="card-body">
-        <p class="text-muted small mb-3">Manage controlled vocabularies (dropdowns) used throughout the system.</p>
+        <p class="text-muted small mb-3">{{ __('Manage controlled vocabularies (dropdowns) used throughout the system.') }}</p>
         <button type="button" class="btn atom-btn-outline-success w-100 mb-3" data-bs-toggle="modal" data-bs-target="#createTaxonomyModal">
           <i class="fas fa-plus me-2"></i>{{ __('Create Taxonomy') }}
         </button>

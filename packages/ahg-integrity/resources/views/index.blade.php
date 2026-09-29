@@ -68,7 +68,7 @@
       <div class="card text-center border-info">
         <div class="card-body py-2">
           <div class="fs-3 fw-bold text-info">{{ number_format($stats['throughput_7d']) }}</div>
-          <div class="small text-muted">Throughput (7 days)</div>
+          <div class="small text-muted">{{ __('Throughput (7 days)') }}</div>
         </div>
       </div>
     </div>
@@ -119,7 +119,7 @@
     </div>
     <div class="card-body">
       @if(!$configured)
-        <p class="text-muted mb-0">Integrity tables are not available. No verification runs to display.</p>
+        <p class="text-muted mb-0">{{ __('Integrity tables are not available. No verification runs to display.') }}</p>
       @elseif($recentRuns->isEmpty())
         <p class="text-muted mb-0">{{ __('No verification runs have been executed yet.') }}</p>
       @else

@@ -77,7 +77,7 @@
         <div class="row">
           <div class="col-md-6">
             <div class="mb-3">
-              <label for="auto_archive_days" class="form-label">Auto Archive (days) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="auto_archive_days" class="form-label">{{ __('Auto Archive (days)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="number" class="form-control" id="auto_archive_days" name="auto_archive_days" value="{{ old('auto_archive_days', $workflow->auto_archive_days) }}">
             </div>
           </div>
@@ -253,7 +253,7 @@
                     @if($step->pool_enabled)
                       <span class="badge bg-success">{{ __('Yes') }}</span>
                     @else
-                      <span class="badge bg-secondary">No</span>
+                      <span class="badge bg-secondary">{{ __('No') }}</span>
                     @endif
                   </td>
                   <td>{{ $step->escalation_days ? $step->escalation_days . ' days' : '-' }}</td>

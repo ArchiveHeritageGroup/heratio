@@ -70,10 +70,10 @@
 
         {{-- DPI --}}
         <div class="col-md-6">
-          <label class="form-label fw-bold" for="dpi">DPI (Resolution) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label fw-bold" for="dpi">{{ __('DPI (Resolution)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <input type="number" class="form-control" id="dpi" name="dpi"
                  min="72" max="600" value="150" step="1">
-          <div class="form-text">Output resolution in dots per inch (72-600)</div>
+          <div class="form-text">{{ __('Output resolution in dots per inch (72-600)') }}</div>
 
           @error('dpi')
             <div class="text-danger small mt-1">{{ $message }}</div>

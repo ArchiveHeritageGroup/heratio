@@ -135,10 +135,10 @@
             <div class="alert alert-info">
                 <h6><i class="fas fa-info-circle"></i> {{ __('IPSAS Heritage Assets') }}</h6>
                 <ul class="small mb-0">
-                    <li>Heritage assets may be recognized at nominal value (IPSAS 17)</li>
+                    <li>{{ __('Heritage assets may be recognized at nominal value (IPSAS 17)') }}</li>
                     <li>{{ __('Depreciation typically not applied to heritage items') }}</li>
-                    <li>Regular impairment assessment required (IPSAS 21)</li>
-                    <li>Fair value revaluation every 3-5 years</li>
+                    <li>{{ __('Regular impairment assessment required (IPSAS 21)') }}</li>
+                    <li>{{ __('Fair value revaluation every 3-5 years') }}</li>
                 </ul>
             </div>
             <div class="card">

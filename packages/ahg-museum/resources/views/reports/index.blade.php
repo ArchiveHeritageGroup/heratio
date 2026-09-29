@@ -21,9 +21,9 @@
 @section('content')
 <div class="museum-reports-dashboard">
   <div class="row mb-4">
-    <div class="col-md-4"><div class="card text-center bg-primary text-white"><div class="card-body"><h2>{{ number_format($stats['totalObjects'] ?? 0) }}</h2><p class="mb-0">Total Objects</p></div></div></div>
-    <div class="col-md-4"><div class="card text-center bg-success text-white"><div class="card-body"><h2>{{ number_format($stats['withProvenance'] ?? 0) }}</h2><p class="mb-0">With Provenance</p></div></div></div>
-    <div class="col-md-4"><div class="card text-center bg-info text-white"><div class="card-body"><h2>{{ count($stats['byCondition'] ?? []) }}</h2><p class="mb-0">Condition Assessed</p></div></div></div>
+    <div class="col-md-4"><div class="card text-center bg-primary text-white"><div class="card-body"><h2>{{ number_format($stats['totalObjects'] ?? 0) }}</h2><p class="mb-0">{{ __('Total Objects') }}</p></div></div></div>
+    <div class="col-md-4"><div class="card text-center bg-success text-white"><div class="card-body"><h2>{{ number_format($stats['withProvenance'] ?? 0) }}</h2><p class="mb-0">{{ __('With Provenance') }}</p></div></div></div>
+    <div class="col-md-4"><div class="card text-center bg-info text-white"><div class="card-body"><h2>{{ count($stats['byCondition'] ?? []) }}</h2><p class="mb-0">{{ __('Condition Assessed') }}</p></div></div></div>
   </div>
   <div class="row mb-4">
     <div class="col-md-6">
@@ -33,7 +33,7 @@
           @forelse($stats['byWorkType'] ?? [] as $type)
           <li class="list-group-item d-flex justify-content-between">{{ e($type->work_type ?? '') }} <span class="badge bg-primary">{{ $type->count ?? 0 }}</span></li>
           @empty
-          <li class="list-group-item text-muted">No work types recorded</li>
+          <li class="list-group-item text-muted">{{ __('No work types recorded') }}</li>
           @endforelse
         </ul>
       </div>
@@ -45,7 +45,7 @@
           @forelse($stats['byCondition'] ?? [] as $cond)
           <li class="list-group-item d-flex justify-content-between">{{ ucfirst($cond->condition_term ?? '') }} <span class="badge bg-{{ in_array($cond->condition_term ?? '', ['poor','critical']) ? 'danger' : 'success' }}">{{ $cond->count ?? 0 }}</span></li>
           @empty
-          <li class="list-group-item text-muted">No conditions recorded</li>
+          <li class="list-group-item text-muted">{{ __('No conditions recorded') }}</li>
           @endforelse
         </ul>
       </div>

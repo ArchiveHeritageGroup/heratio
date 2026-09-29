@@ -36,7 +36,7 @@
 
             {{-- Taxonomy --}}
             <div class="mb-3">
-              <label for="taxonomy_id" class="form-label">Taxonomy <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label for="taxonomy_id" class="form-label">{{ __('Taxonomy') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               @if($term || $selectedTaxonomyId)
                 {{-- Pre-selected taxonomy: show name, keep ID hidden --}}
                 <input type="text" class="form-control" value="{{ $taxonomyName ?? '' }}" disabled>
@@ -54,7 +54,7 @@
 
             {{-- Name --}}
             <div class="mb-3">
-              <label for="name" class="form-label">Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label for="name" class="form-label">{{ __('Name') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               {{--
                 A `disabled` guard keyed on a term "is protected" flag used to
                 sit here. No term table has such a column, nothing writes one,
@@ -70,14 +70,14 @@
 
             {{-- Use for --}}
             <div class="mb-3">
-              <label for="use_for" class="form-label">Use for <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="use_for" class="form-label">{{ __('Use for') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="use_for" id="use_for" class="form-control"
                      value="{{ old('use_for', $useFor ?? '') }}">
             </div>
 
             {{-- Code --}}
             <div class="mb-3">
-              <label for="code" class="form-label">Code <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="code" class="form-label">{{ __('Code') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="code" id="code" class="form-control"
                      value="{{ old('code', $term->code ?? '') }}">
             </div>
@@ -264,14 +264,14 @@
 
             {{-- Broad term (parent) --}}
             <div class="mb-3">
-              <label for="parent_id" class="form-label">Broad term <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="parent_id" class="form-label">{{ __('Broad term') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="parent_id" id="parent_id" class="form-control"
                      value="{{ old('parent_id', $parentTerm->name ?? '') }}" placeholder="{{ __('Type to search terms...') }}" autocomplete="off">
             </div>
 
             {{-- Related term(s) --}}
             <div class="mb-3">
-              <label for="related_terms" class="form-label">Related term(s) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="related_terms" class="form-label">{{ __('Related term(s)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="related_terms" id="related_terms" class="form-control"
                      value="{{ old('related_terms', $relatedTerms ?? '') }}" placeholder="{{ __('Type to search terms...') }}" autocomplete="off">
             </div>
@@ -280,7 +280,7 @@
             <div class="row">
               <div class="col-md-9">
                 <div class="mb-3">
-                  <label for="converse_term" class="form-label">Converse term <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label for="converse_term" class="form-label">{{ __('Converse term') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" name="converse_term" id="converse_term" class="form-control"
                          value="{{ old('converse_term', $converseTerm->name ?? '') }}" placeholder="{{ __('Type to search terms...') }}" autocomplete="off">
                 </div>
@@ -290,7 +290,7 @@
                   <div class="form-check">
                     <input class="form-check-input" type="checkbox" name="self_reciprocal" id="self_reciprocal" value="1"
                            @checked(old('self_reciprocal', ($converseTerm && $term && $converseTerm->id == $term->id) ? 1 : 0))>
-                    <label class="form-check-label" for="self_reciprocal">Self-reciprocal <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-check-label" for="self_reciprocal">{{ __('Self-reciprocal') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   </div>
                 </div>
               </div>
@@ -298,7 +298,7 @@
 
             {{-- Add new narrow terms --}}
             <div class="mb-3">
-              <label for="narrow_terms" class="form-label">Add new narrow terms <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="narrow_terms" class="form-label">{{ __('Add new narrow terms') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea name="narrow_terms" id="narrow_terms" class="form-control" rows="2">{{ old('narrow_terms', '') }}</textarea>
             </div>
 
@@ -404,13 +404,13 @@
 
     <ul class="actions mb-3 nav gap-2">
       @if($term)
-        <li><a href="{{ route('term.show', $term->slug) }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+        <li><a href="{{ route('term.show', $term->slug) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
         <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
       @else
         @if($selectedTaxonomyId)
-          <li><a href="{{ route('term.browse', ['taxonomy' => $selectedTaxonomyId]) }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+          <li><a href="{{ route('term.browse', ['taxonomy' => $selectedTaxonomyId]) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
         @else
-          <li><a href="{{ route('taxonomy.browse') }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+          <li><a href="{{ route('taxonomy.browse') }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
         @endif
         <li><input class="btn atom-btn-outline-success" type="submit" value="Create"></li>
       @endif

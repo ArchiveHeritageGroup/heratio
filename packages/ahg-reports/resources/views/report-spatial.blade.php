@@ -27,7 +27,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h1 class="h3 mb-1"><i class="bi bi-geo-alt me-2"></i>{{ __('Spatial Analysis Export') }}</h1>
-        <p class="text-muted mb-0">Export site records with GPS coordinates for GIS/spatial analysis</p>
+        <p class="text-muted mb-0">{{ __('Export site records with GPS coordinates for GIS/spatial analysis') }}</p>
       </div>
     </div>
 
@@ -49,7 +49,7 @@
                     <option value="{{ $value }}">{{ $label }}</option>
                   @endforeach
                 </select>
-                <div class="form-text">Select the database location where GPS coordinates are stored for your site records.</div>
+                <div class="form-text">{{ __('Select the database location where GPS coordinates are stored for your site records.') }}</div>
               </div>
 
               <div id="propertyFields" class="row">
@@ -99,7 +99,7 @@
                         <option value="{{ $name }}">{{ $name }}</option>
                       @endforeach
                     </select>
-                    <div class="form-text">Filter by level (e.g., Site, Collection, Fonds)</div>
+                    <div class="form-text">{{ __('Filter by level (e.g., Site, Collection, Fonds)') }}</div>
                   </div>
                 </div>
               </div>
@@ -115,7 +115,7 @@ incising
 San
 Khoekhoen
 Khoi</textarea>
-                <div class="form-text">Records must have at least one of these subject terms. Leave empty for all subjects.</div>
+                <div class="form-text">{{ __('Records must have at least one of these subject terms. Leave empty for all subjects.') }}</div>
               </div>
 
               <div class="row">
@@ -123,7 +123,7 @@ Khoi</textarea>
                   <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="top_level_only" name="top_level_only" value="1" checked>
                     <label class="form-check-label" for="top_level_only">
-                      Top-level records only (exclude child records like panels/images)
+                      {{ __('Top-level records only (exclude child records like panels/images)') }}
                     </label>
                   </div>
                 </div>
@@ -131,7 +131,7 @@ Khoi</textarea>
                   <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="require_coordinates" name="require_coordinates" value="1" checked>
                     <label class="form-check-label" for="require_coordinates">
-                      Require coordinates (exclude records without lat/long)
+                      {{ __('Require coordinates (exclude records without lat/long)') }}
                     </label>
                   </div>
                 </div>
@@ -214,7 +214,7 @@ Khoi</textarea>
               <h6 class="mb-0"><i class="bi bi-question-circle me-2"></i>{{ __('Help') }}</h6>
             </div>
             <div class="card-body small">
-              <p><strong>{{ __('Use Case:') }}</strong> Overlay site locations onto geological maps to investigate relationships between surface geology and rock art traditions.</p>
+              <p><strong>{{ __('Use Case:') }}</strong> {{ __('Overlay site locations onto geological maps to investigate relationships between surface geology and rock art traditions.') }}</p>
               <p><strong>{{ __('Coordinate Sources:') }}</strong></p>
               <ul class="mb-2">
                 <li><strong>{{ __('Property Table:') }}</strong> {{ __('Custom fields stored in the property table') }}</li>
@@ -222,7 +222,7 @@ Khoi</textarea>
                 <li><strong>{{ __('DAM Metadata:') }}</strong> {{ __('GPS extracted from image EXIF') }}</li>
                 <li><strong>{{ __('Contact Info:') }}</strong> {{ __('Repository location coordinates') }}</li>
               </ul>
-              <p class="mb-0"><strong>{{ __('Note:') }}</strong> Records can be both painted AND engraved if they have subjects matching both term lists.</p>
+              <p class="mb-0"><strong>{{ __('Note:') }}</strong> {{ __('Records can be both painted AND engraved if they have subjects matching both term lists.') }}</p>
             </div>
           </div>
         </div>

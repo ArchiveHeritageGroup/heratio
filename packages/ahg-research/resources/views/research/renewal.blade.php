@@ -52,13 +52,13 @@
 <div class="card">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h5 class="mb-0"><i class="fas fa-redo me-2"></i>{{ __('Request Renewal') }}</h5></div>
     <div class="card-body">
-        <p class="text-muted">Submit a renewal request to extend your researcher access. An administrator will review your request.</p>
+        <p class="text-muted">{{ __('Submit a renewal request to extend your researcher access. An administrator will review your request.') }}</p>
         <form method="POST">
             @csrf
             <div class="mb-3">
                 <label class="form-label">{{ __('Reason for Renewal') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <textarea class="form-control" name="reason" rows="4" placeholder="{{ __('Please describe why you need to renew your researcher access (e.g., ongoing research project, continued study...)') }}"></textarea>
-                <div class="form-text">Providing a reason helps administrators process your request faster.</div>
+                <div class="form-text">{{ __('Providing a reason helps administrators process your request faster.') }}</div>
             </div>
             <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-paper-plane me-1"></i>{{ __('Submit Renewal Request') }}</button>
         </form>

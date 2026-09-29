@@ -29,7 +29,7 @@
         <td>{{ e($r->property_value ?? '-') }}</td>
       </tr>
       @empty
-      <tr><td colspan="3" class="text-muted text-center py-4">No IPTC data found.</td></tr>
+      <tr><td colspan="3" class="text-muted text-center py-4">{{ __('No IPTC data found.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

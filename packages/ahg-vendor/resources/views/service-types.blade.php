@@ -184,7 +184,7 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to delete the service type "<strong id="deleteTypeName"></strong>"?</p>
+                    <p>{{ __('Are you sure you want to delete the service type "') }}<strong id="deleteTypeName"></strong>"?</p>
                     <p class="text-danger mb-0"><small>{{ __('This action cannot be undone. Transactions using this type will not be affected.') }}</small></p>
                 </div>
                 <div class="modal-footer">

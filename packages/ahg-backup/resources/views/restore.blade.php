@@ -118,7 +118,7 @@
 
 <div class="alert alert-warning">
   <i class="fas fa-exclamation-triangle me-1"></i>
-  <strong>{{ __('Warning:') }}</strong> Restoring will overwrite existing data. This cannot be undone. Make sure you have a current backup before proceeding.
+  <strong>{{ __('Warning:') }}</strong> {{ __('Restoring will overwrite existing data. This cannot be undone. Make sure you have a current backup before proceeding.') }}
 </div>
 
 @if(count($backups) > 0)

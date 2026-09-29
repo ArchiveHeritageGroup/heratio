@@ -18,7 +18,7 @@
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">
-        <tr><th class="text-muted" style="width:35%">{{ __('RiC Role') }}</th><td>Loan event / temporary custody transfer</td></tr>
+        <tr><th class="text-muted" style="width:35%">{{ __('RiC Role') }}</th><td>{{ __('Loan event / temporary custody transfer') }}</td></tr>
         @if(! empty($loan->loan_type))<tr><th class="text-muted">{{ __('Loan type') }}</th><td>{{ $loan->loan_type }}</td></tr>@endif
         @if(! empty($loan->start_date))<tr><th class="text-muted">{{ __('rico:beginningDate') }}</th><td>{{ $loan->start_date }}</td></tr>@endif
         @if(! empty($loan->end_date))<tr><th class="text-muted">{{ __('rico:endDate') }}</th><td>{{ $loan->end_date }}</td></tr>@endif

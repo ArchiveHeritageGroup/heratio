@@ -45,7 +45,7 @@
                     </select></div>
                     <div class="mb-3"><label class="form-label">{{ __('Access Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="access_type" class="form-select"><option value="view">{{ __('View Only') }}</option><option value="download">{{ __('Download') }}</option><option value="annotate">{{ __('Annotate') }}</option></select></div>
                     <div class="mb-3"><label class="form-label">{{ __('Expires') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="datetime-local" name="expires_at" class="form-control"></div>
-                    <div class="mb-3"><label class="form-label">Password (optional) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="password" class="form-control"></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Password (optional)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" name="password" class="form-control"></div>
                     <button type="submit" class="btn atom-btn-white w-100"><i class="fas fa-link me-1"></i>{{ __('Create Link') }}</button>
                 </form>
             </div>

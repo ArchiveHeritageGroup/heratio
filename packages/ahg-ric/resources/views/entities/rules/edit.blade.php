@@ -10,7 +10,7 @@
         <div class="alert alert-danger">{{ session('errors')->first('create') }}</div>
     @endif
     <div class="row mb-3">
-        <div class="col-md-8"><label class="form-label">Title <span class="text-danger">*</span></label><input type="text" name="title" class="form-control" value="{{ $entity->title ?? '' }}" required></div>
+        <div class="col-md-8"><label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label><input type="text" name="title" class="form-control" value="{{ $entity->title ?? '' }}" required></div>
         <div class="col-md-4">
             <label class="form-label">{{ __('Type') }}</label>
             <select name="type_id" class="form-select">
@@ -34,7 +34,7 @@
     <div class="mb-3"><label class="form-label">{{ __('Sources') }}</label><textarea name="sources" class="form-control" rows="2">{{ $entity->sources ?? '' }}</textarea></div>
     <div class="d-flex gap-2">
         <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> {{ __('Save') }}</button>
-        @if($entity)<a href="{{ route('ric.entities.show', ['rules', $entity->slug]) }}" class="btn btn-secondary">Cancel</a>@endif
+        @if($entity)<a href="{{ route('ric.entities.show', ['rules', $entity->slug]) }}" class="btn btn-secondary">{{ __('Cancel') }}</a>@endif
     </div>
 </form>
 @endsection

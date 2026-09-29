@@ -16,13 +16,13 @@
 
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ url('/admin') }}">Admin</a></li>
-        <li class="breadcrumb-item active">Ingestion Manager</li>
+        <li class="breadcrumb-item"><a href="{{ url('/admin') }}">{{ __('Admin') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Ingestion Manager') }}</li>
     </ol>
 </nav>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <p class="text-muted mb-0">Manage batch imports of records and digital objects</p>
+    <p class="text-muted mb-0">{{ __('Manage batch imports of records and digital objects') }}</p>
     <div>
         <div class="btn-group me-2">
             <a href="{{ route('ingest.template', 'archive') }}" class="btn btn-outline-secondary btn-sm">
@@ -40,7 +40,7 @@
         <div class="card-body text-center py-5">
             <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
             <h5 class="text-muted">{{ __('No ingest sessions yet') }}</h5>
-            <p class="text-muted">Start a new ingest to batch-import records and digital objects</p>
+            <p class="text-muted">{{ __('Start a new ingest to batch-import records and digital objects') }}</p>
             <a href="{{ route('ingest.configure') }}" class="btn btn btn-outline-secondary">
                 <i class="fas fa-plus me-1"></i>{{ __('New Ingest') }}
             </a>

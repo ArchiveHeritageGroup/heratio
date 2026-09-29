@@ -17,7 +17,7 @@
 @endif
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <p class="text-muted mb-0">Directories that Heratio watches for new scan files. Each folder is backed by a persistent ingest session.</p>
+    <p class="text-muted mb-0">{{ __('Directories that Heratio watches for new scan files. Each folder is backed by a persistent ingest session.') }}</p>
     <div>
         <a href="{{ route('scan.dashboard') }}" class="btn btn-outline-secondary me-2">
             <i class="fas fa-tachometer-alt me-1"></i>{{ __('Dashboard') }}
@@ -66,7 +66,7 @@
                     <td><small>{{ $f->layout }}</small></td>
                     <td>
                         @if($f->enabled)
-                            <span class="badge bg-success">On</span>
+                            <span class="badge bg-success">{{ __('On') }}</span>
                         @else
                             <span class="badge bg-secondary">{{ __('Off') }}</span>
                         @endif

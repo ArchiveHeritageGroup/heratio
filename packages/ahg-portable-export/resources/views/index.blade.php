@@ -22,8 +22,7 @@
     </div>
     <div class="card-body">
       <p class="text-muted mb-0">
-        Generate a self-contained catalogue viewer for offline access on CD, USB, or downloadable ZIP.
-        The viewer opens in any modern browser with no server or internet connection required.
+        {{ __('Generate a self-contained catalogue viewer for offline access on CD, USB, or downloadable ZIP. The viewer opens in any modern browser with no server or internet connection required.') }}
       </p>
     </div>
   </div>
@@ -33,16 +32,16 @@
     <div class="card-header p-0">
       <div class="d-flex" id="wizard-steps">
         <button class="wizard-step flex-fill btn btn-link text-decoration-none py-3 rounded-0 active" data-step="1">
-          <span class="badge rounded-pill bg-primary me-1">1</span> Scope
+          <span class="badge rounded-pill bg-primary me-1">1</span> {{ __('Scope') }}
         </button>
         <button class="wizard-step flex-fill btn btn-link text-decoration-none py-3 rounded-0" data-step="2">
-          <span class="badge rounded-pill bg-secondary me-1">2</span> Content
+          <span class="badge rounded-pill bg-secondary me-1">2</span> {{ __('Content') }}
         </button>
         <button class="wizard-step flex-fill btn btn-link text-decoration-none py-3 rounded-0" data-step="3">
-          <span class="badge rounded-pill bg-secondary me-1">3</span> Configure
+          <span class="badge rounded-pill bg-secondary me-1">3</span> {{ __('Configure') }}
         </button>
         <button class="wizard-step flex-fill btn btn-link text-decoration-none py-3 rounded-0" data-step="4">
-          <span class="badge rounded-pill bg-secondary me-1">4</span> Generate
+          <span class="badge rounded-pill bg-secondary me-1">4</span> {{ __('Generate') }}
         </button>
       </div>
     </div>
@@ -53,7 +52,7 @@
         {{-- ─── Step 1: Scope ─────────────────────────────────────── --}}
         <div class="wizard-panel" data-step="1">
           <h5 class="mb-3"><i class="fas fa-bullseye me-2"></i>{{ __('What to Export') }}</h5>
-          <p class="text-muted mb-3">Select the scope of descriptions to include in the portable viewer.</p>
+          <p class="text-muted mb-3">{{ __('Select the scope of descriptions to include in the portable viewer.') }}</p>
 
           <div class="row mb-3">
             <div class="col-md-6">
@@ -80,7 +79,7 @@
                   <i class="fas fa-times"></i>
                 </button>
               </div>
-              <div class="form-text">Search by title or identifier to find the fonds/collection.</div>
+              <div class="form-text">{{ __('Search by title or identifier to find the fonds/collection.') }}</div>
             </div>
           </div>
 
@@ -98,7 +97,7 @@
 
           <div class="d-flex justify-content-end mt-4">
             <button type="button" class="btn btn-primary wizard-next" data-next="2">
-              Next: Content <i class="fas fa-arrow-right ms-1"></i>
+              {{ __('Next: Content') }} <i class="fas fa-arrow-right ms-1"></i>
             </button>
           </div>
         </div>
@@ -106,7 +105,7 @@
         {{-- ─── Step 2: Content ───────────────────────────────────── --}}
         <div class="wizard-panel" data-step="2" style="display:none;">
           <h5 class="mb-3"><i class="fas fa-copy me-2"></i>{{ __('Content Options') }}</h5>
-          <p class="text-muted mb-3">Choose the export type and which content to include.</p>
+          <p class="text-muted mb-3">{{ __('Choose the export type and which content to include.') }}</p>
 
           <div class="row mb-4">
             <div class="col-md-8">
@@ -115,17 +114,17 @@
               <div class="btn-group w-100" role="group">
                 <input type="radio" class="btn-check" name="mode" id="mode-viewer" value="read_only" {{ $defaultMode === 'read_only' ? 'checked' : '' }}>
                 <label class="btn btn-outline-primary" for="mode-viewer">
-                  <i class="fas fa-eye me-1"></i>Viewer Export
+                  <i class="fas fa-eye me-1"></i>{{ __('Viewer Export') }}
                   <br><small class="fw-normal">{{ __('HTML viewer for offline browsing') }}</small>
                 </label>
                 <input type="radio" class="btn-check" name="mode" id="mode-editable" value="editable" {{ $defaultMode === 'editable' ? 'checked' : '' }}>
                 <label class="btn btn-outline-primary" for="mode-editable">
-                  <i class="fas fa-pen me-1"></i>Editable Export
+                  <i class="fas fa-pen me-1"></i>{{ __('Editable Export') }}
                   <br><small class="fw-normal">{{ __('Viewer with notes + file import') }}</small>
                 </label>
                 <input type="radio" class="btn-check" name="mode" id="mode-archive" value="archive" {{ $defaultMode === 'archive' ? 'checked' : '' }}>
                 <label class="btn btn-outline-success" for="mode-archive">
-                  <i class="fas fa-archive me-1"></i>Archive Export
+                  <i class="fas fa-archive me-1"></i>{{ __('Archive Export') }}
                   <br><small class="fw-normal">{{ __('Re-importable JSON + digital objects') }}</small>
                 </label>
               </div>
@@ -222,7 +221,7 @@
                   <div class="card-body">
                     <div class="form-check form-switch mb-2">
                       <input class="form-check-input" type="checkbox" id="inc-objects" name="include_objects" value="1" {{ ($defaults['include_objects'] ?? true) ? 'checked' : '' }}>
-                      <label class="form-check-label fw-bold" for="inc-objects"><i class="fas fa-file-image me-1"></i>Digital Objects</label>
+                      <label class="form-check-label fw-bold" for="inc-objects"><i class="fas fa-file-image me-1"></i>{{ __('Digital Objects') }}</label>
                     </div>
                     <small class="text-muted">{{ __('Include digital object files in the export package.') }}</small>
                   </div>
@@ -233,7 +232,7 @@
                   <div class="card-body">
                     <div class="form-check form-switch mb-2">
                       <input class="form-check-input" type="checkbox" id="inc-thumbs" name="include_thumbnails" value="1" {{ ($defaults['include_thumbnails'] ?? true) ? 'checked' : '' }}>
-                      <label class="form-check-label fw-bold" for="inc-thumbs"><i class="fas fa-image me-1"></i>Thumbnails</label>
+                      <label class="form-check-label fw-bold" for="inc-thumbs"><i class="fas fa-image me-1"></i>{{ __('Thumbnails') }}</label>
                     </div>
                     <small class="text-muted">{{ __('Small thumbnail images for browse views.') }}</small>
                   </div>
@@ -244,7 +243,7 @@
                   <div class="card-body">
                     <div class="form-check form-switch mb-2">
                       <input class="form-check-input" type="checkbox" id="inc-refs" name="include_references" value="1" {{ ($defaults['include_references'] ?? true) ? 'checked' : '' }}>
-                      <label class="form-check-label fw-bold" for="inc-refs"><i class="fas fa-images me-1"></i>Reference Images</label>
+                      <label class="form-check-label fw-bold" for="inc-refs"><i class="fas fa-images me-1"></i>{{ __('Reference Images') }}</label>
                     </div>
                     <small class="text-muted">{{ __('Medium-resolution images for detail views.') }}</small>
                   </div>
@@ -255,7 +254,7 @@
                   <div class="card-body">
                     <div class="form-check form-switch mb-2">
                       <input class="form-check-input" type="checkbox" id="inc-masters" name="include_masters" value="1" {{ ($defaults['include_masters'] ?? false) ? 'checked' : '' }}>
-                      <label class="form-check-label fw-bold" for="inc-masters"><i class="fas fa-file-archive me-1"></i>Master Files</label>
+                      <label class="form-check-label fw-bold" for="inc-masters"><i class="fas fa-file-archive me-1"></i>{{ __('Master Files') }}</label>
                     </div>
                     <small class="text-muted">{{ __('Full-resolution master files. Warning: can significantly increase export size.') }}</small>
                   </div>
@@ -269,7 +268,7 @@
               <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
             </button>
             <button type="button" class="btn btn-primary wizard-next" data-next="3">
-              Next: Configure <i class="fas fa-arrow-right ms-1"></i>
+              {{ __('Next: Configure') }} <i class="fas fa-arrow-right ms-1"></i>
             </button>
           </div>
         </div>
@@ -277,11 +276,11 @@
         {{-- ─── Step 3: Configure ─────────────────────────────────── --}}
         <div class="wizard-panel" data-step="3" style="display:none;">
           <h5 class="mb-3"><i class="fas fa-sliders-h me-2"></i>{{ __('Configuration') }}</h5>
-          <p class="text-muted mb-3">Set the title, language, and optional branding for the viewer.</p>
+          <p class="text-muted mb-3">{{ __('Set the title, language, and optional branding for the viewer.') }}</p>
 
           <div class="row mb-3">
             <div class="col-md-6">
-              <label for="export-title" class="form-label fw-bold">Export Title <span class="text-danger">*</span></label>
+              <label for="export-title" class="form-label fw-bold">{{ __('Export Title') }} <span class="text-danger">*</span></label>
               <input type="text" class="form-control" id="export-title" name="title" value="Portable Catalogue" required>
             </div>
             <div class="col-md-3">
@@ -325,7 +324,7 @@
         {{-- ─── Step 4: Generate ──────────────────────────────────── --}}
         <div class="wizard-panel" data-step="4" style="display:none;">
           <h5 class="mb-3"><i class="fas fa-check-square me-2"></i>{{ __('Review & Generate') }}</h5>
-          <p class="text-muted mb-3">Review your export settings and start generation.</p>
+          <p class="text-muted mb-3">{{ __('Review your export settings and start generation.') }}</p>
 
           <div class="card mb-3">
             <div class="card-body">
@@ -403,7 +402,7 @@
         </thead>
         <tbody>
           @if($exports->isEmpty())
-            <tr><td colspan="9" class="text-center text-muted py-3">No exports yet</td></tr>
+            <tr><td colspan="9" class="text-center text-muted py-3">{{ __('No exports yet') }}</td></tr>
           @else
             @foreach($exports as $exp)
               <tr>

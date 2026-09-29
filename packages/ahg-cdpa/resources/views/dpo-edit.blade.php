@@ -84,7 +84,7 @@
                                 <input class="form-check-input" type="checkbox" name="form_dp2_submitted" id="form_dp2_submitted"
                                        {{ ($dpo->form_dp2_submitted ?? false) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="form_dp2_submitted">
-                                    Form DP2 has been submitted to the regulator
+                                    {{ __('Form DP2 has been submitted to the regulator') }}
                                 </label>
                             </div>
                         </div>

@@ -125,7 +125,7 @@
             <label class="form-label">{{ __('Justification *') }}</label>
             <textarea name="justification" class="form-control" rows="5" required
                       minlength="20" placeholder="{{ __('Please provide a detailed justification for your access request. Include the purpose, project name, and any relevant authorization.') }}"></textarea>
-            <div class="form-text">Minimum 20 characters required.</div>
+            <div class="form-text">{{ __('Minimum 20 characters required.') }}</div>
           </div>
 
           <div class="d-grid gap-2">

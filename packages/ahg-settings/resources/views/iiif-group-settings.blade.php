@@ -62,7 +62,7 @@
           <div class="col-sm-9">
             <input type="url" class="form-control" id="iiif_server_url" name="settings[iiif_server_url]"
                    value="{{ e($settings['iiif_server_url'] ?? '') }}" placeholder="{{ __('https://iiif.example.com') }}">
-            <div class="form-text">External IIIF server URL (leave blank to use built-in)</div>
+            <div class="form-text">{{ __('External IIIF server URL (leave blank to use built-in)') }}</div>
           </div>
         </div>
 

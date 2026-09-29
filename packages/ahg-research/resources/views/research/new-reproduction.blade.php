@@ -17,7 +17,7 @@
         </div>
         <div class="mb-3"><label class="form-label">{{ __('Purpose') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><select name="purpose" class="form-select"><option value="personal_research">{{ __('Personal Research') }}</option><option value="publication">{{ __('Publication') }}</option><option value="exhibition">{{ __('Exhibition') }}</option><option value="legal">{{ __('Legal') }}</option><option value="other">{{ __('Other') }}</option></select></div>
         <div class="mb-3"><label class="form-label">{{ __('Special Instructions') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><textarea name="notes" class="form-control" rows="3" placeholder="{{ __('Page ranges, specific sections, quality requirements...') }}"></textarea></div>
-        <div class="form-check mb-3"><input type="checkbox" name="agree_terms" class="form-check-input" id="agreeTerms" required><label class="form-check-label" for="agreeTerms">I agree to the reproduction terms and copyright conditions <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
+        <div class="form-check mb-3"><input type="checkbox" name="agree_terms" class="form-check-input" id="agreeTerms" required><label class="form-check-label" for="agreeTerms">{{ __('I agree to the reproduction terms and copyright conditions') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
         <button type="submit" class="btn atom-btn-white"><i class="fas fa-paper-plane me-1"></i>{{ __('Submit Request') }}</button>
         <a href="{{ route('research.reproductions') }}" class="btn atom-btn-white">{{ __('Cancel') }}</a>
     </form>

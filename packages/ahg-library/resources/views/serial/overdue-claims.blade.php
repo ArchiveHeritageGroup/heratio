@@ -3,7 +3,7 @@
 @section('content')
 <div class="container py-4">
     <h2 class="mb-1"><i class="fas fa-exclamation-triangle me-2 text-warning"></i>{{ __('Overdue Claims') }}</h2>
-    <p class="text-muted mb-4">Active serials with issues overdue past 1.5x the expected interval.</p>
+    <p class="text-muted mb-4">{{ __('Active serials with issues overdue past 1.5x the expected interval.') }}</p>
 
     @if(session('serial_success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -14,7 +14,7 @@
 
     @if($claims->isEmpty())
         <div class="alert alert-success mb-0">
-            <i class="fas fa-check-circle me-2"></i>No overdue claims at this time. All active serials are on schedule.
+            <i class="fas fa-check-circle me-2"></i>{{ __('No overdue claims at this time. All active serials are on schedule.') }}
         </div>
     @else
         <div class="card shadow-sm mb-4">

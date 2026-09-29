@@ -102,7 +102,7 @@
           </div>
           <div class="col-md-6">
             <div class="mb-3">
-              <label for="rule_config" class="form-label">Rule Configuration (JSON) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="rule_config" class="form-label">{{ __('Rule Configuration (JSON)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea class="form-control" id="rule_config" name="rule_config" rows="2" placeholder='e.g. {"min_length": 100}'>{{ old('rule_config', $rule->rule_config ?? '') }}</textarea>
               <small class="text-muted">{{ __('JSON config for min_description_length (min_length) or custom_sql (sql)') }}</small>
             </div>

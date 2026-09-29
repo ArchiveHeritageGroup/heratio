@@ -17,7 +17,7 @@
   @if(!$configured)
     <div class="alert alert-warning">
       <h5><i class="fa fa-exclamation-triangle me-2"></i>{{ __('FTP/SFTP Not Configured') }}</h5>
-      <p class="mb-2">Please configure the FTP/SFTP connection settings before using this page.</p>
+      <p class="mb-2">{{ __('Please configure the FTP/SFTP connection settings before using this page.') }}</p>
       <a href="{{ url('/admin/settings/ftp') }}" class="btn atom-btn-white">
         <i class="fa fa-cog me-1"></i>{{ __('Configure FTP Settings') }}
       </a>
@@ -65,7 +65,7 @@
             <small class="text-muted"><i class="fa fa-file me-1"></i>{{ __('Accepted: CSV, XML, ZIP, images, documents') }}</small>
           </div>
           <div class="col-md-4 text-center">
-            <small class="text-muted"><i class="fa fa-hdd me-1"></i>Max file size: 2 GB per file</small>
+            <small class="text-muted"><i class="fa fa-hdd me-1"></i>{{ __('Max file size: 2 GB per file') }}</small>
           </div>
           <div class="col-md-4 text-end">
             <small class="text-muted"><i class="fa fa-server me-1"></i>Protocol: {{ strtoupper($protocol) }}</small>

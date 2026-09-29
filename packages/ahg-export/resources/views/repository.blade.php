@@ -8,9 +8,9 @@
 
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('homepage') }}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('export.index') }}">Export</a></li>
-            <li class="breadcrumb-item active">Repositories</li>
+            <li class="breadcrumb-item"><a href="{{ route('homepage') }}">{{ __('Home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('export.index') }}">{{ __('Export') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('Repositories') }}</li>
         </ol>
     </nav>
 
@@ -25,15 +25,15 @@
                         @csrf
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Export Format <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                                <label class="form-label">{{ __('Export Format') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <select name="format" class="form-select">
                                     <option value="csv">CSV</option>
                                 </select>
-                                <div class="form-text">CSV format includes all repository fields and contact information.</div>
+                                <div class="form-text">{{ __('CSV format includes all repository fields and contact information.') }}</div>
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Limit <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                                <label class="form-label">{{ __('Limit') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <select name="limit" class="form-select">
                                     <option value="0">{{ __('No limit (all records)') }}</option>
                                     <option value="50">50 records</option>
@@ -65,7 +65,7 @@
                 </div>
                 <div class="card-body">
                     <dl class="mb-0">
-                        <dt>Total Repositories</dt>
+                        <dt>{{ __('Total Repositories') }}</dt>
                         <dd class="h3 text-info">{{ number_format($repositoryCount) }}</dd>
                     </dl>
                 </div>
@@ -77,11 +77,11 @@
                 </div>
                 <div class="card-body small">
                     <ul class="mb-0">
-                        <li>Name, Identifier, History</li>
-                        <li>Collecting Policies, Holdings</li>
-                        <li>Opening Times, Access Conditions</li>
-                        <li>Contact Information (address, phone, email)</li>
-                        <li>GPS Coordinates (if available)</li>
+                        <li>{{ __('Name, Identifier, History') }}</li>
+                        <li>{{ __('Collecting Policies, Holdings') }}</li>
+                        <li>{{ __('Opening Times, Access Conditions') }}</li>
+                        <li>{{ __('Contact Information (address, phone, email)') }}</li>
+                        <li>{{ __('GPS Coordinates (if available)') }}</li>
                     </ul>
                 </div>
             </div>

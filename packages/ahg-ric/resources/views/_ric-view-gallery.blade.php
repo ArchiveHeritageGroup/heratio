@@ -35,7 +35,7 @@
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">
-        <tr><th class="text-muted" style="width:35%">{{ __('RiC Role') }}</th><td>Cultural artwork / museum piece</td></tr>
+        <tr><th class="text-muted" style="width:35%">{{ __('RiC Role') }}</th><td>{{ __('Cultural artwork / museum piece') }}</td></tr>
         @if(! empty($artwork->medium))<tr><th class="text-muted">{{ __('Medium') }}</th><td>{{ $artwork->medium }}</td></tr>@endif
         @if(! empty($artwork->date_created))<tr><th class="text-muted">{{ __('Date created') }}</th><td>{{ $artwork->date_created }}</td></tr>@endif
         @if(! empty($artwork->dimensions))<tr><th class="text-muted">{{ __('Dimensions') }}</th><td>{{ $artwork->dimensions }}</td></tr>@endif

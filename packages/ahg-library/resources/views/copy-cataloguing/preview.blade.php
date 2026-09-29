@@ -75,7 +75,7 @@
                         <input type="hidden" name="library_item_id" value="{{ $libraryItemId ?? null }}">
 
                         <p class="text-muted small mb-3">
-                            Optionally override fields before importing into the catalogue.
+                            {{ __('Optionally override fields before importing into the catalogue.') }}
                         </p>
 
                         <div class="row g-3">

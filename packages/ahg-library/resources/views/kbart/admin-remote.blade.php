@@ -14,8 +14,7 @@
                 <i class="fas fa-globe me-2"></i>{{ __('KBART Remote Feeds') }}
             </h1>
             <p class="text-muted small mb-0">
-                Automated scheduled import from remote KBART TSV endpoints.
-                Feeds are fetched daily and records are upserted into the library catalogue.
+                {{ __('Automated scheduled import from remote KBART TSV endpoints. Feeds are fetched daily and records are upserted into the library catalogue.') }}
             </p>
         </div>
         <div>

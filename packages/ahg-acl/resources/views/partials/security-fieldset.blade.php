@@ -223,7 +223,7 @@ $normalisePosition = function ($value) {
             <div class="form-check">
               <input class="form-check-input" type="checkbox" id="new_watermark_global" name="new_watermark_global" value="1">
               <label class="form-check-label" for="new_watermark_global">
-                Make available globally (for all records)
+                {{ __('Make available globally (for all records)') }}
               </label>
             </div>
           </div>
@@ -244,7 +244,7 @@ $normalisePosition = function ($value) {
 
         <div class="alert alert-info py-2 mb-0">
           <small><i class="fas fa-info-circle me-1"></i>
-          Security classification watermarks have the highest priority and will override custom watermarks.
+          {{ __('Security classification watermarks have the highest priority and will override custom watermarks.') }}
           </small>
         </div>
 

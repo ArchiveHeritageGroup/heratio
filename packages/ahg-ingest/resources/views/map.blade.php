@@ -32,7 +32,7 @@
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('ingest.index') }}">Ingestion Manager</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('ingest.index') }}">{{ __('Ingestion Manager') }}</a></li>
         <li class="breadcrumb-item">{{ $session->title ?? ('Session #' . ($session->id ?? '')) }}</li>
         <li class="breadcrumb-item active" aria-current="page">Map &amp; Enrich</li>
     </ol>
@@ -160,7 +160,7 @@
                             <p class="text-muted small mt-2 mb-0">...and {{ $rowCount - 10 }} more files</p>
                         @endif
                     @else
-                        <p class="text-muted mb-0">No files found in directory</p>
+                        <p class="text-muted mb-0">{{ __('No files found in directory') }}</p>
                     @endif
                 </div>
             </div>
@@ -169,10 +169,10 @@
                 <div class="card-body">
                     <h6><i class="fas fa-info-circle me-2"></i>{{ __('About Directory Import') }}</h6>
                     <ul class="small text-muted mb-0">
-                        <li>One record per file in the directory</li>
-                        <li>Titles auto-generated from filenames</li>
-                        <li>Metadata entered here applies to ALL records</li>
-                        <li>You can edit individual records after commit</li>
+                        <li>{{ __('One record per file in the directory') }}</li>
+                        <li>{{ __('Titles auto-generated from filenames') }}</li>
+                        <li>{{ __('Metadata entered here applies to ALL records') }}</li>
+                        <li>{{ __('You can edit individual records after commit') }}</li>
                     </ul>
                 </div>
             </div>
@@ -299,7 +299,7 @@
                             </div>
                         @endforeach
                     @else
-                        <p class="text-muted mb-0">No data rows found</p>
+                        <p class="text-muted mb-0">{{ __('No data rows found') }}</p>
                     @endif
                 </div>
             </div>

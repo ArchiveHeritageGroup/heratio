@@ -87,8 +87,8 @@
         <div class="card">
             <div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Pricing') }}</h6></div>
             <div class="card-body small text-muted">
-                <p>Fees vary by type, size, resolution, quantity, urgency, and intended use.</p>
-                <p class="mb-0">A quote will be provided before processing.</p>
+                <p>{{ __('Fees vary by type, size, resolution, quantity, urgency, and intended use.') }}</p>
+                <p class="mb-0">{{ __('A quote will be provided before processing.') }}</p>
             </div>
         </div>
     </div>

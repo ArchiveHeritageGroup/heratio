@@ -35,7 +35,7 @@ function levelsGetSectorIcon(string $sector): string {
 
 <div class="alert alert-info mb-4">
   <i class="fas fa-info-circle me-2"></i>
-  <strong>{{ __('How it works:') }}</strong> Select which levels appear in each sector. Only sectors with enabled plugins are shown. Archive levels are always available.
+  <strong>{{ __('How it works:') }}</strong> {{ __('Select which levels appear in each sector. Only sectors with enabled plugins are shown. Archive levels are always available.') }}
 </div>
 
 {{-- Sector tabs --}}
@@ -171,16 +171,16 @@ function levelsGetSectorIcon(string $sector): string {
       <div class="card-body small">
         <dl class="mb-0">
           <dt><i class="fas fa-archive me-1"></i> {{ __('Archive') }}</dt>
-          <dd class="text-muted">Traditional archival levels (ISAD(G), RAD, DACS)</dd>
+          <dd class="text-muted">{{ __('Traditional archival levels (ISAD(G), RAD, DACS)') }}</dd>
 
           @if (in_array('museum', $availableSectors))
           <dt><i class="fas fa-landmark me-1"></i> {{ __('Museum') }}</dt>
-          <dd class="text-muted">Object-based descriptions (CCO/CDWA)</dd>
+          <dd class="text-muted">{{ __('Object-based descriptions (CCO/CDWA)') }}</dd>
           @endif
 
           @if (in_array('library', $availableSectors))
           <dt><i class="fas fa-book me-1"></i> {{ __('Library') }}</dt>
-          <dd class="text-muted">Bibliographic materials (books, journals, articles)</dd>
+          <dd class="text-muted">{{ __('Bibliographic materials (books, journals, articles)') }}</dd>
           @endif
 
           @if (in_array('gallery', $availableSectors))
@@ -190,7 +190,7 @@ function levelsGetSectorIcon(string $sector): string {
 
           @if (in_array('dam', $availableSectors))
           <dt><i class="fas fa-photo-video me-1"></i> DAM</dt>
-          <dd class="text-muted mb-0">Digital Asset Management (media files)</dd>
+          <dd class="text-muted mb-0">{{ __('Digital Asset Management (media files)') }}</dd>
           @endif
         </dl>
       </div>

@@ -47,10 +47,10 @@
         <thead>
           <tr>
             <th class="sortable">
-              <a title="{{ __('Sort') }}" class="sortable" href="{{ storageSortUrl('name', $currentSort, $baseParams) }}">Name</a>
+              <a title="{{ __('Sort') }}" class="sortable" href="{{ storageSortUrl('name', $currentSort, $baseParams) }}">{{ __('Name') }}</a>
             </th>
             <th class="sortable">
-              <a title="{{ __('Sort') }}" class="sortable" href="{{ storageSortUrl('location', $currentSort, $baseParams) }}">Location</a>
+              <a title="{{ __('Sort') }}" class="sortable" href="{{ storageSortUrl('location', $currentSort, $baseParams) }}">{{ __('Location') }}</a>
             </th>
             <th>{{ __('Type') }}</th>
           </tr>
@@ -76,8 +76,8 @@
 
   @auth
     <section class="actions mb-3">
-      <a class="btn atom-btn-outline-light" href="{{ route('physicalobject.create') }}" title="{{ __('Add new') }}">Add new</a>
-      <a class="btn atom-btn-outline-light" href="{{ url('/physicalobject/holdingsReportExport') }}" title="{{ __('Export storage report') }}">Export storage report</a>
+      <a class="btn atom-btn-outline-light" href="{{ route('physicalobject.create') }}" title="{{ __('Add new') }}">{{ __('Add new') }}</a>
+      <a class="btn atom-btn-outline-light" href="{{ url('/physicalobject/holdingsReportExport') }}" title="{{ __('Export storage report') }}">{{ __('Export storage report') }}</a>
     </section>
   @endauth
 

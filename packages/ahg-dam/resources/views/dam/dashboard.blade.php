@@ -176,13 +176,13 @@
   <div class="card">
     <div class="card-header bg-light d-flex justify-content-between align-items-center">
       <span><i class="fas fa-clock"></i> {{ __('Recent Assets') }}</span>
-      <a href="{{ route('dam.browse') }}?sort=date&dir=desc" class="btn btn-sm btn-outline-secondary">View all</a>
+      <a href="{{ route('dam.browse') }}?sort=date&dir=desc" class="btn btn-sm btn-outline-secondary">{{ __('View all') }}</a>
     </div>
     <div class="card-body p-0">
       @if(empty($recentAssets))
         <div class="text-center text-muted py-5">
           <i class="fas fa-inbox fa-3x mb-3"></i>
-          <p>No DAM assets yet</p>
+          <p>{{ __('No DAM assets yet') }}</p>
           <a href="{{ route('dam.create') }}" class="btn btn-success">
             <i class="fas fa-plus"></i> {{ __('Create your first asset') }}
           </a>

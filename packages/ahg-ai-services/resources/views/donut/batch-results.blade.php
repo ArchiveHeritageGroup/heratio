@@ -38,7 +38,7 @@
           @if($r['non_genealogical'] ?? false)
             <span class="badge bg-secondary">{{ __('Yes') }}</span>
           @else
-            <span class="badge bg-success">No</span>
+            <span class="badge bg-success">{{ __('No') }}</span>
           @endif
         </td>
         <td>

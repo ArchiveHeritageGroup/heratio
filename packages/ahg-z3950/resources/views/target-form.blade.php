@@ -12,7 +12,7 @@
 
         <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ __('Add Z39.50 Target') }}</h1>
         <p class="text-sm text-gray-500 mb-8">
-            Register a remote Z39.50 server. Common targets include national libraries, union catalogues, and SRU gateways.
+            {{ __('Register a remote Z39.50 server. Common targets include national libraries, union catalogues, and SRU gateways.') }}
         </p>
 
         <form method="POST" action="{{ route('z3950.target.store') }}">
@@ -83,7 +83,7 @@
                 <div>
                     <label class="flex items-center gap-2 cursor-pointer">
                         <input type="checkbox" name="active" value="1" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" checked>
-                        <span class="text-sm text-gray-700">Active (visible in search form)</span>
+                        <span class="text-sm text-gray-700">{{ __('Active (visible in search form)') }}</span>
                     </label>
                 </div>
             </div>

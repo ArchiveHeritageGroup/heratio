@@ -7,7 +7,7 @@
   <div class="d-flex justify-content-between align-items-center mb-2">
     <h1 class="mb-0"><i class="fas fa-chart-line"></i> {{ __('Analytics Dashboard') }}</h1>
   </div>
-  <p class="text-muted mb-4">Usage statistics, search performance, and access control metrics</p>
+  <p class="text-muted mb-4">{{ __('Usage statistics, search performance, and access control metrics') }}</p>
 
   <div class="row">
     {{-- Sidebar --}}

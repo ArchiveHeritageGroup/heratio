@@ -25,8 +25,8 @@
           </h2>
           <div id="logo-collapse" class="accordion-collapse collapse show" aria-labelledby="logo-heading">
             <div class="alert alert-info m-3 mb-0">
-              <p>The logo file must be in "Portable Network Graphics" (PNG) format and the maximum height recommendation for a logo is 50px.</p>
-              <p class="mb-0">Note that browser cache may need to be cleared after uploading a new logo.</p>
+              <p>{{ __('The logo file must be in "Portable Network Graphics" (PNG) format and the maximum height recommendation for a logo is 50px.') }}</p>
+              <p class="mb-0">{{ __('Note that browser cache may need to be cleared after uploading a new logo.') }}</p>
             </div>
             <div class="accordion-body">
               <div class="mb-3">
@@ -53,7 +53,7 @@
           <div id="favicon-collapse" class="accordion-collapse collapse" aria-labelledby="favicon-heading">
             <div class="alert alert-info m-3 mb-0">
               <p>{{ __('The favicon file must be in ICO file format.') }}</p>
-              <p class="mb-0">Note that browser cache may need to be cleared after uploading a new favicon.</p>
+              <p class="mb-0">{{ __('Note that browser cache may need to be cleared after uploading a new favicon.') }}</p>
             </div>
             <div class="accordion-body">
               <div class="mb-3">

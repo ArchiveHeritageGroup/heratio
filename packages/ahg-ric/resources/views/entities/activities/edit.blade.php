@@ -11,7 +11,7 @@
     @endif
     <div class="row mb-3">
         <div class="col-md-8">
-            <label class="form-label">Name <span class="text-danger">*</span></label>
+            <label class="form-label">{{ __('Name') }} <span class="text-danger">*</span></label>
             <input type="text" name="name" class="form-control" value="{{ $entity->name ?? '' }}" required>
         </div>
         <div class="col-md-4">
@@ -42,7 +42,7 @@
     <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" class="form-control" rows="4">{{ $entity->description ?? '' }}</textarea></div>
     <div class="d-flex gap-2">
         <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> {{ __('Save') }}</button>
-        @if($entity)<a href="{{ route('ric.entities.show', ['activities', $entity->slug]) }}" class="btn btn-secondary">Cancel</a>@endif
+        @if($entity)<a href="{{ route('ric.entities.show', ['activities', $entity->slug]) }}" class="btn btn-secondary">{{ __('Cancel') }}</a>@endif
     </div>
 </form>
 @endsection

@@ -72,15 +72,15 @@
                 <div id="upload-collapse" class="accordion-collapse collapse show" aria-labelledby="upload-heading">
                     <div class="accordion-body">
                         <div class="alert alert-info" role="alert">
-                            <p>Add your digital objects by dragging and dropping local files into the pane below, or by clicking the browse link to open your local file explorer.</p>
-                            <p>The Title and Level of description values entered on this page will be applied to each child description created for the associated digital objects - <strong>%dd%</strong> represents an incrementing 2-value number, so by default descriptions created via this uploader will be named image 01, image 02, etc.</p>
-                            <p>You will also be able to review and individually modify each description title on the next page after clicking "Upload."</p>
+                            <p>{{ __('Add your digital objects by dragging and dropping local files into the pane below, or by clicking the browse link to open your local file explorer.') }}</p>
+                            <p>{{ __('The Title and Level of description values entered on this page will be applied to each child description created for the associated digital objects -') }} <strong>%dd%</strong> represents an incrementing 2-value number, so by default descriptions created via this uploader will be named image 01, image 02, etc.</p>
+                            <p>{{ __('You will also be able to review and individually modify each description title on the next page after clicking "Upload."') }}</p>
                         </div>
 
                         <div class="mb-3">
                             <label for="title" class="form-label">{{ __('Title') }}</label>
                             <input type="text" class="form-control" id="title" name="title" value="image %dd%">
-                            <div class="form-text">The "<strong>%dd%</strong>" placeholder will be replaced with an incremental number (e.g. 'image <strong>01</strong>', 'image <strong>02</strong>')</div>
+                            <div class="form-text">{{ __('The "') }}<strong>%dd%</strong>" placeholder will be replaced with an incremental number (e.g. 'image <strong>01</strong>', 'image <strong>02</strong>')</div>
                         </div>
 
                         <div class="mb-3">
@@ -95,7 +95,7 @@
 
                         <div class="alert alert-secondary py-2 mb-3">
                             <i class="fas fa-lightbulb me-1 text-warning"></i>
-                            <strong>{{ __('Tip:') }}</strong> For bulk imports with metadata mapping, validation, and CSV support, use the
+                            <strong>{{ __('Tip:') }}</strong> {{ __('For bulk imports with metadata mapping, validation, and CSV support, use the') }}
                             <a href="{{ route('ingest.index') }}"><i class="fas fa-file-import me-1"></i>{{ __('Data Ingest') }}</a> tool instead.
                         </div>
 

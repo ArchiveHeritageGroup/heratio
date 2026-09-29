@@ -28,7 +28,7 @@
         <div class="col-md-3">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
-                    <div class="small text-muted text-uppercase">Messages (30d)</div>
+                    <div class="small text-muted text-uppercase">{{ __('Messages (30d)') }}</div>
                     <div class="display-6">{{ $stats['messages_30d'] ?? 0 }}</div>
                 </div>
             </div>
@@ -36,7 +36,7 @@
         <div class="col-md-3">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
-                    <div class="small text-muted text-uppercase">Sessions (30d)</div>
+                    <div class="small text-muted text-uppercase">{{ __('Sessions (30d)') }}</div>
                     <div class="display-6">{{ $stats['sessions_30d'] ?? 0 }}</div>
                 </div>
             </div>
@@ -44,7 +44,7 @@
         <div class="col-md-3">
             <div class="card border-0 {{ ($stats['low_grounding_30d'] ?? 0) > 0 ? 'border-warning' : 'border-success' }} shadow-sm">
                 <div class="card-body">
-                    <div class="small text-muted text-uppercase">Low Groundings (30d)</div>
+                    <div class="small text-muted text-uppercase">{{ __('Low Groundings (30d)') }}</div>
                     <div class="display-6 {{ ($stats['low_grounding_30d'] ?? 0) > 0 ? 'text-warning' : 'text-success' }}">
                         {{ $stats['low_grounding_30d'] ?? 0 }}
                     </div>
@@ -103,7 +103,7 @@
     @else
         <div class="alert alert-success">
             <i class="fas fa-check-circle me-1"></i>
-            No low-grounding responses in the last 30 days.
+            {{ __('No low-grounding responses in the last 30 days.') }}
         </div>
     @endif
 </div>
@@ -117,7 +117,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" id="detail-body">
-                <p class="text-muted">Loading…</p>
+                <p class="text-muted">{{ __('Loading…') }}</p>
             </div>
         </div>
     </div>

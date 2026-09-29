@@ -77,7 +77,7 @@
       <div class="card-body text-center py-5">
         <i class="fas fa-cube fa-4x text-muted mb-3 d-block"></i>
         <h4>{{ __('No 3D Models Yet') }}</h4>
-        <p class="text-muted">Upload 3D models from individual object pages.</p>
+        <p class="text-muted">{{ __('Upload 3D models from individual object pages.') }}</p>
       </div>
     </div>
   @else

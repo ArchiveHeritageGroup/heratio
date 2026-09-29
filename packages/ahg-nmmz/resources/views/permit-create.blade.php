@@ -136,7 +136,7 @@
         <h6><i class="fas fa-info-circle me-1"></i> {{ __('Important') }}</h6>
         <ul class="small mb-0">
           <li>{{ __('Export of antiquities requires jurisdictional approval') }}</li>
-          <li>Processing may take 2-4 weeks</li>
+          <li>{{ __('Processing may take 2-4 weeks') }}</li>
           <li>{{ __('Fees apply per schedule') }}</li>
           <li>{{ __('False declarations are punishable by law') }}</li>
         </ul>

@@ -27,14 +27,10 @@
         </div>
 
         <p class="text-muted small mb-2">
-          OCAP® (Ownership, Control, Access, Possession) is a First Nations data-sovereignty
-          framework. Heratio ships it as an opt-in overlay so that the platform stays
-          jurisdiction-neutral by default.
+          {{ __('OCAP® (Ownership, Control, Access, Possession) is a First Nations data-sovereignty framework. Heratio ships it as an opt-in overlay so that the platform stays jurisdiction-neutral by default.') }}
         </p>
         <p class="text-muted small mb-0">
-          Typical markets where you would enable this: Canada (BAC-LAC, Indigenous Services
-          Canada), Australia (AIATSIS), Aotearoa New Zealand (Te Mana Raraunga), other
-          jurisdictions with Indigenous-data governance regimes.
+          {{ __('Typical markets where you would enable this: Canada (BAC-LAC, Indigenous Services Canada), Australia (AIATSIS), Aotearoa New Zealand (Te Mana Raraunga), other jurisdictions with Indigenous-data governance regimes.') }}
         </p>
       </div>
       <div class="card-footer text-end">

@@ -10,7 +10,7 @@
       <i class="fas fa-arrow-left"></i> {{ __('Back to Dashboard') }}
     </a>
   </div>
-  <p class="text-muted mb-4">Configure LLM providers, API keys, models, and AI feature settings</p>
+  <p class="text-muted mb-4">{{ __('Configure LLM providers, API keys, models, and AI feature settings') }}</p>
 
 {{-- LLM Provider Configurations --}}
   <div class="card shadow-sm mb-4">
@@ -65,7 +65,7 @@
                 <small class="text-muted">{{ __('Value:') }} <span id="newTempVal">0.70</span></small>
               </div>
               <div class="col-md-3">
-                <label class="form-label">Timeout (seconds) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Timeout (seconds)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="number" name="timeout_seconds" class="form-control" value="120" min="10" max="600">
               </div>
               <div class="col-md-3">
@@ -154,7 +154,7 @@
                   <small class="text-muted">{{ __('Value:') }} <span>{{ $cfg->temperature }}</span></small>
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label">Timeout (seconds) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Timeout (seconds)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="number" name="timeout_seconds" class="form-control" value="{{ $cfg->timeout_seconds }}" min="10" max="600">
                 </div>
                 <div class="col-md-3">
@@ -212,7 +212,7 @@
                    value="{{ $generalSettings->get('api_key')->setting_value ?? '' }}">
           </div>
           <div class="col-md-3">
-            <label class="form-label">API Timeout (seconds) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('API Timeout (seconds)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="number" name="settings_general[api_timeout]" class="form-control"
                    value="{{ $generalSettings->get('api_timeout')->setting_value ?? '60' }}" min="10" max="600">
           </div>
@@ -234,7 +234,7 @@
             <label class="form-label">{{ __('Require Review') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="settings_general[require_review]" class="form-select">
               <option value="1" {{ ($generalSettings->get('require_review')->setting_value ?? '1') === '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
-              <option value="0" {{ ($generalSettings->get('require_review')->setting_value ?? '1') === '0' ? 'selected' : '' }}>No</option>
+              <option value="0" {{ ($generalSettings->get('require_review')->setting_value ?? '1') === '0' ? 'selected' : '' }}>{{ __('No') }}</option>
             </select>
           </div>
         </div>
@@ -252,13 +252,13 @@
             <label class="form-label">{{ __('NER Enabled') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="settings_ner[enabled]" class="form-select">
               <option value="1" {{ ($nerSettings->get('enabled')->setting_value ?? '1') === '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
-              <option value="0" {{ ($nerSettings->get('enabled')->setting_value ?? '1') === '0' ? 'selected' : '' }}>No</option>
+              <option value="0" {{ ($nerSettings->get('enabled')->setting_value ?? '1') === '0' ? 'selected' : '' }}>{{ __('No') }}</option>
             </select>
           </div>
           <div class="col-md-3">
             <label class="form-label">{{ __('Auto-link Exact Matches') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="settings_ner[auto_link_exact]" class="form-select">
-              <option value="0" {{ ($nerSettings->get('auto_link_exact')->setting_value ?? '0') === '0' ? 'selected' : '' }}>No</option>
+              <option value="0" {{ ($nerSettings->get('auto_link_exact')->setting_value ?? '0') === '0' ? 'selected' : '' }}>{{ __('No') }}</option>
               <option value="1" {{ ($nerSettings->get('auto_link_exact')->setting_value ?? '0') === '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
             </select>
           </div>
@@ -271,7 +271,7 @@
             <label class="form-label">{{ __('Extract from PDF') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="settings_ner[extract_from_pdf]" class="form-select">
               <option value="1" {{ ($nerSettings->get('extract_from_pdf')->setting_value ?? '1') === '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
-              <option value="0" {{ ($nerSettings->get('extract_from_pdf')->setting_value ?? '1') === '0' ? 'selected' : '' }}>No</option>
+              <option value="0" {{ ($nerSettings->get('extract_from_pdf')->setting_value ?? '1') === '0' ? 'selected' : '' }}>{{ __('No') }}</option>
             </select>
           </div>
         </div>
@@ -289,16 +289,16 @@
             <label class="form-label">{{ __('Enabled') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="settings_summarize[enabled]" class="form-select">
               <option value="1" {{ ($summarizeSettings->get('enabled')->setting_value ?? '1') === '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
-              <option value="0" {{ ($summarizeSettings->get('enabled')->setting_value ?? '1') === '0' ? 'selected' : '' }}>No</option>
+              <option value="0" {{ ($summarizeSettings->get('enabled')->setting_value ?? '1') === '0' ? 'selected' : '' }}>{{ __('No') }}</option>
             </select>
           </div>
           <div class="col-md-3">
-            <label class="form-label">Max Length (words) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Max Length (words)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="number" name="settings_summarize[max_length]" class="form-control"
                    value="{{ $summarizeSettings->get('max_length')->setting_value ?? '1000' }}" min="50" max="10000">
           </div>
           <div class="col-md-3">
-            <label class="form-label">Min Length (words) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Min Length (words)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="number" name="settings_summarize[min_length]" class="form-control"
                    value="{{ $summarizeSettings->get('min_length')->setting_value ?? '100' }}" min="10" max="5000">
           </div>
@@ -322,7 +322,7 @@
             <label class="form-label">{{ __('Enabled') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="settings_translate[enabled]" class="form-select">
               <option value="1" {{ ($translateSettings->get('enabled')->setting_value ?? '1') === '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
-              <option value="0" {{ ($translateSettings->get('enabled')->setting_value ?? '1') === '0' ? 'selected' : '' }}>No</option>
+              <option value="0" {{ ($translateSettings->get('enabled')->setting_value ?? '1') === '0' ? 'selected' : '' }}>{{ __('No') }}</option>
             </select>
           </div>
           <div class="col-md-3">
@@ -357,7 +357,7 @@
             <label class="form-label">{{ __('Enabled') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="settings_spellcheck[enabled]" class="form-select">
               <option value="1" {{ ($spellcheckSettings->get('enabled')->setting_value ?? '1') === '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
-              <option value="0" {{ ($spellcheckSettings->get('enabled')->setting_value ?? '1') === '0' ? 'selected' : '' }}>No</option>
+              <option value="0" {{ ($spellcheckSettings->get('enabled')->setting_value ?? '1') === '0' ? 'selected' : '' }}>{{ __('No') }}</option>
             </select>
           </div>
           <div class="col-md-4">
@@ -369,7 +369,7 @@
             <label class="form-label">{{ __('Ignore Capitalized Words') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="settings_spellcheck[ignore_capitalized]" class="form-select">
               <option value="1" {{ ($spellcheckSettings->get('ignore_capitalized')->setting_value ?? '1') === '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
-              <option value="0" {{ ($spellcheckSettings->get('ignore_capitalized')->setting_value ?? '1') === '0' ? 'selected' : '' }}>No</option>
+              <option value="0" {{ ($spellcheckSettings->get('ignore_capitalized')->setting_value ?? '1') === '0' ? 'selected' : '' }}>{{ __('No') }}</option>
             </select>
           </div>
         </div>
@@ -387,18 +387,18 @@
             <label class="form-label">{{ __('Enabled') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="settings_suggest[enabled]" class="form-select">
               <option value="1" {{ ($suggestSettings->get('enabled')->setting_value ?? '1') === '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
-              <option value="0" {{ ($suggestSettings->get('enabled')->setting_value ?? '1') === '0' ? 'selected' : '' }}>No</option>
+              <option value="0" {{ ($suggestSettings->get('enabled')->setting_value ?? '1') === '0' ? 'selected' : '' }}>{{ __('No') }}</option>
             </select>
           </div>
           <div class="col-md-3">
             <label class="form-label">{{ __('Require Review') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="settings_suggest[require_review]" class="form-select">
               <option value="1" {{ ($suggestSettings->get('require_review')->setting_value ?? '1') === '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
-              <option value="0" {{ ($suggestSettings->get('require_review')->setting_value ?? '1') === '0' ? 'selected' : '' }}>No</option>
+              <option value="0" {{ ($suggestSettings->get('require_review')->setting_value ?? '1') === '0' ? 'selected' : '' }}>{{ __('No') }}</option>
             </select>
           </div>
           <div class="col-md-3">
-            <label class="form-label">Auto Expire (days) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Auto Expire (days)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="number" name="settings_suggest[auto_expire_days]" class="form-control"
                    value="{{ $suggestSettings->get('auto_expire_days')->setting_value ?? '30' }}" min="0" max="365">
           </div>

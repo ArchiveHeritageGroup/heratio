@@ -50,7 +50,7 @@
                                         @if($def->is_required ?? false)
                                             <span class="badge bg-warning text-dark">{{ __('Yes') }}</span>
                                         @else
-                                            <span class="text-muted">No</span>
+                                            <span class="text-muted">{{ __('No') }}</span>
                                         @endif
                                     </td>
                                     <td>

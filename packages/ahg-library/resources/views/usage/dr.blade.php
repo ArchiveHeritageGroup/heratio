@@ -7,7 +7,7 @@
     <div class="d-flex justify-content-between align-items-start mb-4">
         <div>
             <h1 class="h3 mb-1">
-                <i class="fas fa-database me-2"></i>Database Usage Report (DR)
+                <i class="fas fa-database me-2"></i>{{ __('Database Usage Report (DR)') }}
             </h1>
             <p class="text-muted small mb-0">
                 COUNTER 5 Database Report -

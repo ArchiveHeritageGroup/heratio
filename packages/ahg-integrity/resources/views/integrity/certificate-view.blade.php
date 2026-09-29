@@ -45,7 +45,7 @@
       </tbody>
     </table>
 
-    <p class="mt-4">This certificate confirms that the above-described records have been destroyed in accordance with the applicable retention policy and authorization procedures.</p>
+    <p class="mt-4">{{ __('This certificate confirms that the above-described records have been destroyed in accordance with the applicable retention policy and authorization procedures.') }}</p>
 
     <div class="row mt-5 d-print-block">
       <div class="col-6 d-inline-block" style="width:45%;">

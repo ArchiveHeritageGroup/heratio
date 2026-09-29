@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><title>IIIF Auth Token</title></head>
+<!DOCTYPE html><html><head><title>{{ __('IIIF Auth Token') }}</title></head>
 <body><script>
 var tokenData = @json($tokenData ?? []);
 var origin = @json($origin ?? '*');

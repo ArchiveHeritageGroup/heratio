@@ -68,8 +68,7 @@
         <div class="card-body">
             <h5><i class="fas fa-info-circle me-2"></i>{{ __('About Template Library') }}</h5>
             <p class="mb-0">
-                These pre-built templates follow international standards and best practices.
-                Install them to quickly set up common form configurations, then customize as needed.
+                {{ __('These pre-built templates follow international standards and best practices. Install them to quickly set up common form configurations, then customize as needed.') }}
             </p>
         </div>
     </div>

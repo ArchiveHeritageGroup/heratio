@@ -78,7 +78,7 @@
         <div class="row">
           <div class="col-md-6">
             <div class="mb-3">
-              <label for="auto_archive_days" class="form-label">Auto Archive (days) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="auto_archive_days" class="form-label">{{ __('Auto Archive (days)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="number" class="form-control" id="auto_archive_days" name="auto_archive_days" value="{{ old('auto_archive_days') }}" placeholder="{{ __('Leave empty to disable') }}">
             </div>
           </div>

@@ -112,7 +112,7 @@
 
     {{-- MIME Type Breakdown --}}
     <h6>{{ __('MIME Type Breakdown') }}</h6>
-    <p class="text-muted small">Top 10 file types in your repository</p>
+    <p class="text-muted small">{{ __('Top 10 file types in your repository') }}</p>
 
     @if($stats['mime_type_breakdown']->count() > 0)
       <div class="table-responsive">

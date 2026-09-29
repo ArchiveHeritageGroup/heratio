@@ -22,13 +22,13 @@
     <div class="card-body py-2">
       <div class="btn-group" role="group">
         <a href="{{ route('ext-rights-admin.orphan-works', ['status' => 'all']) }}"
-           class="btn btn-{{ ($status ?? 'all') === 'all' ? 'dark' : 'outline-dark' }}">All</a>
+           class="btn btn-{{ ($status ?? 'all') === 'all' ? 'dark' : 'outline-dark' }}">{{ __('All') }}</a>
         <a href="{{ route('ext-rights-admin.orphan-works', ['status' => 'in_progress']) }}"
-           class="btn btn-{{ ($status ?? '') === 'in_progress' ? 'warning' : 'outline-warning' }}">In Progress</a>
+           class="btn btn-{{ ($status ?? '') === 'in_progress' ? 'warning' : 'outline-warning' }}">{{ __('In Progress') }}</a>
         <a href="{{ route('ext-rights-admin.orphan-works', ['status' => 'completed']) }}"
-           class="btn btn-{{ ($status ?? '') === 'completed' ? 'success' : 'outline-success' }}">Completed</a>
+           class="btn btn-{{ ($status ?? '') === 'completed' ? 'success' : 'outline-success' }}">{{ __('Completed') }}</a>
         <a href="{{ route('ext-rights-admin.orphan-works', ['status' => 'rights_holder_found']) }}"
-           class="btn btn-{{ ($status ?? '') === 'rights_holder_found' ? 'info' : 'outline-info' }}">Rights Holder Found</a>
+           class="btn btn-{{ ($status ?? '') === 'rights_holder_found' ? 'info' : 'outline-info' }}">{{ __('Rights Holder Found') }}</a>
       </div>
     </div>
   </div>
@@ -88,7 +88,7 @@
           </tr>
           @empty
           <tr>
-            <td colspan="6" class="text-center text-muted py-4">No orphan work searches found.</td>
+            <td colspan="6" class="text-center text-muted py-4">{{ __('No orphan work searches found.') }}</td>
           </tr>
           @endforelse
         </tbody>
@@ -102,17 +102,16 @@
       <h5 class="mb-0">{{ __('About Orphan Works') }}</h5>
     </div>
     <div class="card-body">
-      <p>Orphan works are copyrighted works whose rights holders cannot be identified or located after a diligent search.
-      Before using an orphan work, institutions should conduct and document a thorough due diligence search.</p>
+      <p>{{ __('Orphan works are copyrighted works whose rights holders cannot be identified or located after a diligent search. Before using an orphan work, institutions should conduct and document a thorough due diligence search.') }}</p>
 
       <h6>{{ __('Recommended Search Sources:') }}</h6>
       <ul>
-        <li>Copyright registries and databases</li>
-        <li>Author/artist societies and collecting organizations</li>
-        <li>Publisher records and catalogs</li>
-        <li>Library and archive catalogs</li>
-        <li>Internet searches</li>
-        <li>Newspaper and publication archives</li>
+        <li>{{ __('Copyright registries and databases') }}</li>
+        <li>{{ __('Author/artist societies and collecting organizations') }}</li>
+        <li>{{ __('Publisher records and catalogs') }}</li>
+        <li>{{ __('Library and archive catalogs') }}</li>
+        <li>{{ __('Internet searches') }}</li>
+        <li>{{ __('Newspaper and publication archives') }}</li>
       </ul>
 
       <p class="text-muted mb-0">

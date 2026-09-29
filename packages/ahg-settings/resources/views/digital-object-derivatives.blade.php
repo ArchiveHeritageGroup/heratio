@@ -24,7 +24,7 @@
                 <small class="text-muted">{{ __('If the page number does not exist, the derivative will be generated from the previous closest one.') }}</small>
               </div>
               <div class="mb-3">
-                <label class="form-label">Maximum length on longest edge (pixels) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Maximum length on longest edge (pixels)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="number" name="settings[reference_image_maxwidth]" class="form-control" value="{{ $settings['reference_image_maxwidth'] ?? '480' }}" min="100">
                 <small class="text-muted">{{ __('The maximum number of pixels on the longest edge for derived reference images.') }}</small>
               </div>

@@ -6,12 +6,12 @@
 <div class="container py-4">
   <h1>{{ __('OAI-PMH 2.0 Endpoint') }}</h1>
   <p class="lead">
-    Heratio exposes archival metadata for harvesting via the
+    {{ __('Heratio exposes archival metadata for harvesting via the') }}
     <a href="https://www.openarchives.org/OAI/openarchivesprotocol.html" target="_blank" rel="noopener">OAI-PMH 2.0</a>
     protocol. Use this page to test the endpoint or build a harvester.
   </p>
   <p>
-    <strong>Base URL:</strong>
+    <strong>{{ __('Base URL:') }}</strong>
     <code>{{ $baseUrl }}</code>
   </p>
 
@@ -24,7 +24,7 @@
     <li><code>ListRecords</code> - full records in the selected format</li>
     <li><code>GetRecord</code> - single record by identifier</li>
   </ul>
-  <p class="small text-muted">Each verb accepts both GET and POST as required by the OAI-PMH spec.</p>
+  <p class="small text-muted">{{ __('Each verb accepts both GET and POST as required by the OAI-PMH spec.') }}</p>
 
   <h2 class="h4 mt-4">{{ __('Metadata formats') }}</h2>
   <table class="table table-sm table-striped">
@@ -32,12 +32,12 @@
     <tbody>
       <tr>
         <td><code>oai_dc</code></td>
-        <td>Dublin Core (simple)</td>
+        <td>{{ __('Dublin Core (simple)') }}</td>
         <td><a href="http://www.openarchives.org/OAI/2.0/oai_dc.xsd" target="_blank" rel="noopener">oai_dc.xsd</a></td>
       </tr>
       <tr>
         <td><code>oai_ead</code></td>
-        <td>EAD 2002 (full hierarchy with descendants)</td>
+        <td>{{ __('EAD 2002 (full hierarchy with descendants)') }}</td>
         <td><a href="http://www.loc.gov/ead/ead.xsd" target="_blank" rel="noopener">ead.xsd</a></td>
       </tr>
       <tr>
@@ -52,8 +52,8 @@
       </tr>
       <tr>
         <td><code>marcxml</code></td>
-        <td>MARC21 (in MARCXML slim envelope)</td>
-        <td><a href="http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd" target="_blank" rel="noopener">MARC21slim.xsd</a></td>
+        <td>{{ __('MARC21 (in MARCXML slim envelope)') }}</td>
+        <td><a href="http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd" target="_blank" rel="noopener">{{ __('MARC21slim.xsd') }}</a></td>
       </tr>
     </tbody>
   </table>
@@ -76,7 +76,7 @@
 
   <h2 class="h4 mt-4">{{ __('Rate limiting') }}</h2>
   <p>
-    The endpoint is rate-limited to <strong>120 requests per minute per IP</strong>.
+    {{ __('The endpoint is rate-limited to') }} <strong>120 requests per minute per IP</strong>.
     Harvesters honouring <code>resumptionToken</code> pagination will not normally hit the limit.
   </p>
 
@@ -90,12 +90,12 @@
   <p>
     Anonymous harvesting is on by default. Operators can require API-key
     authentication by enabling <code>oai_authentication_enabled</code> in
-    <em>Admin → AHG Settings → OAI-PMH</em>; clients then supply
+    <em>{{ __('Admin → AHG Settings → OAI-PMH') }}</em>; clients then supply
     <code>X-API-Key</code> / <code>Authorization: Bearer</code> / <code>?api=</code>.
   </p>
 
   <p class="mt-4 small text-muted">
-    Issue tracker: <a href="https://github.com/ArchiveHeritageGroup/heratio/issues/655" target="_blank" rel="noopener">#655</a>
+    {{ __('Issue tracker:') }} <a href="https://github.com/ArchiveHeritageGroup/heratio/issues/655" target="_blank" rel="noopener">#655</a>
   </p>
 </div>
 @endsection

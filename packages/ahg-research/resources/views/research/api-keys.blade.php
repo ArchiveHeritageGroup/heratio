@@ -21,7 +21,7 @@
 
 <div class="alert alert-info">
     <i class="fas fa-info-circle me-2"></i>
-    API keys allow you to access your research data programmatically. Keep your keys secure and never share them publicly.
+    {{ __('API keys allow you to access your research data programmatically. Keep your keys secure and never share them publicly.') }}
     <br><strong>{{ __('API Base URL:') }}</strong> <code>{{ url('/api/research') }}</code>
 </div>
 
@@ -137,13 +137,13 @@
         <div class="mb-3">
             <label class="form-label">{{ __('Key Name') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <input type="text" class="form-control" name="name" required placeholder="{{ __('e.g. My Research App') }}" autocomplete="off">
-            <div class="form-text">A descriptive name to identify this key.</div>
+            <div class="form-text">{{ __('A descriptive name to identify this key.') }}</div>
         </div>
         <div class="mb-3">
             <label class="form-label">{{ __('Permissions') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-            <div class="form-check"><input type="checkbox" class="form-check-input" name="permissions[]" value="read" id="perm_read" checked><label class="form-check-label" for="perm_read">Read (collections, annotations, bibliographies) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
-            <div class="form-check"><input type="checkbox" class="form-check-input" name="permissions[]" value="write" id="perm_write"><label class="form-check-label" for="perm_write">Write (create/update collections, annotations) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
-            <div class="form-check"><input type="checkbox" class="form-check-input" name="permissions[]" value="search" id="perm_search"><label class="form-check-label" for="perm_search">Search (query the catalogue) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
+            <div class="form-check"><input type="checkbox" class="form-check-input" name="permissions[]" value="read" id="perm_read" checked><label class="form-check-label" for="perm_read">{{ __('Read (collections, annotations, bibliographies)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
+            <div class="form-check"><input type="checkbox" class="form-check-input" name="permissions[]" value="write" id="perm_write"><label class="form-check-label" for="perm_write">{{ __('Write (create/update collections, annotations)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
+            <div class="form-check"><input type="checkbox" class="form-check-input" name="permissions[]" value="search" id="perm_search"><label class="form-check-label" for="perm_search">{{ __('Search (query the catalogue)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
         </div>
         <div class="mb-3">
             <label class="form-label">{{ __('Expiry Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>

@@ -36,11 +36,11 @@
       <div class="card-header bg-info text-white"><i class="fas fa-info-circle me-1"></i> {{ __('What happens') }}</div>
       <div class="card-body small">
         <ol class="mb-0 ps-3">
-          <li>EML is parsed (headers + body, multipart text/html, attachment counts).</li>
-          <li>Original file is saved under the configured storage path for forensic preservation.</li>
+          <li>{{ __('EML is parsed (headers + body, multipart text/html, attachment counts).') }}</li>
+          <li>{{ __('Original file is saved under the configured storage path for forensic preservation.') }}</li>
           <li>A row is written to <code>rm_email_capture</code> with the parsed values.</li>
           <li>Duplicate detection by <code>Message-ID</code> - re-uploading is idempotent.</li>
-          <li>You then classify the email to a file plan node and optionally declare it as a record.</li>
+          <li>{{ __('You then classify the email to a file plan node and optionally declare it as a record.') }}</li>
         </ol>
       </div>
     </div>

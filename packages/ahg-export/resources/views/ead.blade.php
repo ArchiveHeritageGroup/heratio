@@ -55,7 +55,7 @@
       <div class="mb-3 form-check">
         <input type="checkbox" name="include_descendants" value="1" class="form-check-input" id="includeDescendants" checked>
         <label class="form-check-label" for="includeDescendants">
-          Include all descendants (series, files, items)
+          {{ __('Include all descendants (series, files, items)') }}
         </label>
       </div>
 
@@ -63,13 +63,13 @@
 
       <h6>{{ __('EAD Export includes:') }}</h6>
       <ul class="small text-muted">
-        <li>Descriptive identification (unitid, unittitle, unitdate)</li>
-        <li>Scope and content</li>
-        <li>Arrangement</li>
-        <li>Access and use restrictions</li>
-        <li>Custodial history</li>
-        <li>Subject access points</li>
-        <li>Hierarchical component structure (dsc/c)</li>
+        <li>{{ __('Descriptive identification (unitid, unittitle, unitdate)') }}</li>
+        <li>{{ __('Scope and content') }}</li>
+        <li>{{ __('Arrangement') }}</li>
+        <li>{{ __('Access and use restrictions') }}</li>
+        <li>{{ __('Custodial history') }}</li>
+        <li>{{ __('Subject access points') }}</li>
+        <li>{{ __('Hierarchical component structure (dsc/c)') }}</li>
       </ul>
 
       <hr>

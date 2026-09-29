@@ -13,7 +13,7 @@
       @forelse($records as $r)
       <tr><td><strong>{{ e($r->title ?? '-') }}</strong></td><td>{{ Str::limit($r->provenance_text ?? '-', 80) }}</td><td>{{ e($r->legal_status ?? '-') }}</td><td>{{ e($r->rights_holder ?? '-') }}</td></tr>
       @empty
-      <tr><td colspan="4" class="text-muted text-center py-4">No provenance records found.</td></tr>
+      <tr><td colspan="4" class="text-muted text-center py-4">{{ __('No provenance records found.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

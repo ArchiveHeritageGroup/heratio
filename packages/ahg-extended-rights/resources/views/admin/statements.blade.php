@@ -17,13 +17,12 @@
     <div class="card-header">
       <h5 class="mb-0">
         <img src="https://rightsstatements.org/files/icons/rightss.logo.svg" alt="{{ __('Rights Statements') }}" height="24" class="me-2">
-        Rights Statements
+        {{ __('Rights Statements') }}
       </h5>
     </div>
     <div class="card-body">
       <p class="text-muted mb-4">
-        Rights Statements are a set of 12 standardized statements designed to communicate the copyright
-        and re-use status of digital objects. Learn more at
+        {{ __('Rights Statements are a set of 12 standardized statements designed to communicate the copyright and re-use status of digital objects. Learn more at') }}
         <a href="https://rightsstatements.org" target="_blank">rightsstatements.org</a>.
       </p>
 
@@ -68,13 +67,12 @@
     <div class="card-header">
       <h5 class="mb-0">
         <img src="https://mirrors.creativecommons.org/presskit/logos/cc.logo.svg" alt="{{ __('Creative Commons') }}" height="24" class="me-2">
-        Creative Commons Licenses
+        {{ __('Creative Commons Licenses') }}
       </h5>
     </div>
     <div class="card-body">
       <p class="text-muted mb-4">
-        Creative Commons licenses provide a simple, standardized way to give the public permission
-        to use creative work. Learn more at
+        {{ __('Creative Commons licenses provide a simple, standardized way to give the public permission to use creative work. Learn more at') }}
         <a href="https://creativecommons.org" target="_blank">creativecommons.org</a>.
       </p>
 
@@ -137,16 +135,14 @@
 
       <h6>{{ __('When to use Creative Commons:') }}</h6>
       <ul>
-        <li>When you (or the rights holder) want to grant specific permissions for reuse</li>
-        <li>For works you own or have permission to license</li>
-        <li>When you want to enable open access with clear terms</li>
+        <li>{{ __('When you (or the rights holder) want to grant specific permissions for reuse') }}</li>
+        <li>{{ __('For works you own or have permission to license') }}</li>
+        <li>{{ __('When you want to enable open access with clear terms') }}</li>
       </ul>
 
       <div class="alert alert-info mb-0">
         <i class="fas fa-info-circle me-2"></i>
-        <strong>{{ __('Note:') }}</strong> Rights Statements describe the copyright status of a work.
-        Creative Commons licenses are applied by the rights holder to grant permissions.
-        They serve different purposes and may be used together.
+        <strong>{{ __('Note:') }}</strong> {{ __('Rights Statements describe the copyright status of a work. Creative Commons licenses are applied by the rights holder to grant permissions. They serve different purposes and may be used together.') }}
       </div>
     </div>
   </div>

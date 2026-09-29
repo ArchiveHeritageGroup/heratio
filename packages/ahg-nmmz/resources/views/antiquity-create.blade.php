@@ -26,7 +26,7 @@
         </ol>
       </nav>
       <h1><i class="fas fa-vase me-2"></i>{{ __('Register Antiquity') }}</h1>
-      <p class="text-muted">Objects over 100 years old are protected</p>
+      <p class="text-muted">{{ __('Objects over 100 years old are protected') }}</p>
     </div>
   </div>
 

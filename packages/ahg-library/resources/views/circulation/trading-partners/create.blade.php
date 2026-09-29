@@ -93,7 +93,7 @@
       {{-- AS2 config --}}
       <div class="col-12" id="cfg_as2" style="display:none">
         <div class="card bg-light">
-          <div class="card-header">AS2 Configuration</div>
+          <div class="card-header">{{ __('AS2 Configuration') }}</div>
           <div class="card-body">
             <div class="row g-2">
               <div class="col-md-8">

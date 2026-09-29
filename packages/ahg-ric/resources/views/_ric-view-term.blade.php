@@ -61,7 +61,7 @@
     <div class="col-md-8">
       @if($childTerms->count())
       <div class="card mb-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-sitemap me-1"></i> Narrower Terms (hasPart)
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-sitemap me-1"></i> {{ __('Narrower Terms (hasPart)') }}
           <span class="badge bg-light text-dark float-end">{{ $childTerms->count() }}</span>
         </div>
         <div class="card-body">
@@ -74,7 +74,7 @@
 
       @if($linkedDescriptions->count())
       <div class="card mb-3">
-        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-file-alt me-1"></i> Descriptions with this Subject (hasOrHadSubject)
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-file-alt me-1"></i> {{ __('Descriptions with this Subject (hasOrHadSubject)') }}
           <span class="badge bg-light text-dark float-end">{{ $linkedDescriptions->count() }}</span>
         </div>
         <div class="list-group list-group-flush">

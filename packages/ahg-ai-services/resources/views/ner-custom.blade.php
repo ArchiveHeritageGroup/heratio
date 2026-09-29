@@ -21,7 +21,7 @@
   </a>
 </div>
 
-<p class="text-muted">Operator-curated gazetteer that runs as an exact + alias substring pre-pass before the ML extractor. Use for project codenames, micro-locations, organisation acronyms, and other domain-specific labels the ML model is likely to miss.</p>
+<p class="text-muted">{{ __('Operator-curated gazetteer that runs as an exact + alias substring pre-pass before the ML extractor. Use for project codenames, micro-locations, organisation acronyms, and other domain-specific labels the ML model is likely to miss.') }}</p>
 
 @if(session('status'))
 <div class="alert alert-success alert-dismissible fade show">

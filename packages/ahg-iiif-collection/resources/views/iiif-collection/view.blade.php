@@ -152,10 +152,10 @@ foreach ($collection->items as $item) {
         </div>
         <div class="card-body">
             <dl class="mb-0">
-                <dt>Items</dt>
+                <dt>{{ __('Items') }}</dt>
                 <dd>{{ count($collection->items) }}</dd>
 
-                <dt>Displayable</dt>
+                <dt>{{ __('Displayable') }}</dt>
                 <dd>
                     <span class="badge bg-success">{{ $displayableCount }}</span>
                     @if($warningCount > 0)
@@ -163,10 +163,10 @@ foreach ($collection->items as $item) {
                     @endif
                 </dd>
 
-                <dt>Subcollections</dt>
+                <dt>{{ __('Subcollections') }}</dt>
                 <dd>{{ count($collection->subcollections) }}</dd>
 
-                <dt>Visibility</dt>
+                <dt>{{ __('Visibility') }}</dt>
                 <dd>
                     @if($collection->is_public)
                     <span class="badge bg-success">{{ __('Public') }}</span>
@@ -176,7 +176,7 @@ foreach ($collection->items as $item) {
                 </dd>
 
                 @if($collection->viewing_hint)
-                <dt>Viewing Hint</dt>
+                <dt>{{ __('Viewing Hint') }}</dt>
                 <dd><code>{{ e($collection->viewing_hint) }}</code></dd>
                 @endif
 
@@ -191,7 +191,7 @@ foreach ($collection->items as $item) {
 @section('title-block')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb mb-2">
-        <li class="breadcrumb-item"><a href="{{ route('iiif-collection.index') }}">Collections</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('iiif-collection.index') }}">{{ __('Collections') }}</a></li>
         @foreach($breadcrumbs as $bc)
             @if($bc->id === $collection->id)
             <li class="breadcrumb-item active">{{ e($bc->display_name) }}</li>
@@ -268,7 +268,7 @@ foreach ($collection->items as $item) {
                 <i class="fas fa-info-circle me-2"></i>
                 No items in this collection yet.
                 @auth
-                <a href="{{ route('iiif-collection.add-items', $collection->id) }}">Add items</a>
+                <a href="{{ route('iiif-collection.add-items', $collection->id) }}">{{ __('Add items') }}</a>
                 @endauth
             </div>
             @else

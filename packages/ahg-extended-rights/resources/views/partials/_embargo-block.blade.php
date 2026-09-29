@@ -16,7 +16,7 @@
     @endif
   </p>
   @if(!empty($embargo->end_date))
-    <p><small>Available from: <strong>{{ $embargo->end_date }}</strong></small></p>
+    <p><small>{{ __('Available from:') }} <strong>{{ $embargo->end_date }}</strong></small></p>
   @endif
   @if(!empty($embargo->public_message))
     <p class="text-muted"><small>{{ e($embargo->public_message) }}</small></p>

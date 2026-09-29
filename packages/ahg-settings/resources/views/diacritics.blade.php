@@ -12,7 +12,7 @@
 
 @section('content')
 <div class="alert alert-info">
-      <p>Please rebuild the search index after uploading diacritics mappings.</p>
+      <p>{{ __('Please rebuild the search index after uploading diacritics mappings.') }}</p>
       <pre>$ php artisan search:populate</pre>
     </div>
 

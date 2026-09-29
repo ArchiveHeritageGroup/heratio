@@ -26,7 +26,7 @@
         </button>
       </div>
       <div class="card-body">
-        <p class="text-muted mb-3">Webhooks notify external applications when records are created, updated, or deleted. Each webhook receives an HMAC signature for verification.</p>
+        <p class="text-muted mb-3">{{ __('Webhooks notify external applications when records are created, updated, or deleted. Each webhook receives an HMAC signature for verification.') }}</p>
 
         <div class="table-responsive">
           <table class="table table-striped table-hover">

@@ -27,7 +27,7 @@
             <td>{{ $item->created_at ? \Carbon\Carbon::parse($item->created_at)->format('Y-m-d') : '' }}</td>
         </tr>
         @empty
-        <tr><td colspan="5" class="text-muted">No places found</td></tr>
+        <tr><td colspan="5" class="text-muted">{{ __('No places found') }}</td></tr>
         @endforelse
     </tbody>
 </table>

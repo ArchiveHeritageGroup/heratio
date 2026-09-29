@@ -34,7 +34,7 @@
       <div id="ric-placeholder" style="display:flex; align-items:center; justify-content:center; height:100%; color:#fff;">
         <div class="text-center">
           <i class="fas fa-project-diagram fa-3x mb-2"></i>
-          <p>Click "Load" to view RiC relationships</p>
+          <p>{{ __('Click "Load" to view RiC relationships') }}</p>
         </div>
       </div>
       <div id="ric-loading" style="display:none; align-items:center; justify-content:center; height:100%;">

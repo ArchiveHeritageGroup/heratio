@@ -152,7 +152,7 @@
                                 </select>
                             </div>
                             <div class="mb-2">
-                                <label class="form-label form-label-sm">Entity A ID * <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                                <label class="form-label form-label-sm">{{ __('Entity A ID *') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                                 <input type="number" name="entity_a_id" class="form-control form-control-sm" required>
                             </div>
                         </div>
@@ -167,7 +167,7 @@
                                 </select>
                             </div>
                             <div class="mb-2">
-                                <label class="form-label form-label-sm">Entity B ID * <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                                <label class="form-label form-label-sm">{{ __('Entity B ID *') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                                 <input type="number" name="entity_b_id" class="form-control form-control-sm" required>
                             </div>
                         </div>
@@ -192,7 +192,7 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label form-label-sm">Confidence (0-1) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                            <label class="form-label form-label-sm">{{ __('Confidence (0-1)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <input type="number" name="confidence" class="form-control form-control-sm" min="0" max="1" step="0.01" value="0.8">
                         </div>
                     </div>

@@ -94,7 +94,7 @@
     @endif
 
     <ul class="actions mb-3 nav gap-2">
-      <li><a href="{{ route('term.show', $term->slug) }}" class="btn atom-btn-outline-light">Cancel</a></li>
+      <li><a href="{{ route('term.show', $term->slug) }}" class="btn atom-btn-outline-light">{{ __('Cancel') }}</a></li>
       <li><input class="btn atom-btn-outline-danger" type="submit" value="Delete"></li>
     </ul>
   </form>

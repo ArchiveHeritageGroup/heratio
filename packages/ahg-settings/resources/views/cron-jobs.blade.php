@@ -212,7 +212,7 @@
                             <small class="text-muted">e.g. <code>*/5 * * * *</code> = every 5 min, <code>0 2 * * *</code> = daily 2am</small>
                           </div>
                           <div class="mb-3">
-                            <label class="form-label fw-bold">Timeout (minutes) <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                            <label class="form-label fw-bold">{{ __('Timeout (minutes)') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                             <input type="number" name="timeout_minutes" class="form-control" value="{{ $job->timeout_minutes }}" min="1" max="1440" required>
                           </div>
                           <div class="mb-3">
@@ -284,8 +284,8 @@
               <table class="table table-bordered table-sm mb-0">
                 <tbody>
                   <tr><td><code>* * * * *</code></td><td>{{ __('Every minute') }}</td></tr>
-                  <tr><td><code>*/5 * * * *</code></td><td>Every 5 minutes</td></tr>
-                  <tr><td><code>*/15 * * * *</code></td><td>Every 15 minutes</td></tr>
+                  <tr><td><code>*/5 * * * *</code></td><td>{{ __('Every 5 minutes') }}</td></tr>
+                  <tr><td><code>*/15 * * * *</code></td><td>{{ __('Every 15 minutes') }}</td></tr>
                   <tr><td><code>0 * * * *</code></td><td>{{ __('Every hour') }}</td></tr>
                 </tbody>
               </table>
@@ -293,9 +293,9 @@
             <div class="col-md-6">
               <table class="table table-bordered table-sm mb-0">
                 <tbody>
-                  <tr><td><code>0 2 * * *</code></td><td>Daily at 2:00 AM</td></tr>
-                  <tr><td><code>0 3 * * 0</code></td><td>Sunday at 3:00 AM</td></tr>
-                  <tr><td><code>0 7 * * 1</code></td><td>Monday at 7:00 AM</td></tr>
+                  <tr><td><code>0 2 * * *</code></td><td>{{ __('Daily at 2:00 AM') }}</td></tr>
+                  <tr><td><code>0 3 * * 0</code></td><td>{{ __('Sunday at 3:00 AM') }}</td></tr>
+                  <tr><td><code>0 7 * * 1</code></td><td>{{ __('Monday at 7:00 AM') }}</td></tr>
                   <tr><td><code>0 8 1 * *</code></td><td>1st of month at 8:00 AM</td></tr>
                 </tbody>
               </table>

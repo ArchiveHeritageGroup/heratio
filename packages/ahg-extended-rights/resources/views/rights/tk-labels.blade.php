@@ -55,7 +55,7 @@
         @csrf
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label">TK Label <span class="text-danger">*</span></label>
+            <label class="form-label">{{ __('TK Label') }} <span class="text-danger">*</span></label>
             <select name="tk_label_id" class="form-select" required>
               <option value="">- Select Label -</option>
               @foreach($availableLabels as $label)
@@ -87,6 +87,6 @@
   @endauth
 
   <section class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
-    <a href="{{ route('ext-rights.index', $resource->slug) }}" class="btn atom-btn-outline-light">Back to Rights</a>
+    <a href="{{ route('ext-rights.index', $resource->slug) }}" class="btn atom-btn-outline-light">{{ __('Back to Rights') }}</a>
   </section>
 @endsection

@@ -146,7 +146,7 @@
           </select>
         </div>
         <div class="col-md-6 mb-3">
-          <label for="embargo_end_date" class="form-label">End Date (optional) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label for="embargo_end_date" class="form-label">{{ __('End Date (optional)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <input type="date" name="embargo_end_date" id="embargo_end_date" class="form-control">
         </div>
       </div>

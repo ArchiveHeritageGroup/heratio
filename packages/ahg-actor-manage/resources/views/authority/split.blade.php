@@ -8,12 +8,12 @@
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
-      <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
+      <a href="{{ route('actor.dashboard') }}">{{ __('Authority Dashboard') }}</a>
     </li>
     <li class="breadcrumb-item">
       <a href="{{ $actor->slug ? route('actor.show', $actor->slug) : '#' }}">{{ e($actor->name ?? '') }}</a>
     </li>
-    <li class="breadcrumb-item active">Split</li>
+    <li class="breadcrumb-item active">{{ __('Split') }}</li>
   </ol>
 </nav>
 
@@ -24,7 +24,7 @@
     <i class="fas fa-divide me-1"></i>Split: {{ e($actor->name ?? '') }}
   </div>
   <div class="card-body">
-    <p class="text-muted">Select fields and relations to move to a new authority record.</p>
+    <p class="text-muted">{{ __('Select fields and relations to move to a new authority record.') }}</p>
 
     <form id="split-form">
       <div class="mb-3">
@@ -41,7 +41,7 @@
         <i class="fas fa-divide me-1"></i>{{ __('Create Split Request') }}
       </button>
       <a href="{{ route('actor.dashboard') }}" class="btn atom-btn-white ms-2">
-        Cancel
+        {{ __('Cancel') }}
       </a>
     </form>
   </div>

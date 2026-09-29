@@ -42,7 +42,7 @@
                     <input type="file" name="marc_file" id="marc_file" class="form-control"
                            accept=".xml,.marcxml,text/xml,application/xml" required>
                     <div class="form-text">
-                        Accepts .xml or .marcxml files up to 20 MB.
+                        {{ __('Accepts .xml or .marcxml files up to 20 MB.') }}
                     </div>
                 </div>
 
@@ -67,8 +67,8 @@
 
             <p class="mb-1 small fw-semibold text-muted">{{ __('What happens next:') }}</p>
             <ol class="small text-muted mb-0">
-                <li>The first record from the file is parsed and displayed for review.</li>
-                <li>Field sections (leader, control fields, title, author, publication, etc.) are shown.</li>
+                <li>{{ __('The first record from the file is parsed and displayed for review.') }}</li>
+                <li>{{ __('Field sections (leader, control fields, title, author, publication, etc.) are shown.') }}</li>
                 <li>{{ __('Click') }} <strong>{{ __('Commit Import') }}</strong> to create library items for all valid records.</li>
             </ol>
         </div>

@@ -60,7 +60,7 @@ if (!function_exists('threeDFmtBytes')) {
             <div class="card text-center bg-info text-white">
                 <div class="card-body">
                     <h2>{{ number_format($stats['totalHotspots'] ?? 0) }}</h2>
-                    <p class="mb-0">Hotspots</p>
+                    <p class="mb-0">{{ __('Hotspots') }}</p>
                 </div>
             </div>
         </div>
@@ -68,7 +68,7 @@ if (!function_exists('threeDFmtBytes')) {
             <div class="card text-center bg-warning text-dark">
                 <div class="card-body">
                     <h2>{{ threeDFmtBytes($stats['totalSize'] ?? 0) }}</h2>
-                    <p class="mb-0">Total Size</p>
+                    <p class="mb-0">{{ __('Total Size') }}</p>
                 </div>
             </div>
         </div>
@@ -82,7 +82,7 @@ if (!function_exists('threeDFmtBytes')) {
                 </div>
                 <ul class="list-group list-group-flush">
                     @if (empty($stats['byFormat']) || (is_countable($stats['byFormat']) && count($stats['byFormat']) === 0))
-                    <li class="list-group-item text-muted">No models yet</li>
+                    <li class="list-group-item text-muted">{{ __('No models yet') }}</li>
                     @else
                     @foreach ($stats['byFormat'] as $f)
                     <li class="list-group-item d-flex justify-content-between">

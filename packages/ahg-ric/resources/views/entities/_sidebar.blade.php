@@ -36,14 +36,14 @@
     <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-info-circle me-1"></i> {{ __('Metadata') }}</h6></div>
     <div class="card-body p-2">
         <table class="table table-sm table-borderless mb-0" style="font-size:0.85rem">
-            <tr><td class="text-muted">RiC-O Type</td><td><code>rico:{{ $ricOType }}</code></td></tr>
+            <tr><td class="text-muted">{{ __('RiC-O Type') }}</td><td><code>rico:{{ $ricOType }}</code></td></tr>
             <tr><td class="text-muted">ID</td><td>{{ $entity->id }}</td></tr>
-            <tr><td class="text-muted">Slug</td><td><code style="word-break:break-all">{{ $entity->slug }}</code></td></tr>
+            <tr><td class="text-muted">{{ __('Slug') }}</td><td><code style="word-break:break-all">{{ $entity->slug }}</code></td></tr>
             @if(isset($entity->authority_uri) && $entity->authority_uri)
-            <tr><td class="text-muted">Authority</td><td><a href="{{ $entity->authority_uri }}" target="_blank"><i class="fas fa-external-link-alt"></i> {{ __('Link') }}</a></td></tr>
+            <tr><td class="text-muted">{{ __('Authority') }}</td><td><a href="{{ $entity->authority_uri }}" target="_blank"><i class="fas fa-external-link-alt"></i> {{ __('Link') }}</a></td></tr>
             @endif
-            <tr><td class="text-muted">Created</td><td>{{ $entity->created_at ? \Carbon\Carbon::parse($entity->created_at)->format('Y-m-d H:i') : '' }}</td></tr>
-            <tr><td class="text-muted">Updated</td><td>{{ $entity->updated_at ? \Carbon\Carbon::parse($entity->updated_at)->format('Y-m-d H:i') : '' }}</td></tr>
+            <tr><td class="text-muted">{{ __('Created') }}</td><td>{{ $entity->created_at ? \Carbon\Carbon::parse($entity->created_at)->format('Y-m-d H:i') : '' }}</td></tr>
+            <tr><td class="text-muted">{{ __('Updated') }}</td><td>{{ $entity->updated_at ? \Carbon\Carbon::parse($entity->updated_at)->format('Y-m-d H:i') : '' }}</td></tr>
         </table>
     </div>
 </div>

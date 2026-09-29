@@ -101,7 +101,7 @@
                 @else
                 <div class="text-center py-4 text-muted">
                     <i class="fas fa-sticky-note fa-2x mb-2 opacity-50"></i>
-                    <p>No annotations yet. Click "Add Annotation" to create one.</p>
+                    <p>{{ __('No annotations yet. Click "Add Annotation" to create one.') }}</p>
                 </div>
                 @endif
             </div>

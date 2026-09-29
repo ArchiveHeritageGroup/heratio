@@ -10,7 +10,7 @@
       <i class="fas fa-cog"></i> {{ __('Configuration') }}
     </a>
   </div>
-  <p class="text-muted mb-4">LLM integration, NER, summarization, translation, and spellcheck services</p>
+  <p class="text-muted mb-4">{{ __('LLM integration, NER, summarization, translation, and spellcheck services') }}</p>
 
 {{-- Provider Status Cards --}}
   <div class="row mb-4">
@@ -203,7 +203,7 @@
           <strong><i class="fas fa-file-alt"></i> {{ __('Vital Records HTR') }}</strong>
         </div>
         <div class="card-body">
-          <p class="small">Handwritten Text Recognition for SA vital records - death certificates, church registers, narrative documents. Extract, batch process, annotate, and fine-tune models.</p>
+          <p class="small">{{ __('Handwritten Text Recognition for SA vital records - death certificates, church registers, narrative documents. Extract, batch process, annotate, and fine-tune models.') }}</p>
         </div>
         <div class="card-footer">
           <a href="{{ route('admin.ai.htr.dashboard') }}" class="btn atom-btn-white w-100"><i class="fas fa-arrow-right me-1"></i>{{ __('Open HTR Dashboard') }}</a>
@@ -213,10 +213,10 @@
     <div class="col-md-4">
       <div class="card shadow-sm h-100">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <strong><i class="fas fa-file-invoice"></i> Document Understanding (Donut)</strong>
+          <strong><i class="fas fa-file-invoice"></i> {{ __('Document Understanding (Donut)') }}</strong>
         </div>
         <div class="card-body">
-          <p class="small">End-to-end document image understanding for FamilySearch ILM field extraction. Classifies document type and extracts typed metadata (record type, event year, event place).</p>
+          <p class="small">{{ __('End-to-end document image understanding for FamilySearch ILM field extraction. Classifies document type and extracts typed metadata (record type, event year, event place).') }}</p>
         </div>
         <div class="card-footer">
           <a href="{{ route('admin.ai.donut.dashboard') }}" class="btn atom-btn-white w-100"><i class="fas fa-arrow-right me-1"></i>{{ __('Open Donut Dashboard') }}</a>
@@ -237,7 +237,7 @@
       </div>
 
       <div class="mb-3">
-        <label for="aiTargetLang" class="form-label">Target Language (for translation) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <label for="aiTargetLang" class="form-label">{{ __('Target Language (for translation)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <select class="form-select form-select-sm w-auto d-inline-block" id="aiTargetLang">
           <option value="af">{{ __('Afrikaans') }}</option>
           <option value="fr">{{ __('French') }}</option>

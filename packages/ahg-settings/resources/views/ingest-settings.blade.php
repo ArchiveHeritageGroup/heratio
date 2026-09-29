@@ -35,7 +35,7 @@
         <h5 class="mb-0"><i class="fas fa-brain me-2"></i>{{ __('AI & Processing Defaults') }}</h5>
       </div>
       <div class="card-body">
-        <p class="text-muted mb-3">These defaults are pre-selected when creating a new ingest session. Users can override per session.</p>
+        <p class="text-muted mb-3">{{ __('These defaults are pre-selected when creating a new ingest session. Users can override per session.') }}</p>
 
         <div class="row g-3">
           <div class="col-md-6">
@@ -44,10 +44,10 @@
                      name="settings[ingest_virus_scan]" value="true"
                      {{ ($settings['ingest_virus_scan'] ?? 'true') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="ingest_virus_scan">
-                <strong><i class="fas fa-shield-virus me-1 text-danger"></i>Virus Scan (ClamAV)</strong>
+                <strong><i class="fas fa-shield-virus me-1 text-danger"></i>{{ __('Virus Scan (ClamAV)') }}</strong>
               </label>
             </div>
-            <div class="form-text">Scan all uploaded files for malware before commit. Infected files are quarantined.</div>
+            <div class="form-text">{{ __('Scan all uploaded files for malware before commit. Infected files are quarantined.') }}</div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch">
@@ -55,7 +55,7 @@
                      name="settings[ingest_ocr]" value="true"
                      {{ ($settings['ingest_ocr'] ?? '') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="ingest_ocr">
-                <strong><i class="fas fa-file-alt me-1 text-primary"></i>OCR (Tesseract)</strong>
+                <strong><i class="fas fa-file-alt me-1 text-primary"></i>{{ __('OCR (Tesseract)') }}</strong>
               </label>
             </div>
             <div class="form-text">{{ __('Extract text from images and PDFs using Tesseract / pdftotext.') }}</div>
@@ -66,10 +66,10 @@
                      name="settings[ingest_ner]" value="true"
                      {{ ($settings['ingest_ner'] ?? '') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="ingest_ner">
-                <strong><i class="fas fa-tags me-1 text-success"></i>NER (Named Entity Recognition)</strong>
+                <strong><i class="fas fa-tags me-1 text-success"></i>{{ __('NER (Named Entity Recognition)') }}</strong>
               </label>
             </div>
-            <div class="form-text">Extract persons, organizations, places and dates from text fields. Creates access points automatically.</div>
+            <div class="form-text">{{ __('Extract persons, organizations, places and dates from text fields. Creates access points automatically.') }}</div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch">
@@ -80,7 +80,7 @@
                 <strong><i class="fas fa-compress-alt me-1 text-warning"></i>{{ __('Auto-Summarize') }}</strong>
               </label>
             </div>
-            <div class="form-text">Generate scope and content summaries for records with extensive text.</div>
+            <div class="form-text">{{ __('Generate scope and content summaries for records with extensive text.') }}</div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch">
@@ -88,10 +88,10 @@
                      name="settings[ingest_spellcheck]" value="true"
                      {{ ($settings['ingest_spellcheck'] ?? '') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="ingest_spellcheck">
-                <strong><i class="fas fa-spell-check me-1 text-info"></i>Spell Check (aspell)</strong>
+                <strong><i class="fas fa-spell-check me-1 text-info"></i>{{ __('Spell Check (aspell)') }}</strong>
               </label>
             </div>
-            <div class="form-text">Check spelling and grammar on title, scope and content, and archival history fields.</div>
+            <div class="form-text">{{ __('Check spelling and grammar on title, scope and content, and archival history fields.') }}</div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch">
@@ -99,10 +99,10 @@
                      name="settings[ingest_format_id]" value="true"
                      {{ ($settings['ingest_format_id'] ?? '') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="ingest_format_id">
-                <strong><i class="fas fa-fingerprint me-1 text-secondary"></i>Format Identification (Siegfried/PRONOM)</strong>
+                <strong><i class="fas fa-fingerprint me-1 text-secondary"></i>{{ __('Format Identification (Siegfried/PRONOM)') }}</strong>
               </label>
             </div>
-            <div class="form-text">Identify file formats using PRONOM registry via Siegfried. Records PUID, MIME type, and confidence.</div>
+            <div class="form-text">{{ __('Identify file formats using PRONOM registry via Siegfried. Records PUID, MIME type, and confidence.') }}</div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch">
@@ -121,10 +121,10 @@
                      name="settings[ingest_translate]" value="true"
                      {{ ($settings['ingest_translate'] ?? '') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="ingest_translate">
-                <strong><i class="fas fa-language me-1 text-primary"></i>Auto-Translate (Argos)</strong>
+                <strong><i class="fas fa-language me-1 text-primary"></i>{{ __('Auto-Translate (Argos)') }}</strong>
               </label>
             </div>
-            <div class="form-text">Translate metadata fields using offline Argos Translate engine.</div>
+            <div class="form-text">{{ __('Translate metadata fields using offline Argos Translate engine.') }}</div>
           </div>
         </div>
 
@@ -257,7 +257,7 @@
         <h5 class="mb-0"><i class="fas fa-heartbeat me-2"></i>{{ __('Service Availability') }}</h5>
       </div>
       <div class="card-body">
-        <p class="text-muted mb-3">Processing options require the corresponding services to be installed and running.</p>
+        <p class="text-muted mb-3">{{ __('Processing options require the corresponding services to be installed and running.') }}</p>
         <div class="table-responsive">
           <table class="table table-sm mb-0">
             <thead class="table-light">

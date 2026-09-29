@@ -20,7 +20,7 @@
     <div class="card-body">
       <div class="row">
         <div class="col-md-6 mb-3">
-          <label class="form-label">Embargo Type <span class="text-danger">*</span></label>
+          <label class="form-label">{{ __('Embargo Type') }} <span class="text-danger">*</span></label>
           <select name="embargo_type" class="form-select" required>
             @foreach($formOptions['embargo_type_options'] as $value => $label)
             <option value="{{ $value }}" {{ old('embargo_type', $embargo->embargo_type ?? 'full') === $value ? 'selected' : '' }}>{{ $label }}</option>
@@ -28,7 +28,7 @@
           </select>
         </div>
         <div class="col-md-6 mb-3">
-          <label class="form-label">Reason <span class="text-danger">*</span></label>
+          <label class="form-label">{{ __('Reason') }} <span class="text-danger">*</span></label>
           <select name="reason" class="form-select" required>
             @foreach($formOptions['embargo_reason_options'] as $value => $label)
             <option value="{{ $value }}" {{ old('reason', $embargo->reason ?? '') === $value ? 'selected' : '' }}>{{ $label }}</option>
@@ -38,7 +38,7 @@
       </div>
       <div class="row">
         <div class="col-md-6 mb-3">
-          <label class="form-label">Start Date <span class="text-danger">*</span></label>
+          <label class="form-label">{{ __('Start Date') }} <span class="text-danger">*</span></label>
           <input type="date" name="start_date" class="form-control" required value="{{ old('start_date', $embargo->start_date ?? date('Y-m-d')) }}">
         </div>
         <div class="col-md-6 mb-3">
@@ -66,7 +66,7 @@
   </div>
 
   <section class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
-    <a href="{{ route('ext-rights.index', $resource->slug) }}" class="btn atom-btn-outline-light">Cancel</a>
+    <a href="{{ route('ext-rights.index', $resource->slug) }}" class="btn atom-btn-outline-light">{{ __('Cancel') }}</a>
     <button type="submit" class="btn atom-btn-outline-light"><i class="fas fa-save me-1"></i>{{ __('Save Embargo') }}</button>
   </section>
 </form>
@@ -77,7 +77,7 @@
     <h5 class="mb-0">{{ __('Release Embargo') }}</h5>
   </div>
   <div class="card-body">
-    <p>Release this embargo immediately. The item will become accessible according to its other rights settings.</p>
+    <p>{{ __('Release this embargo immediately. The item will become accessible according to its other rights settings.') }}</p>
     <form action="{{ route('ext-rights.release-embargo', [$resource->slug, $embargo->id]) }}" method="post"
           onsubmit="return confirm('Are you sure you want to release this embargo?');">
       @csrf

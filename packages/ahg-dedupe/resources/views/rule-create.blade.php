@@ -46,7 +46,7 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="threshold" class="form-label">Threshold (0.0 - 1.0) <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                  <label for="threshold" class="form-label">{{ __('Threshold (0.0 - 1.0)') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                   <input type="number" class="form-control" id="threshold" name="threshold"
                          min="0" max="1" step="0.01" value="{{ old('threshold', '0.80') }}" required>
                   <div class="form-text">{{ __('Minimum similarity score to flag as duplicate') }}</div>
@@ -75,7 +75,7 @@
             </div>
 
             <div class="mb-3">
-              <label for="config_json" class="form-label">Configuration (JSON) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="config_json" class="form-label">{{ __('Configuration (JSON)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea class="form-control font-monospace" id="config_json" name="config_json"
                         rows="4" placeholder='{"algorithm": "levenshtein", "normalize": true}'>{{ old('config_json') }}</textarea>
               <div class="form-text">{{ __('Optional rule-specific configuration in JSON format') }}</div>

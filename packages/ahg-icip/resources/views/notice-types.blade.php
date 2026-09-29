@@ -109,7 +109,7 @@
               <div class="col-md-4 mb-3">
                 <label class="form-label">{{ __('Code') }} <span class="text-danger">*</span></label>
                 <input type="text" name="code" class="form-control" required placeholder="{{ __('e.g., custom_notice') }}">
-                <div class="form-text">Unique identifier (lowercase, no spaces)</div>
+                <div class="form-text">{{ __('Unique identifier (lowercase, no spaces)') }}</div>
               </div>
               <div class="col-md-4 mb-3">
                 <label class="form-label">{{ __('Name') }} <span class="text-danger">*</span></label>

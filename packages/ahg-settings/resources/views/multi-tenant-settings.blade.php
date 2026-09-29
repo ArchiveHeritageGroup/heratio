@@ -34,7 +34,7 @@
         <h5 class="mb-0"><i class="fas fa-building me-2"></i>{{ __('Multi-Tenancy Configuration') }}</h5>
       </div>
       <div class="card-body">
-        <p class="text-muted mb-4">Configure repository-based multi-tenancy. Each repository acts as a tenant with isolated user access and custom branding.</p>
+        <p class="text-muted mb-4">{{ __('Configure repository-based multi-tenancy. Each repository acts as a tenant with isolated user access and custom branding.') }}</p>
 
         <div class="row">
           <div class="col-md-6">
@@ -69,7 +69,7 @@
                        {{ ($settings['tenant_show_switcher'] ?? 'true') === 'true' ? 'checked' : '' }}>
                 <label class="form-check-label" for="tenant_show_switcher"><strong>{{ __('Show Tenant Switcher') }}</strong></label>
               </div>
-              <div class="form-text">Display the repository switcher dropdown in the navigation bar.</div>
+              <div class="form-text">{{ __('Display the repository switcher dropdown in the navigation bar.') }}</div>
             </div>
           </div>
 
@@ -81,7 +81,7 @@
                        {{ ($settings['tenant_allow_branding'] ?? 'true') === 'true' ? 'checked' : '' }}>
                 <label class="form-check-label" for="tenant_allow_branding"><strong>{{ __('Allow Per-Tenant Branding') }}</strong></label>
               </div>
-              <div class="form-text">Allow super users to customize colors and logos for their repositories.</div>
+              <div class="form-text">{{ __('Allow super users to customize colors and logos for their repositories.') }}</div>
             </div>
           </div>
         </div>

@@ -35,7 +35,7 @@
         <div class="text-center py-5">
           <i class="fas fa-user-lock display-1 text-muted"></i>
           <h3 class="h4 mt-3">{{ __('Sign In to Contribute') }}</h3>
-          <p class="text-muted mb-4">You need a contributor account to submit contributions to our heritage collection.</p>
+          <p class="text-muted mb-4">{{ __('You need a contributor account to submit contributions to our heritage collection.') }}</p>
           <div class="d-flex justify-content-center gap-2">
             <a href="{{ route('heritage.contributor-login') }}" class="btn atom-btn-secondary"><i class="fas fa-sign-in-alt me-2"></i>{{ __('Sign In') }}</a>
             <a href="{{ route('heritage.contributor-register') }}" class="btn atom-btn-white"><i class="fas fa-user-plus me-2"></i>{{ __('Create Account') }}</a>
@@ -66,7 +66,7 @@
               <div class="mb-3"><p class="text-muted">{{ $opp['description'] }}</p><p class="small text-success"><i class="fas fa-gift me-1"></i>Earn {{ $opp['points_value'] }} points</p></div>
 
               @if($opp['code']==='transcription')
-              <div class="mb-3"><label class="form-label">{{ __('Transcription') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><textarea class="form-control font-monospace" name="content[text]" rows="12" required minlength="10" placeholder="{{ __('Type the text exactly as it appears...') }}"></textarea><div class="form-text">Use [...] for unclear words and [illegible] for unreadable sections.</div></div>
+              <div class="mb-3"><label class="form-label">{{ __('Transcription') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><textarea class="form-control font-monospace" name="content[text]" rows="12" required minlength="10" placeholder="{{ __('Type the text exactly as it appears...') }}"></textarea><div class="form-text">{{ __('Use [...] for unclear words and [illegible] for unreadable sections.') }}</div></div>
               @elseif($opp['code']==='identification')
               <div class="mb-3"><label class="form-label">{{ __('Name') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" class="form-control" name="content[name]" required minlength="2" placeholder="{{ __('Full name of the person identified') }}"></div>
               <div class="row mb-3"><div class="col-md-6"><label class="form-label">{{ __('Relationship to Image') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select class="form-select" name="content[relationship]"><option value="">{{ __('Select...') }}</option><option value="subject">{{ __('Subject (pictured)') }}</option><option value="photographer">{{ __('Photographer') }}</option><option value="owner">{{ __('Owner/Donor') }}</option></select></div><div class="col-md-6"><label class="form-label">{{ __('Position in Image') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" class="form-control" name="content[position]" placeholder="{{ __('e.g., Front row, left') }}"></div></div>

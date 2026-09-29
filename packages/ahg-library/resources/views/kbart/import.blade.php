@@ -55,9 +55,7 @@
                             @csrf
 
                             <p class="text-muted small mb-3">
-                                Upload a NISO KBART tab-separated values (.tsv) file to import or
-                                update serial titles and catalogue records. You will see a preview
-                                before anything is written to the database.
+                                {{ __('Upload a NISO KBART tab-separated values (.tsv) file to import or update serial titles and catalogue records. You will see a preview before anything is written to the database.') }}
                             </p>
 
                             <div class="mb-3">
@@ -71,7 +69,7 @@
                                        accept=".txt,.tsv,.csv"
                                        required>
                                 <div class="form-text">
-                                    Maximum 50 MB. Accepts .tsv, .txt, or .csv with tab delimiters.
+                                    {{ __('Maximum 50 MB. Accepts .tsv, .txt, or .csv with tab delimiters.') }}
                                 </div>
                                 @error('kbart_file')
                                     <div class="text-danger small mt-1">{{ $message }}</div>
@@ -83,7 +81,7 @@
                                 <div class="card bg-light">
                                     <div class="card-body py-2 px-3 mb-0">
                                         <small class="text-muted">
-                                            The file must include a header row with NISO KBART column names.
+                                            {{ __('The file must include a header row with NISO KBART column names.') }}
                                             <br>Required columns: <code>publication_title</code> (always required);
                                             at least one identifier: <code>isbn</code>, <code>print_issn</code>,
                                             <code>eissn</code>, or <code>proprietary_id</code>.
@@ -120,13 +118,13 @@
                     </div>
                     <div class="card-body pb-0">
                         <ul class="small mb-0 text-muted" style="padding-left: 1.2em;">
-                            <li>File must be tab-separated (.tsv)</li>
+                            <li>{{ __('File must be tab-separated (.tsv)') }}</li>
                             <li>{{ __('First row must be the NISO KBART header') }}</li>
                             <li><code>publication_title</code> is required per row</li>
-                            <li>At least one identifier required: ISBN, ISSN, eISSN, or proprietary_id</li>
-                            <li>Duplicates (same ISBN) are skipped automatically</li>
+                            <li>{{ __('At least one identifier required: ISBN, ISSN, eISSN, or proprietary_id') }}</li>
+                            <li>{{ __('Duplicates (same ISBN) are skipped automatically') }}</li>
                             <li>Serials detected by ISSN or <code>publication_type</code></li>
-                            <li>Preview shows up to 20 rows before you commit</li>
+                            <li>{{ __('Preview shows up to 20 rows before you commit') }}</li>
                         </ul>
                     </div>
                 </div>
@@ -229,7 +227,7 @@
             <div class="col-sm-6">
                 <a href="{{ route('library.kbart-import') }}"
                    class="btn btn-outline-secondary w-100">
-                    <i class="fas fa-arrow-left me-1"></i>Cancel & Upload New File
+                    <i class="fas fa-arrow-left me-1"></i>{{ __('Cancel & Upload New File') }}
                 </a>
             </div>
         </div>

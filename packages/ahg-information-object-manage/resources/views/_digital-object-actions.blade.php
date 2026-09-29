@@ -64,7 +64,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label for="tpmDpi" class="form-label">Resolution (DPI) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label for="tpmDpi" class="form-label">{{ __('Resolution (DPI)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <select id="tpmDpi" class="form-select form-select-sm">
                             <option value="150">150 DPI (Screen)</option>
                             <option value="300" selected>300 DPI (Print)</option>

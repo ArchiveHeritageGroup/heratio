@@ -63,7 +63,7 @@
             </div>
 
             <div class="mb-4">
-                <h6 class="text-primary"><span class="badge bg-primary me-2">2</span>Filter Records (Optional)</h6>
+                <h6 class="text-primary"><span class="badge bg-primary me-2">2</span>{{ __('Filter Records (Optional)') }}</h6>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label">{{ __('Repository') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
@@ -86,7 +86,7 @@
                 </div>
                 <div class="row g-3 mt-2">
                     <div class="col-md-6">
-                        <label class="form-label">Parent Record Slug (Scope) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label class="form-label">{{ __('Parent Record Slug (Scope)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <input type="text" name="parent_slug" id="parentSlug" class="form-control" placeholder="{{ __('e.g. my-fonds-123') }}">
                         <small class="text-muted">{{ __('Export only children of this record') }}</small>
                     </div>
@@ -94,7 +94,7 @@
                         <div class="form-check">
                             <input type="checkbox" name="include_descendants" id="includeDescendants" class="form-check-input" value="1">
                             <label class="form-check-label" for="includeDescendants">
-                                Include all descendants (not just direct children)
+                                {{ __('Include all descendants (not just direct children)') }}
                             </label>
                         </div>
                     </div>
@@ -105,8 +105,7 @@
                 <h6 class="text-primary"><span class="badge bg-primary me-2">3</span>{{ __('Export') }}</h6>
                 <div class="alert alert-warning mb-3">
                     <i class="fas fa-exclamation-triangle me-2"></i>
-                    <strong>{{ __('Note:') }}</strong> Exports with more than 500 records will be queued as a background job.
-                    You can check progress on the <a href="{{ route('data-migration.jobs') }}">{{ __('Jobs page') }}</a>.
+                    <strong>{{ __('Note:') }}</strong> {{ __('Exports with more than 500 records will be queued as a background job. You can check progress on the') }} <a href="{{ route('data-migration.jobs') }}">{{ __('Jobs page') }}</a>.
                 </div>
             </div>
 
@@ -126,20 +125,20 @@
     </div>
     <div class="card-body">
         <dl class="row mb-0">
-            <dt class="col-sm-3">Archives (ISAD-G)</dt>
-            <dd class="col-sm-9">Standard archival description fields following ISAD(G) standard. Best for archives and manuscript collections.</dd>
+            <dt class="col-sm-3">{{ __('Archives (ISAD-G)') }}</dt>
+            <dd class="col-sm-9">{{ __('Standard archival description fields following ISAD(G) standard. Best for archives and manuscript collections.') }}</dd>
 
             <dt class="col-sm-3">{{ __('Museum') }}</dt>
-            <dd class="col-sm-9">Museum object standard fields (CCO) including production, acquisition, and location data.</dd>
+            <dd class="col-sm-9">{{ __('Museum object standard fields (CCO) including production, acquisition, and location data.') }}</dd>
 
-            <dt class="col-sm-3">Library (MARC/RDA)</dt>
-            <dd class="col-sm-9">MARC and RDA cataloguing fields for bibliographic records including ISBN, call numbers, and publishing data.</dd>
+            <dt class="col-sm-3">{{ __('Library (MARC/RDA)') }}</dt>
+            <dd class="col-sm-9">{{ __('MARC and RDA cataloguing fields for bibliographic records including ISBN, call numbers, and publishing data.') }}</dd>
 
-            <dt class="col-sm-3">Gallery (CCO/VRA)</dt>
-            <dd class="col-sm-9">Cataloging Cultural Objects (CCO) and VRA Core fields for artworks and visual resources.</dd>
+            <dt class="col-sm-3">{{ __('Gallery (CCO/VRA)') }}</dt>
+            <dd class="col-sm-9">{{ __('Cataloging Cultural Objects (CCO) and VRA Core fields for artworks and visual resources.') }}</dd>
 
             <dt class="col-sm-3">{{ __('Digital Assets') }}</dt>
-            <dd class="col-sm-9">Dublin Core and IPTC metadata fields for digital asset management including technical metadata.</dd>
+            <dd class="col-sm-9">{{ __('Dublin Core and IPTC metadata fields for digital asset management including technical metadata.') }}</dd>
         </dl>
     </div>
 </div>

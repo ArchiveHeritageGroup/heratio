@@ -14,7 +14,7 @@ $io = $resource ?? $informationObject ?? null; @endphp
     </div>
     <div class="card-body">
         <p class="mb-3">
-            Need to create a multi-page PDF from multiple TIFF or image files?
+            {{ __('Need to create a multi-page PDF from multiple TIFF or image files?') }}
         </p>
         <a href="{{ url('/tiffpdfmerge/index/' . ($io->slug ?? '')) }}"
            class="btn atom-btn-white">

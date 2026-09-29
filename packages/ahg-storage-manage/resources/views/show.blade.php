@@ -102,12 +102,12 @@
               @endforeach
 
               @if(!empty($extendedData['barcode']))
-                <dt class="col-sm-4">Barcode</dt>
+                <dt class="col-sm-4">{{ __('Barcode') }}</dt>
                 <dd class="col-sm-8"><code>{{ $extendedData['barcode'] }}</code></dd>
               @endif
 
               @if(!empty($extendedData['reference_code']))
-                <dt class="col-sm-4">Reference Code</dt>
+                <dt class="col-sm-4">{{ __('Reference Code') }}</dt>
                 <dd class="col-sm-8">{{ $extendedData['reference_code'] }}</dd>
               @endif
             </dl>
@@ -215,27 +215,27 @@
           <div class="card-body">
             <dl class="row mb-0">
               @if(!empty($extendedData['climate_controlled']))
-                <dt class="col-sm-4">Climate Controlled</dt>
+                <dt class="col-sm-4">{{ __('Climate Controlled') }}</dt>
                 <dd class="col-sm-8"><span class="badge bg-info">{{ __('Yes') }}</span></dd>
               @endif
 
               @if(!empty($extendedData['temperature_min']) || !empty($extendedData['temperature_max']))
-                <dt class="col-sm-4">Temperature Range</dt>
+                <dt class="col-sm-4">{{ __('Temperature Range') }}</dt>
                 <dd class="col-sm-8">{{ $extendedData['temperature_min'] ?? '?' }}°C - {{ $extendedData['temperature_max'] ?? '?' }}°C</dd>
               @endif
 
               @if(!empty($extendedData['humidity_min']) || !empty($extendedData['humidity_max']))
-                <dt class="col-sm-4">Humidity Range</dt>
+                <dt class="col-sm-4">{{ __('Humidity Range') }}</dt>
                 <dd class="col-sm-8">{{ $extendedData['humidity_min'] ?? '?' }}% - {{ $extendedData['humidity_max'] ?? '?' }}%</dd>
               @endif
 
               @if(!empty($extendedData['security_level']))
-                <dt class="col-sm-4">Security Level</dt>
+                <dt class="col-sm-4">{{ __('Security Level') }}</dt>
                 <dd class="col-sm-8"><span class="badge bg-danger">{{ ucfirst($extendedData['security_level']) }}</span></dd>
               @endif
 
               @if(!empty($extendedData['access_restrictions']))
-                <dt class="col-sm-4">Access Restrictions</dt>
+                <dt class="col-sm-4">{{ __('Access Restrictions') }}</dt>
                 <dd class="col-sm-8">{!! nl2br(e($extendedData['access_restrictions'])) !!}</dd>
               @endif
             </dl>
@@ -352,7 +352,7 @@
       <section class="section border-bottom mb-3" id="adminArea">
         <h2 class="h5 mb-0 atom-section-header">
           <div class="d-flex p-3 border-bottom text-primary">
-            Administration area
+            {{ __('Administration area') }}
           </div>
         </h2>
         <div>
@@ -384,7 +384,7 @@
           <button class="accordion-button" type="button" data-bs-toggle="collapse"
                   data-bs-target="#relatedResourcesCollapse" aria-expanded="true"
                   aria-controls="relatedResourcesCollapse">
-            <i class="fas fa-link me-2"></i>Related resources
+            <i class="fas fa-link me-2"></i>{{ __('Related resources') }}
             <span class="badge bg-light text-dark ms-2">{{ $relatedTotal }}</span>
           </button>
         </h2>
@@ -424,10 +424,10 @@
   @auth
   <ul class="actions mb-3 nav gap-2">
     {{-- Edit: any authenticated user --}}
-    <li><a href="{{ route('physicalobject.edit', $storage->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
+    <li><a href="{{ route('physicalobject.edit', $storage->slug) }}" class="btn atom-btn-outline-light">{{ __('Edit') }}</a></li>
     {{-- Delete: admin only --}}
     @if(auth()->user()->is_admin)
-    <li><a href="{{ route('physicalobject.confirmDelete', $storage->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
+    <li><a href="{{ route('physicalobject.confirmDelete', $storage->slug) }}" class="btn atom-btn-outline-danger">{{ __('Delete') }}</a></li>
     @endif
     <li><a href="{{ route('physicalobject.browse') }}" class="btn atom-btn-outline-light"><i class="fas fa-list me-1"></i>{{ __('Browse') }}</a></li>
   </ul>

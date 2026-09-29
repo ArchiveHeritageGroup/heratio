@@ -4,7 +4,7 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('admin.ai.index') }}">{{ __('AI Services') }}</a></li><li class="breadcrumb-item active">{{ __('Donut') }}</li></ol></nav>
 <h1><i class="fas fa-file-invoice me-2"></i>{{ __('Document Understanding (Donut)') }}</h1>
-<p class="text-muted mb-4">End-to-end document image understanding for FamilySearch ILM field extraction. Complements HTR by recognising form structure and typed metadata.</p>
+<p class="text-muted mb-4">{{ __('End-to-end document image understanding for FamilySearch ILM field extraction. Complements HTR by recognising form structure and typed metadata.') }}</p>
 
 @if($health)
 <div class="card mb-4">
@@ -32,14 +32,14 @@
   <div class="col-md-4 mb-4">
     <div class="card h-100">
       <div class="card-header" style="background: var(--ahg-primary); color: white;"><i class="fas fa-file-import me-2"></i>{{ __('Extract ILM Fields') }}</div>
-      <div class="card-body"><p>Upload a document image and extract FamilySearch ILM fields (record type, event year, event place) using Donut.</p></div>
+      <div class="card-body"><p>{{ __('Upload a document image and extract FamilySearch ILM fields (record type, event year, event place) using Donut.') }}</p></div>
       <div class="card-footer"><a href="{{ route('admin.ai.donut.extract') }}" class="btn atom-btn-white w-100"><i class="fas fa-upload me-1"></i>{{ __('Extract') }}</a></div>
     </div>
   </div>
   <div class="col-md-4 mb-4">
     <div class="card h-100">
       <div class="card-header" style="background: var(--ahg-primary); color: white;"><i class="fas fa-layer-group me-2"></i>{{ __('Batch Extract') }}</div>
-      <div class="card-body"><p>Process multiple document images at once for bulk ILM field extraction.</p></div>
+      <div class="card-body"><p>{{ __('Process multiple document images at once for bulk ILM field extraction.') }}</p></div>
       <div class="card-footer"><a href="{{ route('admin.ai.donut.batch') }}" class="btn atom-btn-white w-100"><i class="fas fa-tasks me-1"></i>{{ __('Batch') }}</a></div>
     </div>
   </div>
@@ -80,7 +80,7 @@
         <h5>{{ __('Donut (Document Understanding Transformer)') }}</h5>
         <ul>
           <li>{{ __('End-to-end: image in, structured JSON out') }}</li>
-          <li>No separate OCR step - the model reads and understands form layout</li>
+          <li>{{ __('No separate OCR step - the model reads and understands form layout') }}</li>
           <li>Fine-tuned on your {{ $health['total_annotations'] ?? 0 }} annotated SA vital records</li>
           <li>Extracts: <code>FS_RECORD_TYPE</code>, <code>EVENT_YEAR_ORIG</code>, <code>EVENT_PLACE_ORIG</code></li>
         </ul>

@@ -24,7 +24,7 @@
                 </div>
             </div>
             <div class="mb-3"><label class="form-label">{{ __('Return Notes') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><textarea name="return_notes" class="form-control" rows="2"></textarea></div>
-            <div class="form-check mb-3"><input type="checkbox" name="confirm_return" class="form-check-input" id="confirmReturn" required><label class="form-check-label" for="confirmReturn">I confirm this item has been physically returned and inspected <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
+            <div class="form-check mb-3"><input type="checkbox" name="confirm_return" class="form-check-input" id="confirmReturn" required><label class="form-check-label" for="confirmReturn">{{ __('I confirm this item has been physically returned and inspected') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label></div>
             <button type="submit" class="btn atom-btn-white"><i class="fas fa-check-double me-1"></i>{{ __('Verify Return') }}</button>
             <a href="{{ route('research.retrievalQueue') }}" class="btn atom-btn-white">{{ __('Cancel') }}</a>
         </form>

@@ -4,8 +4,8 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('display.index') }}">Display</a></li>
-        <li class="breadcrumb-item active">Elasticsearch Reindex</li>
+        <li class="breadcrumb-item"><a href="{{ route('display.index') }}">{{ __('Display') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Elasticsearch Reindex') }}</li>
     </ol>
 </nav>
 
@@ -52,11 +52,11 @@
                 <h5 class="mb-0"><i class="fas fa-sync me-2"></i>{{ __('Reindex Display Data') }}</h5>
             </div>
             <div class="card-body">
-                <p>This will update all existing Elasticsearch documents with display-specific fields (object type, profile, etc.).</p>
+                <p>{{ __('This will update all existing Elasticsearch documents with display-specific fields (object type, profile, etc.).') }}</p>
 
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle me-2"></i>
-                    This is a <strong>partial update</strong> - it won't re-index all data, just add/update display fields.
+                    {{ __('This is a') }} <strong>partial update</strong> - it won't re-index all data, just add/update display fields.
                     For a full re-index, use the standard search:populate task.
                 </div>
 
@@ -90,7 +90,7 @@
                 <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('About ES Integration') }}</h5>
             </div>
             <div class="card-body">
-                <p>The Display plugin adds these fields to Elasticsearch:</p>
+                <p>{{ __('The Display plugin adds these fields to Elasticsearch:') }}</p>
                 <ul class="small">
                     <li><code>display_object_type</code> - archive, museum, gallery, etc.</li>
                     <li><code>display_profile</code> - Default display profile</li>
@@ -114,7 +114,7 @@
                 <h5 class="mb-0"><i class="fas fa-terminal me-2"></i>{{ __('CLI Alternative') }}</h5>
             </div>
             <div class="card-body">
-                <p class="small">You can also reindex via command line:</p>
+                <p class="small">{{ __('You can also reindex via command line:') }}</p>
                 <pre class="bg-dark text-light p-2 rounded small"><code>php artisan display:reindex --batch=100</code></pre>
             </div>
         </div>

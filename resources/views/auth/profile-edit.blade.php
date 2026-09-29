@@ -65,7 +65,7 @@
                      id="password" name="password"
                      autocomplete="new-password" minlength="8">
               <div class="form-text">
-                Minimum 8 characters. Use a mix of letters, numbers, and symbols for a strong password.
+                {{ __('Minimum 8 characters. Use a mix of letters, numbers, and symbols for a strong password.') }}
               </div>
               @error('password')
                 <div class="invalid-feedback">{{ $message }}</div>

@@ -43,7 +43,7 @@
 
         {{-- Children --}}
         <div class="mb-2">
-            <small class="text-muted fw-bold d-block mb-1">Children (hasPart) <span class="badge bg-secondary">{{ $children->count() }}</span></small>
+            <small class="text-muted fw-bold d-block mb-1">{{ __('Children (hasPart)') }} <span class="badge bg-secondary">{{ $children->count() }}</span></small>
             @if($children->count())
                 <ul class="list-unstyled ps-3 mb-0">
                     @foreach($children as $child)
@@ -70,7 +70,7 @@
         {{-- Siblings --}}
         @if($siblings->count())
         <div>
-            <small class="text-muted fw-bold d-block mb-1">Siblings <span class="badge bg-secondary">{{ $siblings->count() }}</span></small>
+            <small class="text-muted fw-bold d-block mb-1">{{ __('Siblings') }} <span class="badge bg-secondary">{{ $siblings->count() }}</span></small>
             <ul class="list-unstyled ps-3 mb-0">
                 @foreach($siblings as $sib)
                 <li class="mb-1">

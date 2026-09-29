@@ -19,7 +19,7 @@
 
         <div class="alert alert-warning small mb-3">
           <i class="fas fa-info-circle me-1"></i>
-          E-commerce mode is currently <strong>disabled</strong>. No payment is being charged -
+          {{ __('E-commerce mode is currently') }} <strong>disabled</strong>. No payment is being charged -
           this is a preview of what a real sale would look like.
         </div>
 
@@ -47,24 +47,23 @@
             <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
             <h4 class="mb-3">{{ __('Payment received') }}</h4>
             <dl class="row text-start small mb-0">
-              <dt class="col-5 text-muted">Item</dt>
-              <dd class="col-7" id="dummySaleItem">Sample listing</dd>
+              <dt class="col-5 text-muted">{{ __('Item') }}</dt>
+              <dd class="col-7" id="dummySaleItem">{{ __('Sample listing') }}</dd>
 
-              <dt class="col-5 text-muted" id="dummySaleListingIdLabel" style="display:none;">Listing ID</dt>
+              <dt class="col-5 text-muted" id="dummySaleListingIdLabel" style="display:none;">{{ __('Listing ID') }}</dt>
               <dd class="col-7" id="dummySaleListingIdRow" style="display:none;"><code id="dummySaleListingId"></code></dd>
 
-              <dt class="col-5 text-muted">Amount</dt>
+              <dt class="col-5 text-muted">{{ __('Amount') }}</dt>
               <dd class="col-7"><strong id="dummySaleAmount">{{ __('ZAR 6,500.00') }}</strong></dd>
 
-              <dt class="col-5 text-muted">Transaction</dt>
+              <dt class="col-5 text-muted">{{ __('Transaction') }}</dt>
               <dd class="col-7"><code id="dummySaleTxn">TXN-DEMO-0001</code></dd>
 
-              <dt class="col-5 text-muted">Status</dt>
+              <dt class="col-5 text-muted">{{ __('Status') }}</dt>
               <dd class="col-7"><span class="badge bg-success">paid</span></dd>
             </dl>
             <p class="text-muted small mt-3 mb-0">
-              In live mode, the buyer is redirected to PayFast and the marketplace listing is automatically
-              marked sold once the ITN webhook confirms the payment.
+              {{ __('In live mode, the buyer is redirected to PayFast and the marketplace listing is automatically marked sold once the ITN webhook confirms the payment.') }}
             </p>
           </div>
         </div>

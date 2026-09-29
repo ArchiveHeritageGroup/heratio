@@ -43,7 +43,7 @@
                       <div>
                         <div class="form-check form-check-inline">
                           <input class="form-check-input" type="radio" name="settings[{{ $setting->id }}]" id="setting-{{ $setting->id }}-no" value="0" {{ !in_array(strtolower($val), ['1', 'true', 'yes']) ? 'checked' : '' }}>
-                          <label class="form-check-label" for="setting-{{ $setting->id }}-no">No</label>
+                          <label class="form-check-label" for="setting-{{ $setting->id }}-no">{{ __('No') }}</label>
                         </div>
                         <div class="form-check form-check-inline">
                           <input class="form-check-input" type="radio" name="settings[{{ $setting->id }}]" id="setting-{{ $setting->id }}-yes" value="1" {{ in_array(strtolower($val), ['1', 'true', 'yes']) ? 'checked' : '' }}>

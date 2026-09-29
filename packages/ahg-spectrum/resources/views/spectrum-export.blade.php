@@ -5,7 +5,7 @@
 @section('content')
 <h1 class="h3 mb-4"><i class="fas fa-download me-2"></i>{{ __('Museum Procedure History Export') }}</h1>
 
-<p class="text-muted mb-4">Export Spectrum procedure histories for audit and compliance purposes.</p>
+<p class="text-muted mb-4">{{ __('Export Spectrum procedure histories for audit and compliance purposes.') }}</p>
 
 <div class="row">
 @foreach($exportTypes as $type => $label)
@@ -43,8 +43,8 @@
         <ul class="mb-0">
             <li><strong>CSV</strong> - Compatible with Excel, suitable for AGSA audit submissions</li>
             <li><strong>JSON</strong> - Machine-readable, suitable for system integrations</li>
-            <li>All exports include object titles and full history records</li>
-            <li>Timestamps are in ISO 8601 format</li>
+            <li>{{ __('All exports include object titles and full history records') }}</li>
+            <li>{{ __('Timestamps are in ISO 8601 format') }}</li>
         </ul>
     </div>
 </div>

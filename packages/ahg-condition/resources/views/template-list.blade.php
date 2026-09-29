@@ -10,7 +10,7 @@
     <h5 class="mb-0">{{ __('Condition Assessment Templates') }}</h5>
   </div>
   <div class="card-body">
-    <p class="text-muted">Content for Condition Assessment Templates.</p>
+    <p class="text-muted">{{ __('Content for Condition Assessment Templates.') }}</p>
   </div>
 </div>
 @endsection

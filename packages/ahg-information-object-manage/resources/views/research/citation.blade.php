@@ -118,7 +118,7 @@
         </div>
         <div class="col-md-6">
           <h6><span class="badge bg-dark">{{ __('UNISA Harvard') }}</span></h6>
-          <p class="small text-muted">University of South Africa's specific Harvard referencing format, commonly used in South African academic institutions.</p>
+          <p class="small text-muted">{{ __('University of South Africa\'s specific Harvard referencing format, commonly used in South African academic institutions.') }}</p>
         </div>
       </div>
     </div>

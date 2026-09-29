@@ -43,7 +43,7 @@
 </div>
 
 @if(empty($jobs) || count($jobs) === 0)
-    <div class="alert alert-info">No extraction jobs yet. Click "New Job" to create one.</div>
+    <div class="alert alert-info">{{ __('No extraction jobs yet. Click "New Job" to create one.') }}</div>
 @else
 <div class="table-responsive">
     <table class="table table-hover">

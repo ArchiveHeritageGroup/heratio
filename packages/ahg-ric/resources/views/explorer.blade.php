@@ -59,7 +59,7 @@
         <div id="ric-explorer-placeholder" style="display:flex; align-items:center; justify-content:center; height:100%; color:#fff;">
           <div class="text-center">
             <i class="fas fa-project-diagram fa-3x mb-2"></i>
-            <p>Search for a record above, or click "Overview" to visualize the graph</p>
+            <p>{{ __('Search for a record above, or click "Overview" to visualize the graph') }}</p>
           </div>
         </div>
         <div id="ric-explorer-loading" style="display:none; align-items:center; justify-content:center; height:100%;">
@@ -70,13 +70,13 @@
 
         {{-- Legend --}}
         <div class="ric-legend" style="display:none;" id="ric-explorer-legend">
-          <div class="ric-legend-item"><span class="ric-legend-color" style="background:#4ecdc4;"></span> RecordSet</div>
-          <div class="ric-legend-item"><span class="ric-legend-color" style="background:#45b7d1;"></span> Record</div>
-          <div class="ric-legend-item"><span class="ric-legend-color" style="background:#dc3545;"></span> Person</div>
-          <div class="ric-legend-item"><span class="ric-legend-color" style="background:#ffc107;"></span> CorporateBody</div>
-          <div class="ric-legend-item"><span class="ric-legend-color" style="background:#6f42c1;"></span> Activity/Event</div>
-          <div class="ric-legend-item"><span class="ric-legend-color" style="background:#fd7e14;"></span> Place</div>
-          <div class="ric-legend-item"><span class="ric-legend-color" style="background:#20c997;"></span> Concept/Term</div>
+          <div class="ric-legend-item"><span class="ric-legend-color" style="background:#4ecdc4;"></span> {{ __('RecordSet') }}</div>
+          <div class="ric-legend-item"><span class="ric-legend-color" style="background:#45b7d1;"></span> {{ __('Record') }}</div>
+          <div class="ric-legend-item"><span class="ric-legend-color" style="background:#dc3545;"></span> {{ __('Person') }}</div>
+          <div class="ric-legend-item"><span class="ric-legend-color" style="background:#ffc107;"></span> {{ __('CorporateBody') }}</div>
+          <div class="ric-legend-item"><span class="ric-legend-color" style="background:#6f42c1;"></span> {{ __('Activity/Event') }}</div>
+          <div class="ric-legend-item"><span class="ric-legend-color" style="background:#fd7e14;"></span> {{ __('Place') }}</div>
+          <div class="ric-legend-item"><span class="ric-legend-color" style="background:#20c997;"></span> {{ __('Concept/Term') }}</div>
         </div>
       </div>
     </div>
@@ -125,7 +125,7 @@
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label small">Name / Title <span class="text-danger">*</span></label>
+            <label class="form-label small">{{ __('Name / Title') }} <span class="text-danger">*</span></label>
             <input type="text" id="ric-create-name" class="form-control form-control-sm" style="background:#1a1a2e; color:#e0e0e0; border-color:#444;" placeholder="{{ __('Enter entity name') }}">
           </div>
           <div class="mb-3">
@@ -137,7 +137,7 @@
             <textarea id="ric-create-description" class="form-control form-control-sm" rows="3" style="background:#1a1a2e; color:#e0e0e0; border-color:#444;" placeholder="{{ __('Optional description') }}"></textarea>
           </div>
           <div class="mb-3">
-            <label class="form-label small">Parent URI <span class="text-muted">(link to existing entity)</span></label>
+            <label class="form-label small">{{ __('Parent URI') }} <span class="text-muted">(link to existing entity)</span></label>
             <input type="text" id="ric-create-parent" class="form-control form-control-sm" style="background:#1a1a2e; color:#e0e0e0; border-color:#444;" placeholder="{{ __('Optional parent URI') }}">
           </div>
           <div id="ric-create-result" style="display:none;"></div>

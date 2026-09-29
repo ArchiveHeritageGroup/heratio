@@ -105,7 +105,7 @@
             @if (!empty($query) && empty($results))
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle me-1"></i>
-                    No matches found for "<strong>{{ e($query) }}</strong>".
+                    {{ __('No matches found for "') }}<strong>{{ e($query) }}</strong>".
                     Try a different query or check if documents have been indexed.
                 </div>
             @endif

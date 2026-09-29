@@ -47,7 +47,7 @@
                 <option value="combine" {{ old('overwrite_or_combine', $overwriteOrCombine ?? 'combine') === 'combine' ? 'selected' : '' }}>{{ __('Combine') }}</option>
                 <option value="overwrite" {{ old('overwrite_or_combine', $overwriteOrCombine ?? '') === 'overwrite' ? 'selected' : '' }}>{{ __('Overwrite') }}</option>
               </select>
-              <div class="form-text">Set if you want to combine the current set of rights with any existing rights, or remove the existing rights and apply these new rights.</div>
+              <div class="form-text">{{ __('Set if you want to combine the current set of rights with any existing rights, or remove the existing rights and apply these new rights.') }}</div>
             </div>
           </div>
         </div>

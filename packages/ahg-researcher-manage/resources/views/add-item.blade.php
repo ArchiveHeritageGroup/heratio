@@ -36,7 +36,7 @@
               <div class="col-md-6">
                 <label class="form-label fw-bold">{{ __('Type') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                 <select name="item_type" class="form-select" id="itemType">
-                  <option value="description" @php echo ($item->item_type ?? 'description') === 'description' ? 'selected' : '' @endphp>Description (ISAD(G))</option>
+                  <option value="description" @php echo ($item->item_type ?? 'description') === 'description' ? 'selected' : '' @endphp>{{ __('Description (ISAD(G))') }}</option>
                   <option value="note" @php echo ($item->item_type ?? '') === 'note' ? 'selected' : '' @endphp>{{ __('Research Note') }}</option>
                   <option value="creator" @php echo ($item->item_type ?? '') === 'creator' ? 'selected' : '' @endphp>{{ __('New Creator') }}</option>
                   <option value="repository" @php echo ($item->item_type ?? '') === 'repository' ? 'selected' : '' @endphp>{{ __('New Repository') }}</option>
@@ -87,7 +87,7 @@
                 </select>
               </div>
               <div class="col-md-4">
-                <label class="form-label fw-bold">Date (display) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label fw-bold">{{ __('Date (display)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="date_display" class="form-control" value="@php echo htmlspecialchars($item->date_display ?? '') @endphp" placeholder="{{ __('e.g., 1950-1975') }}">
               </div>
               <div class="col-md-4">

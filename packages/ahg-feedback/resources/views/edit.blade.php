@@ -49,16 +49,16 @@
           </div>
           <div class="card-body">
             <div class="mb-3">
-              <label class="form-label fw-semibold">Subject <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label fw-semibold">{{ __('Subject') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" class="form-control" value="{{ $feedback->name }}" readonly>
             </div>
             <div class="mb-3">
-              <label class="form-label fw-semibold">Remarks <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label fw-semibold">{{ __('Remarks') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea class="form-control" rows="5" readonly>{{ $feedback->remarks }}</textarea>
             </div>
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label fw-semibold">Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label fw-semibold">{{ __('Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 @php
                   $typeMap = [
                       0 => 'General',
@@ -71,7 +71,7 @@
                 <input type="text" class="form-control" value="{{ $typeMap[(int)$feedback->feed_type_id] ?? 'Unknown' }}" readonly>
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label fw-semibold">Submitted <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label fw-semibold">{{ __('Submitted') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control"
                        value="{{ $feedback->created_at ? \Carbon\Carbon::parse($feedback->created_at)->format('d M Y H:i') : '' }}" readonly>
               </div>
@@ -87,19 +87,19 @@
           <div class="card-body">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label fw-semibold">Name <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label fw-semibold">{{ __('Name') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control" value="{{ $feedback->feed_name }} {{ $feedback->feed_surname }}" readonly>
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label fw-semibold">Email <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label fw-semibold">{{ __('Email') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control" value="{{ $feedback->feed_email }}" readonly>
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label fw-semibold">Phone <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label fw-semibold">{{ __('Phone') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control" value="{{ $feedback->feed_phone }}" readonly>
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label fw-semibold">Relationship <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label fw-semibold">{{ __('Relationship') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" class="form-control" value="{{ $feedback->feed_relationship }}" readonly>
               </div>
             </div>
@@ -113,19 +113,19 @@
           </div>
           <div class="card-body">
             <div class="mb-3">
-              <label class="form-label fw-semibold">Status <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label class="form-label fw-semibold">{{ __('Status') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select name="status" id="statusSelect" class="form-select" required>
-                <option value="pending" @selected(old('status', $feedback->status) === 'pending')>Pending</option>
-                <option value="completed" @selected(old('status', $feedback->status) === 'completed')>Completed</option>
+                <option value="pending" @selected(old('status', $feedback->status) === 'pending')>{{ __('Pending') }}</option>
+                <option value="completed" @selected(old('status', $feedback->status) === 'completed')>{{ __('Completed') }}</option>
               </select>
             </div>
             <div class="mb-3">
-              <label class="form-label fw-semibold">Admin Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label fw-semibold">{{ __('Admin Notes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea name="admin_notes" class="form-control" rows="4"
                         placeholder="{{ __('Internal notes about this feedback...') }}">{{ old('admin_notes', $feedback->unique_identifier) }}</textarea>
             </div>
             <div class="mb-3">
-              <label class="form-label fw-semibold">Completed At <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label fw-semibold">{{ __('Completed At') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="datetime-local" name="completed_at" id="completedAt" class="form-control"
                      value="{{ old('completed_at', $feedback->completed_at ? \Carbon\Carbon::parse($feedback->completed_at)->format('Y-m-d\TH:i') : '') }}">
               <small class="text-muted">{{ __('Auto-filled when status is set to Completed (if left blank).') }}</small>

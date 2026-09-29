@@ -9,7 +9,7 @@
 
     <p>Hello {{ trim(($booking->first_name ?? '') . ' ' . ($booking->last_name ?? '')) ?: 'Researcher' }},</p>
 
-    <p>We have received your reading-room booking request. It is currently <strong>pending confirmation</strong>; you will receive a follow-up email once a member of our team has reviewed it.</p>
+    <p>{{ __('We have received your reading-room booking request. It is currently') }} <strong>pending confirmation</strong>; you will receive a follow-up email once a member of our team has reviewed it.</p>
 
     <table style="width: 100%; border-collapse: collapse; background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0;">
         <tr><td style="padding: 6px 10px; width: 35%; color: #666;">{{ __('Booking reference') }}</td><td style="padding: 6px 10px;">#{{ $booking->id }}</td></tr>
@@ -21,7 +21,7 @@
         @endif
     </table>
 
-    <p>If you need to amend or cancel, please reply to this email or contact the institution directly.</p>
+    <p>{{ __('If you need to amend or cancel, please reply to this email or contact the institution directly.') }}</p>
 
     <p style="color: #888; font-size: 12px; margin-top: 30px;">Sent by {{ config('app.name', 'Heratio') }}.</p>
 </body>

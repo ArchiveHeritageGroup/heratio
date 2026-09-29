@@ -40,21 +40,21 @@
   <div class="col-md-3 mb-4">
     <div class="card h-100">
       <div class="card-header" style="background: var(--ahg-primary); color: white;"><i class="fas fa-database me-2"></i>{{ __('Training Data Sources') }}</div>
-      <div class="card-body"><p>Download SA vital record images from FamilySearch and Internet Archive.</p></div>
+      <div class="card-body"><p>{{ __('Download SA vital record images from FamilySearch and Internet Archive.') }}</p></div>
       <div class="card-footer"><a href="{{ route('admin.ai.htr.sources') }}" class="btn atom-btn-white w-100"><i class="fas fa-download me-1"></i>{{ __('Sources') }}</a></div>
     </div>
   </div>
   <div class="col-md-3 mb-4">
     <div class="card h-100">
       <div class="card-header" style="background: var(--ahg-primary); color: white;"><i class="fas fa-pen-square me-2"></i>{{ __('Annotate for Training') }}</div>
-      <div class="card-body"><p>Annotate document images to build training data for model fine-tuning.</p></div>
+      <div class="card-body"><p>{{ __('Annotate document images to build training data for model fine-tuning.') }}</p></div>
       <div class="card-footer"><a href="{{ route('admin.ai.htr.annotate') }}" class="btn atom-btn-white w-100"><i class="fas fa-pen me-1"></i>{{ __('Annotate') }}</a></div>
     </div>
   </div>
   <div class="col-md-3 mb-4">
     <div class="card h-100">
       <div class="card-header" style="background: var(--ahg-primary); color: white;"><i class="fas fa-graduation-cap me-2"></i>{{ __('Model Training') }}</div>
-      <div class="card-body"><p>Fine-tune TrOCR on SA historical vital records for improved accuracy.</p></div>
+      <div class="card-body"><p>{{ __('Fine-tune TrOCR on SA historical vital records for improved accuracy.') }}</p></div>
       <div class="card-footer"><a href="{{ route('admin.ai.htr.training') }}" class="btn atom-btn-white w-100"><i class="fas fa-brain me-1"></i>{{ __('Training') }}</a></div>
     </div>
   </div>

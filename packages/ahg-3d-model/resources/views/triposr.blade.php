@@ -17,7 +17,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h1><i class="fas fa-magic me-2"></i>{{ __('TripoSR Settings') }}</h1>
-      <p class="text-muted mb-0">Generate 3D models from 2D images using AI</p>
+      <p class="text-muted mb-0">{{ __('Generate 3D models from 2D images using AI') }}</p>
     </div>
     <div>
       <a href="{{ route('admin.3d-models.settings') }}" class="btn atom-btn-white me-2">
@@ -135,7 +135,7 @@
                   <label class="form-label">{{ __('Processing Mode') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select class="form-select" name="triposr_mode" id="triposr_mode">
                     <option value="local" {{ getTripoSetting3d($settings, 'triposr_mode', 'local') == 'local' ? 'selected' : '' }}>
-                      Local Processing (CPU/GPU)
+                      {{ __('Local Processing (CPU/GPU)') }}
                     </option>
                     <option value="remote" {{ getTripoSetting3d($settings, 'triposr_mode') == 'remote' ? 'selected' : '' }}>
                       {{ __('Remote GPU Server') }}
@@ -146,11 +146,11 @@
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label">Timeout (seconds) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Timeout (seconds)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="number" class="form-control" name="triposr_timeout"
                          value="{{ getTripoSetting3d($settings, 'triposr_timeout', '300') }}"
                          min="60" max="600">
-                  <div class="form-text">Max wait time for generation (60-600s)</div>
+                  <div class="form-text">{{ __('Max wait time for generation (60-600s)') }}</div>
                 </div>
               </div>
             </div>
@@ -166,7 +166,7 @@
           <div class="card-body">
             <div class="alert alert-info small mb-3">
               <i class="fas fa-info-circle me-1"></i>
-              Configure a remote server with GPU for faster processing. The system will automatically fall back to local CPU processing if the remote server is unavailable.
+              {{ __('Configure a remote server with GPU for faster processing. The system will automatically fall back to local CPU processing if the remote server is unavailable.') }}
             </div>
             <div class="row">
               <div class="col-md-8">
@@ -213,7 +213,7 @@
                   <input type="number" class="form-control" name="triposr_foreground_ratio"
                          value="{{ getTripoSetting3d($settings, 'triposr_foreground_ratio', '0.85') }}"
                          min="0.5" max="1" step="0.05">
-                  <div class="form-text">Object size ratio (0.5-1.0)</div>
+                  <div class="form-text">{{ __('Object size ratio (0.5-1.0)') }}</div>
                 </div>
               </div>
               <div class="col-md-4">

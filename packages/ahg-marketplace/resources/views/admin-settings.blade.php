@@ -13,9 +13,9 @@
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('ahgmarketplace.admin-dashboard') }}">Marketplace Admin</a></li>
-    <li class="breadcrumb-item active">Settings</li>
+    <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('ahgmarketplace.admin-dashboard') }}">{{ __('Marketplace Admin') }}</a></li>
+    <li class="breadcrumb-item active">{{ __('Settings') }}</li>
   </ol>
 </nav>
 
@@ -33,7 +33,7 @@
     <div class="card-body text-center py-5">
       <i class="fas fa-cog fa-3x text-muted mb-3 d-block"></i>
       <h5>{{ __('No settings configured') }}</h5>
-      <p class="text-muted">Run the marketplace install to populate default settings.</p>
+      <p class="text-muted">{{ __('Run the marketplace install to populate default settings.') }}</p>
     </div>
   </div>
 @else

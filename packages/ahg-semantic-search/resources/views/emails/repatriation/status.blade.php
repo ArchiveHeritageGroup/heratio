@@ -14,8 +14,7 @@
 <p><strong>{{ __('Currently held by:') }}</strong> {{ $claim->current_holder }}</p>
 @endif
 
-<p>This reflects where the dialogue around your claim now stands. You will
-receive a further update at the next change.</p>
+<p>{{ __('This reflects where the dialogue around your claim now stands. You will receive a further update at the next change.') }}</p>
 
 <hr>
 <p style="font-size:12px;color:#666;">{{ \AhgSemanticSearch\Services\RepatriationClaimService::DISCLAIMER }}</p>

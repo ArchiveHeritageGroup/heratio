@@ -165,7 +165,7 @@
       <div class="card mb-4">
         <div class="card-header bg-primary text-white"><h5 class="mb-0"><i class="fas fa-balance-scale me-2"></i>{{ __('Your Privacy Rights') }}</h5></div>
         <div class="card-body">
-          <p>Under applicable data protection laws, you have the following rights regarding your personal information:</p>
+          <p>{{ __('Under applicable data protection laws, you have the following rights regarding your personal information:') }}</p>
           <ul class="list-group list-group-flush">
             <li class="list-group-item"><i class="fas fa-eye text-primary me-2"></i><strong>{{ __('Right of Access') }}</strong> - Request access to your personal information</li>
             <li class="list-group-item"><i class="fas fa-edit text-primary me-2"></i><strong>{{ __('Right to Rectification') }}</strong> - Request correction of inaccurate information</li>
@@ -180,7 +180,7 @@
       <div class="card mb-4">
         <div class="card-header"><h5 class="mb-0"><i class="fas fa-database me-2"></i>{{ __('How We Process Your Data') }}</h5></div>
         <div class="card-body">
-          <p>We collect and process personal information for the following purposes:</p>
+          <p>{{ __('We collect and process personal information for the following purposes:') }}</p>
           <ul>
             <li>{{ __('Providing access to archival records and research services') }}</li>
             <li>{{ __('Processing research requests and reading room bookings') }}</li>
@@ -188,7 +188,7 @@
             <li>{{ __('Compliance with legal and regulatory requirements') }}</li>
             <li>{{ __('Improving our services and user experience') }}</li>
           </ul>
-          <p class="mb-0">We process your data in accordance with applicable data protection laws including POPIA, NDPA, Kenya DPA, and GDPR where applicable.</p>
+          <p class="mb-0">{{ __('We process your data in accordance with applicable data protection laws including POPIA, NDPA, Kenya DPA, and GDPR where applicable.') }}</p>
         </div>
       </div>
     </div>
@@ -219,12 +219,12 @@
       <div class="card">
         <div class="card-header"><h5 class="mb-0"><i class="fas fa-globe me-2"></i>{{ __('Supported Jurisdictions') }}</h5></div>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item">POPIA (South Africa)</li>
-          <li class="list-group-item">NDPA (Nigeria)</li>
+          <li class="list-group-item">{{ __('POPIA (South Africa)') }}</li>
+          <li class="list-group-item">{{ __('NDPA (Nigeria)') }}</li>
           <li class="list-group-item">{{ __('Kenya DPA') }}</li>
-          <li class="list-group-item">GDPR (European Union)</li>
-          <li class="list-group-item">PIPEDA (Canada)</li>
-          <li class="list-group-item">CCPA (California)</li>
+          <li class="list-group-item">{{ __('GDPR (European Union)') }}</li>
+          <li class="list-group-item">{{ __('PIPEDA (Canada)') }}</li>
+          <li class="list-group-item">{{ __('CCPA (California)') }}</li>
         </ul>
       </div>
     </div>

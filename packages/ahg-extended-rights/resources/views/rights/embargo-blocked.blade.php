@@ -11,7 +11,7 @@
           <h3 class="mb-0"><i class="fas fa-ban"></i> {{ __('Access Restricted - Embargo') }}</h3>
         </div>
         <div class="card-body">
-          <p class="lead text-center">This record is currently under embargo and cannot be accessed.</p>
+          <p class="lead text-center">{{ __('This record is currently under embargo and cannot be accessed.') }}</p>
 
           @if(!empty($embargo))
             <table class="table table-borderless">

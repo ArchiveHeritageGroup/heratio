@@ -7,6 +7,6 @@
 <div class="alert alert-info"><strong>{{ count($items) }}</strong> conservation treatments found</div>
 <div class="table-responsive"><table class="table table-striped table-hover"><thead class="table-dark"><tr><th>{{ __('Object') }}</th><th>{{ __('Date') }}</th><th>{{ __('Treatment') }}</th><th>{{ __('Conservator') }}</th><th>{{ __('Status') }}</th></tr></thead><tbody>
 @forelse($items as $c)<tr><td><strong>{{ e($c->object_title ?? '-') }}</strong></td><td>{{ $c->treatment_date ? date('d M Y', strtotime($c->treatment_date)) : '-' }}</td><td>{{ e($c->treatment ?? '-') }}</td><td>{{ e($c->conservator ?? '-') }}</td><td><span class="badge bg-{{ ($c->status ?? '') === 'complete' ? 'success' : 'warning' }}">{{ ucfirst($c->status ?? '-') }}</span></td></tr>
-@empty<tr><td colspan="5" class="text-muted text-center py-4">No conservation treatments found.</td></tr>@endforelse
+@empty<tr><td colspan="5" class="text-muted text-center py-4">{{ __('No conservation treatments found.') }}</td></tr>@endforelse
 </tbody></table></div>
 @endsection

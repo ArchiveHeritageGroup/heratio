@@ -4,9 +4,9 @@
 @section('body-class', 'admin display fields')
 
 @section('breadcrumbs')
-  <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
-  <li class="breadcrumb-item"><a href="{{ route('glam.index') }}">Display Configuration</a></li>
-  <li class="breadcrumb-item active" aria-current="page">Fields</li>
+  <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Home') }}</a></li>
+  <li class="breadcrumb-item"><a href="{{ route('glam.index') }}">{{ __('Display Configuration') }}</a></li>
+  <li class="breadcrumb-item active" aria-current="page">{{ __('Fields') }}</li>
 @endsection
 
 @section('layout-content')
@@ -100,7 +100,7 @@
     {{-- Flat field list fallback when fieldGroups is not grouped --}}
     <div class="card">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fas fa-th-list me-2"></i>All Fields <span class="badge bg-secondary ms-2">{{ count($fields) }}</span></h5>
+        <h5 class="mb-0"><i class="fas fa-th-list me-2"></i>{{ __('All Fields') }} <span class="badge bg-secondary ms-2">{{ count($fields) }}</span></h5>
       </div>
       <div class="card-body p-0">
         <table class="table table-bordered table-striped mb-0">

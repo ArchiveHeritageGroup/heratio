@@ -17,7 +17,7 @@
         @if(!empty($embargoInfo['public_message']))
           <p class="lead">{{ $embargoInfo['public_message'] }}</p>
         @else
-          <p class="lead">Access to this material is currently restricted and not available for public viewing.</p>
+          <p class="lead">{{ __('Access to this material is currently restricted and not available for public viewing.') }}</p>
         @endif
 
         @if(!($embargoInfo['is_perpetual'] ?? false) && !empty($embargoInfo['end_date']))

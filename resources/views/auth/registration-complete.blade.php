@@ -19,7 +19,7 @@
         <div class="alert alert-info text-start">
           <h5><i class="fas fa-info-circle me-2"></i>{{ __('What happens next?') }}</h5>
           <ol class="mb-0">
-            <li>Our staff will review your registration within 1-2 business days.</li>
+            <li>{{ __('Our staff will review your registration within 1-2 business days.') }}</li>
             <li>{{ __('You will receive an email once your account is approved.') }}</li>
             <li>{{ __('After approval, you can log in and book reading room visits.') }}</li>
           </ol>

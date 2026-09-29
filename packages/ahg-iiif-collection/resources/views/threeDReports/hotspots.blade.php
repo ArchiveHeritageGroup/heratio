@@ -20,7 +20,7 @@
         <td class="text-center">@if($h->is_visible ?? true)<i class="fas fa-check text-success"></i>@else<i class="fas fa-times text-muted"></i>@endif</td>
       </tr>
       @empty
-      <tr><td colspan="6" class="text-muted text-center py-4">No hotspots found.</td></tr>
+      <tr><td colspan="6" class="text-muted text-center py-4">{{ __('No hotspots found.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

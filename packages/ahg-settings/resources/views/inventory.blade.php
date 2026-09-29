@@ -34,7 +34,7 @@
               </div>
 
               <br>
-              <a href="{{ route('taxonomy.browse', ['taxonomy' => 34]) }}">Review the current terms in the Levels of description taxonomy.</a>
+              <a href="{{ route('taxonomy.browse', ['taxonomy' => 34]) }}">{{ __('Review the current terms in the Levels of description taxonomy.') }}</a>
             </div>
           </div>
         </div>

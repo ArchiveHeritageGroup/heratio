@@ -252,7 +252,7 @@
       <i class="fas fa-link me-2"></i>{{ __('IIIF 3D Manifest') }}
     </div>
     <div class="card-body">
-      <p>Access the IIIF 3D manifest for this model:</p>
+      <p>{{ __('Access the IIIF 3D manifest for this model:') }}</p>
       <div class="input-group">
         <input type="text" class="form-control" id="manifest-url" readonly
                value="{{ url('/iiif/3d/' . $model->id . '/manifest.json') }}">

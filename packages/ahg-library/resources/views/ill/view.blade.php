@@ -313,18 +313,18 @@
           <i class="fas fa-project-diagram me-1"></i>{{ __('ISO 10160 State Guide') }}
         </div>
         <div class="card-body small">
-          <p class="text-muted mb-2">Borrow (we request):</p>
+          <p class="text-muted mb-2">{{ __('Borrow (we request):') }}</p>
           <ol class="mb-2 ps-3 small">
             <li>{{ __('Pending') }}</li>
             <li>{{ __('Requested') }}</li>
             <li>{{ __('Shipped') }} <span class="text-muted">→</span> {{ __('Received') }} <span class="text-muted">→</span> {{ __('Returned') }}</li>
-            <li class="text-muted">Cancelled / Lost / Unfulfilled (terminal)</li>
+            <li class="text-muted">{{ __('Cancelled / Lost / Unfulfilled (terminal)') }}</li>
           </ol>
-          <p class="text-muted mb-2">Lend (they request from us):</p>
+          <p class="text-muted mb-2">{{ __('Lend (they request from us):') }}</p>
           <ol class="mb-0 ps-3 small">
             <li>{{ __('Pending') }}</li>
-            <li>{{ __('Shipped') }} <span class="text-muted">→</span> Received (terminal)</li>
-            <li class="text-muted">Cancelled / Unfulfilled (terminal)</li>
+            <li>{{ __('Shipped') }} <span class="text-muted">→</span> {{ __('Received (terminal)') }}</li>
+            <li class="text-muted">{{ __('Cancelled / Unfulfilled (terminal)') }}</li>
           </ol>
         </div>
       </div>

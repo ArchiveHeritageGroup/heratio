@@ -4,8 +4,8 @@
 @section('body-class', 'admin display')
 
 @section('breadcrumbs')
-  <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
-  <li class="breadcrumb-item active" aria-current="page">Display Configuration</li>
+  <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Home') }}</a></li>
+  <li class="breadcrumb-item active" aria-current="page">{{ __('Display Configuration') }}</li>
 @endsection
 
 @section('layout-content')
@@ -68,7 +68,7 @@
       <div class="card text-white bg-primary">
         <div class="card-body text-center py-3">
           <div class="fs-2 fw-bold">{{ number_format($stats['total_objects'] ?? 0) }}</div>
-          <div class="small">Total Objects</div>
+          <div class="small">{{ __('Total Objects') }}</div>
         </div>
       </div>
     </div>
@@ -76,7 +76,7 @@
       <div class="card text-white bg-success">
         <div class="card-body text-center py-3">
           <div class="fs-2 fw-bold">{{ number_format($stats['configured_objects'] ?? 0) }}</div>
-          <div class="small">Configured Objects</div>
+          <div class="small">{{ __('Configured Objects') }}</div>
         </div>
       </div>
     </div>
@@ -84,7 +84,7 @@
       <div class="card text-white bg-info">
         <div class="card-body text-center py-3">
           <div class="fs-2 fw-bold">{{ number_format($stats['display_profiles'] ?? 0) }}</div>
-          <div class="small">Display Profiles</div>
+          <div class="small">{{ __('Display Profiles') }}</div>
         </div>
       </div>
     </div>
@@ -92,7 +92,7 @@
       <div class="card text-white bg-warning">
         <div class="card-body text-center py-3">
           <div class="fs-2 fw-bold">{{ number_format($stats['level_types'] ?? 0) }}</div>
-          <div class="small">Level Types</div>
+          <div class="small">{{ __('Level Types') }}</div>
         </div>
       </div>
     </div>
@@ -107,7 +107,7 @@
         <div class="card-header d-flex align-items-center justify-content-between" style="background:var(--ahg-primary);color:#fff">
           <h5 class="mb-0"><i class="fas fa-palette me-2"></i>{{ __('Display Profiles by Domain') }}</h5>
           <a href="{{ route('glam.profiles') }}" class="btn btn-sm atom-btn-white">
-            View all <i class="fas fa-arrow-right ms-1"></i>
+            {{ __('View all') }} <i class="fas fa-arrow-right ms-1"></i>
           </a>
         </div>
         <div class="card-body">
@@ -138,7 +138,7 @@
               </div>
             @endforeach
           @else
-            <p class="text-muted mb-0">No display profiles configured.</p>
+            <p class="text-muted mb-0">{{ __('No display profiles configured.') }}</p>
           @endif
         </div>
       </div>
@@ -166,7 +166,7 @@
               @endforeach
             </div>
           @else
-            <p class="text-muted mb-0">No collection types defined.</p>
+            <p class="text-muted mb-0">{{ __('No collection types defined.') }}</p>
           @endif
         </div>
       </div>
@@ -218,7 +218,7 @@
               </div>
             @endforeach
           @else
-            <div class="list-group-item text-muted">No types available.</div>
+            <div class="list-group-item text-muted">{{ __('No types available.') }}</div>
           @endif
         </div>
       </div>

@@ -21,7 +21,7 @@
     <div class="card mb-3">
         <div class="card-header">{{ __('Column Mapping') }}</div>
         <div class="card-body">
-            <p class="text-muted">Map spreadsheet columns to file plan fields. Auto-detected mappings are highlighted.</p>
+            <p class="text-muted">{{ __('Map spreadsheet columns to file plan fields. Auto-detected mappings are highlighted.') }}</p>
 
             <div class="table-responsive">
                 <table class="table table-sm table-bordered">
@@ -73,7 +73,7 @@
     </div>
 
     <div class="card mb-3">
-        <div class="card-header">Sample Data (first 5 rows)</div>
+        <div class="card-header">{{ __('Sample Data (first 5 rows)') }}</div>
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-sm table-striped mb-0">

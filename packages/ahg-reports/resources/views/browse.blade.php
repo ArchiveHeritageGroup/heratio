@@ -82,8 +82,7 @@
 
 @section('content')
 <p class="text-muted mb-4">
-  Use the sidebar filters to select a strong room or location, then click Search to filter physical storage records.
-  You can also export strongroom data or view booked out items.
+  {{ __('Use the sidebar filters to select a strong room or location, then click Search to filter physical storage records. You can also export strongroom data or view booked out items.') }}
 </p>
 
 <div class="card mb-3">
@@ -101,7 +100,7 @@
       <tbody>
         <tr>
           <td><i class="fas fa-search me-1 text-muted"></i>{{ __('Search') }}</td>
-          <td>Filter physical storage records by the selected strong room and location</td>
+          <td>{{ __('Filter physical storage records by the selected strong room and location') }}</td>
         </tr>
         <tr>
           <td><i class="fas fa-file-export me-1 text-muted"></i>{{ __('Strongrooms Export') }}</td>
@@ -109,7 +108,7 @@
         </tr>
         <tr>
           <td><i class="fas fa-sign-out-alt me-1 text-muted"></i>{{ __('Booked Out') }}</td>
-          <td>Browse items that are currently booked out from physical storage</td>
+          <td>{{ __('Browse items that are currently booked out from physical storage') }}</td>
         </tr>
         <tr>
           <td><i class="fas fa-eye me-1 text-muted"></i>{{ __('Publish') }}</td>

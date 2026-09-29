@@ -128,7 +128,7 @@ $moduleLabels = [
             <div class="modal-header">
                 <h5 class="modal-title">
                     <i class="bi bi-display me-2"></i>
-                    Edit Display Settings: <span id="editModuleLabel"></span>
+                    {{ __('Edit Display Settings:') }} <span id="editModuleLabel"></span>
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -156,7 +156,7 @@ $moduleLabels = [
                         <!-- Available Modes -->
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Available Modes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-                            <p class="text-muted small">Select which modes users can choose from</p>
+                            <p class="text-muted small">{{ __('Select which modes users can choose from') }}</p>
                             
                             @php foreach ($allModes as $mode => $info): @endphp
                                 <div class="form-check">
@@ -214,7 +214,7 @@ $moduleLabels = [
                                                 <input type="checkbox" class="form-check-input" 
                                                        name="show_thumbnails" id="editShowThumbnails" value="1">
                                                 <label class="form-check-label" for="editShowThumbnails">
-                                                    Show Thumbnails <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                                                    {{ __('Show Thumbnails') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                                                 </label>
                                             </div>
                                         </div>
@@ -223,7 +223,7 @@ $moduleLabels = [
                                                 <input type="checkbox" class="form-check-input" 
                                                        name="show_descriptions" id="editShowDescriptions" value="1">
                                                 <label class="form-check-label" for="editShowDescriptions">
-                                                    Show Descriptions <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                                                    {{ __('Show Descriptions') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                                                 </label>
                                             </div>
                                         </div>
@@ -232,7 +232,7 @@ $moduleLabels = [
                                                 <input type="checkbox" class="form-check-input" 
                                                        name="allow_user_override" id="editAllowOverride" value="1">
                                                 <label class="form-check-label" for="editAllowOverride">
-                                                    Allow User Override <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                                                    {{ __('Allow User Override') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                                                 </label>
                                             </div>
                                         </div>

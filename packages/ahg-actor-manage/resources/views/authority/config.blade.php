@@ -17,9 +17,9 @@
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
-      <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
+      <a href="{{ route('actor.dashboard') }}">{{ __('Authority Dashboard') }}</a>
     </li>
-    <li class="breadcrumb-item active">Configuration</li>
+    <li class="breadcrumb-item active">{{ __('Configuration') }}</li>
   </ol>
 </nav>
 
@@ -64,7 +64,7 @@
                    name="config[auto_verify_wikidata]" value="1"
                    {{ cfgChecked($config, 'auto_verify_wikidata') }}>
             <label class="form-check-label" for="auto_verify_wikidata">
-              Auto-verify Wikidata matches
+              {{ __('Auto-verify Wikidata matches') }}
             </label>
           </div>
         </div>
@@ -83,7 +83,7 @@
                name="config[completeness_auto_recalc]" value="1"
                {{ cfgChecked($config, 'completeness_auto_recalc') }}>
         <label class="form-check-label" for="completeness_auto_recalc">
-          Auto-recalculate completeness scores
+          {{ __('Auto-recalculate completeness scores') }}
         </label>
       </div>
       <div class="form-check form-switch">
@@ -91,7 +91,7 @@
                name="config[hide_stubs_from_public]" value="1"
                {{ cfgChecked($config, 'hide_stubs_from_public') }}>
         <label class="form-check-label" for="hide_stubs_from_public">
-          Hide stub records from public view
+          {{ __('Hide stub records from public view') }}
         </label>
       </div>
     </div>
@@ -108,7 +108,7 @@
                name="config[ner_auto_stub_enabled]" value="1"
                {{ cfgChecked($config, 'ner_auto_stub_enabled') }}>
         <label class="form-check-label" for="ner_auto_stub_enabled">
-          Auto-create stubs from NER entities
+          {{ __('Auto-create stubs from NER entities') }}
         </label>
       </div>
       <div class="mb-3">
@@ -131,7 +131,7 @@
                name="config[merge_require_approval]" value="1"
                {{ cfgChecked($config, 'merge_require_approval') }}>
         <label class="form-check-label" for="merge_require_approval">
-          Require approval for merge operations
+          {{ __('Require approval for merge operations') }}
         </label>
       </div>
       <div class="mb-3">
@@ -154,7 +154,7 @@
                name="config[function_linking_enabled]" value="1"
                {{ cfgChecked($config, 'function_linking_enabled') }}>
         <label class="form-check-label" for="function_linking_enabled">
-          Enable structured function linking
+          {{ __('Enable structured function linking') }}
         </label>
       </div>
     </div>
@@ -165,7 +165,7 @@
       <i class="fas fa-save me-1"></i>{{ __('Save configuration') }}
     </button>
     <a href="{{ route('actor.dashboard') }}" class="btn btn-outline-secondary ms-2">
-      Cancel
+      {{ __('Cancel') }}
     </a>
   </div>
 </form>

@@ -24,10 +24,10 @@
           <td>{{ $item->archival_description }}</td>
           <td><code>{{ $item->reference_code ?? '' }}</code></td>
           <td>{{ \Carbon\Carbon::parse($item->created_at)->format('Y-m-d') }}</td>
-          <td><a href="{{ url('/' . $item->slug) }}" class="btn btn-sm atom-btn-white">View</a></td>
+          <td><a href="{{ url('/' . $item->slug) }}" class="btn btn-sm atom-btn-white">{{ __('View') }}</a></td>
         </tr>
       @empty
-        <tr><td colspan="4" class="text-muted text-center">No items in this folder.</td></tr>
+        <tr><td colspan="4" class="text-muted text-center">{{ __('No items in this folder.') }}</td></tr>
       @endforelse
     </tbody>
   </table>
@@ -35,7 +35,7 @@
 
 @auth
   <div class="mt-3">
-    <p class="text-muted">Want to save these to your own favorites?</p>
+    <p class="text-muted">{{ __('Want to save these to your own favorites?') }}</p>
     <form method="post" action="{{ route('favorites.import') }}">
       @csrf
       <input type="hidden" name="slugs" value="{{ $items->pluck('slug')->implode("\n") }}">
@@ -43,6 +43,6 @@
     </form>
   </div>
 @else
-  <div class="alert alert-info mt-3"><a href="{{ route('login') }}">Log in</a> to save these to your favorites.</div>
+  <div class="alert alert-info mt-3"><a href="{{ route('login') }}">{{ __('Log in') }}</a> to save these to your favorites.</div>
 @endauth
 @endsection

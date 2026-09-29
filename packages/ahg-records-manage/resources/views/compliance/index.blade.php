@@ -17,7 +17,7 @@
 </div>
 
 <p class="text-muted small">
-  Run automated checks against the live RM data plane and produce a scored, signed-off compliance report. Frameworks: ISO 15489, ISO 16175, MoReq2010, DoD 5015.2, ISO 30300, ISO 23081.
+  {{ __('Run automated checks against the live RM data plane and produce a scored, signed-off compliance report. Frameworks: ISO 15489, ISO 16175, MoReq2010, DoD 5015.2, ISO 30300, ISO 23081.') }}
 </p>
 
 @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif

@@ -26,9 +26,9 @@
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('ingest.index') }}">Ingestion Manager</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('ingest.index') }}">{{ __('Ingestion Manager') }}</a></li>
         <li class="breadcrumb-item">{{ $session->title ?? ('Session #' . ($session->id ?? '')) }}</li>
-        <li class="breadcrumb-item active" aria-current="page">Upload</li>
+        <li class="breadcrumb-item active" aria-current="page">{{ __('Upload') }}</li>
     </ol>
 </nav>
 
@@ -86,7 +86,7 @@
                                 <label for="ingest_file" class="form-label">{{ __('Select CSV, ZIP, or EAD file') }}</label>
                                 <div id="drop-zone" class="border border-2 border-dashed rounded p-5 text-center mb-3">
                                     <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
-                                    <p class="mb-1">Drag and drop file here, or click to browse</p>
+                                    <p class="mb-1">{{ __('Drag and drop file here, or click to browse') }}</p>
                                     <small class="text-muted">{{ __('Supported: CSV, ZIP (with CSV + digital objects), EAD XML') }}</small>
                                     <input type="file" class="form-control mt-3" id="ingest_file" name="ingest_file"
                                            accept=".csv,.zip,.xml,.ead">

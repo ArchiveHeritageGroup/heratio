@@ -67,7 +67,7 @@
                    accept=".csv,.xls,.xlsx,.xml,.json,.opex,.pax,.zip,.txt">
             <div id="dropText">
               <p class="mb-2"><i class="fas fa-file-upload" style="font-size: 3rem;"></i></p>
-              <p class="mb-2">Drag & drop file here or <a href="#" onclick="document.getElementById('importFile').click(); return false;">browse</a></p>
+              <p class="mb-2">{{ __('Drag & drop file here or') }} <a href="#" onclick="document.getElementById('importFile').click(); return false;">browse</a></p>
               <small class="text-muted">{{ __('Supported: CSV, Excel (XLS/XLSX), XML, JSON, OPEX, PAX, ZIP') }}</small>
             </div>
             <div id="fileInfo" class="d-none">
@@ -127,11 +127,10 @@
 
         {{-- Step 2b: Digital Objects Location --}}
         <div class="mb-4 d-none" id="digitalObjectsSection">
-          <h6 class="text-primary"><span class="badge bg-primary me-2">2b</span>Digital Objects Location (Optional)</h6>
+          <h6 class="text-primary"><span class="badge bg-primary me-2">2b</span>{{ __('Digital Objects Location (Optional)') }}</h6>
           <div class="alert alert-info small py-2 mb-3">
             <i class="fas fa-info-circle me-1"></i>
-            <strong>{{ __('Note:') }}</strong> Digital objects must be pre-uploaded to the server via FTP/SFTP before import.
-            The browser cannot access files on your local PC for security reasons.
+            <strong>{{ __('Note:') }}</strong> {{ __('Digital objects must be pre-uploaded to the server via FTP/SFTP before import. The browser cannot access files on your local PC for security reasons.') }}
           </div>
           <div class="row g-3">
             <div class="col-md-6">
@@ -162,7 +161,7 @@
           </div>
           <div class="mt-2">
             <small class="text-muted">
-              <i class="fab fa-windows me-1"></i><strong>{{ __('Windows users:') }}</strong> Use WinSCP, FileZilla, or similar to upload files to the server first.
+              <i class="fab fa-windows me-1"></i><strong>{{ __('Windows users:') }}</strong> {{ __('Use WinSCP, FileZilla, or similar to upload files to the server first.') }}
             </small>
           </div>
         </div>
@@ -215,7 +214,7 @@
 
         {{-- Step 3: Import Target & Mapping --}}
         <div class="mb-4">
-          <h6 class="text-primary"><span class="badge bg-primary me-2">3</span>Import Target & Mapping</h6>
+          <h6 class="text-primary"><span class="badge bg-primary me-2">3</span>{{ __('Import Target & Mapping') }}</h6>
           <div class="row g-3">
             <div class="col-md-6">
               <label for="target_type" class="form-label">{{ __('Target Record Type') }} <span class="text-danger">*</span></label>

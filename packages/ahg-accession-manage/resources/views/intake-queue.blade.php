@@ -10,8 +10,8 @@
 @section('before-content')
   <div class="d-flex flex-wrap gap-2 mb-3">
     <div class="d-flex flex-wrap gap-2 ms-auto">
-      <a href="{{ route('accession.browse') }}" class="btn btn-sm atom-btn-white">Back to browse</a>
-      <a href="{{ route('accession.create') }}" class="btn btn-sm atom-btn-white">Add new</a>
+      <a href="{{ route('accession.browse') }}" class="btn btn-sm atom-btn-white">{{ __('Back to browse') }}</a>
+      <a href="{{ route('accession.create') }}" class="btn btn-sm atom-btn-white">{{ __('Add new') }}</a>
     </div>
   </div>
 @endsection
@@ -52,6 +52,6 @@
     </div>
     {{ $rows->links() }}
   @else
-    <div class="alert alert-info">No accessions in the intake queue.</div>
+    <div class="alert alert-info">{{ __('No accessions in the intake queue.') }}</div>
   @endif
 @endsection

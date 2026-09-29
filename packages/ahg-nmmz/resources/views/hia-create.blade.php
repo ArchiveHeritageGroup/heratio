@@ -141,7 +141,7 @@
       <div class="alert alert-warning">
         <h6><i class="fas fa-exclamation-triangle me-1"></i> {{ __('Important') }}</h6>
         <ul class="small mb-0">
-          <li>HIAs are required for developments that may impact heritage sites</li>
+          <li>{{ __('HIAs are required for developments that may impact heritage sites') }}</li>
           <li>{{ __('Assessment must be conducted by qualified professional') }}</li>
           <li>{{ __('Review required before project commencement') }}</li>
         </ul>

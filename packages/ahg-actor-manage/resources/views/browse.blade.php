@@ -385,7 +385,7 @@
                 <a id="add-criterion-dropdown-menu" class="btn atom-btn-white dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">{{ __('Add new criteria') }}</a>
                 <ul class="dropdown-menu mt-2" aria-labelledby="add-criterion-dropdown-menu">
                   <li><a class="dropdown-item add-criterion" href="#" data-bool="and">{{ __('And') }}</a></li>
-                  <li><a class="dropdown-item add-criterion" href="#" data-bool="or">Or</a></li>
+                  <li><a class="dropdown-item add-criterion" href="#" data-bool="or">{{ __('Or') }}</a></li>
                   <li><a class="dropdown-item add-criterion" href="#" data-bool="not">{{ __('Not') }}</a></li>
                 </ul>
               </div>

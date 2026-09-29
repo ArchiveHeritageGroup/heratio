@@ -65,7 +65,7 @@
 
       <div class="modal-header bg-secondary text-white">
         <h5 class="modal-title">
-          <i class="fas fa-language me-2"></i>Translate Record
+          <i class="fas fa-language me-2"></i>{{ __('Translate Record') }}
           <span class="ahg-step-indicator badge bg-light text-dark ms-2">{{ __('Step 1: Select Fields') }}</span>
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>

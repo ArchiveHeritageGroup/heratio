@@ -22,19 +22,19 @@
   <div class="d-flex flex-wrap gap-2 mb-3">
     <a href="{{ route('ric.orphans', ['status' => 'all']) }}"
        class="btn btn-sm {{ $tab === 'all' ? 'atom-btn-white' : 'atom-btn-white' }}">
-      All <span class="badge bg-light text-dark ms-1">{{ $counts['all'] ?? 0 }}</span>
+      {{ __('All') }} <span class="badge bg-light text-dark ms-1">{{ $counts['all'] ?? 0 }}</span>
     </a>
     <a href="{{ route('ric.orphans', ['status' => 'detected']) }}"
        class="btn btn-sm {{ $tab === 'detected' ? 'atom-btn-outline-danger' : 'atom-btn-outline-danger' }}">
-      Detected <span class="badge bg-light text-dark ms-1">{{ $counts['detected'] ?? 0 }}</span>
+      {{ __('Detected') }} <span class="badge bg-light text-dark ms-1">{{ $counts['detected'] ?? 0 }}</span>
     </a>
     <a href="{{ route('ric.orphans', ['status' => 'reviewed']) }}"
        class="btn btn-sm {{ $tab === 'reviewed' ? 'atom-btn-white' : 'atom-btn-white' }}">
-      Reviewed <span class="badge bg-light text-dark ms-1">{{ $counts['reviewed'] ?? 0 }}</span>
+      {{ __('Reviewed') }} <span class="badge bg-light text-dark ms-1">{{ $counts['reviewed'] ?? 0 }}</span>
     </a>
     <a href="{{ route('ric.orphans', ['status' => 'cleaned']) }}"
        class="btn btn-sm {{ $tab === 'cleaned' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}">
-      Cleaned <span class="badge bg-light text-dark ms-1">{{ $counts['cleaned'] ?? 0 }}</span>
+      {{ __('Cleaned') }} <span class="badge bg-light text-dark ms-1">{{ $counts['cleaned'] ?? 0 }}</span>
     </a>
   </div>
 

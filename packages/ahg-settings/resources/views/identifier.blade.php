@@ -12,7 +12,7 @@
 
 @section('content')
     <div class="alert alert-info" role="alert">
-      <p>Please clear the application cache and rebuild the search index if you are changing the reference code separator setting.</p>
+      <p>{{ __('Please clear the application cache and rebuild the search index if you are changing the reference code separator setting.') }}</p>
       <pre>$ php artisan cache:clear</pre>
       <pre>$ php artisan search:populate</pre>
     </div>
@@ -64,12 +64,12 @@
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[inherit_code_informationobject]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[inherit_code_informationobject]" value="1" id="inherit_code_io" {{ ($settings['inherit_code_informationobject'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="inherit_code_io">Inherit reference code (information object) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-check-label" for="inherit_code_io">{{ __('Inherit reference code (information object)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               </div>
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[inherit_code_dc_xml]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[inherit_code_dc_xml]" value="1" id="inherit_code_dc" {{ ($settings['inherit_code_dc_xml'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="inherit_code_dc">Inherit reference code (DC XML) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-check-label" for="inherit_code_dc">{{ __('Inherit reference code (DC XML)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               </div>
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[prevent_duplicate_actor_identifiers]" value="0">

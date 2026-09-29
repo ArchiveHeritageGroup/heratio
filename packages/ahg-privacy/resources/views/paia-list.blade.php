@@ -131,11 +131,11 @@
                 </div>
                 <div class="col-md-4">
                     <h6>{{ __('Fees') }}</h6>
-                    <p class="mb-0">Request fee + access fee (based on search time and reproduction)</p>
+                    <p class="mb-0">{{ __('Request fee + access fee (based on search time and reproduction)') }}</p>
                 </div>
                 <div class="col-md-4">
                     <h6>{{ __('Appeals') }}</h6>
-                    <p class="mb-0">Internal appeal within 60 days, then to court within 180 days</p>
+                    <p class="mb-0">{{ __('Internal appeal within 60 days, then to court within 180 days') }}</p>
                 </div>
             </div>
         </div>

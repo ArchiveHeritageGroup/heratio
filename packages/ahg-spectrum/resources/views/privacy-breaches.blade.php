@@ -36,9 +36,9 @@
                         </td>
                         <td>
                             @if($b->regulator_notified ?? false)
-                                <span class="badge bg-info" title="{{ $b->notification_date ?? '' }}">Notified</span>
+                                <span class="badge bg-info" title="{{ $b->notification_date ?? '' }}">{{ __('Notified') }}</span>
                             @else
-                                <span class="badge bg-secondary">No</span>
+                                <span class="badge bg-secondary">{{ __('No') }}</span>
                             @endif
                         </td>
                         <td>
@@ -80,7 +80,7 @@
                 <div class="modal-body">
                     <div class="alert alert-warning">
                         <i class="fas fa-clock me-2"></i>
-                        POPIA requires notification to the Information Regulator within <strong>72 hours</strong> if the breach poses a risk to data subjects.
+                        {{ __('POPIA requires notification to the Information Regulator within') }} <strong>72 hours</strong> if the breach poses a risk to data subjects.
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">

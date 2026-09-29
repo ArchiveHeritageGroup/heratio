@@ -22,13 +22,13 @@
     <div class="card-body py-2">
       <div class="btn-group" role="group">
         <a href="{{ route('ext-rights-admin.embargoes', ['status' => 'active']) }}"
-           class="btn btn-{{ ($status ?? 'active') === 'active' ? 'primary' : 'outline-primary' }}">Active</a>
+           class="btn btn-{{ ($status ?? 'active') === 'active' ? 'primary' : 'outline-primary' }}">{{ __('Active') }}</a>
         <a href="{{ route('ext-rights-admin.embargoes', ['status' => 'lifted']) }}"
-           class="btn btn-{{ ($status ?? '') === 'lifted' ? 'success' : 'outline-success' }}">Lifted</a>
+           class="btn btn-{{ ($status ?? '') === 'lifted' ? 'success' : 'outline-success' }}">{{ __('Lifted') }}</a>
         <a href="{{ route('ext-rights-admin.embargoes', ['status' => 'expired']) }}"
-           class="btn btn-{{ ($status ?? '') === 'expired' ? 'secondary' : 'outline-secondary' }}">Expired</a>
+           class="btn btn-{{ ($status ?? '') === 'expired' ? 'secondary' : 'outline-secondary' }}">{{ __('Expired') }}</a>
         <a href="{{ route('ext-rights-admin.embargoes', ['status' => 'all']) }}"
-           class="btn btn-{{ ($status ?? '') === 'all' ? 'dark' : 'outline-dark' }}">All</a>
+           class="btn btn-{{ ($status ?? '') === 'all' ? 'dark' : 'outline-dark' }}">{{ __('All') }}</a>
       </div>
     </div>
   </div>
@@ -115,7 +115,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                       </div>
                       <div class="modal-body">
-                        <p>Are you sure you want to lift this embargo?</p>
+                        <p>{{ __('Are you sure you want to lift this embargo?') }}</p>
                         <div class="mb-3">
                           <label class="form-label">{{ __('Reason for lifting') }}</label>
                           <textarea name="lift_reason" class="form-control" rows="3"></textarea>
@@ -164,7 +164,7 @@
           </tr>
           @empty
           <tr>
-            <td colspan="7" class="text-center text-muted py-4">No embargoes found.</td>
+            <td colspan="7" class="text-center text-muted py-4">{{ __('No embargoes found.') }}</td>
           </tr>
           @endforelse
         </tbody>

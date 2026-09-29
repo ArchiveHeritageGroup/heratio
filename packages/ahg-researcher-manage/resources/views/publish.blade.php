@@ -21,8 +21,7 @@
             <div class="alert alert-warning">
               <i class="bi bi-exclamation-triangle me-2"></i>
               <strong>{{ __('This action will create permanent records in AtoM.') }}</strong>
-              Information objects, digital objects, access points, and related records will be created
-              from the items in this submission. This cannot be easily undone.
+              {{ __('Information objects, digital objects, access points, and related records will be created from the items in this submission. This cannot be easily undone.') }}
             </div>
 
             <dl class="row">

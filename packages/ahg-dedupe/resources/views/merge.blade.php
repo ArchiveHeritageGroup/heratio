@@ -19,7 +19,7 @@
 
 <div class="alert alert-warning">
     <i class="fas fa-exclamation-triangle me-2"></i>
-    <strong>{{ __('Warning:') }}</strong> Merging records is permanent. The secondary record will be archived and its digital objects and child records transferred to the primary record.
+    <strong>{{ __('Warning:') }}</strong> {{ __('Merging records is permanent. The secondary record will be archived and its digital objects and child records transferred to the primary record.') }}
   </div>
 
   <form method="post" action="{{ route('dedupe.merge.execute', $duplicate->id) }}" id="mergeForm">
@@ -57,7 +57,7 @@
         <h5 class="mb-0"><i class="fas fa-star me-2"></i>{{ __('Step 1: Select Primary Record') }}</h5>
       </div>
       <div class="card-body">
-        <p class="text-muted mb-4">The primary record will be kept. The secondary record's data will be merged into it.</p>
+        <p class="text-muted mb-4">{{ __('The primary record will be kept. The secondary record\'s data will be merged into it.') }}</p>
 
         <div class="row">
           <div class="col-md-6">
@@ -67,7 +67,7 @@
                   <input class="form-check-input" type="radio" name="primary_id"
                          value="{{ $recordA->id ?? '' }}" id="primaryA" checked>
                   <label class="form-check-label fw-bold" for="primaryA">
-                    Record A (Keep This) <span class="badge bg-secondary ms-1">{{ __('Required') }}</span>
+                    {{ __('Record A (Keep This)') }} <span class="badge bg-secondary ms-1">{{ __('Required') }}</span>
                   </label>
                 </div>
               </div>
@@ -98,7 +98,7 @@
                   <input class="form-check-input" type="radio" name="primary_id"
                          value="{{ $recordB->id ?? '' }}" id="primaryB">
                   <label class="form-check-label fw-bold" for="primaryB">
-                    Record B (Keep This) <span class="badge bg-secondary ms-1">{{ __('Required') }}</span>
+                    {{ __('Record B (Keep This)') }} <span class="badge bg-secondary ms-1">{{ __('Required') }}</span>
                   </label>
                 </div>
               </div>
@@ -166,7 +166,7 @@
         <div class="form-check mb-3">
           <input class="form-check-input" type="checkbox" id="confirmMerge" required>
           <label class="form-check-label" for="confirmMerge">
-            I understand that this action is permanent and cannot be undone. <span class="badge bg-secondary ms-1">{{ __('Required') }}</span>
+            {{ __('I understand that this action is permanent and cannot be undone.') }} <span class="badge bg-secondary ms-1">{{ __('Required') }}</span>
           </label>
         </div>
 

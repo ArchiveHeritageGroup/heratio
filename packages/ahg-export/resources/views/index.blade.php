@@ -23,7 +23,7 @@
                     <h5 class="mb-0"><i class="fas fa-archive me-2"></i>{{ __('Archival Descriptions') }}</h5>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted">Export archival descriptions in various formats.</p>
+                    <p class="text-muted">{{ __('Export archival descriptions in various formats.') }}</p>
                     <div class="d-grid gap-2">
                         <a href="{{ route('export.archival', ['format' => 'ead']) }}" class="atom-btn-white">
                             <i class="fas fa-code me-1"></i>{{ __('EAD 2002') }}
@@ -45,7 +45,7 @@
                     <h5 class="mb-0"><i class="fas fa-user me-2"></i>{{ __('Authority Records') }}</h5>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted">Export authority records (people, organizations, families).</p>
+                    <p class="text-muted">{{ __('Export authority records (people, organizations, families).') }}</p>
                     <div class="d-grid gap-2">
                         <a href="{{ route('export.authority', ['format' => 'eac']) }}" class="atom-btn-white">
                             <i class="fas fa-code me-1"></i>{{ __('EAC-CPF') }}
@@ -64,7 +64,7 @@
                     <h5 class="mb-0"><i class="fas fa-building me-2"></i>{{ __('Repositories') }}</h5>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted">Export repository/institution records.</p>
+                    <p class="text-muted">{{ __('Export repository/institution records.') }}</p>
                     <div class="d-grid gap-2">
                         <a href="{{ route('export.repository', ['format' => 'csv']) }}" class="atom-btn-white">
                             <i class="fas fa-file-csv me-1"></i>CSV
@@ -82,7 +82,7 @@
                     <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>{{ __('Accessions') }}</h5>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted">Export accession records to CSV. Compatible with ingest wizard re-import.</p>
+                    <p class="text-muted">{{ __('Export accession records to CSV. Compatible with ingest wizard re-import.') }}</p>
                     <div class="d-grid gap-2">
                         <a href="{{ route('export.accessionCsv') }}" class="atom-btn-white">
                             <i class="fas fa-file-csv me-1"></i>{{ __('Accession CSV') }}

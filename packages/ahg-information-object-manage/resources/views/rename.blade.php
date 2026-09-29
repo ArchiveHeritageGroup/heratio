@@ -38,7 +38,7 @@
             </h2>
             <div id="rename-collapse" class="accordion-collapse collapse show" aria-labelledby="rename-heading">
               <div class="accordion-body">
-                <p>Use this interface to update the description title, slug (permalink), and/or digital object filename.</p>
+                <p>{{ __('Use this interface to update the description title, slug (permalink), and/or digital object filename.') }}</p>
                 <hr>
 
                 <div class="rename-form-field-toggle form-check mb-4">
@@ -50,13 +50,13 @@
                 <div class="mb-3">
                   <label for="title" class="form-label">{{ __('Title') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" class="form-control" id="title" name="title" value="{{ $io->title }}">
-                  <div class="form-text">Editing the description title will automatically update the slug field if the "Update slug" checkbox is selected - you can still edit it after.</div>
+                  <div class="form-text">{{ __('Editing the description title will automatically update the slug field if the "Update slug" checkbox is selected - you can still edit it after.') }}</div>
                 </div>
                 <p>{{ __('Original title:') }} <em>{{ $io->title }}</em></p>
                 <hr>
 
                 <div id="rename-slug-warning" class="alert alert-danger d-none" role="alert">
-                  A slug based on this title already exists so a number has been added to pad the slug.
+                  {{ __('A slug based on this title already exists so a number has been added to pad the slug.') }}
                 </div>
                 <div class="rename-form-field-toggle form-check mb-4">
                   <input class="form-check-input" type="checkbox" id="rename_enable_slug" checked>
@@ -67,7 +67,7 @@
                 <div class="mb-3">
                   <label for="slug" class="form-label">{{ __('Slug') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" class="form-control" id="slug" name="slug" value="{{ $io->slug }}">
-                  <div class="form-text">Do not use any special characters or spaces in the slug - only lower case alphanumeric characters (a-z, 0-9) and dashes (-) will be saved. Other characters will be stripped out or replaced. Editing the slug will not automatically update the other fields.</div>
+                  <div class="form-text">{{ __('Do not use any special characters or spaces in the slug - only lower case alphanumeric characters (a-z, 0-9) and dashes (-) will be saved. Other characters will be stripped out or replaced. Editing the slug will not automatically update the other fields.') }}</div>
                 </div>
                 <p>{{ __('Original slug:') }} <em>{{ $io->slug }}</em></p>
 
@@ -82,7 +82,7 @@
                   <div class="mb-3">
                     <label for="filename" class="form-label">{{ __('Filename') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <input type="text" class="form-control" id="filename" name="filename" value="{{ $digitalObject->name }}">
-                    <div class="form-text">Do not use any special characters or spaces in the filename - only lower case alphanumeric characters (a-z, 0-9) and dashes (-) will be saved. Other characters will be stripped out or replaced. Editing the filename will not automatically update the other fields.</div>
+                    <div class="form-text">{{ __('Do not use any special characters or spaces in the filename - only lower case alphanumeric characters (a-z, 0-9) and dashes (-) will be saved. Other characters will be stripped out or replaced. Editing the filename will not automatically update the other fields.') }}</div>
                   </div>
                   <p>{{ __('Original filename:') }} <em>{{ $digitalObject->name }}</em></p>
                 @endif

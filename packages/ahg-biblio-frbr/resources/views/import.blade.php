@@ -56,7 +56,7 @@
         </div>
         <div class="card-body">
           <p class="small text-muted mb-2">
-            Validate your FRBR document before importing to catch structural errors.
+            {{ __('Validate your FRBR document before importing to catch structural errors.') }}
           </p>
           <a href="{{ route('frbr.validate') }}" class="btn btn-outline-warning btn-sm">
             {{ __('Go to Validator') }}

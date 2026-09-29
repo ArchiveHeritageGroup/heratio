@@ -10,7 +10,7 @@
 @section('content')
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="fas fa-closed-captioning me-2"></i>Caption & Subtitle Tracks</h1>
+    <h1><i class="fas fa-closed-captioning me-2"></i>{{ __('Caption & Subtitle Tracks') }}</h1>
     <a href="{{ route('caption-tracks.create', $digitalObjectId) }}" class="btn atom-btn-white">
         <i class="fas fa-plus me-1"></i>{{ __('Add Track') }}
     </a>
@@ -178,15 +178,15 @@
             <dt class="col-sm-3">{{ __('Caption') }}</dt>
             <dd class="col-sm-9">Full transcription with audio cues; essential for accessibility compliance.</dd>
             <dt class="col-sm-3">{{ __('Subtitle') }}</dt>
-            <dd class="col-sm-9">Dialogue-only text tracks. Suitable for foreign-language dubs or same-language subtitles.</dd>
+            <dd class="col-sm-9">{{ __('Dialogue-only text tracks. Suitable for foreign-language dubs or same-language subtitles.') }}</dd>
             <dt class="col-sm-3">{{ __('Description') }}</dt>
-            <dd class="col-sm-9">Audio description - narrated descriptions of visual elements for blind viewers.</dd>
+            <dd class="col-sm-9">{{ __('Audio description - narrated descriptions of visual elements for blind viewers.') }}</dd>
             <dt class="col-sm-3">{{ __('Chapters') }}</dt>
             <dd class="col-sm-9">{{ __('Chapter markers for navigation within a long-form video.') }}</dd>
             <dt class="col-sm-3">SDH</dt>
-            <dd class="col-sm-9">Subtitles for the Deaf and Hard of Hearing - include speaker identification and sound descriptions.</dd>
+            <dd class="col-sm-9">{{ __('Subtitles for the Deaf and Hard of Hearing - include speaker identification and sound descriptions.') }}</dd>
             <dt class="col-sm-3">{{ __('Remote URL') }}</dt>
-            <dd class="col-sm-9">Link to an external VTT/SRT file. Content is cached locally on first use or manual fetch.</dd>
+            <dd class="col-sm-9">{{ __('Link to an external VTT/SRT file. Content is cached locally on first use or manual fetch.') }}</dd>
         </dl>
     </div>
 </div>

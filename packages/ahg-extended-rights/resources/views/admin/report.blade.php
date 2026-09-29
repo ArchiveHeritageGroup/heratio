@@ -31,22 +31,22 @@
   <ul class="nav nav-tabs mb-4">
     <li class="nav-item">
       <a class="nav-link {{ ($type ?? 'summary') === 'summary' ? 'active' : '' }}" href="{{ route('ext-rights-admin.report', ['type' => 'summary']) }}">
-        Summary
+        {{ __('Summary') }}
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link {{ ($type ?? '') === 'embargoes' ? 'active' : '' }}" href="{{ route('ext-rights-admin.report', ['type' => 'embargoes']) }}">
-        Embargoes
+        {{ __('Embargoes') }}
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link {{ ($type ?? '') === 'orphan_works' ? 'active' : '' }}" href="{{ route('ext-rights-admin.report', ['type' => 'orphan_works']) }}">
-        Orphan Works
+        {{ __('Orphan Works') }}
       </a>
     </li>
     <li class="nav-item">
       <a class="nav-link {{ ($type ?? '') === 'tk_labels' ? 'active' : '' }}" href="{{ route('ext-rights-admin.report', ['type' => 'tk_labels']) }}">
-        TK Labels
+        {{ __('TK Labels') }}
       </a>
     </li>
   </ul>

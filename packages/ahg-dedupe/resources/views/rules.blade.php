@@ -78,7 +78,7 @@
                     @if($rule->is_blocking)
                       <span class="badge bg-danger">{{ __('Blocking') }}</span>
                     @else
-                      <span class="badge bg-light text-dark">No</span>
+                      <span class="badge bg-light text-dark">{{ __('No') }}</span>
                     @endif
                   </td>
                   <td class="text-center">
@@ -115,7 +115,7 @@
           <ul class="list-unstyled">
             <li><strong>{{ __('Title Similarity:') }}</strong> {{ __('Compares titles using Levenshtein distance') }}</li>
             <li><strong>{{ __('Identifier Exact:') }}</strong> {{ __('Matches identical identifiers') }}</li>
-            <li><strong>{{ __('Identifier Fuzzy:') }}</strong> Matches similar identifiers (Jaro-Winkler)</li>
+            <li><strong>{{ __('Identifier Fuzzy:') }}</strong> {{ __('Matches similar identifiers (Jaro-Winkler)') }}</li>
             <li><strong>{{ __('Date + Creator:') }}</strong> {{ __('Matches records with same date range and creator') }}</li>
             <li><strong>{{ __('Checksum:') }}</strong> {{ __('Matches identical files by hash') }}</li>
             <li><strong>{{ __('Combined:') }}</strong> {{ __('Weighted combination of multiple factors') }}</li>

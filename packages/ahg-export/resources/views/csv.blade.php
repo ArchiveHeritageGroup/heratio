@@ -59,7 +59,7 @@
                 <div class="mb-3 form-check">
                     <input type="checkbox" name="include_descendants" value="1" class="form-check-input" id="includeDescendants">
                     <label class="form-check-label" for="includeDescendants">
-                        Include all descendants (not just direct children)
+                        {{ __('Include all descendants (not just direct children)') }}
                     </label>
                 </div>
 

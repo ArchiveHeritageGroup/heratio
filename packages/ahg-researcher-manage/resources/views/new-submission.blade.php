@@ -17,8 +17,7 @@
         <div class="card-body">
 
           <p class="text-muted mb-4">
-            Create a submission package to upload and describe a collection. After adding items and files,
-            submit for archivist review.
+            {{ __('Create a submission package to upload and describe a collection. After adding items and files, submit for archivist review.') }}
           </p>
 
           <form method="post">
@@ -59,7 +58,7 @@
             @endif
 
             <div class="mb-3">
-              <label class="form-label fw-bold">Parent Record (optional) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label fw-bold">{{ __('Parent Record (optional)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="hidden" name="parent_object_id" id="parentObjectId" value="">
               <input type="text" class="form-control" id="parentSearch" placeholder="{{ __('Type to search for a parent record...') }}" autocomplete="off">
               <small class="text-muted">{{ __('Place this submission under an existing archival record. Leave blank for root level.') }}</small>

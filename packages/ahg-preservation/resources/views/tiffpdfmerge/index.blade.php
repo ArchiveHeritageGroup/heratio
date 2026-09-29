@@ -10,7 +10,7 @@
       <h1><i class="fas fa-file-pdf me-2"></i>{{ __('TIFF/PDF Merge Tool') }}</h1>
       <a href="{{ route('preservation.tiffpdfmerge.browse') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-list me-1"></i>{{ __('Browse Jobs') }}</a>
     </div>
-    <p class="text-muted">Merge multiple TIFF or image files into a single PDF or multi-page TIFF document.</p>
+    <p class="text-muted">{{ __('Merge multiple TIFF or image files into a single PDF or multi-page TIFF document.') }}</p>
 
     @if($errors->any())
     <div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>
@@ -38,7 +38,7 @@
             <div class="col-12 mb-3">
               <label class="form-label">{{ __('Source Files') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="file" name="files[]" class="form-control" multiple required accept=".tif,.tiff,.pdf,.jpg,.jpeg,.png">
-              <div class="form-text">Select TIFF, PDF, or image files to merge. Hold Ctrl/Cmd to select multiple.</div>
+              <div class="form-text">{{ __('Select TIFF, PDF, or image files to merge. Hold Ctrl/Cmd to select multiple.') }}</div>
             </div>
             @if(!empty($ioId))
             <div class="col-12 mb-1">

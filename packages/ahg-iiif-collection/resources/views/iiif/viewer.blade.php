@@ -6,8 +6,8 @@
 <body>
 <div class="container-fluid py-3">
   <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb">
-    @if($objectSlug ?? null)<li class="breadcrumb-item"><a href="{{ route('informationobject.show', $objectSlug) }}">Record</a></li>@endif
-    <li class="breadcrumb-item active">IIIF Viewer</li>
+    @if($objectSlug ?? null)<li class="breadcrumb-item"><a href="{{ route('informationobject.show', $objectSlug) }}">{{ __('Record') }}</a></li>@endif
+    <li class="breadcrumb-item active">{{ __('IIIF Viewer') }}</li>
   </ol></nav>
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="mb-0">{{ $objectTitle ?? '' }}</h4>

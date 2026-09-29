@@ -31,7 +31,7 @@
         <td class="text-end">{{ damFormatBytes2($r->byte_size ?? 0) }}</td>
       </tr>
       @empty
-      <tr><td colspan="4" class="text-muted text-center py-4">No assets found.</td></tr>
+      <tr><td colspan="4" class="text-muted text-center py-4">{{ __('No assets found.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

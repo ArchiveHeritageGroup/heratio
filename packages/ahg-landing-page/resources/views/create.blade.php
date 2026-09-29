@@ -49,7 +49,7 @@
                    pattern="[a-z0-9\-]+"
                    title="{{ __('Lowercase letters, numbers, and hyphens only') }}">
           </div>
-          <div class="form-text">URL-friendly identifier (auto-generated if left empty)</div>
+          <div class="form-text">{{ __('URL-friendly identifier (auto-generated if left empty)') }}</div>
         </div>
 
         <div class="mb-3">
@@ -74,7 +74,7 @@
             <input type="checkbox" name="is_active" id="is_active" class="form-check-input" value="1"
                    {{ old('is_active', '1') ? 'checked' : '' }}>
             <label class="form-check-label" for="is_active">
-              Active (visible to public)
+              {{ __('Active (visible to public)') }}
             </label>
           </div>
         </div>

@@ -27,7 +27,7 @@
   <div class="col-md-6">
     <label class="form-label">{{ __('Assessment ref') }}</label>
     <input type="text" name="assessment_ref" class="form-control" value="{{ old('assessment_ref', 'CA-' . date('Y') . '-' . sprintf('%03d', random_int(1, 999))) }}" required>
-    <div class="form-text small">Unique identifier - e.g. CA-2026-001.</div>
+    <div class="form-text small">{{ __('Unique identifier - e.g. CA-2026-001.') }}</div>
   </div>
   <div class="col-12">
     <label class="form-label">{{ __('Title') }}</label>

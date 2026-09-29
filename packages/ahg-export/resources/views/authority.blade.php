@@ -8,9 +8,9 @@
 
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('homepage') }}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('export.index') }}">Export</a></li>
-            <li class="breadcrumb-item active">Authority Records</li>
+            <li class="breadcrumb-item"><a href="{{ route('homepage') }}">{{ __('Home') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('export.index') }}">{{ __('Export') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('Authority Records') }}</li>
         </ol>
     </nav>
 
@@ -25,16 +25,16 @@
                         @csrf
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Export Format <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                                <label class="form-label">{{ __('Export Format') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <select name="format" class="form-select">
                                     <option value="eac">{{ __('EAC-CPF (XML)') }}</option>
                                     <option value="csv">CSV</option>
                                 </select>
-                                <div class="form-text">EAC-CPF is the standard for authority record exchange.</div>
+                                <div class="form-text">{{ __('EAC-CPF is the standard for authority record exchange.') }}</div>
                             </div>
 
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Entity Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                                <label class="form-label">{{ __('Entity Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <select name="entity_type_id" class="form-select">
                                     <option value="">{{ __('All types') }}</option>
                                 </select>
@@ -43,7 +43,7 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Limit <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                                <label class="form-label">{{ __('Limit') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <select name="limit" class="form-select">
                                     <option value="0">{{ __('No limit (all records)') }}</option>
                                     <option value="100">100 records</option>
@@ -76,7 +76,7 @@
                 </div>
                 <div class="card-body">
                     <dl class="mb-0">
-                        <dt>Total Authority Records</dt>
+                        <dt>{{ __('Total Authority Records') }}</dt>
                         <dd class="h3" style="color: var(--ahg-primary);">{{ number_format($authorityCount) }}</dd>
                     </dl>
                 </div>
@@ -88,7 +88,7 @@
                 </div>
                 <div class="card-body small">
                     <p><strong>{{ __('EAC-CPF') }}</strong> (Encoded Archival Context - Corporate Bodies, Persons, and Families) is an XML standard for encoding contextual information about the creators of archival materials.</p>
-                    <p class="mb-0">Use this format for exchanging authority records with other archival systems or for backup purposes.</p>
+                    <p class="mb-0">{{ __('Use this format for exchanging authority records with other archival systems or for backup purposes.') }}</p>
                 </div>
             </div>
         </div>

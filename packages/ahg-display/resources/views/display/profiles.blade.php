@@ -4,9 +4,9 @@
 @section('body-class', 'admin display profiles')
 
 @section('breadcrumbs')
-  <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
-  <li class="breadcrumb-item"><a href="{{ route('glam.index') }}">Display Configuration</a></li>
-  <li class="breadcrumb-item active" aria-current="page">Profiles</li>
+  <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Home') }}</a></li>
+  <li class="breadcrumb-item"><a href="{{ route('glam.index') }}">{{ __('Display Configuration') }}</a></li>
+  <li class="breadcrumb-item active" aria-current="page">{{ __('Profiles') }}</li>
 @endsection
 
 @section('layout-content')
@@ -89,7 +89,7 @@
                       @if(!empty($profile->is_default))
                         <span class="badge bg-success">{{ __('Yes') }}</span>
                       @else
-                        <span class="badge bg-secondary">No</span>
+                        <span class="badge bg-secondary">{{ __('No') }}</span>
                       @endif
                     </td>
                   </tr>

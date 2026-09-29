@@ -96,7 +96,7 @@
           <div class="col-sm-9">
             <input type="range" class="form-range" id="photo_jpeg_quality" name="settings[photo_jpeg_quality]"
                    min="60" max="100" value="{{ $settings['photo_jpeg_quality'] ?? 85 }}">
-            <div class="form-text">Quality for JPEG thumbnails (60-100)</div>
+            <div class="form-text">{{ __('Quality for JPEG thumbnails (60-100)') }}</div>
           </div>
         </div>
 

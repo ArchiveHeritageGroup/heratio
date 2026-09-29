@@ -11,7 +11,7 @@
   <div class="d-flex flex-wrap gap-2 mb-3">
     <div class="d-flex flex-wrap gap-2 ms-auto">
       <a href="{{ route('accession.browse') }}" class="btn btn-sm atom-btn-white">Browse {{ mb_strtolower(config('app.ui_label_accession', 'Accession')) }}s</a>
-      <a href="{{ route('accession.create') }}" class="btn btn-sm atom-btn-white">Add new</a>
+      <a href="{{ route('accession.create') }}" class="btn btn-sm atom-btn-white">{{ __('Add new') }}</a>
     </div>
   </div>
 @endsection
@@ -22,7 +22,7 @@
       <div class="card h-100">
         <div class="card-body text-center">
           <h2 class="display-4">{{ number_format($total) }}</h2>
-          <p class="text-muted mb-0">Total accessions</p>
+          <p class="text-muted mb-0">{{ __('Total accessions') }}</p>
         </div>
       </div>
     </div>
@@ -30,7 +30,7 @@
       <div class="card h-100">
         <div class="card-body text-center">
           <h2 class="display-4">{{ number_format($recentCount) }}</h2>
-          <p class="text-muted mb-0">Added in last 30 days</p>
+          <p class="text-muted mb-0">{{ __('Added in last 30 days') }}</p>
         </div>
       </div>
     </div>
@@ -38,7 +38,7 @@
       <div class="card h-100">
         <div class="card-body text-center">
           <a href="{{ route('accession.intake-queue') }}" class="btn atom-btn-white">
-            View intake queue
+            {{ __('View intake queue') }}
           </a>
         </div>
       </div>

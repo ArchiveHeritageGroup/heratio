@@ -26,8 +26,8 @@
 </script>
 
 <p class="text-muted small">
-  Validating <strong>{{ $typeLabel }} #{{ $id }}</strong> against the
-  <a href="https://openric.org/spec/mapping.html" target="_blank" rel="noopener">OpenRiC</a> SHACL shape set
+  {{ __('Validating') }} <strong>{{ $typeLabel }} #{{ $id }}</strong> against the
+  <a href="https://openric.org/spec/mapping.html" target="_blank" rel="noopener">{{ __('OpenRiC') }}</a> SHACL shape set
   (<code>packages/ahg-ric/tools/ric_shacl_shapes.ttl</code>) and the ISAD/ISAAR/ISDIAH/ISDF mandatory-fields list.
 </p>
 
@@ -47,7 +47,7 @@
       <i class="fas fa-check-circle me-2"></i>{{ __('Validation passed') }}
     </div>
     <div class="card-body">
-      No mandatory-field violations and no SHACL constraint violations were detected for this record.
+      {{ __('No mandatory-field violations and no SHACL constraint violations were detected for this record.') }}
     </div>
   </div>
 @else
@@ -94,7 +94,7 @@
 
 @if($entity)
   <details class="mt-4">
-    <summary class="text-muted small"><i class="fas fa-code me-1"></i>Show serialised RiC entity (JSON)</summary>
+    <summary class="text-muted small"><i class="fas fa-code me-1"></i>{{ __('Show serialised RiC entity (JSON)') }}</summary>
     <pre class="bg-light border p-3 mt-2 small" style="max-height: 400px; overflow:auto;">{{ json_encode($entity, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) }}</pre>
   </details>
 @endif

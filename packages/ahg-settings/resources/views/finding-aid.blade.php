@@ -47,7 +47,7 @@
                 <option value="pdf" {{ $settings['finding_aid_format'] === 'pdf' ? 'selected="selected"' : '' }}>PDF</option>
                 <option value="rtf" {{ $settings['finding_aid_format'] === 'rtf' ? 'selected="selected"' : '' }}>{{ __('RTF') }}</option>
               </select>
-              <div class="form-text">Choose the file format for generated Finding Aids (PDF or 'Rich Text Format')</div>
+              <div class="form-text">{{ __('Choose the file format for generated Finding Aids (PDF or \'Rich Text Format\')') }}</div>
             </div>
 
             {{-- Finding Aid model (select) --}}
@@ -73,7 +73,7 @@
                 <input class="form-check-input" type="radio" name="finding_aid[public_finding_aid]" id="finding_aid_public_finding_aid_0" value="0" {{ $settings['public_finding_aid'] !== '1' ? 'checked="checked"' : '' }}>
                 <label class="form-check-label" for="finding_aid_public_finding_aid_0">{{ __('No') }}</label>
               </fieldset>
-              <div class="form-text">When set to 'yes' generated Finding Aids will exclude unpublished records and hidden elements</div>
+              <div class="form-text">{{ __('When set to \'yes\' generated Finding Aids will exclude unpublished records and hidden elements') }}</div>
             </div>
 
           </div>

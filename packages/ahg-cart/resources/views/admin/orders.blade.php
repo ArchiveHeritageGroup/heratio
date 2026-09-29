@@ -46,7 +46,7 @@
             <td>{{ $order->currency }} {{ number_format($order->total, 2) }}</td>
           </tr>
         @empty
-          <tr><td colspan="5" class="text-muted text-center">No orders found</td></tr>
+          <tr><td colspan="5" class="text-muted text-center">{{ __('No orders found') }}</td></tr>
         @endforelse
       </tbody>
     </table>

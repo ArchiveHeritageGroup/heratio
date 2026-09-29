@@ -11,7 +11,7 @@
                 <i class="fas fa-server me-2"></i>{{ __('SUSHI Partner Subscriptions') }}
             </h1>
             <p class="text-muted small mb-0">
-                ISO 18626 SUSHI v5 - manage content provider endpoints and connection credentials.
+                {{ __('ISO 18626 SUSHI v5 - manage content provider endpoints and connection credentials.') }}
             </p>
         </div>
         <a href="{{ route('library.usage') }}" class="btn btn-outline-dark btn-sm">
@@ -171,7 +171,7 @@
                                     </div>
                                 @endforeach
                             </div>
-                            <small class="text-muted">PR (Platform) and TR (Title) are the most common.</small>
+                            <small class="text-muted">{{ __('PR (Platform) and TR (Title) are the most common.') }}</small>
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-sm w-100">
@@ -184,7 +184,7 @@
             {{-- Info card --}}
             <div class="card mt-3">
                 <div class="card-header">
-                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>About SUSHI / COUNTER 5</h6>
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('About SUSHI / COUNTER 5') }}</h6>
                 </div>
                 <ul class="list-group list-group-flush small">
                     <li class="list-group-item">

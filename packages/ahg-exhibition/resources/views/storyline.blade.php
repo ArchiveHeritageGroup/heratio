@@ -65,7 +65,7 @@
         <div class="card-body text-center py-5">
           <i class="fas fa-map-signs fa-3x text-muted mb-3"></i>
           <h5>{{ __('No stops added yet') }}</h5>
-          <p class="text-muted">Add stops to create a narrative journey through the exhibition.</p>
+          <p class="text-muted">{{ __('Add stops to create a narrative journey through the exhibition.') }}</p>
           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStopModal">
             <i class="fas fa-plus"></i> {{ __('Add First Stop') }}
           </button>

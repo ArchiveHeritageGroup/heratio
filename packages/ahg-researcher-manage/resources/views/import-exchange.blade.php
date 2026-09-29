@@ -175,10 +175,10 @@
             <dd class="col-8">{{ __('Imported files with captions and metadata') }}</dd>
 
             <dt class="col-4"><span class="badge bg-success">new_items</span></dt>
-            <dd class="col-8">New descriptive records with hierarchy, access points (subjects, places, genre, creators), extent and media</dd>
+            <dd class="col-8">{{ __('New descriptive records with hierarchy, access points (subjects, places, genre, creators), extent and media') }}</dd>
 
             <dt class="col-4"><span class="badge bg-primary">new_creators</span></dt>
-            <dd class="col-8">New creator/actor records (persons, organizations, families)</dd>
+            <dd class="col-8">{{ __('New creator/actor records (persons, organizations, families)') }}</dd>
 
             <dt class="col-4"><span class="badge bg-warning text-dark">new_repositories</span></dt>
             <dd class="col-8">{{ __('New repository/institution records') }}</dd>

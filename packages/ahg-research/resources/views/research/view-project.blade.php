@@ -318,7 +318,7 @@
                     @endforeach
                 </div>
                 @else
-                <p class="text-muted mb-0">No resources linked yet. Click "Link Resource" to add.</p>
+                <p class="text-muted mb-0">{{ __('No resources linked yet. Click "Link Resource" to add.') }}</p>
                 @endif
             </div>
         </div>

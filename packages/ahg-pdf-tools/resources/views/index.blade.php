@@ -157,7 +157,7 @@
           <div class="mb-3">
             <label class="form-label">{{ __('Upload PDF File') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <input type="file" class="form-control" name="pdf_file" accept=".pdf" required>
-            <div class="form-text">Maximum 100 MB</div>
+            <div class="form-text">{{ __('Maximum 100 MB') }}</div>
           </div>
           <div class="text-muted small">OR</div>
           <div class="mb-3 mt-2">

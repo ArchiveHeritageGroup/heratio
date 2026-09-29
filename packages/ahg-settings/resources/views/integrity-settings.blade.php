@@ -56,7 +56,7 @@
                 <strong>{{ __('Auto-Generate Baselines') }}</strong>
               </label>
             </div>
-            <div class="form-text mb-3">Automatically generate baseline checksums on first verification if none exist.</div>
+            <div class="form-text mb-3">{{ __('Automatically generate baseline checksums on first verification if none exist.') }}</div>
           </div>
         </div>
         <div class="row g-3">
@@ -141,7 +141,7 @@
                    name="settings[integrity_alert_email]"
                    value="{{ e($settings['integrity_alert_email'] ?? '') }}"
                    placeholder="{{ __('admin@example.com') }}">
-            <div class="form-text">Default email for integrity alerts (used by new schedules and alert rules).</div>
+            <div class="form-text">{{ __('Default email for integrity alerts (used by new schedules and alert rules).') }}</div>
           </div>
           <div class="col-md-6">
             <label class="form-label" for="integrity_webhook_url">{{ __('Default Webhook URL') }}</label>
@@ -149,7 +149,7 @@
                    name="settings[integrity_webhook_url]"
                    value="{{ e($settings['integrity_webhook_url'] ?? '') }}"
                    placeholder="{{ __('https://hooks.slack.com/...') }}">
-            <div class="form-text">Default webhook URL for alert notifications (Slack, Teams, PagerDuty, etc).</div>
+            <div class="form-text">{{ __('Default webhook URL for alert notifications (Slack, Teams, PagerDuty, etc).') }}</div>
           </div>
         </div>
       </div>

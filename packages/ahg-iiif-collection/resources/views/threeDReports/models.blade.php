@@ -33,7 +33,7 @@
         <td class="text-center">@if($m->is_public ?? true)<i class="fas fa-check text-success"></i>@else<i class="fas fa-times text-muted"></i>@endif</td>
       </tr>
       @empty
-      <tr><td colspan="7" class="text-muted text-center py-4">No 3D models found.</td></tr>
+      <tr><td colspan="7" class="text-muted text-center py-4">{{ __('No 3D models found.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

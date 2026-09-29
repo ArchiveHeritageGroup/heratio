@@ -473,10 +473,10 @@
           <li><a href="{{ route('term.export.skos.rdfxml', ['taxonomy' => $term->taxonomy_id]) }}"><i class="fas fa-file-code me-1"></i>RDF/XML</a></li>
         @endif
         @if(Route::has('term.export.skos.turtle'))
-          <li><a href="{{ route('term.export.skos.turtle', ['taxonomy' => $term->taxonomy_id]) }}"><i class="fas fa-file-alt me-1"></i>Turtle (.ttl)</a></li>
+          <li><a href="{{ route('term.export.skos.turtle', ['taxonomy' => $term->taxonomy_id]) }}"><i class="fas fa-file-alt me-1"></i>{{ __('Turtle (.ttl)') }}</a></li>
         @endif
         @if(Route::has('term.export.skos.ntriples'))
-          <li><a href="{{ route('term.export.skos.ntriples', ['taxonomy' => $term->taxonomy_id]) }}"><i class="fas fa-file-alt me-1"></i>N-Triples (.nt)</a></li>
+          <li><a href="{{ route('term.export.skos.ntriples', ['taxonomy' => $term->taxonomy_id]) }}"><i class="fas fa-file-alt me-1"></i>{{ __('N-Triples (.nt)') }}</a></li>
         @endif
         @if(Route::has('term.export.skos.jsonld'))
           <li><a href="{{ route('term.export.skos.jsonld', ['taxonomy' => $term->taxonomy_id]) }}"><i class="fas fa-code me-1"></i>JSON-LD</a></li>

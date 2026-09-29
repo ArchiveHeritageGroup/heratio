@@ -115,7 +115,7 @@
                     <input type="number" class="form-control form-control-sm" name="ai_condition_min_confidence"
                            value="{{ e($settings['ai_condition_min_confidence'] ?? '0.5') }}"
                            min="0.1" max="0.9" step="0.05">
-                    <div class="form-text">Minimum confidence threshold for damage detection (0.1 - 0.9)</div>
+                    <div class="form-text">{{ __('Minimum confidence threshold for damage detection (0.1 - 0.9)') }}</div>
                 </div>
             </div>
             <div class="row mb-3">
@@ -238,7 +238,7 @@
     </div>
     <div class="card-body">
         <p class="small text-muted mb-3">
-            Review and approve client data for use as model training data. Client consent documentation must be uploaded before approval.
+            {{ __('Review and approve client data for use as model training data. Client consent documentation must be uploaded before approval.') }}
         </p>
 
         @php
@@ -346,7 +346,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p class="small text-muted">Upload a signed consent/approval document from the client authorizing use of their data for model training.</p>
+                <p class="small text-muted">{{ __('Upload a signed consent/approval document from the client authorizing use of their data for model training.') }}</p>
                 <p class="small"><strong>{{ __('Client:') }}</strong> <span id="consentClientName"></span></p>
                 <input type="hidden" id="consentClientId">
                 <div class="mb-3">

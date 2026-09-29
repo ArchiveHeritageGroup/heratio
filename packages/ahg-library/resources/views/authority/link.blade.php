@@ -51,7 +51,7 @@
                         @endif
                     </select>
                     <div class="form-text">
-                        Search for a library item in the catalogue or enter the item ID directly.
+                        {{ __('Search for a library item in the catalogue or enter the item ID directly.') }}
                     </div>
                 </div>
 

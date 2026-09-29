@@ -44,7 +44,7 @@
               @if($emb->auto_release ?? false)
                 <span class="badge bg-success">{{ __('Yes') }}</span>
               @else
-                <span class="badge bg-secondary">No</span>
+                <span class="badge bg-secondary">{{ __('No') }}</span>
               @endif
             </td>
             <td>

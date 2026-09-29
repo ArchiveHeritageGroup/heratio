@@ -11,7 +11,7 @@
   <div class="card-body p-0" id="ric-context-body">
     <div class="text-center py-3">
       <div class="spinner-border spinner-border-sm text-success"></div>
-      <p class="small text-muted mt-1 mb-0">Loading context...</p>
+      <p class="small text-muted mt-1 mb-0">{{ __('Loading context...') }}</p>
     </div>
   </div>
   <div class="card-footer py-2">

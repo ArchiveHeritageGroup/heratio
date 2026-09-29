@@ -88,7 +88,7 @@
         <div class="card-body text-center py-5">
           <i class="fas fa-square-check fa-3x text-muted mb-3"></i>
           <h5>{{ __('No checklists created yet') }}</h5>
-          <p class="text-muted">Create checklists to track tasks for planning, installation, and closing.</p>
+          <p class="text-muted">{{ __('Create checklists to track tasks for planning, installation, and closing.') }}</p>
         </div>
       </div>
     @else

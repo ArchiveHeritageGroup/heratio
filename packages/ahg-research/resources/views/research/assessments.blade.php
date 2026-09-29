@@ -66,7 +66,7 @@
 <div class="text-center py-5">
     <i class="fas fa-clipboard-check fa-4x text-muted mb-3 opacity-50"></i>
     <h4 class="text-muted">{{ __('No assessments yet') }}</h4>
-    <p class="text-muted">Assess sources from the record detail page under Research Tools → Source Assessment.</p>
+    <p class="text-muted">{{ __('Assess sources from the record detail page under Research Tools → Source Assessment.') }}</p>
 </div>
 @endif
 @endsection

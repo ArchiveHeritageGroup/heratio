@@ -408,7 +408,7 @@
       <div class="card-header" class="bg-primary text-white"><h5 class="mb-0"><i class="fas fa-code me-2"></i>{{ __('Custom CSS') }}</h5></div>
       <div class="card-body">
         <textarea class="form-control font-monospace" name="ahg_custom_css" rows="8" placeholder="{{ __('/* Add custom CSS overrides here */') }}">{{ $settings['ahg_custom_css'] ?? '' }}</textarea>
-        <div class="form-text">CSS entered here will be appended to the generated theme stylesheet.</div>
+        <div class="form-text">{{ __('CSS entered here will be appended to the generated theme stylesheet.') }}</div>
       </div>
     </div>
 

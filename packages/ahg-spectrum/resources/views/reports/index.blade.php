@@ -22,10 +22,10 @@
 @section('content')
 <div class="spectrum-dashboard">
   <div class="row mb-4">
-    <div class="col-md-3"><div class="card text-center bg-primary text-white"><div class="card-body"><h2>{{ number_format($stats['conditionCheck'] ?? 0) }}</h2><p class="mb-0">Condition Checks</p></div></div></div>
-    <div class="col-md-3"><div class="card text-center bg-success text-white"><div class="card-body"><h2>{{ number_format(($stats['loanIn'] ?? 0) + ($stats['loanOut'] ?? 0)) }}</h2><p class="mb-0">Total Loans</p></div></div></div>
-    <div class="col-md-3"><div class="card text-center bg-info text-white"><div class="card-body"><h2>{{ number_format($stats['valuation'] ?? 0) }}</h2><p class="mb-0">Valuations</p></div></div></div>
-    <div class="col-md-3"><div class="card text-center bg-warning text-dark"><div class="card-body"><h2>{{ number_format($stats['acquisition'] ?? 0) }}</h2><p class="mb-0">Acquisitions</p></div></div></div>
+    <div class="col-md-3"><div class="card text-center bg-primary text-white"><div class="card-body"><h2>{{ number_format($stats['conditionCheck'] ?? 0) }}</h2><p class="mb-0">{{ __('Condition Checks') }}</p></div></div></div>
+    <div class="col-md-3"><div class="card text-center bg-success text-white"><div class="card-body"><h2>{{ number_format(($stats['loanIn'] ?? 0) + ($stats['loanOut'] ?? 0)) }}</h2><p class="mb-0">{{ __('Total Loans') }}</p></div></div></div>
+    <div class="col-md-3"><div class="card text-center bg-info text-white"><div class="card-body"><h2>{{ number_format($stats['valuation'] ?? 0) }}</h2><p class="mb-0">{{ __('Valuations') }}</p></div></div></div>
+    <div class="col-md-3"><div class="card text-center bg-warning text-dark"><div class="card-body"><h2>{{ number_format($stats['acquisition'] ?? 0) }}</h2><p class="mb-0">{{ __('Acquisitions') }}</p></div></div></div>
   </div>
   <div class="row">
     <div class="col-md-6">
@@ -49,7 +49,7 @@
           @forelse($recentActivity ?? [] as $a)
           <li class="list-group-item"><small class="text-muted">{{ $a->action_date ?? '-' }}</small><br>{{ $a->action ?? $a->event_type ?? '-' }}</li>
           @empty
-          <li class="list-group-item text-muted">No recent activity</li>
+          <li class="list-group-item text-muted">{{ __('No recent activity') }}</li>
           @endforelse
         </ul>
       </div>

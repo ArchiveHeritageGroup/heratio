@@ -51,7 +51,7 @@ $heroImagesArray = $heroImages ?? [];
           <div class="mb-3"><label for="suggested_searches" class="form-label">{{ __('Suggested Searches') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea class="form-control" id="suggested_searches" name="suggested_searches" rows="4" placeholder="{{ __('One search term per line') }}">{{ implode("\n", (array)$suggestedSearches) }}</textarea><div class="form-text">{{ __('Enter one search suggestion per line.') }}</div></div>
           <div class="row">
             <div class="col-md-6 mb-3"><label for="hero_effect" class="form-label">{{ __('Background Effect') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select class="form-select" id="hero_effect" name="hero_effect"><option value="kenburns" {{ $heroEffect==='kenburns'?'selected':'' }}>{{ __('Ken Burns') }}</option><option value="fade" {{ $heroEffect==='fade'?'selected':'' }}>{{ __('Fade') }}</option><option value="none" {{ $heroEffect==='none'?'selected':'' }}>{{ __('None') }}</option></select></div>
-            <div class="col-md-6 mb-3"><label for="hero_rotation_seconds" class="form-label">Image Rotation (seconds) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="number" class="form-control" id="hero_rotation_seconds" name="hero_rotation_seconds" value="{{ (int)$heroRotationSeconds }}" min="1" max="60"></div>
+            <div class="col-md-6 mb-3"><label for="hero_rotation_seconds" class="form-label">{{ __('Image Rotation (seconds)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="number" class="form-control" id="hero_rotation_seconds" name="hero_rotation_seconds" value="{{ (int)$heroRotationSeconds }}" min="1" max="60"></div>
           </div>
         </div>
       </div>
@@ -72,7 +72,7 @@ $heroImagesArray = $heroImages ?? [];
       <div class="card border-0 shadow-sm mb-4" id="section-filters">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h2 class="h5 mb-0">{{ __('Filters') }}</h2></div>
         <div class="card-body">
-          <p class="text-muted">Filters displayed in the "Explore By" section.</p>
+          <p class="text-muted">{{ __('Filters displayed in the "Explore By" section.') }}</p>
           <div class="table-responsive">
             <table class="table table-hover">
               <thead><tr><th style="width:30px"></th><th>{{ __('Filter') }}</th><th>{{ __('Source') }}</th><th class="text-center">{{ __('Landing') }}</th><th class="text-center">{{ __('Search') }}</th><th class="text-center">{{ __('Enabled') }}</th></tr></thead>
@@ -124,7 +124,7 @@ $heroImagesArray = $heroImages ?? [];
         </div>
         <div class="card-body">
           @if(empty($heroImagesArray))
-          <p class="text-muted text-center py-4">No hero images configured. A gradient background will be used instead.</p>
+          <p class="text-muted text-center py-4">{{ __('No hero images configured. A gradient background will be used instead.') }}</p>
           @else
           <div class="row g-3">
             @foreach((array)$heroImagesArray as $image)

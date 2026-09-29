@@ -30,7 +30,7 @@
                 <div class="accordion-body">
 
                     <div class="mb-3">
-                        <label class="form-label">Basis <span class="text-danger">*</span></label>
+                        <label class="form-label">{{ __('Basis') }} <span class="text-danger">*</span></label>
                         <select name="basis" id="basis" class="form-select" required>
                             <option value="">-- Select --</option>
                             @foreach($formOptions['basis_options'] as $value => $label)
@@ -51,7 +51,7 @@
                                 </option>
                             @endforeach
                         </select>
-                        <div class="form-text">Standardized statement from rightsstatements.org</div>
+                        <div class="form-text">{{ __('Standardized statement from rightsstatements.org') }}</div>
                     </div>
 
                     {{-- Copyright Fields --}}
@@ -99,10 +99,10 @@
                             <label class="form-label">{{ __('License type') }}</label>
                             <select name="license_type" id="license_type" class="form-select">
                                 <option value="">-- Select --</option>
-                                <option value="cc" {{ old('license_type', $right->license_type ?? '') === 'cc' ? 'selected' : '' }}>Creative Commons</option>
-                                <option value="open" {{ old('license_type', $right->license_type ?? '') === 'open' ? 'selected' : '' }}>Other Open License</option>
-                                <option value="proprietary" {{ old('license_type', $right->license_type ?? '') === 'proprietary' ? 'selected' : '' }}>Proprietary</option>
-                                <option value="custom" {{ old('license_type', $right->license_type ?? '') === 'custom' ? 'selected' : '' }}>Custom</option>
+                                <option value="cc" {{ old('license_type', $right->license_type ?? '') === 'cc' ? 'selected' : '' }}>{{ __('Creative Commons') }}</option>
+                                <option value="open" {{ old('license_type', $right->license_type ?? '') === 'open' ? 'selected' : '' }}>{{ __('Other Open License') }}</option>
+                                <option value="proprietary" {{ old('license_type', $right->license_type ?? '') === 'proprietary' ? 'selected' : '' }}>{{ __('Proprietary') }}</option>
+                                <option value="custom" {{ old('license_type', $right->license_type ?? '') === 'custom' ? 'selected' : '' }}>{{ __('Custom') }}</option>
                             </select>
                         </div>
                         <div id="ccLicenseField" class="mb-3" style="display: none;">
@@ -214,7 +214,7 @@
             </h2>
             <div id="actsSection" class="accordion-collapse collapse">
                 <div class="accordion-body">
-                    <p class="text-muted small">Define what actions are allowed or restricted.</p>
+                    <p class="text-muted small">{{ __('Define what actions are allowed or restricted.') }}</p>
 
                     <div id="grantedRightsContainer">
                         @php
@@ -266,7 +266,7 @@
 
     {{-- Form Actions --}}
     <section class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
-      <a href="{{ route('ext-rights.index', $resource->slug) }}" class="btn atom-btn-outline-light">Cancel</a>
+      <a href="{{ route('ext-rights.index', $resource->slug) }}" class="btn atom-btn-outline-light">{{ __('Cancel') }}</a>
       <button type="submit" class="btn atom-btn-outline-light"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
     </section>
 </form>

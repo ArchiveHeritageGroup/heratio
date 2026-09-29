@@ -43,9 +43,9 @@
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('ingest.index') }}">Ingestion Manager</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('ingest.index') }}">{{ __('Ingestion Manager') }}</a></li>
         <li class="breadcrumb-item">{{ $session->title ?? ('Session #' . ($session->id ?? '')) }}</li>
-        <li class="breadcrumb-item active" aria-current="page">Commit</li>
+        <li class="breadcrumb-item active" aria-current="page">{{ __('Commit') }}</li>
     </ol>
 </nav>
 
@@ -223,7 +223,7 @@
         <div class="card-body text-center py-5">
             <i class="fas fa-rocket fa-3x text-primary mb-3"></i>
             <h5>{{ __('Ready to commit') }}</h5>
-            <p class="text-muted">This will create records in Heratio based on your validated data.</p>
+            <p class="text-muted">{{ __('This will create records in Heratio based on your validated data.') }}</p>
             <form method="post" action="{{ route('ingest.commit', ['id' => $session->id ?? 0]) }}">
                 @csrf
                 <button type="submit" class="btn btn-lg btn-success"

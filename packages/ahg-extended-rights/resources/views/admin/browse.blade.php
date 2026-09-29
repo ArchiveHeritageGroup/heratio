@@ -37,7 +37,7 @@
         </div>
         <div class="col-md-2 d-flex align-items-end gap-1">
           <button type="submit" class="btn btn-sm btn-primary">{{ __('Filter') }}</button>
-          <a href="{{ route('ext-rights-admin.browse') }}" class="btn btn-sm btn-secondary">Clear</a>
+          <a href="{{ route('ext-rights-admin.browse') }}" class="btn btn-sm btn-secondary">{{ __('Clear') }}</a>
         </div>
       </form>
     </div>
@@ -69,7 +69,7 @@
             </td>
           </tr>
           @empty
-          <tr><td colspan="5" class="text-muted">No rights records found.</td></tr>
+          <tr><td colspan="5" class="text-muted">{{ __('No rights records found.') }}</td></tr>
           @endforelse
         </tbody>
       </table>

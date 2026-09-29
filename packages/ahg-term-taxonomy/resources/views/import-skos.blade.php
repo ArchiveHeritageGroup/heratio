@@ -13,13 +13,13 @@
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ url('/taxonomy/browse') }}">Taxonomies</a></li>
-        <li class="breadcrumb-item active">Import SKOS</li>
+        <li class="breadcrumb-item"><a href="{{ url('/taxonomy/browse') }}">{{ __('Taxonomies') }}</a></li>
+        <li class="breadcrumb-item active">{{ __('Import SKOS') }}</li>
     </ol>
 </nav>
 
 <h1>{{ __('Import SKOS') }}</h1>
-<p class="text-muted">Upload a SKOS RDF/XML file to import concepts as terms in a taxonomy.</p>
+<p class="text-muted">{{ __('Upload a SKOS RDF/XML file to import concepts as terms in a taxonomy.') }}</p>
 
 @if(session('error'))
   <div class="alert alert-danger">{{ session('error') }}</div>
@@ -29,12 +29,12 @@
     @csrf
     <div class="card-body">
         <div class="mb-3">
-            <label class="form-label">Target taxonomy <span class="text-danger">*</span></label>
+            <label class="form-label">{{ __('Target taxonomy') }} <span class="text-danger">*</span></label>
             @if($preselectedTaxonomyId)
                 @php $preselectedName = $taxonomies->firstWhere('id', $preselectedTaxonomyId)->name ?? 'Taxonomy #' . $preselectedTaxonomyId; @endphp
                 <input type="text" class="form-control" value="{{ $preselectedName }}" disabled>
                 <input type="hidden" name="taxonomy_id" value="{{ $preselectedTaxonomyId }}">
-                <div class="form-text">Importing into the taxonomy of the term you came from. <a href="{{ route('term.import.skos') }}">Choose a different taxonomy</a></div>
+                <div class="form-text">{{ __('Importing into the taxonomy of the term you came from.') }} <a href="{{ route('term.import.skos') }}">{{ __('Choose a different taxonomy') }}</a></div>
             @else
                 <select class="form-select" name="taxonomy_id" id="taxonomy_id" required>
                     <option value="">- Select taxonomy -</option>
@@ -48,7 +48,7 @@
         <div class="mb-3">
             <label for="skos_file" class="form-label">{{ __('SKOS RDF/XML file') }}</label>
             <input type="file" class="form-control" name="skos_file" id="skos_file" accept=".rdf,.xml,.skos">
-            <div class="form-text">Standard SKOS RDF/XML format (.rdf or .xml)</div>
+            <div class="form-text">{{ __('Standard SKOS RDF/XML format (.rdf or .xml)') }}</div>
         </div>
 
         <div class="mb-3 text-center text-muted small">- OR -</div>
@@ -56,11 +56,11 @@
         <div class="mb-3">
             <label for="skos_url" class="form-label">{{ __('Remote resource URL') }}</label>
             <input type="url" class="form-control" name="skos_url" id="skos_url" placeholder="{{ __('https://example.org/scheme.rdf') }}">
-            <div class="form-text">Fetch SKOS RDF/XML directly from a URL (e.g. published vocabularies)</div>
+            <div class="form-text">{{ __('Fetch SKOS RDF/XML directly from a URL (e.g. published vocabularies)') }}</div>
         </div>
     </div>
     <div class="card-footer text-end">
-        <a href="{{ url('/taxonomy/browse') }}" class="btn atom-btn-outline-light">Cancel</a>
+        <a href="{{ url('/taxonomy/browse') }}" class="btn atom-btn-outline-light">{{ __('Cancel') }}</a>
         <button type="submit" class="btn atom-btn-outline-success">
             <i class="fas fa-upload me-1"></i>{{ __('Import') }}
         </button>

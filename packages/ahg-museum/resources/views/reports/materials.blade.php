@@ -13,7 +13,7 @@
       @forelse($records as $r)
       <tr><td><strong>{{ e($r->title ?? '-') }}</strong></td><td>{{ e($r->materials ?? '-') }}</td><td>{{ e($r->techniques ?? '-') }}</td><td>{{ e($r->dimensions ?? '-') }}</td></tr>
       @empty
-      <tr><td colspan="4" class="text-muted text-center py-4">No materials records found.</td></tr>
+      <tr><td colspan="4" class="text-muted text-center py-4">{{ __('No materials records found.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

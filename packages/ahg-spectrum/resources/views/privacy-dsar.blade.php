@@ -76,7 +76,7 @@
                 <div class="modal-body">
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
-                        POPIA requires response within <strong>30 days</strong>. Deadline will be calculated automatically.
+                        {{ __('POPIA requires response within') }} <strong>30 days</strong>. Deadline will be calculated automatically.
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">

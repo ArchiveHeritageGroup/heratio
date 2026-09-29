@@ -13,7 +13,7 @@
 
 @section('title-block')
   <h1><i class="fas fa-id-card me-2"></i>{{ __('Authority Records') }}</h1>
-  <p class="text-muted small mb-0">External linking, completeness, NER pipeline, merge/dedup, occupations, functions</p>
+  <p class="text-muted small mb-0">{{ __('External linking, completeness, NER pipeline, merge/dedup, occupations, functions') }}</p>
 @endsection
 
 @section('content')
@@ -31,7 +31,7 @@
     <div class="card mb-4">
       <div class="card-header"><i class="fas fa-globe me-2"></i>{{ __('External Authority Sources') }}</div>
       <div class="card-body">
-        <p class="text-muted mb-3">Enable external authority file linking for reconciliation and enrichment.</p>
+        <p class="text-muted mb-3">{{ __('Enable external authority file linking for reconciliation and enrichment.') }}</p>
         <div class="row">
           @foreach([
             'authority_wikidata_enabled' => ['Wikidata', 'Enable Wikidata entity linking and reconciliation.', 'false'],
@@ -81,7 +81,7 @@
                      {{ ($settings['authority_completeness_auto_recalc'] ?? 'true') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="authority_completeness_auto_recalc"><strong>{{ __('Auto-Recalculate Completeness') }}</strong></label>
             </div>
-            <div class="form-text">Automatically recalculate completeness scores when the CLI scan runs.</div>
+            <div class="form-text">{{ __('Automatically recalculate completeness scores when the CLI scan runs.') }}</div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch mb-3">
@@ -90,7 +90,7 @@
                      {{ ($settings['authority_hide_stubs_from_public'] ?? 'true') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="authority_hide_stubs_from_public"><strong>{{ __('Hide Stubs from Public') }}</strong></label>
             </div>
-            <div class="form-text">Hide stub-level authority records from public browse and search results.</div>
+            <div class="form-text">{{ __('Hide stub-level authority records from public browse and search results.') }}</div>
           </div>
         </div>
       </div>
@@ -100,7 +100,7 @@
     <div class="card mb-4">
       <div class="card-header"><i class="fas fa-robot me-2"></i>{{ __('NER Pipeline') }}</div>
       <div class="card-body">
-        <p class="text-muted mb-3">Configure how Named Entity Recognition creates authority record stubs.</p>
+        <p class="text-muted mb-3">{{ __('Configure how Named Entity Recognition creates authority record stubs.') }}</p>
         <div class="row">
           <div class="col-md-6">
             <div class="form-check form-switch mb-3">
@@ -109,7 +109,7 @@
                      {{ ($settings['authority_ner_auto_stub_enabled'] ?? 'false') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="authority_ner_auto_stub_enabled"><strong>{{ __('Auto-Create Stubs') }}</strong></label>
             </div>
-            <div class="form-text">Automatically create authority record stubs from NER entities above the confidence threshold.</div>
+            <div class="form-text">{{ __('Automatically create authority record stubs from NER entities above the confidence threshold.') }}</div>
           </div>
           <div class="col-md-6">
             <label for="authority_ner_auto_stub_threshold" class="form-label"><strong>{{ __('Confidence Threshold') }}</strong></label>
@@ -117,7 +117,7 @@
                    name="settings[authority_ner_auto_stub_threshold]"
                    value="{{ $settings['authority_ner_auto_stub_threshold'] ?? '0.85' }}"
                    min="0" max="1" step="0.05">
-            <div class="form-text">Minimum confidence score (0.0-1.0) for auto-creating stubs. Default: 0.85</div>
+            <div class="form-text">{{ __('Minimum confidence score (0.0-1.0) for auto-creating stubs. Default: 0.85') }}</div>
           </div>
         </div>
       </div>
@@ -135,7 +135,7 @@
                      {{ ($settings['authority_merge_require_approval'] ?? 'false') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="authority_merge_require_approval"><strong>{{ __('Require Approval for Merge') }}</strong></label>
             </div>
-            <div class="form-text">Require workflow approval before merging authority records. Requires ahgWorkflowPlugin.</div>
+            <div class="form-text">{{ __('Require workflow approval before merging authority records. Requires ahgWorkflowPlugin.') }}</div>
           </div>
           <div class="col-md-6">
             <label for="authority_dedup_threshold" class="form-label"><strong>{{ __('Dedup Similarity Threshold') }}</strong></label>
@@ -143,7 +143,7 @@
                    name="settings[authority_dedup_threshold]"
                    value="{{ $settings['authority_dedup_threshold'] ?? '0.80' }}"
                    min="0" max="1" step="0.05">
-            <div class="form-text">Minimum similarity score (0.0-1.0) for flagging potential duplicates. Default: 0.80</div>
+            <div class="form-text">{{ __('Minimum similarity score (0.0-1.0) for flagging potential duplicates. Default: 0.80') }}</div>
           </div>
         </div>
       </div>
@@ -161,7 +161,7 @@
                      {{ ($settings['authority_function_linking_enabled'] ?? 'true') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="authority_function_linking_enabled"><strong>{{ __('Function Linking') }}</strong></label>
             </div>
-            <div class="form-text">Enable structured actor-to-function linking (ISDF). Requires ahgFunctionManagePlugin.</div>
+            <div class="form-text">{{ __('Enable structured actor-to-function linking (ISDF). Requires ahgFunctionManagePlugin.') }}</div>
           </div>
         </div>
       </div>

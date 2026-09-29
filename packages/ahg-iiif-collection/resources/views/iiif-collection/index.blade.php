@@ -7,7 +7,7 @@
             <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>{{ __('IIIF Collections') }}</h5>
         </div>
         <div class="card-body">
-            <p class="text-muted">Organize and group related IIIF manifests into collections for easy browsing and discovery.</p>
+            <p class="text-muted">{{ __('Organize and group related IIIF manifests into collections for easy browsing and discovery.') }}</p>
             @auth
             <a href="{{ route('iiif-collection.create', ['parent_id' => $parentId]) }}" class="btn atom-btn-outline-success w-100">
                 <i class="fas fa-plus me-2"></i>{{ __('Create Collection') }}
@@ -34,7 +34,7 @@
     @if($parentCollection)
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-4">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('iiif-collection.index') }}">Collections</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('iiif-collection.index') }}">{{ __('Collections') }}</a></li>
             <li class="breadcrumb-item active">{{ e($parentCollection->display_name) }}</li>
         </ol>
     </nav>
@@ -45,7 +45,7 @@
         <i class="fas fa-info-circle me-2"></i>
         No collections found.
         @auth
-        <a href="{{ route('iiif-collection.create') }}">Create your first collection</a>
+        <a href="{{ route('iiif-collection.create') }}">{{ __('Create your first collection') }}</a>
         @endauth
     </div>
     @else

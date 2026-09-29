@@ -10,7 +10,7 @@
         <div class="alert alert-danger">{{ session('errors')->first('create') }}</div>
     @endif
     <div class="row mb-3">
-        <div class="col-md-8"><label class="form-label">Name <span class="text-danger">*</span></label><input type="text" name="name" class="form-control" value="{{ $entity->name ?? '' }}" required></div>
+        <div class="col-md-8"><label class="form-label">{{ __('Name') }} <span class="text-danger">*</span></label><input type="text" name="name" class="form-control" value="{{ $entity->name ?? '' }}" required></div>
         <div class="col-md-4">
             <label class="form-label">{{ __('Type') }}</label>
             <select name="type_id" class="form-select">
@@ -32,13 +32,13 @@
                 <option value="{{ $p->id }}" {{ (string)($entity->parent_id ?? '') === (string)$p->id ? 'selected' : '' }}>{{ $p->name ?: '(unnamed)' }}</option>
             @endforeach
         </select>
-        <div class="form-text">For building hierarchies - e.g. city inside province inside country.</div>
+        <div class="form-text">{{ __('For building hierarchies - e.g. city inside province inside country.') }}</div>
     </div>
     <div class="mb-3"><label class="form-label">{{ __('Address') }}</label><textarea name="address" class="form-control" rows="2">{{ $entity->address ?? '' }}</textarea></div>
     <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" class="form-control" rows="3">{{ $entity->description ?? '' }}</textarea></div>
     <div class="d-flex gap-2">
         <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> {{ __('Save') }}</button>
-        @if($entity)<a href="{{ route('ric.entities.show', ['places', $entity->slug]) }}" class="btn btn-secondary">Cancel</a>@endif
+        @if($entity)<a href="{{ route('ric.entities.show', ['places', $entity->slug]) }}" class="btn btn-secondary">{{ __('Cancel') }}</a>@endif
     </div>
 </form>
 @endsection

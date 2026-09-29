@@ -7,8 +7,7 @@
 <div class="container-fluid py-4">
   <h1 class="h3 mb-3"><i class="fas fa-palette me-2"></i>{{ __('Request an artwork for placement') }}</h1>
 
-  <p class="text-muted">Ask to place one or more works in an office or shared space. The gallery is notified and
-    records the decision - the conversation itself stays with people.</p>
+  <p class="text-muted">{{ __('Ask to place one or more works in an office or shared space. The gallery is notified and records the decision - the conversation itself stays with people.') }}</p>
 
   @if(!empty($formErrors))
     <div class="alert alert-danger">
@@ -30,7 +29,7 @@
             <input type="text" class="form-control" id="object_ids_manual" name="object_ids_manual"
                    value="{{ collect($works)->pluck('id')->implode(' ') }}"
                    placeholder="{{ __('e.g. 12345 12346') }}" aria-describedby="idsHelp">
-            <div class="form-text" id="idsHelp">The information-object id of each work, separated by spaces or commas.</div>
+            <div class="form-text" id="idsHelp">{{ __('The information-object id of each work, separated by spaces or commas.') }}</div>
 
             @foreach($works as $w)
               <input type="hidden" name="object_ids[]" value="{{ $w->id }}">
@@ -97,7 +96,7 @@
         <div class="d-grid">
           <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-paper-plane me-1"></i> {{ __('Submit request') }}</button>
         </div>
-        <p class="form-text mt-2">Availability is shown as a warning only. A clash does not stop you asking - the gallery decides.</p>
+        <p class="form-text mt-2">{{ __('Availability is shown as a warning only. A clash does not stop you asking - the gallery decides.') }}</p>
       </div>
     </div>
   </form>

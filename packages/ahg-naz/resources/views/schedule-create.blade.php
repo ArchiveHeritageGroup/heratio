@@ -61,7 +61,7 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-4">
-                            <label class="form-label">Active Retention (years) <span class="text-danger">*</span></label>
+                            <label class="form-label">{{ __('Active Retention (years)') }} <span class="text-danger">*</span></label>
                             <input type="number" name="retention_period_active" class="form-control" required min="0">
                         </div>
                         <div class="col-md-4">

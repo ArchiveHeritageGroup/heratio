@@ -29,7 +29,7 @@
                 </ol>
             </nav>
             <h1><i class="fas fa-id-card me-2"></i>{{ __('Controller License') }}</h1>
-            <p class="text-muted">Data Controller Registration under CDPA [Chapter 12:07]</p>
+            <p class="text-muted">{{ __('Data Controller Registration under CDPA [Chapter 12:07]') }}</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgcdpa.license-edit') }}" class="btn btn-primary">
@@ -103,7 +103,7 @@
                     <div class="card-header"><h5 class="mb-0">{{ __('License Tiers') }}</h5></div>
                     <div class="card-body small">
                         <p class="mb-2"><strong>{{ __('Tier 1:') }}</strong> Small Scale (&lt;1,000 subjects)</p>
-                        <p class="mb-2"><strong>{{ __('Tier 2:') }}</strong> Medium Scale (1,000-10,000)</p>
+                        <p class="mb-2"><strong>{{ __('Tier 2:') }}</strong> {{ __('Medium Scale (1,000-10,000)') }}</p>
                         <p class="mb-0"><strong>{{ __('Tier 3:') }}</strong> Large Scale (&gt;10,000 subjects)</p>
                     </div>
                 </div>
@@ -114,7 +114,7 @@
             <div class="card-body text-center py-5">
                 <i class="fas fa-id-card fa-4x text-muted mb-3"></i>
                 <h4>{{ __('No Controller License Registered') }}</h4>
-                <p class="text-muted mb-4">Data controllers must register with the regulator under the Cyber and Data Protection Act.</p>
+                <p class="text-muted mb-4">{{ __('Data controllers must register with the regulator under the Cyber and Data Protection Act.') }}</p>
                 <a href="{{ route('ahgcdpa.license-edit') }}" class="btn btn-primary btn-lg">
                     <i class="fas fa-plus me-2"></i>{{ __('Register License') }}
                 </a>

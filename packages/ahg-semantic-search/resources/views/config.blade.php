@@ -65,7 +65,7 @@
                                    name="semantic_min_weight"
                                    value="{{ $config['semantic_min_weight'] ?? 0.6 }}"
                                    min="0" max="1" step="0.1">
-                            <div class="form-text">Minimum relevance weight for synonyms (0.0 - 1.0).</div>
+                            <div class="form-text">{{ __('Minimum relevance weight for synonyms (0.0 - 1.0).') }}</div>
                         </div>
 
                         <div class="form-check form-switch mb-3">
@@ -113,7 +113,7 @@
                                    name="semantic_wordnet_enabled" value="1"
                                    {{ ($config['semantic_wordnet_enabled'] ?? '0') == '1' || ($config['semantic_wordnet_enabled'] ?? '') === 'true' ? 'checked' : '' }}>
                             <label class="form-check-label" for="semantic_wordnet_enabled">
-                                <i class="fas fa-cloud me-1 text-info"></i>WordNet (Datamuse API)
+                                <i class="fas fa-cloud me-1 text-info"></i>{{ __('WordNet (Datamuse API)') }}
                             </label>
                             <div class="form-text">{{ __('Fetch synonyms from WordNet via Datamuse API.') }}</div>
                         </div>
@@ -190,7 +190,7 @@
                                             <i class="fas fa-file-export me-1"></i>{{ __('Export to Elasticsearch') }}
                                         </button>
                                     </div>
-                                    <div class="form-text">Generate synonyms file for Elasticsearch. Requires ES restart to apply.</div>
+                                    <div class="form-text">{{ __('Generate synonyms file for Elasticsearch. Requires ES restart to apply.') }}</div>
                                 </div>
                             </div>
                         </div>
@@ -198,7 +198,7 @@
                         <div class="alert alert-info mb-0">
                             <i class="fas fa-info-circle me-2"></i>
                             <strong>{{ __('Note:') }}</strong>
-                            After exporting synonyms, you need to restart Elasticsearch for changes to take effect. Add the synonyms filter to your index settings.
+                            {{ __('After exporting synonyms, you need to restart Elasticsearch for changes to take effect. Add the synonyms filter to your index settings.') }}
                         </div>
                     </div>
                 </div>

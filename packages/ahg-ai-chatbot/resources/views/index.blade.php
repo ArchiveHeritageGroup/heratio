@@ -10,8 +10,7 @@
         <div class="col-md-8">
             <h2 class="mb-1">{{ __('chatbot.title') ?? 'Archival Research Assistant' }}</h2>
             <p class="text-muted small mb-0">
-                Ask questions about the catalogue in natural language.
-                Responses are grounded in the archival descriptions and cite their sources.
+                {{ __('Ask questions about the catalogue in natural language. Responses are grounded in the archival descriptions and cite their sources.') }}
             </p>
             {{-- #1208 (culture = language): SELECTABLE multi-language scope control.
                  Pick none = unscoped (whole catalogue); pick one or more languages =
@@ -69,7 +68,7 @@
         <div class="col-md-3">
             <div class="card border-0 bg-light">
                 <div class="card-body py-2 px-3">
-                    <div class="small text-muted text-uppercase">Messages (30d)</div>
+                    <div class="small text-muted text-uppercase">{{ __('Messages (30d)') }}</div>
                     <div class="fw-bold">{{ $stats['messages_30d'] ?? 0 }}</div>
                 </div>
             </div>
@@ -77,7 +76,7 @@
         <div class="col-md-3">
             <div class="card border-0 bg-light">
                 <div class="card-body py-2 px-3">
-                    <div class="small text-muted text-uppercase">Sessions (30d)</div>
+                    <div class="small text-muted text-uppercase">{{ __('Sessions (30d)') }}</div>
                     <div class="fw-bold">{{ $stats['sessions_30d'] ?? 0 }}</div>
                 </div>
             </div>
@@ -93,7 +92,7 @@
         <div class="col-md-3">
             <div class="card border-0 bg-light">
                 <div class="card-body py-2 px-3">
-                    <div class="small text-muted text-uppercase">Low grounding (30d)</div>
+                    <div class="small text-muted text-uppercase">{{ __('Low grounding (30d)') }}</div>
                     <div class="fw-bold {{ ($stats['low_grounding_30d'] ?? 0) > 0 ? 'text-warning' : 'text-success' }}">
                         {{ $stats['low_grounding_30d'] ?? 0 }}
                     </div>
@@ -116,8 +115,7 @@
                             <i class="fas fa-robot me-1"></i> {{ __('Heratio Assistant') }}
                         </div>
                         <div class="message-text">
-                            Welcome to the Heratio Archival Research Assistant.
-                            Start by typing a question about the catalogue below.
+                            {{ __('Welcome to the Heratio Archival Research Assistant. Start by typing a question about the catalogue below.') }}
                         </div>
                     </div>
                 </div>

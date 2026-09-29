@@ -155,7 +155,7 @@ $categories = [
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Replacing: <strong id="replace_name"></strong></p>
+                    <p>{{ __('Replacing:') }} <strong id="replace_name"></strong></p>
                     <div class="mb-3">
                         <label class="form-label">{{ __('New Word Document (.docx) *') }}</label>
                         <input type="file" name="template_file" class="form-control" accept=".docx,.doc" required>

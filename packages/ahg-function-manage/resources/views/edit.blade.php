@@ -68,14 +68,14 @@
             </div>
 
             <div class="mb-3">
-              <label for="parallel_name" class="form-label">Parallel form(s) of name <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="parallel_name" class="form-label">{{ __('Parallel form(s) of name') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="parallel_name" id="parallel_name" class="form-control"
                      value="{{ old('parallel_name', $function->parallel_name ?? '') }}">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('"Purpose: To indicate the various forms in which the authorized form(s) of name occurs in other languages or script forms. Rule: Record the parallel form(s) of name in accordance with any relevant national or international conventions or rules applied by the agency that created the description, including any necessary sub elements and/or qualifiers required by those conventions or rules. Specify in the Rules and/or conventions element (5.4.3.) which rules have been applied." (ISDF 5.1.3)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
-              <label for="other_name" class="form-label">Other form(s) of name <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="other_name" class="form-label">{{ __('Other form(s) of name') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" name="other_name" id="other_name" class="form-control"
                      value="{{ old('other_name', $function->other_name ?? '') }}">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('"Record any other names for the function being described." (ISDF 5.1.4)') }}"><i class="fas fa-question-circle"></i></button>
@@ -225,7 +225,7 @@
               <input type="text" name="description_identifier" id="description_identifier" class="form-control"
                      value="{{ old('description_identifier', $function->description_identifier ?? '') }}">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('"Record a unique description identifier in accordance with local and/or national conventions. If the description is to be used internationally, record the code of the country in which the description was created in accordance with the latest version of ISO 3166 Codes for the representation of names of countries. Where the creator of the description is an international organisation, give the organisational identifier in place of the country code." (ISDF 5.4.1)') }}"><i class="fas fa-question-circle"></i></button>
-              <div class="alert alert-info py-1 px-2 mt-1 mb-0 small"><em>This field is marked as mandatory in the relevant descriptive standard.</em></div>
+              <div class="alert alert-info py-1 px-2 mt-1 mb-0 small"><em>{{ __('This field is marked as mandatory in the relevant descriptive standard.') }}</em></div>
             </div>
 
             <div class="mb-3">
@@ -273,14 +273,14 @@
             </div>
 
             <div class="mb-3">
-              <label for="language" class="form-label">Language(s) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="language" class="form-label">{{ __('Language(s)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" class="form-control" id="language" name="language"
                      value="{{ old('language', $function->language ?? '') }}" placeholder="{{ __('e.g. English') }}">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Select the language(s) of this record from the drop-down menu; enter the first few letters to narrow the choices. (ISDF 5.4.7)') }}"><i class="fas fa-question-circle"></i></button>
             </div>
 
             <div class="mb-3">
-              <label for="script" class="form-label">Script(s) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="script" class="form-label">{{ __('Script(s)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" class="form-control" id="script" name="script"
                      value="{{ old('script', $function->script ?? '') }}" placeholder="{{ __('e.g. Latin') }}">
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="{{ __('Select the script(s) of this record from the drop-down menu; enter the first few letters to narrow the choices. (ISDF 5.4.7)') }}"><i class="fas fa-question-circle"></i></button>

@@ -7,7 +7,7 @@
   <div class="col-md-3">@include('ahg-preservation::_menu')</div>
   <div class="col-md-9">
     <h1><i class="fas fa-fingerprint me-2"></i>{{ __('Format Identification') }}</h1>
-    <p class="text-muted">Identify file formats using PRONOM registry and DROID/Siegfried.</p>
+    <p class="text-muted">{{ __('Identify file formats using PRONOM registry and DROID/Siegfried.') }}</p>
 
     {{-- Siegfried Status --}}
     @php

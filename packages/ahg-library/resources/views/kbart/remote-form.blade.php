@@ -58,7 +58,7 @@
                                 </button>
                             </div>
                             <div class="form-text">
-                                A publicly accessible URL returning a NISO KBART TSV file.
+                                {{ __('A publicly accessible URL returning a NISO KBART TSV file.') }}
                             </div>
                             @error('url')
                                 <div class="invalid-feedback">{{ $message }}</div>

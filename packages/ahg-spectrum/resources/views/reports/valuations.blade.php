@@ -7,6 +7,6 @@
 <div class="alert alert-info"><strong>{{ count($items) }}</strong> valuations found</div>
 <div class="table-responsive"><table class="table table-striped table-hover"><thead class="table-dark"><tr><th>{{ __('Object') }}</th><th>{{ __('Date') }}</th><th>{{ __('Value') }}</th><th>{{ __('Type') }}</th><th>{{ __('Valuator') }}</th></tr></thead><tbody>
 @forelse($items as $v)<tr><td><strong>{{ e($v->object_title ?? '-') }}</strong></td><td>{{ $v->valuation_date ? date('d M Y', strtotime($v->valuation_date)) : '-' }}</td><td class="text-end">R {{ number_format($v->value ?? 0, 2) }}</td><td>{{ e($v->valuation_type ?? '-') }}</td><td>{{ e($v->valuator ?? '-') }}</td></tr>
-@empty<tr><td colspan="5" class="text-muted text-center py-4">No valuations found.</td></tr>@endforelse
+@empty<tr><td colspan="5" class="text-muted text-center py-4">{{ __('No valuations found.') }}</td></tr>@endforelse
 </tbody></table></div>
 @endsection

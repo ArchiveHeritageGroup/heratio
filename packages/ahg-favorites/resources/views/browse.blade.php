@@ -50,7 +50,7 @@
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h1><i class="fas fa-heart me-2"></i>Favorites <span class="badge bg-primary">{{ $totalCount }}</span></h1>
+  <h1><i class="fas fa-heart me-2"></i>{{ __('Favorites') }} <span class="badge bg-primary">{{ $totalCount }}</span></h1>
   <div class="d-flex gap-2 align-items-center">
     {{-- Export Dropdown --}}
     @if($totalCount > 0)
@@ -141,7 +141,7 @@
       @php $activeFolder = $folders->firstWhere('id', $params['folder_id']); @endphp
       @if($activeFolder)
         <div class="card mb-3">
-          <div class="card-header" style="background:var(--ahg-primary);color:#fff">Folder actions</div>
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff">{{ __('Folder actions') }}</div>
           <div class="card-body py-2">
             <h6 class="mb-2">{{ e($activeFolder->name) }}</h6>
             @if($activeFolder->description)
@@ -435,12 +435,12 @@
       <div class="modal-content">
         <div class="modal-header"><h5 class="modal-title"><i class="fas fa-folder-plus me-2"></i>{{ __('New Folder') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
-          <div class="mb-3"><label class="form-label">Folder Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="name" class="form-control" required maxlength="255"></div>
-          <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea name="description" class="form-control" rows="2"></textarea></div>
-          <div class="mb-3"><label class="form-label">Color <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="color" name="color" class="form-control form-control-color" value="#0d6efd"></div>
+          <div class="mb-3"><label class="form-label">{{ __('Folder Name') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="name" class="form-control" required maxlength="255"></div>
+          <div class="mb-3"><label class="form-label">{{ __('Description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea name="description" class="form-control" rows="2"></textarea></div>
+          <div class="mb-3"><label class="form-label">{{ __('Color') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="color" name="color" class="form-control form-control-color" value="#0d6efd"></div>
           @if(!empty($folders) && count($folders) > 0)
             <div class="mb-3">
-              <label class="form-label">Parent Folder <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label">{{ __('Parent Folder') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select class="form-select" name="parent_id">
                 <option value="">{{ __('None (top level)') }}</option>
                 @foreach($folders as $f)
@@ -467,9 +467,9 @@
       <div class="modal-content">
         <div class="modal-header"><h5 class="modal-title"><i class="fas fa-upload me-2"></i>{{ __('Import Favorites') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
-          <div class="mb-3"><label class="form-label">Upload CSV <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="file" name="file" class="form-control" accept=".csv,.txt"><small class="text-muted">{{ __('CSV must contain a "slug" or "reference_code" column.') }}</small></div>
+          <div class="mb-3"><label class="form-label">{{ __('Upload CSV') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="file" name="file" class="form-control" accept=".csv,.txt"><small class="text-muted">{{ __('CSV must contain a "slug" or "reference_code" column.') }}</small></div>
           <div class="text-center text-muted my-2">- or -</div>
-          <div class="mb-3"><label class="form-label">Paste Slugs <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea name="slugs" class="form-control" rows="4" placeholder="{{ __('One slug per line, or comma-separated...') }}"></textarea></div>
+          <div class="mb-3"><label class="form-label">{{ __('Paste Slugs') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea name="slugs" class="form-control" rows="4" placeholder="{{ __('One slug per line, or comma-separated...') }}"></textarea></div>
         </div>
         <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-upload me-1"></i>{{ __('Import') }}</button></div>
       </div>
@@ -486,8 +486,8 @@
       <div class="modal-content">
         <div class="modal-header"><h5 class="modal-title"><i class="fas fa-edit me-2"></i>{{ __('Edit Folder') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
-          <div class="mb-3"><label class="form-label">Folder Name <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="name" class="form-control" value="{{ e($activeFolder->name) }}" required maxlength="255"></div>
-          <div class="mb-3"><label class="form-label">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea name="description" class="form-control" rows="2">{{ e($activeFolder->description ?? '') }}</textarea></div>
+          <div class="mb-3"><label class="form-label">{{ __('Folder Name') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="name" class="form-control" value="{{ e($activeFolder->name) }}" required maxlength="255"></div>
+          <div class="mb-3"><label class="form-label">{{ __('Description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea name="description" class="form-control" rows="2">{{ e($activeFolder->description ?? '') }}</textarea></div>
         </div>
         <div class="modal-footer"><button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save me-1"></i>{{ __('Save Changes') }}</button></div>
       </div>
@@ -502,7 +502,7 @@
       <div class="modal-header"><h5 class="modal-title"><i class="fas fa-share-alt me-2"></i>{{ __('Folder is Shared') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
       <div class="modal-body">
         <div class="mb-3">
-          <label class="form-label">Share Link <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <label class="form-label">{{ __('Share Link') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <div class="input-group">
             <input type="text" class="form-control" readonly value="{{ url('/favorites/shared/' . $activeFolder->share_token) }}">
             <button type="button" class="btn atom-btn-white" onclick="navigator.clipboard.writeText(this.previousElementSibling.value); this.innerHTML='<i class=\'fas fa-check\'></i>';">

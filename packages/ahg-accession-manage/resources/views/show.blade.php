@@ -467,7 +467,7 @@
   <section class="section border-bottom" id="rightsArea">
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
-        Rights area
+        {{ __('Rights area') }}
       </div>
     </h2>
     <div>
@@ -514,7 +514,7 @@
   <section class="section border-bottom" id="deaccessionArea">
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
-        Deaccession area
+        {{ __('Deaccession area') }}
       </div>
     </h2>
     <div>
@@ -552,20 +552,20 @@
     @php $isAdmin = auth()->user()->is_admin; @endphp
     <ul class="actions mb-3 nav gap-2">
       {{-- Edit: any authenticated user --}}
-      <li><a href="{{ route('accession.edit', $accession->slug) }}" class="btn atom-btn-outline-light">Edit</a></li>
+      <li><a href="{{ route('accession.edit', $accession->slug) }}" class="btn atom-btn-outline-light">{{ __('Edit') }}</a></li>
 
       {{-- Delete: admin only --}}
       @if($isAdmin)
-      <li><a href="{{ route('accession.confirmDelete', $accession->slug) }}" class="btn atom-btn-outline-danger">Delete</a></li>
+      <li><a href="{{ route('accession.confirmDelete', $accession->slug) }}" class="btn atom-btn-outline-danger">{{ __('Delete') }}</a></li>
       @endif
 
       {{-- Deaccession: admin only --}}
       @if($isAdmin)
-      <li><a href="{{ route('accession.deaccession-create', $accession->id) }}" class="btn atom-btn-outline-light">Deaccession</a></li>
+      <li><a href="{{ route('accession.deaccession-create', $accession->id) }}" class="btn atom-btn-outline-light">{{ __('Deaccession') }}</a></li>
       @endif
 
       @if(!isset($accrualTo) || count($accrualTo) === 0)
-        <li><a href="{{ route('accession.create', ['accession' => $accession->slug]) }}" class="btn atom-btn-outline-light">Add accrual</a></li>
+        <li><a href="{{ route('accession.create', ['accession' => $accession->slug]) }}" class="btn atom-btn-outline-light">{{ __('Add accrual') }}</a></li>
       @endif
 
       <li>
@@ -575,8 +575,8 @@
           </button>
           <ul class="dropdown-menu mb-2">
             <li><a href="{{ route('informationobject.create', ['accession' => $accession->id]) }}" class="dropdown-item">Create {{ config('atom.ui_label_informationobject', 'archival description') }}</a></li>
-            <li><a href="{{ route('accession.rights', $accession->id) }}" class="dropdown-item">Create new rights</a></li>
-            <li><a href="{{ route('physicalobject.link-to', $accession->slug) }}" class="dropdown-item">Link physical storage</a></li>
+            <li><a href="{{ route('accession.rights', $accession->id) }}" class="dropdown-item">{{ __('Create new rights') }}</a></li>
+            <li><a href="{{ route('physicalobject.link-to', $accession->slug) }}" class="dropdown-item">{{ __('Link physical storage') }}</a></li>
           </ul>
         </div>
       </li>

@@ -56,7 +56,7 @@
                 <input type="text" class="form-control" id="datacite_repository_id" name="datacite_repository_id"
                        value="{{ old('datacite_repository_id', $settings['datacite_repository_id'] ?? '') }}"
                        placeholder="{{ __('e.g. INSTITUTION.REPOSITORY') }}">
-                <div class="form-text">Your DataCite repository ID (format: PREFIX.SUFFIX)</div>
+                <div class="form-text">{{ __('Your DataCite repository ID (format: PREFIX.SUFFIX)') }}</div>
               </div>
             </div>
 
@@ -241,7 +241,7 @@
 
             <h6 class="mt-3">{{ __('Test Mode') }}</h6>
             <p class="small text-muted">
-              Use the test API URL while developing. Test DOIs are not resolvable but allow you to verify your integration.
+              {{ __('Use the test API URL while developing. Test DOIs are not resolvable but allow you to verify your integration.') }}
             </p>
           </div>
         </div>

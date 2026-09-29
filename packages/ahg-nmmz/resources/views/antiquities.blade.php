@@ -29,7 +29,7 @@
         </ol>
       </nav>
       <h1><i class="fas fa-vase me-2"></i>{{ __('Antiquities Register') }}</h1>
-      <p class="text-muted">Objects over 100 years old</p>
+      <p class="text-muted">{{ __('Objects over 100 years old') }}</p>
     </div>
     <div class="col-auto">
       <a href="{{ route('nmmz.antiquity.create') }}" class="btn btn-primary">

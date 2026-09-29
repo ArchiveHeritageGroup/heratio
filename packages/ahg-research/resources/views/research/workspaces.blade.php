@@ -62,7 +62,7 @@
         <div class="card-body text-center py-5">
             <i class="fas fa-users-cog fa-3x text-muted mb-3"></i>
             <h5>{{ __('No Workspaces Yet') }}</h5>
-            <p class="text-muted">Create a private workspace to collaborate with other researchers.</p>
+            <p class="text-muted">{{ __('Create a private workspace to collaborate with other researchers.') }}</p>
             <button type="button" class="btn atom-btn-outline-success" data-bs-toggle="modal" data-bs-target="#createWorkspaceModal">
                 <i class="fas fa-plus me-1"></i> {{ __('Create Workspace') }}
             </button>
@@ -83,7 +83,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Name * <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                        <label class="form-label">{{ __('Name *') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <input type="text" name="name" class="form-control" required placeholder="{{ __('e.g., Thesis Research Group') }}" autocomplete="off">
                     </div>
                     <div class="mb-3">

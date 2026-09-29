@@ -131,7 +131,7 @@
                             <li><strong>{{ __('DPO:') }}</strong> {{ __('Appoint Data Protection Officer') }}</li>
                             <li><strong>{{ __('ROPA:') }}</strong> {{ __('Maintain processing records') }}</li>
                             <li><strong>{{ __('Rights:') }}</strong> {{ __('Respond to data subject requests') }}</li>
-                            <li><strong>{{ __('Breaches:') }}</strong> Report within 72 hours</li>
+                            <li><strong>{{ __('Breaches:') }}</strong> {{ __('Report within 72 hours') }}</li>
                             <li><strong>{{ __('DPIA:') }}</strong> {{ __('Assess high-risk processing') }}</li>
                         </ul>
                     </div>
@@ -142,7 +142,7 @@
                     <div class="card-body">
                         <p class="small text-muted mb-2">
                             <strong>{{ __('CDPA Module') }}</strong><br>
-                            Consumer / Cyber Data Protection Act compliance module (per-jurisdiction).
+                            {{ __('Consumer / Cyber Data Protection Act compliance module (per-jurisdiction).') }}
                         </p>
                         <p class="small text-muted mb-0">
                             <strong>{{ __('Version:') }}</strong> 1.0.0<br>

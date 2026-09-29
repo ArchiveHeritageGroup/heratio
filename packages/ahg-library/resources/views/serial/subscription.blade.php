@@ -52,7 +52,7 @@
                         <label for="auto_claim_max" class="form-label">{{ __('Max Auto-Claims') }}</label>
                         <input type="number" min="0" max="12" name="auto_claim_max" id="auto_claim_max"
                                class="form-control" value="{{ old('auto_claim_max', $subscription->auto_claim_max ?? 3) }}">
-                        <div class="form-text">Number of automatic claim attempts before suspending the subscription.</div>
+                        <div class="form-text">{{ __('Number of automatic claim attempts before suspending the subscription.') }}</div>
                     </div>
                     <div class="col-md-4 mb-3">
                         <label for="notification_email" class="form-label">{{ __('Notification Email') }}</label>

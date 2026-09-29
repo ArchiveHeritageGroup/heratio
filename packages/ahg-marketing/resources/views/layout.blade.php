@@ -193,10 +193,10 @@
 
     <footer class="site">
         <div class="wrap">
-            <p>{{ __('Heratio is published by') }} <a href="https://theahg.co.za">The Archive and Heritage Digital Commons Group (Pty) Ltd (The AHG)</a>,
+            <p>{{ __('Heratio is published by') }} <a href="https://theahg.co.za">{{ __('The Archive and Heritage Digital Commons Group (Pty) Ltd (The AHG)') }}</a>,
             with software by <a href="https://plainsailingisystems.co.za">{{ __('Plain Sailing Information Systems') }}</a>.
             Records in Contexts ecosystem: <a href="https://openric.org">{{ __('OpenRiC') }}</a>.</p>
-            <p>Open source under AGPL-3.0. <a href="https://github.com/ArchiveHeritageGroup/heratio">{{ __('Source on GitHub') }}</a>.
+            <p>{{ __('Open source under AGPL-3.0.') }} <a href="https://github.com/ArchiveHeritageGroup/heratio">{{ __('Source on GitHub') }}</a>.
             &copy; {{ date('Y') }} Plain Sailing Information Systems.</p>
         </div>
     </footer>

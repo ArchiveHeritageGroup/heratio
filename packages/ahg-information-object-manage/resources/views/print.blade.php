@@ -38,7 +38,7 @@
 
   @if(isset($events) && $events->isNotEmpty())
     <div class="field-row">
-      <div class="field-label">Date(s)</div>
+      <div class="field-label">{{ __('Date(s)') }}</div>
       <div class="field-value">
         <ul>
           @foreach($events as $event)
@@ -77,7 +77,7 @@
   @if(isset($creators) && $creators->isNotEmpty())
     @foreach($creators as $creator)
       <div class="field-row">
-        <div class="field-label">Name of creator(s)</div>
+        <div class="field-label">{{ __('Name of creator(s)') }}</div>
         <div class="field-value">{{ $creator->name }}</div>
       </div>
 
@@ -374,7 +374,7 @@
 
   @if(isset($languagesOfDescription) && (is_countable($languagesOfDescription) ? count($languagesOfDescription) > 0 : !empty($languagesOfDescription)))
     <div class="field-row">
-      <div class="field-label">Language(s)</div>
+      <div class="field-label">{{ __('Language(s)') }}</div>
       <div class="field-value">
         @foreach($languagesOfDescription as $lang)
           {{ $lang }}@if(!$loop->last), @endif
@@ -385,7 +385,7 @@
 
   @if(isset($scriptsOfDescription) && (is_countable($scriptsOfDescription) ? count($scriptsOfDescription) > 0 : !empty($scriptsOfDescription)))
     <div class="field-row">
-      <div class="field-label">Script(s)</div>
+      <div class="field-label">{{ __('Script(s)') }}</div>
       <div class="field-value">
         @foreach($scriptsOfDescription as $script)
           {{ $script }}@if(!$loop->last), @endif

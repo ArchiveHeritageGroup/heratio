@@ -105,8 +105,8 @@
       </div>
     @else
       <div class="card-body text-center text-muted py-4">
-        You haven't placed any bids yet.
-        <a href="{{ url('/marketplace/auction-browse') }}">Browse auctions</a>.
+        {{ __('You haven\'t placed any bids yet.') }}
+        <a href="{{ url('/marketplace/auction-browse') }}">{{ __('Browse auctions') }}</a>.
       </div>
     @endif
   </div>

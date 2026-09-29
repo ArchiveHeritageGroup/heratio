@@ -15,7 +15,7 @@
                 </ol>
             </nav>
             <h1><i class="fas fa-fingerprint me-2"></i>{{ __('Checksums & Integrity') }}</h1>
-            <p class="text-muted">TIFF-to-PDF merge jobs, checksum coverage and fixity verification</p>
+            <p class="text-muted">{{ __('TIFF-to-PDF merge jobs, checksum coverage and fixity verification') }}</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('reports.dashboard') }}" class="btn atom-btn-outline-secondary">

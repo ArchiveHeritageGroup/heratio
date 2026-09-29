@@ -8,12 +8,12 @@
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
-      <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
+      <a href="{{ route('actor.dashboard') }}">{{ __('Authority Dashboard') }}</a>
     </li>
     <li class="breadcrumb-item">
       <a href="{{ $actor->slug ? route('actor.show', $actor->slug) : '#' }}">{{ e($actor->name ?? '') }}</a>
     </li>
-    <li class="breadcrumb-item active">Merge</li>
+    <li class="breadcrumb-item active">{{ __('Merge') }}</li>
   </ol>
 </nav>
 
@@ -24,7 +24,7 @@
     <i class="fas fa-compress-arrows-alt me-1"></i>Merge into: {{ e($actor->name ?? '') }}
   </div>
   <div class="card-body">
-    <p class="text-muted">Select a secondary actor to merge into this record. All relations, resources, contacts, and identifiers will be transferred.</p>
+    <p class="text-muted">{{ __('Select a secondary actor to merge into this record. All relations, resources, contacts, and identifiers will be transferred.') }}</p>
 
     <div class="row g-2 mb-3">
       <div class="col-md-6">

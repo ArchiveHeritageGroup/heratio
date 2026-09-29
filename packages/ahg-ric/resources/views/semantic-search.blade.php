@@ -77,7 +77,7 @@
   {{-- Loading --}}
   <div id="ric-loading" class="text-center py-5" style="display: none;">
     <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
-    <p class="mt-2 text-muted">Searching...</p>
+    <p class="mt-2 text-muted">{{ __('Searching...') }}</p>
   </div>
 
   {{-- Help Section --}}
@@ -87,7 +87,7 @@
         <div class="card-body text-center">
           <i class="fas fa-user fa-2x mb-3" style="color:var(--ahg-primary)"></i>
           <h6>{{ __('By Creator') }}</h6>
-          <p class="small text-muted">Find records by who created them</p>
+          <p class="small text-muted">{{ __('Find records by who created them') }}</p>
           <code class="small">records created by John Smith</code>
         </div>
       </div>
@@ -97,7 +97,7 @@
         <div class="card-body text-center">
           <i class="fas fa-book fa-2x mb-3" style="color:var(--ahg-primary)"></i>
           <h6>{{ __('By Subject') }}</h6>
-          <p class="small text-muted">Find records about a topic</p>
+          <p class="small text-muted">{{ __('Find records about a topic') }}</p>
           <code class="small">records about agriculture</code>
         </div>
       </div>
@@ -107,7 +107,7 @@
         <div class="card-body text-center">
           <i class="fas fa-calendar fa-2x mb-3" style="color:var(--ahg-primary)"></i>
           <h6>{{ __('By Date') }}</h6>
-          <p class="small text-muted">Find records from a time period</p>
+          <p class="small text-muted">{{ __('Find records from a time period') }}</p>
           <code class="small">records between 1960-1980</code>
         </div>
       </div>

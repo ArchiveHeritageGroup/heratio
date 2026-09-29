@@ -165,7 +165,7 @@
                     @empty
                         <tr>
                             <td colspan="7" class="text-center text-muted py-4">
-                                No Z39.50 targets configured. Add one to start copy cataloguing.
+                                {{ __('No Z39.50 targets configured. Add one to start copy cataloguing.') }}
                             </td>
                         </tr>
                     @endforelse

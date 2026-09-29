@@ -174,7 +174,7 @@
           <input type="range" class="form-range ahg-3d-cross-slider flex-grow-1"
                  min="0" max="100" step="1" value="50"
                  aria-label="{{ __('Slice position') }}" style="max-width:240px;">
-          <small class="text-muted ahg-3d-cross-value" aria-live="polite" style="min-width:120px;">X: +0.000 m</small>
+          <small class="text-muted ahg-3d-cross-value" aria-live="polite" style="min-width:120px;">{{ __('X: +0.000 m') }}</small>
         </div>
       </div>
     @endif
@@ -308,7 +308,7 @@
               <input type="range" class="form-range ahg-3d-cross-slider flex-grow-1"
                      min="0" max="100" step="1" value="50"
                      aria-label="{{ __('Slice position') }}" style="max-width:240px;">
-              <small class="text-muted ahg-3d-cross-value" aria-live="polite" style="min-width:120px;">X: +0.000 m</small>
+              <small class="text-muted ahg-3d-cross-value" aria-live="polite" style="min-width:120px;">{{ __('X: +0.000 m') }}</small>
             </div>
           </div>
 

@@ -26,9 +26,7 @@
           @enderror
         </div>
         <p class="small text-muted">
-          Supported formats: BIBFRAME 2.0 XML/RDF, Turtle. The importer will
-          upsert Works, Instances, and Items it finds in the document.
-          Records that already exist (matched by title for Works) are updated.
+          {{ __('Supported formats: BIBFRAME 2.0 XML/RDF, Turtle. The importer will upsert Works, Instances, and Items it finds in the document. Records that already exist (matched by title for Works) are updated.') }}
         </p>
       </div>
     </div>

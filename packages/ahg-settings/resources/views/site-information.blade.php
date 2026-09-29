@@ -34,7 +34,7 @@
                 <small class="text-muted">{{ __('A brief site description or "tagline" for the header') }}</small>
               </div>
               <div class="mb-3">
-                <label class="form-label">Site base URL (used in MODS and EAD exports) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Site base URL (used in MODS and EAD exports)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="siteBaseUrl" class="form-control" value="{{ e($settings['siteBaseUrl']) }}">
                 <small class="text-muted">{{ __('Used to create absolute URLs, pointing to resources, in XML exports') }}</small>
               </div>

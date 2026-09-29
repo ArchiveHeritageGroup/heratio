@@ -51,7 +51,7 @@
       <div class="card h-100 text-center">
         <div class="card-body">
           <div class="display-6 mb-1">{{ number_format($stats['total_listings']) }}</div>
-          <div class="text-muted small">Total listings</div>
+          <div class="text-muted small">{{ __('Total listings') }}</div>
         </div>
       </div>
     </div>
@@ -59,7 +59,7 @@
       <div class="card h-100 text-center border-success">
         <div class="card-body">
           <div class="display-6 mb-1 text-success">{{ number_format($stats['published_listings']) }}</div>
-          <div class="text-muted small">Published</div>
+          <div class="text-muted small">{{ __('Published') }}</div>
         </div>
       </div>
     </div>
@@ -67,7 +67,7 @@
       <div class="card h-100 text-center">
         <div class="card-body">
           <div class="display-6 mb-1">{{ number_format($stats['draft_listings']) }}</div>
-          <div class="text-muted small">Drafts</div>
+          <div class="text-muted small">{{ __('Drafts') }}</div>
         </div>
       </div>
     </div>
@@ -91,7 +91,7 @@
       <div class="card h-100 text-center">
         <div class="card-body">
           <div class="display-6 mb-1">{{ $seller->payout_currency ?: 'ZAR' }} {{ number_format($stats['total_revenue'], 2) }}</div>
-          <div class="text-muted small">Total revenue</div>
+          <div class="text-muted small">{{ __('Total revenue') }}</div>
         </div>
       </div>
     </div>
@@ -101,7 +101,7 @@
           <div class="display-6 mb-1 {{ $stats['pending_offers'] > 0 ? 'text-warning' : '' }}">
             {{ number_format($stats['pending_offers']) }}
           </div>
-          <div class="text-muted small">Pending offers</div>
+          <div class="text-muted small">{{ __('Pending offers') }}</div>
         </div>
       </div>
     </div>
@@ -109,7 +109,7 @@
       <div class="card h-100 text-center">
         <div class="card-body">
           <div class="display-6 mb-1">{{ number_format($stats['total_views']) }}</div>
-          <div class="text-muted small">Listing views</div>
+          <div class="text-muted small">{{ __('Listing views') }}</div>
         </div>
       </div>
     </div>
@@ -117,7 +117,7 @@
       <div class="card h-100 text-center">
         <div class="card-body">
           <div class="display-6 mb-1">{{ number_format($stats['total_favourites']) }}</div>
-          <div class="text-muted small">Favourites</div>
+          <div class="text-muted small">{{ __('Favourites') }}</div>
         </div>
       </div>
     </div>
@@ -210,11 +210,11 @@
                     </td>
                     <td class="text-end">
                       @if($l->price_on_request)
-                        <em class="text-muted small">On request</em>
+                        <em class="text-muted small">{{ __('On request') }}</em>
                       @elseif($l->price !== null)
                         {{ $l->currency ?: 'ZAR' }} {{ number_format((float) $l->price, 2) }}
                       @else
-                        <em class="text-muted small">Not set</em>
+                        <em class="text-muted small">{{ __('Not set') }}</em>
                       @endif
                     </td>
                     <td class="text-center">
@@ -248,8 +248,8 @@
           </div>
         @else
           <div class="card-body text-center text-muted py-4">
-            No listings yet.
-            <a href="{{ route('ahgmarketplace.seller-listing-create') }}">Create your first listing</a>.
+            {{ __('No listings yet.') }}
+            <a href="{{ route('ahgmarketplace.seller-listing-create') }}">{{ __('Create your first listing') }}</a>.
           </div>
         @endif
       </div>
@@ -281,7 +281,7 @@
             @endforeach
           </ul>
         @else
-          <div class="card-body text-center text-muted py-3 small">No offers yet.</div>
+          <div class="card-body text-center text-muted py-3 small">{{ __('No offers yet.') }}</div>
         @endif
       </div>
 
@@ -309,7 +309,7 @@
             @endforeach
           </ul>
         @else
-          <div class="card-body text-center text-muted py-3 small">No transactions yet.</div>
+          <div class="card-body text-center text-muted py-3 small">{{ __('No transactions yet.') }}</div>
         @endif
       </div>
     </div>
@@ -321,31 +321,31 @@
     <div class="card-body">
       <div class="row g-3 small">
         <div class="col-md-4">
-          <div class="text-muted">Display name</div>
+          <div class="text-muted">{{ __('Display name') }}</div>
           <div>{{ $seller->display_name }}</div>
         </div>
         <div class="col-md-4">
-          <div class="text-muted">Email</div>
+          <div class="text-muted">{{ __('Email') }}</div>
           <div>{{ $seller->email ?: '-' }}</div>
         </div>
         <div class="col-md-4">
-          <div class="text-muted">Phone</div>
+          <div class="text-muted">{{ __('Phone') }}</div>
           <div>{{ $seller->phone ?: '-' }}</div>
         </div>
         <div class="col-md-4">
-          <div class="text-muted">Country / city</div>
+          <div class="text-muted">{{ __('Country / city') }}</div>
           <div>{{ trim(($seller->city ?? '') . ($seller->country ? ', ' . $seller->country : ''), ', ') ?: '-' }}</div>
         </div>
         <div class="col-md-4">
-          <div class="text-muted">Commission rate</div>
+          <div class="text-muted">{{ __('Commission rate') }}</div>
           <div>{{ number_format((float) $seller->commission_rate, 2) }} %</div>
         </div>
         <div class="col-md-4">
-          <div class="text-muted">Payout method</div>
+          <div class="text-muted">{{ __('Payout method') }}</div>
           <div>{{ $seller->payout_method ?: '-' }} ({{ $seller->payout_currency ?: 'ZAR' }})</div>
         </div>
         <div class="col-md-4">
-          <div class="text-muted">Sectors</div>
+          <div class="text-muted">{{ __('Sectors') }}</div>
           <div>
             @php
               $sectors = is_string($seller->sectors) ? (json_decode($seller->sectors, true) ?: []) : ($seller->sectors ?: []);
@@ -357,7 +357,7 @@
           </div>
         </div>
         <div class="col-md-8">
-          <div class="text-muted">Bio</div>
+          <div class="text-muted">{{ __('Bio') }}</div>
           <div>{{ $seller->bio ?: '-' }}</div>
         </div>
       </div>

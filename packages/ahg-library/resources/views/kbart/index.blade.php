@@ -12,7 +12,7 @@
                 <i class="fas fa-table me-2"></i>{{ __('KBART Knowledge Base') }}
             </h1>
             <p class="text-muted small mb-0">
-                NISO KBART (ANSI/NISO Z39.83) - import, export, and manage your library title knowledge base.
+                {{ __('NISO KBART (ANSI/NISO Z39.83) - import, export, and manage your library title knowledge base.') }}
             </p>
             </div>
         </div>
@@ -30,8 +30,7 @@
                     </span>
                     <h5 class="card-title">{{ __('Export') }}</h5>
                     <p class="card-text text-muted small">
-                        Download the full catalogue as a NISO KBART TSV file.
-                        Filter by date range or limit the row count.
+                        {{ __('Download the full catalogue as a NISO KBART TSV file. Filter by date range or limit the row count.') }}
                     </p>
                     <a href="{{ route('library.kbart-export') }}" class="btn btn-outline-success btn-sm mt-2">
                         <i class="fas fa-download me-1"></i>{{ __('Download TSV') }}
@@ -49,8 +48,7 @@
                     </span>
                     <h5 class="card-title">{{ __('Import') }}</h5>
                     <p class="card-text text-muted small">
-                        Upload a KBART TSV file to bulk-import or update serial
-                        titles and catalogue records. Preview before committing.
+                        {{ __('Upload a KBART TSV file to bulk-import or update serial titles and catalogue records. Preview before committing.') }}
                     </p>
                     <a href="{{ route('library.kbart-import') }}" class="btn btn-outline-primary btn-sm mt-2">
                         <i class="fas fa-upload me-1"></i>{{ __('Import TSV') }}
@@ -68,8 +66,7 @@
                     </span>
                     <h5 class="card-title">{{ __('Template') }}</h5>
                     <p class="card-text text-muted small">
-                        Download a blank KBART template with all NISO column headers.
-                        Fill it in manually or use it as a data-entry guide.
+                        {{ __('Download a blank KBART template with all NISO column headers. Fill it in manually or use it as a data-entry guide.') }}
                     </p>
                     <a href="{{ route('library.kbart-template') }}" class="btn btn-outline-secondary btn-sm mt-2">
                         <i class="fas fa-file-download me-1"></i>{{ __('Get Template') }}

@@ -59,7 +59,7 @@
 @endonce
 <section class="studio-hero">
     <h1><i class="fas fa-cube me-2"></i>{{ __('OpenRiC Capture Studio') }}</h1>
-    <p>Focused workspace for creating Records-in-Contexts entities: Places, Rules, Activities, Instantiations, and the relations between them. Every entity you create here is immediately served through the OpenRiC API and visible to external clients.</p>
+    <p>{{ __('Focused workspace for creating Records-in-Contexts entities: Places, Rules, Activities, Instantiations, and the relations between them. Every entity you create here is immediately served through the OpenRiC API and visible to external clients.') }}</p>
     <div class="hero-meta">
         API base: <code>{{ $ricApiBase }}</code>
         &nbsp;·&nbsp; Spec: <a href="https://openric.org" target="_blank" rel="noopener" style="color:#fff; text-decoration: underline;">openric.org</a>
@@ -88,7 +88,7 @@
                     <i class="fas fa-plus"></i> {{ __('Create') }}
                 </a>
                 <a href="{{ route('ric.' . $t['key'] . '.browse') }}" class="btn btn-outline-secondary btn-sm">
-                    Browse
+                    {{ __('Browse') }}
                 </a>
             </div>
         </div>
@@ -102,14 +102,14 @@
         <h4>{{ __('Relations between entities') }}</h4>
         <div class="rel-count">{{ number_format($relationCount) }} canonical <code>rico:*</code> relations across the triple store.</div>
     </div>
-    <a href="{{ route('ric.relations.browse') }}" class="btn btn-outline-primary btn-sm">Browse all relations</a>
+    <a href="{{ route('ric.relations.browse') }}" class="btn btn-outline-primary btn-sm">{{ __('Browse all relations') }}</a>
     <span class="text-muted small">{{ __("Create relations inline on any entity's show page via the relation editor.") }}</span>
 </div>
 
 <section class="recent-section">
     <h2><i class="fas fa-history me-2"></i>{{ __('Recent captures') }}</h2>
     @if($recent->isEmpty())
-        <p class="text-muted">No entities have been captured yet. Pick a type above to create the first one.</p>
+        <p class="text-muted">{{ __('No entities have been captured yet. Pick a type above to create the first one.') }}</p>
     @else
         <div class="table-responsive">
             <table class="table table-sm table-hover recent-table">
@@ -129,9 +129,9 @@
                         <td><small class="text-muted">{{ $row->created_at ? \Carbon\Carbon::parse($row->created_at)->diffForHumans() : '' }}</small></td>
                         <td>
                             @if($row->slug)
-                                <a href="{{ route('ric.entities.show', [$row->type_key, $row->slug]) }}" class="btn btn-link btn-sm p-0">View</a>
+                                <a href="{{ route('ric.entities.show', [$row->type_key, $row->slug]) }}" class="btn btn-link btn-sm p-0">{{ __('View') }}</a>
                                 &middot;
-                                <a href="{{ route('ric.entities.edit', [$row->type_key, $row->slug]) }}" class="btn btn-link btn-sm p-0">Edit</a>
+                                <a href="{{ route('ric.entities.edit', [$row->type_key, $row->slug]) }}" class="btn btn-link btn-sm p-0">{{ __('Edit') }}</a>
                             @endif
                         </td>
                     </tr>

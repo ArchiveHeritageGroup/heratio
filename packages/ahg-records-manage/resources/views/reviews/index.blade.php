@@ -15,8 +15,7 @@
 </div>
 
 <p class="text-muted small">
-  Records flagged for periodic review before final disposal. A reviewer accepts each record's next step:
-  retain longer, schedule another review, transfer to archives, or trigger destruction.
+  {{ __('Records flagged for periodic review before final disposal. A reviewer accepts each record\'s next step: retain longer, schedule another review, transfer to archives, or trigger destruction.') }}
 </p>
 
 @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
@@ -103,7 +102,7 @@
         </tr>
       @empty
         <tr><td colspan="7" class="text-center text-muted py-4">
-          No reviews scheduled. Reviews are auto-spawned when a record is assigned to a disposal class with <em>review_required = 1</em>.
+          {{ __('No reviews scheduled. Reviews are auto-spawned when a record is assigned to a disposal class with') }} <em>review_required = 1</em>.
         </td></tr>
       @endforelse
     </tbody>

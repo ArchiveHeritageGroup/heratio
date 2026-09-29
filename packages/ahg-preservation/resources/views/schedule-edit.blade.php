@@ -72,7 +72,7 @@
                         <input type="text" class="form-control font-monospace" id="cron_expression" name="cron_expression"
                                value="{{ old('cron_expression', $schedule->cron_expression ?? '0 2 * * *') }}"
                                placeholder="{{ __('0 2 * * *') }}">
-                        <div class="form-text" id="cron_description">Daily at 02:00</div>
+                        <div class="form-text" id="cron_description">{{ __('Daily at 02:00') }}</div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label">{{ __('Quick Presets') }}</label>
@@ -98,7 +98,7 @@
                         <div class="form-text">{{ __('Max objects per run') }}</div>
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label for="timeout_minutes" class="form-label">Timeout (minutes) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label for="timeout_minutes" class="form-label">{{ __('Timeout (minutes)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <input type="number" class="form-control" id="timeout_minutes" name="timeout_minutes"
                                value="{{ old('timeout_minutes', $schedule->timeout_minutes ?? 60) }}" min="1" max="480">
                         <div class="form-text">{{ __('Max runtime before abort') }}</div>

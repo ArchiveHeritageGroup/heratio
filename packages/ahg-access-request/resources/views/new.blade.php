@@ -115,7 +115,7 @@
                         <div class="mb-3">
                             <label for="description" class="form-label">{{ __('Description') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                             <textarea class="form-control" id="description" name="description" rows="5" required>{{ old('description') }}</textarea>
-                            <div class="form-text">Describe the materials you need access to and the purpose of your request.</div>
+                            <div class="form-text">{{ __('Describe the materials you need access to and the purpose of your request.') }}</div>
                         </div>
 
                         <div class="mb-3">

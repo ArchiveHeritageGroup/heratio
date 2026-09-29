@@ -32,7 +32,7 @@
             autocomplete="off"
           >
           <div class="form-text">
-            Searches title, scope and content, identifier, reference code, and creator names.
+            {{ __('Searches title, scope and content, identifier, reference code, and creator names.') }}
           </div>
         </div>
 

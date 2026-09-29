@@ -24,7 +24,7 @@
     </div>
     <div class="card-body">
       <p class="text-muted mb-3">
-        Traditional Knowledge Labels are part of the <a href="https://localcontexts.org" target="_blank">Local Contexts</a> initiative
+        {{ __('Traditional Knowledge Labels are part of the') }} <a href="https://localcontexts.org" target="_blank">{{ __('Local Contexts') }}</a> initiative
         to support Indigenous communities in the management of their cultural heritage and intellectual property.
       </p>
 
@@ -119,7 +119,7 @@
           </tr>
           @empty
           <tr>
-            <td colspan="6" class="text-center text-muted py-4">No TK Labels have been assigned yet.</td>
+            <td colspan="6" class="text-center text-muted py-4">{{ __('No TK Labels have been assigned yet.') }}</td>
           </tr>
           @endforelse
         </tbody>
@@ -142,11 +142,11 @@
         <div class="modal-body">
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">Object ID <span class="text-danger">*</span></label>
+              <label class="form-label">{{ __('Object ID') }} <span class="text-danger">*</span></label>
               <input type="number" name="object_id" class="form-control" required>
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">TK Label <span class="text-danger">*</span></label>
+              <label class="form-label">{{ __('TK Label') }} <span class="text-danger">*</span></label>
               <select name="tk_label_id" class="form-select" required>
                 <option value="">- Select Label -</option>
                 @foreach($tkLabels as $label)

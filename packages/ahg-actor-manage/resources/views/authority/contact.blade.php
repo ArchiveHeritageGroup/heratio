@@ -8,12 +8,12 @@
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
-        <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
+        <a href="{{ route('actor.dashboard') }}">{{ __('Authority Dashboard') }}</a>
       </li>
       <li class="breadcrumb-item">
         <a href="{{ route('actor.show', $actor->slug ?? '') }}">{{ $actor->name ?? '' }}</a>
       </li>
-      <li class="breadcrumb-item active">Contact</li>
+      <li class="breadcrumb-item active">{{ __('Contact') }}</li>
     </ol>
   </nav>
 @endsection
@@ -26,7 +26,7 @@
     </div>
     <div class="card-body">
       @if($contacts->isEmpty())
-        <p class="text-muted">No contact information available for this authority record.</p>
+        <p class="text-muted">{{ __('No contact information available for this authority record.') }}</p>
         <p>
           <a href="{{ route('actor.edit', $actor->slug ?? '') }}" class="btn btn-outline-primary">
             <i class="fas fa-edit me-1"></i>{{ __('Edit actor record to add contacts') }}

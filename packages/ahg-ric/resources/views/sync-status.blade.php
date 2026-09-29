@@ -42,7 +42,7 @@
     </div>
     @if($entityType !== '' || $status !== '')
       <div class="col-auto">
-        <a href="{{ route('ric.sync-status') }}" class="btn btn-sm btn-outline-secondary">Clear Filters</a>
+        <a href="{{ route('ric.sync-status') }}" class="btn btn-sm btn-outline-secondary">{{ __('Clear Filters') }}</a>
       </div>
     @endif
   </form>

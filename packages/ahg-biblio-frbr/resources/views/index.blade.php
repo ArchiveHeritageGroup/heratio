@@ -51,7 +51,7 @@
           <i class="bi bi-box-arrow-up-right me-1"></i> {{ __('Export') }}
         </div>
         <div class="card-body">
-          <p class="small text-muted">Export a catalogue work as FRBR XML or JSON. Choose XML or JSON format.</p>
+          <p class="small text-muted">{{ __('Export a catalogue work as FRBR XML or JSON. Choose XML or JSON format.') }}</p>
           <a href="{{ route('frbr.export') }}" class="btn btn-outline-primary btn-sm w-100">
             {{ __('Open Export UI') }}
           </a>
@@ -65,7 +65,7 @@
           <i class="bi bi-box-arrow-down-left me-1"></i> {{ __('Import') }}
         </div>
         <div class="card-body">
-          <p class="small text-muted">Import an FRBR XML document and merge the works into the catalogue.</p>
+          <p class="small text-muted">{{ __('Import an FRBR XML document and merge the works into the catalogue.') }}</p>
           <a href="{{ route('frbr.import') }}" class="btn btn-outline-success btn-sm w-100">
             {{ __('Open Import UI') }}
           </a>
@@ -79,7 +79,7 @@
           <i class="bi bi-check-circle me-1"></i> {{ __('Validate') }}
         </div>
         <div class="card-body">
-          <p class="small text-muted">Validate an FRBR document for structural correctness against the IFLA model.</p>
+          <p class="small text-muted">{{ __('Validate an FRBR document for structural correctness against the IFLA model.') }}</p>
           <a href="{{ route('frbr.validate') }}" class="btn btn-outline-warning btn-sm w-100">
             {{ __('Open Validate UI') }}
           </a>
@@ -93,7 +93,7 @@
           <i class="bi bi-person me-1"></i> {{ __('Agents') }}
         </div>
         <div class="card-body">
-          <p class="small text-muted">Browse the agent authority used in FRBR records - creators, contributors, publishers.</p>
+          <p class="small text-muted">{{ __('Browse the agent authority used in FRBR records - creators, contributors, publishers.') }}</p>
           <a href="{{ route('frbr.agent') }}" class="btn btn-outline-secondary btn-sm w-100">
             {{ __('Browse Agents') }}
           </a>

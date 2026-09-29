@@ -12,7 +12,7 @@
 @section('content')
     <h1>{{ __('Book a free AtoM migration assessment') }}</h1>
 
-    <p class="lede">Tell us about your current AtoM instance and we will review it, map the migration (EAD/CSV import, authority and repository records, digital objects), and show you your collection running in Heratio - with no obligation.</p>
+    <p class="lede">{{ __('Tell us about your current AtoM instance and we will review it, map the migration (EAD/CSV import, authority and repository records, digital objects), and show you your collection running in Heratio - with no obligation.') }}</p>
 
     @if (session('status'))
         <div class="flash-success">{{ session('status') }}</div>

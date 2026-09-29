@@ -48,7 +48,7 @@
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">
-        <tr><th class="text-muted" style="width:35%">{{ __('RiC Role') }}</th><td>Archival institution / Holder</td></tr>
+        <tr><th class="text-muted" style="width:35%">{{ __('RiC Role') }}</th><td>{{ __('Archival institution / Holder') }}</td></tr>
         <tr><th class="text-muted">{{ __('Total holdings') }}</th><td>{{ number_format($holdingsCount) }} descriptions</td></tr>
         @if($repository->geocultural_context ?? null)
           <tr><th class="text-muted">{{ __('Context') }}</th><td>{{ \Illuminate\Support\Str::limit(strip_tags($repository->geocultural_context), 200) }}</td></tr>

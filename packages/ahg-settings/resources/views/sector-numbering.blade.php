@@ -13,7 +13,7 @@
 @section('content')
     <div class="alert alert-info" role="alert">
       <i class="fas fa-info-circle me-2"></i>
-      Configure unique identifier numbering schemes per GLAM/DAM sector. Leave fields blank to inherit the global settings.
+      {{ __('Configure unique identifier numbering schemes per GLAM/DAM sector. Leave fields blank to inherit the global settings.') }}
       <br><small class="text-muted">{{ __('Note: Accession numbering uses a single global counter across all sectors.') }}</small>
     </div>
 

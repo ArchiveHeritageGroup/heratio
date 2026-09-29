@@ -31,7 +31,7 @@
   @endphp
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-2">
     <ol class="breadcrumb mb-0">
-      <li class="breadcrumb-item"><a href="{{ route('loan.index') }}">Loans</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('loan.index') }}">{{ __('Loans') }}</a></li>
       @if($backSlug)
         <li class="breadcrumb-item"><a href="/{{ $backSlug }}">{{ \Illuminate\Support\Str::limit($backTitle ?? $backSlug, 40) }}</a></li>
       @endif
@@ -50,7 +50,7 @@
     @endif
     @if($nextLoan ?? null)
       <a href="{{ route('loan.show', $nextLoan->id) }}" class="btn btn-sm atom-btn-white">
-        Next<i class="fas fa-chevron-right ms-1"></i>
+        {{ __('Next') }}<i class="fas fa-chevron-right ms-1"></i>
       </a>
     @else
       <span></span>
@@ -149,44 +149,44 @@
           <h6 class="border-bottom pb-2 mb-3">{{ __('General Information') }}</h6>
 
           <div class="row mb-2">
-            <div class="col-sm-5 fw-bold">Loan Number</div>
+            <div class="col-sm-5 fw-bold">{{ __('Loan Number') }}</div>
             <div class="col-sm-7">{{ $loan->loan_number }}</div>
           </div>
 
           <div class="row mb-2">
-            <div class="col-sm-5 fw-bold">Type</div>
+            <div class="col-sm-5 fw-bold">{{ __('Type') }}</div>
             <div class="col-sm-7">{{ $loan->loan_type === 'out' ? 'Outgoing' : 'Incoming' }}</div>
           </div>
 
           <div class="row mb-2">
-            <div class="col-sm-5 fw-bold">Sector</div>
+            <div class="col-sm-5 fw-bold">{{ __('Sector') }}</div>
             <div class="col-sm-7">{{ ucfirst($loan->sector) }}</div>
           </div>
 
           @if($loan->title)
             <div class="row mb-2">
-              <div class="col-sm-5 fw-bold">Title</div>
+              <div class="col-sm-5 fw-bold">{{ __('Title') }}</div>
               <div class="col-sm-7">{{ $loan->title }}</div>
             </div>
           @endif
 
           @if($loan->description)
             <div class="row mb-2">
-              <div class="col-sm-5 fw-bold">Description</div>
+              <div class="col-sm-5 fw-bold">{{ __('Description') }}</div>
               <div class="col-sm-7">{!! nl2br(e($loan->description)) !!}</div>
             </div>
           @endif
 
           @if($loan->purpose)
             <div class="row mb-2">
-              <div class="col-sm-5 fw-bold">Purpose</div>
+              <div class="col-sm-5 fw-bold">{{ __('Purpose') }}</div>
               <div class="col-sm-7">{{ ucfirst($loan->purpose) }}</div>
             </div>
           @endif
 
           @if($loan->notes)
             <div class="row mb-2">
-              <div class="col-sm-5 fw-bold">Notes</div>
+              <div class="col-sm-5 fw-bold">{{ __('Notes') }}</div>
               <div class="col-sm-7">{!! nl2br(e($loan->notes)) !!}</div>
             </div>
           @endif
@@ -195,21 +195,21 @@
 
           @if($loan->request_date)
             <div class="row mb-2">
-              <div class="col-sm-5 fw-bold">Request Date</div>
+              <div class="col-sm-5 fw-bold">{{ __('Request Date') }}</div>
               <div class="col-sm-7">{{ \Carbon\Carbon::parse($loan->request_date)->format('Y-m-d') }}</div>
             </div>
           @endif
 
           @if($loan->start_date)
             <div class="row mb-2">
-              <div class="col-sm-5 fw-bold">Start Date</div>
+              <div class="col-sm-5 fw-bold">{{ __('Start Date') }}</div>
               <div class="col-sm-7">{{ \Carbon\Carbon::parse($loan->start_date)->format('Y-m-d') }}</div>
             </div>
           @endif
 
           @if($loan->end_date)
             <div class="row mb-2">
-              <div class="col-sm-5 fw-bold">End Date</div>
+              <div class="col-sm-5 fw-bold">{{ __('End Date') }}</div>
               <div class="col-sm-7">
                 {{ \Carbon\Carbon::parse($loan->end_date)->format('Y-m-d') }}
                 @if($isOverdue)
@@ -221,14 +221,14 @@
 
           @if($loan->return_date)
             <div class="row mb-2">
-              <div class="col-sm-5 fw-bold">Return Date</div>
+              <div class="col-sm-5 fw-bold">{{ __('Return Date') }}</div>
               <div class="col-sm-7">{{ \Carbon\Carbon::parse($loan->return_date)->format('Y-m-d') }}</div>
             </div>
           @endif
 
           @if($loan->approved_date)
             <div class="row mb-2">
-              <div class="col-sm-5 fw-bold">Approved Date</div>
+              <div class="col-sm-5 fw-bold">{{ __('Approved Date') }}</div>
               <div class="col-sm-7">{{ \Carbon\Carbon::parse($loan->approved_date)->format('Y-m-d H:i') }}</div>
             </div>
           @endif
@@ -238,34 +238,34 @@
           <h6 class="border-bottom pb-2 mb-3">{{ __('Partner Information') }}</h6>
 
           <div class="row mb-2">
-            <div class="col-sm-5 fw-bold">Institution</div>
+            <div class="col-sm-5 fw-bold">{{ __('Institution') }}</div>
             <div class="col-sm-7">{{ $loan->partner_institution }}</div>
           </div>
 
           @if($loan->partner_contact_name)
             <div class="row mb-2">
-              <div class="col-sm-5 fw-bold">Contact Name</div>
+              <div class="col-sm-5 fw-bold">{{ __('Contact Name') }}</div>
               <div class="col-sm-7">{{ $loan->partner_contact_name }}</div>
             </div>
           @endif
 
           @if($loan->partner_contact_email)
             <div class="row mb-2">
-              <div class="col-sm-5 fw-bold">Contact Email</div>
+              <div class="col-sm-5 fw-bold">{{ __('Contact Email') }}</div>
               <div class="col-sm-7"><a href="mailto:{{ $loan->partner_contact_email }}">{{ $loan->partner_contact_email }}</a></div>
             </div>
           @endif
 
           @if($loan->partner_contact_phone)
             <div class="row mb-2">
-              <div class="col-sm-5 fw-bold">Contact Phone</div>
+              <div class="col-sm-5 fw-bold">{{ __('Contact Phone') }}</div>
               <div class="col-sm-7">{{ $loan->partner_contact_phone }}</div>
             </div>
           @endif
 
           @if($loan->partner_address)
             <div class="row mb-2">
-              <div class="col-sm-5 fw-bold">Address</div>
+              <div class="col-sm-5 fw-bold">{{ __('Address') }}</div>
               <div class="col-sm-7">{!! nl2br(e($loan->partner_address)) !!}</div>
             </div>
           @endif
@@ -274,35 +274,35 @@
 
           @if($loan->insurance_type)
             <div class="row mb-2">
-              <div class="col-sm-5 fw-bold">Insurance Type</div>
+              <div class="col-sm-5 fw-bold">{{ __('Insurance Type') }}</div>
               <div class="col-sm-7">{{ ucfirst(str_replace('_', ' ', $loan->insurance_type)) }}</div>
             </div>
           @endif
 
           @if($loan->insurance_value)
             <div class="row mb-2">
-              <div class="col-sm-5 fw-bold">Insurance Value</div>
+              <div class="col-sm-5 fw-bold">{{ __('Insurance Value') }}</div>
               <div class="col-sm-7">{{ $loan->insurance_currency ?? 'ZAR' }} {{ number_format($loan->insurance_value, 2) }}</div>
             </div>
           @endif
 
           @if($loan->insurance_policy_number)
             <div class="row mb-2">
-              <div class="col-sm-5 fw-bold">Policy Number</div>
+              <div class="col-sm-5 fw-bold">{{ __('Policy Number') }}</div>
               <div class="col-sm-7">{{ $loan->insurance_policy_number }}</div>
             </div>
           @endif
 
           @if($loan->insurance_provider)
             <div class="row mb-2">
-              <div class="col-sm-5 fw-bold">Insurance Provider</div>
+              <div class="col-sm-5 fw-bold">{{ __('Insurance Provider') }}</div>
               <div class="col-sm-7">{{ $loan->insurance_provider }}</div>
             </div>
           @endif
 
           @if($loan->loan_fee)
             <div class="row mb-2">
-              <div class="col-sm-5 fw-bold">Loan Fee</div>
+              <div class="col-sm-5 fw-bold">{{ __('Loan Fee') }}</div>
               <div class="col-sm-7">{{ $loan->loan_fee_currency ?? 'ZAR' }} {{ number_format($loan->loan_fee, 2) }}</div>
             </div>
           @endif
@@ -695,7 +695,7 @@
             </tbody>
             <tfoot>
               <tr class="table-secondary fw-bold">
-                <td colspan="2">Total</td>
+                <td colspan="2">{{ __('Total') }}</td>
                 <td>ZAR {{ number_format($totalCost, 2) }}</td>
                 <td colspan="4"></td>
               </tr>
@@ -745,7 +745,7 @@
           @endforeach
         </div>
       @else
-        <p class="text-muted mb-0">No status history recorded.</p>
+        <p class="text-muted mb-0">{{ __('No status history recorded.') }}</p>
       @endif
     </div>
   </div>
@@ -763,7 +763,7 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label for="transition-comment" class="form-label">Comment (optional) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="transition-comment" class="form-label">{{ __('Comment (optional)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea name="comment" id="transition-comment" class="form-control" rows="3" placeholder="{{ __('Reason for status change...') }}"></textarea>
             </div>
           </div>
@@ -788,12 +788,12 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label for="extend-date" class="form-label">New End Date <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label for="extend-date" class="form-label">{{ __('New End Date') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="date" name="new_end_date" id="extend-date" class="form-control" required
                      value="{{ $loan->end_date ? \Carbon\Carbon::parse($loan->end_date)->addMonths(3)->format('Y-m-d') : '' }}">
             </div>
             <div class="mb-3">
-              <label for="extend-reason" class="form-label">Reason <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label for="extend-reason" class="form-label">{{ __('Reason') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <textarea name="reason" id="extend-reason" class="form-control" rows="3" required placeholder="{{ __('Reason for extension...') }}"></textarea>
             </div>
           </div>
@@ -818,12 +818,12 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label for="return-date" class="form-label">Return Date <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label for="return-date" class="form-label">{{ __('Return Date') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="date" name="return_date" id="return-date" class="form-control" required
                      value="{{ now()->format('Y-m-d') }}">
             </div>
             <div class="mb-3">
-              <label for="return-notes" class="form-label">Notes <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="return-notes" class="form-label">{{ __('Notes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <textarea name="notes" id="return-notes" class="form-control" rows="3" placeholder="{{ __('Return notes...') }}"></textarea>
             </div>
           </div>

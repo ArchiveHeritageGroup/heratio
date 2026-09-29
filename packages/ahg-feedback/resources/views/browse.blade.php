@@ -21,17 +21,17 @@
         <div class="list-group list-group-flush">
           <a href="{{ route('feedback.browse', array_merge(request()->except('status', 'page'), ['status' => 'all'])) }}"
              class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $status === 'all' ? 'active' : '' }}">
-            All Feedback
+            {{ __('All Feedback') }}
             <span class="badge bg-secondary rounded-pill">{{ $totalCount }}</span>
           </a>
           <a href="{{ route('feedback.browse', array_merge(request()->except('status', 'page'), ['status' => 'pending'])) }}"
              class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $status === 'pending' ? 'active' : '' }}">
-            Pending
+            {{ __('Pending') }}
             <span class="badge bg-warning text-dark rounded-pill">{{ $pendingCount }}</span>
           </a>
           <a href="{{ route('feedback.browse', array_merge(request()->except('status', 'page'), ['status' => 'completed'])) }}"
              class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {{ $status === 'completed' ? 'active' : '' }}">
-            Completed
+            {{ __('Completed') }}
             <span class="badge bg-success rounded-pill">{{ $completedCount }}</span>
           </a>
         </div>
@@ -50,19 +50,19 @@
           <span class="btn atom-btn-white disabled">{{ __('Sort by:') }}</span>
           <a href="{{ route('feedback.browse', array_merge(request()->except('sort', 'page'), ['sort' => 'nameUp'])) }}"
              class="btn atom-btn-white {{ $sort === 'nameUp' ? 'active' : '' }}">
-            Name <i class="fas fa-arrow-up"></i>
+            {{ __('Name') }} <i class="fas fa-arrow-up"></i>
           </a>
           <a href="{{ route('feedback.browse', array_merge(request()->except('sort', 'page'), ['sort' => 'nameDown'])) }}"
              class="btn atom-btn-white {{ $sort === 'nameDown' ? 'active' : '' }}">
-            Name <i class="fas fa-arrow-down"></i>
+            {{ __('Name') }} <i class="fas fa-arrow-down"></i>
           </a>
           <a href="{{ route('feedback.browse', array_merge(request()->except('sort', 'page'), ['sort' => 'dateUp'])) }}"
              class="btn atom-btn-white {{ $sort === 'dateUp' ? 'active' : '' }}">
-            Date <i class="fas fa-arrow-up"></i>
+            {{ __('Date') }} <i class="fas fa-arrow-up"></i>
           </a>
           <a href="{{ route('feedback.browse', array_merge(request()->except('sort', 'page'), ['sort' => 'dateDown'])) }}"
              class="btn atom-btn-white {{ $sort === 'dateDown' ? 'active' : '' }}">
-            Date <i class="fas fa-arrow-down"></i>
+            {{ __('Date') }} <i class="fas fa-arrow-down"></i>
           </a>
         </div>
       </div>

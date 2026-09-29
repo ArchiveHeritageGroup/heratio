@@ -41,7 +41,7 @@
                       <input class="form-check-input" type="radio" name="publish_{{ $loop->index }}" value="yes" {{ ($item->publish ?? '') === 'Yes' ? 'checked' : '' }}> {{ __('Yes') }}
                     </div>
                     <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="publish_{{ $loop->index }}" value="no" {{ ($item->publish ?? '') === 'No' ? 'checked' : '' }}> No
+                      <input class="form-check-input" type="radio" name="publish_{{ $loop->index }}" value="no" {{ ($item->publish ?? '') === 'No' ? 'checked' : '' }}> {{ __('No') }}
                     </div>
                   </td>
                   <td>{{ ($item->restriction ?? 'Please Select') === 'Please Select' ? '-' : $item->restriction }}</td>

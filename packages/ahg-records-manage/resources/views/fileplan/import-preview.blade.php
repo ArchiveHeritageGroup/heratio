@@ -49,7 +49,7 @@
 @endif
 
 <div class="card mb-3">
-    <div class="card-header">Preview Tree (first 50 nodes)</div>
+    <div class="card-header">{{ __('Preview Tree (first 50 nodes)') }}</div>
     <div class="card-body">
         @if(empty($previewNodes))
             <p class="text-muted">{{ __('No nodes to preview.') }}</p>

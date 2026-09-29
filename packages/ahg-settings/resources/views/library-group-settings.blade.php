@@ -15,7 +15,7 @@
 
 @section('title-block')
 <h1><i class="fas fa-book me-2"></i>{{ __('Library Settings') }}</h1>
-<p class="text-muted">Loan rules, circulation, fines, patron defaults, OPAC, ISBN providers</p>
+<p class="text-muted">{{ __('Loan rules, circulation, fines, patron defaults, OPAC, ISBN providers') }}</p>
 @endsection
 
 @section('content')
@@ -61,7 +61,7 @@
                      {{ ($settings['library_auto_fine'] ?? 'true') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="library_auto_fine">{{ __('Auto-generate daily overdue fines') }}</label>
             </div>
-            <div class="form-text">When enabled, library:process-fines cron creates daily fine entries for overdue items.</div>
+            <div class="form-text">{{ __('When enabled, library:process-fines cron creates daily fine entries for overdue items.') }}</div>
           </div>
           <div class="col-md-6 mb-3">
             <div class="form-check form-switch">
@@ -132,7 +132,7 @@
                      name="settings[library_patron_fine_threshold]"
                      value="{{ $settings['library_patron_fine_threshold'] ?? '50.00' }}" min="0" step="0.01">
             </div>
-            <div class="form-text">Patrons with outstanding fines above this amount cannot borrow.</div>
+            <div class="form-text">{{ __('Patrons with outstanding fines above this amount cannot borrow.') }}</div>
           </div>
           <div class="col-md-4 mb-3">
             <label for="library_patron_default_type" class="form-label">{{ __('Default Patron Type') }}</label>
@@ -241,7 +241,7 @@
     <div class="card mb-4">
       <div class="card-header"><h5 class="mb-0"><i class="fas fa-barcode me-2"></i>{{ __('ISBN Providers') }}</h5></div>
       <div class="card-body">
-        <p class="text-muted mb-3">Manage ISBN lookup providers (Open Library, Google Books, WorldCat) for automatic metadata retrieval.</p>
+        <p class="text-muted mb-3">{{ __('Manage ISBN lookup providers (Open Library, Google Books, WorldCat) for automatic metadata retrieval.') }}</p>
         @if(\Route::has('library.isbn-providers'))
         <a href="{{ route('library.isbn-providers') }}" class="btn btn-outline-primary">
           <i class="fas fa-external-link-alt me-1"></i>{{ __('Manage ISBN Providers') }}

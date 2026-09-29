@@ -16,7 +16,7 @@
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item active">Authority Dashboard</li>
+    <li class="breadcrumb-item active">{{ __('Authority Dashboard') }}</li>
   </ol>
 </nav>
 
@@ -89,7 +89,7 @@
       </div>
       <div class="card-body">
         @if (empty($identifierStats))
-          <p class="text-muted">No external identifiers recorded yet.</p>
+          <p class="text-muted">{{ __('No external identifiers recorded yet.') }}</p>
         @else
           <table class="table table-sm">
             <thead>

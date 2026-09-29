@@ -22,23 +22,23 @@
   <div class="d-flex flex-wrap gap-2 mb-3">
     <a href="{{ route('ric.queue', ['status' => 'all']) }}"
        class="btn btn-sm {{ $tab === 'all' ? 'atom-btn-white' : 'atom-btn-white' }}">
-      All <span class="badge bg-light text-dark ms-1">{{ $counts['all'] ?? 0 }}</span>
+      {{ __('All') }} <span class="badge bg-light text-dark ms-1">{{ $counts['all'] ?? 0 }}</span>
     </a>
     <a href="{{ route('ric.queue', ['status' => 'queued']) }}"
        class="btn btn-sm {{ $tab === 'queued' ? 'atom-btn-white' : 'atom-btn-white' }}">
-      Queued <span class="badge bg-light text-dark ms-1">{{ $counts['queued'] ?? 0 }}</span>
+      {{ __('Queued') }} <span class="badge bg-light text-dark ms-1">{{ $counts['queued'] ?? 0 }}</span>
     </a>
     <a href="{{ route('ric.queue', ['status' => 'processing']) }}"
        class="btn btn-sm {{ $tab === 'processing' ? 'atom-btn-white' : 'atom-btn-white' }}">
-      Processing <span class="badge bg-light text-dark ms-1">{{ $counts['processing'] ?? 0 }}</span>
+      {{ __('Processing') }} <span class="badge bg-light text-dark ms-1">{{ $counts['processing'] ?? 0 }}</span>
     </a>
     <a href="{{ route('ric.queue', ['status' => 'completed']) }}"
        class="btn btn-sm {{ $tab === 'completed' ? 'atom-btn-outline-success' : 'atom-btn-outline-success' }}">
-      Completed <span class="badge bg-light text-dark ms-1">{{ $counts['completed'] ?? 0 }}</span>
+      {{ __('Completed') }} <span class="badge bg-light text-dark ms-1">{{ $counts['completed'] ?? 0 }}</span>
     </a>
     <a href="{{ route('ric.queue', ['status' => 'failed']) }}"
        class="btn btn-sm {{ $tab === 'failed' ? 'atom-btn-outline-danger' : 'atom-btn-outline-danger' }}">
-      Failed <span class="badge bg-light text-dark ms-1">{{ $counts['failed'] ?? 0 }}</span>
+      {{ __('Failed') }} <span class="badge bg-light text-dark ms-1">{{ $counts['failed'] ?? 0 }}</span>
     </a>
   </div>
 

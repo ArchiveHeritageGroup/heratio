@@ -49,7 +49,7 @@
             <div class="card bg-secondary text-white">
                 <div class="card-body">
                     <h4>{{ $stats['submissions_30_days'] ?? 0 }}</h4>
-                    <p class="mb-0">Submissions (30 days)</p>
+                    <p class="mb-0">{{ __('Submissions (30 days)') }}</p>
                 </div>
             </div>
         </div>
@@ -95,7 +95,7 @@
             @if($templates->isEmpty())
                 <div class="p-4 text-center text-muted">
                     <i class="fas fa-inbox fa-3x mb-3"></i>
-                    <p>No form templates found. Create one or import from the library.</p>
+                    <p>{{ __('No form templates found. Create one or import from the library.') }}</p>
                 </div>
             @else
                 <table class="table table-hover mb-0">

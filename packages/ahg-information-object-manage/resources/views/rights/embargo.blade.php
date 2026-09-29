@@ -41,7 +41,7 @@
           <div class="form-check">
             <input class="form-check-input" type="checkbox" name="is_perpetual" value="1" id="is_perpetual">
             <label class="form-check-label" for="is_perpetual">
-              Perpetual (no end date)
+              {{ __('Perpetual (no end date)') }}
              <span class="badge bg-secondary ms-1">{{ __('Recommended') }}</span></label>
           </div>
         </div>
@@ -81,7 +81,7 @@
             <span class="badge bg-info ms-2">{{ $descendantCount }} {{ $descendantCount === 1 ? 'record' : 'records' }}</span>
           </label>
           <div class="form-text text-muted">
-            This will create the same embargo on all child records below this item in the hierarchy.
+            {{ __('This will create the same embargo on all child records below this item in the hierarchy.') }}
           </div>
         </div>
         <div class="alert alert-warning mb-0" id="propagation-warning" style="display: none;">

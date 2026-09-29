@@ -15,7 +15,7 @@
   <p class="text-muted">Gate rules define the criteria an object must meet before it can be published. Blockers prevent publishing; warnings are advisory.</p>
 
   @if(count($rules) === 0)
-    <div class="alert alert-info">No gate rules configured. Create rules to define publish readiness criteria.</div>
+    <div class="alert alert-info">{{ __('No gate rules configured. Create rules to define publish readiness criteria.') }}</div>
   @else
     <div class="card">
       <div class="card-body p-0">

@@ -11,7 +11,7 @@
           <h3 class="mb-0"><i class="fas fa-lock"></i> {{ __('Access Denied') }}</h3>
         </div>
         <div class="card-body text-center">
-          <p class="lead">You do not have sufficient security clearance to access this resource.</p>
+          <p class="lead">{{ __('You do not have sufficient security clearance to access this resource.') }}</p>
 
           @if(!empty($reason))
             <div class="alert alert-warning">

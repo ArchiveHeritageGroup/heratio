@@ -8,12 +8,12 @@
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
-      <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
+      <a href="{{ route('actor.dashboard') }}">{{ __('Authority Dashboard') }}</a>
     </li>
     <li class="breadcrumb-item">
-      <a href="{{ route('actor.dedup') }}">Deduplication</a>
+      <a href="{{ route('actor.dedup') }}">{{ __('Deduplication') }}</a>
     </li>
-    <li class="breadcrumb-item active">Scan Results</li>
+    <li class="breadcrumb-item active">{{ __('Scan Results') }}</li>
   </ol>
 </nav>
 
@@ -40,7 +40,7 @@
       </thead>
       <tbody>
         @if (empty($pairs))
-          <tr><td colspan="5" class="text-center text-muted py-4">No duplicates found above the threshold.</td></tr>
+          <tr><td colspan="5" class="text-center text-muted py-4">{{ __('No duplicates found above the threshold.') }}</td></tr>
         @else
           @foreach ($pairs as $pair)
             @php

@@ -16,8 +16,8 @@
 
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ url('/admin') }}">Admin</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('ingest.index') }}">Ingestion Manager</a></li>
+        <li class="breadcrumb-item"><a href="{{ url('/admin') }}">{{ __('Admin') }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('ingest.index') }}">{{ __('Ingestion Manager') }}</a></li>
         <li class="breadcrumb-item active">{{ $session ? 'Edit Configuration' : 'New Ingest' }}</li>
     </ol>
 </nav>
@@ -60,17 +60,17 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Record Type <span class="text-danger">*</span></label>
+                        <label class="form-label">{{ __('Record Type') }} <span class="text-danger">*</span></label>
                         <div class="btn-group w-100" role="group">
                             <input type="radio" class="btn-check" name="entity_type" id="entity_type_description"
                                    value="description" @checked($entityTypeVal === 'description')>
                             <label class="btn btn-outline-primary" for="entity_type_description">
-                                <i class="fas fa-archive me-1"></i>Archival Descriptions
+                                <i class="fas fa-archive me-1"></i>{{ __('Archival Descriptions') }}
                             </label>
                             <input type="radio" class="btn-check" name="entity_type" id="entity_type_accession"
                                    value="accession" @checked($entityTypeVal === 'accession')>
                             <label class="btn btn-outline-primary" for="entity_type_accession">
-                                <i class="fas fa-clipboard-list me-1"></i>Accessions
+                                <i class="fas fa-clipboard-list me-1"></i>{{ __('Accessions') }}
                             </label>
                         </div>
                         <small class="text-muted">{{ __('Choose whether to import archival descriptions or accession records') }}</small>
@@ -78,7 +78,7 @@
 
                     <div class="row" id="sector-standard-row">
                         <div class="col-md-6 mb-3">
-                            <label for="sector" class="form-label">Sector <span class="text-danger">*</span></label>
+                            <label for="sector" class="form-label">{{ __('Sector') }} <span class="text-danger">*</span></label>
                             <select class="form-select" id="sector" name="sector">
                                 @foreach(['archive' => 'Archive', 'museum' => 'Museum', 'library' => 'Library', 'gallery' => 'Gallery', 'dam' => 'DAM'] as $val => $label)
                                     <option value="{{ $val }}" @selected($sectorVal === $val)>{{ $label }}</option>
@@ -86,7 +86,7 @@
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="standard" class="form-label">Descriptive Standard <span class="text-danger">*</span></label>
+                            <label for="standard" class="form-label">{{ __('Descriptive Standard') }} <span class="text-danger">*</span></label>
                             <select class="form-select" id="standard" name="standard">
                                 @foreach([
                                     'isadg' => ['label' => 'ISAD(G)', 'sectors' => 'archive,library'],
@@ -214,7 +214,7 @@
                 <div class="col-md-3 mb-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="process_virus_scan" name="process_virus_scan" value="1" @checked($session->process_virus_scan ?? true)>
-                        <label class="form-check-label" for="process_virus_scan"><i class="fas fa-shield-virus text-danger me-1"></i>Virus Scan</label>
+                        <label class="form-check-label" for="process_virus_scan"><i class="fas fa-shield-virus text-danger me-1"></i>{{ __('Virus Scan') }}</label>
                     </div>
                     <small class="text-muted d-block ms-4">{{ __('ClamAV malware scan') }}</small>
                 </div>
@@ -241,7 +241,7 @@
                 <div class="col-md-3 mb-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="process_summarize" name="process_summarize" value="1" @checked($session->process_summarize ?? false)>
-                        <label class="form-check-label" for="process_summarize"><i class="fas fa-compress-alt text-warning me-1"></i>Summarize</label>
+                        <label class="form-check-label" for="process_summarize"><i class="fas fa-compress-alt text-warning me-1"></i>{{ __('Summarize') }}</label>
                     </div>
                     <small class="text-muted d-block ms-4">{{ __('Auto-generate summaries') }}</small>
                 </div>
@@ -250,7 +250,7 @@
                 <div class="col-md-3 mb-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="process_spellcheck" name="process_spellcheck" value="1" @checked($session->process_spellcheck ?? false)>
-                        <label class="form-check-label" for="process_spellcheck"><i class="fas fa-spell-check text-info me-1"></i>Spell Check</label>
+                        <label class="form-check-label" for="process_spellcheck"><i class="fas fa-spell-check text-info me-1"></i>{{ __('Spell Check') }}</label>
                     </div>
                     <small class="text-muted d-block ms-4">aspell grammar check</small>
                 </div>
@@ -259,7 +259,7 @@
                 <div class="col-md-3 mb-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="process_format_id" name="process_format_id" value="1" @checked($session->process_format_id ?? false)>
-                        <label class="form-check-label" for="process_format_id"><i class="fas fa-fingerprint text-secondary me-1"></i>Format ID</label>
+                        <label class="form-check-label" for="process_format_id"><i class="fas fa-fingerprint text-secondary me-1"></i>{{ __('Format ID') }}</label>
                     </div>
                     <small class="text-muted d-block ms-4">{{ __('Siegfried PRONOM identification') }}</small>
                 </div>
@@ -268,7 +268,7 @@
                 <div class="col-md-3 mb-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="process_face_detect" name="process_face_detect" value="1" @checked($session->process_face_detect ?? false)>
-                        <label class="form-check-label" for="process_face_detect"><i class="fas fa-user-circle text-dark me-1"></i>Face Detection</label>
+                        <label class="form-check-label" for="process_face_detect"><i class="fas fa-user-circle text-dark me-1"></i>{{ __('Face Detection') }}</label>
                     </div>
                     <small class="text-muted d-block ms-4">{{ __('Detect & match faces') }}</small>
                 </div>
@@ -284,7 +284,7 @@
                 <div class="col-md-3 mb-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="process_translate" name="process_translate" value="1" @checked($session->process_translate ?? false)>
-                        <label class="form-check-label" for="process_translate"><i class="fas fa-language text-primary me-1"></i>Translate</label>
+                        <label class="form-check-label" for="process_translate"><i class="fas fa-language text-primary me-1"></i>{{ __('Translate') }}</label>
                     </div>
                     <small class="text-muted d-block ms-4">{{ __('Argos offline translation') }}</small>
                 </div>
@@ -299,7 +299,7 @@
             <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Dashboard') }}
         </a>
         <button type="submit" class="btn atom-btn-white">
-            Next: Upload Files <i class="fas fa-arrow-right ms-1"></i>
+            {{ __('Next: Upload Files') }} <i class="fas fa-arrow-right ms-1"></i>
         </button>
     </div>
 </form>

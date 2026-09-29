@@ -43,7 +43,7 @@
           <div class="card mb-4">
             <div class="card-header"><i class="fas fa-paper-plane me-2"></i>{{ __('Test Email') }}</div>
             <div class="card-body">
-              <p class="small text-muted">Save settings first, then send a test email to verify configuration.</p>
+              <p class="small text-muted">{{ __('Save settings first, then send a test email to verify configuration.') }}</p>
               <div class="input-group">
                 <input type="email" name="test_email" class="form-control" placeholder="{{ __('test@example.com') }}" id="testEmailInput">
                 <button type="button" class="btn atom-btn-white" id="btnSendTest">
@@ -126,7 +126,7 @@
             <small class="text-muted">{{ __('Send email alerts when unhandled exceptions occur.') }}</small>
           </div>
           <div class="mb-3">
-            <label class="form-label">Throttle TTL (seconds) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Throttle TTL (seconds)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="number" name="error_alert[error_alert_throttle_ttl]" class="form-control" min="30" max="86400"
                    value="{{ e($errorAlertSettings['error_alert_throttle_ttl'] ?? '300') }}">
             <small class="text-muted">{{ __('Minimum seconds between duplicate error alerts. Default: 300 (5 min).') }}</small>

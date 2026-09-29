@@ -9,7 +9,7 @@
     <span class="badge bg-primary">IFLA FRBR</span>
   </div>
   <p class="text-muted small mb-4">
-    Export a bibliographic work as FRBR XML. Select a work, choose a format, and download the file.
+    {{ __('Export a bibliographic work as FRBR XML. Select a work, choose a format, and download the file.') }}
   </p>
 
   <div class="row">

@@ -46,9 +46,9 @@
                             <label class="form-label">{{ __('Tier') }} <span class="text-danger">*</span></label>
                             <select name="tier" class="form-select" required>
                                 <option value="">{{ __('Select...') }}</option>
-                                <option value="tier1" {{ ($license->tier ?? '') === 'tier1' ? 'selected' : '' }}>Tier 1 - Small Scale</option>
-                                <option value="tier2" {{ ($license->tier ?? '') === 'tier2' ? 'selected' : '' }}>Tier 2 - Medium Scale</option>
-                                <option value="tier3" {{ ($license->tier ?? '') === 'tier3' ? 'selected' : '' }}>Tier 3 - Large Scale</option>
+                                <option value="tier1" {{ ($license->tier ?? '') === 'tier1' ? 'selected' : '' }}>{{ __('Tier 1 - Small Scale') }}</option>
+                                <option value="tier2" {{ ($license->tier ?? '') === 'tier2' ? 'selected' : '' }}>{{ __('Tier 2 - Medium Scale') }}</option>
+                                <option value="tier3" {{ ($license->tier ?? '') === 'tier3' ? 'selected' : '' }}>{{ __('Tier 3 - Large Scale') }}</option>
                             </select>
                         </div>
                         <div class="col-12">

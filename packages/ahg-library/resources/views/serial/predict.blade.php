@@ -40,7 +40,7 @@
             <div class="card text-center">
                 <div class="card-body">
                     <h3 class="mb-1">{{ count($predictions ?? []) }}</h3>
-                    <p class="text-muted mb-0 small">Predictions shown (6-month window)</p>
+                    <p class="text-muted mb-0 small">{{ __('Predictions shown (6-month window)') }}</p>
                 </div>
             </div>
         </div>
@@ -83,7 +83,7 @@
                     @empty
                         <tr>
                             <td colspan="5" class="text-muted text-center py-4">
-                                No predictions available. Add at least one received issue to generate predictions.
+                                {{ __('No predictions available. Add at least one received issue to generate predictions.') }}
                             </td>
                         </tr>
                     @endforelse

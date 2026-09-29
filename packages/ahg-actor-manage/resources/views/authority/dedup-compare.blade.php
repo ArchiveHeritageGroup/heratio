@@ -14,19 +14,19 @@
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
-      <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
+      <a href="{{ route('actor.dashboard') }}">{{ __('Authority Dashboard') }}</a>
     </li>
     <li class="breadcrumb-item">
-      <a href="{{ route('actor.dedup') }}">Deduplication</a>
+      <a href="{{ route('actor.dedup') }}">{{ __('Deduplication') }}</a>
     </li>
-    <li class="breadcrumb-item active">Compare</li>
+    <li class="breadcrumb-item active">{{ __('Compare') }}</li>
   </ol>
 </nav>
 
 <h1 class="mb-4"><i class="fas fa-columns me-2"></i>{{ __('Compare Authority Records') }}</h1>
 
 @if (!$primary || !$secondary)
-  <div class="alert alert-warning">Could not load both records for comparison.</div>
+  <div class="alert alert-warning">{{ __('Could not load both records for comparison.') }}</div>
 @else
 
   <div class="card mb-3">
@@ -110,7 +110,7 @@
       <i class="fas fa-compress-arrows-alt me-1"></i>{{ __('Merge into Primary') }}
     </a>
     <a href="{{ route('actor.dedup') }}" class="btn atom-btn-white">
-      Back to Dedup
+      {{ __('Back to Dedup') }}
     </a>
   </div>
 

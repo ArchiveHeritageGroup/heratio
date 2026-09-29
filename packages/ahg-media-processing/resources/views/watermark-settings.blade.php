@@ -10,7 +10,7 @@
       <i class="fas fa-arrow-left"></i> {{ __('Back to Media Processing') }}
     </a>
   </div>
-  <p class="text-muted mb-4">Configure watermark application for digital object derivatives and downloads.</p>
+  <p class="text-muted mb-4">{{ __('Configure watermark application for digital object derivatives and downloads.') }}</p>
 
   @if(session('error'))
     <div class="alert alert-danger alert-dismissible fade show">
@@ -62,7 +62,7 @@
                     name="apply_watermark_on_view" value="1"
                     {{ ($settings['apply_watermark_on_view'] ?? '1') === '1' ? 'checked' : '' }}>
                   <label class="form-check-label" for="apply_watermark_on_view">
-                    Apply watermark on view (IIIF) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                    {{ __('Apply watermark on view (IIIF)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                   </label>
                 </div>
               </div>
@@ -95,10 +95,10 @@
                 <div class="form-text">{{ __('Watermark type applied when no per-object setting exists') }}</div>
               </div>
               <div class="col-md-6">
-                <label for="watermark_min_size" class="form-label">Minimum Image Size (px) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label for="watermark_min_size" class="form-label">{{ __('Minimum Image Size (px)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="number" class="form-control" id="watermark_min_size" name="watermark_min_size"
                   value="{{ $settings['watermark_min_size'] ?? '200' }}" min="50" max="2000">
-                <div class="form-text">Images smaller than this dimension (width or height) will not be watermarked</div>
+                <div class="form-text">{{ __('Images smaller than this dimension (width or height) will not be watermarked') }}</div>
               </div>
             </div>
 
@@ -114,7 +114,7 @@
                   </option>
                 @endforeach
               </select>
-              <div class="form-text">Override the system watermark type with a custom uploaded watermark</div>
+              <div class="form-text">{{ __('Override the system watermark type with a custom uploaded watermark') }}</div>
             </div>
             @endif
 
@@ -147,7 +147,7 @@
                 <div class="col-4"><span class="badge bg-secondary w-100 py-2">{{ __('Bottom Right') }}<br><small>{{ __('SouthEast') }}</small></span></div>
               </div>
               <div class="text-center mt-2">
-                <span class="badge bg-info w-100 py-2">Repeat (Tile)<br><small>{{ __('Covers entire image') }}</small></span>
+                <span class="badge bg-info w-100 py-2">{{ __('Repeat (Tile)') }}<br><small>{{ __('Covers entire image') }}</small></span>
               </div>
             </div>
           </div>
@@ -176,7 +176,7 @@
               <label for="custom_watermark_file" class="form-label">{{ __('Watermark Image') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <input type="file" class="form-control" id="custom_watermark_file"
                 name="custom_watermark_file" required accept="image/png,image/jpeg,image/gif">
-              <div class="form-text">PNG, JPEG, or GIF. Max 5 MB. Transparent PNG recommended.</div>
+              <div class="form-text">{{ __('PNG, JPEG, or GIF. Max 5 MB. Transparent PNG recommended.') }}</div>
             </div>
 
             <div class="mb-3">

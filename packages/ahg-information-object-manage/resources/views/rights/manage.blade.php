@@ -410,7 +410,7 @@
               </div>
             </div>
             <hr>
-            <p class="text-muted">Update the current embargo fields below, or lift it above and create a new one:</p>
+            <p class="text-muted">{{ __('Update the current embargo fields below, or lift it above and create a new one:') }}</p>
           @endif
 
           <div class="row">

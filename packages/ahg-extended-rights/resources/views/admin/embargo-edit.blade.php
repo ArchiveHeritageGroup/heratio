@@ -27,7 +27,7 @@
           </div>
           <div class="card-body">
             <div class="mb-3">
-              <label class="form-label">Information Object ID <span class="text-danger">*</span></label>
+              <label class="form-label">{{ __('Information Object ID') }} <span class="text-danger">*</span></label>
               <input type="number" name="object_id" class="form-control" required
                      value="{{ old('object_id', $embargo->object_id ?? request('object_id', '')) }}"
                      {{ isset($embargo) ? 'readonly' : '' }}>
@@ -44,7 +44,7 @@
           <div class="card-body">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Embargo Type <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Embargo Type') }} <span class="text-danger">*</span></label>
                 <select name="embargo_type" class="form-select" required>
                   @foreach($formOptions['embargo_type_options'] as $value => $label)
                   <option value="{{ $value }}" {{ (old('embargo_type', $embargo->embargo_type ?? 'full')) === $value ? 'selected' : '' }}>
@@ -54,7 +54,7 @@
                 </select>
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Reason <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Reason') }} <span class="text-danger">*</span></label>
                 <select name="reason" class="form-select" required>
                   @foreach($formOptions['embargo_reason_options'] as $value => $label)
                   <option value="{{ $value }}" {{ (old('reason', $embargo->reason ?? '')) === $value ? 'selected' : '' }}>
@@ -67,7 +67,7 @@
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Start Date <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Start Date') }} <span class="text-danger">*</span></label>
                 <input type="date" name="start_date" class="form-control" required
                        value="{{ old('start_date', $embargo->start_date ?? date('Y-m-d')) }}">
               </div>
@@ -84,7 +84,7 @@
                 <input type="checkbox" name="auto_release" class="form-check-input" id="auto_release" value="1"
                        {{ old('auto_release', $embargo->auto_release ?? 1) ? 'checked' : '' }}>
                 <label class="form-check-label" for="auto_release">
-                  Automatically lift embargo when end date is reached
+                  {{ __('Automatically lift embargo when end date is reached') }}
                 </label>
               </div>
             </div>
@@ -182,17 +182,17 @@
           </div>
           <div class="card-body">
             <dl class="mb-0">
-              <dt>Full</dt>
-              <dd class="text-muted small">Complete restriction - no access to metadata or digital objects</dd>
+              <dt>{{ __('Full') }}</dt>
+              <dd class="text-muted small">{{ __('Complete restriction - no access to metadata or digital objects') }}</dd>
 
-              <dt>Metadata Only</dt>
-              <dd class="text-muted small">Metadata visible, digital objects hidden</dd>
+              <dt>{{ __('Metadata Only') }}</dt>
+              <dd class="text-muted small">{{ __('Metadata visible, digital objects hidden') }}</dd>
 
-              <dt>Digital Only</dt>
-              <dd class="text-muted small">Digital objects hidden, metadata visible</dd>
+              <dt>{{ __('Digital Only') }}</dt>
+              <dd class="text-muted small">{{ __('Digital objects hidden, metadata visible') }}</dd>
 
-              <dt>Partial</dt>
-              <dd class="text-muted small mb-0">Custom restrictions based on user roles</dd>
+              <dt>{{ __('Partial') }}</dt>
+              <dd class="text-muted small mb-0">{{ __('Custom restrictions based on user roles') }}</dd>
             </dl>
           </div>
         </div>
@@ -200,7 +200,7 @@
     </div>
 
     <section class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
-      <a href="{{ route('ext-rights-admin.embargoes') }}" class="btn atom-btn-outline-light">Cancel</a>
+      <a href="{{ route('ext-rights-admin.embargoes') }}" class="btn atom-btn-outline-light">{{ __('Cancel') }}</a>
       <button type="submit" class="btn atom-btn-outline-light">
         <i class="fas fa-save me-1"></i>{{ __('Save Embargo') }}
       </button>

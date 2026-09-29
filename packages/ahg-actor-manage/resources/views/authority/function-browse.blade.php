@@ -8,9 +8,9 @@
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
-      <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
+      <a href="{{ route('actor.dashboard') }}">{{ __('Authority Dashboard') }}</a>
     </li>
-    <li class="breadcrumb-item active">Functions Browse</li>
+    <li class="breadcrumb-item active">{{ __('Functions Browse') }}</li>
   </ol>
 </nav>
 
@@ -31,7 +31,7 @@
       </thead>
       <tbody>
         @if (empty($functions))
-          <tr><td colspan="3" class="text-center text-muted py-3">No ISDF functions found.</td></tr>
+          <tr><td colspan="3" class="text-center text-muted py-3">{{ __('No ISDF functions found.') }}</td></tr>
         @else
           @foreach ($functions as $func)
             <tr>

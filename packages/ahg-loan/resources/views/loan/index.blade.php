@@ -23,7 +23,7 @@
               <li class="breadcrumb-item"><a href="/{{ $__bcSlug }}">{{ \Illuminate\Support\Str::limit($__bcTitle ?? $__bcSlug, 40) }}</a></li>
             @endif
           @endif
-          <li class="breadcrumb-item active" aria-current="page">Loans</li>
+          <li class="breadcrumb-item active" aria-current="page">{{ __('Loans') }}</li>
         </ol>
       </nav>
 
@@ -93,7 +93,7 @@
             {{-- Filter + Clear buttons --}}
             <div class="col-auto">
               <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-filter me-1"></i>{{ __('Filter') }}</button>
-              <a href="{{ route('loan.index', array_filter(['sector' => request('sector'), 'object_id' => request('object_id')])) }}" class="btn btn-sm btn-outline-secondary">Clear</a>
+              <a href="{{ route('loan.index', array_filter(['sector' => request('sector'), 'object_id' => request('object_id')])) }}" class="btn btn-sm btn-outline-secondary">{{ __('Clear') }}</a>
             </div>
 
             {{-- New Loan split button group (pushed right) --}}
@@ -203,7 +203,7 @@
             <div class="text-center py-5">
               <i class="fas fa-exchange-alt fa-3x text-muted mb-3"></i>
               <h5 class="text-muted">{{ __('No loans found') }}</h5>
-              <p class="text-muted">Create a new loan to get started.</p>
+              <p class="text-muted">{{ __('Create a new loan to get started.') }}</p>
             </div>
           @endif
         </div>
@@ -229,7 +229,7 @@
         <div class="card-header"><i class="fas fa-chart-bar me-1"></i> {{ __('Statistics') }}</div>
         <ul class="list-group list-group-flush">
           <li class="list-group-item d-flex justify-content-between">
-            Total Loans
+            {{ __('Total Loans') }}
             <span class="fw-bold">{{ number_format($stats['total']) }}</span>
           </li>
           <li class="list-group-item d-flex justify-content-between">
@@ -245,7 +245,7 @@
             <span class="fw-bold text-danger">{{ number_format($stats['overdue']) }}</span>
           </li>
           <li class="list-group-item d-flex justify-content-between">
-            Due This Month
+            {{ __('Due This Month') }}
             <span class="fw-bold">{{ number_format($stats['due_this_month']) }}</span>
           </li>
         </ul>

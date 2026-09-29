@@ -316,7 +316,7 @@
                     <div class="row">
                         <div class="col-md-4">
                             <strong>{{ __('IPSAS 17:') }}</strong>
-                            <p class="mb-0 small text-muted">Property, Plant & Equipment - heritage asset guidance</p>
+                            <p class="mb-0 small text-muted">{{ __('Property, Plant & Equipment - heritage asset guidance') }}</p>
                         </div>
                         <div class="col-md-4">
                             <strong>{{ __('Valuation Policy:') }}</strong>

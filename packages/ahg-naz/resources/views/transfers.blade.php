@@ -94,7 +94,7 @@
                                     @if ($transfer->contains_restricted)
                                         <span class="badge bg-danger"><i class="fas fa-lock"></i> {{ __('Yes') }}</span>
                                     @else
-                                        <span class="text-muted">No</span>
+                                        <span class="text-muted">{{ __('No') }}</span>
                                     @endif
                                 </td>
                                 <td>

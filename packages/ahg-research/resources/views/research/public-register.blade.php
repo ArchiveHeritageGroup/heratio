@@ -14,7 +14,7 @@
   @endif
 
   <h1 class="mb-4"><i class="fas fa-user-plus me-2"></i>{{ __('Researcher Registration') }}</h1>
-  <p class="text-muted mb-4">Create an account and register as a researcher to access the reading rooms and research tools.</p>
+  <p class="text-muted mb-4">{{ __('Create an account and register as a researcher to access the reading rooms and research tools.') }}</p>
 
   @if($errors->any())
     <div class="alert alert-danger">

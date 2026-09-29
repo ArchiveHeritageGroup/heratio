@@ -21,7 +21,7 @@
   @if(!$isBroker)
     <div class="alert alert-info">
       <i class="fas fa-info-circle me-1"></i>
-      Your seller type is <strong>{{ $seller->seller_type ?? 'collector' }}</strong>.
+      {{ __('Your seller type is') }} <strong>{{ $seller->seller_type ?? 'collector' }}</strong>.
       Set it to <strong>broker</strong>, <strong>gallery</strong>, or <strong>dealer</strong> on
       <a href="{{ route('ahgmarketplace.seller-profile') }}">your profile</a>
       to enable broker features (artist selector + markup pricing on listings).

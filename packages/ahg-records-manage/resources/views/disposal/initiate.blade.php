@@ -13,7 +13,7 @@
     @if ($hasLegalHold)
         <div class="alert alert-warning">
             <i class="fas fa-exclamation-triangle"></i>
-            <strong>{{ __('Warning:') }}</strong> This information object is currently under an active legal hold. Disposal cannot be initiated.
+            <strong>{{ __('Warning:') }}</strong> {{ __('This information object is currently under an active legal hold. Disposal cannot be initiated.') }}
         </div>
     @endif
 

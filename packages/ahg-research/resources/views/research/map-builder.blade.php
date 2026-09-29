@@ -24,7 +24,7 @@
 </div>
 
 <div class="alert alert-info alert-dismissible fade show" id="mapClickHint">
-    <i class="fas fa-info-circle me-1"></i> Click on the map to set coordinates for a new point, then fill in the form.
+    <i class="fas fa-info-circle me-1"></i> {{ __('Click on the map to set coordinates for a new point, then fill in the form.') }}
     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 </div>
 

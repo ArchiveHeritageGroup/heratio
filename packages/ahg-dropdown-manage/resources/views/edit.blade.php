@@ -221,7 +221,7 @@
       </div>
       @if ($terms->isEmpty())
         <div class="p-4 text-center text-muted">
-          No terms found for this taxonomy. Click "Add Term" to create one.
+          {{ __('No terms found for this taxonomy. Click "Add Term" to create one.') }}
         </div>
       @endif
     </div>

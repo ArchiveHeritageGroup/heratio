@@ -1837,7 +1837,7 @@
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <p class="text-muted small mb-3">Named Entity Recognition - extract persons, organizations, places, dates from <strong>{{ $item->title ?? 'this record' }}</strong></p>
+          <p class="text-muted small mb-3">{{ __('Named Entity Recognition - extract persons, organizations, places, dates from') }} <strong>{{ $item->title ?? 'this record' }}</strong></p>
           <div class="text-center mb-3" id="nerExtractSection">
             <button type="button" class="btn btn-primary btn-lg" id="nerExtractBtn">
               <i class="fas fa-brain me-2"></i>{{ __('Extract Entities') }}

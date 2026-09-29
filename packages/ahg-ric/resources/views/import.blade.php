@@ -38,7 +38,7 @@
           </select>
         </div>
         <div class="col-md-9">
-          <label class="form-label">Upload file <small class="text-muted">(or paste below)</small></label>
+          <label class="form-label">{{ __('Upload file') }} <small class="text-muted">(or paste below)</small></label>
           <input type="file" name="file" class="form-control" accept=".ttl,.jsonld,.json,.rdf,.xml,.n3">
         </div>
         <div class="col-12">
@@ -93,7 +93,7 @@
               @forelse($result['mapped_predicates'] as $p => $n)
                 <tr><td><code>{{ $p }}</code></td><td class="text-end">{{ $n }}</td></tr>
               @empty
-                <tr><td colspan="2" class="text-muted text-center">No mapped predicates yet - check rdf:type values.</td></tr>
+                <tr><td colspan="2" class="text-muted text-center">{{ __('No mapped predicates yet - check rdf:type values.') }}</td></tr>
               @endforelse
             </tbody>
           </table></div>
@@ -108,7 +108,7 @@
               @forelse($result['unmapped_predicates'] as $p => $n)
                 <tr><td><code>{{ $p }}</code></td><td class="text-end">{{ $n }}</td></tr>
               @empty
-                <tr><td colspan="2" class="text-muted text-center">All predicates are mapped.</td></tr>
+                <tr><td colspan="2" class="text-muted text-center">{{ __('All predicates are mapped.') }}</td></tr>
               @endforelse
             </tbody>
           </table></div>
@@ -122,7 +122,7 @@
         @forelse($result['classes_seen'] as $c => $n)
           <span class="badge bg-secondary me-1 mb-1"><code class="text-white">{{ $c }}</code> × {{ $n }}</span>
         @empty
-          <em class="text-muted">No classes detected.</em>
+          <em class="text-muted">{{ __('No classes detected.') }}</em>
         @endforelse
       </div>
     </div>
@@ -145,12 +145,12 @@
 
   @if($committed)
     <div class="card mb-3 border-success">
-      <div class="card-header bg-success text-white"><strong><i class="fas fa-check me-1"></i>Committed</strong></div>
+      <div class="card-header bg-success text-white"><strong><i class="fas fa-check me-1"></i>{{ __('Committed') }}</strong></div>
       <div class="card-body">
         <ul class="mb-2">
-          <li>Information objects created: <strong>{{ count($committed['created_io']) }}</strong></li>
-          <li>Actors created: <strong>{{ count($committed['created_actor']) }}</strong></li>
-          <li>Skipped (unknown rdf:type): <strong>{{ $committed['skipped'] }}</strong></li>
+          <li>{{ __('Information objects created:') }} <strong>{{ count($committed['created_io']) }}</strong></li>
+          <li>{{ __('Actors created:') }} <strong>{{ count($committed['created_actor']) }}</strong></li>
+          <li>{{ __('Skipped (unknown rdf:type):') }} <strong>{{ $committed['skipped'] }}</strong></li>
         </ul>
         @foreach($committed['errors'] as $err)
           <div class="alert alert-danger mb-2">{{ $err }}</div>
@@ -166,7 +166,7 @@
     <div class="card mb-3">
       <div class="card-header bg-light"><strong>{{ __('SPARQL endpoint (read-only)') }}</strong></div>
       <div class="card-body">
-        <p class="mb-2 text-muted">Federated clients can query Heratio's RiC graph via the proxy below. SELECT / ASK / CONSTRUCT / DESCRIBE only.</p>
+        <p class="mb-2 text-muted">{{ __('Federated clients can query Heratio\'s RiC graph via the proxy below. SELECT / ASK / CONSTRUCT / DESCRIBE only.') }}</p>
         <pre class="bg-dark text-light p-2 rounded small mb-0"><code>GET {{ url('/api/sparql') }}?query=…</code></pre>
       </div>
     </div>

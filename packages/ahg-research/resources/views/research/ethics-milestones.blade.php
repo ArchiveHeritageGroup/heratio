@@ -110,7 +110,7 @@
     </div>
 </div>
 @else
-<div class="alert alert-info">No ethics milestones yet. Add one to track your ethics review process.</div>
+<div class="alert alert-info">{{ __('No ethics milestones yet. Add one to track your ethics review process.') }}</div>
 @endif
 
 {{-- Add Milestone Modal --}}

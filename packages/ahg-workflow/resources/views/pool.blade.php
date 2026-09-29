@@ -9,7 +9,7 @@
     <a href="{{ route('workflow.dashboard') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> {{ __('Dashboard') }}</a>
   </div>
 
-<p class="text-muted">Tasks available for claiming. Claim a task to assign it to yourself.</p>
+<p class="text-muted">{{ __('Tasks available for claiming. Claim a task to assign it to yourself.') }}</p>
 
   @if(count($tasks) === 0)
     <div class="alert alert-info">{{ __('No tasks available in the pool.') }}</div>

@@ -8,12 +8,12 @@
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
-      <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
+      <a href="{{ route('actor.dashboard') }}">{{ __('Authority Dashboard') }}</a>
     </li>
     <li class="breadcrumb-item">
       <a href="{{ $actor->slug ? route('actor.show', $actor->slug) : '#' }}">{{ e($actor->name ?? '') }}</a>
     </li>
-    <li class="breadcrumb-item active">Occupations</li>
+    <li class="breadcrumb-item active">{{ __('Occupations') }}</li>
   </ol>
 </nav>
 
@@ -39,7 +39,7 @@
       </thead>
       <tbody>
         @if (empty($occupations))
-          <tr><td colspan="5" class="text-center text-muted py-3">No occupations recorded.</td></tr>
+          <tr><td colspan="5" class="text-center text-muted py-3">{{ __('No occupations recorded.') }}</td></tr>
         @else
           @foreach ($occupations as $occ)
             <tr>

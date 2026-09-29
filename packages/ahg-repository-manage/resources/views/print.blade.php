@@ -30,7 +30,7 @@
     @php $parallelNames = $otherNames->where('type_id', \AhgCore\Constants\TermId::OTHER_NAME_PARALLEL); @endphp
     @if($parallelNames->isNotEmpty())
       <div class="field-row">
-        <div class="field-label">Parallel form(s) of name</div>
+        <div class="field-label">{{ __('Parallel form(s) of name') }}</div>
         <div class="field-value">
           @foreach($parallelNames as $name)
             <div>{{ $name->name }}</div>
@@ -42,7 +42,7 @@
     @php $otherFormNames = $otherNames->where('type_id', \AhgCore\Constants\TermId::OTHER_NAME_OTHER_FORM); @endphp
     @if($otherFormNames->isNotEmpty())
       <div class="field-row">
-        <div class="field-label">Other form(s) of name</div>
+        <div class="field-label">{{ __('Other form(s) of name') }}</div>
         <div class="field-value">
           @foreach($otherFormNames as $name)
             <div>{{ $name->name }}</div>
@@ -188,14 +188,14 @@
 
   @if(!empty($languages ?? []))
     <div class="field-row">
-      <div class="field-label">Language(s)</div>
+      <div class="field-label">{{ __('Language(s)') }}</div>
       <div class="field-value">{{ implode(', ', $languages) }}</div>
     </div>
   @endif
 
   @if(!empty($scripts ?? []))
     <div class="field-row">
-      <div class="field-label">Script(s)</div>
+      <div class="field-label">{{ __('Script(s)') }}</div>
       <div class="field-value">{{ implode(', ', $scripts) }}</div>
     </div>
   @endif
@@ -227,7 +227,7 @@
 
     @if(($thematicAreas ?? collect())->isNotEmpty())
       <div class="field-row">
-        <div class="field-label">Thematic area(s)</div>
+        <div class="field-label">{{ __('Thematic area(s)') }}</div>
         <div class="field-value">
           @foreach($thematicAreas as $area)
             {{ $area->name }}@if(!$loop->last), @endif
@@ -238,7 +238,7 @@
 
     @if(($geographicSubregions ?? collect())->isNotEmpty())
       <div class="field-row">
-        <div class="field-label">Geographic subregion(s)</div>
+        <div class="field-label">{{ __('Geographic subregion(s)') }}</div>
         <div class="field-value">
           @foreach($geographicSubregions as $region)
             {{ $region->name }}@if(!$loop->last), @endif

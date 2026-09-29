@@ -24,8 +24,8 @@
 </div></div>
 </div><div class="col-md-4">
 <div class="card"><div class="card-header"><h6 class="mb-0">{{ __('Tips') }}</h6></div><div class="card-body small text-muted">
-    <p>Use your research journal to record observations, ideas, and methodological notes as you work through your sources.</p>
-    <p class="mb-0">Entries can be linked to projects and tagged for easy retrieval later.</p>
+    <p>{{ __('Use your research journal to record observations, ideas, and methodological notes as you work through your sources.') }}</p>
+    <p class="mb-0">{{ __('Entries can be linked to projects and tagged for easy retrieval later.') }}</p>
 </div></div>
 </div></div>
 @endsection

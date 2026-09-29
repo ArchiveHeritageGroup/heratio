@@ -35,7 +35,7 @@
     </div>
     <div class="card-body">
       <table class="table table-sm mb-0">
-        <tr><th class="text-muted" style="width:35%">{{ __('RiC Role') }}</th><td>Digital embodiment / file carrier</td></tr>
+        <tr><th class="text-muted" style="width:35%">{{ __('RiC Role') }}</th><td>{{ __('Digital embodiment / file carrier') }}</td></tr>
         @if($mime)<tr><th class="text-muted">{{ __('Media format') }}</th><td><code>{{ $mime }}</code></td></tr>@endif
         @if($byteSize)<tr><th class="text-muted">{{ __('Byte size') }}</th><td>{{ number_format((int) $byteSize) }} bytes</td></tr>@endif
         @if(! empty($asset->object_id))

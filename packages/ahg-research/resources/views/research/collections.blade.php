@@ -52,7 +52,7 @@
       <div class="col-12">
         <div class="text-center py-5 text-muted">
           <i class="fas fa-layer-group fa-3x mb-3"></i>
-          <p>No collections yet. Create your first evidence set to start organising your research.</p>
+          <p>{{ __('No collections yet. Create your first evidence set to start organising your research.') }}</p>
         </div>
       </div>
     @endforelse

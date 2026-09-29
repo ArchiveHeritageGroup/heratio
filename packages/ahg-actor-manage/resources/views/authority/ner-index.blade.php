@@ -14,9 +14,9 @@
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
-      <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
+      <a href="{{ route('actor.dashboard') }}">{{ __('Authority Dashboard') }}</a>
     </li>
-    <li class="breadcrumb-item active">NER Pipeline</li>
+    <li class="breadcrumb-item active">{{ __('NER Pipeline') }}</li>
   </ol>
 </nav>
 
@@ -76,7 +76,7 @@
       </thead>
       <tbody>
         @if (empty($pendingItems))
-          <tr><td colspan="5" class="text-center text-muted py-3">No pending NER entities. Requires AI plugin with NER extraction.</td></tr>
+          <tr><td colspan="5" class="text-center text-muted py-3">{{ __('No pending NER entities. Requires AI plugin with NER extraction.') }}</td></tr>
         @else
           @foreach ($pendingItems as $entity)
             @php $entity = (object) $entity; @endphp
@@ -116,7 +116,7 @@
       </thead>
       <tbody>
         @if (empty($stubItems))
-          <tr><td colspan="5" class="text-center text-muted py-3">No stubs created yet.</td></tr>
+          <tr><td colspan="5" class="text-center text-muted py-3">{{ __('No stubs created yet.') }}</td></tr>
         @else
           @foreach ($stubItems as $stub)
             @php

@@ -342,19 +342,19 @@
         <div class="col-sm-4">
           <select class="form-select" name="translation_sector" id="translation_sector">
             <option value="archives" {{ ($settings['translation_sector'] ?? 'archives') === 'archives' ? 'selected' : '' }}>
-              Archives (ISAD(G))
+              {{ __('Archives (ISAD(G))') }}
             </option>
             <option value="library" {{ ($settings['translation_sector'] ?? 'archives') === 'library' ? 'selected' : '' }}>
-              Library (MARC/Dublin Core)
+              {{ __('Library (MARC/Dublin Core)') }}
             </option>
             <option value="museum" {{ ($settings['translation_sector'] ?? 'archives') === 'museum' ? 'selected' : '' }}>
-              Museum (SPECTRUM)
+              {{ __('Museum (SPECTRUM)') }}
             </option>
             <option value="gallery" {{ ($settings['translation_sector'] ?? 'archives') === 'gallery' ? 'selected' : '' }}>
-              Gallery (Art Collection)
+              {{ __('Gallery (Art Collection)') }}
             </option>
             <option value="dam" {{ ($settings['translation_sector'] ?? 'archives') === 'dam' ? 'selected' : '' }}>
-              DAM (Digital Asset Management)
+              {{ __('DAM (Digital Asset Management)') }}
             </option>
           </select>
           <small class="text-muted">{{ __('Select your institution type to see relevant fields') }}</small>
@@ -364,7 +364,7 @@
       <div class="row mb-3">
         <label class="col-sm-3 col-form-label">{{ __('Fields to Translate') }}</label>
         <div class="col-sm-9">
-          <p class="text-muted small mb-2">Select source fields and choose where to save the translation in the target language.</p>
+          <p class="text-muted small mb-2">{{ __('Select source fields and choose where to save the translation in the target language.') }}</p>
 
           @foreach($translationFieldsBySector as $sector => $sectorFields)
             <div id="sector-fields-{{ $sector }}" class="sector-fields" @if($sector !== ($settings['translation_sector'] ?? 'archives')) style="display:none;" @endif>
@@ -373,7 +373,7 @@
                   <tr>
                     <th style="width:40px;"></th>
                     <th>{{ __('Source Field') }}</th>
-                    <th><i class="fas fa-arrow-right text-muted"></i> Save To (Target)</th>
+                    <th><i class="fas fa-arrow-right text-muted"></i> {{ __('Save To (Target)') }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -455,8 +455,7 @@
 
       <div class="alert alert-info mb-0">
         <i class="fas fa-info-circle me-2"></i>
-        <strong>{{ __('Supported Languages:') }}</strong> All 11 South African official languages (Afrikaans, Zulu, Xhosa, Sotho, Tswana, Swati, Venda, Tsonga, Ndebele),
-        plus Swahili, Yoruba, Igbo, Hausa, Amharic, Dutch, French, German, Spanish, Portuguese, Arabic, and more.
+        <strong>{{ __('Supported Languages:') }}</strong> {{ __('All 11 South African official languages (Afrikaans, Zulu, Xhosa, Sotho, Tswana, Swati, Venda, Tsonga, Ndebele), plus Swahili, Yoruba, Igbo, Hausa, Amharic, Dutch, French, German, Spanish, Portuguese, Arabic, and more.') }}
         <br><small>{{ __('OPUS-MT runs locally - no data leaves your server. Models download automatically on first use (~300-500MB each).') }}</small>
       </div>
     </div>
@@ -520,7 +519,7 @@
         <div class="col-md-6">
           <label class="form-label fw-bold">{{ __('Collection Name') }}</label>
           <input type="text" class="form-control" name="qdrant_collection" value="{{ $settings['qdrant_collection'] ?? '' }}" placeholder="{{ __('Auto-detected from database name') }}">
-          <div class="form-text">Leave empty for auto-detection (dbname_records)</div>
+          <div class="form-text">{{ __('Leave empty for auto-detection (dbname_records)') }}</div>
         </div>
       </div>
       <div class="row mb-3">

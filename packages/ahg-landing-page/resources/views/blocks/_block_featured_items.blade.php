@@ -14,7 +14,7 @@ $carouselId = 'featured-' . uniqid();
 @endphp
 
 @if (!$collectionId)
-  <p class="text-muted">No collection configured. Edit this block to select an IIIF collection.</p>
+  <p class="text-muted">{{ __('No collection configured. Edit this block to select an IIIF collection.') }}</p>
 @else
   @if ($showTitle && $customTitle)
     <h2 class="h4 mb-3">{{ e($customTitle) }}</h2>

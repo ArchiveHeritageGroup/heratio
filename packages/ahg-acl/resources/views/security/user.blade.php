@@ -90,7 +90,7 @@
                     @endforeach
                   </select>
                   <div class="form-text">
-                    Select the maximum classification level this user should be able to access.
+                    {{ __('Select the maximum classification level this user should be able to access.') }}
                   </div>
                 </div>
 

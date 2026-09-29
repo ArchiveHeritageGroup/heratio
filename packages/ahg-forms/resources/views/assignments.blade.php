@@ -29,7 +29,7 @@
             @if (empty($assignments) || (is_countable($assignments) && count($assignments) === 0))
                 <div class="p-4 text-center text-muted">
                     <i class="fas fa-inbox fa-3x mb-3"></i>
-                    <p>No assignments found. Create one to specify which form templates are used where.</p>
+                    <p>{{ __('No assignments found. Create one to specify which form templates are used where.') }}</p>
                 </div>
             @else
                 <table class="table table-hover mb-0">
@@ -90,11 +90,11 @@
         <div class="card-body">
             <h5><i class="fas fa-info-circle me-2"></i>{{ __('How Assignments Work') }}</h5>
             <p class="mb-2">
-                When editing a record, the system selects the best matching form template based on:
+                {{ __('When editing a record, the system selects the best matching form template based on:') }}
             </p>
             <ol class="mb-0">
-                <li>Repository (if specified)</li>
-                <li>Level of Description (if specified)</li>
+                <li>{{ __('Repository (if specified)') }}</li>
+                <li>{{ __('Level of Description (if specified)') }}</li>
                 <li>Priority (higher number = higher priority)</li>
             </ol>
         </div>

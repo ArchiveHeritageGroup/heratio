@@ -53,7 +53,7 @@
                 <div class="mb-3">
                     <label for="import_file" class="form-label">{{ __('File') }}</label>
                     <input type="file" name="import_file" id="import_file" class="form-control" accept=".xlsx,.xls,.csv,.ods,.xml">
-                    <div class="form-text">Supported formats: .xlsx, .xls, .csv, .ods, .xml (max 50MB)</div>
+                    <div class="form-text">{{ __('Supported formats: .xlsx, .xls, .csv, .ods, .xml (max 50MB)') }}</div>
                 </div>
             </div>
 
@@ -61,7 +61,7 @@
                 <div class="mb-3">
                     <label for="directory_path" class="form-label">{{ __('Directory Path') }}</label>
                     <input type="text" name="directory_path" id="directory_path" class="form-control" value="{{ old('directory_path') }}" placeholder="{{ __('/path/to/fileplan/directory') }}">
-                    <div class="form-text">Full server path to the directory containing the file plan structure.</div>
+                    <div class="form-text">{{ __('Full server path to the directory containing the file plan structure.') }}</div>
                 </div>
             </div>
 

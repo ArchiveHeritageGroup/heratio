@@ -7,10 +7,7 @@
   <div class="col-lg-9">
     <h1 class="mb-3"><i class="fas fa-heart me-2"></i>{{ __('Credits & Open-source Licenses') }}</h1>
     <p class="text-muted">
-      Heratio is an independent archival management platform that stands on
-      substantial work from the wider archival, museum, and open-source
-      community. This page records that debt and the licenses under which that
-      work is used. The full record is in
+      {{ __('Heratio is an independent archival management platform that stands on substantial work from the wider archival, museum, and open-source community. This page records that debt and the licenses under which that work is used. The full record is in') }}
       <a href="{{ $sourceUrl }}/blob/main/ACKNOWLEDGMENTS.md" target="_blank" rel="noopener">{{ __('ACKNOWLEDGMENTS.md') }}</a>.
     </p>
 
@@ -18,8 +15,7 @@
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">{{ __('AtoM (Access to Memory) - Artefactual Systems Inc. and the AtoM community') }}</div>
       <div class="card-body">
         <p>
-          Heratio's archival data model and descriptive-standards structure derive
-          from <strong>AtoM (Access to Memory)</strong>, the open-source archival
+          {{ __('Heratio\'s archival data model and descriptive-standards structure derive from') }} <strong>{{ __('AtoM (Access to Memory)') }}</strong>, the open-source archival
           description system originally created by
           <a href="https://www.artefactual.com" target="_blank" rel="noopener">{{ __('Artefactual Systems Inc.') }}</a>
           under contract to the International Council on Archives
@@ -37,7 +33,7 @@
               (<a href="https://www.transifex.com/artefactual/atom/" target="_blank" rel="noopener">transifex.com/artefactual/atom</a>).</li>
         </ul>
         <p class="mb-0">
-          {{ __('AtoM is licensed under the') }} <strong>GNU Affero General Public License v3.0</strong>.
+          {{ __('AtoM is licensed under the') }} <strong>{{ __('GNU Affero General Public License v3.0') }}</strong>.
           Heratio is an independent Laravel re-implementation - not a fork, and it
           contains no AtoM source code - but its data model and standards work derive
           directly from AtoM's design, gratefully acknowledged here.
@@ -76,13 +72,12 @@
         <p>
           Heratio &copy; The Archive and Heritage Group (Pty) Ltd / Plain Sailing
           Information Systems. Heratio is free software, licensed under the
-          <strong>GNU Affero General Public License v3.0</strong>. It is distributed
+          <strong>{{ __('GNU Affero General Public License v3.0') }}</strong>. It is distributed
           in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
           the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
         </p>
         <p class="mb-0">
-          In accordance with the AGPL, the complete corresponding source code for
-          this running instance is available at
+          {{ __('In accordance with the AGPL, the complete corresponding source code for this running instance is available at') }}
           <a href="{{ $sourceUrl }}" target="_blank" rel="noopener">{{ $sourceUrl }}</a>,
           and the full license text is in the
           <a href="{{ $sourceUrl }}/blob/main/LICENSE" target="_blank" rel="noopener">LICENSE</a> file.

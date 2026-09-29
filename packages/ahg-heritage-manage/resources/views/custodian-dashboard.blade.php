@@ -7,7 +7,7 @@
   <div class="d-flex justify-content-between align-items-center mb-2">
     <h1 class="mb-0"><i class="fas fa-hard-hat"></i> {{ __('Custodian Dashboard') }}</h1>
   </div>
-  <p class="text-muted mb-4">Batch operations, activity monitoring, and contributor tracking</p>
+  <p class="text-muted mb-4">{{ __('Batch operations, activity monitoring, and contributor tracking') }}</p>
 
   <div class="row">
     {{-- Sidebar --}}
@@ -119,7 +119,7 @@
               <span class="badge bg-primary fs-6 py-2 px-3">{{ number_format($activityByCategory->sum('total')) }}</span>
             </div>
           @else
-            <p class="text-muted mb-0">No activity recorded in the last 30 days.</p>
+            <p class="text-muted mb-0">{{ __('No activity recorded in the last 30 days.') }}</p>
           @endif
         </div>
       </div>
@@ -166,7 +166,7 @@
             </table>
           @else
             <div class="p-3">
-              <p class="text-muted mb-0">No contributor activity recorded in the last 30 days.</p>
+              <p class="text-muted mb-0">{{ __('No contributor activity recorded in the last 30 days.') }}</p>
             </div>
           @endif
         </div>

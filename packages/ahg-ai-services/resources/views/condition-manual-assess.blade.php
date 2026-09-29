@@ -15,7 +15,7 @@
         <h6 class="mb-0"><i class="fas fa-clipboard-check me-1"></i>{{ __('Manual Assessment') }}</h6>
       </div>
       <div class="card-body py-2 small">
-        <p class="text-muted mb-2">Record a condition assessment manually without AI. Fill in the condition grade, damages, and recommendations based on physical inspection.</p>
+        <p class="text-muted mb-2">{{ __('Record a condition assessment manually without AI. Fill in the condition grade, damages, and recommendations based on physical inspection.') }}</p>
         <a href="{{ route('admin.ai.condition.browse') }}" class="btn btn-sm btn-outline-secondary w-100">
           <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Browse') }}
         </a>

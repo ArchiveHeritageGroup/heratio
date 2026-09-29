@@ -9,7 +9,7 @@
 
     <p>Hello {{ trim(($booking->first_name ?? '') . ' ' . ($booking->last_name ?? '')) ?: 'Researcher' }},</p>
 
-    <p>Good news - your reading-room booking has been confirmed. We look forward to seeing you on the date below.</p>
+    <p>{{ __('Good news - your reading-room booking has been confirmed. We look forward to seeing you on the date below.') }}</p>
 
     <table style="width: 100%; border-collapse: collapse; background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0;">
         <tr><td style="padding: 6px 10px; width: 35%; color: #666;">{{ __('Booking reference') }}</td><td style="padding: 6px 10px;">#{{ $booking->id }}</td></tr>

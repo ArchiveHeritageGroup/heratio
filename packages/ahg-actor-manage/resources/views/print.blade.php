@@ -44,7 +44,7 @@
     @php $untyped = $otherNames->whereNotIn('type_id', [148, 149, 165]); @endphp
     @if($untyped->isNotEmpty())
       <div class="field-row">
-        <div class="field-label">Other name(s)</div>
+        <div class="field-label">{{ __('Other name(s)') }}</div>
         <div class="field-value">
           @foreach($untyped as $name)
             {{ $name->name }}
@@ -278,14 +278,14 @@
 
   @if(!empty($languages ?? []))
     <div class="field-row">
-      <div class="field-label">Language(s)</div>
+      <div class="field-label">{{ __('Language(s)') }}</div>
       <div class="field-value">{{ implode(', ', $languages) }}</div>
     </div>
   @endif
 
   @if(!empty($scripts ?? []))
     <div class="field-row">
-      <div class="field-label">Script(s)</div>
+      <div class="field-label">{{ __('Script(s)') }}</div>
       <div class="field-value">{{ implode(', ', $scripts) }}</div>
     </div>
   @endif

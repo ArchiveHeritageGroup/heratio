@@ -12,7 +12,6 @@ pending queue. You'll get another email once an approver reviews it.</p>
 <p><strong>{{ __('Priority:') }}</strong> {{ $request->priority ?? 'normal' }}<br>
 <strong>{{ __('Submitted:') }}</strong> {{ $request->created_at ?? now() }}</p>
 
-<p>You can review the status of all your requests at any time on the
-"My access requests" page.</p>
+<p>{{ __('You can review the status of all your requests at any time on the "My access requests" page.') }}</p>
 
 <p>{{ __('Thanks,') }}<br>{{ config('app.name', 'Heratio') }}</p>

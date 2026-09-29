@@ -17,31 +17,31 @@
             <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
             <h1 class="h3">{{ __('Payment received') }}</h1>
             <p class="text-muted">
-              Thank you. Your payment has been confirmed.
+              {{ __('Thank you. Your payment has been confirmed.') }}
             </p>
           @elseif($cancelled ?? false)
             <i class="fas fa-times-circle fa-4x text-warning mb-3"></i>
             <h1 class="h3">{{ __('Payment cancelled') }}</h1>
             <p class="text-muted">
-              You cancelled the payment. The listing has been kept available - you can retry whenever you're ready.
+              {{ __('You cancelled the payment. The listing has been kept available - you can retry whenever you\'re ready.') }}
             </p>
           @else
             <i class="fas fa-clock fa-4x text-info mb-3"></i>
             <h1 class="h3">{{ __('Awaiting confirmation') }}</h1>
             <p class="text-muted">
-              Your payment is being processed. PayFast will confirm via webhook shortly - you'll see the status update on your purchases page.
+              {{ __('Your payment is being processed. PayFast will confirm via webhook shortly - you\'ll see the status update on your purchases page.') }}
             </p>
           @endif
 
           @if($transaction)
             <dl class="row text-start small mt-4 mb-3">
-              <dt class="col-sm-5 text-muted">Transaction</dt>
+              <dt class="col-sm-5 text-muted">{{ __('Transaction') }}</dt>
               <dd class="col-sm-7"><code>{{ $transaction->transaction_number }}</code></dd>
 
-              <dt class="col-sm-5 text-muted">Amount</dt>
+              <dt class="col-sm-5 text-muted">{{ __('Amount') }}</dt>
               <dd class="col-sm-7">{{ $transaction->currency ?? 'ZAR' }} {{ number_format((float) $transaction->grand_total, 2) }}</dd>
 
-              <dt class="col-sm-5 text-muted">Status</dt>
+              <dt class="col-sm-5 text-muted">{{ __('Status') }}</dt>
               <dd class="col-sm-7">
                 <span class="badge bg-{{ $transaction->payment_status === 'paid' ? 'success' : ($transaction->payment_status === 'cancelled' ? 'warning text-dark' : 'secondary') }}">
                   {{ $transaction->payment_status }}

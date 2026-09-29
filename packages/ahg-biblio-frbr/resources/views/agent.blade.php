@@ -9,8 +9,7 @@
     <span class="badge bg-secondary">{{ __('Agents') }}</span>
   </div>
   <p class="text-muted small mb-4">
-    Browse the agent authority used in FRBR records - creators, contributors,
-    editors, illustrators, and other responsible parties.
+    {{ __('Browse the agent authority used in FRBR records - creators, contributors, editors, illustrators, and other responsible parties.') }}
   </p>
 
   <div class="card">
@@ -61,7 +60,7 @@
           @empty
             <tr>
               <td colspan="5" class="text-center text-muted py-3">
-                No agents found. Agents are created when bibliographic works are added.
+                {{ __('No agents found. Agents are created when bibliographic works are added.') }}
               </td>
             </tr>
           @endforelse

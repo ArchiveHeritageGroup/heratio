@@ -109,7 +109,7 @@
 
             {{-- Alternative identifiers multi-row --}}
             <div class="mb-3">
-              <label class="form-label">Alternative identifier(s) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label">{{ __('Alternative identifier(s)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <table class="table table-sm" id="altids-table">
                 <thead>
                   <tr>
@@ -155,7 +155,7 @@
 
             {{-- Events (dates) multi-row --}}
             <div class="mb-3">
-              <label class="form-label">Date(s) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Identify and record the date(s) of the unit of description. Identify the type of date given. Record as a single date or a range of dates as appropriate. (ISAD 3.1.3). The Date display field can be used to enter free-text date information, including typographical marks to express approximation, uncertainty, or qualification. Use the start and end fields to make the dates searchable.') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
+              <label class="form-label">{{ __('Date(s)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Identify and record the date(s) of the unit of description. Identify the type of date given. Record as a single date or a range of dates as appropriate. (ISAD 3.1.3). The Date display field can be used to enter free-text date information, including typographical marks to express approximation, uncertainty, or qualification. Use the start and end fields to make the dates searchable.') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <table class="table table-sm" id="events-table">
                 <thead>
                   <tr>
@@ -367,7 +367,7 @@
               $languageOptions = \AhgCore\Support\LanguageOptions::descriptionLanguages();
             @endphp
             <div class="mb-3">
-              <label class="form-label">Language(s) of material <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label">{{ __('Language(s) of material') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div id="languages-list">
                 @foreach($materialLanguages as $lIdx => $langCode)
                   <div class="input-group input-group-sm mb-1">
@@ -393,7 +393,7 @@
               $scriptOptions = \AhgCore\Support\LanguageOptions::scripts();
             @endphp
             <div class="mb-3">
-              <label class="form-label">Script(s) of material <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label">{{ __('Script(s) of material') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div id="scripts-list">
                 @foreach($materialScripts as $sIdx => $scriptCode)
                   <div class="input-group input-group-sm mb-1">
@@ -706,7 +706,7 @@
 
             {{-- Language(s) of description - multi-row --}}
             <div class="mb-3">
-              <label class="form-label">Language(s) of description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label">{{ __('Language(s) of description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div id="langs-of-desc-list">
                 @foreach($languagesOfDescription as $ldIdx => $ldCode)
                   <div class="input-group input-group-sm mb-1">
@@ -729,7 +729,7 @@
 
             {{-- Script(s) of description - multi-row --}}
             <div class="mb-3">
-              <label class="form-label">Script(s) of description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label">{{ __('Script(s) of description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div id="scripts-of-desc-list">
                 @foreach($scriptsOfDescription as $sdIdx => $sdCode)
                   <div class="input-group input-group-sm mb-1">

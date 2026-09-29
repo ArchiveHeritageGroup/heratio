@@ -10,8 +10,7 @@
 
     <p>Hello {{ $rsvp->name ?? 'there' }},</p>
 
-    <p>You are booked in for the live virtual opening below. Keep your ticket code -
-       return to the event page at start time and click <strong>{{ __('Join the walkthrough') }}</strong>.</p>
+    <p>{{ __('You are booked in for the live virtual opening below. Keep your ticket code - return to the event page at start time and click') }} <strong>{{ __('Join the walkthrough') }}</strong>.</p>
 
     <table style="width: 100%; border-collapse: collapse; background: #f8f9fa; margin: 15px 0; border-radius: 5px;">
         <tr><td style="padding: 6px 10px; width: 35%; color: #666;">{{ __('Opening') }}</td><td style="padding: 6px 10px;">{{ $event->title }}</td></tr>

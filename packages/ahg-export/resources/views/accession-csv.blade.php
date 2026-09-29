@@ -8,9 +8,9 @@
 
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">Admin</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('export.index') }}">Export</a></li>
-            <li class="breadcrumb-item active">Accession CSV</li>
+            <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">{{ __('Admin') }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('export.index') }}">{{ __('Export') }}</a></li>
+            <li class="breadcrumb-item active">{{ __('Accession CSV') }}</li>
         </ol>
     </nav>
 
@@ -21,12 +21,12 @@
                     <h5 class="mb-0"><i class="fas fa-file-csv me-2"></i>{{ __('Export Accession Records') }}</h5>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted">Export accession records to CSV format. The output matches the ingest accession import format for round-trip compatibility.</p>
+                    <p class="text-muted">{{ __('Export accession records to CSV format. The output matches the ingest accession import format for round-trip compatibility.') }}</p>
 
                     <form method="post" action="{{ route('export.accessionCsv.post') }}">
                         @csrf
                         <div class="mb-3">
-                            <label for="repository_id" class="form-label">Repository (optional) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                            <label for="repository_id" class="form-label">{{ __('Repository (optional)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select class="form-select" id="repository_id" name="repository_id">
                                 <option value="">-- All repositories --</option>
                                 @foreach($repositories as $repo)
@@ -37,11 +37,11 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="date_from" class="form-label">Acquisition Date From <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                                <label for="date_from" class="form-label">{{ __('Acquisition Date From') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <input type="date" class="form-control" id="date_from" name="date_from">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="date_to" class="form-label">Acquisition Date To <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                                <label for="date_to" class="form-label">{{ __('Acquisition Date To') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <input type="date" class="form-control" id="date_to" name="date_to">
                             </div>
                         </div>

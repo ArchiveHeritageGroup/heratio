@@ -156,7 +156,7 @@
         <div class="modal-content">
             <div class="modal-header"><h5 class="modal-title">{{ __('Edit & Accept') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
-                <p class="text-muted">Edit the JSON data below, then click "Accept with Changes".</p>
+                <p class="text-muted">{{ __('Edit the JSON data below, then click "Accept with Changes".') }}</p>
                 <textarea id="modifyData" class="form-control font-monospace" rows="12"></textarea>
                 <input type="hidden" id="modifyResultId">
             </div>

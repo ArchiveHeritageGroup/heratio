@@ -10,7 +10,7 @@
         @if($success ?? false)
         <i class="fas fa-check-circle display-1 text-success"></i>
         <h2 class="h4 mt-4">{{ __('Email Verified!') }}</h2>
-        <p class="text-muted mb-4">Your email address has been verified successfully. You can now log in and start contributing to our heritage collection.</p>
+        <p class="text-muted mb-4">{{ __('Your email address has been verified successfully. You can now log in and start contributing to our heritage collection.') }}</p>
         <a href="{{ route('heritage.contributor-login') }}" class="btn atom-btn-secondary btn-lg"><i class="fas fa-sign-in-alt me-2"></i>{{ __('Sign In') }}</a>
         @else
         <i class="fas fa-times-circle display-1 text-danger"></i>

@@ -107,7 +107,7 @@
       <div class="progress-bar bg-success" id="ba-progress" style="width:0%"></div>
     </div>
     <div class="mt-2 small text-muted">
-      <kbd>{{ __('Draw') }}</kbd> box around field · <kbd>{{ __('Enter') }}</kbd> confirm & next · <kbd>→</kbd> skip field (not on form) · <kbd>{{ __('Backspace') }}</kbd> undo · <kbd>Ctrl+S</kbd> save & next image · Click <i class="fas fa-forward"></i> to toggle skip
+      <kbd>{{ __('Draw') }}</kbd> box around field · <kbd>{{ __('Enter') }}</kbd> confirm & next · <kbd>→</kbd> skip field (not on form) · <kbd>{{ __('Backspace') }}</kbd> undo · <kbd>{{ __('Ctrl+S') }}</kbd> save & next image · Click <i class="fas fa-forward"></i> to toggle skip
     </div>
 
     {{-- Session stats --}}

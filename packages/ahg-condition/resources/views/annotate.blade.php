@@ -29,14 +29,14 @@
 <div class="condition-check-header">
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-2">
     <ol class="breadcrumb mb-0">
-      <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
       @if(!empty($conditionCheck->slug))
         <li class="breadcrumb-item"><a href="{{ url('/'.$conditionCheck->slug) }}">{{ $conditionCheck->identifier ?? '' }}</a></li>
       @endif
       @if(!empty($photo->condition_check_id))
-        <li class="breadcrumb-item"><a href="{{ url('/condition/check/'.$photo->condition_check_id.'/photos') }}">Condition Photos</a></li>
+        <li class="breadcrumb-item"><a href="{{ url('/condition/check/'.$photo->condition_check_id.'/photos') }}">{{ __('Condition Photos') }}</a></li>
       @endif
-      <li class="breadcrumb-item active">Annotate</li>
+      <li class="breadcrumb-item active">{{ __('Annotate') }}</li>
     </ol>
   </nav>
 
@@ -97,7 +97,7 @@
       </div>
       <div class="card-body" id="annotation-list">
         @if(empty($annotations))
-          <div class="p-3 text-muted text-center">No annotations yet</div>
+          <div class="p-3 text-muted text-center">{{ __('No annotations yet') }}</div>
         @else
           @foreach($annotations as $ann)
             <div class="annotation-list-item" data-id="{{ $ann['id'] ?? '' }}">

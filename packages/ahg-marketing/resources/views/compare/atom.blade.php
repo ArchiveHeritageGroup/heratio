@@ -145,12 +145,12 @@
     </blockquote>
 
     <h2>{{ __('You do not have to choose: two ways to adopt Heratio') }}</h2>
-    <p>Heratio ships in two deployment editions, so moving to Heratio is not necessarily a migration decision at all:</p>
+    <p>{{ __('Heratio ships in two deployment editions, so moving to Heratio is not necessarily a migration decision at all:') }}</p>
     <ul>
-        <li><strong>Heratio (standalone)</strong> - the pure <strong>Laravel 12</strong> platform on its own stack. Best for new deployments, or once you have migrated off AtoM. This is the edition compared in the table below.</li>
-        <li><strong>AtoM / Heratio (overlay)</strong> - Heratio's <strong>{{ __('Laravel') }}</strong> modules run <strong>alongside your existing AtoM</strong> (Symfony) installation, over the same AtoM database. Your original AtoM stays intact and fully functional, and the overlay is <strong>fully reversible</strong>: remove it and you are back to stock AtoM. So an existing AtoM site can add Heratio's modern capabilities - Records in Contexts, digital asset management, museum collections workflows, AI-assisted description, and digital preservation - with <strong>no data migration and no lock-in</strong>.</li>
+        <li><strong>{{ __('Heratio (standalone)') }}</strong> - the pure <strong>{{ __('Laravel 12') }}</strong> platform on its own stack. Best for new deployments, or once you have migrated off AtoM. This is the edition compared in the table below.</li>
+        <li><strong>{{ __('AtoM / Heratio (overlay)') }}</strong> - Heratio's <strong>{{ __('Laravel') }}</strong> modules run <strong>alongside your existing AtoM</strong> (Symfony) installation, over the same AtoM database. Your original AtoM stays intact and fully functional, and the overlay is <strong>fully reversible</strong>: remove it and you are back to stock AtoM. So an existing AtoM site can add Heratio's modern capabilities - Records in Contexts, digital asset management, museum collections workflows, AI-assisted description, and digital preservation - with <strong>no data migration and no lock-in</strong>.</li>
     </ul>
-    <p>The practical upshot: keep AtoM and augment it reversibly with the AtoM / Heratio overlay, or adopt the standalone Laravel platform outright. Many sites start with the overlay to evaluate Heratio on their live collection, then move to standalone later if and when it suits them.</p>
+    <p>{{ __('The practical upshot: keep AtoM and augment it reversibly with the AtoM / Heratio overlay, or adopt the standalone Laravel platform outright. Many sites start with the overlay to evaluate Heratio on their live collection, then move to standalone later if and when it suits them.') }}</p>
 
     <h2>{{ __('At a glance') }}</h2>
     <div class="table-scroll">
@@ -163,27 +163,27 @@
                 </tr>
             </thead>
             <tbody>
-                <tr><td>{{ __('Framework / stack') }}</td><td>Laravel 12, PHP 8.3</td><td>Symfony 1.4, PHP (legacy framework, EOL 2012)</td></tr>
-                <tr><td>{{ __('Database / search') }}</td><td>MySQL 8, Elasticsearch 8</td><td>{{ __('MySQL, Elasticsearch') }}</td></tr>
+                <tr><td>{{ __('Framework / stack') }}</td><td>{{ __('Laravel 12, PHP 8.3') }}</td><td>{{ __('Symfony 1.4, PHP (legacy framework, EOL 2012)') }}</td></tr>
+                <tr><td>{{ __('Database / search') }}</td><td>{{ __('MySQL 8, Elasticsearch 8') }}</td><td>{{ __('MySQL, Elasticsearch') }}</td></tr>
                 <tr><td>{{ __('Licence') }}</td><td>AGPL-3.0</td><td>AGPL-3.0</td></tr>
                 <tr><td>{{ __('Self-hostable') }}</td><td>{{ __('Yes') }}</td><td>{{ __('Yes') }}</td></tr>
-                <tr><td>{{ __('Deployment') }}</td><td>Standalone (Laravel), or reversible overlay alongside AtoM (Symfony + Laravel)</td><td>{{ __('Standalone') }}</td></tr>
-                <tr><td>{{ __('Archival description') }}</td><td>ISAD(G), ISAAR(CPF), ISDIAH</td><td>ISAD(G), RAD, DACS, ISAAR(CPF), ISDIAH, Dublin Core</td></tr>
-                <tr><td>{{ __('EAD / EAC export') }}</td><td>EAD 2002, EAD3, and EAC-CPF serialization</td><td>EAD 2002 and EAC-CPF export</td></tr>
-                <tr><td>{{ __('EAD / EAC import') }}</td><td>Native EAD 2002 and EAD3 XML import, round-trip safe (preview + commit)</td><td>Mature EAD 2002 and EAC-CPF import</td></tr>
-                <tr><td>OAI-PMH</td><td>Serve and harvest (OAI-PMH provider and harvester)</td><td>{{ __('OAI-PMH provider') }}</td></tr>
+                <tr><td>{{ __('Deployment') }}</td><td>{{ __('Standalone (Laravel), or reversible overlay alongside AtoM (Symfony + Laravel)') }}</td><td>{{ __('Standalone') }}</td></tr>
+                <tr><td>{{ __('Archival description') }}</td><td>ISAD(G), ISAAR(CPF), ISDIAH</td><td>{{ __('ISAD(G), RAD, DACS, ISAAR(CPF), ISDIAH, Dublin Core') }}</td></tr>
+                <tr><td>{{ __('EAD / EAC export') }}</td><td>{{ __('EAD 2002, EAD3, and EAC-CPF serialization') }}</td><td>{{ __('EAD 2002 and EAC-CPF export') }}</td></tr>
+                <tr><td>{{ __('EAD / EAC import') }}</td><td>{{ __('Native EAD 2002 and EAD3 XML import, round-trip safe (preview + commit)') }}</td><td>{{ __('Mature EAD 2002 and EAC-CPF import') }}</td></tr>
+                <tr><td>OAI-PMH</td><td>{{ __('Serve and harvest (OAI-PMH provider and harvester)') }}</td><td>{{ __('OAI-PMH provider') }}</td></tr>
                 <tr><td>{{ __('Finding aids') }}</td><td>{{ __('Generated PDF finding aids') }}</td><td>{{ __('PDF / RTF finding aid generation') }}</td></tr>
-                <tr><td>Records in Contexts (RiC)</td><td>Native, first-class (traditional + RiC view per entity)</td><td>Not native (community and roadmap interest)</td></tr>
-                <tr><td>{{ __('Museum collections') }}</td><td>Museum collections (object-lifecycle procedures)</td><td>{{ __('Not a museum collections system') }}</td></tr>
-                <tr><td>{{ __('Digital asset management') }}</td><td>Built-in: IIIF deep-zoom, 3D viewing, media at scale</td><td>{{ __('Basic digital object handling') }}</td></tr>
+                <tr><td>{{ __('Records in Contexts (RiC)') }}</td><td>{{ __('Native, first-class (traditional + RiC view per entity)') }}</td><td>{{ __('Not native (community and roadmap interest)') }}</td></tr>
+                <tr><td>{{ __('Museum collections') }}</td><td>{{ __('Museum collections (object-lifecycle procedures)') }}</td><td>{{ __('Not a museum collections system') }}</td></tr>
+                <tr><td>{{ __('Digital asset management') }}</td><td>{{ __('Built-in: IIIF deep-zoom, 3D viewing, media at scale') }}</td><td>{{ __('Basic digital object handling') }}</td></tr>
                 <tr><td>{{ __('Digital preservation') }}</td><td>{{ __('OCFL, BagIt, OAIS/PREMIS, portable dark-archive export') }}</td><td>{{ __('Via integration with Archivematica') }}</td></tr>
-                <tr><td>{{ __('Archivematica integration') }}</td><td>Connector (pulls DIPs)</td><td>Native (same steward, Artefactual)</td></tr>
+                <tr><td>{{ __('Archivematica integration') }}</td><td>{{ __('Connector (pulls DIPs)') }}</td><td>{{ __('Native (same steward, Artefactual)') }}</td></tr>
                 <tr><td>{{ __('Research / reading-room portal') }}</td><td>{{ __('Built-in: bookings, reproductions, ODRL rights, API keys') }}</td><td>{{ __('Not included') }}</td></tr>
                 <tr><td>{{ __('AI-assisted workflows') }}</td><td>{{ __('Built-in: HTR, NER, condition assessment, metadata suggestion') }}</td><td>{{ __('Not included') }}</td></tr>
-                <tr><td>{{ __('Multilingual') }}</td><td>66 locale scaffolds; English and Afrikaans complete, others in progress</td><td>Yes, very strong: ~50 community-maintained locales</td></tr>
-                <tr><td>REST API</td><td>v1 and v2 (key auth, OpenAPI)</td><td>Available (older)</td></tr>
+                <tr><td>{{ __('Multilingual') }}</td><td>66 locale scaffolds; English and Afrikaans complete, others in progress</td><td>{{ __('Yes, very strong: ~50 community-maintained locales') }}</td></tr>
+                <tr><td>REST API</td><td>v1 and v2 (key auth, OpenAPI)</td><td>{{ __('Available (older)') }}</td></tr>
                 <tr><td>{{ __('Maturity / install base') }}</td><td>{{ __('Newer, actively developed, growing') }}</td><td>{{ __('Mature, very large global install base') }}</td></tr>
-                <tr><td>{{ __('Steward') }}</td><td>The Archive and Heritage Digital Commons Group (The AHG)</td><td>Artefactual Systems + AtoM Foundation</td></tr>
+                <tr><td>{{ __('Steward') }}</td><td>{{ __('The Archive and Heritage Digital Commons Group (The AHG)') }}</td><td>{{ __('Artefactual Systems + AtoM Foundation') }}</td></tr>
             </tbody>
         </table>
     </div>
@@ -193,16 +193,16 @@
     <ul>
         <li>{{ __('You need a very large') }} <strong>multilingual</strong> deployment with mature, community-maintained translations across many locales today (Heratio's locale completeness is still catching up outside English and Afrikaans).</li>
         <li>{{ __('You are standardising on the') }} <strong>{{ __('Artefactual stack') }}</strong> and want AtoM's native, first-party <strong>{{ __('Archivematica') }}</strong> integration for digital preservation.</li>
-        <li>You want the reassurance of a very large global community and install base, and a long track record at national-archive scale.</li>
+        <li>{{ __('You want the reassurance of a very large global community and install base, and a long track record at national-archive scale.') }}</li>
         <li>{{ __('Your remit is purely') }} <strong>archival description and access</strong>, with no museum, DAM, or records-management requirement.</li>
     </ul>
-    <p>If that describes you, AtoM is a sound, respected choice and Heratio does not claim to replace its multilingual depth or its community size today.</p>
+    <p>{{ __('If that describes you, AtoM is a sound, respected choice and Heratio does not claim to replace its multilingual depth or its community size today.') }}</p>
 
     <h2>{{ __('When Heratio is the better fit') }}</h2>
     <p>{{ __('Heratio is the stronger option when:') }}</p>
     <ul>
         <li>{{ __('You want a') }} <strong>current technology stack</strong>. AtoM runs on Symfony 1.4, a framework that reached end-of-life in 2012; Heratio is built on Laravel 12 and PHP 8.3, which keeps security patching, hiring, and extension realistic for the next decade.</li>
-        <li>{{ __('You need') }} <strong>Records in Contexts (RiC)</strong> as a working capability now, not a roadmap item. Heratio gives every major entity both a traditional archival view and a RiC contextual graph view over the same data, permissions, and identifiers.</li>
+        <li>{{ __('You need') }} <strong>{{ __('Records in Contexts (RiC)') }}</strong> as a working capability now, not a roadmap item. Heratio gives every major entity both a traditional archival view and a RiC contextual graph view over the same data, permissions, and identifiers.</li>
         <li>{{ __('You manage') }} <strong>more than archives</strong>: museum collections (with structured object-lifecycle procedures), digital assets with IIIF deep-zoom and 3D, and records management, on one platform and data model instead of several integrated products.</li>
         <li>{{ __('You want') }} <strong>digital preservation built in</strong> (OCFL, BagIt, OAIS/PREMIS) plus a portable dark-archive export that reconstructs a browsable collection with no server or database.</li>
         <li>{{ __('You want a') }} <strong>research and reading-room portal</strong>, <strong>{{ __('AI-assisted description') }}</strong> (HTR, NER), and a modern <strong>REST API</strong> without bolting on separate tools.</li>
@@ -218,13 +218,13 @@
     <p>Heratio covers the same archival description standards (ISAD(G), ISAAR(CPF), ISDIAH) and adds museum, DAM, preservation, and RiC capabilities. It is a modern alternative rather than a code-compatible fork; migration tooling moves your data across.</p>
 
     <h3>{{ __('Is Heratio open source like AtoM?') }}</h3>
-    <p>Yes. Both Heratio and AtoM are licensed under AGPL-3.0 and can be self-hosted at no licence cost. Heratio also offers hosted and support plans from The AHG.</p>
+    <p>{{ __('Yes. Both Heratio and AtoM are licensed under AGPL-3.0 and can be self-hosted at no licence cost. Heratio also offers hosted and support plans from The AHG.') }}</p>
 
     <h3>{{ __('What is the main technical difference?') }}</h3>
     <p>Stack age and breadth. AtoM is built on Symfony 1.4 (end-of-life 2012) and focuses on archival description; Heratio is built on Laravel 12 and spans archives, museums, DAM, preservation, and records management, with native Records in Contexts.</p>
 
     <h3>{{ __('Does Heratio support Records in Contexts (RiC)?') }}</h3>
-    <p>Yes, natively. RiC and RiC-O are first-class in Heratio, backed by the OpenRiC ecosystem. AtoM does not provide native RiC today.</p>
+    <p>{{ __('Yes, natively. RiC and RiC-O are first-class in Heratio, backed by the OpenRiC ecosystem. AtoM does not provide native RiC today.') }}</p>
 
     <h3>{{ __('Can I add Heratio without leaving AtoM?') }}</h3>
     <p>Yes. The AtoM / Heratio overlay edition runs Heratio's Laravel modules alongside your existing AtoM (Symfony) installation, over the same database. The original AtoM stays fully functional and the overlay is fully reversible, so you can add Records in Contexts, DAM, museum and AI capabilities with no migration and no lock-in, and remove it cleanly if you choose. It is the lowest-risk way to evaluate Heratio on your live collection.</p>

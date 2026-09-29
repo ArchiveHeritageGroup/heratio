@@ -66,9 +66,9 @@
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('ingest.index') }}">Ingestion Manager</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('ingest.index') }}">{{ __('Ingestion Manager') }}</a></li>
         <li class="breadcrumb-item">{{ $session->title ?? ('Session #' . ($session->id ?? '')) }}</li>
-        <li class="breadcrumb-item active" aria-current="page">Preview</li>
+        <li class="breadcrumb-item active" aria-current="page">{{ __('Preview') }}</li>
     </ol>
 </nav>
 
@@ -129,7 +129,7 @@
                 @if(!empty($tree))
                     {!! ahg_ingest_render_tree($tree) !!}
                 @else
-                    <p class="text-muted">No hierarchy to display (flat import)</p>
+                    <p class="text-muted">{{ __('No hierarchy to display (flat import)') }}</p>
                 @endif
             </div>
         </div>
@@ -142,7 +142,7 @@
                 <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('Record Details') }}</h5>
             </div>
             <div class="card-body" id="detail-content">
-                <p class="text-muted">Click a record in the tree to view details</p>
+                <p class="text-muted">{{ __('Click a record in the tree to view details') }}</p>
             </div>
         </div>
 

@@ -29,9 +29,9 @@
                     <i class="fas fa-download me-1"></i> {{ __('Export') }}
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="{{ route('library.usage-export', ['type' => 'PR']) }}">PR (Platform)</a></li>
-                    <li><a class="dropdown-item" href="{{ route('library.usage-export', ['type' => 'TR']) }}">TR (Title)</a></li>
-                    <li><a class="dropdown-item" href="{{ route('library.usage-export', ['type' => 'DR']) }}">DR (Database)</a></li>
+                    <li><a class="dropdown-item" href="{{ route('library.usage-export', ['type' => 'PR']) }}">{{ __('PR (Platform)') }}</a></li>
+                    <li><a class="dropdown-item" href="{{ route('library.usage-export', ['type' => 'TR']) }}">{{ __('TR (Title)') }}</a></li>
+                    <li><a class="dropdown-item" href="{{ route('library.usage-export', ['type' => 'DR']) }}">{{ __('DR (Database)') }}</a></li>
                 </ul>
             </div>
             <a href="{{ route('library.usage-harvest') }}" class="btn btn-outline-primary btn-sm">

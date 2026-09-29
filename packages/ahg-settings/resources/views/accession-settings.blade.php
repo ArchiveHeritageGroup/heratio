@@ -15,7 +15,7 @@
 
 @section('title-block')
 <h1><i class="fas fa-inbox me-2"></i>{{ __('Accession Management') }}</h1>
-<p class="text-muted">Intake workflow, numbering, appraisal, container and rights settings</p>
+<p class="text-muted">{{ __('Intake workflow, numbering, appraisal, container and rights settings') }}</p>
 @endsection
 
 @section('content')
@@ -52,7 +52,7 @@
               <option value="high" {{ ($settings['accession_default_priority'] ?? 'normal') === 'high' ? 'selected' : '' }}>{{ __('High') }}</option>
               <option value="urgent" {{ ($settings['accession_default_priority'] ?? 'normal') === 'urgent' ? 'selected' : '' }}>{{ __('Urgent') }}</option>
             </select>
-            <div class="form-text">Default priority assigned to new accessions in the intake queue.</div>
+            <div class="form-text">{{ __('Default priority assigned to new accessions in the intake queue.') }}</div>
           </div>
         </div>
         <div class="row g-3 mt-2">
@@ -76,7 +76,7 @@
                 <strong>{{ __('Require Donor Agreement') }}</strong>
               </label>
             </div>
-            <div class="form-text">Donor agreement must be attached before an accession can be finalised.</div>
+            <div class="form-text">{{ __('Donor agreement must be attached before an accession can be finalised.') }}</div>
           </div>
           <div class="col-md-4">
             <div class="form-check form-switch mb-3">
@@ -87,7 +87,7 @@
                 <strong>{{ __('Require Appraisal') }}</strong>
               </label>
             </div>
-            <div class="form-text">Appraisal must be completed before an accession can be finalised.</div>
+            <div class="form-text">{{ __('Appraisal must be completed before an accession can be finalised.') }}</div>
           </div>
         </div>
       </div>
@@ -120,7 +120,7 @@
                 <strong>{{ __('Rights Inheritance') }}</strong>
               </label>
             </div>
-            <div class="form-text">Automatically inherit rights from the donor agreement to created information objects.</div>
+            <div class="form-text">{{ __('Automatically inherit rights from the donor agreement to created information objects.') }}</div>
           </div>
         </div>
       </div>

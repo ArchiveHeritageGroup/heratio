@@ -62,7 +62,7 @@
 <div class="text-center py-5">
     <i class="fas fa-university fa-4x text-muted mb-3 opacity-50"></i>
     <h4 class="text-muted">{{ __('No partner institutions yet') }}</h4>
-    <p class="text-muted">Add partner institutions to enable cross-institutional research sharing.</p>
+    <p class="text-muted">{{ __('Add partner institutions to enable cross-institutional research sharing.') }}</p>
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#institutionModal"><i class="fas fa-plus me-1"></i>{{ __('Add First Institution') }}</button>
 </div>
 @endif

@@ -10,7 +10,7 @@
 @section('before-content')
   <div class="d-flex flex-wrap gap-2 mb-3">
     <div class="d-flex flex-wrap gap-2 ms-auto">
-      <a href="{{ route('accession.browse') }}" class="btn btn-sm atom-btn-white">Back to browse</a>
+      <a href="{{ route('accession.browse') }}" class="btn btn-sm atom-btn-white">{{ __('Back to browse') }}</a>
     </div>
   </div>
 @endsection
@@ -51,6 +51,6 @@
     </div>
     {{ $rows->links() }}
   @else
-    <div class="alert alert-info">No accession records found.</div>
+    <div class="alert alert-info">{{ __('No accession records found.') }}</div>
   @endif
 @endsection

@@ -27,7 +27,7 @@
         </h2>
         <div id="reset-collapse" class="accordion-collapse collapse show" aria-labelledby="reset-heading">
           <div class="accordion-body">
-            <p>Enter the email address associated with your account and we will send you instructions to reset your password.</p>
+            <p>{{ __('Enter the email address associated with your account and we will send you instructions to reset your password.') }}</p>
 
             <div class="mb-3">
               <label for="email" class="form-label">{{ __('Email') }}</label>

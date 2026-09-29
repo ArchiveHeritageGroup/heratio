@@ -39,7 +39,7 @@
                 @if(!empty($formData['leader']) || !empty($formData['control_fields']))
                     <section class="card mb-4">
                         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                            <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Leader & Control Fields</h5>
+                            <h5 class="mb-0"><i class="fas fa-cog me-2"></i>{{ __('Leader & Control Fields') }}</h5>
                         </div>
                         <div class="card-body">
                             @if(!empty($formData['leader']))
@@ -69,7 +69,7 @@
                 @if(!empty($formData['title_statement']))
                     <section class="card mb-4">
                         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                            <h5 class="mb-0"><i class="fas fa-heading me-2"></i>Title Statement (245)</h5>
+                            <h5 class="mb-0"><i class="fas fa-heading me-2"></i>{{ __('Title Statement (245)') }}</h5>
                         </div>
                         <div class="card-body">
                             @if(isset($formData['title_statement']['245']))
@@ -111,14 +111,14 @@
                 @if(!empty($formData['author_entry']))
                     <section class="card mb-4">
                         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                            <h5 class="mb-0"><i class="fas fa-user me-2"></i>Author Entry (1XX/7XX)</h5>
+                            <h5 class="mb-0"><i class="fas fa-user me-2"></i>{{ __('Author Entry (1XX/7XX)') }}</h5>
                         </div>
                         <div class="card-body p-0">
                             <table class="table table-sm mb-0">
                                 <thead class="table-light">
                                     <tr>
                                         <th>{{ __('Tag') }}</th><th>{{ __('Ind1') }}</th><th>{{ __('Ind2') }}</th>
-                                        <th>{{ __('\\$a (name)') }}</th><th>{{ __('\\$t (title)') }}</th><th>{{ __('\\$e (role)') }}</th>
+                                        <th>{{ __('$a (name)') }}</th><th>{{ __('$t (title)') }}</th><th>{{ __('$e (role)') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -151,7 +151,7 @@
                 {{-- Standard Identifiers (020/022/024/028) --}}
                 <section class="card mb-4">
                     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                        <h5 class="mb-0"><i class="fas fa-barcode me-2"></i>Standard Identifiers (020/022/024/028)</h5>
+                        <h5 class="mb-0"><i class="fas fa-barcode me-2"></i>{{ __('Standard Identifiers (020/022/024/028)') }}</h5>
                     </div>
                     <div class="card-body">
                         @php
@@ -227,7 +227,7 @@
                 @if(!empty($formData['publication_info']))
                     <section class="card mb-4">
                         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                            <h5 class="mb-0"><i class="fas fa-building me-2"></i>Publication Info (260/264)</h5>
+                            <h5 class="mb-0"><i class="fas fa-building me-2"></i>{{ __('Publication Info (260/264)') }}</h5>
                         </div>
                         <div class="card-body">
                             @if(isset($formData['publication_info']['264']))
@@ -260,7 +260,7 @@
                 {{-- RDA Carrier & Content Type (336/337/338) --}}
                 <section class="card mb-4">
                     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                        <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>RDA Carrier & Content Type (336/337/338)</h5>
+                        <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>{{ __('RDA Carrier & Content Type (336/337/338)') }}</h5>
                     </div>
                     <div class="card-body">
                         @php
@@ -305,7 +305,7 @@
                 @if(!empty($formData['physical_description']))
                     <section class="card mb-4">
                         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                            <h5 class="mb-0"><i class="fas fa-ruler me-2"></i>Physical Description (300/0XX)</h5>
+                            <h5 class="mb-0"><i class="fas fa-ruler me-2"></i>{{ __('Physical Description (300/0XX)') }}</h5>
                         </div>
                         <div class="card-body">
                             @if(isset($formData['physical_description']['300']))
@@ -331,12 +331,12 @@
                 @if(!empty($formData['subject_access']))
                     <section class="card mb-4">
                         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                            <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Subject Access (6XX)</h5>
+                            <h5 class="mb-0"><i class="fas fa-tags me-2"></i>{{ __('Subject Access (6XX)') }}</h5>
                         </div>
                         <div class="card-body p-0">
                             <table class="table table-sm mb-0">
                                 <thead class="table-light">
-                                    <tr><th>{{ __('Tag') }}</th><th>{{ __('Ind1') }}</th><th>{{ __('Ind2') }}</th><th>{{ __('\\$a (term)') }}</th><th>{{ __('\\$x (subdivision)') }}</th></tr>
+                                    <tr><th>{{ __('Tag') }}</th><th>{{ __('Ind1') }}</th><th>{{ __('Ind2') }}</th><th>{{ __('$a (term)') }}</th><th>{{ __('$x (subdivision)') }}</th></tr>
                                 </thead>
                                 <tbody>
                                     @foreach($formData['subject_access'] as $idx => $sa)
@@ -366,12 +366,12 @@
                 @if(!empty($formData['notes']))
                     <section class="card mb-4">
                         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                            <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Notes (5XX)</h5>
+                            <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>{{ __('Notes (5XX)') }}</h5>
                         </div>
                         <div class="card-body p-0">
                             <table class="table table-sm mb-0">
                                 <thead class="table-light">
-                                    <tr><th>{{ __('Tag') }}</th><th>{{ __('\\$a (content)') }}</th></tr>
+                                    <tr><th>{{ __('Tag') }}</th><th>{{ __('$a (content)') }}</th></tr>
                                 </thead>
                                 <tbody>
                                     @foreach($formData['notes'] as $idx => $note)
@@ -391,12 +391,12 @@
                 @if(!empty($formData['electronic_access']))
                     <section class="card mb-4">
                         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-                            <h5 class="mb-0"><i class="fas fa-link me-2"></i>Electronic Access (856)</h5>
+                            <h5 class="mb-0"><i class="fas fa-link me-2"></i>{{ __('Electronic Access (856)') }}</h5>
                         </div>
                         <div class="card-body p-0">
                             <table class="table table-sm mb-0">
                                 <thead class="table-light">
-                                    <tr><th>{{ __('\\$u (URL)') }}</th><th>{{ __('\\$z (note)') }}</th></tr>
+                                    <tr><th>{{ __('$u (URL)') }}</th><th>{{ __('$z (note)') }}</th></tr>
                                 </thead>
                                 <tbody>
                                     @foreach($formData['electronic_access'] as $idx => $ea)
@@ -427,7 +427,7 @@
                         </div>
                         <div class="card-body">
                             <p class="text-muted small mb-3">
-                                Link subject headings above to authority records for controlled vocabulary.
+                                {{ __('Link subject headings above to authority records for controlled vocabulary.') }}
                             </p>
                             @php
                                 $firstSubject = $formData['subject_access'][0] ?? null;
@@ -482,7 +482,7 @@
                     </div>
                     <div class="card-footer small text-muted">
                         <i class="fas fa-info-circle me-1"></i>
-                        Edits are applied directly to Heratio fields. Re-export as MARCXML at any time.
+                        {{ __('Edits are applied directly to Heratio fields. Re-export as MARCXML at any time.') }}
                     </div>
                 </div>
             </div>

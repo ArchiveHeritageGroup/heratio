@@ -19,7 +19,7 @@
         </h2>
         <div id="rename-collapse" class="accordion-collapse collapse show">
           <div class="accordion-body">
-            <p>Use this interface to update the description title, slug (permalink), and/or digital object filename.</p>
+            <p>{{ __('Use this interface to update the description title, slug (permalink), and/or digital object filename.') }}</p>
             <hr>
 
             {{-- Title --}}
@@ -30,14 +30,14 @@
             <div class="mb-3" id="title-field">
               <label for="title" class="form-label">{{ __('Title') }}</label>
               <input type="text" name="title" id="title" class="form-control" value="{{ old('title', $item->title ?? '') }}">
-              <div class="form-text">Editing the title will automatically update the slug field if "Update slug" is selected - you can still edit it after.</div>
+              <div class="form-text">{{ __('Editing the title will automatically update the slug field if "Update slug" is selected - you can still edit it after.') }}</div>
               <p class="mt-1 mb-0"><small>{{ __('Original title:') }} <em>{{ $item->title ?? '' }}</em></small></p>
             </div>
             <hr>
 
             {{-- Slug --}}
             <div id="rename-slug-warning" class="alert alert-danger d-none" role="alert">
-              A slug based on this title already exists so a number has been added to pad the slug.
+              {{ __('A slug based on this title already exists so a number has been added to pad the slug.') }}
             </div>
             <div class="form-check mb-3">
               <input class="form-check-input" type="checkbox" id="enable_slug" name="enable_slug" value="1" checked>
@@ -46,7 +46,7 @@
             <div class="mb-3" id="slug-field">
               <label for="slug" class="form-label">{{ __('Slug') }}</label>
               <input type="text" name="slug" id="slug" class="form-control" value="{{ old('slug', $item->slug ?? '') }}">
-              <div class="form-text">Do not use special characters or spaces - only lowercase alphanumeric characters (a-z, 0-9) and dashes (-). Other characters will be stripped.</div>
+              <div class="form-text">{{ __('Do not use special characters or spaces - only lowercase alphanumeric characters (a-z, 0-9) and dashes (-). Other characters will be stripped.') }}</div>
               <p class="mt-1 mb-0"><small>{{ __('Original slug:') }} <em>{{ $item->slug ?? '' }}</em></small></p>
             </div>
 
@@ -60,7 +60,7 @@
               <div class="mb-3" id="filename-field">
                 <label for="filename" class="form-label">{{ __('Filename') }}</label>
                 <input type="text" name="filename" id="filename" class="form-control" value="{{ old('filename', $digitalObject->name ?? '') }}">
-                <div class="form-text">Do not use special characters or spaces - only lowercase alphanumeric characters (a-z, 0-9) and dashes (-). Other characters will be stripped.</div>
+                <div class="form-text">{{ __('Do not use special characters or spaces - only lowercase alphanumeric characters (a-z, 0-9) and dashes (-). Other characters will be stripped.') }}</div>
                 <p class="mt-1 mb-0"><small>{{ __('Original filename:') }} <em>{{ $digitalObject->name ?? '' }}</em></small></p>
               </div>
             @endif

@@ -95,7 +95,7 @@
         <div class="card-body text-center text-muted py-5">
             <i class="fas fa-stream fa-3x mb-3 opacity-50"></i>
             <h5>{{ __('No activities found') }}</h5>
-            <p>Activities are logged automatically as researchers use the system.</p>
+            <p>{{ __('Activities are logged automatically as researchers use the system.') }}</p>
         </div>
         @endif
     </div>

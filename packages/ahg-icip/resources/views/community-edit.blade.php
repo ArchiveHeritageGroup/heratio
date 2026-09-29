@@ -137,7 +137,7 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Native Title Reference') }}</label>
               <input type="text" name="native_title_reference" class="form-control" value="{{ $community->native_title_reference ?? '' }}">
-              <div class="form-text">Reference number for Native Title determination (if applicable)</div>
+              <div class="form-text">{{ __('Reference number for Native Title determination (if applicable)') }}</div>
             </div>
             <div class="mb-3">
               <label class="form-label">{{ __('Prescribed Body Corporate (PBC)') }}</label>
@@ -155,7 +155,7 @@
           <div class="card-header"><h5 class="mb-0">{{ __('Notes') }}</h5></div>
           <div class="card-body">
             <textarea name="notes" class="form-control" rows="4">{{ $community->notes ?? '' }}</textarea>
-            <div class="form-text">Internal notes about this community (not displayed publicly)</div>
+            <div class="form-text">{{ __('Internal notes about this community (not displayed publicly)') }}</div>
           </div>
         </div>
       </div>
@@ -168,7 +168,7 @@
               <input type="checkbox" name="is_active" value="1" class="form-check-input" id="isActive" @checked(($community->is_active ?? 1))>
               <label class="form-check-label" for="isActive">{{ __('Active') }}</label>
             </div>
-            <div class="form-text">Inactive communities are hidden from selection lists but retain historical records</div>
+            <div class="form-text">{{ __('Inactive communities are hidden from selection lists but retain historical records') }}</div>
           </div>
         </div>
 
@@ -186,7 +186,7 @@
           <div class="card mt-4">
             <div class="card-header"><h5 class="mb-0">{{ __('Linked Records') }}</h5></div>
             <div class="card-body">
-              <p class="small text-muted mb-2">This community may be linked to consent records, consultations, and cultural notices.</p>
+              <p class="small text-muted mb-2">{{ __('This community may be linked to consent records, consultations, and cultural notices.') }}</p>
               <a href="{{ route('ahgicip.community-view', ['id' => $id]) }}" class="btn btn-outline-primary btn-sm w-100">
                 <i class="bi bi-eye me-1"></i> {{ __('View Details') }}
               </a>

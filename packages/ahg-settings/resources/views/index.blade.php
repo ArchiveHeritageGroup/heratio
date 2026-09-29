@@ -260,7 +260,7 @@
         <div class="col-md-8">
           <p class="mb-0">
             <strong>{{ __('Create multi-page PDF documents from images') }}</strong><br>
-            <small class="text-muted">Upload multiple TIFF, JPEG, or PNG files and merge them into a single PDF/A archival document. Jobs run in the background and can be attached directly to archival records.</small>
+            <small class="text-muted">{{ __('Upload multiple TIFF, JPEG, or PNG files and merge them into a single PDF/A archival document. Jobs run in the background and can be attached directly to archival records.') }}</small>
           </p>
         </div>
         <div class="col-md-4 text-end">

@@ -9,9 +9,9 @@
 @section('body-class', 'admin display browse-settings')
 
 @section('breadcrumbs')
-  <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
-  <li class="breadcrumb-item"><a href="{{ route('glam.browse') }}">GLAM Browse</a></li>
-  <li class="breadcrumb-item active" aria-current="page">Settings</li>
+  <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Home') }}</a></li>
+  <li class="breadcrumb-item"><a href="{{ route('glam.browse') }}">{{ __('GLAM Browse') }}</a></li>
+  <li class="breadcrumb-item active" aria-current="page">{{ __('Settings') }}</li>
 @endsection
 
 @section('layout-content')
@@ -60,8 +60,7 @@
             </label>
           </div>
           <div class="form-text ms-4">
-            When enabled, you'll be redirected to the GLAM browse interface instead of the standard browse.
-            The GLAM browse provides faceted search, type filtering, and enhanced display options.
+            {{ __('When enabled, you\'ll be redirected to the GLAM browse interface instead of the standard browse. The GLAM browse provides faceted search, type filtering, and enhanced display options.') }}
           </div>
         </div>
 
@@ -70,7 +69,7 @@
 
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label" for="default_view">Default View <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label" for="default_view">{{ __('Default View') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="default_view" id="default_view" class="form-select">
               <option value="list" {{ ($settings['default_view'] ?? 'list') === 'list' ? 'selected' : '' }}>{{ __('List') }}</option>
               <option value="card" {{ ($settings['default_view'] ?? '') === 'card' ? 'selected' : '' }}>{{ __('Cards') }}</option>
@@ -79,7 +78,7 @@
           </div>
 
           <div class="col-md-6 mb-3">
-            <label class="form-label" for="items_per_page">Items Per Page <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label" for="items_per_page">{{ __('Items Per Page') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="items_per_page" id="items_per_page" class="form-select">
               @foreach([10, 20, 30, 50, 100] as $n)
                 <option value="{{ $n }}" {{ ($settings['items_per_page'] ?? 30) == $n ? 'selected' : '' }}>{{ $n }}</option>
@@ -93,7 +92,7 @@
 
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label" for="default_sort_field">Sort By <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label" for="default_sort_field">{{ __('Sort By') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="default_sort_field" id="default_sort_field" class="form-select">
               <option value="updated_at" {{ ($settings['default_sort_field'] ?? 'updated_at') === 'updated_at' ? 'selected' : '' }}>{{ __('Last Updated') }}</option>
               <option value="title" {{ ($settings['default_sort_field'] ?? '') === 'title' ? 'selected' : '' }}>{{ __('Title') }}</option>
@@ -104,7 +103,7 @@
           </div>
 
           <div class="col-md-6 mb-3">
-            <label class="form-label" for="default_sort_direction">Direction <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label" for="default_sort_direction">{{ __('Direction') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="default_sort_direction" id="default_sort_direction" class="form-select">
               <option value="desc" {{ ($settings['default_sort_direction'] ?? 'desc') === 'desc' ? 'selected' : '' }}>{{ __('Descending (newest first)') }}</option>
               <option value="asc" {{ ($settings['default_sort_direction'] ?? '') === 'asc' ? 'selected' : '' }}>{{ __('Ascending (oldest first)') }}</option>
@@ -120,7 +119,7 @@
             <input class="form-check-input" type="checkbox" id="show_facets" name="show_facets"
                    value="1" {{ ($settings['show_facets'] ?? true) ? 'checked' : '' }}>
             <label class="form-check-label" for="show_facets">
-              Show filter sidebar (facets) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+              {{ __('Show filter sidebar (facets)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
             </label>
           </div>
         </div>
@@ -130,11 +129,11 @@
             <input class="form-check-input" type="checkbox" id="remember_filters" name="remember_filters"
                    value="1" {{ ($settings['remember_filters'] ?? true) ? 'checked' : '' }}>
             <label class="form-check-label" for="remember_filters">
-              Remember my last used filters <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+              {{ __('Remember my last used filters') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
             </label>
           </div>
           <div class="form-text ms-4">
-            When enabled, your filter selections will be saved and applied automatically on your next visit.
+            {{ __('When enabled, your filter selections will be saved and applied automatically on your next visit.') }}
           </div>
         </div>
 
@@ -144,7 +143,7 @@
             <i class="fas fa-check-lg me-1"></i> {{ __('Save Settings') }}
           </button>
           <a href="{{ route('glam.browse') }}" class="btn atom-btn-white">
-            Cancel
+            {{ __('Cancel') }}
           </a>
           <button type="button" class="btn atom-btn-outline-danger ms-auto" id="reset-settings">
             <i class="fas fa-undo me-1"></i> {{ __('Reset to Defaults') }}

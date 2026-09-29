@@ -1,8 +1,8 @@
 {{-- BackupFailedMail HTML body --}}
 <p>{{ __('Hi,') }}</p>
 
-<p style="color:#b30000;"><strong>A Heratio backup run has FAILED.</strong>
-No complete artefact set was produced. Please investigate as soon as possible.</p>
+<p style="color:#b30000;"><strong>{{ __('A Heratio backup run has FAILED.') }}</strong>
+{{ __('No complete artefact set was produced. Please investigate as soon as possible.') }}</p>
 
 <table cellpadding="6" cellspacing="0" border="0" style="border-collapse:collapse;">
   <tr>

@@ -97,7 +97,7 @@
     {{-- Review & Declassification --}}
     <fieldset class="mb-4">
       <legend class="h6 border-bottom pb-2 mb-3">
-        <i class="fas fa-calendar-alt me-2"></i>Review & Declassification
+        <i class="fas fa-calendar-alt me-2"></i>{{ __('Review & Declassification') }}
       </legend>
 
       <div class="row">
@@ -129,7 +129,7 @@
             </option>
           @endforeach
         </select>
-        <div class="form-text">When auto-declassified, change to this level instead of making public.</div>
+        <div class="form-text">{{ __('When auto-declassified, change to this level instead of making public.') }}</div>
       </div>
     </fieldset>
 
@@ -147,7 +147,7 @@
           {{ __('Apply this classification to all child records') }}
         </label>
       </div>
-      <div class="form-text">If checked, all descendant records will inherit this classification level.</div>
+      <div class="form-text">{{ __('If checked, all descendant records will inherit this classification level.') }}</div>
     </fieldset>
 
     {{-- Actions --}}

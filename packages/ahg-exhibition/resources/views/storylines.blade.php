@@ -43,7 +43,7 @@
         <div class="card-body text-center py-5">
           <i class="fas fa-book fa-3x text-muted mb-3"></i>
           <h5>{{ __('No storylines created yet') }}</h5>
-          <p class="text-muted">Create narrative journeys through your exhibition with storylines.</p>
+          <p class="text-muted">{{ __('Create narrative journeys through your exhibition with storylines.') }}</p>
           <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStorylineModal">
             <i class="fas fa-plus"></i> {{ __('Create First Storyline') }}
           </button>

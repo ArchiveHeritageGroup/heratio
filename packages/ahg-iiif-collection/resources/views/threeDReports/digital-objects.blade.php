@@ -18,7 +18,7 @@
         <td class="text-end">@php $b=$d->byte_size??0;$u=['B','KB','MB','GB'];$p=floor(($b?log($b):0)/log(1024));echo round($b/pow(1024,min($p,3)),1).' '.$u[min($p,3)]; @endphp</td>
       </tr>
       @empty
-      <tr><td colspan="4" class="text-muted text-center py-4">No 3D files found.</td></tr>
+      <tr><td colspan="4" class="text-muted text-center py-4">{{ __('No 3D files found.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

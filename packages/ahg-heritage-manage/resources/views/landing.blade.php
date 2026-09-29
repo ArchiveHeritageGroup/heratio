@@ -360,28 +360,28 @@
         <div class="heritage-contribute-inner">
             <h2 class="heritage-contribute-title">{{ __('Help Us Preserve History') }}</h2>
             <p class="heritage-contribute-subtitle">
-                Join our community of contributors helping to document and preserve our shared heritage.
+                {{ __('Join our community of contributors helping to document and preserve our shared heritage.') }}
             </p>
 
             <div class="heritage-cta-cards">
                 <div class="heritage-cta-card">
                     <div class="heritage-cta-icon"><i class="fas fa-file-alt"></i></div>
                     <h3 class="heritage-cta-title">{{ __('Transcribe') }}</h3>
-                    <p class="heritage-cta-description">Help make handwritten documents searchable by transcribing them.</p>
+                    <p class="heritage-cta-description">{{ __('Help make handwritten documents searchable by transcribing them.') }}</p>
                     <a href="{{ url('/heritage/login') }}" class="heritage-cta-button">{{ __('Start Transcribing') }}</a>
                 </div>
 
                 <div class="heritage-cta-card">
                     <div class="heritage-cta-icon"><i class="fas fa-id-badge"></i></div>
                     <h3 class="heritage-cta-title">{{ __('Identify') }}</h3>
-                    <p class="heritage-cta-description">Help identify people, places, and objects in historical photographs.</p>
+                    <p class="heritage-cta-description">{{ __('Help identify people, places, and objects in historical photographs.') }}</p>
                     <a href="{{ url('/heritage/login') }}" class="heritage-cta-button">{{ __('Help Identify') }}</a>
                 </div>
 
                 <div class="heritage-cta-card">
                     <div class="heritage-cta-icon"><i class="fas fa-book"></i></div>
                     <h3 class="heritage-cta-title">{{ __('Add Context') }}</h3>
-                    <p class="heritage-cta-description">Share your knowledge about local history and personal memories.</p>
+                    <p class="heritage-cta-description">{{ __('Share your knowledge about local history and personal memories.') }}</p>
                     <a href="{{ url('/heritage/login') }}" class="heritage-cta-button">{{ __('Share Stories') }}</a>
                 </div>
             </div>

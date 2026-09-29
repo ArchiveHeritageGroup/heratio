@@ -74,8 +74,8 @@
                         <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('About Privacy Officers') }}</h5>
                     </div>
                     <div class="card-body small">
-                        <p><strong>{{ __('POPIA (South Africa):') }}</strong> Information Officer must be registered with the Information Regulator.</p>
-                        <p><strong>{{ __('GDPR (EU):') }}</strong> Data Protection Officer required for public authorities and large-scale processing.</p>
+                        <p><strong>{{ __('POPIA (South Africa):') }}</strong> {{ __('Information Officer must be registered with the Information Regulator.') }}</p>
+                        <p><strong>{{ __('GDPR (EU):') }}</strong> {{ __('Data Protection Officer required for public authorities and large-scale processing.') }}</p>
                         <p><strong>{{ __('NDPA (Nigeria):') }}</strong> {{ __('Data Protection Officer required for major data controllers.') }}</p>
                     </div>
                 </div>

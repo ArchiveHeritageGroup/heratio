@@ -20,7 +20,7 @@
   <div class="card mb-3">
     <div class="card-header fw-bold">{{ __('Generated summary') }}</div>
     <div class="card-body" id="summary-result">
-      <p class="text-muted">Click the button below to generate a summary from the document.</p>
+      <p class="text-muted">{{ __('Click the button below to generate a summary from the document.') }}</p>
     </div>
   </div>
 

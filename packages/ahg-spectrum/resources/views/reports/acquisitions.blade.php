@@ -7,6 +7,6 @@
 <div class="alert alert-info"><strong>{{ count($items) }}</strong> acquisitions found</div>
 <div class="table-responsive"><table class="table table-striped table-hover"><thead class="table-dark"><tr><th>{{ __('Object') }}</th><th>{{ __('Date') }}</th><th>{{ __('Method') }}</th><th>{{ __('Source') }}</th></tr></thead><tbody>
 @forelse($items as $a)<tr><td><strong>{{ e($a->object_title ?? '-') }}</strong></td><td>{{ $a->acquisition_date ? date('d M Y', strtotime($a->acquisition_date)) : '-' }}</td><td>{{ e($a->method ?? '-') }}</td><td>{{ e($a->source ?? '-') }}</td></tr>
-@empty<tr><td colspan="4" class="text-muted text-center py-4">No acquisitions found.</td></tr>@endforelse
+@empty<tr><td colspan="4" class="text-muted text-center py-4">{{ __('No acquisitions found.') }}</td></tr>@endforelse
 </tbody></table></div>
 @endsection

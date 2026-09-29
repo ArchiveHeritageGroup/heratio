@@ -46,7 +46,7 @@
                             <a href="{{ url('/' . $file->io_slug) }}">{{ $file->io_slug }}</a>
                         @else - @endif
                     </dd>
-                    <dt class="col-sm-4">Digital object #</dt><dd class="col-sm-8">{{ $file->resolved_do_id ?? '-' }}</dd>
+                    <dt class="col-sm-4">{{ __('Digital object #') }}</dt><dd class="col-sm-8">{{ $file->resolved_do_id ?? '-' }}</dd>
                 </dl>
             </div>
         </div>

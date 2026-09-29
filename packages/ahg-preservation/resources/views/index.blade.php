@@ -12,7 +12,7 @@
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h1 class="mb-0"><i class="fas fa-shield-alt"></i> {{ __('Digital Preservation Dashboard') }}</h1>
         </div>
-        <p class="text-muted mb-4">Preservation dashboard: checksums, fixity, formats, and virus scanning</p>
+        <p class="text-muted mb-4">{{ __('Preservation dashboard: checksums, fixity, formats, and virus scanning') }}</p>
 
         {{-- Statistics Cards --}}
         <div class="row mb-4">

@@ -60,7 +60,7 @@
           <p class="mb-0 mt-2" id="queue-badges"></p>
         </div>
         <a href="{{ route('ric.queue') }}" class="card-footer text-decoration-none text-center small">
-          Manage queue <i class="fas fa-arrow-right"></i>
+          {{ __('Manage queue') }} <i class="fas fa-arrow-right"></i>
         </a>
       </div>
     </div>
@@ -80,7 +80,7 @@
           </div>
         </div>
         <a href="{{ route('ric.orphans') }}" class="card-footer text-decoration-none text-center small">
-          Manage orphans <i class="fas fa-arrow-right"></i>
+          {{ __('Manage orphans') }} <i class="fas fa-arrow-right"></i>
         </a>
       </div>
     </div>
@@ -102,7 +102,7 @@
           </div>
         </div>
         <a href="{{ route('ric.config') }}" class="card-footer text-decoration-none text-center small">
-          Configuration <i class="fas fa-cog"></i>
+          {{ __('Configuration') }} <i class="fas fa-cog"></i>
         </a>
       </div>
     </div>
@@ -116,7 +116,7 @@
         <div class="card-body position-relative" style="min-height: 200px;">
           <div id="chart-loading-1" class="text-center py-5">
             <div class="spinner-border text-primary"></div>
-            <p class="mt-2 text-muted">Loading chart...</p>
+            <p class="mt-2 text-muted">{{ __('Loading chart...') }}</p>
           </div>
           <canvas id="syncTrendChart" height="200" style="display:none;"></canvas>
         </div>
@@ -128,7 +128,7 @@
         <div class="card-body position-relative" style="min-height: 200px;">
           <div id="chart-loading-2" class="text-center py-5">
             <div class="spinner-border text-primary"></div>
-            <p class="mt-2 text-muted">Loading chart...</p>
+            <p class="mt-2 text-muted">{{ __('Loading chart...') }}</p>
           </div>
           <canvas id="operationsChart" height="200" style="display:none;"></canvas>
         </div>
@@ -144,7 +144,7 @@
         <div class="card-body" id="entity-status-body">
           <div class="text-center py-4">
             <div class="spinner-border text-primary"></div>
-            <p class="mt-2 text-muted">Loading entity status...</p>
+            <p class="mt-2 text-muted">{{ __('Loading entity status...') }}</p>
           </div>
         </div>
       </div>
@@ -207,7 +207,7 @@
     <div class="card-body" id="recent-ops-body">
       <div class="text-center py-4">
         <div class="spinner-border text-primary"></div>
-        <p class="mt-2 text-muted">Loading recent operations...</p>
+        <p class="mt-2 text-muted">{{ __('Loading recent operations...') }}</p>
       </div>
     </div>
   </div>

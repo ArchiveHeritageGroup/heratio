@@ -177,7 +177,7 @@
       <div class="progress-bar bg-success" id="ba-progress" style="width:0%"></div>
     </div>
     <div class="mt-2 small text-muted">
-      <kbd>V</kbd> select & drag boxes to correct positions · Positions are <strong>remembered</strong> for next images · <kbd>R</kbd> draw new box · <kbd>Ctrl+S</kbd> save & next
+      <kbd>V</kbd> select & drag boxes to correct positions · Positions are <strong>remembered</strong> for next images · <kbd>R</kbd> draw new box · <kbd>{{ __('Ctrl+S') }}</kbd> save & next
     </div>
 
     {{-- Session stats --}}

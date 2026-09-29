@@ -82,7 +82,7 @@
             </div>
             <div class="card-body text-center">
                 <i class="fas fa-file-alt fa-3x text-info mb-2"></i>
-                <p class="text-muted mb-0">PAIA manuals, notices, forms</p>
+                <p class="text-muted mb-0">{{ __('PAIA manuals, notices, forms') }}</p>
             </div>
             <div class="card-footer">
                 <a href="{{ route('ahgspectrum.privacy-templates') }}" class="btn btn-info w-100">{{ __('Library') }}</a>

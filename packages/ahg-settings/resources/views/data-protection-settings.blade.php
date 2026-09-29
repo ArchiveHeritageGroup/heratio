@@ -96,7 +96,7 @@
               <input type="number" class="form-control" id="dp_popia_fee" name="dp_popia_fee"
                      value="{{ $settings['dp_popia_fee'] ?? '50' }}" min="0" step="0.01">
             </div>
-            <div class="form-text">Standard request fee (R50 per regulation)</div>
+            <div class="form-text">{{ __('Standard request fee (R50 per regulation)') }}</div>
           </div>
           <div class="col-md-4">
             <label for="dp_popia_fee_special" class="form-label fw-bold">{{ __('Special Category Fee') }}</label>
@@ -105,7 +105,7 @@
               <input type="number" class="form-control" id="dp_popia_fee_special" name="dp_popia_fee_special"
                      value="{{ $settings['dp_popia_fee_special'] ?? '140' }}" min="0" step="0.01">
             </div>
-            <div class="form-text">Fee for special categories of personal info (R140)</div>
+            <div class="form-text">{{ __('Fee for special categories of personal info (R140)') }}</div>
           </div>
           <div class="col-md-4">
             <label for="dp_popia_response_days" class="form-label fw-bold">{{ __('Response Days') }}</label>

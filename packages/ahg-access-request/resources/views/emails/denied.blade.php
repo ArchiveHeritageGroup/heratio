@@ -11,7 +11,6 @@
 
 <p><strong>{{ __('Reviewed at:') }}</strong> {{ $request->reviewed_at ?? now() }}</p>
 
-<p>If you'd like to discuss the decision or submit a revised request with
-additional context, reply to this email or contact your records manager.</p>
+<p>{{ __('If you\'d like to discuss the decision or submit a revised request with additional context, reply to this email or contact your records manager.') }}</p>
 
 <p>{{ __('Thanks,') }}<br>{{ config('app.name', 'Heratio') }}</p>

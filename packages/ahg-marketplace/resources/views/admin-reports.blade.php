@@ -38,9 +38,9 @@
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('ahgmarketplace.admin-dashboard') }}">Marketplace Admin</a></li>
-    <li class="breadcrumb-item active">Reports</li>
+    <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('ahgmarketplace.admin-dashboard') }}">{{ __('Marketplace Admin') }}</a></li>
+    <li class="breadcrumb-item active">{{ __('Reports') }}</li>
   </ol>
 </nav>
 
@@ -127,7 +127,7 @@
     </div>
   @else
     <div class="card-body text-center py-4">
-      <p class="text-muted mb-0">No revenue data yet.</p>
+      <p class="text-muted mb-0">{{ __('No revenue data yet.') }}</p>
     </div>
   @endif
 </div>
@@ -169,7 +169,7 @@
         </div>
       @else
         <div class="card-body text-center py-4">
-          <p class="text-muted mb-0">No seller data yet.</p>
+          <p class="text-muted mb-0">{{ __('No seller data yet.') }}</p>
         </div>
       @endif
     </div>
@@ -212,7 +212,7 @@
         </div>
       @else
         <div class="card-body text-center py-4">
-          <p class="text-muted mb-0">No item data yet.</p>
+          <p class="text-muted mb-0">{{ __('No item data yet.') }}</p>
         </div>
       @endif
     </div>

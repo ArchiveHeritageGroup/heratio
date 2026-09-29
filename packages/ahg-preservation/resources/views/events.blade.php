@@ -15,7 +15,7 @@
                 <i class="fas fa-arrow-left me-1"></i> {{ __('Dashboard') }}
             </a>
         </div>
-        <p class="text-muted mb-3">Preservation metadata events (PREMIS standard)</p>
+        <p class="text-muted mb-3">{{ __('Preservation metadata events (PREMIS standard)') }}</p>
 
         @isset($eventTypes)
         <div class="mb-3">

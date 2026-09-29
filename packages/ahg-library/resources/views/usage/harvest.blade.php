@@ -10,7 +10,7 @@
                 <i class="fas fa-sync me-2"></i>{{ __('SUSHI Harvest') }}
             </h1>
             <p class="text-muted small mb-0">
-                ISO 18626 - fetch COUNTER 5 usage statistics from all active SUSHI partners.
+                {{ __('ISO 18626 - fetch COUNTER 5 usage statistics from all active SUSHI partners.') }}
             </p>
         </div>
         <a href="{{ route('library.usage') }}" class="btn btn-outline-dark btn-sm">

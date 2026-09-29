@@ -66,7 +66,7 @@
         <div class="row align-items-center">
           <div class="col-md-8">
             <h5 class="card-title mb-1"><i class="fas fa-book me-2"></i>{{ __('Documentation Portal') }}</h5>
-            <p class="card-text text-muted mb-0">Full user guides, technical reference, plugin documentation, and API reference.</p>
+            <p class="card-text text-muted mb-0">{{ __('Full user guides, technical reference, plugin documentation, and API reference.') }}</p>
           </div>
           <div class="col-md-4 text-md-end mt-2 mt-md-0">
             <a href="https://docs.theahg.co.za" target="_blank" rel="noopener" class="btn atom-btn-white">

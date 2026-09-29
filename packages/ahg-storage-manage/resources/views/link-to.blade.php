@@ -131,7 +131,7 @@
       </h2>
       <div id="linkExisting" class="accordion-collapse collapse show" data-bs-parent="#addContainerAccordion">
         <div class="accordion-body">
-          <p class="text-muted small">Search for an existing container by name. Duplicate links will be ignored.</p>
+          <p class="text-muted small">{{ __('Search for an existing container by name. Duplicate links will be ignored.') }}</p>
           <form method="POST" action="{{ route('physicalobject.link-to.store', $io->slug) }}">
             @csrf
             <input type="hidden" name="action" value="link_existing">
@@ -166,7 +166,7 @@
 
             <div class="row g-3 mb-3">
               <div class="col-md-6">
-                <label class="form-label">Container name <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Container name') }} <span class="text-danger">*</span></label>
                 <input type="text" name="name" class="form-control" required placeholder="{{ __('e.g. Box 12, Shelf A3') }}">
               </div>
               <div class="col-md-3">
@@ -254,7 +254,7 @@
               <div class="col-md-3">
                 <div class="form-check mt-4">
                   <input type="checkbox" name="climate_controlled" class="form-check-input" id="climate">
-                  <label class="form-check-label" for="climate"><i class="fas fa-thermometer-half me-1"></i>Climate controlled</label>
+                  <label class="form-check-label" for="climate"><i class="fas fa-thermometer-half me-1"></i>{{ __('Climate controlled') }}</label>
                 </div>
               </div>
             </div>
@@ -267,7 +267,7 @@
   </div>
 
   <section class="actions mb-3 nav gap-2">
-    <li><a href="/{{ $io->slug }}" class="btn atom-btn-outline-light">Back to record</a></li>
+    <li><a href="/{{ $io->slug }}" class="btn atom-btn-outline-light">{{ __('Back to record') }}</a></li>
   </section>
 
   <script>

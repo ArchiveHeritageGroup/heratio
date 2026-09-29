@@ -11,7 +11,7 @@
   </ol></nav>
 
   <h1><i class="fas fa-search"></i> {{ __('Trace Watermark') }}</h1>
-  <p class="text-muted">Enter a watermark code to identify who downloaded the document.</p>
+  <p class="text-muted">{{ __('Enter a watermark code to identify who downloaded the document.') }}</p>
 
   <div class="card mb-4">
     <div class="card-body">

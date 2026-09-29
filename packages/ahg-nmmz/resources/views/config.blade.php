@@ -25,7 +25,7 @@
         </ol>
       </nav>
       <h1><i class="fas fa-cog me-2"></i>{{ __('NMMZ Configuration') }}</h1>
-      <p class="text-muted">Configure module settings (jurisdictional plugin)</p>
+      <p class="text-muted">{{ __('Configure module settings (jurisdictional plugin)') }}</p>
     </div>
   </div>
 
@@ -110,7 +110,7 @@
           <div class="card-body">
             <p class="small text-muted mb-2">
               <strong>{{ __('NMMZ Plugin') }}</strong><br>
-              Jurisdictional compliance module for national museums and monuments regulations.
+              {{ __('Jurisdictional compliance module for national museums and monuments regulations.') }}
             </p>
             <p class="small text-muted mb-0">
               <strong>{{ __('Version:') }}</strong> 1.0.0

@@ -21,7 +21,7 @@
   {{-- Filters --}}
   <form method="GET" action="{{ route('ric.logs') }}" class="row g-2 mb-3 align-items-end">
     <div class="col-auto">
-      <label class="form-label small mb-0">Operation <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+      <label class="form-label small mb-0">{{ __('Operation') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
       <select name="operation" class="form-select form-select-sm" data-csp-auto-submit>
         <option value="">{{ __('All Operations') }}</option>
         @foreach($operations as $op)
@@ -30,7 +30,7 @@
       </select>
     </div>
     <div class="col-auto">
-      <label class="form-label small mb-0">Status <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+      <label class="form-label small mb-0">{{ __('Status') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
       <select name="status" class="form-select form-select-sm" data-csp-auto-submit>
         <option value="">{{ __('All Statuses') }}</option>
         @foreach($statuses as $s)
@@ -39,7 +39,7 @@
       </select>
     </div>
     <div class="col-auto">
-      <label class="form-label small mb-0">Entity Type <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+      <label class="form-label small mb-0">{{ __('Entity Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
       <select name="entity_type" class="form-select form-select-sm" data-csp-auto-submit>
         <option value="">{{ __('All Entity Types') }}</option>
         @foreach($entityTypes as $et)
@@ -50,16 +50,16 @@
       </select>
     </div>
     <div class="col-auto">
-      <label class="form-label small mb-0">From <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+      <label class="form-label small mb-0">{{ __('From') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
       <input type="date" name="date_from" class="form-control form-control-sm" value="{{ $dateFrom }}" data-csp-auto-submit>
     </div>
     <div class="col-auto">
-      <label class="form-label small mb-0">To <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+      <label class="form-label small mb-0">{{ __('To') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
       <input type="date" name="date_to" class="form-control form-control-sm" value="{{ $dateTo }}" data-csp-auto-submit>
     </div>
     @if($operation !== '' || $status !== '' || $entityType !== '' || $dateFrom !== '' || $dateTo !== '')
       <div class="col-auto">
-        <a href="{{ route('ric.logs') }}" class="btn btn-sm atom-btn-white">Clear Filters</a>
+        <a href="{{ route('ric.logs') }}" class="btn btn-sm atom-btn-white">{{ __('Clear Filters') }}</a>
       </div>
     @endif
   </form>

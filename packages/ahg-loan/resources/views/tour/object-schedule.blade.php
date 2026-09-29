@@ -23,7 +23,7 @@
     <div>
       <h1 class="h3 mb-1">
         <i class="bi bi-calendar-range me-1"></i>
-        Touring schedule
+        {{ __('Touring schedule') }}
       </h1>
       <div class="text-muted">
         {{ $object['title'] ?? ('Object #' . $objectId) }}
@@ -33,7 +33,7 @@
       </div>
     </div>
     <a href="{{ route('loan.index') }}" class="btn btn-sm btn-outline-secondary">
-      <i class="bi bi-arrow-left me-1"></i> All loans
+      <i class="bi bi-arrow-left me-1"></i> {{ __('All loans') }}
     </a>
   </div>
 
@@ -43,12 +43,12 @@
     <div class="col-lg-7">
       <div class="card">
         <div class="card-header bg-light fw-semibold">
-          <i class="bi bi-list-task me-1"></i> Committed engagements
+          <i class="bi bi-list-task me-1"></i> {{ __('Committed engagements') }}
         </div>
         <div class="card-body p-0">
           @if(empty($timeline))
             <div class="p-4 text-muted text-center">
-              No tour stops, loans, or on-display windows recorded for this object yet.
+              {{ __('No tour stops, loans, or on-display windows recorded for this object yet.') }}
             </div>
           @else
             <div class="table-responsive">
@@ -102,7 +102,7 @@
     <div class="col-lg-5">
       <div class="card">
         <div class="card-header bg-light fw-semibold">
-          <i class="bi bi-plus-circle me-1"></i> Book a venue for a date range
+          <i class="bi bi-plus-circle me-1"></i> {{ __('Book a venue for a date range') }}
         </div>
         <div class="card-body">
 
@@ -129,7 +129,7 @@
             @csrf
 
             <div class="mb-3">
-              <label class="form-label">Venue / hosting institution <span class="text-danger">*</span></label>
+              <label class="form-label">{{ __('Venue / hosting institution') }} <span class="text-danger">*</span></label>
               <input type="text" name="venue_name" class="form-control" required
                      value="{{ old('venue_name', $attempt['venue_name'] ?? '') }}"
                      placeholder="{{ __('e.g. National Gallery, City Museum') }}">
@@ -150,12 +150,12 @@
 
             <div class="row g-2 mb-3">
               <div class="col">
-                <label class="form-label">Start date <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Start date') }} <span class="text-danger">*</span></label>
                 <input type="date" name="start_date" class="form-control" required
                        value="{{ old('start_date', $attempt['start_date'] ?? '') }}">
               </div>
               <div class="col">
-                <label class="form-label">End date <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('End date') }} <span class="text-danger">*</span></label>
                 <input type="date" name="end_date" class="form-control" required
                        value="{{ old('end_date', $attempt['end_date'] ?? '') }}">
               </div>
@@ -175,11 +175,10 @@
             </div>
 
             <button type="submit" class="btn btn-primary w-100">
-              <i class="bi bi-check2-circle me-1"></i> Check availability and book
+              <i class="bi bi-check2-circle me-1"></i> {{ __('Check availability and book') }}
             </button>
             <div class="form-text mt-2">
-              The booking is only saved when the window is clear of other tour stops,
-              committed loans, and on-display periods for this object.
+              {{ __('The booking is only saved when the window is clear of other tour stops, committed loans, and on-display periods for this object.') }}
             </div>
           </form>
 

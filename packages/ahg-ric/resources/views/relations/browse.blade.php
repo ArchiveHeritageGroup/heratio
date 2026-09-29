@@ -6,7 +6,7 @@
     <h1 class="mb-0"><i class="fas fa-link me-2"></i>{{ __('RiC Relations') }}</h1>
     <a href="{{ route('ric.index') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i> {{ __('RiC Dashboard') }}</a>
 </div>
-<p class="text-muted small">Global view of every relation in the triple store. Relations are edited inline on individual entity show pages.</p>
+<p class="text-muted small">{{ __('Global view of every relation in the triple store. Relations are edited inline on individual entity show pages.') }}</p>
 @isset($sourceBanner)
     <div class="alert alert-info small py-1 px-2 mb-3"><i class="fas fa-info-circle me-1"></i>{{ $sourceBanner }}</div>
 @endisset
@@ -48,7 +48,7 @@
             <td><small>{{ Str::limit($row->evidence ?: '', 80) }}</small></td>
         </tr>
         @empty
-        <tr><td colspan="7" class="text-muted text-center">No relations found.</td></tr>
+        <tr><td colspan="7" class="text-muted text-center">{{ __('No relations found.') }}</td></tr>
         @endforelse
     </tbody>
 </table>

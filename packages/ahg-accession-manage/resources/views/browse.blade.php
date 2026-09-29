@@ -92,7 +92,7 @@
   @include('ahg-core::components.pager', ['pager' => $pager])
 
   <section class="actions mb-3 d-flex flex-wrap gap-2">
-    <a href="{{ route('accession.create') }}" class="btn atom-btn-outline-light">Add new</a>
+    <a href="{{ route('accession.create') }}" class="btn atom-btn-outline-light">{{ __('Add new') }}</a>
     <a href="{{ route('accession.export-csv') }}" class="btn atom-btn-outline-light"><i class="fas fa-download me-1"></i>{{ __('Export CSV') }}</a>
   </section>
 @endsection

@@ -39,7 +39,7 @@
                    autocomplete="one-time-code" inputmode="numeric"
                    style="font-size: 2rem; letter-spacing: 0.5rem;">
             <div class="form-text">
-              Enter the 6-digit code from your authenticator app.
+              {{ __('Enter the 6-digit code from your authenticator app.') }}
             </div>
           </div>
 

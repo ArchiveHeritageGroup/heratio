@@ -52,7 +52,7 @@
                              aria-labelledby="heading_{{ $recId }}">
                             <div class="accordion-body">
                                 <dl class="row small mb-3">
-                                    <dt class="col-md-3 text-muted">Control (001)</dt>
+                                    <dt class="col-md-3 text-muted">{{ __('Control (001)') }}</dt>
                                     <dd class="col-md-9 font-monospace"><code>{{ $rec['control_001'] ?: '-' }}</code></dd>
                                     <dt class="col-md-3 text-muted">ISBN</dt>
                                     <dd class="col-md-9">{{ $rec['isbn'] ?: '-' }}</dd>
@@ -68,7 +68,7 @@
                                         @csrf
                                         <input type="hidden" name="marc_content" value="{{ base64_encode($rec['marc_content']) }}">
                                         <button type="submit" class="btn btn-outline-primary btn-sm me-2">
-                                            <i class="fas fa-eye me-1"></i>Preview & Import
+                                            <i class="fas fa-eye me-1"></i>{{ __('Preview & Import') }}
                                         </button>
                                     </form>
                                 </div>

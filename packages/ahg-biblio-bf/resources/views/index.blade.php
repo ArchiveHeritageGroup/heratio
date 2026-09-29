@@ -10,7 +10,7 @@
   </h1>
   <p class="text-muted small mb-4">
     {{ __('Convert bibliographic catalogue records to/from') }}
-    <a href="https://www.loc.gov/standards/bibframe/" target="_blank" rel="noopener">BIBFRAME 2.0 (Library of Congress)</a>.
+    <a href="https://www.loc.gov/standards/bibframe/" target="_blank" rel="noopener">{{ __('BIBFRAME 2.0 (Library of Congress)') }}</a>.
     All round-trips go through the OpenRiC RiC-O service layer.
   </p>
 
@@ -50,7 +50,7 @@
           <i class="bi bi-box-arrow-up-right me-1"></i> {{ __('Export') }}
         </div>
         <div class="card-body">
-          <p class="small text-muted">Export one or more catalogue works as BIBFRAME 2.0 RDF. Choose XML, Turtle, or JSON-LD.</p>
+          <p class="small text-muted">{{ __('Export one or more catalogue works as BIBFRAME 2.0 RDF. Choose XML, Turtle, or JSON-LD.') }}</p>
           <a href="{{ route('bibframe.export') }}" class="btn btn-outline-primary btn-sm w-100">
             {{ __('Open Export UI') }}
           </a>
@@ -64,7 +64,7 @@
           <i class="bi bi-box-arrow-down-left me-1"></i> {{ __('Import') }}
         </div>
         <div class="card-body">
-          <p class="small text-muted">Import a BIBFRAME RDF/XML document and merge the works into the catalogue.</p>
+          <p class="small text-muted">{{ __('Import a BIBFRAME RDF/XML document and merge the works into the catalogue.') }}</p>
           <a href="{{ route('bibframe.import') }}" class="btn btn-outline-success btn-sm w-100">
             {{ __('Open Import UI') }}
           </a>
@@ -78,7 +78,7 @@
           <i class="bi bi-check-circle me-1"></i> {{ __('Validate') }}
         </div>
         <div class="card-body">
-          <p class="small text-muted">Validate a BIBFRAME document for structural correctness against the LoC profile.</p>
+          <p class="small text-muted">{{ __('Validate a BIBFRAME document for structural correctness against the LoC profile.') }}</p>
           <a href="{{ route('bibframe.validate') }}" class="btn btn-outline-warning btn-sm w-100">
             {{ __('Open Validate UI') }}
           </a>
@@ -92,7 +92,7 @@
           <i class="bi bi-person me-1"></i> {{ __('Agents') }}
         </div>
         <div class="card-body">
-          <p class="small text-muted">Browse the agent authority used in BIBFRAME records - authors, editors, illustrators.</p>
+          <p class="small text-muted">{{ __('Browse the agent authority used in BIBFRAME records - authors, editors, illustrators.') }}</p>
           <a href="{{ route('bibframe.agent') }}" class="btn btn-outline-secondary btn-sm w-100">
             {{ __('Browse Agents') }}
           </a>
@@ -105,7 +105,7 @@
   <div class="row mt-4">
     <div class="col-lg-8">
       <div class="alert alert-info small mb-0">
-        <strong>BIBFRAME 2.0 model</strong> - Work (intellectual creation) &rarr; Instance (edition/format) &rarr; Item (copy).
+        <strong>{{ __('BIBFRAME 2.0 model') }}</strong> - Work (intellectual creation) &rarr; Instance (edition/format) &rarr; Item (copy).
         Conversion reads the live catalogue: a Work is a <code>library_item</code> work-key cluster,
         each <code>library_item</code> is an Instance, each <code>library_copy</code> an Item, and
         <code>library_item_creator</code> supplies the Agents. All RDF round-trips are proxied through the OpenRiC RiC-O service.

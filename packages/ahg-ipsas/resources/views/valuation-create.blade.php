@@ -137,7 +137,7 @@
         <div class="col-lg-4">
             <div class="alert alert-info">
                 <h6><i class="fas fa-info-circle"></i> {{ __('IPSAS Valuation') }}</h6>
-                <p class="small mb-0">Record valuation changes as required by IPSAS 17 and IPSAS 21 (Impairment of Non-Cash-Generating Assets). Ensure proper documentation and valuer credentials for audit compliance.</p>
+                <p class="small mb-0">{{ __('Record valuation changes as required by IPSAS 17 and IPSAS 21 (Impairment of Non-Cash-Generating Assets). Ensure proper documentation and valuer credentials for audit compliance.') }}</p>
             </div>
             <div class="card">
                 <div class="card-body d-grid gap-2">

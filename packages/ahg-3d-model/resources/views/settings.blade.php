@@ -17,7 +17,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h1><i class="fas fa-cog me-2"></i>3D Viewer Settings</h1>
-      <p class="text-muted mb-0">Configure global settings for 3D model viewing</p>
+      <p class="text-muted mb-0">{{ __('Configure global settings for 3D model viewing') }}</p>
     </div>
     <a href="{{ route('admin.3d-models.index') }}" class="btn atom-btn-white">
       <i class="fas fa-cubes me-1"></i>{{ __('View All Models') }}
@@ -99,7 +99,7 @@
                   <label class="form-label">{{ __('Default Viewer') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select class="form-select" name="default_viewer">
                     <option value="model-viewer" {{ getSetting3d($settings, 'default_viewer') == 'model-viewer' ? 'selected' : '' }}>
-                      Model Viewer (Google WebXR)
+                      {{ __('Model Viewer (Google WebXR)') }}
                     </option>
                     <option value="threejs" {{ getSetting3d($settings, 'default_viewer') == 'threejs' ? 'selected' : '' }}>
                       {{ __('Three.js') }}
@@ -141,7 +141,7 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Rotation Speed (deg/sec) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Rotation Speed (deg/sec)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="number" class="form-control" name="rotation_speed"
                          value="{{ getSetting3d($settings, 'rotation_speed', '30') }}"
                          min="0" max="360">
@@ -187,7 +187,7 @@
               {{ __('AR requires HTTPS and is supported on:') }}
               <ul class="mb-0 mt-1">
                 <li>iOS 12+ (Safari with Quick Look)</li>
-                <li>Android 7+ (Chrome with Scene Viewer)</li>
+                <li>{{ __('Android 7+ (Chrome with Scene Viewer)') }}</li>
                 <li>{{ __('WebXR-capable browsers') }}</li>
               </ul>
             </div>
@@ -203,7 +203,7 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label class="form-label">Maximum File Size (MB) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Maximum File Size (MB)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="number" class="form-control" name="max_file_size_mb"
                          value="{{ getSetting3d($settings, 'max_file_size_mb', '100') }}"
                          min="1" max="500">
@@ -292,7 +292,7 @@
           </div>
           <div class="card-body">
             <p class="text-muted small mb-3">
-              Generate 3D models from 2D images using AI. Supports local CPU processing or remote GPU server.
+              {{ __('Generate 3D models from 2D images using AI. Supports local CPU processing or remote GPU server.') }}
             </p>
 
             @if($triposrOnline)
@@ -318,21 +318,21 @@
                   <input class="form-check-input" type="checkbox" id="triposr_enabled" name="triposr_enabled" value="1"
                          {{ isSettingEnabled3d($settings, 'triposr_enabled') ? 'checked' : '' }}>
                   <label class="form-check-label" for="triposr_enabled"><strong>{{ __('Enable TripoSR') }}</strong> <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-                  <div class="form-text">Required for 2D-to-3D model generation. Calls the TripoSR API on each request.</div>
+                  <div class="form-text">{{ __('Required for 2D-to-3D model generation. Calls the TripoSR API on each request.') }}</div>
                 </div>
                 <div class="form-check mb-3">
                   <input type="hidden" name="enable_2d_to_3d_user_button" value="0">
                   <input class="form-check-input" type="checkbox" id="enable_2d_to_3d_user_button" name="enable_2d_to_3d_user_button" value="1"
                          {{ isSettingEnabled3d($settings, 'enable_2d_to_3d_user_button') ? 'checked' : '' }}>
                   <label class="form-check-label" for="enable_2d_to_3d_user_button"><strong>{{ __('Show "Generate 3D" button on IO show pages') }}</strong></label>
-                  <div class="form-text">When checked, authenticated users see a "Generate 3D model" button on each IO that has an image but no 3D model yet. Disable to keep TripoSR cron-only.</div>
+                  <div class="form-text">{{ __('When checked, authenticated users see a "Generate 3D model" button on each IO that has an image but no 3D model yet. Disable to keep TripoSR cron-only.') }}</div>
                 </div>
                 <div class="form-check mb-3">
                   <input type="hidden" name="triposr_demo_mode" value="0">
                   <input class="form-check-input" type="checkbox" id="triposr_demo_mode" name="triposr_demo_mode" value="1"
                          {{ isSettingEnabled3d($settings, 'triposr_demo_mode') ? 'checked' : '' }}>
                   <label class="form-check-label" for="triposr_demo_mode"><strong>{{ __('Demo placeholder fallback') }}</strong></label>
-                  <div class="form-text">When the TripoSR API is unreachable (server down, GPU contention, etc.), serve a bundled placeholder cube instead of failing. Useful for demos while the AI backend is being deployed.</div>
+                  <div class="form-text">{{ __('When the TripoSR API is unreachable (server down, GPU contention, etc.), serve a bundled placeholder cube instead of failing. Useful for demos while the AI backend is being deployed.') }}</div>
                 </div>
               </div>
               <div class="col-md-6">
@@ -340,7 +340,7 @@
                   <label class="form-label">{{ __('Processing Mode') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select class="form-select" name="triposr_mode" id="triposr_mode">
                     <option value="local" {{ getSetting3d($settings, 'triposr_mode', 'local') == 'local' ? 'selected' : '' }}>
-                      Local (CPU/GPU)
+                      {{ __('Local (CPU/GPU)') }}
                     </option>
                     <option value="remote" {{ getSetting3d($settings, 'triposr_mode') == 'remote' ? 'selected' : '' }}>
                       {{ __('Remote GPU Server') }}
@@ -411,12 +411,12 @@
                 <div class="form-check mb-3">
                   <input class="form-check-input" type="checkbox" id="triposr_bake_texture" name="triposr_bake_texture" value="1"
                          {{ isSettingEnabled3d($settings, 'triposr_bake_texture') ? 'checked' : '' }}>
-                  <label class="form-check-label" for="triposr_bake_texture">Bake Texture (OBJ output) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-check-label" for="triposr_bake_texture">{{ __('Bake Texture (OBJ output)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 </div>
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Timeout (seconds) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label class="form-label">{{ __('Timeout (seconds)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="number" class="form-control" name="triposr_timeout"
                          value="{{ getSetting3d($settings, 'triposr_timeout', '300') }}"
                          min="60" max="600">

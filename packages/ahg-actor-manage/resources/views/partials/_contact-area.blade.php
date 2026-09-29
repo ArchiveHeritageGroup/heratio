@@ -7,7 +7,7 @@
   <div class="contact-entry" data-index="{{ $index }}">
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="bi bi-telephone me-2"></i>Contact #<span class="contact-number">{{ $index + 1 }}</span></h5>
+        <h5 class="mb-0"><i class="bi bi-telephone me-2"></i>{{ __('Contact #') }}<span class="contact-number">{{ $index + 1 }}</span></h5>
         <button type="button" class="btn btn-sm btn-outline-light remove-contact" @if($loop->first && $contacts->count() === 1) style="display:none;" @endif>
           <i class="bi bi-trash"></i> {{ __('Remove') }}
         </button>
@@ -199,7 +199,7 @@
   <div class="contact-entry" data-index="__INDEX__">
     <div class="card mb-4">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="bi bi-telephone me-2"></i>Contact #<span class="contact-number">__NUMBER__</span></h5>
+        <h5 class="mb-0"><i class="bi bi-telephone me-2"></i>{{ __('Contact #') }}<span class="contact-number">__NUMBER__</span></h5>
         <button type="button" class="btn btn-sm btn-outline-light remove-contact">
           <i class="bi bi-trash"></i> {{ __('Remove') }}
         </button>

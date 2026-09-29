@@ -32,13 +32,13 @@
                 <div class="row">
                     <div class="col-md-8">
                         <div class="mb-3">
-                            <label class="form-label" for="name">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                            <label class="form-label" for="name">{{ __('Name') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                             <input type="text" class="form-control" id="name" name="name" value="{{ old('name') }}" autocomplete="off" required>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="mb-3">
-                            <label class="form-label" for="parent_id">Parent Collection <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                            <label class="form-label" for="parent_id">{{ __('Parent Collection') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select class="form-select" id="parent_id" name="parent_id">
                                 <option value="">- None (Top Level) -</option>
                                 @foreach($allCollections as $col)
@@ -52,20 +52,20 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label" for="description">Description <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-label" for="description">{{ __('Description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <textarea class="form-control" id="description" name="description" rows="3">{{ old('description') }}</textarea>
                 </div>
 
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label" for="attribution">Attribution <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                            <label class="form-label" for="attribution">{{ __('Attribution') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <input type="text" class="form-control" id="attribution" name="attribution" value="{{ old('attribution') }}">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label" for="viewing_hint">Viewing Hint <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                            <label class="form-label" for="viewing_hint">{{ __('Viewing Hint') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select class="form-select" id="viewing_hint" name="viewing_hint">
                                 <option value="individuals">{{ __('Individuals') }}</option>
                                 <option value="paged">{{ __('Paged') }}</option>
@@ -81,7 +81,7 @@
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="is_public" name="is_public" value="1" checked>
                         <label class="form-check-label" for="is_public">
-                            Public
+                            {{ __('Public') }}
                          <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     </div>
                 </div>

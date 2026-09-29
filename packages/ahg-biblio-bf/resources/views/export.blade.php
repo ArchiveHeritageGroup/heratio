@@ -7,7 +7,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h1 class="h4 mb-0"><i class="bi bi-box-arrow-up-right"></i> {{ __('BIBFRAME Export') }}</h1>
-      <p class="small text-muted mb-0">Convert catalogue works to BIBFRAME 2.0 RDF</p>
+      <p class="small text-muted mb-0">{{ __('Convert catalogue works to BIBFRAME 2.0 RDF') }}</p>
     </div>
     <a href="{{ route('bibframe.index') }}" class="btn btn-outline-secondary btn-sm">
       &larr; Back

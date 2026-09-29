@@ -411,7 +411,7 @@
         <h5 class="mb-0">{{ __('Calendar') }}</h5>
       </div>
       <div class="card-body">
-        <p class="small text-muted mb-2">Next 30 Days</p>
+        <p class="small text-muted mb-2">{{ __('Next 30 Days') }}</p>
         @if(!empty($calendarEvents))
           <ul class="list-unstyled mb-0">
             @foreach(array_slice($calendarEvents, 0, 5) as $event)

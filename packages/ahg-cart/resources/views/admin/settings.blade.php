@@ -142,7 +142,7 @@
 
           <div class="alert alert-info">
             <i class="fas fa-info-circle me-2"></i>
-            PayFast is a South African payment gateway. Sign up at
+            {{ __('PayFast is a South African payment gateway. Sign up at') }}
             <a href="https://www.payfast.co.za" target="_blank">www.payfast.co.za</a>
           </div>
 
@@ -184,7 +184,7 @@
               <div class="alert alert-warning mt-4">
                 <i class="fas fa-exclamation-triangle me-2"></i>
                 <strong>{{ __('ITN URL') }}</strong><br>
-                Configure this URL in your PayFast dashboard:<br>
+                {{ __('Configure this URL in your PayFast dashboard:') }}<br>
                 <code>{{ config('app.url') }}/cart/payment/notify</code>
               </div>
             </div>
@@ -212,7 +212,7 @@
         </div>
         <div class="card-body">
 
-          <p class="text-muted mb-4">Set prices for each product type. Prices include VAT.</p>
+          <p class="text-muted mb-4">{{ __('Set prices for each product type. Prices include VAT.') }}</p>
 
           <div class="table-responsive">
             <table class="table table-hover">

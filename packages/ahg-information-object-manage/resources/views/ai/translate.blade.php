@@ -35,7 +35,7 @@
   <div class="card mb-3">
     <div class="card-header fw-bold">{{ __('Translation') }}</div>
     <div class="card-body" id="translation-result">
-      <p class="text-muted">Choose a language and click the button below to translate the document.</p>
+      <p class="text-muted">{{ __('Choose a language and click the button below to translate the document.') }}</p>
     </div>
   </div>
 

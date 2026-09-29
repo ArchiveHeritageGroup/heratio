@@ -21,11 +21,11 @@
             <form method="POST" action="{{ route('iiif-collection.add-items', $collection->id) }}">
                 @csrf
                 <div class="mb-3">
-                    <label class="form-label">Manifest URI <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-label">{{ __('Manifest URI') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <input type="url" class="form-control form-control-sm" name="manifest_uri" placeholder="{{ __('https://...') }}">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">Label <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-label">{{ __('Label') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <input type="text" class="form-control form-control-sm" name="label">
                 </div>
                 <button type="submit" class="btn btn-sm atom-btn-outline-success w-100">
@@ -52,7 +52,7 @@
             <form method="POST" id="addItemsForm" action="{{ route('iiif-collection.add-items', $collection->id) }}">
                 @csrf
                 <div class="mb-3">
-                    <label class="form-label">Search for objects <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-label">{{ __('Search for objects') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <input type="text" class="form-control" id="objectSearchInput"
                            placeholder="{{ __('Type to search by title or identifier...') }}"
                            autocomplete="off">
@@ -60,7 +60,7 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Selected Items <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                    <label class="form-label">{{ __('Selected Items') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                     <div id="selectedItems" class="border rounded p-2" style="min-height: 50px;">
                         <span class="text-muted" id="noSelection">{{ __('No items selected') }}</span>
                     </div>

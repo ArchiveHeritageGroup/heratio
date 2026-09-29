@@ -49,7 +49,7 @@
           $algoName = $hasSodium ? 'XChaCha20-Poly1305 (libsodium)' : 'AES-256-GCM (OpenSSL)';
         @endphp
 
-        <p class="text-muted mb-3">Encryption for digital object files and sensitive database fields using <strong>{{ $algoName }}</strong>. Requires an encryption key at <code>{{ $keyPath }}</code>.</p>
+        <p class="text-muted mb-3">{{ __('Encryption for digital object files and sensitive database fields using') }} <strong>{{ $algoName }}</strong>. Requires an encryption key at <code>{{ $keyPath }}</code>.</p>
 
         {{-- Key Status --}}
         <div class="alert {{ $keyExists ? 'alert-success' : 'alert-warning' }} mb-3">
@@ -58,7 +58,7 @@
             <strong>{{ __('Encryption key found') }}</strong>
             <span class="ms-2 text-muted">Path: <code>{{ $keyPath }}</code> | Permissions: <code>{{ $keyPerms }}</code> | Algorithm: <code>{{ $algoName }}</code></span>
             @if ($keyPerms !== '0600')
-              <br><small class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>Permissions should be 0600 for security.</small>
+              <br><small class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>{{ __('Permissions should be 0600 for security.') }}</small>
             @endif
           @else
             <strong>{{ __('No encryption key found') }}</strong>
@@ -74,7 +74,7 @@
                  {{ !$keyExists ? 'disabled' : '' }}>
           <label class="form-check-label fw-bold" for="encryption_enabled">{{ __('Enable Encryption') }}</label>
         </div>
-        <div class="form-text mb-3">Master toggle. When enabled, new file uploads will be encrypted automatically.</div>
+        <div class="form-text mb-3">{{ __('Master toggle. When enabled, new file uploads will be encrypted automatically.') }}</div>
       </div>
     </div>
 
@@ -92,7 +92,7 @@
                  {{ ($settings['encryption_encrypt_derivatives'] ?? 'true') === 'true' || ($settings['encryption_encrypt_derivatives'] ?? '') === '1' ? 'checked' : '' }}>
           <label class="form-check-label fw-bold" for="encryption_encrypt_derivatives">{{ __('Encrypt derivatives') }}</label>
         </div>
-        <div class="form-text mb-3">Also encrypt thumbnails and reference images. Recommended for full protection.</div>
+        <div class="form-text mb-3">{{ __('Also encrypt thumbnails and reference images. Recommended for full protection.') }}</div>
 
         @php
           $totalDOs = 0;
@@ -115,7 +115,7 @@
         <h5 class="mb-0"><i class="fas fa-database me-2"></i>{{ __('Layer 2: Database Field Encryption') }}</h5>
       </div>
       <div class="card-body">
-        <p class="text-muted mb-3">Transparent encryption of sensitive database columns. Toggle categories below, then run the CLI to encrypt existing data.</p>
+        <p class="text-muted mb-3">{{ __('Transparent encryption of sensitive database columns. Toggle categories below, then run the CLI to encrypt existing data.') }}</p>
 
         <div class="row g-3">
           <div class="col-md-6">
@@ -127,7 +127,7 @@
                 <strong><i class="fas fa-address-card me-1 text-primary"></i>{{ __('Contact Details') }}</strong>
               </label>
             </div>
-            <div class="form-text">Email, address, telephone, fax, contact person (contact_information tables).</div>
+            <div class="form-text">{{ __('Email, address, telephone, fax, contact person (contact_information tables).') }}</div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch">
@@ -149,7 +149,7 @@
                 <strong><i class="fas fa-user-shield me-1 text-success"></i>{{ __('Donor Information') }}</strong>
               </label>
             </div>
-            <div class="form-text">Actor history (biographical/administrative history for donors).</div>
+            <div class="form-text">{{ __('Actor history (biographical/administrative history for donors).') }}</div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch">
@@ -160,7 +160,7 @@
                 <strong><i class="fas fa-sticky-note me-1 text-info"></i>{{ __('Personal Notes') }}</strong>
               </label>
             </div>
-            <div class="form-text">Note content (internal staff notes on records).</div>
+            <div class="form-text">{{ __('Note content (internal staff notes on records).') }}</div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch">
@@ -171,7 +171,7 @@
                 <strong><i class="fas fa-ban me-1 text-danger"></i>{{ __('Access Restrictions') }}</strong>
               </label>
             </div>
-            <div class="form-text">Rights notes (access restriction details in rights statements).</div>
+            <div class="form-text">{{ __('Rights notes (access restriction details in rights statements).') }}</div>
           </div>
         </div>
 

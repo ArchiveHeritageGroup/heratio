@@ -45,7 +45,7 @@
                 <strong>{{ __('Enable Voice Commands') }}</strong>
               </label>
             </div>
-            <div class="form-text">Allow users to navigate and control the application using voice commands.</div>
+            <div class="form-text">{{ __('Allow users to navigate and control the application using voice commands.') }}</div>
           </div>
           <div class="col-md-6">
             <label class="form-label" for="voice_language">{{ __('Voice Language') }}</label>
@@ -95,7 +95,7 @@
                 <strong>{{ __('Continuous Listening') }}</strong>
               </label>
             </div>
-            <div class="form-text">Keep microphone active after each command (no need to re-activate).</div>
+            <div class="form-text">{{ __('Keep microphone active after each command (no need to re-activate).') }}</div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch">
@@ -106,7 +106,7 @@
                 <strong>{{ __('Show Floating Mic Button') }}</strong>
               </label>
             </div>
-            <div class="form-text">Display a floating microphone button on all pages for quick voice activation.</div>
+            <div class="form-text">{{ __('Display a floating microphone button on all pages for quick voice activation.') }}</div>
           </div>
         </div>
 
@@ -120,7 +120,7 @@
                 <strong>{{ __('Mouseover Read-Aloud') }}</strong>
               </label>
             </div>
-            <div class="form-text">Read button and link text aloud when hovering with the mouse (when voice mode is active).</div>
+            <div class="form-text">{{ __('Read button and link text aloud when hovering with the mouse (when voice mode is active).') }}</div>
           </div>
           <div class="col-md-6">
             <label class="form-label" for="voice_hover_read_delay">{{ __('Hover Read Delay:') }} <span id="voice_hover_read_delay_val">{{ $settings['voice_hover_read_delay'] ?? '400' }}</span>ms</label>
@@ -177,7 +177,7 @@
                    name="settings[voice_local_llm_model]"
                    value="{{ e($settings['voice_local_llm_model'] ?? 'llava:7b') }}"
                    placeholder="{{ __('llava:7b') }}">
-            <div class="form-text">Vision-capable model name (e.g. llava:7b, bakllava).</div>
+            <div class="form-text">{{ __('Vision-capable model name (e.g. llava:7b, bakllava).') }}</div>
           </div>
           <div class="col-md-4">
             <label class="form-label" for="voice_local_llm_timeout">{{ __('Timeout (seconds)') }}</label>

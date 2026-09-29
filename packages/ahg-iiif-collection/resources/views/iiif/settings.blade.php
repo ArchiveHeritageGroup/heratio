@@ -14,7 +14,7 @@
       <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('About') }}</h5>
     </div>
     <div class="card-body">
-      <p class="small text-muted mb-0">Configure IIIF image display and homepage featured collections.</p>
+      <p class="small text-muted mb-0">{{ __('Configure IIIF image display and homepage featured collections.') }}</p>
     </div>
   </div>
   <div class="card">
@@ -73,7 +73,7 @@
                   </option>
                 @endforeach
               </select>
-              <div class="form-text">Choose which collection to display on the homepage.</div>
+              <div class="form-text">{{ __('Choose which collection to display on the homepage.') }}</div>
             </div>
           </div>
           <div class="col-md-6">
@@ -131,7 +131,7 @@
               <option value="openseadragon" {{ ($settings['viewer_type'] ?? '') === 'openseadragon' ? 'selected' : '' }}>{{ __('OpenSeadragon (Deep Zoom)') }}</option>
               <option value="mirador" {{ ($settings['viewer_type'] ?? 'mirador') === 'mirador' ? 'selected' : '' }}>{{ __('Mirador (Full IIIF Viewer)') }}</option>
             </select>
-            <div class="form-text">Choose how images are displayed on record pages.</div>
+            <div class="form-text">{{ __('Choose how images are displayed on record pages.') }}</div>
           </div>
           <div class="col-md-6">
             <label class="form-label">{{ __('Viewer Height') }}</label>

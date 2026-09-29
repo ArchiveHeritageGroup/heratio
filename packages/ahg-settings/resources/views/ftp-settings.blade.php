@@ -93,13 +93,13 @@
             <label for="ftp_remote_path" class="form-label fw-bold">{{ __('Remote Base Path') }}</label>
             <input type="text" class="form-control" id="ftp_remote_path" name="ftp_remote_path"
                    value="{{ $settings['ftp_remote_path'] ?? '/uploads' }}" placeholder="{{ __('/uploads') }}">
-            <div class="form-text">Path as seen by the SFTP/FTP user (e.g. /uploads). Used for uploading and listing files.</div>
+            <div class="form-text">{{ __('Path as seen by the SFTP/FTP user (e.g. /uploads). Used for uploading and listing files.') }}</div>
           </div>
           <div class="col-md-6">
             <label for="ftp_disk_path" class="form-label fw-bold">{{ __('Server Disk Path') }}</label>
             <input type="text" class="form-control" id="ftp_disk_path" name="ftp_disk_path"
                    value="{{ $settings['ftp_disk_path'] ?? '' }}" placeholder="{{ __('/sftp/ftpuser/uploads') }}">
-            <div class="form-text">Actual filesystem path on the server where files land. Shown to users for the CSV digitalObjectPath column.</div>
+            <div class="form-text">{{ __('Actual filesystem path on the server where files land. Shown to users for the CSV digitalObjectPath column.') }}</div>
           </div>
         </div>
       </div>
@@ -119,7 +119,7 @@
                      {{ ($settings['ftp_passive_mode'] ?? 'true') === 'true' || ($settings['ftp_passive_mode'] ?? '') === '1' ? 'checked' : '' }}>
               <label class="form-check-label fw-bold" for="ftp_passive_mode">{{ __('Passive Mode') }}</label>
             </div>
-            <div class="form-text">Enable passive mode for FTP connections (recommended for firewalled servers). Only applies to FTP, not SFTP.</div>
+            <div class="form-text">{{ __('Enable passive mode for FTP connections (recommended for firewalled servers). Only applies to FTP, not SFTP.') }}</div>
           </div>
         </div>
       </div>

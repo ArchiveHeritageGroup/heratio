@@ -24,7 +24,7 @@ $editSlideData = isset($editSlide) && $editSlide ? (array)$editSlide : null;
               <label class="form-label">Hero Image {{ $editSlideData ? '' : '' }} <span class="badge bg-{{ $editSlideData ? 'secondary' : 'danger' }} ms-1">{{ $editSlideData ? 'Optional' : 'Required' }}</span></label>
               @if($editSlideData && !empty($editSlideData['image_path']))<div class="mb-2"><img src="{{ $editSlideData['image_path'] }}" class="img-thumbnail" style="max-height:100px"><br><small class="text-muted">{{ __('Current image') }}</small></div>@endif
               <input type="file" class="form-control mb-2" name="hero_image" accept="image/jpeg,image/png,image/webp,image/gif">
-              <div class="form-text">Upload JPG, PNG, WebP, or GIF. Max 10MB. Recommended: 1920x1080px.</div>
+              <div class="form-text">{{ __('Upload JPG, PNG, WebP, or GIF. Max 10MB. Recommended: 1920x1080px.') }}</div>
               <div class="mt-2"><label class="form-label small">{{ __('Or enter image URL:') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="url" class="form-control form-control-sm" name="image_url" placeholder="{{ __('https://example.com/image.jpg') }}" value="{{ ($editSlideData && str_starts_with($editSlideData['image_path'] ?? '', 'http')) ? $editSlideData['image_path'] : '' }}"></div>
             </div>
             <div class="col-md-6 mb-3">
@@ -41,7 +41,7 @@ $editSlideData = isset($editSlide) && $editSlide ? (array)$editSlide : null;
           </div>
           <div class="row">
             <div class="col-md-4 mb-3"><label class="form-label">{{ __('Text Position') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select class="form-select" name="text_position">@foreach(['left','center','right','bottom-left','bottom-right'] as $pos)<option value="{{ $pos }}" {{ ($editSlideData['text_position'] ?? 'left')===$pos?'selected':'' }}>{{ ucfirst($pos) }}</option>@endforeach</select></div>
-            <div class="col-md-4 mb-3"><label class="form-label">Display Duration (seconds) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="number" class="form-control" name="display_duration" value="{{ $editSlideData['display_duration'] ?? 8 }}" min="3" max="30"></div>
+            <div class="col-md-4 mb-3"><label class="form-label">{{ __('Display Duration (seconds)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="number" class="form-control" name="display_duration" value="{{ $editSlideData['display_duration'] ?? 8 }}" min="3" max="30"></div>
             <div class="col-md-4 mb-3"><label class="form-label">{{ __('Display Order') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="number" class="form-control" name="display_order" value="{{ $editSlideData['display_order'] ?? 100 }}"></div>
           </div>
           <div class="row">

@@ -66,7 +66,7 @@
             @endif
 
             <div class="mb-3">
-              <label class="form-label fw-bold">Parent Record (optional) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label class="form-label fw-bold">{{ __('Parent Record (optional)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="hidden" name="parent_object_id" id="parentObjectId" value="@php echo $submission->parent_object_id ?? '' @endphp">
               <input type="text" class="form-control" id="parentSearch" placeholder="{{ __('Type to search for a parent record...') }}" autocomplete="off"
                      value="@php echo htmlspecialchars($parentTitle) @endphp">

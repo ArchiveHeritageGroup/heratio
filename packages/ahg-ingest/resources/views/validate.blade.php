@@ -40,9 +40,9 @@
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{{ route('ingest.index') }}">Ingestion Manager</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('ingest.index') }}">{{ __('Ingestion Manager') }}</a></li>
         <li class="breadcrumb-item">{{ $session->title ?? ('Session #' . ($session->id ?? '')) }}</li>
-        <li class="breadcrumb-item active" aria-current="page">Validate</li>
+        <li class="breadcrumb-item active" aria-current="page">{{ __('Validate') }}</li>
     </ol>
 </nav>
 
@@ -177,7 +177,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Row: <strong id="fix_row_label"></strong></label>
+                        <label class="form-label">{{ __('Row:') }} <strong id="fix_row_label"></strong></label>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Field: <code id="fix_field_label"></code></label>

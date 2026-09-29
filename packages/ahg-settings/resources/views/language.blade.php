@@ -12,7 +12,7 @@
 
 @section('content')
     <div class="alert alert-info">
-      <p>Please rebuild the search index if you are adding new languages.</p>
+      <p>{{ __('Please rebuild the search index if you are adding new languages.') }}</p>
       <pre class="mb-0">$ php symfony search:populate</pre>
     </div>
 

@@ -6,8 +6,7 @@
   <div class="sidebar-widget mb-3">
     <h4>{{ __('Static pages') }}</h4>
     <p class="small text-muted">
-      Static pages are custom content pages that appear on your site.
-      You can create pages such as About, Contact, Privacy, or any other informational page.
+      {{ __('Static pages are custom content pages that appear on your site. You can create pages such as About, Contact, Privacy, or any other informational page.') }}
     </p>
     <p class="small text-muted">
       {{ __('Pages with the slugs') }} <strong>home</strong>, <strong>about</strong>, and <strong>contact</strong>

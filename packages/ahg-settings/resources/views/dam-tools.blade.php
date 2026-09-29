@@ -42,7 +42,7 @@
           <div class="card-body text-center">
             <i class="fas fa-cube fa-3x text-warning mb-3"></i>
             <h5>{{ __('3D Objects') }}</h5>
-            <p class="text-muted small">Manage 3D models and viewer settings.</p>
+            <p class="text-muted small">{{ __('Manage 3D models and viewer settings.') }}</p>
             <a href="#" class="btn atom-btn-outline-warning"><i class="fas fa-cog me-1"></i>{{ __('Settings') }}</a>
           </div>
         </div>

@@ -81,16 +81,16 @@
     </div>
     <div class="card-body">
       <dl class="row mb-0">
-        <dt class="col-sm-3">Type</dt>
+        <dt class="col-sm-3">{{ __('Type') }}</dt>
         <dd class="col-sm-9">{{ ucfirst(str_replace('_', ' ', $embargo->embargo_type ?? '')) }}</dd>
 
-        <dt class="col-sm-3">Reason</dt>
+        <dt class="col-sm-3">{{ __('Reason') }}</dt>
         <dd class="col-sm-9">{{ ucfirst(str_replace('_', ' ', $embargo->reason ?? '')) }}</dd>
 
-        <dt class="col-sm-3">Start Date</dt>
+        <dt class="col-sm-3">{{ __('Start Date') }}</dt>
         <dd class="col-sm-9">{{ $embargo->start_date ? \Carbon\Carbon::parse($embargo->start_date)->format('j F Y') : '-' }}</dd>
 
-        <dt class="col-sm-3">End Date</dt>
+        <dt class="col-sm-3">{{ __('End Date') }}</dt>
         <dd class="col-sm-9">
           @if($embargo->end_date)
             {{ \Carbon\Carbon::parse($embargo->end_date)->format('j F Y') }}
@@ -104,7 +104,7 @@
         </dd>
 
         @if($embargo->reason_note ?? null)
-        <dt class="col-sm-3">Note</dt>
+        <dt class="col-sm-3">{{ __('Note') }}</dt>
         <dd class="col-sm-9">{!! nl2br(e($embargo->reason_note)) !!}</dd>
         @endif
       </dl>
@@ -144,8 +144,8 @@
       <p class="mt-2 mb-0">
         <small>
           <i class="fas fa-info-circle me-1"></i>
-          Learn more about Traditional Knowledge Labels at
-          <a href="https://localcontexts.org" target="_blank">Local Contexts</a>
+          {{ __('Learn more about Traditional Knowledge Labels at') }}
+          <a href="https://localcontexts.org" target="_blank">{{ __('Local Contexts') }}</a>
         </small>
       </p>
     </div>
@@ -235,7 +235,7 @@
         </table>
       </div>
       @else
-      <p class="text-muted mb-0">No rights records have been added yet.</p>
+      <p class="text-muted mb-0">{{ __('No rights records have been added yet.') }}</p>
       @endif
     </div>
   </div>
@@ -248,7 +248,7 @@
     </div>
     <div class="card-body">
       <dl class="row mb-0">
-        <dt class="col-sm-3">Status</dt>
+        <dt class="col-sm-3">{{ __('Status') }}</dt>
         <dd class="col-sm-9">
           @php
             $owColor = match($orphanWork->status ?? '') {
@@ -257,17 +257,17 @@
           @endphp
           <span class="badge bg-{{ $owColor }}">{{ ucfirst(str_replace('_', ' ', $orphanWork->status ?? '')) }}</span>
         </dd>
-        <dt class="col-sm-3">Work Type</dt>
+        <dt class="col-sm-3">{{ __('Work Type') }}</dt>
         <dd class="col-sm-9">{{ ucfirst(str_replace('_', ' ', $orphanWork->work_type ?? '')) }}</dd>
-        <dt class="col-sm-3">Search Started</dt>
+        <dt class="col-sm-3">{{ __('Search Started') }}</dt>
         <dd class="col-sm-9">{{ $orphanWork->search_started_date ?? '-' }}</dd>
         @if($orphanWork->search_completed_date ?? null)
-        <dt class="col-sm-3">Search Completed</dt>
+        <dt class="col-sm-3">{{ __('Search Completed') }}</dt>
         <dd class="col-sm-9">{{ $orphanWork->search_completed_date }}</dd>
         @endif
       </dl>
       <a href="{{ route('ext-rights-admin.orphan-work-edit', $orphanWork->id) }}" class="btn btn-sm btn-outline-info mt-2">
-        View Search Details
+        {{ __('View Search Details') }}
       </a>
     </div>
   </div>

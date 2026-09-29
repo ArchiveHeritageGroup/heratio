@@ -217,7 +217,7 @@
             <i class="fas fa-save me-1"></i> {{ __('Save Results') }}
           </div>
           <div class="card-body">
-            <p class="text-muted small">Save this scan result to the record for future reference and compliance tracking.</p>
+            <p class="text-muted small">{{ __('Save this scan result to the record for future reference and compliance tracking.') }}</p>
             <form method="POST" action="{{ route('io.privacy.scan.save', ['id' => $io->id ?? 0]) }}">
               @csrf
               <button type="submit" class="btn atom-btn-outline-success w-100" id="save-scan-btn">
@@ -307,7 +307,7 @@
         </div>
         <h5 class="text-success">{{ __('No PII Detected') }}</h5>
         <p class="text-muted mb-3">
-          No personally identifiable information was found in this record.
+          {{ __('No personally identifiable information was found in this record.') }}
         </p>
         <div class="btn-group">
           <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn atom-btn-white">

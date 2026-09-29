@@ -17,7 +17,7 @@
   <div class="card mb-4 shadow-sm">
     <div class="card-header bg-secondary text-white">
       <h5 class="mb-0">
-        <i class="fas fa-language me-2"></i>Step 1: Select Fields
+        <i class="fas fa-language me-2"></i>{{ __('Step 1: Select Fields') }}
         <span class="ahg-step-indicator badge bg-light text-dark ms-2" id="step-indicator">{{ __('Step 1: Select Fields') }}</span>
       </h5>
     </div>

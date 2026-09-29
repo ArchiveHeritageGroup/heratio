@@ -10,8 +10,8 @@
 
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('ric.index') }}">RiC Dashboard</a></li>
-      <li class="breadcrumb-item active">Configuration</li>
+      <li class="breadcrumb-item"><a href="{{ route('ric.index') }}">{{ __('RiC Dashboard') }}</a></li>
+      <li class="breadcrumb-item active">{{ __('Configuration') }}</li>
     </ol>
   </nav>
 

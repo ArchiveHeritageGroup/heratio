@@ -36,7 +36,7 @@
           <td class="text-end">{{ damFmtBytes($t->size ?? 0) }}</td>
         </tr>
         @empty
-        <tr><td colspan="3" class="text-muted text-center py-4">No storage data.</td></tr>
+        <tr><td colspan="3" class="text-muted text-center py-4">{{ __('No storage data.') }}</td></tr>
         @endforelse
       </tbody>
     </table>

@@ -22,7 +22,7 @@
     </div>
   </div>
   @empty
-  <div class="col-12"><div class="alert alert-warning">No thumbnails found.</div></div>
+  <div class="col-12"><div class="alert alert-warning">{{ __('No thumbnails found.') }}</div></div>
   @endforelse
 </div>
 @endsection

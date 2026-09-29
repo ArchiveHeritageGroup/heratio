@@ -22,7 +22,7 @@
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <h2 class="text-success">{{ __('VERIFIED') }}</h2>
-                    <p class="text-muted">All DoD 5015.2 destruction verification checks passed.</p>
+                    <p class="text-muted">{{ __('All DoD 5015.2 destruction verification checks passed.') }}</p>
                 @else
                     <div class="display-4 text-danger mb-2">
                         <i class="fas fa-times-circle"></i>

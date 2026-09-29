@@ -185,7 +185,7 @@
               @if($iAmHolder)
                 <i class="fas fa-clock me-1"></i>
                 <strong>{{ __('You have this reserved.') }}</strong>
-                Hold expires <span data-countdown="{{ $reservation->expires_at }}">{{ \Carbon\Carbon::parse($reservation->expires_at)->diffForHumans() }}</span>.
+                {{ __('Hold expires') }} <span data-countdown="{{ $reservation->expires_at }}">{{ \Carbon\Carbon::parse($reservation->expires_at)->diffForHumans() }}</span>.
                 Complete the purchase below to keep it.
               @else
                 <i class="fas fa-lock me-1"></i>

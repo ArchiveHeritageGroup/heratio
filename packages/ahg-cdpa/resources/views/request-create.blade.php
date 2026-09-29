@@ -102,7 +102,7 @@
         <div class="col-lg-4">
             <div class="alert alert-info">
                 <h6><i class="fas fa-info-circle me-1"></i> {{ __('Response Deadline') }}</h6>
-                <p class="small mb-0">Data subject requests must be responded to within 30 days under CDPA.</p>
+                <p class="small mb-0">{{ __('Data subject requests must be responded to within 30 days under CDPA.') }}</p>
             </div>
 
             <div class="card">

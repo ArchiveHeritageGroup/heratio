@@ -105,16 +105,16 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
-                    <h6><span class="fi fi-za me-2"></span>POPIA (South Africa)</h6>
-                    <p class="small">Information Officer must be registered with the Information Regulator. Deputy Information Officers should also be designated.</p>
+                    <h6><span class="fi fi-za me-2"></span>{{ __('POPIA (South Africa)') }}</h6>
+                    <p class="small">{{ __('Information Officer must be registered with the Information Regulator. Deputy Information Officers should also be designated.') }}</p>
                 </div>
                 <div class="col-md-4">
-                    <h6><span class="fi fi-ng me-2"></span>NDPA (Nigeria)</h6>
-                    <p class="small">Data Protection Officer required for major data controllers. Registration with NDPC.</p>
+                    <h6><span class="fi fi-ng me-2"></span>{{ __('NDPA (Nigeria)') }}</h6>
+                    <p class="small">{{ __('Data Protection Officer required for major data controllers. Registration with NDPC.') }}</p>
                 </div>
                 <div class="col-md-4">
                     <h6><span class="fi fi-eu me-2"></span>GDPR (EU)</h6>
-                    <p class="small">DPO required for public authorities and large-scale processing. Contact details must be published.</p>
+                    <p class="small">{{ __('DPO required for public authorities and large-scale processing. Contact details must be published.') }}</p>
                 </div>
             </div>
         </div>

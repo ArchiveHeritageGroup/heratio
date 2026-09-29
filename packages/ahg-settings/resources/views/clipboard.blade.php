@@ -26,7 +26,7 @@
           <div id="saving-collapse" class="accordion-collapse collapse" aria-labelledby="saving-heading">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Saved clipboard maximum age (in days) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Saved clipboard maximum age (in days)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="number" name="settings[clipboard_save_max_age]" class="form-control" value="{{ e($settings['clipboard_save_max_age']) }}" min="0">
                 <small class="text-muted">{{ __('The number of days a saved clipboard should be retained before it is eligible for deletion') }}</small>
               </div>

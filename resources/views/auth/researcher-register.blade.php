@@ -16,8 +16,7 @@
       <div class="card-body">
         <div class="alert alert-info">
           <i class="fas fa-info-circle me-2"></i>
-          Register to access the reading room, request materials, and save your research.
-          Your account will be reviewed and activated within 1-2 business days.
+          {{ __('Register to access the reading room, request materials, and save your research. Your account will be reviewed and activated within 1-2 business days.') }}
         </div>
 
         @if($errors->any())
@@ -40,7 +39,7 @@
                 <label class="form-label">{{ __('Username') }} <span class="text-danger">*</span></label>
                 <input type="text" name="username" class="form-control @error('username') is-invalid @enderror"
                        value="{{ old('username') }}" required minlength="3" placeholder="Choose a username" autocomplete="username">
-                <small class="text-muted">At least 3 characters, letters and numbers only</small>
+                <small class="text-muted">{{ __('At least 3 characters, letters and numbers only') }}</small>
                 @error('username')
                   <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -59,7 +58,7 @@
                 <label class="form-label">{{ __('Password') }} <span class="text-danger">*</span></label>
                 <input type="password" name="password" class="form-control @error('password') is-invalid @enderror"
                        required minlength="8" id="password" autocomplete="new-password">
-                <small class="text-muted">At least 8 characters</small>
+                <small class="text-muted">{{ __('At least 8 characters') }}</small>
                 @error('password')
                   <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -99,10 +98,10 @@
                   <label class="form-label">{{ __('Title') }}</label>
                   <select name="title" class="form-select">
                     <option value="">--</option>
-                    <option value="Mr" {{ old('title') == 'Mr' ? 'selected' : '' }}>Mr</option>
+                    <option value="Mr" {{ old('title') == 'Mr' ? 'selected' : '' }}>{{ __('Mr') }}</option>
                     <option value="Mrs" {{ old('title') == 'Mrs' ? 'selected' : '' }}>{{ __('Mrs') }}</option>
-                    <option value="Ms" {{ old('title') == 'Ms' ? 'selected' : '' }}>Ms</option>
-                    <option value="Dr" {{ old('title') == 'Dr' ? 'selected' : '' }}>Dr</option>
+                    <option value="Ms" {{ old('title') == 'Ms' ? 'selected' : '' }}>{{ __('Ms') }}</option>
+                    <option value="Dr" {{ old('title') == 'Dr' ? 'selected' : '' }}>{{ __('Dr') }}</option>
                     <option value="Prof" {{ old('title') == 'Prof' ? 'selected' : '' }}>{{ __('Prof') }}</option>
                   </select>
                 </div>

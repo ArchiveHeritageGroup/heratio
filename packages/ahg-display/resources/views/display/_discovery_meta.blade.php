@@ -12,7 +12,7 @@
     @if(isset($discovery['score']))
       <span class="text-muted" title="{{ __('Relevance score') }}">
         <i class="fas fa-chart-bar me-1"></i>
-        Score: <strong>{{ number_format($discovery['score'], 2) }}</strong>
+        {{ __('Score:') }} <strong>{{ number_format($discovery['score'], 2) }}</strong>
       </span>
     @endif
 

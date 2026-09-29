@@ -27,13 +27,13 @@
           <div class="card-body">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Object ID <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Object ID') }} <span class="text-danger">*</span></label>
                 <input type="number" name="object_id" class="form-control" required
                        value="{{ old('object_id', $orphanWork->object_id ?? request('object_id', '')) }}"
                        {{ isset($orphanWork) ? 'readonly' : '' }}>
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Work Type <span class="text-danger">*</span></label>
+                <label class="form-label">{{ __('Work Type') }} <span class="text-danger">*</span></label>
                 <select name="work_type" class="form-select" required>
                   @foreach($formOptions['work_type_options'] as $value => $label)
                   <option value="{{ $value }}" {{ (old('work_type', $orphanWork->work_type ?? '')) === $value ? 'selected' : '' }}>
@@ -70,7 +70,7 @@
         </div>
 
         <section class="actions mb-3 nav gap-2" style="background-color:#495057;border-radius:.375rem;padding:1rem;">
-          <a href="{{ route('ext-rights-admin.orphan-works') }}" class="btn atom-btn-outline-light">Cancel</a>
+          <a href="{{ route('ext-rights-admin.orphan-works') }}" class="btn atom-btn-outline-light">{{ __('Cancel') }}</a>
           <button type="submit" class="btn atom-btn-outline-light"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button>
         </section>
       </form>
@@ -116,7 +116,7 @@
               </tr>
               @empty
               <tr>
-                <td colspan="4" class="text-center text-muted py-4">No search steps documented yet.</td>
+                <td colspan="4" class="text-center text-muted py-4">{{ __('No search steps documented yet.') }}</td>
               </tr>
               @endforelse
             </tbody>
@@ -142,10 +142,10 @@
           <p><span class="badge bg-{{ $statusColor }} fs-6">{{ ucfirst(str_replace('_', ' ', $orphanWork->status ?? '')) }}</span></p>
 
           <dl class="mb-0">
-            <dt>Search Started</dt>
+            <dt>{{ __('Search Started') }}</dt>
             <dd>{{ $orphanWork->search_started_date ? \Carbon\Carbon::parse($orphanWork->search_started_date)->format('d M Y') : '-' }}</dd>
             @if($orphanWork->search_completed_date ?? null)
-            <dt>Search Completed</dt>
+            <dt>{{ __('Search Completed') }}</dt>
             <dd>{{ \Carbon\Carbon::parse($orphanWork->search_completed_date)->format('d M Y') }}</dd>
             @endif
           </dl>
@@ -201,7 +201,7 @@
         <div class="modal-body">
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">Source Type <span class="text-danger">*</span></label>
+              <label class="form-label">{{ __('Source Type') }} <span class="text-danger">*</span></label>
               <select name="source_type" class="form-select" required>
                 @foreach($formOptions['search_source_options'] as $value => $label)
                 <option value="{{ $value }}">{{ $label }}</option>
@@ -209,12 +209,12 @@
               </select>
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">Search Date <span class="text-danger">*</span></label>
+              <label class="form-label">{{ __('Search Date') }} <span class="text-danger">*</span></label>
               <input type="date" name="search_date" class="form-control" required value="{{ date('Y-m-d') }}">
             </div>
           </div>
           <div class="mb-3">
-            <label class="form-label">Source Name <span class="text-danger">*</span></label>
+            <label class="form-label">{{ __('Source Name') }} <span class="text-danger">*</span></label>
             <input type="text" name="source_name" class="form-control" required placeholder="{{ __('e.g., DALRO, SAMRO, National Library') }}">
           </div>
           <div class="mb-3">

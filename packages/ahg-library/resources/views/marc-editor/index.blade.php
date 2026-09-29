@@ -9,7 +9,7 @@
                 <a href="{{ route('library.index') }}" class="btn btn-outline-secondary btn-sm me-3" title="{{ __('Back to Library') }}"><i class="fas fa-arrow-left"></i></a>
                 <h2 class="mb-1">{{ __('MARC Editor') }}</h2>
             </div>
-            <p class="text-muted mt-1">Import MARC records in batch or edit existing library items in MARC format.</p>
+            <p class="text-muted mt-1">{{ __('Import MARC records in batch or edit existing library items in MARC format.') }}</p>
         </div>
     </div>
 
@@ -45,7 +45,7 @@
                     </div>
                     <h5 class="card-title">{{ __('Import MARC Binary') }}</h5>
                     <p class="card-text text-muted small">
-                        Upload a MARC21 binary file (ISO 2709 / .mrc) to import records.
+                        {{ __('Upload a MARC21 binary file (ISO 2709 / .mrc) to import records.') }}
                     </p>
                     <a href="{{ route('library.marc-binary') }}" class="btn btn-warning mt-2">
                         <i class="fas fa-file me-2"></i>{{ __('Import MARC Binary') }}
@@ -93,8 +93,7 @@
                 <i class="fas fa-info-circle me-3 fa-lg"></i>
                 <div>
                     <strong>{{ __('Supported formats:') }}</strong>
-                    MARCXML (.xml, .marcxml) and MARC21 binary (.mrc).
-                    Records are read from the archival description fields linked to each library item.
+                    {{ __('MARCXML (.xml, .marcxml) and MARC21 binary (.mrc). Records are read from the archival description fields linked to each library item.') }}
                 </div>
             </div>
         </div>

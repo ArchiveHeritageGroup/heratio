@@ -88,7 +88,7 @@
         <div class="form-check form-switch mb-3">
           <input class="form-check-input" type="checkbox" id="audit_ip_anonymize" name="settings[audit_ip_anonymize]"
                  value="1" @checked($settings['audit_ip_anonymize'] === '1')>
-          <label class="form-check-label" for="audit_ip_anonymize">Anonymize IP Addresses (POPIA) <span class="badge bg-secondary ms-1">{{ __('Recommended') }}</span></label>
+          <label class="form-check-label" for="audit_ip_anonymize">{{ __('Anonymize IP Addresses (POPIA)') }} <span class="badge bg-secondary ms-1">{{ __('Recommended') }}</span></label>
         </div>
       </div>
     </div>

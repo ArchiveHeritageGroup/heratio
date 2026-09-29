@@ -98,7 +98,7 @@
           <div class="col-sm-9">
             <input type="range" class="form-range" id="media_default_volume" name="settings[media_default_volume]"
                    min="0" max="1" step="0.1" value="{{ $settings['media_default_volume'] ?? '0.8' }}">
-            <div class="form-text">Default volume level (0-100%)</div>
+            <div class="form-text">{{ __('Default volume level (0-100%)') }}</div>
           </div>
         </div>
 

@@ -151,7 +151,7 @@
 <div class="text-center py-5">
     <i class="fas fa-sticky-note fa-4x text-muted mb-3 opacity-50"></i>
     <h4 class="text-muted">{{ __('No notes yet') }}</h4>
-    <p class="text-muted">Add notes to items while browsing or create standalone notes here.</p>
+    <p class="text-muted">{{ __('Add notes to items while browsing or create standalone notes here.') }}</p>
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#annotationModal"><i class="fas fa-plus me-1"></i>{{ __('Create Your First Note') }}</button>
 </div>
 @endif

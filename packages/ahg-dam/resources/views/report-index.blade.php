@@ -38,10 +38,10 @@ if (!function_exists('damFormatBytes')) {
 @section('content')
 <div class="dam-reports-dashboard">
   <div class="row mb-4">
-    <div class="col-md-3"><div class="card text-center bg-primary text-white"><div class="card-body"><h2>{{ number_format($stats['total'] ?? 0) }}</h2><p class="mb-0">Total Assets</p></div></div></div>
-    <div class="col-md-3"><div class="card text-center bg-success text-white"><div class="card-body"><h2>{{ damFormatBytes($stats['totalSize'] ?? 0) }}</h2><p class="mb-0">Total Storage</p></div></div></div>
-    <div class="col-md-3"><div class="card text-center bg-info text-white"><div class="card-body"><h2>{{ number_format($stats['withMetadata'] ?? 0) }}</h2><p class="mb-0">With Metadata</p></div></div></div>
-    <div class="col-md-3"><div class="card text-center bg-warning text-dark"><div class="card-body"><h2>{{ number_format($stats['recentUploads'] ?? 0) }}</h2><p class="mb-0">Recent (30 days)</p></div></div></div>
+    <div class="col-md-3"><div class="card text-center bg-primary text-white"><div class="card-body"><h2>{{ number_format($stats['total'] ?? 0) }}</h2><p class="mb-0">{{ __('Total Assets') }}</p></div></div></div>
+    <div class="col-md-3"><div class="card text-center bg-success text-white"><div class="card-body"><h2>{{ damFormatBytes($stats['totalSize'] ?? 0) }}</h2><p class="mb-0">{{ __('Total Storage') }}</p></div></div></div>
+    <div class="col-md-3"><div class="card text-center bg-info text-white"><div class="card-body"><h2>{{ number_format($stats['withMetadata'] ?? 0) }}</h2><p class="mb-0">{{ __('With Metadata') }}</p></div></div></div>
+    <div class="col-md-3"><div class="card text-center bg-warning text-dark"><div class="card-body"><h2>{{ number_format($stats['recentUploads'] ?? 0) }}</h2><p class="mb-0">{{ __('Recent (30 days)') }}</p></div></div></div>
   </div>
   <div class="row mb-4">
     <div class="col-md-6">
@@ -54,7 +54,7 @@ if (!function_exists('damFormatBytes')) {
             <span><span class="badge bg-primary">{{ $type->count ?? 0 }}</span> <small class="text-muted ms-2">{{ damFormatBytes($type->size ?? 0) }}</small></span>
           </li>
           @empty
-          <li class="list-group-item text-muted">No assets yet</li>
+          <li class="list-group-item text-muted">{{ __('No assets yet') }}</li>
           @endforelse
         </ul>
       </div>
@@ -67,7 +67,7 @@ if (!function_exists('damFormatBytes')) {
           <li class="list-group-item d-flex justify-content-between align-items-center"><span><i class="fas fa-camera me-2 text-muted"></i>{{ __('With IPTC Data') }}</span><span class="badge bg-info">{{ $stats['withIptc'] ?? 0 }}</span></li>
           <li class="list-group-item d-flex justify-content-between align-items-center"><span><i class="fas fa-map-marker-alt me-2 text-muted"></i>{{ __('With GPS Coordinates') }}</span><span class="badge bg-warning">{{ $stats['withGps'] ?? 0 }}</span></li>
         </ul>
-        <div class="card-footer"><a href="{{ route('dam.reports.assets') }}" class="btn btn-primary btn-sm w-100">View All Assets</a></div>
+        <div class="card-footer"><a href="{{ route('dam.reports.assets') }}" class="btn btn-primary btn-sm w-100">{{ __('View All Assets') }}</a></div>
       </div>
     </div>
   </div>

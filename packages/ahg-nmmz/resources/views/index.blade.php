@@ -41,7 +41,7 @@
     <div class="row mb-4">
         <div class="col">
             <h1><i class="fas fa-monument me-2"></i>{{ __('NMMZ Compliance Dashboard') }}</h1>
-            <p class="text-muted">National Museums and Monuments of Zimbabwe Act [Chapter 25:11]</p>
+            <p class="text-muted">{{ __('National Museums and Monuments of Zimbabwe Act [Chapter 25:11]') }}</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('nmmz.reports') }}" class="btn btn-outline-primary">
@@ -252,7 +252,7 @@
                 <div class="card bg-light">
                     <div class="card-body">
                         <h6><i class="fas fa-globe me-2"></i>UNESCO World Heritage Sites: {{ $statsMonuments['world_heritage'] }}</h6>
-                        <p class="mb-0 small text-muted">Zimbabwe has 5 inscribed World Heritage Sites including Great Zimbabwe, Khami Ruins, and Mana Pools.</p>
+                        <p class="mb-0 small text-muted">{{ __('Zimbabwe has 5 inscribed World Heritage Sites including Great Zimbabwe, Khami Ruins, and Mana Pools.') }}</p>
                     </div>
                 </div>
             </div>

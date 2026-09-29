@@ -148,7 +148,7 @@
 <div class="card mt-4">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('About Walk-In Visitors') }}</h6></div>
     <div class="card-body">
-        <p class="text-muted mb-2">Walk-in visitors are unregistered users who need quick access to the reading room.</p>
+        <p class="text-muted mb-2">{{ __('Walk-in visitors are unregistered users who need quick access to the reading room.') }}</p>
         <ul class="mb-0 small">
             <li><i class="fas fa-times-circle text-danger me-1"></i>{{ __('They do not have a researcher account') }}</li>
             <li><i class="fas fa-times-circle text-danger me-1"></i>{{ __('Cannot request materials in advance') }}</li>

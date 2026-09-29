@@ -7,13 +7,13 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h1 class="h4 mb-0"><i class="bi bi-person"></i> {{ __('BIBFRAME Agents') }}</h1>
-      <p class="small text-muted mb-0">Authority records for persons and corporate bodies linked to BIBFRAME works</p>
+      <p class="small text-muted mb-0">{{ __('Authority records for persons and corporate bodies linked to BIBFRAME works') }}</p>
     </div>
     <a href="{{ route('bibframe.index') }}" class="btn btn-outline-secondary btn-sm">&larr; Back</a>
   </div>
 
   @if($agents->isEmpty())
-    <div class="alert alert-info">No agents found. Agents are the contributors recorded on catalogue records - add creators to a library record, or import a BIBFRAME document.</div>
+    <div class="alert alert-info">{{ __('No agents found. Agents are the contributors recorded on catalogue records - add creators to a library record, or import a BIBFRAME document.') }}</div>
   @else
     <div class="table-responsive">
       <table class="table table-sm table-striped">

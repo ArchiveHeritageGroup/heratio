@@ -69,7 +69,7 @@
               <textarea class="form-control" id="description" name="description" rows="3">{{ old('description', $model->description ?? '') }}</textarea>
             </div>
             <div class="mb-3">
-              <label for="alt_text" class="form-label">Alt Text (Accessibility) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="alt_text" class="form-label">{{ __('Alt Text (Accessibility)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" class="form-control" id="alt_text" name="alt_text"
                      value="{{ old('alt_text', $model->alt_text ?? '') }}">
             </div>
@@ -88,7 +88,7 @@
                   <label for="camera_orbit" class="form-label">{{ __('Camera Orbit') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" class="form-control" id="camera_orbit" name="camera_orbit"
                          value="{{ old('camera_orbit', $model->camera_orbit ?? '0deg 75deg 105%') }}">
-                  <div class="form-text">Format: "0deg 75deg 105%" (theta phi radius)</div>
+                  <div class="form-text">{{ __('Format: "0deg 75deg 105%" (theta phi radius)') }}</div>
                 </div>
               </div>
               <div class="col-md-6">
@@ -121,7 +121,7 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label for="rotation_speed" class="form-label">Rotation Speed (deg/sec) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                  <label for="rotation_speed" class="form-label">{{ __('Rotation Speed (deg/sec)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="number" class="form-control" id="rotation_speed" name="rotation_speed"
                          value="{{ old('rotation_speed', $model->rotation_speed ?? 30) }}" min="0" max="360" step="1">
                 </div>
@@ -365,7 +365,7 @@
             <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Danger Zone') }}</h5>
           </div>
           <div class="card-body">
-            <p class="small text-muted">Permanently delete this 3D model and all associated data.</p>
+            <p class="small text-muted">{{ __('Permanently delete this 3D model and all associated data.') }}</p>
             <form action="{{ route('admin.3d-models.delete', $model->id) }}" method="POST" class="d-inline"
                   onsubmit="return confirm('Are you sure you want to delete this 3D model? This cannot be undone.');">
               @csrf
@@ -399,7 +399,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <p class="small text-muted">Click on the 3D model to set the hotspot position, then fill in the details below.</p>
+          <p class="small text-muted">{{ __('Click on the 3D model to set the hotspot position, then fill in the details below.') }}</p>
           <div class="mb-3">
             <label class="form-label">{{ __('Type') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <select class="form-select" id="hotspot_type">
@@ -419,7 +419,7 @@
             <textarea class="form-control" id="hotspot_description" rows="2"></textarea>
           </div>
           <div class="mb-3">
-            <label class="form-label">Position (X, Y, Z) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <label class="form-label">{{ __('Position (X, Y, Z)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <div class="row g-2">
               <div class="col"><input type="number" class="form-control form-control-sm" id="hotspot_x" step="0.001" placeholder="X"></div>
               <div class="col"><input type="number" class="form-control form-control-sm" id="hotspot_y" step="0.001" placeholder="Y"></div>

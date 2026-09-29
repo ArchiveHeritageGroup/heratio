@@ -27,12 +27,12 @@
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
       <li class="breadcrumb-item"><a href="{{ url($object->slug ?? '') }}">{{ e($object->title ?? 'Object') }}</a></li>
-      <li class="breadcrumb-item active">Upload 3D Model</li>
+      <li class="breadcrumb-item active">{{ __('Upload 3D Model') }}</li>
     </ol>
   </nav>
 
   <h1><i class="fas fa-upload me-2"></i>{{ __('Upload 3D Model') }}</h1>
-  <p class="text-muted">Add a 3D model to: <strong>{{ e($object->title ?? 'Object') }}</strong></p>
+  <p class="text-muted">{{ __('Add a 3D model to:') }} <strong>{{ e($object->title ?? 'Object') }}</strong></p>
 
   @if(session('error'))
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -54,7 +54,7 @@
                 <input type="file" name="model_file" id="model_file" accept=".glb,.gltf,.obj,.stl,.ply,.usdz" required>
                 <div class="upload-content">
                   <i class="fas fa-cube fa-3x text-muted mb-3"></i>
-                  <p class="mb-1">Drag and drop your 3D model here</p>
+                  <p class="mb-1">{{ __('Drag and drop your 3D model here') }}</p>
                   <p class="text-muted small mb-2">or click to browse</p>
                   <p class="text-muted small">
                     Supported formats: {{ strtoupper(implode(', ', $allowedFormats ?? ['GLB','GLTF','USDZ','OBJ','STL','PLY'])) }}
@@ -73,7 +73,7 @@
               <label for="title" class="form-label">{{ __('Title') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" class="form-control" id="title" name="title"
                      value="{{ old('title') }}" placeholder="{{ __('e.g., Bronze Statue - Front View') }}">
-              <div class="form-text">A descriptive title for this 3D model</div>
+              <div class="form-text">{{ __('A descriptive title for this 3D model') }}</div>
             </div>
 
             {{-- Description --}}
@@ -85,7 +85,7 @@
 
             {{-- Alt Text --}}
             <div class="mb-3">
-              <label for="alt_text" class="form-label">Alt Text (Accessibility) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+              <label for="alt_text" class="form-label">{{ __('Alt Text (Accessibility)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" class="form-control" id="alt_text" name="alt_text"
                      value="{{ old('alt_text') }}" placeholder="{{ __('A brief description for screen readers') }}">
             </div>

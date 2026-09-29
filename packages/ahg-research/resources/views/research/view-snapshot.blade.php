@@ -28,7 +28,7 @@
             @endif
             <dt class="col-sm-3">{{ __('Items') }}</dt>
             <dd class="col-sm-9">{{ (int)($snapshot->item_count ?? 0) }}</dd>
-            <dt class="col-sm-3">SHA256 Hash</dt>
+            <dt class="col-sm-3">{{ __('SHA256 Hash') }}</dt>
             <dd class="col-sm-9"><code>{{ $snapshot->hash_sha256 ?? 'Not computed' }}</code></dd>
             <dt class="col-sm-3">{{ __('Created') }}</dt>
             <dd class="col-sm-9">{{ $snapshot->created_at ?? '' }}</dd>

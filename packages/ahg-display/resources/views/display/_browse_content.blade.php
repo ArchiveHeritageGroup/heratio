@@ -586,7 +586,7 @@
                     <dd class="col-sm-9 col-md-10">{{ $objRefCode }}</dd>
                   @endif
                   @if($objDates)
-                    <dt class="col-sm-3 col-md-2">Date(s)</dt>
+                    <dt class="col-sm-3 col-md-2">{{ __('Date(s)') }}</dt>
                     <dd class="col-sm-9 col-md-10">{{ $objDates }}</dd>
                   @endif
                   @if($objCreator)

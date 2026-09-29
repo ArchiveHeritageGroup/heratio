@@ -38,7 +38,7 @@
       @if($storedDescriptions->count())
       <div class="card mb-3">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-file-alt me-1"></i> Stored Descriptions
+          <i class="fas fa-file-alt me-1"></i> {{ __('Stored Descriptions') }}
           <span class="badge bg-light text-dark float-end">{{ $storedDescriptions->count() }}</span>
         </div>
         <div class="list-group list-group-flush">

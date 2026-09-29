@@ -88,7 +88,7 @@
           <input type="hidden" name="ar_user_button" value="0">
           <input class="form-check-input" type="checkbox" id="ar_user_button" name="ar_user_button" value="1"
                  {{ is_ar_on($settings, 'ar_user_button') ? 'checked' : '' }}>
-          <label class="form-check-label" for="ar_user_button">{{ __('Show') }} <em>Animate image (AI)</em> button on IO show pages</label>
+          <label class="form-check-label" for="ar_user_button">{{ __('Show') }} <em>{{ __('Animate image (AI)') }}</em> button on IO show pages</label>
         </div>
       </div>
     </div>
@@ -130,7 +130,7 @@
             <label class="form-label">{{ __('Frames') }}</label>
             <input type="number" class="form-control" min="8" max="49" name="ar_num_frames"
                    value="{{ get_ar_setting($settings, 'ar_num_frames', '14') }}">
-            <div class="form-text">SVD: 14 / 25 · CogVideoX: 49</div>
+            <div class="form-text">{{ __('SVD: 14 / 25 · CogVideoX: 49') }}</div>
           </div>
           <div class="col-md-2">
             <label class="form-label">{{ __('FPS') }}</label>

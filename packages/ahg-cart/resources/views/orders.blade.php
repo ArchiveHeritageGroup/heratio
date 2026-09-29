@@ -6,7 +6,7 @@
 <h1><i class="fas fa-receipt me-2"></i>{{ __('My Orders') }}</h1>
 
 @if($orders->isEmpty())
-  <div class="alert alert-info">You have no orders yet.</div>
+  <div class="alert alert-info">{{ __('You have no orders yet.') }}</div>
 @else
   <div class="table-responsive">
     <table class="table table-bordered table-striped">
@@ -25,7 +25,7 @@
               <span class="badge {{ $badge }}">{{ ucfirst($order->status) }}</span>
             </td>
             <td>{{ $order->currency }} {{ number_format($order->total, 2) }}</td>
-            <td><a href="{{ route('cart.order-confirmation', $order->id) }}" class="btn btn-sm btn-outline-secondary">View</a></td>
+            <td><a href="{{ route('cart.order-confirmation', $order->id) }}" class="btn btn-sm btn-outline-secondary">{{ __('View') }}</a></td>
           </tr>
         @endforeach
       </tbody>

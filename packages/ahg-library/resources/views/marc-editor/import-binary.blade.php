@@ -10,7 +10,7 @@
             </a>
             <div>
                 <h2 class="mb-0">{{ __('Import MARC Binary') }}</h2>
-                <span class="badge bg-warning text-dark mt-1">MARC21 Binary (ISO 2709)</span>
+                <span class="badge bg-warning text-dark mt-1">{{ __('MARC21 Binary (ISO 2709)') }}</span>
             </div>
         </div>
     </div>
@@ -32,7 +32,7 @@
     {{-- File upload --}}
     <div class="card shadow-sm mb-4">
         <div class="card-header">
-            <i class="fas fa-file-import me-2"></i>Upload MARC Binary (.mrc) File
+            <i class="fas fa-file-import me-2"></i>{{ __('Upload MARC Binary (.mrc) File') }}
         </div>
         <div class="card-body">
             <form method="POST" action="{{ route('library.marc-binary-preview') }}"
@@ -42,7 +42,7 @@
                     <label for="marc_file" class="form-label">{{ __('Select MARC binary file') }}</label>
                     <input type="file" name="marc_file" id="marc_file" class="form-control"
                            accept=".mrc,.mrk,.bib,.dat,application/octet-stream" required>
-                    <div class="form-text">MARC21 binary / ISO 2709 files. Max 20 MB.</div>
+                    <div class="form-text">{{ __('MARC21 binary / ISO 2709 files. Max 20 MB.') }}</div>
                 </div>
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-eye me-2"></i>{{ __('Preview Import') }}
@@ -52,8 +52,8 @@
             <hr>
             <p class="mb-1 small fw-semibold text-muted">{{ __('What happens next:') }}</p>
             <ol class="small text-muted mb-0">
-                <li>The file is parsed as ISO 2709 binary MARC21.</li>
-                <li>A preview table shows extracted fields grouped by MARC section.</li>
+                <li>{{ __('The file is parsed as ISO 2709 binary MARC21.') }}</li>
+                <li>{{ __('A preview table shows extracted fields grouped by MARC section.') }}</li>
                 <li>{{ __('Click') }} <strong>{{ __('Commit Import') }}</strong> to create a library item.</li>
             </ol>
         </div>

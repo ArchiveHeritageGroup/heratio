@@ -16,9 +16,9 @@
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
-      <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
+      <a href="{{ route('actor.dashboard') }}">{{ __('Authority Dashboard') }}</a>
     </li>
-    <li class="breadcrumb-item active">Workqueue</li>
+    <li class="breadcrumb-item active">{{ __('Workqueue') }}</li>
   </ol>
 </nav>
 
@@ -84,7 +84,7 @@
       </thead>
       <tbody>
         @if (empty($items))
-          <tr><td colspan="7" class="text-center text-muted py-4">No records found.</td></tr>
+          <tr><td colspan="7" class="text-center text-muted py-4">{{ __('No records found.') }}</td></tr>
         @else
           @foreach ($items as $item)
             @php $item = (object) $item; @endphp

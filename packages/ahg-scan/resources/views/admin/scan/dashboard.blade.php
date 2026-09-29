@@ -87,7 +87,7 @@
                 <tr>
                     <td><code>{{ $f->code }}</code></td>
                     <td><a href="{{ route('scan.inbox.index', ['folder' => $f->code]) }}">{{ $f->label }}</a></td>
-                    <td>@if($f->enabled)<span class="badge bg-success">On</span>@else<span class="badge bg-secondary">{{ __('Off') }}</span>@endif</td>
+                    <td>@if($f->enabled)<span class="badge bg-success">{{ __('On') }}</span>@else<span class="badge bg-secondary">{{ __('Off') }}</span>@endif</td>
                     <td>{{ number_format($f->pending ?? 0) }}</td>
                     <td>{{ number_format($f->failed ?? 0) }}</td>
                     <td>{{ number_format($f->done ?? 0) }}</td>

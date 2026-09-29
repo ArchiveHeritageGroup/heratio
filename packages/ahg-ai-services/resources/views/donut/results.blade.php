@@ -47,7 +47,7 @@
             @if($result['needs_review'] ?? true)
               <span class="badge bg-warning text-dark">{{ __('Yes') }}</span>
             @else
-              <span class="badge bg-success">No</span>
+              <span class="badge bg-success">{{ __('No') }}</span>
             @endif
           </td>
         </tr>

@@ -34,7 +34,7 @@
         <h5 class="mb-0"><i class="fas fa-compact-disc me-2"></i>{{ __('Portable Export Configuration') }}</h5>
       </div>
       <div class="card-body">
-        <p class="text-muted mb-3">Configure defaults for standalone portable catalogue exports (CD/USB/ZIP distribution).</p>
+        <p class="text-muted mb-3">{{ __('Configure defaults for standalone portable catalogue exports (CD/USB/ZIP distribution).') }}</p>
 
         <div class="row g-3">
           <div class="col-md-6">
@@ -127,7 +127,7 @@
                      {{ ($settings['portable_export_description_button'] ?? 'true') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="portable_export_description_button">{{ __('Show export button on description pages') }}</label>
             </div>
-            <div class="form-text">Adds "Portable Viewer" to the Export section on archival description pages.</div>
+            <div class="form-text">{{ __('Adds "Portable Viewer" to the Export section on archival description pages.') }}</div>
           </div>
           <div class="col-md-6">
             <div class="form-check form-switch">
@@ -136,7 +136,7 @@
                      {{ ($settings['portable_export_clipboard_button'] ?? 'true') === 'true' ? 'checked' : '' }}>
               <label class="form-check-label" for="portable_export_clipboard_button">{{ __('Show export button on clipboard page') }}</label>
             </div>
-            <div class="form-text">Adds "Portable Catalogue" option to the clipboard export page.</div>
+            <div class="form-text">{{ __('Adds "Portable Catalogue" option to the clipboard export page.') }}</div>
           </div>
         </div>
       </div>

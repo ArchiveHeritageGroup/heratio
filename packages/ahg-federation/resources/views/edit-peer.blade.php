@@ -8,8 +8,8 @@
         <div>
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb mb-1">
-                    <li class="breadcrumb-item"><a href="{{ route('federation.index') }}">Federation</a></li>
-                    <li class="breadcrumb-item"><a href="{{ route('federation.peers') }}">Peers</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('federation.index') }}">{{ __('Federation') }}</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('federation.peers') }}">{{ __('Peers') }}</a></li>
                     <li class="breadcrumb-item active">{{ $isNew ? 'Add Peer' : 'Edit Peer' }}</li>
                 </ol>
             </nav>
@@ -38,10 +38,10 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label for="name" class="form-label">Name <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+                            <label for="name" class="form-label">{{ __('Name') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                             <input type="text" class="form-control" id="name" name="name" autocomplete="off"
                                    value="{{ $peer->name ?? old('name', '') }}" required>
-                            <div class="form-text">A descriptive name for this peer repository</div>
+                            <div class="form-text">{{ __('A descriptive name for this peer repository') }}</div>
                         </div>
 
                         @php
@@ -54,7 +54,7 @@
                         @endphp
 
                         <div class="mb-3">
-                            <label for="peer_type" class="form-label">Peer type <span class="text-danger">*</span></label>
+                            <label for="peer_type" class="form-label">{{ __('Peer type') }} <span class="text-danger">*</span></label>
                             <select class="form-select" id="peer_type" name="peer_type" required onchange="ahgFederationTogglePeerType()">
                                 <option value="oai_pmh" {{ $peerType === 'oai_pmh' ? 'selected' : '' }}>{{ __('OAI-PMH repository') }}</option>
                                 <option value="dspace" {{ $peerType === 'dspace' ? 'selected' : '' }}>{{ __('DSpace repository (REST search)') }}</option>
@@ -107,7 +107,7 @@
                                 {{ __('SharePoint peers do not harvest; they only contribute hits to federated search via the Microsoft Graph search API. Credentials live in the existing SharePoint tenant pool.') }}
                             </div>
                             <div class="mb-3">
-                                <label for="sp_tenant_id" class="form-label">SharePoint tenant <span class="text-danger">*</span></label>
+                                <label for="sp_tenant_id" class="form-label">{{ __('SharePoint tenant') }} <span class="text-danger">*</span></label>
                                 <input type="number" min="1" class="form-control" id="sp_tenant_id" name="sp_tenant_id"
                                        value="{{ $peerConfig['tenant_id'] ?? '' }}"
                                        placeholder="{{ __('sharepoint_tenant.id (e.g. 1)') }}">
@@ -164,7 +164,7 @@
 
                         <div class="mb-3" id="oai-metadata-prefix-row"
                              style="{{ $peerType !== 'oai_pmh' ? 'display:none' : '' }}">
-                            <label for="default_metadata_prefix" class="form-label">Metadata Prefix <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                            <label for="default_metadata_prefix" class="form-label">{{ __('Metadata Prefix') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select class="form-select" id="default_metadata_prefix" name="default_metadata_prefix">
                                 <option value="oai_dc" {{ ($peer->default_metadata_prefix ?? '') === 'oai_dc' ? 'selected' : '' }}>oai_dc (Dublin Core)</option>
                                 <option value="oai_ead" {{ ($peer->default_metadata_prefix ?? '') === 'oai_ead' ? 'selected' : '' }}>oai_ead (EAD)</option>
@@ -175,7 +175,7 @@
                         <div class="form-check mb-3">
                             <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1"
                                    {{ ($peer->is_active ?? true) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="is_active">Active <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                            <label class="form-check-label" for="is_active">{{ __('Active') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         </div>
                     </div>
                 </div>
@@ -186,14 +186,14 @@
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label for="default_set" class="form-label">Set Spec (optional) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                            <label for="default_set" class="form-label">{{ __('Set Spec (optional)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <input type="text" class="form-control" id="default_set" name="default_set"
                                    value="{{ $peer->default_set ?? old('default_set', '') }}">
-                            <div class="form-text">Restrict harvesting to a specific OAI set</div>
+                            <div class="form-text">{{ __('Restrict harvesting to a specific OAI set') }}</div>
                         </div>
 
                         <div class="mb-3">
-                            <label for="harvest_interval_hours" class="form-label">Harvest Interval (hours) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                            <label for="harvest_interval_hours" class="form-label">{{ __('Harvest Interval (hours)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <input type="number" class="form-control" id="harvest_interval_hours" name="harvest_interval_hours"
                                    value="{{ $peer->harvest_interval_hours ?? old('harvest_interval_hours', 24) }}" min="1">
                         </div>
@@ -210,7 +210,7 @@
                         <button type="submit" class="atom-btn-white w-100 mb-2">
                             <i class="bi bi-check-lg me-1"></i>{{ $isNew ? 'Create Peer' : 'Save Changes' }}
                         </button>
-                        <a href="{{ route('federation.peers') }}" class="atom-btn-white w-100">Cancel</a>
+                        <a href="{{ route('federation.peers') }}" class="atom-btn-white w-100">{{ __('Cancel') }}</a>
                     </div>
                 </div>
             </div>

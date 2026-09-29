@@ -49,12 +49,12 @@
                     </div>
 
                     <div class="col-md-3 mb-3">
-                        <label for="from_date" class="form-label">From Date (optional) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label for="from_date" class="form-label">{{ __('From Date (optional)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <input type="date" class="form-control" id="from_date" name="from_date">
                     </div>
 
                     <div class="col-md-3 mb-3">
-                        <label for="until_date" class="form-label">Until Date (optional) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                        <label for="until_date" class="form-label">{{ __('Until Date (optional)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <input type="date" class="form-control" id="until_date" name="until_date">
                     </div>
                 </div>
@@ -62,7 +62,7 @@
                 <div class="form-check mb-3">
                     <input class="form-check-input" type="checkbox" id="full_harvest" name="full_harvest" value="1">
                     <label class="form-check-label" for="full_harvest">
-                        Full harvest (ignore last harvest date, re-fetch everything) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                        {{ __('Full harvest (ignore last harvest date, re-fetch everything)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                     </label>
                 </div>
 

@@ -135,7 +135,7 @@
         <div class="col-lg-4">
             <div class="alert alert-info">
                 <h6><i class="fas fa-info-circle"></i> {{ __('IPSAS Compliance') }}</h6>
-                <p class="small mb-0">Assets are recognized under IPSAS 17 (Property, Plant and Equipment) and IPSAS 31 (Intangible Assets). Choose the appropriate valuation basis based on asset type and available information.</p>
+                <p class="small mb-0">{{ __('Assets are recognized under IPSAS 17 (Property, Plant and Equipment) and IPSAS 31 (Intangible Assets). Choose the appropriate valuation basis based on asset type and available information.') }}</p>
             </div>
             <div class="card">
                 <div class="card-body d-grid gap-2">

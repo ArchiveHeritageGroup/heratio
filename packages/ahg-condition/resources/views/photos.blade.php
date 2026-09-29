@@ -35,8 +35,8 @@
           @if($objectSlug)
             <li class="breadcrumb-item"><a href="{{ url('/'.$objectSlug) }}">{{ $objectTitle }}</a></li>
           @endif
-          <li class="breadcrumb-item">Condition</li>
-          <li class="breadcrumb-item active">Photos</li>
+          <li class="breadcrumb-item">{{ __('Condition') }}</li>
+          <li class="breadcrumb-item active">{{ __('Photos') }}</li>
         </ol>
       </nav>
 
@@ -114,7 +114,7 @@
       @if(count($photos) === 0)
         <div class="text-center py-5">
           <i class="fas fa-camera fa-4x text-muted mb-3"></i>
-          <p class="text-muted">No photos uploaded yet.</p>
+          <p class="text-muted">{{ __('No photos uploaded yet.') }}</p>
         </div>
       @else
         <div class="row">

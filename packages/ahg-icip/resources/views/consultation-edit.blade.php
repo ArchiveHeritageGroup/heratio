@@ -88,7 +88,7 @@
               <div class="mb-3">
                 <label class="form-label">{{ __('Linked Record (optional)') }}</label>
                 <input type="number" name="information_object_id" class="form-control" value="{{ $consultation->information_object_id ?? $objectId ?? '' }}" placeholder="{{ __('Information Object ID') }}">
-                <div class="form-text">Enter an object ID if this consultation relates to a specific record</div>
+                <div class="form-text">{{ __('Enter an object ID if this consultation relates to a specific record') }}</div>
               </div>
             @else
               <input type="hidden" name="information_object_id" value="{{ $object->id }}">
@@ -171,7 +171,7 @@
               <input type="checkbox" name="is_confidential" value="1" class="form-check-input" id="isConfidential" @checked(($consultation->is_confidential ?? 0))>
               <label class="form-check-label" for="isConfidential">{{ __('Mark as Confidential') }}</label>
             </div>
-            <div class="form-text">Confidential consultations are hidden from public reports and object ICIP views</div>
+            <div class="form-text">{{ __('Confidential consultations are hidden from public reports and object ICIP views') }}</div>
           </div>
         </div>
       </div>

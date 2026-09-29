@@ -11,7 +11,6 @@
 
 <p><strong>{{ __('Approved at:') }}</strong> {{ $request->reviewed_at ?? now() }}</p>
 
-<p>You can now use the access this request grants. If you have follow-up
-questions, reply to this email or contact your records manager.</p>
+<p>{{ __('You can now use the access this request grants. If you have follow-up questions, reply to this email or contact your records manager.') }}</p>
 
 <p>{{ __('Thanks,') }}<br>{{ config('app.name', 'Heratio') }}</p>

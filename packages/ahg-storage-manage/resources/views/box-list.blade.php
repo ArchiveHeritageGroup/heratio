@@ -6,9 +6,9 @@
   <div id="preview-message" class="mb-3 d-print-none">
     Print preview
     @if(isset($storage))
-      <a href="{{ route('physicalobject.show', $storage->slug) }}">Close</a>
+      <a href="{{ route('physicalobject.show', $storage->slug) }}">{{ __('Close') }}</a>
     @else
-      <a href="{{ route('physicalobject.browse') }}">Close</a>
+      <a href="{{ route('physicalobject.browse') }}">{{ __('Close') }}</a>
     @endif
   </div>
 

@@ -7,7 +7,7 @@
 <div class="row">
   <div class="col-md-8">
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff">Order Items</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">{{ __('Order Items') }}</div>
       <div class="card-body p-0">
         <table class="table table-bordered mb-0">
           <thead>
@@ -28,7 +28,7 @@
   </div>
   <div class="col-md-4">
     <div class="card mb-4">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff">Order Details</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">{{ __('Order Details') }}</div>
       <div class="card-body">
         <p><strong>{{ __('Status:') }}</strong>
           @php $badge = match($order->status) { 'paid' => 'bg-success', 'completed' => 'bg-info', 'cancelled' => 'bg-danger', default => 'bg-warning' }; @endphp

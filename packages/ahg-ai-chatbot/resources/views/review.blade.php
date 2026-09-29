@@ -60,7 +60,7 @@
             @else
                 <div class="p-4 text-center text-success">
                     <i class="fas fa-check-circle me-2"></i>
-                    No responses requiring review. All groundings are above threshold.
+                    {{ __('No responses requiring review. All groundings are above threshold.') }}
                 </div>
             @endif
         </div>

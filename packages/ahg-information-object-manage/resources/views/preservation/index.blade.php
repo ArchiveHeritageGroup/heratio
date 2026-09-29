@@ -397,7 +397,7 @@
       </div>
       <h4 class="text-muted">{{ __('No Preservation Packages') }}</h4>
       <p class="text-muted mb-4">
-        No preservation packages have been created for this resource yet.
+        {{ __('No preservation packages have been created for this resource yet.') }}
       </p>
       @auth
         <button type="button" class="btn atom-btn-outline-success btn-lg" data-bs-toggle="modal" data-bs-target="#createPackageModal">

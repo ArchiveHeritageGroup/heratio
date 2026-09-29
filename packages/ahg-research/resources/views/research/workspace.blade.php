@@ -122,7 +122,7 @@
 <div class="card mb-4">
   <div class="card-body py-2">
     <div class="d-flex justify-content-between align-items-center">
-      <small class="text-muted"><i class="fas fa-chart-bar me-1"></i>Activity (last 7 days)</small>
+      <small class="text-muted"><i class="fas fa-chart-bar me-1"></i>{{ __('Activity (last 7 days)') }}</small>
       <canvas id="weeklyActivityChart" width="300" height="40"></canvas>
     </div>
   </div>

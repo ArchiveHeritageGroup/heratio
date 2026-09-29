@@ -43,8 +43,7 @@ $moduleLabels = [
     
     <div class="card-body">
         <p class="text-muted mb-4">
-            Configure default display modes for each module. Users can override these settings 
-            unless "Lock user override" is enabled.
+            {{ __('Configure default display modes for each module. Users can override these settings unless "Lock user override" is enabled.') }}
         </p>
         
         <form id="globalDisplaySettingsForm" method="post" action="/atom-framework/public/api/admin/display-settings.php">
@@ -130,7 +129,7 @@ $moduleLabels = [
                                                id="thumb_@php echo $module; @endphp"
                                                @php echo ($setting['show_thumbnails'] ?? 1) ? 'checked' : ''; @endphp>
                                         <label class="form-check-label small" for="thumb_@php echo $module; @endphp">
-                                            Thumbnails <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                                            {{ __('Thumbnails') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                                         </label>
                                     </div>
                                     
@@ -142,7 +141,7 @@ $moduleLabels = [
                                                id="override_@php echo $module; @endphp"
                                                @php echo ($setting['allow_user_override'] ?? 1) ? 'checked' : ''; @endphp>
                                         <label class="form-check-label small" for="override_@php echo $module; @endphp">
-                                            Allow user override <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
+                                            {{ __('Allow user override') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                                         </label>
                                     </div>
                                 </td>
@@ -191,7 +190,7 @@ $moduleLabels = [
     </div>
     <div class="card-body">
         <div id="auditLogContainer">
-            <p class="text-muted">Loading audit log...</p>
+            <p class="text-muted">{{ __('Loading audit log...') }}</p>
         </div>
     </div>
 </div>

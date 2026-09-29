@@ -13,7 +13,7 @@
     <h4 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Confirm Clear Rights') }}</h4>
   </div>
   <div class="card-body">
-    <p class="lead">Are you sure you want to clear all extended rights from this record?</p>
+    <p class="lead">{{ __('Are you sure you want to clear all extended rights from this record?') }}</p>
 
     <div class="alert alert-info">
       <strong>{{ __('The following rights will be removed:') }}</strong>
@@ -36,7 +36,7 @@
       </ul>
     </div>
 
-    <p class="text-muted small">Note: This action will not affect embargoes. Use the embargo management to lift embargoes.</p>
+    <p class="text-muted small">{{ __('Note: This action will not affect embargoes. Use the embargo management to lift embargoes.') }}</p>
 
     <form method="post" action="{{ route('extended-rights.clear.store', $resource->slug ?? '') }}">
       @csrf

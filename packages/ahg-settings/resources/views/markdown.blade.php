@@ -12,7 +12,7 @@
 
 @section('content')
     <div class="alert alert-info">
-      <p>Please rebuild the search index if you are enabling/disabling Markdown support.</p>
+      <p>{{ __('Please rebuild the search index if you are enabling/disabling Markdown support.') }}</p>
       <pre>$ php artisan search:populate</pre>
     </div>
 

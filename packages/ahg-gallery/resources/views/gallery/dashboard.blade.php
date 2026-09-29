@@ -107,8 +107,8 @@
         <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('About CCO') }}</h5>
       </div>
       <div class="card-body">
-        <p class="small">Cataloguing Cultural Objects (CCO) is a standard for describing cultural works and their images.</p>
-        <p class="small mb-0">Fields include: work type, materials, techniques, dimensions, subjects, and provenance.</p>
+        <p class="small">{{ __('Cataloguing Cultural Objects (CCO) is a standard for describing cultural works and their images.') }}</p>
+        <p class="small mb-0">{{ __('Fields include: work type, materials, techniques, dimensions, subjects, and provenance.') }}</p>
       </div>
     </div>
   </div>

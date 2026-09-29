@@ -16,7 +16,7 @@
     <div class="row mb-4">
         <div class="col">
             <h1><i class="fas fa-landmark me-2"></i>{{ __('NAZ Compliance Dashboard') }}</h1>
-            <p class="text-muted">National Archives of Zimbabwe Act [Chapter 25:06] - 25-Year Rule</p>
+            <p class="text-muted">{{ __('National Archives of Zimbabwe Act [Chapter 25:06] - 25-Year Rule') }}</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgnaz.reports') }}" class="btn atom-btn-outline-primary">
@@ -190,7 +190,7 @@
                     @if ($expiringClosures->isEmpty())
                         <div class="p-3 text-center text-muted">
                             <i class="fas fa-lock fa-2x mb-2"></i>
-                            <p class="mb-0">No closures expiring within 1 year</p>
+                            <p class="mb-0">{{ __('No closures expiring within 1 year') }}</p>
                         </div>
                     @else
                         <ul class="list-group list-group-flush">

@@ -51,7 +51,7 @@
           @if($user->active)
             <span class="badge bg-success">{{ __('Yes') }}</span>
           @else
-            <span class="badge bg-danger">No</span>
+            <span class="badge bg-danger">{{ __('No') }}</span>
           @endif
         </div>
       </div>

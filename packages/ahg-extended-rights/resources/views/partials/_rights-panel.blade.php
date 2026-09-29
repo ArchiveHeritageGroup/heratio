@@ -81,7 +81,7 @@
                                 @endif
                             </p>
                         @else
-                            <p class="mb-0"><em>No end date specified</em></p>
+                            <p class="mb-0"><em>{{ __('No end date specified') }}</em></p>
                         @endif
                         @if($canEdit)
                             <div class="mt-2">
@@ -132,7 +132,7 @@
                     <p class="mb-0 small">Diligent search completed: {{ \Carbon\Carbon::parse($extOrphanWork->search_completed_date)->format('j F Y') }}</p>
                 @endif
                 @if($canEdit)
-                    <a href="{{ route('ext-rights.orphan-work', $slug) }}" class="btn btn-sm btn-link p-0 mt-1">View/Edit Details</a>
+                    <a href="{{ route('ext-rights.orphan-work', $slug) }}" class="btn btn-sm btn-link p-0 mt-1">{{ __('View/Edit Details') }}</a>
                 @endif
             </div>
         @endif

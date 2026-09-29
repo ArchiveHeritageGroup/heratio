@@ -84,7 +84,7 @@
     @else
     <div class="card-body text-center text-muted py-5">
         <i class="fas fa-search fa-3x mb-3"></i>
-        <p>No saved searches. Use the search feature and save searches for quick access.</p>
+        <p>{{ __('No saved searches. Use the search feature and save searches for quick access.') }}</p>
     </div>
     @endif
 </div>

@@ -24,7 +24,7 @@
   <div class="col-md-8">
     <label class="form-label">{{ __('Name') }}</label>
     <input type="text" name="name" class="form-control" value="{{ old('name', $rule->name ?? '') }}" required>
-    <div class="form-text small">Human-readable label, e.g. "Tender folder → 2/1/1 (Construction)"</div>
+    <div class="form-text small">{{ __('Human-readable label, e.g. "Tender folder → 2/1/1 (Construction)"') }}</div>
   </div>
   <div class="col-md-4">
     <label class="form-label">{{ __('Priority') }}</label>

@@ -20,19 +20,19 @@
             <div class="form-check mb-3">
               <input type="checkbox" checked name="includeEmpty" class="form-check-input" id="includeEmpty">
               <label class="form-check-label" for="includeEmpty">
-                Include unlinked containers
+                {{ __('Include unlinked containers') }}
               </label>
             </div>
             <div class="form-check mb-3">
               <input type="checkbox" checked name="includeAccessions" class="form-check-input" id="includeAccessions">
               <label class="form-check-label" for="includeAccessions">
-                Include containers linked to accessions
+                {{ __('Include containers linked to accessions') }}
               </label>
             </div>
             <div class="form-check mb-3">
               <input type="checkbox" checked name="includeDescriptions" class="form-check-input" id="includeDescriptions">
               <label class="form-check-label" for="includeDescriptions">
-                Include containers linked to descriptions
+                {{ __('Include containers linked to descriptions') }}
               </label>
             </div>
           </div>
@@ -41,7 +41,7 @@
     </div>
 
     <ul class="actions mb-3 nav gap-2">
-      <li><a href="{{ route('physicalobject.browse') }}" class="btn atom-btn-outline-light" role="button">Cancel</a></li>
+      <li><a href="{{ route('physicalobject.browse') }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
       <li><input class="btn atom-btn-outline-success" type="submit" id="exportSubmit" value="Export"></li>
     </ul>
 

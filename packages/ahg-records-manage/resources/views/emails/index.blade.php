@@ -16,7 +16,7 @@
   </div>
 </div>
 
-<p class="text-muted small">Captured emails sit here until classified to a file plan node and (optionally) declared as records under the RM lifecycle.</p>
+<p class="text-muted small">{{ __('Captured emails sit here until classified to a file plan node and (optionally) declared as records under the RM lifecycle.') }}</p>
 
 @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif

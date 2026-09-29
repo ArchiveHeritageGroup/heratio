@@ -76,6 +76,6 @@
 </div>
 
 <ul class="actions mb-3 nav gap-2">
-  <li><a href="{{ route('ahgtranslation.settings') }}" class="btn atom-btn-outline-light" role="button">Back to Settings</a></li>
+  <li><a href="{{ route('ahgtranslation.settings') }}" class="btn atom-btn-outline-light" role="button">{{ __('Back to Settings') }}</a></li>
 </ul>
 @endsection

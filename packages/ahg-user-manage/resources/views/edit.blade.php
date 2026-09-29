@@ -52,7 +52,7 @@
               <div class="mb-3">
                 <label for="current_password" class="form-label">{{ __('Current password') }} <span class="badge bg-warning ms-1">{{ __('Required to change password') }}</span></label>
                 <input type="password" name="current_password" id="current_password" class="form-control" autocomplete="current-password">
-                <div class="form-text">Enter your current password to confirm identity before changing the password.</div>
+                <div class="form-text">{{ __('Enter your current password to confirm identity before changing the password.') }}</div>
               </div>
             @endif
 
@@ -100,7 +100,7 @@
               <label for="authorized_form_of_name" class="form-label">{{ __('Authorized form of name') }} <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
               <input type="text" name="authorized_form_of_name" id="authorized_form_of_name" class="form-control"
                      value="{{ old('authorized_form_of_name', $user->authorized_form_of_name ?? '') }}">
-              <div class="form-text">Display name for this user (from actor record).</div>
+              <div class="form-text">{{ __('Display name for this user (from actor record).') }}</div>
             </div>
           </div>
         </div>
@@ -251,7 +251,7 @@
                     </option>
                   @endforeach
                 </select>
-                <div class="form-text">Hold Ctrl/Cmd to select multiple languages. User will be allowed to translate content into selected languages.</div>
+                <div class="form-text">{{ __('Hold Ctrl/Cmd to select multiple languages. User will be allowed to translate content into selected languages.') }}</div>
               </div>
             @else
               <p class="text-muted mb-0">No languages configured. Add languages in Admin &gt; Settings &gt; I18n.</p>

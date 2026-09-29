@@ -10,7 +10,7 @@
     <h5 class="mb-0">{{ __('My Reviews') }}</h5>
   </div>
   <div class="card-body">
-    <p class="text-muted">Content for My Reviews.</p>
+    <p class="text-muted">{{ __('Content for My Reviews.') }}</p>
   </div>
 </div>
 @endsection

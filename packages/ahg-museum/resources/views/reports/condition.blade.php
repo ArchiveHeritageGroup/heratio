@@ -13,7 +13,7 @@
       @forelse($records as $r)
       <tr><td><strong>{{ e($r->title ?? '-') }}</strong></td><td><span class="badge bg-{{ in_array($r->condition_term ?? '', ['poor','critical']) ? 'danger' : 'success' }}">{{ ucfirst($r->condition_term ?? '-') }}</span></td><td>{{ $r->condition_date ? date('d M Y', strtotime($r->condition_date)) : '-' }}</td><td>{{ e($r->treatment ?? '-') }}</td><td>{{ Str::limit($r->condition_notes ?? '-', 60) }}</td></tr>
       @empty
-      <tr><td colspan="5" class="text-muted text-center py-4">No condition records found.</td></tr>
+      <tr><td colspan="5" class="text-muted text-center py-4">{{ __('No condition records found.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

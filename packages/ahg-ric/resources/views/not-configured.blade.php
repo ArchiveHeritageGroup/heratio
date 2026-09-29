@@ -15,8 +15,7 @@
   <div class="alert alert-warning">
     <i class="fas fa-exclamation-triangle me-2"></i>
     <strong>{{ __('RiC tables not configured.') }}</strong>
-    The required database tables for the RiC module have not been created yet.
-    Please run the RiC migration to set up the following tables:
+    {{ __('The required database tables for the RiC module have not been created yet. Please run the RiC migration to set up the following tables:') }}
     <ul class="mt-2 mb-0">
       <li><code>ric_sync_status</code></li>
       <li><code>ric_sync_queue</code></li>

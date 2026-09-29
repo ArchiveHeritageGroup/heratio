@@ -8,9 +8,9 @@
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
-      <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
+      <a href="{{ route('actor.dashboard') }}">{{ __('Authority Dashboard') }}</a>
     </li>
-    <li class="breadcrumb-item active">Deduplication</li>
+    <li class="breadcrumb-item active">{{ __('Deduplication') }}</li>
   </ol>
 </nav>
 
@@ -69,7 +69,7 @@
           </button>
         </div>
       </div>
-      <div class="form-text">Scans actor names using Jaro-Winkler similarity. May take time for large datasets.</div>
+      <div class="form-text">{{ __('Scans actor names using Jaro-Winkler similarity. May take time for large datasets.') }}</div>
     </form>
   </div>
 </div>
@@ -79,7 +79,7 @@
     <i class="fas fa-terminal me-1"></i>{{ __('CLI Scan') }}
   </div>
   <div class="card-body">
-    <p class="text-muted">For large datasets, run the dedup scan via CLI:</p>
+    <p class="text-muted">{{ __('For large datasets, run the dedup scan via CLI:') }}</p>
     <pre class="bg-dark text-light p-3 rounded"><code>php artisan authority:dedup-scan --limit=5000</code></pre>
   </div>
 </div>

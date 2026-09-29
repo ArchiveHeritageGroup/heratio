@@ -30,7 +30,7 @@
         <td>{{ $r->created_at ? \Carbon\Carbon::parse($r->created_at)->format('Y-m-d') : '-' }}</td>
       </tr>
       @empty
-      <tr><td colspan="4" class="text-muted text-center py-4">No assets found.</td></tr>
+      <tr><td colspan="4" class="text-muted text-center py-4">{{ __('No assets found.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

@@ -77,11 +77,11 @@
         <div class="card-body">
           <p>{{ __('The duplicate scan will:') }}</p>
           <ul>
-            <li>Compare all records against each other using configured detection rules</li>
-            <li>Apply title similarity, identifier matching, and other algorithms</li>
+            <li>{{ __('Compare all records against each other using configured detection rules') }}</li>
+            <li>{{ __('Apply title similarity, identifier matching, and other algorithms') }}</li>
             <li>{{ __('Record detected duplicates for review') }}</li>
           </ul>
-          <p class="mb-0"><strong>{{ __('Tip:') }}</strong> For large collections, start with a single repository to test results before scanning the entire system.</p>
+          <p class="mb-0"><strong>{{ __('Tip:') }}</strong> {{ __('For large collections, start with a single repository to test results before scanning the entire system.') }}</p>
         </div>
       </div>
 

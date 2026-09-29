@@ -8,12 +8,12 @@
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
-      <a href="{{ route('actor.dashboard') }}">Authority Dashboard</a>
+      <a href="{{ route('actor.dashboard') }}">{{ __('Authority Dashboard') }}</a>
     </li>
     <li class="breadcrumb-item">
       <a href="{{ $actor->slug ? route('actor.show', $actor->slug) : '#' }}">{{ e($actor->name ?? '') }}</a>
     </li>
-    <li class="breadcrumb-item active">External Identifiers</li>
+    <li class="breadcrumb-item active">{{ __('External Identifiers') }}</li>
   </ol>
 </nav>
 
@@ -40,7 +40,7 @@
       </thead>
       <tbody id="identifiers-list">
         @if (empty($identifiers))
-          <tr id="no-identifiers"><td colspan="5" class="text-center text-muted py-3">No external identifiers yet.</td></tr>
+          <tr id="no-identifiers"><td colspan="5" class="text-center text-muted py-3">{{ __('No external identifiers yet.') }}</td></tr>
         @else
           @foreach ($identifiers as $ident)
             <tr data-id="{{ $ident->id }}">

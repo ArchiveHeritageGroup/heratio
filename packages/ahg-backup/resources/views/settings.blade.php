@@ -49,7 +49,7 @@
             <label for="backup_max_backups" class="form-label">{{ __('Max Backups') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="number" class="form-control @error('backup_max_backups') is-invalid @enderror" id="backup_max_backups" name="backup_max_backups"
                    value="{{ old('backup_max_backups', $settings['backup_max_backups']) }}" min="1" max="999">
-            <div class="form-text">Maximum number of backups to keep. Older backups will be deleted automatically.</div>
+            <div class="form-text">{{ __('Maximum number of backups to keep. Older backups will be deleted automatically.') }}</div>
             @error('backup_max_backups')
               <div class="invalid-feedback">{{ $message }}</div>
             @enderror
@@ -60,7 +60,7 @@
             <label for="backup_retention_days" class="form-label">{{ __('Retention Days') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="number" class="form-control @error('backup_retention_days') is-invalid @enderror" id="backup_retention_days" name="backup_retention_days"
                    value="{{ old('backup_retention_days', $settings['backup_retention_days']) }}" min="1" max="3650">
-            <div class="form-text">Backups older than this number of days will be deleted automatically.</div>
+            <div class="form-text">{{ __('Backups older than this number of days will be deleted automatically.') }}</div>
             @error('backup_retention_days')
               <div class="invalid-feedback">{{ $message }}</div>
             @enderror
@@ -95,7 +95,7 @@
             <input type="checkbox" class="form-check-input" id="backup_notify_on_success" name="backup_notify_on_success" value="1"
                    @checked(old('backup_notify_on_success', $settings['backup_notify_on_success']))>
             <label class="form-check-label" for="backup_notify_on_success">{{ __('Notify on success') }}</label>
-            <div class="form-text">Send email + Workbench notification when a backup completes (with or without warnings).</div>
+            <div class="form-text">{{ __('Send email + Workbench notification when a backup completes (with or without warnings).') }}</div>
           </div>
         </div>
         <div class="col-md-6">
@@ -104,7 +104,7 @@
             <input type="checkbox" class="form-check-input" id="backup_notify_on_failure" name="backup_notify_on_failure" value="1"
                    @checked(old('backup_notify_on_failure', $settings['backup_notify_on_failure']))>
             <label class="form-check-label" for="backup_notify_on_failure">{{ __('Notify on failure') }}</label>
-            <div class="form-text">Send email + Workbench notification when a backup fails outright.</div>
+            <div class="form-text">{{ __('Send email + Workbench notification when a backup fails outright.') }}</div>
           </div>
         </div>
       </div>

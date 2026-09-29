@@ -206,7 +206,7 @@ $risk = $entity['risk_level'] ?? 'low';
                     <h5 class="mb-0"><i class="fas fa-save me-2"></i>{{ __('Save Results') }}</h5>
                 </div>
                 <div class="card-body">
-                    <p class="small text-muted">Save detected PII to the review queue for manual verification and redaction decisions.</p>
+                    <p class="small text-muted">{{ __('Save detected PII to the review queue for manual verification and redaction decisions.') }}</p>
                     <form method="post" action="{{ route('ahgprivacy.pii-scan-object', ['id' => $object->id]) }}">
                         <input type="hidden" name="save" value="1">
                         <button type="submit" class="btn btn-success w-100">

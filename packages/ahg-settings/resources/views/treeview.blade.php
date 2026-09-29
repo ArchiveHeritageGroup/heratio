@@ -60,7 +60,7 @@
           <div id="collapseSidebar" class="accordion-collapse collapse" data-bs-parent="#settingsAccordion">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Sort (information object) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Sort (information object)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="settings[sort]" class="form-select">
                   <option value="" {{ ($settings['sort'] ?? '') == '' ? 'selected' : '' }}>{{ __('Manual') }}</option>
                   <option value="title" {{ ($settings['sort'] ?? '') == 'title' ? 'selected' : '' }}>{{ __('Title') }}</option>

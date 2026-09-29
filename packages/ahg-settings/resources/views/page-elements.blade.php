@@ -27,7 +27,7 @@
           </h2>
           <div id="default-page-elements-collapse" class="accordion-collapse collapse show" aria-labelledby="default-page-elements-heading">
             <div class="accordion-body">
-              <p>Enable or disable the display of certain page elements. Unless they have been overridden by a specific theme, these settings will be used site wide.</p>
+              <p>{{ __('Enable or disable the display of certain page elements. Unless they have been overridden by a specific theme, these settings will be used site wide.') }}</p>
 
               @foreach($settings as $name => $setting)
                 @php
@@ -45,7 +45,7 @@
                   <label class="form-check-label" for="pe-{{ $name }}">{{ $setting->label }}</label>
                   @if($disabled)
                     <div class="form-text text-muted small">
-                      This feature will not work until a Google Maps API key is specified on the
+                      {{ __('This feature will not work until a Google Maps API key is specified on the') }}
                       <a href="{{ route('settings.global') }}">global</a> settings page.
                     </div>
                   @endif

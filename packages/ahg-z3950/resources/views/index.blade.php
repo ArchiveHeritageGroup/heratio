@@ -58,7 +58,7 @@
                 </div>
                 <div>
                     <div class="font-semibold text-gray-900">{{ __('Search remote target') }}</div>
-                    <div class="text-sm text-gray-500 mt-0.5">Query a Z39.50 server using bib-1 attributes</div>
+                    <div class="text-sm text-gray-500 mt-0.5">{{ __('Query a Z39.50 server using bib-1 attributes') }}</div>
                 </div>
             </a>
 
@@ -71,7 +71,7 @@
                 </div>
                 <div>
                     <div class="font-semibold text-gray-900">{{ __('Manage targets') }}</div>
-                    <div class="text-sm text-gray-500 mt-0.5">Add, edit, or remove Z39.50 target profiles</div>
+                    <div class="text-sm text-gray-500 mt-0.5">{{ __('Add, edit, or remove Z39.50 target profiles') }}</div>
                 </div>
             </a>
         </div>

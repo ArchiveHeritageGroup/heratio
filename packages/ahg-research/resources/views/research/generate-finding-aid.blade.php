@@ -31,7 +31,7 @@
         <div class="card">
             <div class="card-header"><h6 class="mb-0">{{ __('About Finding Aids') }}</h6></div>
             <div class="card-body small text-muted">
-                A finding aid is a document that describes a collection of records. It helps researchers locate relevant materials by providing hierarchical descriptions, access points, and administrative metadata.
+                {{ __('A finding aid is a document that describes a collection of records. It helps researchers locate relevant materials by providing hierarchical descriptions, access points, and administrative metadata.') }}
             </div>
         </div>
     </div>

@@ -126,7 +126,7 @@
         <div class="modal-content">
             <div class="modal-header"><h5 class="modal-title">{{ __('Auto-populate from Collection') }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
-                <p class="text-muted">Select an evidence set (collection) to auto-generate timeline events from its item dates.</p>
+                <p class="text-muted">{{ __('Select an evidence set (collection) to auto-generate timeline events from its item dates.') }}</p>
                 <div class="mb-3"><label class="form-label">{{ __('Collection') }}</label><select id="autoCollectionId"></select></div>
             </div>
             <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="button" class="btn btn-primary" id="autoPopulateBtn">{{ __('Populate') }}</button></div>

@@ -13,7 +13,7 @@
       @forelse($creators as $c)
       <tr><td><strong>{{ e($c->creator_name ?? '-') }}</strong></td><td>{{ e($c->creator_role ?? '-') }}</td><td>{{ e($c->attribution ?? '-') }}</td><td>{{ e($c->school ?? '-') }}</td><td class="text-end"><span class="badge bg-primary">{{ $c->object_count ?? 0 }}</span></td></tr>
       @empty
-      <tr><td colspan="5" class="text-muted text-center py-4">No creators found.</td></tr>
+      <tr><td colspan="5" class="text-muted text-center py-4">{{ __('No creators found.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

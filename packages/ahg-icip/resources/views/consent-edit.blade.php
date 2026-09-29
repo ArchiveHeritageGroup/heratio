@@ -122,7 +122,7 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Consent Document Path') }}</label>
               <input type="text" name="consent_document_path" class="form-control" value="{{ $consent->consent_document_path ?? '' }}">
-              <div class="form-text">Path to uploaded consent document (if applicable)</div>
+              <div class="form-text">{{ __('Path to uploaded consent document (if applicable)') }}</div>
             </div>
           </div>
         </div>

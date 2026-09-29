@@ -19,7 +19,7 @@
         <div class="mb-3"><label class="form-label">{{ __('Provenance') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea name="provenance" class="form-control" rows="2">{{ e($assessment->provenance ?? '') }}</textarea></div>
         <div class="mb-3"><label class="form-label">{{ __('Authenticity Notes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea name="authenticity_notes" class="form-control" rows="2">{{ e($assessment->authenticity_notes ?? '') }}</textarea></div>
         <div class="row mb-3">
-            <div class="col-md-6"><label class="form-label">Reliability (1-5) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="number" name="reliability" class="form-control" min="1" max="5" value="{{ $assessment->reliability ?? '' }}"></div>
+            <div class="col-md-6"><label class="form-label">{{ __('Reliability (1-5)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="number" name="reliability" class="form-control" min="1" max="5" value="{{ $assessment->reliability ?? '' }}"></div>
             <div class="col-md-6"><label class="form-label">{{ __('Bias Assessment') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="bias" class="form-select">
                 <option value="">-- None --</option>@foreach(['none','low','moderate','high','extreme'] as $v)<option value="{{ $v }}" {{ ($assessment->bias ?? '') === $v ? 'selected' : '' }}>{{ ucfirst($v) }}</option>@endforeach
             </select></div>

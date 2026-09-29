@@ -14,13 +14,11 @@
       </h1>
       <div class="p-3">
         <p>
-          Hang tight-we're just making sure you're a real person so our community stays safe.
-          Redirecting in <span id="countdown"></span> seconds...
+          {{ __('Hang tight-we\'re just making sure you\'re a real person so our community stays safe. Redirecting in') }} <span id="countdown"></span> seconds...
         </p>
         <noscript>
           <p>
-            <strong>{{ __('Notice:') }}</strong> JavaScript is required for this step.
-            Please enable JavaScript in your browser and try again.
+            <strong>{{ __('Notice:') }}</strong> {{ __('JavaScript is required for this step. Please enable JavaScript in your browser and try again.') }}
           </p>
         </noscript>
       </div>

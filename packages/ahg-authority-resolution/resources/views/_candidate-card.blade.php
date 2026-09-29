@@ -142,7 +142,7 @@
                         border: 1px solid #dee2e6; border-radius: 4px;
                         display: flex; align-items: center; justify-content: center;
                         background: #f8f9fa; font-size: 0.75rem; color: #6c757d;">
-                Map preview (no coordinates available)
+                {{ __('Map preview (no coordinates available)') }}
             </div>
         @endif
     </div>

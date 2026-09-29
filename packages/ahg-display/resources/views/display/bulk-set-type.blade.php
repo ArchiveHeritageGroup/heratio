@@ -4,9 +4,9 @@
 @section('body-class', 'admin display bulk-set-type')
 
 @section('breadcrumbs')
-  <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
-  <li class="breadcrumb-item"><a href="{{ route('glam.index') }}">Display Configuration</a></li>
-  <li class="breadcrumb-item active" aria-current="page">Bulk Set Types</li>
+  <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Home') }}</a></li>
+  <li class="breadcrumb-item"><a href="{{ route('glam.index') }}">{{ __('Display Configuration') }}</a></li>
+  <li class="breadcrumb-item active" aria-current="page">{{ __('Bulk Set Types') }}</li>
 @endsection
 
 @section('layout-content')
@@ -122,7 +122,7 @@
 
             {{-- Submit --}}
             <div class="d-flex justify-content-between">
-              <a href="{{ route('glam.index') }}" class="btn atom-btn-white">Cancel</a>
+              <a href="{{ route('glam.index') }}" class="btn atom-btn-white">{{ __('Cancel') }}</a>
               <button type="submit" class="btn atom-btn-outline-success" onclick="return confirm('This will update ALL objects in this collection. Continue?')">
                 <i class="fas fa-save me-1"></i> {{ __('Apply to Collection') }}
               </button>
@@ -139,17 +139,17 @@
           <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>{{ __('About Object Types') }}</h5>
         </div>
         <div class="card-body">
-          <p>Object types determine how records are displayed:</p>
+          <p>{{ __('Object types determine how records are displayed:') }}</p>
           <ul class="small">
-            <li><strong>{{ __('Archive:') }}</strong> ISAD(G) hierarchical view</li>
-            <li><strong>{{ __('Museum:') }}</strong> Museum object records</li>
-            <li><strong>{{ __('Gallery:') }}</strong> Artwork/artist focus</li>
-            <li><strong>{{ __('Book Collection:') }}</strong> Bibliographic view</li>
-            <li><strong>{{ __('Photo Archive:') }}</strong> Visual grid/lightbox</li>
-            <li><strong>{{ __('Audiovisual:') }}</strong> Media player focus</li>
+            <li><strong>{{ __('Archive:') }}</strong> {{ __('ISAD(G) hierarchical view') }}</li>
+            <li><strong>{{ __('Museum:') }}</strong> {{ __('Museum object records') }}</li>
+            <li><strong>{{ __('Gallery:') }}</strong> {{ __('Artwork/artist focus') }}</li>
+            <li><strong>{{ __('Book Collection:') }}</strong> {{ __('Bibliographic view') }}</li>
+            <li><strong>{{ __('Photo Archive:') }}</strong> {{ __('Visual grid/lightbox') }}</li>
+            <li><strong>{{ __('Audiovisual:') }}</strong> {{ __('Media player focus') }}</li>
           </ul>
           <p class="text-muted small mb-0">
-            Types are inherited by children. Setting a type on a fonds will apply to all series, files, and items within.
+            {{ __('Types are inherited by children. Setting a type on a fonds will apply to all series, files, and items within.') }}
           </p>
         </div>
       </div>

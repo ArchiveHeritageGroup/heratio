@@ -157,7 +157,7 @@
         <div class="card-header"><h5 class="mb-0">{{ __('Applied By') }}</h5></div>
         <div class="card-body small">
           <p><strong>{{ __('Community:') }}</strong> {{ __('Labels applied directly by or at the request of the community.') }}</p>
-          <p class="mb-0"><strong>{{ __('Institution:') }}</strong> Labels applied by the institution to acknowledge Indigenous origin or protocols.</p>
+          <p class="mb-0"><strong>{{ __('Institution:') }}</strong> {{ __('Labels applied by the institution to acknowledge Indigenous origin or protocols.') }}</p>
         </div>
       </div>
     </div>

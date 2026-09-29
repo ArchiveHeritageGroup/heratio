@@ -57,7 +57,7 @@
           </label>
         </div>
         <p class="text-muted small mt-1 mb-3">
-          When enabled, items cannot be published without a completed workflow approval. Users will be prompted to start a workflow instead.
+          {{ __('When enabled, items cannot be published without a completed workflow approval. Users will be prompted to start a workflow instead.') }}
         </p>
         <button type="submit" class="btn btn-sm atom-btn-outline-success"><i class="fas fa-save me-1"></i>{{ __('Save Settings') }}</button>
       </form>

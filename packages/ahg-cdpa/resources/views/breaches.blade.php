@@ -21,7 +21,7 @@
                 </ol>
             </nav>
             <h1><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Breach Register') }}</h1>
-            <p class="text-muted">Regulator notification required within the statutory window of discovery</p>
+            <p class="text-muted">{{ __('Regulator notification required within the statutory window of discovery') }}</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgcdpa.breach-create') }}" class="btn btn-danger">

@@ -9,8 +9,7 @@
   @include('ahg-artwork-request::_flash')
 
   <h1 class="h3 mb-3"><i class="fas fa-user-check me-2"></i>{{ __('Artwork request approvers') }}</h1>
-  <p class="text-muted">Who is notified when a request comes in, and who may decide it. Leave the department blank
-    for the general queue - those people see every request.</p>
+  <p class="text-muted">{{ __('Who is notified when a request comes in, and who may decide it. Leave the department blank for the general queue - those people see every request.') }}</p>
 
   @if(!empty($formErrors))
     <div class="alert alert-danger"><ul class="mb-0">@foreach($formErrors as $e)<li>{{ $e }}</li>@endforeach</ul></div>
@@ -74,7 +73,7 @@
             </td>
           </tr>
         @empty
-          <tr><td colspan="5" class="text-muted">No approvers yet. Add one above, or the general queue is empty and nobody is notified.</td></tr>
+          <tr><td colspan="5" class="text-muted">{{ __('No approvers yet. Add one above, or the general queue is empty and nobody is notified.') }}</td></tr>
         @endforelse
       </tbody>
     </table>

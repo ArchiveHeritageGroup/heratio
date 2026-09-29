@@ -46,7 +46,7 @@
                 <input type="number" name="settings[hits_per_page]" class="form-control" value="{{ $settings['hits_per_page'] ?? '10' }}" min="5" max="100">
               </div>
               <div class="mb-3">
-                <label class="form-label">Sort browser (authenticated users) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Sort browser (authenticated users)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="settings[sort_browser_user]" class="form-select">
                   @foreach(['lastUpdated' => 'Most recent', 'alphabetic' => 'Alphabetic', 'identifier' => 'Identifier'] as $val => $label)
                     <option value="{{ $val }}" {{ ($settings['sort_browser_user'] ?? '') == $val ? 'selected' : '' }}>{{ $label }}</option>
@@ -54,7 +54,7 @@
                 </select>
               </div>
               <div class="mb-3">
-                <label class="form-label">Sort browser (anonymous users) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Sort browser (anonymous users)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="settings[sort_browser_anonymous]" class="form-select">
                   @foreach(['lastUpdated' => 'Most recent', 'alphabetic' => 'Alphabetic', 'identifier' => 'Identifier'] as $val => $label)
                     <option value="{{ $val }}" {{ ($settings['sort_browser_anonymous'] ?? '') == $val ? 'selected' : '' }}>{{ $label }}</option>
@@ -62,7 +62,7 @@
                 </select>
               </div>
               <div class="mb-3">
-                <label class="form-label">Sort direction (authenticated users) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Sort direction (authenticated users)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="settings[sort_browser_direction_user]" class="form-select">
                   @foreach(['desc' => 'Descending', 'asc' => 'Ascending'] as $val => $label)
                     <option value="{{ $val }}" {{ ($settings['sort_browser_direction_user'] ?? 'desc') == $val ? 'selected' : '' }}>{{ $label }}</option>
@@ -70,7 +70,7 @@
                 </select>
               </div>
               <div class="mb-3">
-                <label class="form-label">Sort direction (anonymous users) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Sort direction (anonymous users)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="settings[sort_browser_direction_anonymous]" class="form-select">
                   @foreach(['desc' => 'Descending', 'asc' => 'Ascending'] as $val => $label)
                     <option value="{{ $val }}" {{ ($settings['sort_browser_direction_anonymous'] ?? 'desc') == $val ? 'selected' : '' }}>{{ $label }}</option>
@@ -146,7 +146,7 @@
           <div id="permalinks-collapse" class="accordion-collapse collapse">
             <div class="accordion-body">
               <div class="mb-3">
-                <label class="form-label">Slug basis (information object) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Slug basis (information object)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="settings[slug_basis_informationobject]" class="form-select">
                   @foreach(['0' => 'Title', '1' => 'Identifier', '2' => 'Reference code'] as $val => $label)
                     <option value="{{ $val }}" {{ ($settings['slug_basis_informationobject'] ?? '') == $val ? 'selected' : '' }}>{{ $label }}</option>
@@ -156,7 +156,7 @@
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[permissive_slug_creation]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[permissive_slug_creation]" value="1" id="permissive_slug_creation" {{ ($settings['permissive_slug_creation'] ?? '') == '1' ? 'checked' : '' }}>
-                <label class="form-check-label" for="permissive_slug_creation">Permissive slug creation (allow non-ASCII characters) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-check-label" for="permissive_slug_creation">{{ __('Permissive slug creation (allow non-ASCII characters)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               </div>
             </div>
           </div>

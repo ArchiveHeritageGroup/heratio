@@ -22,7 +22,7 @@
           </h2>
           <div id="collapseOai" class="accordion-collapse collapse show" data-bs-parent="#settingsAccordion">
             <div class="accordion-body">
-              <p class="text-muted">The OAI-PMH API can be secured by requiring API requests authenticate using API keys.</p>
+              <p class="text-muted">{{ __('The OAI-PMH API can be secured by requiring API requests authenticate using API keys.') }}</p>
               <div class="mb-3">
                 <label class="form-label">{{ __('Enable OAI authentication') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="settings[oai_authentication_enabled]" class="form-select">
@@ -35,7 +35,7 @@
                 <input type="text" name="settings[oai_repository_code]" class="form-control" value="{{ e($settings['oai_repository_code'] ?? '') }}">
               </div>
               <div class="mb-3">
-                <label class="form-label">Admin email(s) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label class="form-label">{{ __('Admin email(s)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <input type="text" name="settings[oai_admin_emails]" class="form-control" value="{{ e($settings['oai_admin_emails'] ?? '') }}">
                 <small class="text-muted">{{ __('Comma-separated list of admin emails') }}</small>
               </div>

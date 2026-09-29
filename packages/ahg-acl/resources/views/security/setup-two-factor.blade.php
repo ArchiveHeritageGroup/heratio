@@ -21,7 +21,7 @@
         </div>
 
         <h5>{{ __('Step 1: Scan the QR Code') }}</h5>
-        <p class="text-muted">Open your authenticator app (Google Authenticator, Authy, or Microsoft Authenticator) and scan this QR code:</p>
+        <p class="text-muted">{{ __('Open your authenticator app (Google Authenticator, Authy, or Microsoft Authenticator) and scan this QR code:') }}</p>
 
         <div class="text-center my-4">
           <img src="{{ e($qrCodeUrl ?? '') }}" alt="{{ __('QR Code') }}" class="border rounded p-2" style="max-width: 220px;">
@@ -40,7 +40,7 @@
         <hr>
 
         <h5>{{ __('Step 2: Enter Verification Code') }}</h5>
-        <p class="text-muted">Enter the 6-digit code shown in your authenticator app to confirm setup:</p>
+        <p class="text-muted">{{ __('Enter the 6-digit code shown in your authenticator app to confirm setup:') }}</p>
 
         <form action="{{ route('acl.setup-2fa-store') }}" method="post">
           @csrf

@@ -308,13 +308,13 @@
                 </div>
                 <div class="card-body">
                     <h6 class="text-info"><i class="fas fa-arrow-circle-right me-1"></i>{{ __('SIP - Submission') }}</h6>
-                    <p class="small text-muted mb-3">Package used to submit content to the archive. Contains the digital objects and metadata.</p>
+                    <p class="small text-muted mb-3">{{ __('Package used to submit content to the archive. Contains the digital objects and metadata.') }}</p>
 
                     <h6 class="text-success"><i class="fas fa-archive me-1"></i>{{ __('AIP - Archival') }}</h6>
-                    <p class="small text-muted mb-3">Package stored in the archive for long-term preservation. Created from a validated SIP.</p>
+                    <p class="small text-muted mb-3">{{ __('Package stored in the archive for long-term preservation. Created from a validated SIP.') }}</p>
 
                     <h6 class="text-warning"><i class="fas fa-share-square me-1"></i>{{ __('DIP - Dissemination') }}</h6>
-                    <p class="small text-muted mb-0">Package created for user access. Derived from an AIP with access-optimized formats.</p>
+                    <p class="small text-muted mb-0">{{ __('Package created for user access. Derived from an AIP with access-optimized formats.') }}</p>
                 </div>
             </div>
             @endif

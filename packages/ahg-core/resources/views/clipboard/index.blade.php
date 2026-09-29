@@ -35,7 +35,7 @@
     <i class="fas fa-3x fa-paperclip me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0" aria-describedby="heading-label">
-        Showing <span id="clipboard-result-count">{{ count($details) }}</span> results
+        {{ __('Showing') }} <span id="clipboard-result-count">{{ count($details) }}</span> results
       </h1>
       <span class="small" id="heading-label">{{ __('Clipboard') }}</span>
     </div>
@@ -66,7 +66,7 @@
   <div id="clipboard-content">
     @if(empty($details))
       <div class="text-section p-3">
-        <p class="mb-0">No results for this entity type.</p>
+        <p class="mb-0">{{ __('No results for this entity type.') }}</p>
       </div>
     @else
       <table class="table table-bordered table-striped table-hover">

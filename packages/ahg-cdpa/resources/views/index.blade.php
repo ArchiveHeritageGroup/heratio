@@ -67,7 +67,7 @@
     <div class="row mb-4">
         <div class="col">
             <h1><i class="fas fa-shield-alt me-2"></i>{{ __('CDPA Compliance Dashboard') }}</h1>
-            <p class="text-muted">Cyber and Data Protection Act [Chapter 12:07] - regulator-administered</p>
+            <p class="text-muted">{{ __('Cyber and Data Protection Act [Chapter 12:07] - regulator-administered') }}</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgcdpa.reports') }}" class="btn atom-btn-outline-primary">

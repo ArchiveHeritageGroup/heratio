@@ -219,7 +219,7 @@
           <div class="card-body">
             <h6><i class="fas fa-info-circle me-2"></i> {{ __('About Multi-Tenancy') }}</h6>
             <ul class="mb-0 small">
-              <li><strong>{{ __('Tenant:') }}</strong> An organization or customer with their own settings, users, and access controls</li>
+              <li><strong>{{ __('Tenant:') }}</strong> {{ __('An organization or customer with their own settings, users, and access controls') }}</li>
               <li><strong>{{ __('Status:') }}</strong>
                 <span class="badge bg-success">{{ __('Active') }}</span> Full access |
                 <span class="badge bg-info">{{ __('Trial') }}</span> Limited time access |

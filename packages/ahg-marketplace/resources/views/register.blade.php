@@ -14,7 +14,7 @@
       <i class="fas fa-store me-2 text-primary"></i>
       {{ __('Join the Heratio Marketplace') }}
     </h1>
-    <p class="lead text-muted">Buy, sell, or both - choose how you want to get started.</p>
+    <p class="lead text-muted">{{ __('Buy, sell, or both - choose how you want to get started.') }}</p>
   </div>
 
   <div class="row g-4 mb-4">
@@ -28,10 +28,10 @@
           </div>
           <h2 class="h4 text-center mb-3">{{ __('Register as a Buyer') }}</h2>
           <ul class="small mb-4">
-            <li>Browse all listings - gallery, museum, archive, library, DAM</li>
-            <li>Place bids on auctions</li>
-            <li>Make offers on fixed-price items</li>
-            <li>Send enquiries to sellers</li>
+            <li>{{ __('Browse all listings - gallery, museum, archive, library, DAM') }}</li>
+            <li>{{ __('Place bids on auctions') }}</li>
+            <li>{{ __('Make offers on fixed-price items') }}</li>
+            <li>{{ __('Send enquiries to sellers') }}</li>
             <li>Track favourites &amp; purchases</li>
           </ul>
           <p class="small text-muted mb-4">
@@ -62,11 +62,11 @@
           </div>
           <h2 class="h4 text-center mb-3">{{ __('Register as a Seller') }}</h2>
           <ul class="small mb-4">
-            <li>List items at fixed price, by offer, or as auctions</li>
-            <li>Receive payments via PayFast (and other gateways)</li>
-            <li>Manage offers, bids, and enquiries</li>
-            <li>Build a seller profile, collections, and reviews</li>
-            <li>Track sales, payouts, and analytics</li>
+            <li>{{ __('List items at fixed price, by offer, or as auctions') }}</li>
+            <li>{{ __('Receive payments via PayFast (and other gateways)') }}</li>
+            <li>{{ __('Manage offers, bids, and enquiries') }}</li>
+            <li>{{ __('Build a seller profile, collections, and reviews') }}</li>
+            <li>{{ __('Track sales, payouts, and analytics') }}</li>
           </ul>
           <p class="small text-muted mb-4">
             <i class="fas fa-info-circle me-1"></i>

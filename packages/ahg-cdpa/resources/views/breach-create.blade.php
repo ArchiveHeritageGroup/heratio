@@ -31,7 +31,7 @@
 
     <div class="alert alert-danger mb-4">
         <h5><i class="fas fa-clock me-2"></i>72-Hour Notification Requirement</h5>
-        <p class="mb-0">Under CDPA, data breaches must be reported to the regulator within 72 hours of discovery.</p>
+        <p class="mb-0">{{ __('Under CDPA, data breaches must be reported to the regulator within 72 hours of discovery.') }}</p>
     </div>
 
     <form method="post" class="row g-4">

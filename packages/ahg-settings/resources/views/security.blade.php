@@ -12,7 +12,7 @@
 
 @section('content')
     <div class="alert alert-info">
-      Note: Incorrect security settings can result in the web UI becoming inaccessible.
+      {{ __('Note: Incorrect security settings can result in the web UI becoming inaccessible.') }}
     </div>
 
     <form method="post" action="{{ route('settings.security') }}">

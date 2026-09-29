@@ -105,7 +105,7 @@
                         {{ __('SDH - Subtitle for the Deaf and Hard of Hearing') }}
                     </label>
                 </div>
-                <small class="text-muted">SDH tracks include speaker identification and sound/event descriptions. Enable for accessibility compliance.</small>
+                <small class="text-muted">{{ __('SDH tracks include speaker identification and sound/event descriptions. Enable for accessibility compliance.') }}</small>
             </div>
 
             {{-- Default flag --}}
@@ -131,7 +131,7 @@
                        value="{{ old('source_url', $track->source_url ?? '') }}"
                        maxlength="500"
                        placeholder="{{ __('https://example.com/subtitles/en.vtt') }}">
-                <small class="text-muted">Link to an external WebVTT (.vtt) or SubRip (.srt) file. Contents are cached locally and served as inline VTT. Leave blank to paste VTT content below.</small>
+                <small class="text-muted">{{ __('Link to an external WebVTT (.vtt) or SubRip (.srt) file. Contents are cached locally and served as inline VTT. Leave blank to paste VTT content below.') }}</small>
             </div>
 
             <div class="text-center my-3">
@@ -149,8 +149,8 @@
 00:00:01.000 --> 00:00:04.000
 Welcome to our archival collection.') }}">{{ old('vtt_content', $track->vtt_content ?? '') }}</textarea>
                 <small class="text-muted">
-                    WebVTT format. Leave blank if using a remote URL above. Timestamps use HH:MM:SS.mmm format.<br>
-                    <a href="https://www.w3.org/TR/webvtt/" target="_blank" rel="noopener">WebVTT specification on W3C <i class="fas fa-external-link-alt"></i></a>
+                    {{ __('WebVTT format. Leave blank if using a remote URL above. Timestamps use HH:MM:SS.mmm format.') }}<br>
+                    <a href="https://www.w3.org/TR/webvtt/" target="_blank" rel="noopener">{{ __('WebVTT specification on W3C') }} <i class="fas fa-external-link-alt"></i></a>
                 </small>
             </div>
 

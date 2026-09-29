@@ -8,7 +8,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GLAM Browse - Print Preview</title>
+  <title>{{ __('GLAM Browse - Print Preview') }}</title>
   <style>
     body { font-family: Arial, sans-serif; font-size: 12px; line-height: 1.4; margin: 20px; }
     h1 { font-size: 18px; border-bottom: 2px solid var(--ahg-primary, #1d6a52); padding-bottom: 10px; color: var(--ahg-primary, #1d6a52); }
@@ -89,14 +89,14 @@
         @endforeach
       @else
         <tr>
-          <td colspan="5" style="text-align:center;color:#999;padding:20px;">No records to display.</td>
+          <td colspan="5" style="text-align:center;color:#999;padding:20px;">{{ __('No records to display.') }}</td>
         </tr>
       @endif
     </tbody>
   </table>
 
   <div class="meta" style="margin-top: 20px;">
-    <em>Printed from Heratio GLAM Display System</em>
+    <em>{{ __('Printed from Heratio GLAM Display System') }}</em>
   </div>
 </body>
 </html>

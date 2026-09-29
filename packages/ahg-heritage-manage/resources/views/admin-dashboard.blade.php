@@ -7,7 +7,7 @@
   <div class="d-flex justify-content-between align-items-center mb-2">
     <h1 class="mb-0"><i class="fas fa-tachometer-alt"></i> {{ __('Heritage Admin Dashboard') }}</h1>
   </div>
-  <p class="text-muted mb-4">Manage heritage site configuration, access control, and content</p>
+  <p class="text-muted mb-4">{{ __('Manage heritage site configuration, access control, and content') }}</p>
 
   <div class="row">
     {{-- Sidebar --}}
@@ -198,7 +198,7 @@
               <td>{{ number_format($totalUsers) }}</td>
             </tr>
             <tr>
-              <td class="text-muted">Active (Last 30 Days)</td>
+              <td class="text-muted">{{ __('Active (Last 30 Days)') }}</td>
               <td>{{ number_format($activeUsers) }}</td>
             </tr>
             <tr>
@@ -206,7 +206,7 @@
               <td>{{ number_format($newThisMonth) }}</td>
             </tr>
             <tr>
-              <td class="text-muted">Active Alerts (7d)</td>
+              <td class="text-muted">{{ __('Active Alerts (7d)') }}</td>
               <td>
                 @if($activeAlerts > 0)
                   <span class="badge bg-warning text-dark">{{ number_format($activeAlerts) }}</span>

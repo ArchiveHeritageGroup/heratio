@@ -22,7 +22,7 @@
                 </ol>
             </nav>
             <h1><i class="fas fa-lock me-2"></i>{{ __('Closure Periods') }}</h1>
-            <p class="text-muted">Section 10 - 25-year closure period for restricted records</p>
+            <p class="text-muted">{{ __('Section 10 - 25-year closure period for restricted records') }}</p>
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgnaz.closure-create') }}" class="btn btn-primary">

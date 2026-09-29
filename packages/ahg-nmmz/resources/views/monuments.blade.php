@@ -30,7 +30,7 @@
         </ol>
       </nav>
       <h1><i class="fas fa-monument me-2"></i>{{ __('National Monuments') }}</h1>
-      <p class="text-muted">Protected heritage sites (jurisdiction-specific module)</p>
+      <p class="text-muted">{{ __('Protected heritage sites (jurisdiction-specific module)') }}</p>
     </div>
     <div class="col-auto">
       <a href="{{ route('nmmz.monument.create') }}" class="btn btn-primary">

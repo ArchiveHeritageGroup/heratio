@@ -48,10 +48,10 @@
             </div>
 
             <div class="mb-3">
-                <label for="cf-options" class="form-label">Options (for dropdown/multi-select) <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <label for="cf-options" class="form-label">{{ __('Options (for dropdown/multi-select)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <textarea class="form-control" id="cf-options" name="options" rows="3"
                           placeholder="{{ __('One option per line') }}">{{ $def->options ?? old('options', '') }}</textarea>
-                <div class="form-text">One option per line. Only used for dropdown and multi-select field types.</div>
+                <div class="form-text">{{ __('One option per line. Only used for dropdown and multi-select field types.') }}</div>
             </div>
 
             <div class="mb-3">

@@ -11,7 +11,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h4 class="mb-1"><i class="bi bi-cloud-upload me-2"></i>{{ __('Researcher Workspace') }}</h4>
-      <p class="text-muted mb-0">Upload collections, describe records, and submit for archivist review</p>
+      <p class="text-muted mb-0">{{ __('Upload collections, describe records, and submit for archivist review') }}</p>
     </div>
     <div>
       <a href="{{ route('researcher.import') }}" class="btn btn-outline-primary me-2">
@@ -97,7 +97,7 @@
           @if(empty($recent))
             <div class="text-center text-muted py-5">
               <i class="bi bi-inbox" style="font-size: 2rem;"></i>
-              <p class="mt-2 mb-0">No submissions yet. Create your first submission to get started.</p>
+              <p class="mt-2 mb-0">{{ __('No submissions yet. Create your first submission to get started.') }}</p>
             </div>
           @else
             <div class="table-responsive">

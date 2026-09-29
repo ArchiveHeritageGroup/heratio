@@ -159,7 +159,7 @@
             @else
                 <div class="alert alert-light">
                     <i class="fas fa-info-circle me-2"></i>
-                    Select a Z39.50 target and enter a query to search remote library catalogues.
+                    {{ __('Select a Z39.50 target and enter a query to search remote library catalogues.') }}
                 </div>
             @endif
         </div>
