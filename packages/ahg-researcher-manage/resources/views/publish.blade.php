@@ -59,19 +59,19 @@
             <!-- Summary -->
             <div class="row g-3 mb-4">
               <div class="col-md-3 text-center">
-                <h3 class="mb-0 text-success">{{ __("@php echo count($publishResult['created_objects']) @endphp") }}</h3>
+                <h3 class="mb-0 text-success">{{ count($publishResult['created_objects']) }}</h3>
                 <small class="text-muted">{{ __('Records Created') }}</small>
               </div>
               <div class="col-md-3 text-center">
-                <h3 class="mb-0 text-primary">{{ __("@php echo count($publishResult['created_actors']) @endphp") }}</h3>
+                <h3 class="mb-0 text-primary">{{ count($publishResult['created_actors']) }}</h3>
                 <small class="text-muted">{{ __('Creators Created') }}</small>
               </div>
               <div class="col-md-3 text-center">
-                <h3 class="mb-0 text-info">{{ __("@php echo count($publishResult['created_repos']) @endphp") }}</h3>
+                <h3 class="mb-0 text-info">{{ count($publishResult['created_repos']) }}</h3>
                 <small class="text-muted">{{ __('Repositories Created') }}</small>
               </div>
               <div class="col-md-3 text-center">
-                <h3 class="mb-0 text-@php echo count($publishResult['errors']) > {{ __('0 ? \'danger\' : \'muted\' @endphp">@php echo count($publishResult[\'errors\']) @endphp') }}</h3>
+                <h3 class="mb-0 text-{{ count($publishResult['errors']) > 0 ? 'danger' : 'muted' }}">{{ count($publishResult['errors']) }}</h3>
                 <small class="text-muted">{{ __('Errors') }}</small>
               </div>
             </div>
@@ -101,7 +101,7 @@
                               <i class="bi bi-box-arrow-up-right me-1"></i>@php echo $obj['slug'] @endphp
                             </a>
                           @else
-                            <small class="text-muted">{{ __("ID: @php echo $obj['object_id'] @endphp") }}</small>
+                            <small class="text-muted">{{ __('ID:') }} {{ $obj['object_id'] }}</small>
                           @endif
                         </td>
                       </tr>

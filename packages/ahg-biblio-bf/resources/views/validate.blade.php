@@ -22,8 +22,7 @@
           <label for="rdf_content" class="form-label">{{ __('RDF/XML or Turtle content') }}</label>
           <textarea class="form-control font-monospace" name="rdf_content" id="rdf_content"
                     rows="12"
-                    placeholder="{{ __('<?xml version=') }}"1.0" encoding="UTF-8"?>
-<rdf:RDF xmlns:bf="http://id.loc.gov/ontologies/bibframe/" ...">{{ old('rdf_content') }}</textarea>
+                    placeholder="{{ '<?xml version="1.0" encoding="UTF-8"?>' }}&#10;{{ '<rdf:RDF xmlns:bf="http://id.loc.gov/ontologies/bibframe/" ...>' }}">{{ old('rdf_content') }}</textarea>
         </div>
         <p class="small text-muted mb-2">{{ __('Or upload a file instead:') }}</p>
         <input class="form-control" type="file" name="rdf_file" accept=".xml,.rdf,.ttl">

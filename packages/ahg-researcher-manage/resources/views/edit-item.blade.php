@@ -213,7 +213,7 @@
         @if($item)
         <div class="card mb-3 sticky-top" style="top: 1rem;">
           <div class="card-header d-flex justify-content-between align-items-center">
-            <h6 class="mb-0"><i class="bi bi-paperclip me-2"></i>{{ __('Files (@php echo count($itemFiles) @endphp)') }}</h6>
+            <h6 class="mb-0"><i class="bi bi-paperclip me-2"></i>{{ __('Files') }} ({{ count($itemFiles) }})</h6>
           </div>
           <div class="card-body">
             <!-- Upload zone -->

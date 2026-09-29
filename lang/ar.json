@@ -13999,7 +13999,6 @@
     "Rows that were not imported:": "الصفوف التي لم يتم استيرادها:",
     "Rows that will not be imported:": "الصفوف التي لن يتم استيرادها:",
     "Rule": "قاعدة",
-    "Rule #{$id} scheduled to run in background.": "القاعدة #{$id} مجدولة للتشغيل في الخلفية.",
     "Rule Details": "تفاصيل القاعدة",
     "Rule Info": "معلومات القاعدة",
     "Rule Title": "عنوان القاعدة",
@@ -22793,5 +22792,7 @@
     "View All Formats": "عرض جميع الصيغ",
     "View past executions and versions of this report.": "عرض عمليات التنفيذ السابقة وإصدارات هذا التقرير.",
     "View the full report output.": "عرض مخرجات التقرير الكاملة.",
-    "Virus scanning results for digital objects": "نتائج فحص الفيروسات للكائنات الرقمية"
+    "Virus scanning results for digital objects": "نتائج فحص الفيروسات للكائنات الرقمية",
+    "Rule #:id scheduled to run in background.": "تمت جدولة القاعدة رقم :id للتشغيل في الخلفية.",
+    "ID:": "المعرف:"
 }

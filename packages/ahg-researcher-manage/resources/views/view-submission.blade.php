@@ -22,7 +22,7 @@
       <!-- Header -->
       <div class="d-flex justify-content-between align-items-start mb-3">
         <div>
-          <h4 class="mb-1">{{ __('@php echo htmlspecialchars($submission->title) @endphp') }}</h4>
+          <h4 class="mb-1">{{ $submission->title }}</h4>
           <span class="badge bg-@php echo $color @endphp me-2">@php echo ucfirst(str_replace('_', ' ', $submission->status)) @endphp</span>
           <span class="badge bg-@php echo $submission->source_type === 'offline' ? 'secondary' : 'primary' @endphp">
             @php echo ucfirst($submission->source_type) @endphp
@@ -69,7 +69,7 @@
       <!-- Items Table -->
       <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h6 class="mb-0"><i class="bi bi-list-ul me-2"></i>{{ __('Items (@php echo count($items) @endphp)') }}</h6>
+          <h6 class="mb-0"><i class="bi bi-list-ul me-2"></i>{{ __('Items') }} ({{ count($items) }})</h6>
         </div>
         <div class="card-body p-0">
           @if(empty($items))

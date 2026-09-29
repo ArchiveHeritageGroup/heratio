@@ -77,7 +77,7 @@ $moduleLabels = [
                                                @php echo !$isAvailable ? 'disabled opacity-25' : ''; @endphp"
                                         data-module="@php echo $module; @endphp"
                                         data-mode="@php echo $mode; @endphp"
-                                        title="{{ __("@php echo $info['name']; @endphp@php echo !$isAvailable ? ' (disabled)' : ''; @endphp") }}">
+                                        title="{{ $info['name'] }}{{ !$isAvailable ? ' ('.__('disabled').')' : '' }}">
                                     <i class="bi @php echo $info['icon']; @endphp"></i>
                                 </button>
                             @php endforeach; @endphp

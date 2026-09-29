@@ -255,7 +255,7 @@ Khoi</textarea>
                       @php
                       $value = $row[$key] ?? '';
                       if ($key === 'subjects_concatenated' && strlen($value) > 50) {
-                          echo '<span title="{{ __("' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '") }}">' . htmlspecialchars(substr($value, 0, 50), ENT_QUOTES, 'UTF-8') . '...</span>';
+                          echo '<span title="' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars(substr($value, 0, 50), ENT_QUOTES, 'UTF-8') . '...</span>';
                       } elseif ($key === 'is_painted' || $key === 'is_engraved') {
                           $badgeClass = $value === 'TRUE' ? 'bg-success' : 'bg-secondary';
                           echo '<span class="badge ' . $badgeClass . '">' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '</span>';

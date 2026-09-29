@@ -101,7 +101,7 @@ $moduleLabels = [
                                                        @php echo in_array($mode, $availableModes) ? 'checked' : ''; @endphp>
                                                 <label class="form-check-label"
                                                        for="mode_@php echo $module; @endphp_@php echo $mode; @endphp"
-                                                       title="{{ __("@php echo $meta['name']; @endphp") }}">
+                                                       title="{{ $meta['name'] }}">
                                                     <i class="bi @php echo $meta['icon']; @endphp"></i> <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
                                                 </label>
                                             </div>

@@ -48,7 +48,7 @@
         <ul class="nav nav-pills mb-4" role="tablist">
           @foreach($opportunities as $opp)
           <li class="nav-item" role="presentation">
-            <button class="nav-link {{ ($selectedType ?? '')===$opp['code']?'active':'' }} {{ !$opp['available']?'disabled':'' }}" data-bs-toggle="pill" data-bs-target="#form-{{ $opp['code'] }}" type="button" role="tab" {!! !$opp['available']?'disabled title="{{ __("'.e($opp['reason']).'") }}"':'' !!}>
+            <button class="nav-link {{ ($selectedType ?? '')===$opp['code']?'active':'' }} {{ !$opp['available']?'disabled':'' }}" data-bs-toggle="pill" data-bs-target="#form-{{ $opp['code'] }}" type="button" role="tab" {!! !$opp['available'] ? 'disabled title="'.e($opp['reason']).'"' : '' !!}>
               <i class="fas {{ $opp['icon'] }} me-1"></i>{{ $opp['name'] }}@if($opp['existing_count']>0)<span class="badge bg-secondary ms-1">{{ $opp['existing_count'] }}</span>@endif
             </button>
           </li>

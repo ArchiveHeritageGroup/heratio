@@ -216,7 +216,7 @@ class SharePointController extends Controller
         $cmd = 'nohup php '.escapeshellarg($bin).' sharepoint:auto-ingest --rule='.(int) $id.' --force >> '.escapeshellarg($log).' 2>&1 &';
         @exec($cmd);
 
-        return redirect()->route('sharepoint.rules')->with('notice', __("Rule #{$id} scheduled to run in background."));
+        return redirect()->route('sharepoint.rules')->with('notice', __('Rule #:id scheduled to run in background.', ['id' => $id]));
     }
 
     public function mappings(Request $request)
