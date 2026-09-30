@@ -1,0 +1,35 @@
+PREFIX dct:  <http://purl.org/dc/terms/>
+PREFIX icip: <https://heratio.theahg.co.za/vocabulary/icip#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+<https://archives.theahg.co.za/ric/atom-psis/production/902924>
+        a                               rico:Production;
+        rico:isOrWasAssociatedWithDate  [ a                   rico:DateRange;
+                                          rico:beginningDate  "1922-02-06";
+                                          rico:endDate        "1922-02-06";
+                                          rico:expressedDate  "1922-02-06"
+                                        ];
+        rico:resultsOrResultedIn        <https://archives.theahg.co.za/ric/atom-psis/record/901990> .
+
+<https://archives.theahg.co.za/ric/atom-psis/place/618>
+        a                  rico:Place;
+        rico:hasPlaceName  [ a                  rico:PlaceName;
+                             rico:textualValue  "Johannesburg"
+                           ] .
+
+<https://archives.theahg.co.za/ric/atom-psis/corporatebody/630>
+        a                  rico:CorporateBody;
+        rico:hasAgentName  [ a                  rico:AgentName;
+                             rico:textualValue  "The Archive And Heritage Group"
+                           ] .
+
+<https://archives.theahg.co.za/ric/atom-psis/record/837>
+        a           rico:Record;
+        rico:title  "Engelbrecht Family Bible" .
+
+<https://archives.theahg.co.za/ric/atom-psis/recordset/829>
+        a              rico:RecordSet;
+        rico:includes  <https://archives.theahg.co.za/ric/atom-psis/record/837>;
+        rico:title     "Engelbrecht Family Fonds" .

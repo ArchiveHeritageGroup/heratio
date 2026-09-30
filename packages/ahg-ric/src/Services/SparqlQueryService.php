@@ -12,6 +12,7 @@
 namespace AhgRic\Services;
 
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -25,9 +26,17 @@ class SparqlQueryService
     private string $pythonScript;
     private int $cacheMinutes = 15;
 
-    public function __construct()
+    public function __construct(?string $endpoint = null)
     {
-        $this->fusekiEndpoint = config('heratio.fuseki_endpoint', 'http://localhost:3030/openric-model');
+        // #1516 - same resolution order as SparqlUpdateService: ahg_settings,
+        // then ahg-ric config, then heratio config. Reading config alone sent
+        // every query to openric-model (the RiC-O ontology) while the admin
+        // setting and all writes pointed at the instance data in /ric.
+        $this->fusekiEndpoint = rtrim($endpoint ?? $this->setting('fuseki_endpoint',
+            config('ahg-ric.fuseki_endpoint',
+                config('heratio.fuseki_endpoint', 'http://localhost:3030/openric-model')
+            )
+        ), '/');
         $this->pythonScript = __DIR__ . '/../../tools/ric_semantic_search.py';
     }
 
@@ -40,49 +49,143 @@ class SparqlQueryService
         $limit = $options['limit'] ?? 50;
         $offset = $options['offset'] ?? 0;
 
-        // Build SPARQL query
-        $sparql = $this->buildSearchQuery($query, $type, $limit, $offset);
+        // #1516 - two steps: find the page of entities, then label only that
+        // page. Labelling inside the match query joins every name node of
+        // every hit before grouping, and agents carry thousands of them.
+        $result = $this->executeQuery($this->buildSearchQuery($query, $type, $limit, $offset));
 
-        // Execute query
-        return $this->executeQuery($sparql);
+        return $this->withLabels($result, 'label', 'description');
     }
 
     /**
      * Build SPARQL search query
+     *
+     * #1516 - matches against the predicates the RiC extractor actually emits:
+     * rico:title for records, rico:textualValue on the name node for agents,
+     * places and terms (rico:hasAgentName / hasOrHadName / hasPlaceName), and
+     * rdfs:label from the live sync. The earlier rico:name / rico:description
+     * pattern never matched and scanned every typed entity (172 s, 0 rows).
+     *
+     * Default path uses the jena-text Lucene index on /ric (#18), which
+     * indexes exactly those literals. RIC_TEXT_INDEX=false falls back to a
+     * CONTAINS scan for a store without that index - correct, but slow on a
+     * large graph.
      */
     private function buildSearchQuery(string $term, ?string $type, int $limit, int $offset): string
     {
-        $term = $this->escapeSparqlLiteral($term); // #1394 - prevent SPARQL injection
         $typeFilter = '';
         if ($type) {
             $typeUri = $this->getTypeUri($type);
-            $typeFilter = "FILTER(?type = <{$typeUri}>)";
+            $typeFilter = "FILTER(?t = <{$typeUri}>)";
         }
 
-        $sparql = <<<SPARQL
+        if (config('heratio.ric_text_index', true)) {
+            $lucene = $this->escapeSparqlLiteral($this->luceneQuery($term)); // #1394 - prevent SPARQL injection
+            // The index returns name nodes and entities alike; cap it well
+            // above the page so dedup to owning entities still fills it.
+            $hitCap = max(100, ($limit + $offset) * 10);
+            $match = <<<SPARQL
+    (?hit ?score) text:query ("{$lucene}" {$hitCap}) .
+    OPTIONAL { ?owner rico:hasAgentName|rico:hasOrHadName|rico:hasPlaceName ?hit }
+    BIND(COALESCE(?owner, ?hit) AS ?entity)
+    FILTER(isIRI(?entity))
+SPARQL;
+            $order = 'ORDER BY DESC(MAX(?score))';
+        } else {
+            $needle = $this->escapeSparqlLiteral(mb_strtolower($term)); // #1394 - prevent SPARQL injection
+            $match = <<<SPARQL
+    { ?entity rico:title|rdfs:label ?text }
+    UNION
+    { ?entity rico:hasAgentName|rico:hasOrHadName|rico:hasPlaceName ?n . ?n rico:textualValue ?text }
+    FILTER(isIRI(?entity) && CONTAINS(LCASE(STR(?text)), "{$needle}"))
+SPARQL;
+            $order = '';
+        }
+
+        return <<<SPARQL
 PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX text: <http://jena.apache.org/text#>
 
-SELECT DISTINCT ?entity ?type ?label ?description
+SELECT ?entity (SAMPLE(?t) AS ?type)
 WHERE {
-    ?entity a ?type .
-    OPTIONAL { ?entity rico:name ?label }
-    OPTIONAL { ?entity rico:description ?description }
-    OPTIONAL { ?entity skos:prefLabel ?label }
-    
-    FILTER(
-        CONTAINS(LCASE(COALESCE(?label, "")), LCASE("{$term}")) ||
-        CONTAINS(LCASE(COALESCE(?description, "")), LCASE("{$term}"))
-    )
-    
+{$match}
+    ?entity a ?t .
     {$typeFilter}
 }
+GROUP BY ?entity
+{$order}
 LIMIT {$limit}
 OFFSET {$offset}
 SPARQL;
+    }
 
-        return $sparql;
+    /**
+     * #1516 - add a display label and a description to each ?entity row,
+     * read from the predicates the RiC extractor writes (title, then the
+     * name node's textualValue, then rdfs:label). One query for the page.
+     */
+    private function withLabels(array $result, string $labelVar, string $descriptionVar): array
+    {
+        $uris = [];
+        foreach ($result['bindings'] ?? [] as $row) {
+            if (($row['entity']['type'] ?? '') === 'uri') {
+                $uris[] = '<' . $this->escapeSparqlIri($row['entity']['value']) . '>';
+            }
+        }
+        if ($uris === []) {
+            return $result;
+        }
+
+        $values = implode(' ', array_unique($uris));
+        $labels = $this->executeQuery(<<<SPARQL
+PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+SELECT ?entity (SAMPLE(?title) AS ?t) (SAMPLE(?name) AS ?n) (SAMPLE(?rdfsLabel) AS ?r) (SAMPLE(?desc) AS ?d)
+WHERE {
+    VALUES ?entity { {$values} }
+    OPTIONAL { ?entity rico:title ?title }
+    OPTIONAL { ?entity (rico:hasAgentName|rico:hasOrHadName|rico:hasPlaceName)/rico:textualValue ?name }
+    OPTIONAL { ?entity rdfs:label ?rdfsLabel }
+    OPTIONAL { ?entity rico:scopeAndContent|rico:descriptiveNote|rico:history ?desc }
+}
+GROUP BY ?entity
+SPARQL);
+
+        $byUri = [];
+        foreach ($labels['bindings'] ?? [] as $row) {
+            $byUri[$row['entity']['value']] = [
+                $labelVar => $row['t'] ?? $row['n'] ?? $row['r'] ?? null,
+                $descriptionVar => $row['d'] ?? null,
+            ];
+        }
+        foreach ($result['bindings'] as $i => $row) {
+            foreach ($byUri[$row['entity']['value'] ?? ''] ?? [] as $var => $binding) {
+                if ($binding !== null) {
+                    $result['bindings'][$i][$var] = $binding;
+                }
+            }
+        }
+        $result['head'] = array_values(array_unique(array_merge($result['head'] ?? [], [$labelVar, $descriptionVar])));
+
+        return $result;
+    }
+
+    /**
+     * #1516 - turn free text into a Lucene query: every word required,
+     * Lucene operators escaped so user input cannot change the query shape.
+     */
+    private function luceneQuery(string $term): string
+    {
+        // Lowercased so a bare AND / OR / NOT is a word, not an operator.
+        $words = preg_split('/\s+/u', mb_strtolower(trim($term)), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        $words = array_map(
+            fn ($w) => preg_replace('#([+\-!(){}\[\]^"~*?:\\\\/&|])#', '\\\\$1', $w),
+            $words
+        );
+
+        return implode(' AND ', $words);
     }
 
     /**
@@ -194,20 +297,18 @@ SPARQL;
     {
         $typeUri = $this->getTypeUri($type);
 
+        // #1516 - page of entities first, then name and description from the
+        // predicates the data carries (see withLabels).
         $sparql = <<<SPARQL
-PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
-
-SELECT ?entity ?name ?description
+SELECT ?entity
 WHERE {
     ?entity a <{$typeUri}> .
-    OPTIONAL { ?entity rico:name ?name }
-    OPTIONAL { ?entity rico:description ?description }
 }
 LIMIT {$limit}
 OFFSET {$offset}
 SPARQL;
 
-        return $this->executeQuery($sparql);
+        return $this->withLabels($this->executeQuery($sparql), 'name', 'description');
     }
 
     /**
@@ -220,12 +321,17 @@ SPARQL;
 PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-SELECT ?dateRange ?startDate ?endDate ?dateType
+SELECT ?dateRange ?startDate ?endDate ?expressedDate ?dateType
 WHERE {
-    <{$uri}> rico:hasDateRangeSet ?dateRange .
-    OPTIONAL { ?dateRange rico:startDate ?startDate }
+    # #1516 - dates hang off rico:isOrWasAssociatedWithDate, on the entity
+    # itself or on the Production activity that resulted in it.
+    { <{$uri}> rico:isOrWasAssociatedWithDate ?dateRange }
+    UNION
+    { ?activity rico:resultsOrResultedIn <{$uri}> ; rico:isOrWasAssociatedWithDate ?dateRange }
+    OPTIONAL { ?dateRange rico:beginningDate ?startDate }
     OPTIONAL { ?dateRange rico:endDate ?endDate }
-    OPTIONAL { ?dateRange rico:dateType ?dateType }
+    OPTIONAL { ?dateRange rico:expressedDate ?expressedDate }
+    OPTIONAL { ?dateRange a ?dateType }
 }
 SPARQL;
 
@@ -243,15 +349,16 @@ PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
 
 SELECT ?parent ?child ?hierarchyType
 WHERE {
+    # #1516 - the extractor writes the hierarchy one way only: parent
+    # rico:includes child. The inverse is not in the data.
     {
-        <{$uri}> rico:isPartOf ?parent .
-        BIND(rico:isPartOf AS ?hierarchyType)
+        ?parent rico:includes <{$uri}> .
+        BIND(rico:includes AS ?hierarchyType)
     }
     UNION
     {
-        ?child rico:isPartOf <{$uri}> .
-        BIND(?child AS ?child)
-        BIND(rico:hasRecordPart AS ?hierarchyType)
+        <{$uri}> rico:includes ?child .
+        BIND(rico:includes AS ?hierarchyType)
     }
 }
 SPARQL;
@@ -379,6 +486,17 @@ SPARQL;
     private function escapeSparqlIri(string $uri): string
     {
         return preg_replace('/[\x00-\x20<>"{}|\^`\\\\]/', '', $uri);
+    }
+
+    private function setting(string $key, $default = null)
+    {
+        try {
+            $row = DB::table('ahg_settings')->where('setting_key', $key)->value('setting_value');
+
+            return ($row !== null && $row !== '') ? $row : $default;
+        } catch (\Throwable $e) {
+            return $default;
+        }
     }
 
     private function getTypeUri(string $type): string

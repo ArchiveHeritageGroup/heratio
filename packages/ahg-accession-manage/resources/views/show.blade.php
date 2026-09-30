@@ -463,6 +463,9 @@
     </div>
   </section>
 
+  {{-- ===== Repository + CAAIS profile (heratio#1514) ===== --}}
+  @include('ahg-accession-manage::partials._caais-show')
+
   {{-- ===== Rights area ===== --}}
   <section class="section border-bottom" id="rightsArea">
     <h2 class="h5 mb-0 atom-section-header">

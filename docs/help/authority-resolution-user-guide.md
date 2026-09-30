@@ -13,7 +13,7 @@ This guide is for archivists working the review queue. For the CLI, see "Authori
 3. Asks every registered candidate adapter (local actor / term tables plus the Fuseki agents / places graphs) for ranked candidates.
 4. Runs ten evidence evaluators over every candidate and writes a per-dimension signal (`match`, `conflict`, `silent`, `absent`) plus a composite score.
 5. Surfaces the mention, the evidence, and the ranked candidates on the review screen.
-6. Records your decision and writes RDF-Star provenance to Fuseki.
+6. Records your decision and writes reified provenance to Fuseki.
 
 ## The five-outcome decision tree
 
@@ -130,5 +130,5 @@ As the authority store fills out (date spans, biographical notes, place hierarch
 - Authority Resolution - Park Queue
 - Authority Resolution - Creating a New Authority Record
 - Authority Resolution - Evidence Scoring (mechanics, formula, evaluator catalogue)
-- Authority Resolution - Provenance Model (RDF-Star shape, SPARQL recipes)
+- Authority Resolution - Provenance Model (statement-node shape, SPARQL recipes)
 - Authority Resolution - CLI Commands (11 artisan commands)

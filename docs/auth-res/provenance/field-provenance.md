@@ -26,7 +26,10 @@ drop / rebuild field provenance without losing decision history.
 GRAPH <urn:heratio:auth-res:graph:field-provenance> {
 
   # Pre-filled field, accepted as-is.
-  << ahg:actor/901999  ric:hasBeginningDate  "1790"^^xsd:gYear >>
+  <urn:heratio:auth-res:statement:HASH> a rdf:Statement ;
+      rdf:subject ahg:actor/901999 ;
+      rdf:predicate ric:hasBeginningDate ;
+      rdf:object "1790"^^xsd:gYear ;
       prov:wasDerivedFrom    <https://viaf.org/viaf/123456789> ;
       ahg:lookupSource       "viaf" ;
       ahg:retrievedAt        "2026-05-19T09:12:01+02:00"^^xsd:dateTime ;
@@ -34,7 +37,10 @@ GRAPH <urn:heratio:auth-res:graph:field-provenance> {
       ahg:fromDecision       ahg:decision/43 .
 
   # Pre-filled field, overridden by the archivist.
-  << ahg:actor/901999  ric:hasName  "Mzilikazi kaMashobane" >>
+  <urn:heratio:auth-res:statement:HASH> a rdf:Statement ;
+      rdf:subject ahg:actor/901999 ;
+      rdf:predicate ric:hasName ;
+      rdf:object "Mzilikazi kaMashobane" ;
       prov:wasDerivedFrom    ahg:user/1 ;
       ahg:lookupSource       "archivist_override" ;
       ahg:originalValue      "Moselekatse" ;
@@ -43,7 +49,10 @@ GRAPH <urn:heratio:auth-res:graph:field-provenance> {
       ahg:retrievedAt        "2026-05-19T09:13:11+02:00"^^xsd:dateTime .
 
   # Hand-typed field (no pre-fill candidate was offered).
-  << ahg:actor/901999  ric:hasBiographicalNote  "Founder of the Ndebele Kingdom" >>
+  <urn:heratio:auth-res:statement:HASH> a rdf:Statement ;
+      rdf:subject ahg:actor/901999 ;
+      rdf:predicate ric:hasBiographicalNote ;
+      rdf:object "Founder of the Ndebele Kingdom" ;
       prov:wasDerivedFrom    ahg:user/1 ;
       ahg:lookupSource       "manual" ;
       ahg:fromDecision       ahg:decision/43 ;
@@ -91,13 +100,14 @@ items. Returns the triple count emitted.
 ### Where did this actor's birth date come from?
 
 ```sparql
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX ric:  <https://www.ica.org/standards/RiC/ontology#>
 PREFIX prov: <http://www.w3.org/ns/prov#>
 PREFIX ahg:  <https://theahg.co.za/ns/auth-res#>
 
 SELECT ?value ?source ?retrievedAt ?archivist WHERE {
   GRAPH <urn:heratio:auth-res:graph:field-provenance> {
-    << ahg:actor/901999 ric:hasBeginningDate ?value >>
+    ?st rdf:subject ahg:actor/901999 ; rdf:predicate ric:hasBeginningDate ; rdf:object ?value ;
         prov:wasDerivedFrom  ?source ;
         ahg:lookupSource     ?lookupSource ;
         ahg:retrievedAt      ?retrievedAt ;
@@ -109,11 +119,12 @@ SELECT ?value ?source ?retrievedAt ?archivist WHERE {
 ### Adapter coverage report
 
 ```sparql
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX ahg: <https://theahg.co.za/ns/auth-res#>
 
 SELECT ?lookupSource (COUNT(*) AS ?n) WHERE {
   GRAPH <urn:heratio:auth-res:graph:field-provenance> {
-    << ?s ?p ?o >> ahg:lookupSource ?lookupSource .
+    ?st a rdf:Statement ; ahg:lookupSource ?lookupSource .
   }
 }
 GROUP BY ?lookupSource
@@ -125,11 +136,12 @@ Tells you which adapters are actually contributing values.
 ### Override rate per source
 
 ```sparql
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX ahg: <https://theahg.co.za/ns/auth-res#>
 
 SELECT ?originalSource (COUNT(*) AS ?n) WHERE {
   GRAPH <urn:heratio:auth-res:graph:field-provenance> {
-    << ?s ?p ?o >>
+    ?st a rdf:Statement ;
         ahg:lookupSource     "archivist_override" ;
         ahg:originalSource   ?originalSource .
   }

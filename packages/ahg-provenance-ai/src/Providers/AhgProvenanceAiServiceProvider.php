@@ -69,6 +69,7 @@ class AhgProvenanceAiServiceProvider extends ServiceProvider
             $this->commands([
                 \AhgProvenanceAi\Console\Commands\FusekiReplayCommand::class,
                 \AhgProvenanceAi\Console\Commands\KeygenCommand::class,
+                \AhgProvenanceAi\Console\Commands\MigrateStarCommand::class,
             ]);
             $this->app->booted(function () {
                 $schedule = $this->app->make(\Illuminate\Console\Scheduling\Schedule::class);

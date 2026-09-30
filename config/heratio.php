@@ -195,10 +195,15 @@ return [
     |                         Fuseki SPARQL endpoint is the default. Leave
     |                         false: the shipped ric_semantic_search.py is a
     |                         Flask server, not a CLI query tool (heratio#138).
+    | RIC_TEXT_INDEX        - SparqlQueryService::search uses the jena-text
+    |                         Lucene index (text:query) on the RiC dataset.
+    |                         Set false for a store without that index; search
+    |                         then falls back to a CONTAINS scan (heratio#1516).
     |
     */
     'fuseki_endpoint' => env('FUSEKI_ENDPOINT', 'http://localhost:3030/openric-model'),
     'ric_sparql_via_python' => env('RIC_SPARQL_VIA_PYTHON', false),
+    'ric_text_index' => env('RIC_TEXT_INDEX', true),
 
     /*
     |--------------------------------------------------------------------------

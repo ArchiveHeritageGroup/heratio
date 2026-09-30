@@ -122,6 +122,17 @@
             </div>
             <div class="form-text">{{ __('Automatically inherit rights from the donor agreement to created information objects.') }}</div>
           </div>
+          <div class="col-md-6">
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" id="accession_caais_enabled"
+                     name="accession_caais_enabled" value="true"
+                     {{ ($settings['accession_caais_enabled'] ?? 'false') === 'true' || ($settings['accession_caais_enabled'] ?? '0') === '1' ? 'checked' : '' }}>
+              <label class="form-check-label" for="accession_caais_enabled">
+                <strong>{{ __('CAAIS profile') }}</strong>
+              </label>
+            </div>
+            <div class="form-text">{{ __('Add the Canadian Archival Accession Information Standard (CAAIS 1.0) elements to accession records: structured extent, source confidentiality, language of material, preservation requirements, transfer events, rules or conventions, and a CAAIS export.') }}</div>
+          </div>
         </div>
       </div>
     </div>

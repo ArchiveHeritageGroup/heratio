@@ -2,7 +2,7 @@
 
 # Authority Resolution - Creating a New Authority Record
 
-When none of the candidates fit a mention, the archivist clicks **Create new** on the review screen. The engine opens a pre-fill wizard, queries every registered external authority source the admin has opted into (VIAF, Wikidata, GeoNames, TGN, GND, ISNI, plus any regional gazetteer adapter such as SAGNC), and pre-fills the new-authority form. The archivist may accept, override, or skip each field. On submit the engine inserts a fresh `actor` (or `term`) row, writes one RDF-Star reified assertion per accepted field to the field-provenance graph, and records a `create_new` decision in `ahg_mention_decision`.
+When none of the candidates fit a mention, the archivist clicks **Create new** on the review screen. The engine opens a pre-fill wizard, queries every registered external authority source the admin has opted into (VIAF, Wikidata, GeoNames, TGN, GND, ISNI, plus any regional gazetteer adapter such as SAGNC), and pre-fills the new-authority form. The archivist may accept, override, or skip each field. On submit the engine inserts a fresh `actor` (or `term`) row, writes one reified assertion (an rdf:Statement node) per accepted field to the field-provenance graph, and records a `create_new` decision in `ahg_mention_decision`.
 
 This article covers the flow, the source adapters, the settings, and the ISAAR-CPF mandatory fields.
 
@@ -104,12 +104,15 @@ External-service flake degrades to "no pre-fill from that source", not an HTTP 5
 Each pre-filled field that survives to submission becomes one reified turtle assertion in the `urn:heratio:auth-res:graph:field-provenance` named graph. Example:
 
 ```
+PREFIX rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX prov:     <http://www.w3.org/ns/prov#>
 PREFIX auth_res: <https://heratio.theahg.co.za/ontology/auth-res#>
 PREFIX xsd:      <http://www.w3.org/2001/XMLSchema#>
 
-<< <https://heratio.theahg.co.za/actor/913465>
-     auth_res:hasField "authorized_form_of_name" >>
+<urn:heratio:auth-res:statement:HASH> a rdf:Statement ;
+    rdf:subject <https://heratio.theahg.co.za/actor/913465> ;
+    rdf:predicate auth_res:hasField ;
+    rdf:object "authorized_form_of_name" ;
     auth_res:fieldValue "Frederick Douglass, 1818-1895" ;
     prov:wasDerivedFrom <https://viaf.org/viaf/10088/> ;
     prov:generatedAtTime "2026-05-19T17:15:21Z"^^xsd:dateTime ;
@@ -125,7 +128,10 @@ This is a separate graph from the decisions graph so SPARQL queries can target o
 When you override a pre-filled value, the engine writes the override with `ahg:lookupSource = "archivist_override"` and also keeps the original value and original source:
 
 ```
-<< ahg:actor/901999 ric:hasName "Mzilikazi kaMashobane" >>
+<urn:heratio:auth-res:statement:HASH> a rdf:Statement ;
+    rdf:subject ahg:actor/901999 ;
+    rdf:predicate ric:hasName ;
+    rdf:object "Mzilikazi kaMashobane" ;
     prov:wasDerivedFrom    ahg:user/1 ;
     ahg:lookupSource       "archivist_override" ;
     ahg:originalValue      "Moselekatse" ;

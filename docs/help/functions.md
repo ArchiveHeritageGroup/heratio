@@ -1859,7 +1859,7 @@ Complete listing of the user-facing functionality across the Heratio platform an
 
 ### Cryptographic Signing and Semantic Provenance
 - Ed25519-sign each AI inference manifest so its authenticity can be independently verified
-- Persist every inference and override to a Fuseki RDF-Star / PROV-O semantic store alongside the SQL record for defensible, standards-based provenance
+- Persist every inference and override to a Fuseki PROV-O semantic store (plain RDF 1.1 statement nodes) alongside the SQL record for defensible, standards-based provenance
 - Survive Fuseki outages by writing SQL first and replaying deferred semantic writes later, with no loss of AI records
 
 ### CLI Commands

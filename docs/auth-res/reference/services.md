@@ -123,7 +123,7 @@ Each returns the new `ahg_mention_decision.id`.
 
 ### DecisionProvenanceWriter
 
-Emits RDF-Star to the decisions named graph. Reads
+Emits reified provenance to the decisions named graph. Reads
 `authority_resolution.decisions_graph_uri`. Has a default constant
 `DEFAULT_GRAPH_URI` for the seeded value.
 
@@ -136,7 +136,7 @@ Synchronous on decide. Backfillable via
 
 ### FieldProvenanceWriter
 
-Emits per-field RDF-Star for `create_new` decisions to the
+Emits per-field reified provenance for `create_new` decisions to the
 field-provenance named graph. Called by `AuthorityCreator`.
 
 ```php

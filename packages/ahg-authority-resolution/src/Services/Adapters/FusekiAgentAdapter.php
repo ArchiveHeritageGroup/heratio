@@ -113,9 +113,11 @@ class FusekiAgentAdapter implements CandidateAdapterInterface
      *
      * Matches any RiC-O agent class (Agent / Person / CorporateBody /
      * Family). The display name is read from whichever name predicate is
-     * present - rico:name, rico:hasOrHadName -> rico:textualValue,
+     * present - rico:hasAgentName or rico:hasOrHadName -> rico:textualValue,
      * rdfs:label or skos:prefLabel - so the query works regardless of
-     * which serialisation the dataset uses for instance names.
+     * which serialisation the dataset uses for instance names. The RiC
+     * extractor writes agent names under rico:hasAgentName; rico:name is not
+     * used for instances (heratio#1516).
      */
     private function buildSparql(string $query, int $limit): string
     {
@@ -131,9 +133,7 @@ WHERE {
     ?s a ?agentType .
     VALUES ?agentType { rico:Agent rico:Person rico:CorporateBody rico:Family }
     {
-        ?s rico:name ?name .
-    } UNION {
-        ?s rico:hasOrHadName ?nameObj .
+        ?s rico:hasAgentName|rico:hasOrHadName ?nameObj .
         ?nameObj rico:textualValue ?name .
     } UNION {
         ?s rdfs:label ?name .

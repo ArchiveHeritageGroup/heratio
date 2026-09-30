@@ -517,6 +517,57 @@ Access ICIP settings via plugin configuration:
 | Local Contexts Hub | Disabled | Enable API integration |
 | Audit All ICIP Access | Yes | Log access to ICIP records |
 
+### Local Contexts Hub Sync
+
+Heratio can pull the Labels and Notices a community has applied to a project
+on the Local Contexts Hub, so records show the community's own wording, icons,
+language and translations instead of the generic label text. The local label
+catalog stays in place as the fallback: if the Hub is unreachable, or a label
+has not been synced, pages carry on with the local wording.
+
+**1. Register the project on the Hub.** The community, institution or
+researcher account creates a Project at https://localcontextshub.org and
+applies its TK/BC Labels or Notices there. Set the project's privacy to
+Public or Contributor; Private projects are never returned by the API. Copy
+the project's Unique ID (a UUID, shown on the project page and in its URL).
+For testing, use the sandbox at https://sandbox.localcontextshub.org, which
+has its own accounts, projects and keys.
+
+**2. Generate an API key.** In the Hub, open the account's settings and
+generate an API key. Keys belong to the account that made them and can only
+read the projects that account can see.
+
+**3. Configure Heratio.** In **Admin > AHG Settings > ICIP Settings**, tick
+**Enable Local Contexts Hub API** and paste the key into the API key field
+(it is stored encrypted). Two further values live in the `icip_config` table
+and are not on the settings form yet, so a database administrator sets them:
+
+| Key | Value |
+|-----|-------|
+| `local_contexts_project_ids` | One or more project Unique IDs, separated by commas or new lines |
+| `local_contexts_hub_url` | `https://localcontextshub.org` (default), or `https://sandbox.localcontextshub.org` for testing |
+
+**4. Run a first sync by hand** to check the key and ids:
+
+```
+sudo -u www-data php artisan ahg:icip-hub-sync
+sudo -u www-data php artisan ahg:icip-hub-sync --project=<unique-id>
+```
+
+Each project reports how many labels and notices it synced, or why it failed.
+HTTP 403 means the key is missing, wrong, or belongs to an account that cannot
+see the project; HTTP 404 means the id is wrong or the project is Private.
+
+**5. Switch on the schedule.** The job **Local Contexts Hub Sync**
+(`ahg:icip-hub-sync`, daily at 05:00) ships disabled in the Cron Scheduler.
+Enable it there once the manual run succeeds. Its log is
+`storage/logs/icip-hub-sync.log`.
+
+With a key set, Heratio uses version 2 of the Hub API (the current default).
+Without a key it falls back to the older keyless version 1 API, which can only
+read Public projects and may be retired by the Hub; use a key for anything
+beyond a quick test.
+
 ### Access Audit Log
 
 When **Audit All ICIP Access** is enabled, every visit to an ICIP route is

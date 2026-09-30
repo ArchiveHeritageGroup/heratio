@@ -6,13 +6,17 @@
  * Task 6 sibling of DecisionProvenanceWriter. Emits per-field provenance
  * to Fuseki when a new authority record is created via the "Create new
  * authority" sub-workflow. Each pre-filled field becomes one reified
- * RDF-Star assertion carrying source URL, retrieval date, and licence
- * info - that's the chain a future FOIA / audit query walks.
+ * assertion carrying source URL, retrieval date, and licence info - that's
+ * the chain a future FOIA / audit query walks. The assertion is a plain
+ * rdf:Statement node, not an RDF-star quoted triple (heratio#1517).
  *
  * Example output (one field):
  *
- *   << <https://heratio.theahg.co.za/actor/123>
- *        auth_res:hasField "authorized_form_of_name" >>
+ *   <urn:heratio:auth-res:statement:<hash>> a rdf:Statement ;
+ *       rdf:subject <https://heratio.theahg.co.za/actor/123> ;
+ *       rdf:predicate auth_res:hasField ;
+ *       rdf:object "authorized_form_of_name" .
+ *   <urn:heratio:auth-res:statement:<hash>>
  *       auth_res:fieldValue "Nelson Mandela" ;
  *       prov:wasDerivedFrom <https://viaf.org/viaf/12345/> ;
  *       prov:generatedAtTime "2026-05-19T12:00:00Z"^^xsd:dateTime ;
@@ -34,6 +38,7 @@
 namespace AhgAuthorityResolution\Services;
 
 use AhgRic\Services\SparqlUpdateService;
+use AhgCore\Support\ReifiedStatement;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -89,6 +94,7 @@ class FieldProvenanceWriter
                 continue;
             }
             $turtleChunks[] = $this->buildOneFieldTurtle(
+                $graphUri,
                 $subjectUri,
                 (string) $field,
                 $this->stringify($value),
@@ -148,10 +154,12 @@ class FieldProvenanceWriter
         ];
     }
 
-    private function buildOneFieldTurtle(string $subjectUri, string $field, string $value, array $prov): string
+    private function buildOneFieldTurtle(string $graphUri, string $subjectUri, string $field, string $value, array $prov): string
     {
-        $assertion = "{$subjectUri} auth_res:hasField ".$this->literal($field);
-        $reified = "<< {$assertion} >>";
+        $predicate = '<'.self::NS_AUTH_RES.'hasField>';
+        $object = ReifiedStatement::literal($field);
+        $node = ReifiedStatement::node($graphUri, $subjectUri, $predicate, $object);
+        $reified = ReifiedStatement::describe($node, $subjectUri, $predicate, $object)."<{$node}>";
 
         $sourceUri = isset($prov['uri']) && is_string($prov['uri']) && trim($prov['uri']) !== ''
             ? '<'.$prov['uri'].'>'

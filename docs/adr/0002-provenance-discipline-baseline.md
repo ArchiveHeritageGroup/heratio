@@ -5,6 +5,7 @@
 - **Issue:** [ArchiveHeritageGroup/heratio#61](https://github.com/ArchiveHeritageGroup/heratio/issues/61)
 - **Supersedes:** none
 - **Superseded by:** none
+- **Amended:** 2026-09-30 by [heratio#1517](https://github.com/ArchiveHeritageGroup/heratio/issues/1517) - RDF-star quoted triples replaced by plain `rdf:Statement` nodes (see the amendment at the end of section 2)
 
 ## Context
 
@@ -56,6 +57,16 @@ This ADR locks the seven architectural decisions that gate the rest of the work.
 **Why hybrid:** RDF-Star is compact and natural for "this triple has metadata." But overrides have richer human-agent semantics (reviewer, reason, before/after) that read more clearly when reified as a `prov:Activity`. Auditors and FOIA officers do not speak RDF-Star; they recognise PROV-O activities.
 
 **Original triples are NEVER overwritten.** When a reviewer corrects an AI inference, the original assertion stays in place and the override is added alongside. The "current effective value" is computed from the chain at query time.
+
+**Amendment (2026-09-30, heratio#1517): statement nodes, not RDF-star.** The inference meta-assertion is no longer written as an RDF-star quoted triple. RDF-star tied the record to stores that support it (QLever stops at the first `<<`), and RDF 1.2 triple terms use a different syntax again. The generated triple is now a plain RDF 1.1 reified statement, and the provenance hangs on that node:
+  ```turtle
+  <urn:ahg:provenance-ai:statement:HASH> a rdf:Statement ;
+      rdf:subject   <urn:ahg:entity:information_object:123:subject> ;
+      rdf:predicate ex:hasGenerated ;
+      rdf:object    <urn:ahg:provenance-ai:output:OUTPUT-HASH> ;
+      prov:wasGeneratedBy <urn:ahg:provenance-ai:inference:UUID> .
+  ```
+`HASH` is the `sha1` of the named graph IRI plus the N-Triples forms of s, p and o (`AhgCore\Support\ReifiedStatement`), so a re-write or a replay lands on the same node, exactly as the same quoted triple was the same term. The activity fields (model, confidence, standard, time) stay on the `prov:Activity` as before. Existing graphs are converted by `php artisan ahg:provenance-ai:migrate-star` (dry run by default, `--apply` to write). The RDF-star requirement in section 7 no longer applies.
 
 ### 3. Inference subject is per-field, not per-record
 

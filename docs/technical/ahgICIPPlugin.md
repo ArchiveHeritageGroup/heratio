@@ -667,7 +667,9 @@ Stored in `icip_config` table:
 | require_acknowledgement_default | 1 | Default acknowledgement requirement |
 | consent_expiry_warning_days | 90 | Days before expiry to show warning |
 | local_contexts_hub_enabled | 0 | Enable Local Contexts Hub API integration |
-| local_contexts_api_key | '' | API key for Local Contexts Hub |
+| local_contexts_api_key | '' | Hub account API key, sent as `X-Api-Key` (encrypted at rest) |
+| local_contexts_hub_url | https://localcontextshub.org | Hub base URL; sandbox is https://sandbox.localcontextshub.org |
+| local_contexts_project_ids | '' | Hub project Unique IDs to sync, comma or newline separated |
 | default_consultation_follow_up_days | 30 | Default follow-up period |
 | audit_all_icip_access | 1 | Log all access to ICIP-flagged records |
 
@@ -783,9 +785,20 @@ sudo systemctl restart php8.3-fpm
 - Track consent changes, consultation updates
 
 ### Local Contexts Hub
-- Future: API integration with Local Contexts Hub
-- Sync TK Labels from community projects
-- `local_contexts_hub_enabled` configuration
+- `LocalContextsHubService` + `ahg:icip-hub-sync` (issue #1448) sync each configured
+  Hub project's applied TK/BC Labels and Notices into `icip_hub_project`.
+- API contract (Hub OpenAPI schema at `{hub}/api/v2/schema/`, version 2.3.0):
+  `GET {hub}/api/v2/projects/{unique_id}/` with header `X-Api-Key: <key>`. v2
+  answers 403 without a key. Without a key the service uses the legacy keyless
+  `GET {hub}/api/v1/projects/{unique_id}/`, which serves Public projects only.
+- Payload: `tk_labels[]`, `bc_labels[]` (label_type, name, language, label_text,
+  img_url, svg_url, audiofile, community, translations[]) and `notice[]`
+  (notice_type, name, default_text, img_url, svg_url, translations[]).
+  `community` is a name in v1 and `{id, name, profile_url}` in v2; it is stored
+  as the name plus `community_id` / `community_profile_url`.
+- `labelMetadata()` takes a local code (`tk_a`, `bc_p`) or a Hub label_type
+  (`attribution`, `bc:provenance`) and prefers synced Hub data, falling back to
+  `icip_tk_label_type`. Operator steps are in the ICIP user guide.
 
 ### Theme Integration
 - Add ICIP tab to information object view

@@ -26,6 +26,7 @@
 namespace AhgProvenanceAi\Services;
 
 use AhgProvenanceAi\DTO\InferenceRecord;
+use AhgCore\Support\ReifiedStatement;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -34,7 +35,7 @@ use Illuminate\Support\Str;
  * Single entry point every AI service must use to record an inference.
  *
  * The MySQL row is the source of truth for the operational store
- * (filtering, dashboards, review queues). The Fuseki RDF-Star annotation
+ * (filtering, dashboards, review queues). The Fuseki provenance annotation
  * is the canonical defensible semantic record. We write SQL first so an
  * inference is never lost - if Fuseki is down, the row still lands and
  * gets replayed (a future cron picks up rows with fuseki_graph_uri IS NULL
@@ -47,7 +48,7 @@ class InferenceService
     /**
      * Persist an inference. Returns [id, uuid].
      *
-     * Phase 1: writes the SQL row only. The Fuseki RDF-Star write is wired
+     * Phase 1: writes the SQL row only. The Fuseki provenance write is wired
      * in Phase 1c via SparqlUpdateService and called from here once that
      * service is available; until then, rows are written with
      * fuseki_graph_uri = NULL and a future replay job catches up.
@@ -106,7 +107,7 @@ class InferenceService
             ]);
         }
 
-        // Phase 3a: write the canonical RDF-Star annotation to Fuseki.
+        // Phase 3a: write the canonical provenance annotation to Fuseki.
         $this->writeRdfStarAnnotation($id, $uuid, $r);
 
         // Phase 3d: if confidence is below the per-service threshold,
@@ -299,17 +300,18 @@ class InferenceService
     }
 
     /**
-     * Phase 3a: build the RDF-Star annotation for an inference and write it
-     * to Fuseki via SparqlUpdateService.
+     * Phase 3a: build the provenance annotation for an inference and write
+     * it to Fuseki via SparqlUpdateService.
      *
-     * Turtle shape (per ADR-0002 sec 2 - RDF-Star meta-assertion on the
-     * generated triple):
+     * Turtle shape (ADR-0002 sec 2, as amended by heratio#1517 - a plain
+     * rdf:Statement node for the generated triple, not an RDF-star quoted
+     * triple, so non-Jena stores such as QLever can load it):
      *
-     *   <<:target :field "<output-hash>">> prov:wasGeneratedBy :inference ;
-     *                                       prov:generatedAtTime "..."^^xsd:dateTime ;
-     *                                       ex:confidence "..."^^xsd:decimal ;
-     *                                       ex:model "spaCy en_core_web_sm 3.8.0" ;
-     *                                       ex:standard "ICIP-name-access-points" .
+     *   :inference a prov:Activity ; ex:model "..." ; ex:confidence "..." ;
+     *       prov:generated :output .
+     *   :statement a rdf:Statement ;
+     *       rdf:subject :target ; rdf:predicate ex:hasGenerated ; rdf:object :output ;
+     *       prov:wasGeneratedBy :inference .
      *
      * On success: UPDATE ahg_ai_inference SET fuseki_graph_uri = <graph-uri>.
      * On failure: log warning, leave fuseki_graph_uri NULL so the future
@@ -334,7 +336,7 @@ class InferenceService
                 DB::table('ahg_ai_inference')->where('id', $inferenceId)
                     ->update(['fuseki_graph_uri' => $graphUri]);
             } else {
-                Log::warning('[ahg-provenance-ai] Fuseki RDF-Star write deferred for replay', [
+                Log::warning('[ahg-provenance-ai] Fuseki provenance write deferred for replay', [
                     'inference_id' => $inferenceId,
                     'uuid' => $uuid,
                     'http_status' => $result['status'] ?? null,
@@ -351,7 +353,7 @@ class InferenceService
     }
 
     /**
-     * Build the turtle-star body for one inference. Pure-string output
+     * Build the Turtle body for one inference. Pure-string output
      * (no SPARQL wrapping); SparqlUpdateService::insertRdfStar handles
      * the INSERT DATA + GRAPH wrapping.
      *
@@ -364,39 +366,65 @@ class InferenceService
      */
     protected function buildInferenceTurtle(string $uuid, InferenceRecord $r): string
     {
-        $tenant = config('heratio.ld.tenant', 'ahg');
-        $provNs = config('heratio.ld.provenance_ns');
+        return self::composeInferenceTurtle(
+            config('heratio.ld.tenant', 'ahg'),
+            (string) config('heratio.ld.provenance_ns'),
+            $uuid,
+            $this->targetUri($r),
+            $r,
+            now()->toIso8601ZuluString()
+        );
+    }
+
+    /**
+     * Pure composer (no config, no clock) behind buildInferenceTurtle, so the
+     * output can be tested without a Laravel bootstrap.
+     *
+     * heratio#1517: the generated triple is a plain rdf:Statement node
+     * (AhgCore\Support\ReifiedStatement), not an RDF-star quoted triple, so
+     * the body is standard RDF 1.1 Turtle that any store can load.
+     */
+    public static function composeInferenceTurtle(
+        string $tenant,
+        string $provNs,
+        string $uuid,
+        string $target,
+        InferenceRecord $r,
+        string $generatedAt
+    ): string {
         $prefixes = "@prefix prov: <http://www.w3.org/ns/prov#> .\n"
                   ."@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n"
                   ."@prefix ex: <{$provNs}> .\n"
                   ."@prefix ric: <https://www.ica.org/standards/RiC/ontology#> .\n";
 
-        $inference = "<urn:{$tenant}:provenance-ai:inference:{$uuid}>";
-        $target = $this->targetUri($r);
+        $graphUri = "urn:{$tenant}:provenance-ai:inference:{$uuid}";
+        $inference = "<{$graphUri}>";
 
         // The "thing being asserted" - we anchor the meta-assertion on the
         // generated triple <target ex:hasGenerated <output-hash>> so the
-        // RDF-Star annotation is well-formed even before the AI write
-        // commits. The output_hash sentinel makes the meta-assertion
-        // round-trippable to the original output via ahg_ai_inference.output_hash.
+        // annotation is well-formed even before the AI write commits. The
+        // output_hash sentinel makes the meta-assertion round-trippable to
+        // the original output via ahg_ai_inference.output_hash.
         $outputNode = "<urn:{$tenant}:provenance-ai:output:{$r->outputHash}>";
+        $predicate = "<{$provNs}hasGenerated>";
+        $statement = ReifiedStatement::node($graphUri, $target, $predicate, $outputNode);
 
-        $generatedAt = now()->toIso8601ZuluString();
         $body = $prefixes
               ."{$inference} a prov:Activity ;\n"
               ."    prov:atTime \"{$generatedAt}\"^^xsd:dateTime ;\n"
-              .'    ex:service "'.$this->esc($r->serviceName)."\" ;\n"
-              .'    ex:model "'.$this->esc($r->modelName)."\" ;\n"
-              .'    ex:modelVersion "'.$this->esc($r->modelVersion)."\" ;\n"
-              .'    ex:inputHash "'.$this->esc($r->inputHash)."\" ;\n"
-              .'    ex:outputHash "'.$this->esc($r->outputHash)."\" ;\n"
+              .'    ex:service "'.self::esc($r->serviceName)."\" ;\n"
+              .'    ex:model "'.self::esc($r->modelName)."\" ;\n"
+              .'    ex:modelVersion "'.self::esc($r->modelVersion)."\" ;\n"
+              .'    ex:inputHash "'.self::esc($r->inputHash)."\" ;\n"
+              .'    ex:outputHash "'.self::esc($r->outputHash)."\" ;\n"
               .($r->confidence !== null ? "    ex:confidence \"{$r->confidence}\"^^xsd:decimal ;\n" : '')
-              .($r->standard !== null ? '    ex:standard "'.$this->esc($r->standard)."\" ;\n" : '')
-              .($r->endpoint !== null ? '    ex:endpoint "'.$this->esc($r->endpoint)."\" ;\n" : '')
+              .($r->standard !== null ? '    ex:standard "'.self::esc($r->standard)."\" ;\n" : '')
+              .($r->endpoint !== null ? '    ex:endpoint "'.self::esc($r->endpoint)."\" ;\n" : '')
               ."    prov:generated {$outputNode} .\n\n"
-              // RDF-Star meta-assertion: the generated triple itself carries
-              // a back-pointer to the inference activity that produced it.
-              ."<<{$target} ex:hasGenerated {$outputNode}>> prov:wasGeneratedBy {$inference} .\n";
+              // The generated triple itself, as a statement node carrying a
+              // back-pointer to the inference activity that produced it.
+              .ReifiedStatement::describe($statement, $target, $predicate, $outputNode)
+              ."<{$statement}> prov:wasGeneratedBy {$inference} .\n";
 
         return $body;
     }
@@ -419,7 +447,7 @@ class InferenceService
      * Escape a string for inclusion in a turtle string literal.
      * Sanitises the four characters that change meaning inside `"..."`.
      */
-    protected function esc(string $s): string
+    protected static function esc(string $s): string
     {
         return strtr($s, [
             '\\' => '\\\\',

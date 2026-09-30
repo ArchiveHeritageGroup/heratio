@@ -121,7 +121,7 @@ Each decision writes:
   triples
 - on `park`: a row to `ahg_mention_park`
 - on `reject`: a row to `ahg_ner_feedback` (becomes NER training data)
-- on any decision: RDF-Star provenance to Fuseki
+- on any decision: reified provenance to Fuseki
 
 ## Neighbourhood context
 

@@ -10,7 +10,7 @@ When the archivist clicks **Reject** in the review screen,
 `DecisionRecorder::recordReject()` writes:
 
 1. The `ahg_mention_decision` audit row (as usual).
-2. RDF-Star provenance to Fuseki (as usual).
+2. Reified (rdf:Statement) provenance to Fuseki (as usual).
 3. A row in `ahg_ner_feedback` via `NerFeedbackService::capture()`.
 
 The third step runs inside a try/catch - if it fails, the reject decision

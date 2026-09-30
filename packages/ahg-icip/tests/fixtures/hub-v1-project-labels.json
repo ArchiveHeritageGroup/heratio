@@ -1,0 +1,224 @@
+{
+  "unique_id": "f4f5a843-77bd-403f-84a2-a1bb9288d932",
+  "providers_id": null,
+  "publication_doi": null,
+  "project_data_guid": null,
+  "source_project_uuid": "e489b73c-554c-48cd-babc-61e6c01ed332",
+  "project_page": "https://localcontextshub.org/projects/f4f5a843-77bd-403f-84a2-a1bb9288d932",
+  "title": "Reflections on Indigenous sovereignty",
+  "project_privacy": "Public",
+  "date_added": "2025-01-17T21:22:31.732173Z",
+  "date_modified": "2025-01-20T15:25:51.848866Z",
+  "created_by": [
+    {
+      "institution": null,
+      "researcher": null,
+      "community": "Pueblo Kichwa de Sarayaku"
+    }
+  ],
+  "bc_labels": [
+    {
+      "unique_id": "85453c89-627f-4a45-ae5c-d3557c2703ef",
+      "name": "Abierto a colaboración",
+      "label_type": "collaboration",
+      "language_tag": "es",
+      "language": "Spanish",
+      "label_text": "El pueblo indígena Kichwa de Sarayaku, sus seres protectores, la naturaleza y el territorio están dispuestos a colaborar con actores externos en proyectos o actividades relacionadas a esta información. Sin embargo, cualquier tipo de colaboración y de uso de esta información se debe realizar bajo el consentimiento del Consejo de Gobierno del pueblo indígena Kichwa de Sarayaku, sus seres protectores, la naturaleza y el territorio.",
+      "img_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/bclabels/bc-open-to-collaboration.png",
+      "svg_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/bclabels/bc-open-to-collaboration.svg",
+      "audiofile": null,
+      "community": "Pueblo Kichwa de Sarayaku",
+      "translations": [
+        {
+          "translated_name": "BC Open to Collaboration (BC CB)",
+          "language_tag": "en",
+          "language": "English",
+          "translated_text": "The Kichwa Indigenous People of Sarayaku, their protectors, nature, and territory are willing to collaborate with external actors in projects or activities related to this information. However, any type of collaboration and use of this information must be done with the consent of the Governing Council of the Kichwa Indigenous People of Sarayaku, their protectors, nature, and territory."
+        }
+      ],
+      "created": "2024-06-12T14:52:40.491501Z",
+      "updated": "2024-09-16T21:24:10.143488Z"
+    },
+    {
+      "unique_id": "5d6cad18-0cc2-4105-994a-ef6df5acdc27",
+      "name": "Uso para investigación",
+      "label_type": "research",
+      "language_tag": "es",
+      "language": "Spanish",
+      "label_text": "Esta etiqueta está siendo utilizada por el pueblo indígena kichwa de Sarayaku, sus seres protectores, la naturaleza y su territorio para permitir el uso de esta información, datos e información de secuencia digital con fines de investigación no específicos. \r\nEsta etiqueta no provee permiso para actividades con fines comerciales. Y cada vez que alguien esté interesado en acceder a esta información deberá contactar al Consejo de Gobierno del pueblo Sarayaku y obtener el consentimiento del mismo pueblo.",
+      "img_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/bclabels/bc-research-use.png",
+      "svg_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/bclabels/bc-research-use.svg",
+      "audiofile": null,
+      "community": "Pueblo Kichwa de Sarayaku",
+      "translations": [
+        {
+          "translated_name": "BC Research Use (BC R)",
+          "language_tag": "en",
+          "language": "English",
+          "translated_text": "This Label is being used by the Kichwa Indigenous People of Sarayaku, their protective beings, nature, and territory to recognize that they allow the use of this information, data and digital sequence information for non-specific research purposes. However any specific use should be accepted, recognized, and validated by the Governing Council of the Kichwa Indigenous People of Sarayaku. This Label does not provide permission for commercial activities. Anyone interested in accessing this information should contact the Governing Council of the Kichwa Indigenous People of Sarayaku and obtain the consent of the Sarayaku People."
+        }
+      ],
+      "created": "2024-06-12T14:52:25.097293Z",
+      "updated": "2024-09-16T21:24:01.385791Z"
+    },
+    {
+      "unique_id": "71ed226b-f777-468e-90ad-e9ced0d017c1",
+      "name": "Consentimiento Verificado",
+      "label_type": "consent_verified",
+      "language_tag": "es",
+      "language": "Spanish",
+      "label_text": "Esta etiqueta está siendo utilizada para verificar que pueblo indígena Kichwa de Sarayaku, sus seres protectores, la naturaleza y el territorio cuentan con las condiciones apropiadas de consentimiento respecto al uso de esta información, colección, datos e información de secuencia digital. Dicha verificación puede ser encontrada como parte del proceso de investigación que realizó el pueblo indígena Kichwa de Sarayaku, sus seres protectores, la naturaleza y el territorio para la búsqueda y procesamiento de la información sobre los hongos que viven en el territorio Sarayaku.",
+      "img_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/bclabels/bc-consent-verified.png",
+      "svg_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/bclabels/bc-consent-verified.svg",
+      "audiofile": null,
+      "community": "Pueblo Kichwa de Sarayaku",
+      "translations": [
+        {
+          "translated_name": "BC Consent Verified (BC CV)",
+          "language_tag": "en",
+          "language": "English",
+          "translated_text": "This Label is being used to verify that the Kichwa Indigenous People of Sarayaku, their protective beings, nature, and territory have the appropriate conditions of consent regarding the use of this information, collection, data and digital sequence information. Such verification can be found as part of the research process carried out by the Kichwa Indigenous People of Sarayaku, their protectors, nature, and territory for the research related to the mushrooms and their mycorrhizal networks that live in the Sarayaku territory."
+        }
+      ],
+      "created": "2024-06-12T14:52:05.774001Z",
+      "updated": "2024-09-16T21:23:47.986067Z"
+    },
+    {
+      "unique_id": "08dce06a-a9f0-47a8-9162-c5c9a4e92f2e",
+      "name": "Procedencia",
+      "label_type": "provenance",
+      "language_tag": "es",
+      "language": "Spanish",
+      "label_text": "El pueblo indígena Kichwa de Sarayaku, sus seres protectores, la naturaleza y el territorio tienen el derecho a ser nombrados y asociados en relación con los recursos y la información presentada en esta investigación. Dicha asociación refleja una manera de relacionarse y responsabilidades significativas hacia los hongos y hacia las colecciones y datos científicos asociados a ellas. Toda esta información proviene del conocimiento ancestral del pueblo indígena Kichwa de Sarayaku, sus seres protectores, la naturaleza y el territorio y por lo tanto cualquier use debe reflejar y reconocer esta relación, respetado el derecho al consentimiento del pueblo y su territorio.",
+      "img_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/bclabels/bc-provenance.png",
+      "svg_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/bclabels/bc-provenance.svg",
+      "audiofile": null,
+      "community": "Pueblo Kichwa de Sarayaku",
+      "translations": [
+        {
+          "translated_name": "BC Provenance (BC P)",
+          "language_tag": "en",
+          "language": "English",
+          "translated_text": "The Kichwa Indigenous People of Sarayaku, their protective beings, nature, and territory have the right to be named and associated with the resources and information presented in this research. Such an association reflects a way of relating and the responsibilities towards fungi, the collections, and scientific data associated with them. All this information comes from the ancestral knowledge of the Kichwa Indigenous People of Sarayaku, their protective beings, nature, and territory. Therefore any use should reflect and recognize this relationship, respecting the right to consent of the Sarayaku People and their territory."
+        }
+      ],
+      "created": "2024-06-12T14:50:16.992054Z",
+      "updated": "2024-09-16T21:23:39.634361Z"
+    }
+  ],
+  "tk_labels": [
+    {
+      "unique_id": "8d9b1a52-97aa-49df-a352-b0732aeac0d0",
+      "name": "Comunitario",
+      "label_type": "community_voice",
+      "language_tag": "es",
+      "language": "Spanish",
+      "label_text": "Esta etiqueta está siendo usada para certificar que las personas que hacen parte del pueblo indígena Kichwa de Sarayaku, sus seres protectores, la naturaleza y el territorio hacen parte de las voces y la filosofía de vida del pueblo Sarayaku que están siendo incluidas en este material. Cualquier miembro de la comunidad y el territorio está invitado a contribuir con este conocimiento comunitario usando fotografías, grabaciones u objetos patrimoniales. La acción de compartir nuestras voces nos ayuda a recuperar nuestras historias y conocimiento ancestral. El acto de compartir es un proceso interno de la comunidad y todo lo que se comparte es de propiedad del pueblo indígena Kichwa de Sarayaku, sus seres protectores, la naturaleza y el territorio.",
+      "img_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/tklabels/tk-community-voice.png",
+      "svg_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/tklabels/tk-community-voice.svg",
+      "audiofile": null,
+      "community": "Pueblo Kichwa de Sarayaku",
+      "translations": [
+        {
+          "translated_name": "TK Community Voice (TK CV)",
+          "language_tag": "en",
+          "language": "English",
+          "translated_text": "This Label is being used to certify that the Kichwa Indigenous People of Sarayaku, their protectors, nature and territory are part of the voices and philosophy of life of the Sarayaku People and are being included in this material. Any member of the community and the territory is invited to contribute to this community knowledge using photographs, recordings or heritage objects. Sharing our voices helps us to recover our stories and ancestral knowledge. The act of sharing is an internal process of the community and every materials shared is owned by the Kichwa Indigenous People of Sarayaku, their protectors, nature, and territory."
+        }
+      ],
+      "created": "2024-07-31T18:44:42.716163Z",
+      "updated": "2024-09-16T21:21:42.898593Z"
+    },
+    {
+      "unique_id": "2a61db56-aed3-489f-ba12-d7dbac125c25",
+      "name": "Difusión",
+      "label_type": "outreach",
+      "language_tag": "es",
+      "language": "Spanish",
+      "label_text": "Este material no está públicamente disponible y sólo puede ser usado para actividades educativas y de difusión con expresa autorización del Consejo de Gobierno del pueblo indígena Kichwa de Sarayaku, sus seres protectores, la naturaleza y el territorio. El conocimiento ancestral que es incluido dentro de esta información no puede ser difundido por actores externos al pueblo Sarayaku y su territorio. \r\nCada vez que se vaya a usar este material, el pueblo indígena Kichwa de Sarayaku, sus seres protectores, la naturaleza y el territorio determinarán las condiciones específicas de circulación y las medidas de justicia y protección del conocimiento tradicional.",
+      "img_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/tklabels/tk-outreach.png",
+      "svg_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/tklabels/tk-outreach.svg",
+      "audiofile": null,
+      "community": "Pueblo Kichwa de Sarayaku",
+      "translations": [
+        {
+          "translated_name": "TK Outreach (TK O)",
+          "language_tag": "en",
+          "language": "English",
+          "translated_text": "This material is not publicly available and can only be used for educational and dissemination activities with the express authorization of the Governing Council of the Kichwa Indigenous People of Sarayaku, their protectors, nature and territory. The ancestral knowledge that is included within this information cannot be disseminated by external actors to the Sarayaku People and their territory. \r\nEach time this material is being used, the Kichwa Indigenous People of Sarayaku, their protective beings, nature, and territory will determine the specific conditions of circulation and the measures of justice and protection of their traditional knowledge."
+        }
+      ],
+      "created": "2024-06-12T14:49:32.513188Z",
+      "updated": "2024-09-16T21:21:22.659088Z"
+    },
+    {
+      "unique_id": "2fc01aaa-2157-49bf-b1da-cc240bcc2f0b",
+      "name": "Culturalmente sensible",
+      "label_type": "culturally_sensitive",
+      "language_tag": "es",
+      "language": "Spanish",
+      "label_text": "Esta etiqueta indica que de acuerdo con el conocimiento tradicional del pueblo indígena Kichwa de Sarayaku, sus seres protectores, la naturaleza y el territorio, la relación con los hongos hace parte de los conocimientos ancestrales. Los hongos que son más sensibles y son más inusuales de ser vistos deben ser protegidos en el momento en el que se relacionan con ellos. El pueblo indígena Kichwa de Sarayaku, sus seres protectores, la naturaleza y el territorio determinan que todas las relaciones que se establezcan con los hongos y su territorio deben ser respetuosas con todos los seres que habitan la Selva Viviente.",
+      "img_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/tklabels/tk-culturally-sensitive.png",
+      "svg_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/tklabels/tk-culturally-sensitive.svg",
+      "audiofile": null,
+      "community": "Pueblo Kichwa de Sarayaku",
+      "translations": [
+        {
+          "translated_name": "TK Culturally Sensitive (TK CS)",
+          "language_tag": "en",
+          "language": "English",
+          "translated_text": "This Label indicates that according to the traditional knowledge of the Kichwa Indigenous People of Sarayaku, their protectors, nature, and territory, their relationships with mushrooms are part of the ancestral knowledge. Fungi that are more sensitive and are more unusual to be seen should be protected when getting in touch/relating with them. The Kichwa Indigenous People of Sarayaku, their protective beings, nature, and territory determine that all relationships that are established with the mushrooms and their territory must be respectful of all beings that inhabit the Living Forest."
+        }
+      ],
+      "created": "2024-06-12T14:46:26.544366Z",
+      "updated": "2024-09-16T21:21:02.164109Z"
+    },
+    {
+      "unique_id": "272a29c8-1af4-48cd-9686-9b1ff38a9621",
+      "name": "Verificado",
+      "label_type": "verified",
+      "language_tag": "es",
+      "language": "Spanish",
+      "label_text": "Esta etiqueta indica que la manera en la que este material está siendo representado respeta las expectativas y protocolos culturales del pueblo indígena Kichwa de Sarayaku, sus seres protectores, la naturaleza y el territorio. Esta etiqueta comunica que el pueblo indígena Kichwa de Sarayaku, sus seres protectores, la naturaleza y el territorio son los creadores de este material y consideran que este está siendo representado de manera justa, razonable y respetuosa.",
+      "img_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/tklabels/tk-verified.png",
+      "svg_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/tklabels/tk-verified.svg",
+      "audiofile": null,
+      "community": "Pueblo Kichwa de Sarayaku",
+      "translations": [
+        {
+          "translated_name": "TK Verified (TK V)",
+          "language_tag": "en",
+          "language": "English",
+          "translated_text": "This Label indicates that the ways in which this material is being represented respects the cultural expectations and protocols of the Kichwa Indigenous People of Sarayaku, their protective beings, nature, and territory. This Label communicates that the Kichwa Indigenous People of Sarayaku, their protective beings, nature, and territory are the creators of this material and consider that it is being represented in a fair, reasonable, and respectful manner."
+        }
+      ],
+      "created": "2024-06-12T14:44:04.043874Z",
+      "updated": "2024-09-16T21:20:37.850183Z"
+    },
+    {
+      "unique_id": "f09ed644-42db-4946-91c2-9a6ccd13bccf",
+      "name": "Atribución",
+      "label_type": "attribution",
+      "language_tag": "es",
+      "language": "Spanish",
+      "label_text": "Esta etiqueta certifica que el pueblo indígena Kichwa de Sarayaku,  sus seres protectores, la naturaleza y el territorio son los autores y propietarios del material circulante relacionado a la información recopilada en su territorio en la Amazonía ecuatoriana. Esta etiqueta les pide a usuarios externos considerar y atribuir correctamente la autoría de este material al pueblo indígena Kichwa de Sarayaku y su territorio, e incorporar los nombres del pueblo Sarayaku y su territorio ante cualquier uso de este trabajo en el futuro.",
+      "img_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/tklabels/tk-attribution.png",
+      "svg_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/tklabels/tk-attribution.svg",
+      "audiofile": null,
+      "community": "Pueblo Kichwa de Sarayaku",
+      "translations": [
+        {
+          "translated_name": "TK Attribution (TK A)",
+          "language_tag": "en",
+          "language": "English",
+          "translated_text": "This Label certifies that the Kichwa Indigenous People of Sarayaku, their protectors, nature and territory are the authors and owners of the circulating material related to the information gathered in their territory in the Ecuadorian Amazon. This Label asks external users to consider and correctly attribute authorship of this material to the Kichwa Indigenous People of Sarayaku and their territory, and to incorporate the names of the Sarayaku People and their territory in any future use of this information."
+        }
+      ],
+      "created": "2024-06-12T14:43:05.335536Z",
+      "updated": "2024-09-16T21:20:21.416679Z"
+    }
+  ],
+  "sub_projects": [],
+  "related_projects": [],
+  "project_boundary_geojson": null
+}

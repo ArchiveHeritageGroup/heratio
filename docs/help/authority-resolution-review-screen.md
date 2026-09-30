@@ -94,7 +94,7 @@ Every action calls into `DecisionRecorder`, the single write-path. Each method:
 3. For link / link-different: back-updates `ahg_ner_entity.linked_actor_id` (preserves the consumer contract used by the discovery pipeline and actor manage).
 4. For park: inserts into `ahg_mention_park`.
 5. For reject: writes `ahg_ner_feedback` (best-effort, in a try/catch - failure never blocks the reject audit row).
-6. Fires `DecisionProvenanceWriter::write()` to push RDF-Star triples into the Fuseki decisions graph. Failures are logged but never rolled back; `auth-res:write-provenance {decision_id}` can backfill any decision whose `fuseki_graph_uri` is still NULL.
+6. Fires `DecisionProvenanceWriter::write()` to push reified provenance triples into the Fuseki decisions graph. Failures are logged but never rolled back; `auth-res:write-provenance {decision_id}` can backfill any decision whose `fuseki_graph_uri` is still NULL.
 
 ## Decision immutability
 

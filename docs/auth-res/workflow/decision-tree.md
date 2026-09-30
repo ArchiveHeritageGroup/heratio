@@ -84,7 +84,7 @@ Side effects:
 
 - `ahg_mention.state` -> `new_record_created`
 - New row in `actor` / `term` (+ i18n tables)
-- Per-field RDF-Star assertions written to the field-provenance graph
+- Per-field reified assertions written to the field-provenance graph
   (each accepted pre-fill carries its source URI + retrieved-at)
 - Decision provenance written to the decisions graph
 

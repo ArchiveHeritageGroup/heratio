@@ -3,9 +3,10 @@
 /**
  * DecisionProvenanceWriter - Service for Heratio
  *
- * Writes RDF-Star provenance for every authority-resolution decision to the
+ * Writes provenance for every authority-resolution decision to the
  * Heratio Fuseki dataset (named graph configurable, default
- * urn:heratio:auth-res:graph:decisions). The reified assertion captures the
+ * urn:heratio:auth-res:graph:decisions). The reified assertion - a plain
+ * rdf:Statement node, not an RDF-star quoted triple (heratio#1517) - captures the
  * outcome (mention -> linkedTo -> actor/term, or mention -> rejected, etc.),
  * with PROV-O triples annotating who decided, when, and our auth_res:*
  * predicates carrying the system's original confidence + the candidates
@@ -37,6 +38,7 @@
 namespace AhgAuthorityResolution\Services;
 
 use AhgRic\Services\SparqlUpdateService;
+use AhgCore\Support\ReifiedStatement;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -55,7 +57,7 @@ class DecisionProvenanceWriter
     ) {}
 
     /**
-     * Write RDF-Star provenance for a decision. Updates ahg_mention_decision.fuseki_graph_uri on success.
+     * Write provenance for a decision. Updates ahg_mention_decision.fuseki_graph_uri on success.
      *
      * @return array{ok:bool, graph?:string, turtle?:string, status?:int, error?:string}
      */
@@ -67,7 +69,7 @@ class DecisionProvenanceWriter
         }
 
         $graphUri = $graphUri ?: $this->loadGraphUri();
-        $turtle = $this->buildTurtle($decision);
+        $turtle = $this->buildTurtle($decision, $graphUri);
         // SPARQL UPDATE expects PREFIX declarations outside the INSERT DATA wrapper,
         // not Turtle's @prefix syntax. executeUpdate takes the full statement;
         // insertRdfStar only wraps in INSERT DATA which would put @prefix in the wrong place.
@@ -104,22 +106,25 @@ class DecisionProvenanceWriter
     }
 
     /**
-     * Build the turtle-star body (without INSERT DATA / GRAPH wrappers, which
-     * SparqlUpdateService handles).
+     * Build the turtle body (without INSERT DATA / GRAPH wrappers, which
+     * SparqlUpdateService handles). The decision is a plain rdf:Statement
+     * node whose IRI hashes (graph, s, p, o), so a re-write lands on the
+     * same node (heratio#1517).
      */
-    public function buildTurtle(object $decision): string
+    public function buildTurtle(object $decision, ?string $graphUri = null): string
     {
         $base = rtrim((string) config('app.url', 'http://localhost'), '/');
 
         $mentionUri = "<{$base}/auth-res/mention/{$decision->mention_id}>";
         $userUri = "<{$base}/user/{$decision->archivist_user_id}>";
-        $assertion = $this->buildAssertion($decision, $mentionUri, $base);
+        [$s, $p, $o] = $this->buildAssertion($decision, $mentionUri, $base);
         $timestamp = $this->formatTimestamp((string) $decision->decided_at);
 
-        $reified = "<< {$assertion} >>";
+        $node = ReifiedStatement::node($graphUri ?: $this->loadGraphUri(), $s, $p, $o);
+        $reified = "<{$node}>";
 
         $triples = [];
-        $triples[] = "{$reified}";
+        $triples[] = rtrim(ReifiedStatement::describe($node, $s, $p, $o))."\n{$reified}";
         $triples[] = "    prov:wasAttributedTo {$userUri} ;";
         $triples[] = "    prov:generatedAtTime \"{$timestamp}\"^^xsd:dateTime ;";
         $triples[] = '    auth_res:decisionType '.$this->literal($decision->decision_type).' ;';
@@ -164,27 +169,34 @@ class DecisionProvenanceWriter
         return $body;
     }
 
-    private function buildAssertion(object $decision, string $mentionUri, string $base): string
+    /**
+     * The asserted triple as [s, p, o] N-Triples terms (full IRIs, canonical
+     * literals) - the form ReifiedStatement hashes.
+     *
+     * @return array{0:string,1:string,2:string}
+     */
+    private function buildAssertion(object $decision, string $mentionUri, string $base): array
     {
+        $ns = self::NS_AUTH_RES;
+        $true = ReifiedStatement::literal('true', 'http://www.w3.org/2001/XMLSchema#boolean');
+
         switch ($decision->decision_type) {
             case 'link':
             case 'link_different':
                 $authorityUri = $this->authorityUri($decision, $base);
                 $predicate = $decision->decision_type === 'link_different'
-                    ? 'auth_res:linkedToDifferent'
-                    : 'auth_res:linkedTo';
+                    ? "<{$ns}linkedToDifferent>"
+                    : "<{$ns}linkedTo>";
 
-                return "{$mentionUri} {$predicate} {$authorityUri}";
+                return [$mentionUri, $predicate, $authorityUri];
             case 'create_new':
-                $authorityUri = $this->authorityUri($decision, $base);
-
-                return "{$mentionUri} auth_res:linkedToNew {$authorityUri}";
+                return [$mentionUri, "<{$ns}linkedToNew>", $this->authorityUri($decision, $base)];
             case 'park':
-                return "{$mentionUri} auth_res:parked \"true\"^^xsd:boolean";
+                return [$mentionUri, "<{$ns}parked>", $true];
             case 'reject':
-                return "{$mentionUri} auth_res:rejected \"true\"^^xsd:boolean";
+                return [$mentionUri, "<{$ns}rejected>", $true];
             default:
-                return "{$mentionUri} auth_res:decision ".$this->literal($decision->decision_type);
+                return [$mentionUri, "<{$ns}decision>", ReifiedStatement::literal((string) $decision->decision_type)];
         }
     }
 

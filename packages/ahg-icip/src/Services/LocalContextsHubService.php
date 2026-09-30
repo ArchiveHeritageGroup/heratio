@@ -31,11 +31,24 @@ use Illuminate\Support\Facades\Schema;
  *  - Additive + guarded: with the module disabled or no credentials/table,
  *    every method behaves exactly as the previous stub (empty / local-only).
  *
- * NOTE: the live Hub API contract (endpoints/auth/payloads) can only be
- * verified against a real registered project + credentials, which the dev
- * host does not have. This implements the documented v1 contract
- * (GET /api/v1/projects/{unique_id}/ with an X-Api-Key header) behind the
- * enable flag, so it is inert until an operator supplies credentials.
+ * Hub API contract (confirmed 2026-09-30 against the Hub's own OpenAPI schema
+ * at {hub}/api/v2/schema/, "Local Contexts Hub API 2.3.0 (v2)"):
+ *  - v2 is the default API since 10 Feb 2025. Every v2 call needs the
+ *    account's API key in an `X-Api-Key` header; without it the Hub answers
+ *    403 {"detail":"Authentication not provided."}. Project detail is
+ *    GET {hub}/api/v2/projects/{unique_id}/. Private projects are never
+ *    returned.
+ *  - v1 (GET {hub}/api/v1/projects/{unique_id}/) is the legacy, keyless API
+ *    and still serves Public projects. It is used only when no key is set.
+ *  - Payload: tk_labels[] / bc_labels[] (unique_id, name, label_type,
+ *    language_tag, language, label_text, img_url, svg_url, audiofile,
+ *    community, translations[], created, updated) and notice[]
+ *    (notice_type, name, default_text, img_url, svg_url, translations[]).
+ *    Translations are {translated_name, language_tag, language,
+ *    translated_text}. `community` is a plain name in v1 and an object
+ *    {id, name, profile_url} in v2; both are normalised on sync.
+ *  - Production https://localcontextshub.org, sandbox
+ *    https://sandbox.localcontextshub.org (separate accounts and keys).
  */
 class LocalContextsHubService
 {
@@ -46,6 +59,36 @@ class LocalContextsHubService
     private const HTTP_TIMEOUT = 10;
 
     private const DEFAULT_HUB_URL = 'https://localcontextshub.org';
+
+    /**
+     * Local catalog code (icip_tk_label_type.code) => Hub family + label_type.
+     * TK and BC share some label_type values (clan, outreach, non_commercial),
+     * so the family is part of the match.
+     */
+    private const LOCAL_CODE_MAP = [
+        'tk_a'   => ['tk', 'attribution'],
+        'tk_cl'  => ['tk', 'clan'],
+        'tk_f'   => ['tk', 'family'],
+        'tk_mc'  => ['tk', 'tk_multiple_community'],
+        'tk_nc'  => ['tk', 'non_commercial'],
+        'tk_o'   => ['tk', 'outreach'],
+        'tk_s'   => ['tk', 'secret_sacred'],
+        'tk_v'   => ['tk', 'verified'],
+        'tk_cs'  => ['tk', 'culturally_sensitive'],
+        'tk_cv'  => ['tk', 'community_voice'],
+        'tk_co'  => ['tk', 'community_use_only'],
+        'tk_wr'  => ['tk', 'women_restricted'],
+        'tk_wg'  => ['tk', 'women_general'],
+        'tk_mr'  => ['tk', 'men_restricted'],
+        'tk_mg'  => ['tk', 'men_general'],
+        'tk_ss'  => ['tk', 'seasonal'],
+        'bc_p'   => ['bc', 'provenance'],
+        'bc_mc'  => ['bc', 'multiple_community'],
+        'bc_cl'  => ['bc', 'clan'],
+        'bc_cnc' => ['bc', 'non_commercial'],
+        'bc_o'   => ['bc', 'outreach'],
+        'bc_r'   => ['bc', 'research'],
+    ];
 
     // ── Config ──────────────────────────────────────────────────────────
 
@@ -141,21 +184,27 @@ class LocalContextsHubService
         return Cache::remember($cacheKey, self::CACHE_TTL, function () use ($projectId) {
             try {
                 $req = Http::timeout(self::HTTP_TIMEOUT)
-                    ->retry(1, 200)
+                    ->retry(1, 200, null, false)
                     ->acceptJson();
 
+                // v2 needs the account key in X-Api-Key; without a key only
+                // the legacy keyless v1 API can read Public projects.
                 $apiKey = $this->getApiKey();
                 if ($apiKey) {
-                    // The Hub uses an X-Api-Key header for account-scoped access;
-                    // public projects are readable without one.
                     $req = $req->withHeaders(['X-Api-Key' => $apiKey]);
                 }
+                $version = $apiKey ? 'v2' : 'v1';
 
-                $url = $this->hubBaseUrl().'/api/v1/projects/'.rawurlencode($projectId).'/';
+                $url = $this->hubBaseUrl().'/api/'.$version.'/projects/'.rawurlencode($projectId).'/';
                 $resp = $req->get($url);
 
                 if (! $resp->successful()) {
-                    Log::warning('LocalContextsHubService: Hub returned HTTP '.$resp->status().' for project '.$projectId);
+                    $why = match ($resp->status()) {
+                        401, 403 => 'API key missing, invalid or not allowed to read this project',
+                        404      => 'project not found, or it is Private',
+                        default  => 'unexpected response',
+                    };
+                    Log::warning('LocalContextsHubService: Hub '.$version.' returned HTTP '.$resp->status().' for project '.$projectId.' ('.$why.')');
 
                     return null;
                 }
@@ -208,14 +257,19 @@ class LocalContextsHubService
         }
 
         $labels = $this->extractLabels($data);
-        $notices = is_array($data['notice'] ?? null) ? $data['notice'] : (is_array($data['notices'] ?? null) ? $data['notices'] : []);
+        $notices = [];
+        foreach ((is_array($data['notice'] ?? null) ? $data['notice'] : []) as $n) {
+            if (is_array($n)) {
+                $notices[] = $this->normaliseCommunity($n);
+            }
+        }
 
         try {
             $now = Carbon::now();
             DB::table('icip_hub_project')->updateOrInsert(
                 ['project_id' => $projectId],
                 [
-                    'title'        => mb_substr((string) ($data['title'] ?? ($data['project_page'] ?? '')), 0, 500),
+                    'title'        => mb_substr((string) ($data['title'] ?? ''), 0, 500),
                     'labels_json'  => json_encode(array_values($labels), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
                     'notices_json' => json_encode(array_values($notices), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
                     'http_status'  => 200,
@@ -281,10 +335,12 @@ class LocalContextsHubService
     // ── Label metadata (Hub-first, local-catalog fallback) ──────────────
 
     /**
-     * Authoritative metadata for a TK/BC label code. Prefers a synced Hub
-     * label (name, text/description, image, community, translations); falls
-     * back to the local icip_tk_label_type catalog so display/gating always
-     * work offline. Returns [] only when neither source has the code.
+     * Authoritative metadata for a TK/BC label code. Accepts a local catalog
+     * code (tk_a, bc_p) or a Hub label_type, optionally family-prefixed
+     * (attribution, tk:attribution). Prefers a synced Hub label (customised
+     * name and text, icons, community, translations); falls back to the local
+     * icip_tk_label_type catalog so display/gating always work offline.
+     * Returns [] only when neither source has the code.
      *
      * @return array<string,mixed>
      */
@@ -295,26 +351,43 @@ class LocalContextsHubService
             return [];
         }
 
+        [$family, $hubType] = self::LOCAL_CODE_MAP[strtolower($labelCode)]
+            ?? (str_contains($labelCode, ':') ? explode(':', strtolower($labelCode), 2) : [null, strtolower($labelCode)]);
+
         // 1. Hub-synced labels (if any project is synced).
         try {
             if ($this->isEnabled() && Schema::hasTable('icip_hub_project')) {
-                foreach (DB::table('icip_hub_project')->pluck('labels_json') as $json) {
-                    foreach ((json_decode((string) $json, true) ?: []) as $lbl) {
+                foreach (DB::table('icip_hub_project')->orderByDesc('synced_at')->get(['project_id', 'labels_json']) as $row) {
+                    foreach ((json_decode((string) $row->labels_json, true) ?: []) as $lbl) {
                         if (! is_array($lbl)) {
                             continue;
                         }
-                        $type = (string) ($lbl['label_type'] ?? ($lbl['type'] ?? ''));
-                        if ($type !== '' && strcasecmp($type, $labelCode) === 0) {
-                            return [
-                                'source'       => 'hub',
-                                'code'         => $type,
-                                'name'         => (string) ($lbl['name'] ?? ''),
-                                'description'  => (string) ($lbl['label_text'] ?? ($lbl['text'] ?? '')),
-                                'image'        => (string) ($lbl['img_url'] ?? ($lbl['image_url'] ?? '')),
-                                'community'    => (string) ($lbl['community'] ?? ''),
-                                'translations' => is_array($lbl['translations'] ?? null) ? $lbl['translations'] : [],
-                            ];
+                        $type = strtolower((string) ($lbl['label_type'] ?? ''));
+                        if ($type === '' || $type !== $hubType) {
+                            continue;
                         }
+                        if ($family !== null && ($lbl['family'] ?? null) !== $family) {
+                            continue;
+                        }
+
+                        return [
+                            'source'        => 'hub',
+                            'code'          => $labelCode,
+                            'label_type'    => $type,
+                            'family'        => $lbl['family'] ?? null,
+                            'name'          => (string) ($lbl['name'] ?? ''),
+                            'description'   => (string) ($lbl['label_text'] ?? ''),
+                            'language'      => (string) ($lbl['language'] ?? ''),
+                            'language_tag'  => (string) ($lbl['language_tag'] ?? ''),
+                            'image'         => (string) ($lbl['img_url'] ?? ''),
+                            'svg'           => (string) ($lbl['svg_url'] ?? ''),
+                            'audio'         => (string) ($lbl['audiofile'] ?? ''),
+                            'url'           => (string) ($lbl['label_page'] ?? ''),
+                            'community'     => (string) ($lbl['community'] ?? ''),
+                            'community_url' => (string) ($lbl['community_profile_url'] ?? ''),
+                            'translations'  => is_array($lbl['translations'] ?? null) ? $lbl['translations'] : [],
+                            'project_id'    => $row->project_id,
+                        ];
                     }
                 }
             }
@@ -366,7 +439,10 @@ class LocalContextsHubService
                         if (! is_array($lbl)) {
                             continue;
                         }
-                        $hay = mb_strtolower(($lbl['name'] ?? '').' '.($lbl['label_text'] ?? '').' '.($lbl['label_type'] ?? ''));
+                        $names = array_column(is_array($lbl['translations'] ?? null) ? $lbl['translations'] : [], 'translated_name');
+                        $hay = mb_strtolower(implode(' ', array_merge([
+                            $lbl['name'] ?? '', $lbl['label_text'] ?? '', $lbl['label_type'] ?? '', $lbl['community'] ?? '',
+                        ], $names)));
                         if (str_contains($hay, $needle)) {
                             $hits[] = $lbl;
                         }
@@ -384,7 +460,7 @@ class LocalContextsHubService
 
     /**
      * Flatten the Hub project's tk_labels + bc_labels into one list, each
-     * tagged with its family. Tolerant of the exact payload key names.
+     * tagged with its family and with `community` normalised to a name.
      *
      * @param  array<string,mixed>  $data
      * @return array<int,array<string,mixed>>
@@ -396,12 +472,31 @@ class LocalContextsHubService
             foreach ((is_array($data[$key] ?? null) ? $data[$key] : []) as $lbl) {
                 if (is_array($lbl)) {
                     $lbl['family'] = $family;
-                    $out[] = $lbl;
+                    $out[] = $this->normaliseCommunity($lbl);
                 }
             }
         }
 
         return $out;
+    }
+
+    /**
+     * v2 sends `community` as {id, name, profile_url}; v1 sends the name.
+     * Store the name in `community` either way, keeping the id + profile URL.
+     *
+     * @param  array<string,mixed>  $item
+     * @return array<string,mixed>
+     */
+    private function normaliseCommunity(array $item): array
+    {
+        if (is_array($item['community'] ?? null)) {
+            $c = $item['community'];
+            $item['community'] = (string) ($c['name'] ?? '');
+            $item['community_id'] = $c['id'] ?? null;
+            $item['community_profile_url'] = (string) ($c['profile_url'] ?? '');
+        }
+
+        return $item;
     }
 
     /**

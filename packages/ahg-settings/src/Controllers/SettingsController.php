@@ -1873,6 +1873,7 @@ class SettingsController extends Controller
                 'accession_require_appraisal',
                 'accession_allow_container_barcodes',
                 'accession_rights_inheritance_enabled',
+                'accession_caais_enabled',
             ];
             $checkboxes = [
                 'accession_auto_assign_enabled',
@@ -1880,6 +1881,7 @@ class SettingsController extends Controller
                 'accession_require_appraisal',
                 'accession_allow_container_barcodes',
                 'accession_rights_inheritance_enabled',
+                'accession_caais_enabled',
             ];
 
             foreach ($keys as $key) {

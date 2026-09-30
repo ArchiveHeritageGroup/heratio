@@ -1,0 +1,62 @@
+{
+  "unique_id": "ea7e96b5-36dc-4b5c-97f3-ac5aadfe3a20",
+  "providers_id": null,
+  "publication_doi": null,
+  "project_data_guid": null,
+  "source_project_uuid": null,
+  "project_page": "https://localcontextshub.org/projects/ea7e96b5-36dc-4b5c-97f3-ac5aadfe3a20",
+  "title": "PrairieDNA: Prairies North Environmental DNA Monitoring Network",
+  "project_privacy": "Public",
+  "date_added": "2025-02-05T05:26:59.881815Z",
+  "date_modified": "2025-02-05T05:26:59.881837Z",
+  "created_by": [
+    {
+      "institution": null,
+      "researcher": {
+        "id": 412,
+        "user": "Eric Collins",
+        "orcid": "https://orcid.org/0000-0002-5858-2395"
+      },
+      "community": null
+    }
+  ],
+  "notice": [
+    {
+      "notice_type": "biocultural",
+      "name": "Biocultural (BC) Notice",
+      "img_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/notices/bc-notice.png",
+      "svg_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/notices/bc-notice.svg",
+      "default_text": "The BC (Biocultural) Notice is a visible notification that there are accompanying cultural rights and responsibilities that need further attention for any future sharing and use of this material or data. The BC Notice recognizes the rights of Indigenous Peoples to permission the use of information, collections, data and digital sequence information (DSI) generated from the biodiversity or genetic resources associated with traditional lands, waters, and territories. The BC Notice may indicate that BC Labels are in development and their implementation is being negotiated.",
+      "translations": [
+        {
+          "translated_name": "Notification BC (Bioculturelle)",
+          "language_tag": "fr",
+          "language": "French",
+          "translated_text": "La notification BC sert à rendre visible l’information selon laquelle le matériel utilisé est accompagné de droits culturels et de responsabilités qui nécessitent une attention particulière au moment de le partager ou de l’utiliser. La notification BC est une reconnaissance des droits des peuples autochtones de permettre l’utilisation d’informations, de collections, de données et d’informations sur les séquences numériques provenant de la biodiversité et des ressources associées à leurs terres, cours d’eau et territoires traditionnels. La notification BC peut indiquer que les étiquettes BC (bioculturelles) sont en cours de réalisation et que leur application est en train d’être négociée. Pour plus d’information à propos des étiquettes BC, consulter le site https://localcontexts.org/notices/biocultural-notices/."
+        }
+      ],
+      "created": "2025-02-05T05:26:59.973451Z",
+      "updated": "2025-02-05T05:27:00.000437Z"
+    },
+    {
+      "notice_type": "traditional_knowledge",
+      "name": "Traditional Knowledge (TK) Notice",
+      "img_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/notices/tk-notice.png",
+      "svg_url": "https://storage.googleapis.com/local-contexts-hub.appspot.com/labels/notices/tk-notice.svg",
+      "default_text": "The TK (Traditional Knowledge) Notice is a visible notification that there are accompanying cultural rights and responsibilities that need further attention for any future sharing and use of this material. The TK Notice may indicate that TK Labels are in development and their implementation is being negotiated.",
+      "translations": [
+        {
+          "translated_name": "Notification ST (Savoir Traditionnel)",
+          "language_tag": "fr",
+          "language": "French",
+          "translated_text": "La notification ST sert à rendre visible l’information selon laquelle des droits culturels et des responsabilités sont rattachés au matériel en question et qu’une attention particulière doit être portée à tout partage ou toute utilisation future du matériel. La notification ST peut indiquer que les étiquettes ST (savoir traditionnel) sont en cours de réalisation et que leur application est en train d’être négociée. Pour plus d’information à propos des étiquettes ST, consulter le site https://localcontexts.org/notice/tk-notice/."
+        }
+      ],
+      "created": "2025-02-05T05:26:59.929056Z",
+      "updated": "2025-02-05T05:26:59.965249Z"
+    }
+  ],
+  "sub_projects": [],
+  "related_projects": [],
+  "project_boundary_geojson": null
+}

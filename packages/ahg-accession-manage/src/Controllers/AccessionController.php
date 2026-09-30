@@ -27,6 +27,7 @@ namespace AhgAccessionManage\Controllers;
 
 use AhgAccessionManage\Services\AccessionBrowseService;
 use AhgAccessionManage\Services\AccessionService;
+use AhgAccessionManage\Services\CaaisProfileService;
 use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
@@ -39,9 +40,12 @@ class AccessionController extends Controller
 {
     protected AccessionService $service;
 
+    protected CaaisProfileService $caais;
+
     public function __construct()
     {
         $this->service = new AccessionService(app()->getLocale());
+        $this->caais = new CaaisProfileService(app()->getLocale());
     }
 
     public function intakeQueue(Request $request)
@@ -313,6 +317,14 @@ class AccessionController extends Controller
             ->where('accession_id', $accession->id)
             ->first();
 
+        // CAAIS profile (heratio#1514): repository link always, the rest only
+        // when the profile is switched on.
+        $caais = $this->caais->get($accession->id);
+        $caaisEnabled = $this->caais->enabled();
+        $caaisMissing = $caaisEnabled
+            ? $this->caais->missingMandatory($accession, $caais, $donors->count() ?: (trim((string) $accession->source_of_acquisition) === '' ? 0 : 1), $dates->count())
+            : [];
+
         return view('ahg-accession-manage::show', [
             'accession' => $accession,
             'termNames' => $termNames,
@@ -332,6 +344,10 @@ class AccessionController extends Controller
             'sourceLangName' => $sourceLangName,
             'finalisationBlockers' => $finalisationBlockers,
             'workflow' => $workflow,
+            'caais' => $caais,
+            'caaisEnabled' => $caaisEnabled,
+            'caaisMissing' => $caaisMissing,
+            'caaisService' => $this->caais,
         ]);
     }
 
@@ -450,7 +466,7 @@ class AccessionController extends Controller
             'formChoices' => $formChoices,
             'defaultIdentifier' => $this->service->nextAccessionNumber(),
             'defaultPriorityTermId' => $this->service->defaultPriorityTermId(),
-        ]);
+        ] + $this->caaisFormData(null));
     }
 
     public function edit(string $slug)
@@ -510,7 +526,7 @@ class AccessionController extends Controller
             'formChoices' => $formChoices,
             'defaultIdentifier' => null,
             'defaultPriorityTermId' => null,
-        ]);
+        ] + $this->caaisFormData($accession->id, $donorRows));
     }
 
     public function store(Request $request)
@@ -531,7 +547,7 @@ class AccessionController extends Controller
             'physical_characteristics' => 'nullable|string',
             'appraisal' => 'nullable|string',
             'processing_notes' => 'nullable|string',
-        ]);
+        ] + $this->caais->rules());
 
         $data = $request->only([
             'identifier', 'title', 'date',
@@ -544,6 +560,9 @@ class AccessionController extends Controller
 
         $id = $this->service->create($data);
         $slug = $this->service->getSlug($id);
+
+        $this->caais->save($id, (array) $request->input('caais', []));
+        $this->caais->recordRevision($id, 'created');
 
         // Link/create the related donor(s) from the "Related donor" modal so
         // donors entered on the create form persist with the new accession.
@@ -590,7 +609,7 @@ class AccessionController extends Controller
             'physical_characteristics' => 'nullable|string',
             'appraisal' => 'nullable|string',
             'processing_notes' => 'nullable|string',
-        ]);
+        ] + $this->caais->rules());
 
         $data = $request->only([
             'identifier', 'title', 'date',
@@ -602,6 +621,9 @@ class AccessionController extends Controller
         ]);
 
         $this->service->update($accession->id, $data);
+
+        $this->caais->save($accession->id, (array) $request->input('caais', []));
+        $this->caais->recordRevision($accession->id, 'revised');
 
         // Persist the "Related donor" modal: link an existing donor, create a
         // new one from the typed name + contact, or refresh the contact/name of
@@ -1195,6 +1217,70 @@ class AccessionController extends Controller
 
         return redirect()->route('accession.browse')
             ->with('info', __('That deaccession link is out of date. Open the accession and use Deaccession.'));
+    }
+
+    /**
+     * View data for the CAAIS part of the accession form. $donorRows lets the
+     * 2.1.6 confidentiality picker list the sources already linked.
+     */
+    private function caaisFormData(?int $accessionId, array $donorRows = []): array
+    {
+        return [
+            'caais' => $accessionId ? $this->caais->get($accessionId) : $this->caais->get(0),
+            'caaisEnabled' => $this->caais->enabled(),
+            'caaisInstalled' => $this->caais->installed(),
+            'caaisChoices' => $this->caais->installed() ? $this->caais->choices() : [],
+            'caaisRepositories' => $this->caais->installed() ? $this->caais->repositoryOptions() : [],
+            'caaisSources' => array_map(fn ($d) => ['id' => $d['id'], 'name' => $d['name']], $donorRows),
+        ];
+    }
+
+    /**
+     * CAAIS 1.0 export of one accession as JSON (heratio#1514). ?external=1
+     * withholds sources that carry a 2.1.6 confidentiality instruction.
+     */
+    public function caaisExport(Request $request, int $id)
+    {
+        $record = $this->caais->exportRecord($id, $this->service, $request->boolean('external'));
+        if ($record === null) {
+            abort(404);
+        }
+        $name = 'caais-'.preg_replace('/[^A-Za-z0-9._-]+/', '_', (string) ($this->service->getById($id)->identifier ?? $id)).'.json';
+
+        return response()->json($this->caais->envelope([$record]), 200, [
+            'Content-Disposition' => 'attachment; filename="'.$name.'"',
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
+     * CAAIS 1.0 export of every accession, streamed so a large register does
+     * not have to fit in memory.
+     */
+    public function caaisExportAll(Request $request)
+    {
+        $external = $request->boolean('external');
+        $envelope = $this->caais->envelope([]);
+        unset($envelope['records']);
+
+        return new StreamedResponse(function () use ($external, $envelope) {
+            $flags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
+            echo substr(json_encode($envelope, $flags), 0, -1).',"records":[';
+            $first = true;
+            DB::table('accession')->orderBy('id')->select('id')->chunk(200, function ($rows) use (&$first, $external, $flags) {
+                foreach ($rows as $row) {
+                    $record = $this->caais->exportRecord((int) $row->id, $this->service, $external);
+                    if ($record === null) {
+                        continue;
+                    }
+                    echo ($first ? '' : ',').json_encode($record, $flags);
+                    $first = false;
+                }
+            });
+            echo ']}';
+        }, 200, [
+            'Content-Type' => 'application/json; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="caais-accessions-'.date('Y-m-d').'.json"',
+        ]);
     }
 
     /** Resolve an accession slug to its id, or null. */

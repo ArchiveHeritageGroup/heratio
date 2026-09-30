@@ -12,7 +12,7 @@ The engine exposes 11 artisan commands. All are registered in `AhgAuthorityResol
 | `auth-res:generate-candidates` | Generate the ranked candidate set for a mention |
 | `auth-res:score-evidence` | Run evaluators, compute composite score, re-rank candidates |
 | `auth-res:scan-parked` | Flag parked mentions whose candidate set has changed |
-| `auth-res:write-provenance` | Backfill RDF-Star provenance for a single decision row |
+| `auth-res:write-provenance` | Backfill reified provenance for a single decision row |
 | `auth-res:export-ner-feedback` | Dump unexported NER false-positive rows to JSONL or CoNLL |
 | `auth-res:status` | Read-only snapshot of every workflow table |
 | `auth-res:reprocess` | Re-run candidate + scoring for one mention or all pending |
@@ -197,7 +197,7 @@ Cheap (one candidate-generator pass per parked mention) and idempotent. Suggeste
 Signature: auth-res:write-provenance {decision_id}
 ```
 
-Backfill RDF-Star to Fuseki for a single `ahg_mention_decision` row. Normally written synchronously by `DecisionRecorder` on decide; this command is for backfilling rows where the synchronous Fuseki call failed and `fuseki_graph_uri` is still NULL.
+Backfill reified provenance to Fuseki for a single `ahg_mention_decision` row. Normally written synchronously by `DecisionRecorder` on decide; this command is for backfilling rows where the synchronous Fuseki call failed and `fuseki_graph_uri` is still NULL.
 
 ## auth-res:export-ner-feedback
 

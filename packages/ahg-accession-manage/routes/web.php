@@ -43,6 +43,11 @@ Route::middleware('admin')->group(function () {
     Route::get('/accession/{slug}/delete', [AccessionController::class, 'confirmDelete'])->name('accession.confirmDelete');
     Route::delete('/accession/{slug}/delete', [AccessionController::class, 'destroy'])->name('accession.destroy')->middleware('acl:delete');
     Route::get('/accession/export-csv', [AccessionController::class, 'exportCsv'])->name('accession.export-csv');
+    // CAAIS 1.0 profile export (heratio#1514). Admin-only like the CSV export:
+    // it carries donor contact details unless ?external=1 withholds the
+    // sources marked confidential.
+    Route::get('/accession/caais-export', [AccessionController::class, 'caaisExportAll'])->name('accession.caais-export-all');
+    Route::get('/accession/{id}/caais-export', [AccessionController::class, 'caaisExport'])->name('accession.caais-export')->where('id', '[0-9]+');
     Route::get('/accession/intake-queue', [AccessionController::class, 'intakeQueue'])->name('accession.intake-queue');
     Route::get('/accession/dashboard', [AccessionController::class, 'dashboard'])->name('accession.dashboard');
     Route::get('/accession/valuation-report', [AccessionController::class, 'valuationReport'])->name('accession.valuation-report');

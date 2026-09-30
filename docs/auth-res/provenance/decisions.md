@@ -21,7 +21,10 @@ ahg:decision/42 a prov:Activity ;
     ahg:topSystemScore       "0.7421"^^xsd:decimal ;
     ahg:codebase             "heratio" .
 
-<< ahg:mention/24  ahg:resolvedTo  ahg:actor/901990 >>
+<urn:heratio:auth-res:statement:HASH> a rdf:Statement ;
+    rdf:subject ahg:mention/24 ;
+    rdf:predicate ahg:resolvedTo ;
+    rdf:object ahg:actor/901990 ;
     ahg:supportedBy           ahg:decision/42 ;
     ahg:evidenceSnapshot      "[...JSON...]" ;
     ahg:candidatesVisible     "[...JSON...]" .
@@ -44,7 +47,7 @@ ahg:decision/43 a prov:Activity ;
     ahg:topSystemScore       "0.4012"^^xsd:decimal ;
     ahg:codebase             "heratio" .
 
-# No << ... ahg:resolvedTo ... >> assertion - the mention did NOT resolve
+# No ahg:resolvedTo statement node - the mention did NOT resolve
 # to any existing authority. The new authority's field-level provenance
 # is in the field-provenance graph (see field-provenance.md).
 ```
@@ -73,7 +76,7 @@ ahg:decision/45 a prov:Activity ;
     ahg:rejectionReason      "Horse name, not a place." ;
     ahg:codebase             "heratio" .
 
-# << ... ahg:resolvedTo ... >> is NOT emitted; the mention was not real.
+# No ahg:resolvedTo statement node is emitted; the mention was not real.
 # The rejection ALSO writes a row to ahg_ner_feedback (audit elsewhere).
 ```
 
@@ -126,11 +129,12 @@ the evaluator weights need a look.
 ### "What evidence did this decision rest on?"
 
 ```sparql
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX ahg: <https://theahg.co.za/ns/auth-res#>
 
 SELECT ?evidence ?candidates WHERE {
   GRAPH <urn:heratio:auth-res:graph:decisions> {
-    << ahg:mention/24  ahg:resolvedTo  ?actor >>
+    ?st rdf:subject ahg:mention/24 ; rdf:predicate ahg:resolvedTo ; rdf:object ?actor ;
         ahg:supportedBy        ahg:decision/42 ;
         ahg:evidenceSnapshot   ?evidence ;
         ahg:candidatesVisible  ?candidates .

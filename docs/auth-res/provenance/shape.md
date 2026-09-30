@@ -1,4 +1,4 @@
-# RDF-Star shape
+# Provenance shape
 
 Every decision and every accepted authority-creation pre-fill emits
 provenance to the host's single Fuseki dataset (`/openric-model`).
@@ -15,6 +15,7 @@ used per codebase:
 ## Prefixes
 
 ```turtle
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix prov:    <http://www.w3.org/ns/prov#> .
 @prefix ahg:     <https://theahg.co.za/ns/auth-res#> .
 @prefix ric:     <https://www.ica.org/standards/RiC/ontology#> .
@@ -40,9 +41,12 @@ GRAPH <urn:heratio:auth-res:graph:decisions> {
       ahg:topSystemScore          "0.7421"^^xsd:decimal ;
       ahg:codebase                "heratio" .
 
-  # RDF-Star reification: the actual claim and the meta-claim about
-  # which evidence supported it.
-  << ahg:mention/24  ahg:resolvedTo  ahg:actor/901990 >>
+  # Reification: the actual claim, as an rdf:Statement node, and the
+  # meta-claim about which evidence supported it.
+  <urn:heratio:auth-res:statement:HASH> a rdf:Statement ;
+      rdf:subject ahg:mention/24 ;
+      rdf:predicate ahg:resolvedTo ;
+      rdf:object ahg:actor/901990 ;
       ahg:supportedBy             ahg:decision/42 ;
       ahg:evidenceSnapshot        "[{\"dim\":\"temporal\",\"signal\":\"match\",...}]" ;
       ahg:candidatesVisible       "[{\"rank\":1,\"id\":901990,...}]" .
@@ -57,14 +61,20 @@ reified assertion per pre-filled field that the archivist accepted:
 ```turtle
 GRAPH <urn:heratio:auth-res:graph:field-provenance> {
 
-  << ahg:actor/901990  ric:hasBeginningDate  "1790"^^xsd:gYear >>
+  <urn:heratio:auth-res:statement:HASH> a rdf:Statement ;
+      rdf:subject ahg:actor/901990 ;
+      rdf:predicate ric:hasBeginningDate ;
+      rdf:object "1790"^^xsd:gYear ;
       prov:wasDerivedFrom    <https://viaf.org/viaf/123456789> ;
       ahg:lookupSource       "viaf" ;
       ahg:retrievedAt        "2026-05-19T09:12:01+02:00"^^xsd:dateTime ;
       ahg:acceptedByUser     ahg:user/1 ;
       ahg:fromDecision       ahg:decision/42 .
 
-  << ahg:actor/901990  ric:hasEndDate  "1868"^^xsd:gYear >>
+  <urn:heratio:auth-res:statement:HASH> a rdf:Statement ;
+      rdf:subject ahg:actor/901990 ;
+      rdf:predicate ric:hasEndDate ;
+      rdf:object "1868"^^xsd:gYear ;
       prov:wasDerivedFrom    <https://www.wikidata.org/entity/Q1234567> ;
       ahg:lookupSource       "wikidata" ;
       ahg:retrievedAt        "2026-05-19T09:12:03+02:00"^^xsd:dateTime ;
@@ -72,7 +82,10 @@ GRAPH <urn:heratio:auth-res:graph:field-provenance> {
       ahg:fromDecision       ahg:decision/42 .
 
   # An archivist override is captured as wasDerivedFrom an internal user URI.
-  << ahg:actor/901990  ric:hasName  "Mzilikazi kaMashobane" >>
+  <urn:heratio:auth-res:statement:HASH> a rdf:Statement ;
+      rdf:subject ahg:actor/901990 ;
+      rdf:predicate ric:hasName ;
+      rdf:object "Mzilikazi kaMashobane" ;
       prov:wasDerivedFrom    ahg:user/1 ;
       ahg:lookupSource       "archivist_override" ;
       ahg:originalValue      "Moselekatse" ;
@@ -81,12 +94,21 @@ GRAPH <urn:heratio:auth-res:graph:field-provenance> {
 }
 ```
 
-## Why RDF-Star?
+## Why a statement node?
 
 A plain RDF triple says "actor 901990 has end date 1868". That's true
-but not auditable: who said so, when, on what evidence? RDF-Star wraps
-the triple itself as a subject so we can attach metadata to the *claim*
-without polluting the canonical subject graph.
+but not auditable: who said so, when, on what evidence? A reified
+`rdf:Statement` node stands for the triple itself, so we can attach
+metadata to the *claim* without polluting the canonical subject graph.
+
+This used to be an RDF-star quoted triple (`<< s p o >>`). heratio#1517
+moved it to plain RDF 1.1 reification because RDF-star ties the record to
+stores that support it - QLever rejects `<<` outright - and RDF 1.2
+triple terms use a different syntax again. `HASH` in the examples is the
+`sha1` of the graph IRI and the N-Triples forms of s, p and o, so the
+same claim in the same graph always gets the same node (see
+`AhgCore\Support\ReifiedStatement`). Older graphs are converted with
+`php artisan ahg:provenance-ai:migrate-star --apply`.
 
 This means the same `ric:hasName` triple can appear in:
 

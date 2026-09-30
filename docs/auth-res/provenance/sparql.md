@@ -7,6 +7,7 @@ via `AhgRic\Services\SparqlQueryService::executeQuery()`).
 ## Setup
 
 ```turtle
+PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX prov:    <http://www.w3.org/ns/prov#>
 PREFIX ahg:     <https://theahg.co.za/ns/auth-res#>
 PREFIX ric:     <https://www.ica.org/standards/RiC/ontology#>
@@ -91,7 +92,7 @@ Quick productivity / workload view. Use this to balance review queues.
 ```sparql
 SELECT ?actor ?date ?source ?when WHERE {
   GRAPH <urn:heratio:auth-res:graph:field-provenance> {
-    << ?actor ric:hasBeginningDate ?date >>
+    ?st rdf:subject ?actor ; rdf:predicate ric:hasBeginningDate ; rdf:object ?date ;
         ahg:lookupSource     "wikidata" ;
         prov:wasDerivedFrom  ?source ;
         ahg:retrievedAt      ?when .
@@ -113,7 +114,7 @@ SELECT ?d ?type ?archivist ?when ?evidence WHERE {
        prov:wasAssociatedWith   ?archivist ;
        prov:startedAtTime       ?when .
     OPTIONAL {
-      << ?m ahg:resolvedTo ?a >>
+      ?st rdf:subject ?m ; rdf:predicate ahg:resolvedTo ; rdf:object ?a ;
           ahg:supportedBy        ?d ;
           ahg:evidenceSnapshot   ?evidence .
     }
@@ -134,7 +135,7 @@ which sources actually contributed values:
 ```sparql
 SELECT ?lookupSource (COUNT(*) AS ?n) WHERE {
   GRAPH <urn:heratio:auth-res:graph:field-provenance> {
-    << ?s ?p ?o >> ahg:lookupSource ?lookupSource .
+    ?st a rdf:Statement ; ahg:lookupSource ?lookupSource .
   }
 }
 GROUP BY ?lookupSource
@@ -150,7 +151,7 @@ overriding its values.
 ```sparql
 SELECT ?evidence ?candidates WHERE {
   GRAPH <urn:heratio:auth-res:graph:decisions> {
-    << ?m ahg:resolvedTo ?a >>
+    ?st rdf:subject ?m ; rdf:predicate ahg:resolvedTo ; rdf:object ?a ;
         ahg:supportedBy         ahg:decision/42 ;
         ahg:evidenceSnapshot    ?evidence ;
         ahg:candidatesVisible   ?candidates .
@@ -168,7 +169,7 @@ A combined query joining decisions + field provenance:
 ```sparql
 SELECT ?source (COUNT(*) AS ?overrides) WHERE {
   GRAPH <urn:heratio:auth-res:graph:field-provenance> {
-    << ?actor ?p ?value >>
+    ?st rdf:subject ?actor ; rdf:predicate ?p ; rdf:object ?value ;
         ahg:lookupSource     "archivist_override" ;
         ahg:originalSource   ?source .
   }
@@ -201,9 +202,11 @@ reason text" -> something systemic, e.g. a pending import).
 
 ## Performance notes
 
-- Reified-triple queries (`<< ?s ?p ?o >> ahg:supportedBy ?d`) are
-  slower than plain triple queries because the engine has to walk the
-  reified-statement index. Materialise heavy queries via the
+- Reified-statement queries (`?st rdf:subject ?s ; ahg:supportedBy ?d`)
+  join the four rdf:Statement triples, so they are slower than plain
+  triple queries. Since heratio#1517 these are plain RDF 1.1 statement
+  nodes, not RDF-star quoted triples, so every store can run them.
+  Materialise heavy queries via the
   `SparqlQueryService` cache (`useCache=true`), which keeps the result
   in Laravel's cache for the configured TTL.
 - `COUNT(*)` over a large graph is cheap on Fuseki because of the

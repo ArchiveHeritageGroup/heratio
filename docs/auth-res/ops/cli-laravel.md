@@ -13,7 +13,7 @@ Tasks 2-9, five from Task 10 (CLI consolidation).
 | `auth-res:generate-candidates`       | 3    | Generate ranked candidate set for a mention              |
 | `auth-res:score-evidence`            | 4    | Run evaluators + composite_score, re-rank candidates     |
 | `auth-res:scan-parked`               | 7    | Flag parked mentions with new candidates                 |
-| `auth-res:write-provenance`          | 8    | Backfill RDF-Star provenance for a decision              |
+| `auth-res:write-provenance`          | 8    | Backfill reified provenance for a decision               |
 | `auth-res:export-ner-feedback`       | 9    | Dump unexported NER false-positive rows to JSONL         |
 | `auth-res:status`                    | 10   | Read-only snapshot of every workflow table               |
 | `auth-res:reprocess`                 | 10   | Re-run candidate + scoring for one mention or all pending|
@@ -198,7 +198,7 @@ fingerprint has changed since parking. Cheap; safe to cron.
 auth-res:write-provenance {decision_id}
 ```
 
-Backfill RDF-Star to Fuseki for a single decision row. Normally written
+Backfill reified provenance to Fuseki for a single decision row. Normally written
 synchronously by `DecisionRecorder` on decide; this command is for
 backfilling rows where the Fuseki call failed.
 

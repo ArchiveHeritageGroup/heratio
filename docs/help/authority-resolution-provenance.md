@@ -2,11 +2,13 @@
 
 # Authority Resolution - Provenance Model
 
-Every decision and every accepted authority-creation pre-fill emits RDF-Star provenance to the host's Fuseki dataset. The provenance model is the answer to "who decided what, when, on what evidence" - and on `create_new` decisions, "where did each value on this new authority come from". This article documents the named-graph layout, the triple shape per decision type, the field-provenance triples per accepted pre-fill, and the SPARQL recipes that read the provenance back.
+Every decision and every accepted authority-creation pre-fill emits reified (rdf:Statement) provenance to the host's Fuseki dataset. The provenance model is the answer to "who decided what, when, on what evidence" - and on `create_new` decisions, "where did each value on this new authority come from". This article documents the named-graph layout, the triple shape per decision type, the field-provenance triples per accepted pre-fill, and the SPARQL recipes that read the provenance back.
 
-## Why RDF-Star
+## Why a statement node
 
-A plain RDF triple says "actor 901999 has end date 1868". That is true but not auditable: who said so, when, on what evidence. RDF-Star wraps the triple itself as a subject so we can attach metadata to the **claim** without polluting the canonical subject graph.
+A plain RDF triple says "actor 901999 has end date 1868". That is true but not auditable: who said so, when, on what evidence. A reified `rdf:Statement` node stands for the triple itself (`rdf:subject`, `rdf:predicate`, `rdf:object`), so we can attach metadata to the **claim** without polluting the canonical subject graph.
+
+Until heratio#1517 this was an RDF-star quoted triple (`<< s p o >>`). It is now plain RDF 1.1, so the provenance loads in any triplestore - QLever, for one, rejects `<<`. `HASH` in the examples below is the `sha1` of the graph IRI and the N-Triples forms of s, p and o: the same claim in the same graph always gets the same node. Older graphs are converted with `php artisan ahg:provenance-ai:migrate-star --apply`.
 
 The same `ric:hasName` triple therefore lives in three places, each consumed by a different reader:
 
@@ -70,7 +72,10 @@ ahg:decision/42 a prov:Activity ;
     ahg:topSystemScore       "0.7421"^^xsd:decimal ;
     ahg:codebase             "heratio" .
 
-<< ahg:mention/24  ahg:resolvedTo  ahg:actor/901990 >>
+<urn:heratio:auth-res:statement:HASH> a rdf:Statement ;
+    rdf:subject ahg:mention/24 ;
+    rdf:predicate ahg:resolvedTo ;
+    rdf:object ahg:actor/901990 ;
     ahg:supportedBy           ahg:decision/42 ;
     ahg:evidenceSnapshot      "[...JSON...]" ;
     ahg:candidatesVisible     "[...JSON...]" .
@@ -91,7 +96,7 @@ ahg:decision/43 a prov:Activity ;
     ahg:codebase             "heratio" .
 ```
 
-No `<< ... ahg:resolvedTo ... >>` assertion: the mention did not resolve to any existing authority. The new authority's per-field provenance lives in the field-provenance graph.
+No `ahg:resolvedTo` statement node: the mention did not resolve to any existing authority. The new authority's per-field provenance lives in the field-provenance graph.
 
 **park:**
 
@@ -118,7 +123,7 @@ ahg:decision/45 a prov:Activity ;
     ahg:codebase             "heratio" .
 ```
 
-No `<< ... ahg:resolvedTo ... >>` assertion: the mention was not real. The rejection also writes a row to `ahg_ner_feedback` (audit elsewhere).
+No `ahg:resolvedTo` statement node: the mention was not real. The rejection also writes a row to `ahg_ner_feedback` (audit elsewhere).
 
 ### `hadCandidate` triples
 
@@ -136,7 +141,10 @@ Emitted only on `decision_type = create_new`. One reified assertion per field on
 GRAPH <urn:heratio:auth-res:graph:field-provenance> {
 
   # Pre-filled field, accepted as-is.
-  << ahg:actor/901999  ric:hasBeginningDate  "1790"^^xsd:gYear >>
+  <urn:heratio:auth-res:statement:HASH> a rdf:Statement ;
+      rdf:subject ahg:actor/901999 ;
+      rdf:predicate ric:hasBeginningDate ;
+      rdf:object "1790"^^xsd:gYear ;
       prov:wasDerivedFrom    <https://viaf.org/viaf/123456789> ;
       ahg:lookupSource       "viaf" ;
       ahg:retrievedAt        "2026-05-19T09:12:01+02:00"^^xsd:dateTime ;
@@ -144,7 +152,10 @@ GRAPH <urn:heratio:auth-res:graph:field-provenance> {
       ahg:fromDecision       ahg:decision/43 .
 
   # Pre-filled field, overridden by the archivist.
-  << ahg:actor/901999  ric:hasName  "Mzilikazi kaMashobane" >>
+  <urn:heratio:auth-res:statement:HASH> a rdf:Statement ;
+      rdf:subject ahg:actor/901999 ;
+      rdf:predicate ric:hasName ;
+      rdf:object "Mzilikazi kaMashobane" ;
       prov:wasDerivedFrom    ahg:user/1 ;
       ahg:lookupSource       "archivist_override" ;
       ahg:originalValue      "Moselekatse" ;
@@ -153,7 +164,10 @@ GRAPH <urn:heratio:auth-res:graph:field-provenance> {
       ahg:retrievedAt        "2026-05-19T09:13:11+02:00"^^xsd:dateTime .
 
   # Hand-typed field, no pre-fill candidate offered.
-  << ahg:actor/901999  ric:hasBiographicalNote  "Founder of the Ndebele Kingdom" >>
+  <urn:heratio:auth-res:statement:HASH> a rdf:Statement ;
+      rdf:subject ahg:actor/901999 ;
+      rdf:predicate ric:hasBiographicalNote ;
+      rdf:object "Founder of the Ndebele Kingdom" ;
       prov:wasDerivedFrom    ahg:user/1 ;
       ahg:lookupSource       "manual" ;
       ahg:fromDecision       ahg:decision/43 ;
@@ -240,13 +254,14 @@ Useful for balancing review queues.
 ### 4. Where did this actor's birth date come from?
 
 ```sparql
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX ric:  <https://www.ica.org/standards/RiC/ontology#>
 PREFIX prov: <http://www.w3.org/ns/prov#>
 PREFIX ahg:  <https://theahg.co.za/ns/auth-res#>
 
 SELECT ?value ?source ?retrievedAt ?archivist WHERE {
   GRAPH <urn:heratio:auth-res:graph:field-provenance> {
-    << ahg:actor/901999 ric:hasBeginningDate ?value >>
+    ?st rdf:subject ahg:actor/901999 ; rdf:predicate ric:hasBeginningDate ; rdf:object ?value ;
         prov:wasDerivedFrom  ?source ;
         ahg:lookupSource     ?lookupSource ;
         ahg:retrievedAt      ?retrievedAt ;
@@ -260,7 +275,7 @@ SELECT ?value ?source ?retrievedAt ?archivist WHERE {
 ```sparql
 SELECT ?lookupSource (COUNT(*) AS ?n) WHERE {
   GRAPH <urn:heratio:auth-res:graph:field-provenance> {
-    << ?s ?p ?o >> ahg:lookupSource ?lookupSource .
+    ?st a rdf:Statement ; ahg:lookupSource ?lookupSource .
   }
 }
 GROUP BY ?lookupSource
@@ -274,7 +289,7 @@ Tells you which adapters are actually contributing values.
 ```sparql
 SELECT ?originalSource (COUNT(*) AS ?n) WHERE {
   GRAPH <urn:heratio:auth-res:graph:field-provenance> {
-    << ?s ?p ?o >>
+    ?st a rdf:Statement ;
         ahg:lookupSource     "archivist_override" ;
         ahg:originalSource   ?originalSource .
   }
@@ -290,7 +305,7 @@ A high override rate from a given source means its pre-fill quality is poor for 
 ```sparql
 SELECT ?evidence ?candidates WHERE {
   GRAPH <urn:heratio:auth-res:graph:decisions> {
-    << ?m ahg:resolvedTo ?a >>
+    ?st rdf:subject ?m ; rdf:predicate ahg:resolvedTo ; rdf:object ?a ;
         ahg:supportedBy         ahg:decision/42 ;
         ahg:evidenceSnapshot    ?evidence ;
         ahg:candidatesVisible   ?candidates .
@@ -310,7 +325,7 @@ SELECT ?d ?type ?archivist ?when ?evidence WHERE {
        prov:wasAssociatedWith   ?archivist ;
        prov:startedAtTime       ?when .
     OPTIONAL {
-      << ?m ahg:resolvedTo ?a >>
+      ?st rdf:subject ?m ; rdf:predicate ahg:resolvedTo ; rdf:object ?a ;
           ahg:supportedBy        ?d ;
           ahg:evidenceSnapshot   ?evidence .
     }
@@ -356,7 +371,7 @@ Do not do this in production. There are no backups inside Fuseki itself; the dat
 
 ## Performance notes
 
-- Reified-triple queries (`<< ?s ?p ?o >> ahg:supportedBy ?d`) are slower than plain triple queries because the engine walks the reified-statement index. Materialise heavy queries via `SparqlQueryService` with `useCache=true` to keep the result in Laravel's cache for the configured TTL.
+- Reified-statement queries (`?st rdf:subject ?s ; ahg:supportedBy ?d`) join the four rdf:Statement triples, so they are slower than plain triple queries. Since heratio#1517 these are plain RDF 1.1 statement nodes, not RDF-star quoted triples, so every store can run them. Materialise heavy queries via `SparqlQueryService` with `useCache=true` to keep the result in Laravel's cache for the configured TTL.
 - `COUNT(*)` over a large graph is cheap on Fuseki because of the built-in triple counter. Use it freely.
 
 ## Related

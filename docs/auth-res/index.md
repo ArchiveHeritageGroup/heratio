@@ -17,7 +17,7 @@ Both implementations share:
 - The same six MySQL tables (plus `ahg_ner_feedback`).
 - The same five decision outcomes.
 - The same ten evidence evaluators.
-- The same RDF-Star provenance shape, written to the same Fuseki dataset
+- The same reified provenance shape, written to the same Fuseki dataset
   (`/openric-model`), isolated by named-graph URI.
 - The same seven external authority adapters (VIAF, Wikidata, GeoNames,
   TGN, GND, ISNI, SAGNC).
@@ -89,7 +89,7 @@ upstream NER  ->  ahg_ner_entity  ->  (promote)  ->  ahg_mention
                                                      +-> ahg_mention_candidate (ranked)
                                                      |
                                                      +-> ahg_mention_decision (audit)
-                                                     |    \--> RDF-Star to Fuseki
+                                                     |    \--> provenance to Fuseki
                                                      |
                                                      +-> ahg_mention_park (optional)
                                                      |

@@ -541,6 +541,9 @@
         </div>
       </div>
 
+      {{-- ===== Repository + CAAIS profile (heratio#1514) ===== --}}
+      @include('ahg-accession-manage::partials._caais-edit')
+
       {{-- ===== Archival description area ===== --}}
       <div class="accordion-item">
         <h2 class="accordion-header" id="io-heading">
