@@ -92,11 +92,32 @@ cd /usr/share/nginx/heratio
 ./packages/ahg-ric/bin/ric_sync.sh --cron          # full sync, silent
 ./packages/ahg-ric/bin/ric_sync.sh --fonds 776,829 # sync specific fonds
 ./packages/ahg-ric/bin/ric_sync.sh --validate      # run SHACL validation after sync
-./packages/ahg-ric/bin/ric_sync.sh --clear         # drop triplestore and resync
+./packages/ahg-ric/bin/ric_sync.sh --clear         # clear the default graph and resync
 ./packages/ahg-ric/bin/ric_sync.sh --status        # show Fuseki dataset status
 ```
 
 The script reads the same `RIC_*` env vars. When launched from the dashboard, the controller passes them explicitly via the subprocess environment.
+
+`--clear` empties the **default graph** only. The dataset's named graphs hold things the sync never recreates, such as AI provenance and the per-entity live sync, so they are left alone.
+
+### Re-running the sync replaces, it does not stack
+
+Names, date ranges and extents are written as blank nodes, which get a new identity every time a file is loaded. Before loading a fonds, the sync now deletes the blank nodes of every entity in that fonds, so a re-run replaces them. Earlier versions did not, and each run added another copy: on the 30 September 2026 data one agent carried 31,660 identical name nodes and the graph was mostly copies (heratio#1519).
+
+To clean a dataset that already has the copies:
+
+```bash
+cd /usr/share/nginx/heratio
+sudo -u www-data php artisan ahg:fuseki-dedupe-blank-nodes            # dry run: counts only
+sudo -u www-data php artisan ahg:fuseki-dedupe-blank-nodes --apply    # write
+```
+
+It keeps one copy of each identical name, date or extent per entity and never merges values that differ; those are reported as `distinct_variants`. Only the default graph is touched, and each batch of entities is replaced in one transaction. `--entity=<IRI>` limits it to one entity, `--limit` and `--batch` control the run, and `--endpoint` picks another dataset.
+
+Two follow-ups once it has run, both needing Fuseki admin access:
+
+1. **Compact the store.** TDB2 does not reclaim deleted space by itself: `POST {RIC_FUSEKI_URL}/$/compact/{dataset}?deleteOld=true`, or `ric_sync.sh --compact`.
+2. **Rebuild the text index.** The Lucene index behind RiC keyword search keeps entries for the deleted copies. Search filters them out, but they crowd the hit list until the index is rebuilt with `jena.textindexer` while Fuseki is stopped.
 
 ---
 

@@ -183,6 +183,8 @@ class AhgRicServiceProvider extends ServiceProvider
                 // #77 phase 2: Fuseki integrity + orphan cleanup
                 \AhgRic\Console\Commands\FusekiIntegrityCheckCommand::class,
                 \AhgRic\Console\Commands\FusekiOrphanCleanupCommand::class,
+                // #1519: collapse duplicate blank-node subtrees left by repeated loads
+                \AhgRic\Console\Commands\FusekiDedupeBlankNodesCommand::class,
                 // #139: bulk-load RiC agent/place instances into Fuseki
                 \AhgRic\Console\Commands\FusekiInstanceLoadCommand::class,
                 // #1197/#1214: push CIDOC-CRM named graphs into Fuseki

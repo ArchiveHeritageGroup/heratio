@@ -229,16 +229,72 @@ backup_triplestore() {
     fi
 }
 
-# Clear triplestore
+# Clear the extracted data. CLEAR DEFAULT, not CLEAR ALL: the dataset's named
+# graphs hold data this script never recreates - AI provenance, the live
+# per-entity sync and CIDOC-CRM graphs - and CLEAR ALL would destroy them
+# (heratio#1519).
 clear_triplestore() {
-    log "Clearing triplestore..."
-    
+    log "Clearing the default graph..."
+
     curl -s -u "${FUSEKI_USER}:${FUSEKI_PASS}" \
         -X POST "${FUSEKI_URL}/${FUSEKI_DATASET}/update" \
         -H "Content-Type: application/sparql-update" \
-        -d "CLEAR ALL"
-    
-    log "Triplestore cleared"
+        -d "CLEAR DEFAULT"
+
+    log "Default graph cleared"
+}
+
+# Delete the blank-node subtrees (names, dates, extents) of every entity in a
+# JSON-LD file before it is loaded. POST /data adds rather than replaces:
+# named IRIs merge, but each load's blank nodes are new, so without this every
+# re-sync stacked another copy - one agent reached 31,660 name nodes
+# (heratio#1519). Existing duplicates: php artisan ahg:fuseki-dedupe-blank-nodes.
+delete_blank_subtrees() {
+    local jsonld=$1
+    local update_file="${jsonld%.jsonld}.delete.rq"
+
+    python3 - "$jsonld" > "$update_file" <<'PY'
+import json, sys
+
+ids = set()
+def walk(node):
+    if isinstance(node, dict):
+        i = node.get('@id')
+        if isinstance(i, str) and i.startswith(('http://', 'https://', 'urn:')):
+            ids.add(i)
+        for v in node.values():
+            walk(v)
+    elif isinstance(node, list):
+        for v in node:
+            walk(v)
+walk(json.load(open(sys.argv[1])))
+
+ids = sorted(ids)
+ops = []
+for n in range(0, len(ids), 200):
+    values = ' '.join('<%s>' % i for i in ids[n:n + 200])
+    ops.append('DELETE { ?e ?l ?n . ?m ?p ?o } WHERE { VALUES ?e { %s } '
+               '?e ?l ?n FILTER(isBlank(?n)) ?n (<urn:heratio:any>|!<urn:heratio:any>)* ?m . ?m ?p ?o }' % values)
+print(' ;\n'.join(ops))
+PY
+
+    if [ ! -s "$update_file" ]; then
+        rm -f "$update_file"
+        return 0
+    fi
+
+    local response=$(curl -s -w "%{http_code}" -o /dev/null \
+        -u "${FUSEKI_USER}:${FUSEKI_PASS}" \
+        -X POST "${FUSEKI_URL}/${FUSEKI_DATASET}/update" \
+        -H "Content-Type: application/sparql-update" \
+        --data-binary "@${update_file}")
+    rm -f "$update_file"
+
+    if [ "$response" = "200" ] || [ "$response" = "204" ]; then
+        return 0
+    fi
+    log_error "Deleting previous blank nodes failed (HTTP $response)"
+    return 1
 }
 
 # Compact the TDB2 store to reclaim dead space. TDB2 never reclaims in place -
@@ -316,6 +372,12 @@ extract_fonds() {
     
     log "  Extracted to $output_file"
     
+    # Replace, not append: drop this fonds' previous blank-node subtrees first.
+    if ! delete_blank_subtrees "$output_file"; then
+        log_error "Load skipped for fonds $fonds_id so duplicates are not added"
+        return 1
+    fi
+
     # Load to Fuseki
     log "  Loading to Fuseki..."
     

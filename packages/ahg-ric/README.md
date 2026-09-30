@@ -30,9 +30,19 @@ composer require ahg/ahg-ric
 Add to `.env`:
 
 ```env
-FUSEKI_ENDPOINT=http://localhost:3030/heratio
+FUSEKI_ENDPOINT=http://localhost:3030/openric-model
 RICO_INSTANCE_ID=your-instance-id
+# RIC_TEXT_INDEX=true   # only when FUSEKI_ENDPOINT points at a text-indexed dataset such as /ric
 ```
+
+Two Fuseki datasets matter here, and they hold different things:
+
+| Dataset | Holds | Read by |
+| --- | --- | --- |
+| `/openric-model` | The RiC-O ontology, plus Heratio's own agents and places as `urn:ahg:ric:*` with `rico:name`, loaded by `php artisan ahg:ric:fuseki-load` (#139) | `SparqlQueryService` by default: the authority-resolution candidate adapters and KM grounding (`/api/ric/ground`, #1320) |
+| `/ric` | The archival RiC store written by `bin/ric_sync.sh` (names, dates and extents as blank nodes), the per-entity live sync and AI provenance in named graphs; text-indexed with jena-text | `RelationshipService`, `RicController` (`/ric/query`) |
+
+: The two RiC datasets
 
 ## Services
 
@@ -75,12 +85,15 @@ if (!$result['valid']) {
 
 ### SparqlQueryService
 
-Execute SPARQL queries against the Fuseki triplestore.
+Execute SPARQL queries against the Fuseki triplestore. It reads `FUSEKI_ENDPOINT` (default `/openric-model`); pass an endpoint to the constructor to query another dataset.
+
+`search()` matches every name shape either writer produces: `rico:name` (the #139 load), `rico:title`, `rico:textualValue` on a `hasAgentName` / `hasOrHadName` / `hasPlaceName` node (the extractor), and `rdfs:label`. It finds the page of entities first and labels only that page. On `/ric`, set `RIC_TEXT_INDEX=true` so it uses the Lucene index: a plain CONTAINS scan of that store takes minutes, the index well under a second (#1516).
 
 ```php
 use AhgRic\Services\SparqlQueryService;
 
-$sparql = new SparqlQueryService();
+$sparql = new SparqlQueryService();                                  // /openric-model
+$archive = new SparqlQueryService('http://localhost:3030/ric');     // the archival store
 
 // Search entities
 $results = $sparql->search('archival fonds', ['type' => 'record']);
@@ -91,6 +104,12 @@ $relationships = $sparql->getRelationships($uri);
 // Get statistics
 $stats = $sparql->getStatistics();
 ```
+
+## Maintenance
+
+- `bin/ric_sync.sh` replaces each entity's blank-node names, dates and extents on every load instead of adding another copy, and `--clear` empties only the default graph (#1519).
+- `php artisan ahg:fuseki-dedupe-blank-nodes [--apply]` collapses the identical copies earlier syncs left behind; dry run by default. Compact the store and rebuild the text index afterwards - see `docs/help/ric-sync-setup.md`.
+- `php artisan ahg:fuseki-orphan-cleanup` and `ahg:fuseki-integrity-check` cover the per-entity live-sync graphs.
 
 ## API Endpoints
 

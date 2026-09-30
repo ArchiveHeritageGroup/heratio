@@ -12,7 +12,6 @@
 namespace AhgRic\Services;
 
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -28,15 +27,13 @@ class SparqlQueryService
 
     public function __construct(?string $endpoint = null)
     {
-        // #1516 - same resolution order as SparqlUpdateService: ahg_settings,
-        // then ahg-ric config, then heratio config. Reading config alone sent
-        // every query to openric-model (the RiC-O ontology) while the admin
-        // setting and all writes pointed at the instance data in /ric.
-        $this->fusekiEndpoint = rtrim($endpoint ?? $this->setting('fuseki_endpoint',
-            config('ahg-ric.fuseki_endpoint',
-                config('heratio.fuseki_endpoint', 'http://localhost:3030/openric-model')
-            )
-        ), '/');
+        // Default /openric-model on purpose: its callers - the authority-
+        // resolution candidate adapters and KM grounding (#1320) - work on
+        // Heratio's own agents and places loaded there as urn:ahg:ric:* by
+        // ahg:ric:fuseki-load (#139). The archival /ric store has its own
+        // client (RelationshipService, RicController). Pass $endpoint to
+        // query another dataset (heratio#1516).
+        $this->fusekiEndpoint = rtrim($endpoint ?? config('heratio.fuseki_endpoint', 'http://localhost:3030/openric-model'), '/');
         $this->pythonScript = __DIR__ . '/../../tools/ric_semantic_search.py';
     }
 
@@ -60,16 +57,15 @@ class SparqlQueryService
     /**
      * Build SPARQL search query
      *
-     * #1516 - matches against the predicates the RiC extractor actually emits:
-     * rico:title for records, rico:textualValue on the name node for agents,
-     * places and terms (rico:hasAgentName / hasOrHadName / hasPlaceName), and
-     * rdfs:label from the live sync. The earlier rico:name / rico:description
-     * pattern never matched and scanned every typed entity (172 s, 0 rows).
+     * #1516 - matches the name shapes both writers produce: rico:name (the
+     * #139 instance load), rico:title for records, rico:textualValue on the
+     * name node for agents, places and terms (rico:hasAgentName / hasOrHadName
+     * / hasPlaceName, the RiC extractor), and rdfs:label from the live sync.
      *
-     * Default path uses the jena-text Lucene index on /ric (#18), which
-     * indexes exactly those literals. RIC_TEXT_INDEX=false falls back to a
-     * CONTAINS scan for a store without that index - correct, but slow on a
-     * large graph.
+     * The default CONTAINS path suits the small /openric-model dataset. On the
+     * archival /ric store (17.9M triples) it scans every name and takes
+     * minutes; there set RIC_TEXT_INDEX=true to use its jena-text Lucene
+     * index (#18), which answers in well under a second.
      */
     private function buildSearchQuery(string $term, ?string $type, int $limit, int $offset): string
     {
@@ -79,7 +75,7 @@ class SparqlQueryService
             $typeFilter = "FILTER(?t = <{$typeUri}>)";
         }
 
-        if (config('heratio.ric_text_index', true)) {
+        if (config('heratio.ric_text_index', false)) {
             $lucene = $this->escapeSparqlLiteral($this->luceneQuery($term)); // #1394 - prevent SPARQL injection
             // The index returns name nodes and entities alike; cap it well
             // above the page so dedup to owning entities still fills it.
@@ -94,7 +90,7 @@ SPARQL;
         } else {
             $needle = $this->escapeSparqlLiteral(mb_strtolower($term)); // #1394 - prevent SPARQL injection
             $match = <<<SPARQL
-    { ?entity rico:title|rdfs:label ?text }
+    { ?entity rico:name|rico:title|rdfs:label ?text }
     UNION
     { ?entity rico:hasAgentName|rico:hasOrHadName|rico:hasPlaceName ?n . ?n rico:textualValue ?text }
     FILTER(isIRI(?entity) && CONTAINS(LCASE(STR(?text)), "{$needle}"))
@@ -122,8 +118,8 @@ SPARQL;
 
     /**
      * #1516 - add a display label and a description to each ?entity row,
-     * read from the predicates the RiC extractor writes (title, then the
-     * name node's textualValue, then rdfs:label). One query for the page.
+     * read from the predicates either writer uses (rico:name or title, then
+     * the name node's textualValue, then rdfs:label). One query for the page.
      */
     private function withLabels(array $result, string $labelVar, string $descriptionVar): array
     {
@@ -145,7 +141,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?entity (SAMPLE(?title) AS ?t) (SAMPLE(?name) AS ?n) (SAMPLE(?rdfsLabel) AS ?r) (SAMPLE(?desc) AS ?d)
 WHERE {
     VALUES ?entity { {$values} }
-    OPTIONAL { ?entity rico:title ?title }
+    OPTIONAL { ?entity rico:name|rico:title ?title }
     OPTIONAL { ?entity (rico:hasAgentName|rico:hasOrHadName|rico:hasPlaceName)/rico:textualValue ?name }
     OPTIONAL { ?entity rdfs:label ?rdfsLabel }
     OPTIONAL { ?entity rico:scopeAndContent|rico:descriptiveNote|rico:history ?desc }
@@ -486,17 +482,6 @@ SPARQL;
     private function escapeSparqlIri(string $uri): string
     {
         return preg_replace('/[\x00-\x20<>"{}|\^`\\\\]/', '', $uri);
-    }
-
-    private function setting(string $key, $default = null)
-    {
-        try {
-            $row = DB::table('ahg_settings')->where('setting_key', $key)->value('setting_value');
-
-            return ($row !== null && $row !== '') ? $row : $default;
-        } catch (\Throwable $e) {
-            return $default;
-        }
     }
 
     private function getTypeUri(string $type): string

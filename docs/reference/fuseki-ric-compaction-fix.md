@@ -4,9 +4,11 @@
 
 ## Datasets
 
-- **`/openric-model`** - the RiC-O ontology model (~26 MB). Queried by `AhgRic\Services\SparqlQueryService` via `config('heratio.fuseki_endpoint')`. Was never affected.
+- **`/openric-model`** - the RiC-O ontology model (~26 MB), plus Heratio's own agents and places as `urn:ahg:ric:*`, loaded by `ahg:ric:fuseki-load` (#139). Queried by `AhgRic\Services\SparqlQueryService` via `config('heratio.fuseki_endpoint')`, for the authority-resolution adapters and KM grounding. Was never affected.
 - **`/openric`** - secondary (~6 MB).
 - **`/ric`** - the archival RiC instance store (~18 M triples). Queried by `AhgRic\Services\RelationshipService` and `RicController` at `/ric/query` (`config('ric.fuseki.url')`, default `http://localhost:3030/ric`). Written by the RiC sync (`FusekiSyncService` / `SparqlUpdateService` / `packages/ahg-ric/bin/ric_sync.sh`). This is the one that bloated.
+
+**The second kind of growth (heratio#1519).** Compaction reclaims dead space, but `/ric` also held live copies: every `ric_sync.sh` load POSTed JSON-LD to `/data`, which adds, and each load's blank nodes (names, dates, extents) were new. On the 30 September 2026 data one agent carried 31,660 identical name nodes and most of the 17.9M triples were copies. The sync now deletes an entity's blank-node subtrees before loading it, `--clear` is `CLEAR DEFAULT` rather than `CLEAR ALL` (which would also drop the provenance and live-sync named graphs), and `php artisan ahg:fuseki-dedupe-blank-nodes` removes the existing copies. Compact after running it.
 
 ## Incident (July 2026): "Fuseki is down"
 

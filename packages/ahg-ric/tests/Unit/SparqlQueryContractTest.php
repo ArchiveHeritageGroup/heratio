@@ -47,11 +47,13 @@ class SparqlQueryContractTest extends TestCase
     private const PRODUCTION = 'https://archives.theahg.co.za/ric/atom-psis/production/902924';
 
     /**
-     * Predicates the extractor writes for entity kinds the small fixture does
-     * not carry (terms and functions use hasOrHadName; descriptions use
-     * scopeAndContent, descriptiveNote or history). See ric_extractor_v5.py.
+     * Predicates written for entity kinds the small fixture does not carry:
+     * the extractor's term and function names (hasOrHadName) and descriptions
+     * (scopeAndContent, descriptiveNote, history) - see ric_extractor_v5.py -
+     * and rico:name, which ahg:ric:fuseki-load (#139) writes on the
+     * urn:ahg:ric:* agents and places in /openric-model.
      */
-    private const ALSO_WRITTEN = ['hasOrHadName', 'scopeAndContent', 'descriptiveNote', 'history'];
+    private const ALSO_WRITTEN = ['name', 'hasOrHadName', 'scopeAndContent', 'descriptiveNote', 'history'];
 
     public function test_queries_use_only_predicates_the_extractor_writes(): void
     {
@@ -68,6 +70,7 @@ class SparqlQueryContractTest extends TestCase
 
     public function test_search_escapes_lucene_and_sparql_syntax(): void
     {
+        config(['heratio.ric_text_index' => true]);
         $queries = $this->recordedQueries('a"b OR c:d');
 
         $this->assertStringContainsString('text:query ("a\\\\\\"b AND or AND c\\\\:d"', $queries['search']);
@@ -75,7 +78,9 @@ class SparqlQueryContractTest extends TestCase
 
     public function test_queries_return_rows_from_the_live_store(): void
     {
-        // The test database's fuseki_endpoint setting is not the RiC dataset.
+        // The archival store, searched through its text index as it would be
+        // in production; a CONTAINS scan of 17.9M triples takes minutes.
+        config(['heratio.ric_text_index' => true]);
         $svc = new SparqlQueryService(env('RIC_TEST_FUSEKI_ENDPOINT', 'http://localhost:3030/ric'));
         if (! $this->holds($svc, self::RECORD)) {
             $this->markTestSkipped('Configured Fuseki does not hold the ric fixture data');
@@ -94,6 +99,21 @@ class SparqlQueryContractTest extends TestCase
         $dates = $svc->getTemporalData(self::PRODUCTION);
         $this->assertNotEmpty($dates['bindings']);
         $this->assertArrayHasKey('startDate', $dates['bindings'][0]);
+    }
+
+    public function test_default_dataset_finds_heratio_agents_by_rico_name(): void
+    {
+        // The #139 load in /openric-model: what the authority-resolution
+        // adapters and KM grounding (#1320) search.
+        $svc = new SparqlQueryService(env('RIC_TEST_FUSEKI_MODEL_ENDPOINT', 'http://localhost:3030/openric-model'));
+        $hits = $svc->search('douglass', ['type' => 'person', 'limit' => 5]);
+        if (! empty($hits['error']) || $hits['bindings'] === []) {
+            $this->markTestSkipped('Configured Fuseki has no #139 agents loaded');
+        }
+
+        $first = $hits['bindings'][0];
+        $this->assertStringStartsWith('urn:ahg:ric:agent:', $first['entity']['value']);
+        $this->assertStringContainsStringIgnoringCase('douglass', $first['label']['value']);
     }
 
     private function holds(SparqlQueryService $svc, string $iri): bool

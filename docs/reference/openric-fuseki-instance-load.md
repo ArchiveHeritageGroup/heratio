@@ -66,6 +66,12 @@ contributes alongside the MySQL adapters in authority resolution.
 
 ## Notes
 
+- `SparqlQueryService` keeps `/openric-model` as its default dataset because
+  of this load: the adapters and KM grounding (#1320) read these
+  `urn:ahg:ric:*` records through it. heratio#1516 briefly repointed it at the
+  admin setting (`/ric`) in v1.157.0, which sent both to the archival store
+  instead; this was reverted in the release after. Its `search()` matches
+  `rico:name` as well as the extractor's name shapes.
 - The `SparqlQueryService::executeQuery()` defect referenced as a blocker in
   issue #139 was already resolved under #138 - the Python branch is now gated
   behind `config('heratio.ric_sparql_via_python', false)` and the endpoint
