@@ -77,6 +77,26 @@
                                     </div>
                                 @endif
                             @endif
+                            @if(\AhgArticles\Services\BlogService::isVideo($att))
+                                @php $videoUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($att->file_path); @endphp
+                                <div class="list-group-item">
+                                    <div class="d-flex align-items-start gap-3 mb-2">
+                                        <i class="fas fa-film fa-lg mt-1 text-success"></i>
+                                        <span class="flex-grow-1">
+                                            <span class="fw-semibold">{{ $att->title }}</span>
+                                            <span class="badge bg-success ms-2">{{ __(ucfirst($att->kind)) }}</span>
+                                            @if($att->description)<span class="d-block text-muted small">{{ $att->description }}</span>@endif
+                                        </span>
+                                    </div>
+                                    <video controls preload="metadata" playsinline class="w-100 rounded bg-dark" aria-label="{{ $att->title ?: $att->file_name }}">
+                                        <source src="{{ $videoUrl }}" type="video/{{ strtolower(pathinfo($att->file_name, PATHINFO_EXTENSION)) }}">
+                                    </video>
+                                    <a href="{{ $videoUrl }}" download="{{ $att->file_name }}" class="d-inline-block small mt-2">
+                                        <i class="fas fa-download me-1"></i>{{ __('Download') }} {{ $att->file_name }} &middot; {{ number_format($att->file_size / 1024 / 1024, 1) }} MB
+                                    </a>
+                                </div>
+                                @continue
+                            @endif
                             <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($att->file_path) }}"
                                class="list-group-item list-group-item-action d-flex align-items-start gap-3"
                                target="_blank" rel="noopener" download="{{ $att->file_name }}">

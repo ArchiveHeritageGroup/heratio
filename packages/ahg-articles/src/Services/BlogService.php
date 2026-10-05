@@ -221,8 +221,23 @@ class BlogService
     public const ATTACHMENT_EXTENSIONS = [
         'pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv',
         'ppt', 'pptx', 'odt', 'ods', 'zip', 'txt',
+        'mp4', 'webm',
     ];
-    public const ATTACHMENT_MAX_KB = 20480; // 20 MB
+
+    /**
+     * #1526 - attachments shown as an inline player rather than a download row.
+     * Served as static files from the public disk, so nginx supplies the
+     * video/* Content-Type and the range support the player needs to seek.
+     */
+    public const VIDEO_EXTENSIONS = ['mp4', 'webm'];
+
+    /** Videos only. Other attachments are capped by PHP/nginx alone (2 GB). */
+    public const VIDEO_MAX_KB = 204800; // 200 MB
+
+    public static function isVideo(object $row): bool
+    {
+        return in_array(strtolower(pathinfo((string) $row->file_name, PATHINFO_EXTENSION)), self::VIDEO_EXTENSIONS, true);
+    }
 
     /**
      * Idempotently add the attachment "section" divider column on existing

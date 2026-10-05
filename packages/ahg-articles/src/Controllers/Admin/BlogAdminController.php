@@ -308,8 +308,9 @@ class BlogAdminController extends Controller
      * allow-list rather than content-sniffing (mimes:) - OOXML office files
      * (pptx/docx/xlsx) are zip containers that PHP fileinfo often reports as
      * application/zip or application/octet-stream, which made mimes: reject
-     * perfectly valid uploads. No app-level size cap - the real ceiling is PHP
-     * upload_max_filesize / nginx client_max_body_size.
+     * perfectly valid uploads. Only videos carry an app-level size cap (#1526);
+     * for everything else the ceiling is PHP upload_max_filesize / nginx
+     * client_max_body_size.
      */
     private function attachmentFileRule(bool $required): array
     {
@@ -324,6 +325,9 @@ class BlogAdminController extends Controller
                     $fail(__('The file must be a file of type: :types.', [
                         'types' => implode(', ', $exts),
                     ]));
+                } elseif (in_array($ext, BlogService::VIDEO_EXTENSIONS, true)
+                    && $value->getSize() > BlogService::VIDEO_MAX_KB * 1024) {
+                    $fail(__('Videos may be at most :size MB.', ['size' => BlogService::VIDEO_MAX_KB / 1024]));
                 }
             },
         ];
