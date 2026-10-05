@@ -15,7 +15,11 @@
  *   Elasticsearch        - GET /
  *   Qdrant               - GET /readyz (vector search)
  *   Ollama (embedding)   - GET /api/tags  (semantic_embedding_url)
- *   Ollama (image LLM)   - GET /api/tags  (voice_local_llm_url)
+ *
+ * No image-LLM probe: since #1249 the voice/image LLM goes through the AI
+ * gateway, which the embedding probe already covers. Probing the old
+ * voice_local_llm_url node directly failed whenever that node was down even
+ * though the app was unaffected, and failed ahg:cron-run with it.
  *   TripoSR              - GET /health    (when triposr_enabled=1)
  *   IIIF (Cantaloupe)    - GET /iiif/3    (when iiif_server_url set)
  *   AI condition service - GET /health    (when ai_condition_service_url set)
@@ -49,7 +53,6 @@ class ServicesCheckCommand extends Command
             $this->probeHttp('elasticsearch', config('services.elasticsearch.host', (config('ahg-env.elasticsearch_host') ?? 'http://localhost:9200')), '/', $timeout),
             $this->probeHttp('qdrant', AhgSettingsService::get('semantic_qdrant_url', 'http://localhost:6333'), '/readyz', $timeout),
             $this->probeHttp('ollama_embed', AhgSettingsService::get('semantic_embedding_url'), '/api/tags', $timeout),
-            $this->probeHttp('ollama_image', AhgSettingsService::get('voice_local_llm_url'), '/api/tags', $timeout),
             $this->probeTriposr($timeout),
             $this->probeHttp('iiif', AhgSettingsService::get('iiif_server_url'), '/iiif/3', $timeout),
             $this->probeHttp('ai_condition', AhgSettingsService::get('ai_condition_service_url'), '/health', $timeout),
