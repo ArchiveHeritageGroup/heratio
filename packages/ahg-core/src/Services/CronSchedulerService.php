@@ -263,7 +263,48 @@ class CronSchedulerService
             'status' => $status,
             'duration_ms' => $durationMs,
             'next_run' => $nextRun->toDateTimeString(),
+            // $schedule was read before this run marked it 'running', so
+            // last_run_status is still the previous run's outcome.
+            'confirmed' => $this->failureConfirmed($status, $schedule->last_run_status ?? null, $schedule->cron_expression),
         ];
+    }
+
+    /**
+     * Whether this run's outcome should count against ahg:cron-run. Successes
+     * always do (trivially); a failure does unless it is the first failure of
+     * a frequent job, which waits for the next run to confirm it.
+     */
+    public function failureConfirmed(string $status, ?string $previousStatus, ?string $cronExpression): bool
+    {
+        return $status !== 'failed'
+            || $previousStatus === 'failed'
+            || ! $this->isFrequent($cronExpression);
+    }
+
+    /** A schedule runs often enough for a failure to wait one run for confirmation. */
+    public const CONFIRM_WITHIN_MINUTES = 15;
+
+    /**
+     * Whether a schedule runs at least every CONFIRM_WITHIN_MINUTES.
+     *
+     * A single failure of such a job - usually a health check catching a
+     * momentary gateway blip - is not reported as an ahg:cron-run failure
+     * until the next run fails too, which is minutes away. Infrequent jobs keep
+     * failing on the first failure: their next run can be a day later, and
+     * waiting for it would hide a real fault for that long. Unparseable
+     * expressions count as infrequent, so the strict path is the fallback.
+     */
+    public function isFrequent(?string $cronExpression): bool
+    {
+        try {
+            $cron = new CronExpression((string) $cronExpression);
+            $first = $cron->getNextRunDate();
+            $second = $cron->getNextRunDate($first);
+
+            return ($second->getTimestamp() - $first->getTimestamp()) <= self::CONFIRM_WITHIN_MINUTES * 60;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     /**

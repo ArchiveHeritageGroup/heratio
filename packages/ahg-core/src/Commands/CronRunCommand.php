@@ -53,10 +53,14 @@ class CronRunCommand extends Command
                   : ($status === 'skipped' || $status === 'deferred' ? '<comment>SKIP</comment>' : '<error>FAIL</error>');
             $label = $r['slug'] ?? $r['reason'] ?? '(unknown)';
             $duration = isset($r['duration_ms']) ? "({$r['duration_ms']}ms)" : '';
-            $this->line(trim("  [{$icon}] {$label} {$duration}"));
+            $pending = $status === 'failed' && ! ($r['confirmed'] ?? true) ? ' - first failure, reported if the next run fails too' : '';
+            $this->line(trim("  [{$icon}] {$label} {$duration}{$pending}"));
         }
 
-        $failed = collect($results)->where('status', 'failed')->count();
+        // A frequent job's first failure waits one run for confirmation, so a
+        // momentary blip does not fail the runner (see CronSchedulerService::isFrequent).
+        // It is still recorded as failed in cron_schedule and ahg_cron_run.
+        $failed = collect($results)->where('status', 'failed')->filter(fn ($r) => $r['confirmed'] ?? true)->count();
         if ($failed > 0) {
             $this->warn("{$failed} job(s) failed.");
 
