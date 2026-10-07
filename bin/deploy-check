@@ -183,8 +183,24 @@ elif [ ! -x "$MAIL_CHECK_BIN" ]; then
 elif ! command -v node >/dev/null 2>&1; then
     echo -e "   ${YEL}SKIP${NC} - node not available"
 else
-    timeout 45 node "$MAIL_CHECK_BIN" --hours "$MAIL_CHECK_HOURS" 2>/dev/null \
-        || echo -e "   ${YEL}SKIP${NC} - mail check did not complete (timeout or auth); not treated as a failure"
+    # Only the count and the messages flagged as possible fault reports are
+    # printed. The full listing put the sender and subject of every message in
+    # the mailbox - bank notices, family mail - into deploy output, which gets
+    # pasted into terminals, chats and logs. The flagged ones are the point.
+    MAIL_JSON=$(timeout 45 node "$MAIL_CHECK_BIN" --hours "$MAIL_CHECK_HOURS" --json 2>/dev/null)
+    if [ -z "$MAIL_JSON" ]; then
+        echo -e "   ${YEL}SKIP${NC} - mail check did not complete (timeout or auth); not treated as a failure"
+    else
+        printf '%s' "$MAIL_JSON" | node -e '
+            let raw = ""; process.stdin.on("data", (c) => raw += c).on("end", () => {
+                let d; try { d = JSON.parse(raw); } catch (e) { console.log("   SKIP - unreadable mail check output; not treated as a failure"); return; }
+                if (d.status === "skipped") { console.log("   SKIP - " + (d.reason || "skipped")); return; }
+                const msgs = d.messages || [], faults = msgs.filter((m) => m.looksLikeFault);
+                console.log(`   ${msgs.length} message(s) in the last ${d.hours}h, ${faults.length} reading like a fault report`);
+                for (const m of faults) console.log(`   >> ${m.from}\n      ${m.subject}`);
+                if (faults.length) console.log("   Read the ones marked >> before deploying. They may describe what you are about to ship over.");
+            });'
+    fi
 fi
 
 echo
