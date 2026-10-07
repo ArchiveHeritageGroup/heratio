@@ -430,21 +430,33 @@ class QdrantRetriever
     private function searchElasticsearch(string $query, int $limit): array
     {
         try {
-            $esUrl = config('heratio.es_url', 'http://localhost:9200');
-            $index = config('heratio.es_index', 'heratio-io');
+            // The same index Heratio's own search uses (ElasticsearchService):
+            // {prefix}qubitinformationobject, with per-language text under
+            // i18n.<culture>. The old heratio.es_index default ('heratio-io')
+            // named an index that does not exist, so this fallback had never
+            // returned anything.
+            $esUrl = rtrim((string) config('services.elasticsearch.host', 'http://localhost:9200'), '/');
+            $index = config('services.elasticsearch.prefix', 'heratio_') . 'qubitinformationobject';
 
             $response = Http::timeout(15)
                 ->asJson()
                 ->post("{$esUrl}/{$index}/_search", [
                     'size'  => $limit,
                     'query' => [
-                        'multi_match' => [
-                            'query'  => $query,
-                            'fields' => 'title^3,identifier^2,scope_and_content,description,subject,creator',
-                            'type'   => 'best_fields',
+                        'bool' => [
+                            'must' => [[
+                                'multi_match' => [
+                                    'query'  => $query,
+                                    'fields' => ['i18n.*.title^3', 'identifier^2', 'i18n.*.scopeAndContent'],
+                                    'type'   => 'best_fields',
+                                ],
+                            ]],
+                            // First line only: every hit is still re-checked by
+                            // disclosable(), which also knows embargo and the rest.
+                            'filter' => [['term' => ['publicationStatusId' => \AhgCore\Services\DisclosureGate::STATUS_PUBLISHED]]],
                         ],
                     ],
-                    '_source' => ['title', 'identifier', 'slug', 'scope_and_content', 'description'],
+                    '_source' => ['slug', 'identifier', 'sourceCulture', 'i18n'],
                 ]);
 
             if (!$response->successful()) {
@@ -465,14 +477,15 @@ class QdrantRetriever
 
             return array_map(function ($h) use ($idBySlug) {
                 $src = $h['_source'] ?? [];
-                $excerpt = $src['scope_and_content'] ?? $src['description'] ?? '';
+                $i18n = $src['i18n'][$src['sourceCulture'] ?? 'en'] ?? $src['i18n']['en'] ?? [];
+                $excerpt = (string) ($i18n['scopeAndContent'] ?? '');
                 if (mb_strlen($excerpt) > 350) {
                     $excerpt = mb_substr($excerpt, 0, 347) . '...';
                 }
                 $slug = $src['slug'] ?? null;
                 return [
                     'id'         => ($slug !== null && isset($idBySlug[$slug])) ? $idBySlug[$slug] : null,
-                    'title'      => $src['title'] ?? 'Untitled',
+                    'title'      => $i18n['title'] ?? 'Untitled',
                     'identifier' => $src['identifier'] ?? '',
                     'url'        => isset($src['slug']) ? url('/informationobject/' . $src['slug']) : null,
                     'excerpt'    => $excerpt,

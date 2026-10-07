@@ -153,7 +153,8 @@ class ChatbotDisclosureTest extends TestCase
             '*/points/search' => Http::response(['result' => []]),
             '*/_search' => Http::response(['hits' => ['hits' => array_map(fn ($kind) => [
                 '_score' => 1.0,
-                '_source' => ['title' => "Disclosure test {$kind}", 'slug' => $this->slug($kind)],
+                '_source' => ['slug' => $this->slug($kind), 'sourceCulture' => 'en',
+                              'i18n' => ['en' => ['title' => "Disclosure test {$kind}"]]],
             ], array_keys($this->io))]]),
             '*' => Http::response([], 404),
         ]);
