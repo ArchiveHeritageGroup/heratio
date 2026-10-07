@@ -38,13 +38,16 @@ use Illuminate\Support\Facades\Schema;
  *   - Publication status   - status row type_id=158 / status_id=160.
  *   - ICIP / TK protocols  - icip_access_restriction (direct + applies_to_descendants subtree).
  *   - ODRL access policy   - research_rights_policy 'use' prohibition.
+ *   - Embargo              - an active, in-date embargo row, of any type.
+ *   - Security class       - an active classification above PUBLIC (level 0),
+ *                            plus the subtree when inherit_to_children is set.
  *   - PII redaction (files)- privacy_visual_redaction present ⇒ raw derivative unsafe.
  *
  * Everything routes through here so a surface can never silently ship
  * protocol-restricted, gated, unpublished or redacted content. Fail-closed:
  * on any doubt the record is excluded.
  *
- * The restricted-id set (ICIP ∪ ODRL) is small and bounded, so it is resolved
+ * The restricted-id set (ICIP, ODRL, embargo, classification) is small and bounded, so it is resolved
  * once and memoised for the request; callers keep (or gain) the cheap
  * publication join and simply add `whereNotIn` against this set.
  */
@@ -54,7 +57,7 @@ class DisclosureGate
     public const STATUS_TYPE_PUBLICATION = 158;
     public const STATUS_PUBLISHED = 160;
 
-    /** @var int[]|null Memoised ICIP∪ODRL restricted IO ids for this request. */
+    /** @var int[]|null Memoised restricted IO ids (ICIP, ODRL, embargo, classification) for this request. */
     private ?array $restricted = null;
 
     /** @var int[]|null Memoised ICIP/TK-restricted IO ids (direct + subtree). */
@@ -62,6 +65,12 @@ class DisclosureGate
 
     /** @var int[]|null Memoised ODRL 'use'-prohibited IO ids. */
     private ?array $odrl = null;
+
+    /** @var int[]|null Memoised embargoed IO ids. */
+    private ?array $embargo = null;
+
+    /** @var int[]|null Memoised IO ids classified above PUBLIC (direct + subtree). */
+    private ?array $classified = null;
 
     /** @var array<int,bool>|null Memoised IO ids carrying redaction regions. */
     private ?array $redacted = null;
@@ -144,9 +153,79 @@ class DisclosureGate
     }
 
     /**
+     * IO ids under an active embargo: status 'active', started, and not yet
+     * ended (NULL end = open-ended). Every embargo type withholds: nothing in
+     * the codebase scopes a 'digital_object' or 'metadata_only' embargo more
+     * narrowly, so the only safe reading for an ungated consumer is the whole
+     * record. Memoised.
+     *
+     * @return int[]
+     */
+    public function embargoedIds(): array
+    {
+        if ($this->embargo !== null) {
+            return $this->embargo;
+        }
+        $ids = [];
+        if (Schema::hasTable('embargo')) {
+            $today = now()->toDateString();
+            foreach (DB::table('embargo')
+                ->where('status', 'active')
+                ->whereDate('start_date', '<=', $today)
+                ->where(function ($q) use ($today) {
+                    $q->whereNull('end_date')->orWhereDate('end_date', '>=', $today);
+                })
+                ->pluck('object_id') as $id) {
+                $ids[(int) $id] = true;
+            }
+        }
+
+        return $this->embargo = array_keys($ids);
+    }
+
+    /**
+     * IO ids with an active security classification above PUBLIC (level 0),
+     * plus the descendants of any classification with inherit_to_children set -
+     * the same subtree rule as ICIP. Memoised.
+     *
+     * @return int[]
+     */
+    public function classifiedIds(): array
+    {
+        if ($this->classified !== null) {
+            return $this->classified;
+        }
+        $ids = [];
+        if (Schema::hasTable('object_security_classification') && Schema::hasTable('security_classification')) {
+            $classified = fn () => DB::table('object_security_classification as osc')
+                ->join('security_classification as sc', 'sc.id', '=', 'osc.classification_id')
+                ->where('osc.active', 1)
+                ->where('sc.level', '>', 0);
+
+            foreach ($classified()->pluck('osc.object_id') as $id) {
+                $ids[(int) $id] = true;
+            }
+
+            if (Schema::hasTable('information_object')) {
+                foreach ($classified()
+                    ->where('osc.inherit_to_children', 1)
+                    ->join('information_object as anc', 'anc.id', '=', 'osc.object_id')
+                    ->join('information_object as io', function ($j) {
+                        $j->whereColumn('io.lft', '>=', 'anc.lft')->whereColumn('io.lft', '<=', 'anc.rgt');
+                    })
+                    ->pluck('io.id') as $id) {
+                    $ids[(int) $id] = true;
+                }
+            }
+        }
+
+        return $this->classified = array_keys($ids);
+    }
+
+    /**
      * IO ids that must be excluded from any public disclosure for confidentiality
-     * reasons beyond publication status: ICIP/TK restriction unioned with ODRL
-     * 'use' prohibitions. Memoised per request.
+     * reasons beyond publication status: ICIP/TK restriction, ODRL 'use'
+     * prohibitions, active embargoes and security classification. Memoised per request.
      *
      * @return int[]
      */
@@ -156,8 +235,10 @@ class DisclosureGate
             return $this->restricted;
         }
         $ids = array_flip($this->icipRestrictedIds());
-        foreach ($this->odrlRestrictedIds() as $id) {
-            $ids[$id] = true;
+        foreach ([$this->odrlRestrictedIds(), $this->embargoedIds(), $this->classifiedIds()] as $set) {
+            foreach ($set as $id) {
+                $ids[$id] = true;
+            }
         }
 
         return $this->restricted = array_keys($ids);
@@ -166,7 +247,7 @@ class DisclosureGate
     /**
      * Add the confidentiality exclusion to a query builder against the given
      * information-object id column. Does NOT add the publication join - callers
-     * keep their existing published INNER join; this layers ICIP/ODRL on top.
+     * keep their existing published INNER join; this layers the restricted set on top.
      * Use wherePublished() as well if the query has no publication gate yet.
      */
     public function excludeRestricted(Builder $query, string $idColumn = 'id'): Builder
@@ -199,7 +280,7 @@ class DisclosureGate
 
     /**
      * Is this single record publicly disclosable? Published AND not
-     * ICIP/ODRL-restricted. Fail-closed (unknown id ⇒ not published ⇒ false).
+     * restricted (ICIP, ODRL, embargo, classification). Fail-closed (unknown id ⇒ not published ⇒ false).
      */
     public function allows(int $ioId): bool
     {

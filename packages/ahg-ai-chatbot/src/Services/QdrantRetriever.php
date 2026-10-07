@@ -100,22 +100,59 @@ class QdrantRetriever
         // filter (in-language records only).
         $blend = (bool) config('ahg-ai-chatbot.cross_language_blend', true);
 
-        // Over-fetch when scoped so post-filtering / blending still yields up to
-        // $limit hits (and a cross-language tail to fill from).
-        $fetch = $scope === null ? $limit : max($limit * 6, 30);
+        // Over-fetch so the disclosure filter, and when scoped the culture
+        // post-filter / blending, still leave up to $limit hits.
+        $fetch = $scope === null ? max($limit * 3, self::DISCLOSURE_OVERFETCH) : max($limit * 6, 30);
 
         // Try Qdrant vector search first
-        $records = $this->searchQdrant($query, $fetch);
+        $records = $this->disclosable($this->searchQdrant($query, $fetch));
         $records = $this->applyCultureScope($records, $scope, $limit, $blend);
         if (!empty($records)) {
             return ['query' => $query, 'records' => array_slice($records, 0, $limit)];
         }
 
         // Fallback: Elasticsearch keyword search on IO metadata
-        $es = $this->searchElasticsearch($query, $fetch);
+        $es = $this->disclosable($this->searchElasticsearch($query, $fetch));
         $es = $this->applyCultureScope($es, $scope, $limit, $blend);
 
         return ['query' => $query, 'records' => array_slice($es, 0, $limit)];
+    }
+
+    /** Candidates fetched per path before the disclosure filter (PSIS uses 18). */
+    private const DISCLOSURE_OVERFETCH = 18;
+
+    /**
+     * Keep only the hits that may be shown to an ungated reader: published and
+     * not ICIP/ODRL-restricted, embargoed or classified, per DisclosureGate.
+     *
+     * Neither index can be trusted to hold only public records - the Qdrant
+     * index was built from every description, and the ES index holds drafts
+     * for staff browse - so every hit is re-checked when it is fetched. A hit
+     * whose record id is unknown is dropped, and if the check itself fails no
+     * records are returned at all: an answer without sources is better than
+     * one quoting an embargoed file.
+     *
+     * A hit from a collection indexed out of ANOTHER database is dropped too:
+     * its point id names a record in that catalogue, so checking it against
+     * this one would pass whatever record here happens to share the number.
+     */
+    private function disclosable(array $records): array
+    {
+        if ($records === []) {
+            return [];
+        }
+        try {
+            $here = DB::connection()->getDatabaseName();
+            $records = array_filter($records, fn ($r) => ! isset($r['database']) || $r['database'] === $here);
+            $ids = array_filter(array_map(fn ($r) => isset($r['id']) ? (int) $r['id'] : 0, $records));
+            $allowed = array_flip(app(\AhgCore\Services\DisclosureGate::class)->filterIds($ids));
+
+            return array_values(array_filter($records, fn ($r) => isset($r['id']) && isset($allowed[(int) $r['id']])));
+        } catch (\Throwable $e) {
+            Log::warning('[chatbot] disclosure check failed, returning no records: ' . $e->getMessage());
+
+            return [];
+        }
     }
 
     /**
@@ -374,6 +411,9 @@ class QdrantRetriever
 
         return [
             'id'          => $hit['id'] ?? null,
+            // Which catalogue the point was indexed from (QdrantIndexCommand
+            // payload). A point id is only a record id in that database.
+            'database'    => $payload['database'] ?? null,
             'title'       => $title,
             'identifier'  => $identifier,
             'url'         => $url,

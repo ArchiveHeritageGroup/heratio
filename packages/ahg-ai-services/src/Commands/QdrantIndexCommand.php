@@ -18,6 +18,12 @@
  *                               vector size announced by the embedding model)
  *   --offset / --limit          pagination for resumable runs
  *   --batch=64                  upsert batch size (Qdrant /points)
+ *   --prune                     only delete points whose record is no longer
+ *                               publicly disclosable, then exit
+ *
+ * Only records DisclosureGate allows are embedded: published, and not
+ * ICIP/ODRL-restricted, embargoed or classified. The vector store feeds the
+ * chatbot, so anything in it can end up quoted in an answer.
  *
  * @copyright  Johan Pieterse / Plain Sailing Information Systems
  * @license    AGPL-3.0-or-later
@@ -40,7 +46,8 @@ class QdrantIndexCommand extends Command
         {--offset=0                 : Skip the first N rows}
         {--limit=0                  : Stop after N rows (0 = unbounded)}
         {--batch=64                 : Upsert batch size}
-        {--dry-run                  : Embed + count, but do not write to Qdrant}';
+        {--dry-run                  : Embed + count, but do not write to Qdrant}
+        {--prune                    : Only delete points whose record is no longer publicly disclosable}';
 
     protected $description = 'Rebuild Qdrant vector index from information_object rows';
 
@@ -63,6 +70,10 @@ class QdrantIndexCommand extends Command
         $embeddingModel = $this->setting('semantic_embedding_model', 'all-minilm');
         $qdrantUrl      = $this->setting('semantic_qdrant_url',      'http://localhost:6333');
         $cultureDefault = 'en';
+
+        if ($this->option('prune')) {
+            return $this->prune($qdrantUrl, $collection, $dryRun);
+        }
 
         $this->info("Qdrant index rebuild");
         $this->line("  source DB:     {$sourceDb}");
@@ -127,6 +138,8 @@ class QdrantIndexCommand extends Command
         // must never be embedded/vectorised (the vector store is an AI surface).
         // Computed once; the restricted set is small (sacred/secret/gendered/etc.).
         $restrictedSet = array_flip(\AhgCore\Services\TermProtocolService::restrictedRecordIds());
+        $gate = app(\AhgCore\Services\DisclosureGate::class);
+        $withheld = 0;
 
         $chunkSize = 500;
         while ($remaining > 0) {
@@ -151,8 +164,26 @@ class QdrantIndexCommand extends Command
                 break;
             }
 
+            // Fail closed: if disclosure cannot be decided, embed nothing.
+            try {
+                $allowed = array_flip($gate->filterIds($rows->pluck('id')->all()));
+            } catch (Throwable $e) {
+                $bar->finish();
+                $this->newLine();
+                $this->error('Disclosure check failed, nothing more indexed: ' . $e->getMessage());
+
+                return self::FAILURE;
+            }
+
             foreach ($rows as $row) {
                 $bar->setMessage('id=' . $row->id);
+
+                // Unpublished, embargoed, classified or ICIP/ODRL-restricted.
+                if (! isset($allowed[(int) $row->id])) {
+                    $withheld++;
+                    $bar->advance();
+                    continue;
+                }
 
                 // #1406 P3 - skip community-restricted records (never embed them).
                 if (isset($restrictedSet[(int) $row->id])) {
@@ -227,8 +258,75 @@ class QdrantIndexCommand extends Command
         $bar->finish();
         $this->newLine();
 
-        $this->info(sprintf('Indexed: %s, skipped: %s, errors: %s', number_format($indexed), number_format($skipped), number_format($errors)));
+        $this->info(sprintf('Indexed: %s, withheld (not public): %s, skipped: %s, errors: %s',
+            number_format($indexed), number_format($withheld), number_format($skipped), number_format($errors)));
         return $errors > 0 ? self::FAILURE : self::SUCCESS;
+    }
+
+    /**
+     * Delete the points whose record DisclosureGate no longer allows - drafts,
+     * new embargoes, new classifications, or records indexed before the
+     * indexer filtered at all. Point ids are information_object ids. Scrolls
+     * the collection 1000 points at a time; with --dry-run it only counts.
+     *
+     * Only points whose payload says they were indexed from THIS database are
+     * judged. A point from another catalogue (anc_records holds an AtoM
+     * database) carries an id that means nothing here, so it is counted as
+     * foreign and left alone - pruning it against this database would delete
+     * that catalogue's index.
+     */
+    protected function prune(string $qdrantUrl, string $collection, bool $dryRun): int
+    {
+        $base = $qdrantUrl . '/collections/' . urlencode($collection);
+        $gate = app(\AhgCore\Services\DisclosureGate::class);
+        $here = DB::connection()->getDatabaseName();
+        $seen = 0;
+        $foreign = 0;
+        $removed = 0;
+        $offset = null;
+
+        do {
+            $page = $this->httpJson('POST', $base . '/points/scroll', array_filter([
+                'limit' => 1000,
+                'with_payload' => ['database'],
+                'with_vector' => false,
+                'offset' => $offset,
+            ], fn ($v) => $v !== null));
+            if ($page === null) {
+                $this->error("Could not read collection {$collection}.");
+
+                return self::FAILURE;
+            }
+
+            $points = $page['result']['points'] ?? [];
+            $seen += count($points);
+            $ours = array_filter($points, fn ($p) => ($p['payload']['database'] ?? null) === $here);
+            $foreign += count($points) - count($ours);
+            $ids = array_map(fn ($p) => (int) $p['id'], array_values($ours));
+            try {
+                $allowed = array_flip($gate->filterIds($ids));
+            } catch (Throwable $e) {
+                $this->error('Disclosure check failed, prune stopped: ' . $e->getMessage());
+
+                return self::FAILURE;
+            }
+            $drop = array_values(array_filter($ids, fn ($id) => ! isset($allowed[$id])));
+
+            if ($drop !== [] && ! $dryRun
+                && $this->httpJson('POST', $base . '/points/delete?wait=true', ['points' => $drop]) === null) {
+                $this->error('Delete failed for ' . count($drop) . ' points.');
+
+                return self::FAILURE;
+            }
+            $removed += count($drop);
+            $offset = $page['result']['next_page_offset'] ?? null;
+        } while ($offset !== null);
+
+        $this->info(sprintf('%s %s: %s points, %s from another database left alone, %s %s.',
+            $dryRun ? 'DRY-RUN' : 'Pruned', $collection, number_format($seen), number_format($foreign),
+            number_format($removed), $dryRun ? 'would be removed' : 'removed'));
+
+        return self::SUCCESS;
     }
 
     protected function buildText(object $row): string

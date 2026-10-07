@@ -661,6 +661,11 @@ PROMPT;
             if (! DB::table('information_object')->where('id', $objectId)->exists()) {
                 return null; // a slug that is not an information object (actor, repository, ...)
             }
+            // The page URL comes from the client, so it is no proof the user may
+            // see this record: hold it to the same disclosure rule as retrieval.
+            if (! app(\AhgCore\Services\DisclosureGate::class)->allows((int) $objectId)) {
+                return null;
+            }
             $identifier = (string) DB::table('information_object')->where('id', $objectId)->value('identifier');
             $i18n = DB::table('information_object_i18n')->where('id', $objectId)->where('culture', 'en')->first()
                 ?? DB::table('information_object_i18n')->where('id', $objectId)->first();
