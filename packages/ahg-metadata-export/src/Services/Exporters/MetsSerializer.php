@@ -39,6 +39,7 @@ use XMLWriter;
 class MetsSerializer
 {
     use InformationObjectFetcher;
+    use Concerns\EmitsCustomFields; // heratio#1548
 
     public const PROFILE_AIP = 'https://heratio.theahg.co.za/profiles/mets/io-aip-v1';
 
@@ -206,6 +207,10 @@ class MetsSerializer
             }
             if (! empty($io->scope_and_content)) {
                 $w->writeElementNs('dc', 'description', null, (string) $io->scope_and_content);
+            }
+            // heratio#1548: custom fields as labelled descriptions
+            foreach ($this->customFields([(int) $io->id])[(int) $io->id] ?? [] as $f) {
+                $w->writeElementNs('dc', 'description', null, $f['label'].': '.$f['value']);
             }
             if ($repository) {
                 $w->writeElementNs('dc', 'publisher', null, (string) $repository->name);

@@ -81,6 +81,7 @@ class DublinCoreQualifiedSerializer
     use LoadsScalarProperty;
 
     use InformationObjectFetcher;
+    use Concerns\EmitsCustomFields; // heratio#1548
 
     /**
      * Free-text qualified terms that operators may populate via the
@@ -352,6 +353,11 @@ class DublinCoreQualifiedSerializer
                 $local = substr($term, strlen('dcterms:'));
                 $xml .= $this->qualified($local, $value);
             }
+        }
+
+        // heratio#1548: custom fields as labelled descriptions
+        foreach ($this->customFields([$objectId])[$objectId] ?? [] as $f) {
+            $xml .= $this->emitBoth('description', $f['label'].': '.$f['value']);
         }
 
         $xml .= '</metadata>';

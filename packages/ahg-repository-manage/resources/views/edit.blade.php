@@ -560,6 +560,9 @@
 
     </div>
 
+    {{-- heratio#1548: admin-defined custom fields, saved with the record --}}
+    @include('ahg-custom-fields::partials._edit-fields', ['entityType' => 'repository', 'objectId' => $repository->id ?? null])
+
     <ul class="actions mb-3 nav gap-2">
       @if($repository)
         <li><a href="{{ route('repository.show', $repository->slug) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>

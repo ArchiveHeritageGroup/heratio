@@ -431,12 +431,40 @@ class InformationObjectService
             'properties' => $withI18n('property', 'property_i18n', DB::table('property')->where('object_id', $id)->get(), ['id', 'object_id', 'serial_number']),
             'other_names' => $withI18n('other_name', 'other_name_i18n', DB::table('other_name')->where('object_id', $id)->get(), ['id', 'object_id', 'serial_number']),
             'custom_fields' => $strip(DB::table('custom_field_value')->where('object_id', $id)->get(), ['id', 'object_id', 'created_at', 'updated_at']), // #1530
-            // Sector metadata (museum / gallery CCO fields) is description content too.
-            'museum' => \Illuminate\Support\Facades\Schema::hasTable('museum_metadata')
+            // Sector metadata is description content too (#1549): museum and
+            // gallery CCO fields, library item and its creators, subjects and
+            // shelf location, DAM IPTC metadata.
+            'museum' => self::hasTableMemo('museum_metadata')
                 ? $strip(DB::table('museum_metadata')->where('object_id', $id)->get(), ['id', 'object_id', 'created_at', 'updated_at']) : [],
+            'library' => self::hasTableMemo('library_item') ? (function () use ($id, $strip) {
+                $items = DB::table('library_item')->where('information_object_id', $id)->get();
+                $itemIds = $items->pluck('id')->all();
+                $side = fn (string $t) => self::hasTableMemo($t) && $itemIds
+                    ? $strip(DB::table($t)->whereIn('library_item_id', $itemIds)->get(), ['id', 'library_item_id', 'created_at', 'updated_at']) : [];
+
+                return [
+                    'item' => $strip($items, ['id', 'information_object_id', 'created_at', 'updated_at']),
+                    'creators' => $side('library_item_creator'),
+                    'subjects' => $side('library_item_subject'),
+                ];
+            })() : [],
+            'location' => self::hasTableMemo('information_object_physical_location')
+                ? $strip(DB::table('information_object_physical_location')->where('information_object_id', $id)->get(), ['id', 'information_object_id', 'created_at', 'updated_at']) : [],
+            'dam' => self::hasTableMemo('dam_iptc_metadata')
+                ? $strip(DB::table('dam_iptc_metadata')->where('object_id', $id)->get(), ['id', 'object_id', 'created_at', 'updated_at']) : [],
         ];
 
         return sha1(json_encode($parts));
+    }
+
+    /** Table existence, memoised per connection and database (fingerprints run on every save). */
+    private static function hasTableMemo(string $table): bool
+    {
+        static $seen = [];
+        $conn = DB::connection();
+        $key = $conn->getName().'|'.$conn->getDatabaseName().'|'.$table;
+
+        return $seen[$key] ??= \Illuminate\Support\Facades\Schema::hasTable($table);
     }
 
     /**

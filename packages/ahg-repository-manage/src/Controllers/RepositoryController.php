@@ -322,10 +322,12 @@ class RepositoryController extends Controller
             'authorized_form_of_name' => 'required|string|max:1024',
             'identifier' => 'nullable|string|max:1024',
         ]);
+        \AhgCustomFields\Services\CustomFieldService::validateRequest($request, 'repository'); // heratio#1548
 
         $data = $request->only($this->getAllFields());
 
         $id = $this->service->create($data);
+        \AhgCustomFields\Services\CustomFieldService::saveFromRequest((int) $id, $request, 'repository'); // heratio#1548
         $slug = $this->service->getSlug($id);
 
         return redirect()
@@ -344,10 +346,12 @@ class RepositoryController extends Controller
             'authorized_form_of_name' => 'required|string|max:1024',
             'identifier' => 'nullable|string|max:1024',
         ]);
+        \AhgCustomFields\Services\CustomFieldService::validateRequest($request, 'repository'); // heratio#1548
 
         $data = $request->only($this->getAllFields());
 
         $this->service->update($repository->id, $data);
+        \AhgCustomFields\Services\CustomFieldService::saveFromRequest((int) $repository->id, $request, 'repository'); // heratio#1548
 
         return redirect()
             ->route('repository.show', $slug)

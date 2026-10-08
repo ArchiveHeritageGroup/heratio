@@ -5,6 +5,7 @@
   optional $entityType (default informationobject).
 --}}
 @php
+  $errors = $errors ?? new \Illuminate\Support\ViewErrorBag;
   $cfService = app(\AhgCustomFields\Services\CustomFieldService::class);
   $cfFields = $cfService->fieldsWithValues($entityType ?? \AhgCustomFields\Services\CustomFieldService::IO, $objectId ?? null)
       ->where('is_visible_edit', 1);
@@ -63,14 +64,17 @@
                       @endforeach
                     </select>
                   @elseif($field->is_repeatable)
-                    {{-- ponytail: one input per stored value plus one blank; add more by saving again. Upgrade: an "add another" button. --}}
-                    @foreach(array_merge(array_values(array_filter((array) $cfValue, fn ($v) => $v !== null && $v !== '')), ['']) as $i => $cfOne)
-                      @if($field->field_type === 'textarea')
-                        <textarea class="form-control mb-1 @error('cf.' . $cfKey) is-invalid @enderror" id="{{ $cfId }}{{ $i ? '_' . $i : '' }}" name="{{ $cfName }}[]" rows="2">{{ $cfOne }}</textarea>
-                      @else
-                        <input type="{{ $cfInputType }}" class="form-control mb-1 @error('cf.' . $cfKey) is-invalid @enderror" id="{{ $cfId }}{{ $i ? '_' . $i : '' }}" name="{{ $cfName }}[]" value="{{ $cfOne }}" @if($cfInputType === 'number') step="any" @endif>
-                      @endif
-                    @endforeach
+                    {{-- One box per stored value plus one blank; "Add another" clones a blank box (heratio#1548). --}}
+                    <div data-cf-repeat>
+                      @foreach(array_merge(array_values(array_filter((array) $cfValue, fn ($v) => $v !== null && $v !== '')), ['']) as $i => $cfOne)
+                        @if($field->field_type === 'textarea')
+                          <textarea class="form-control mb-1 @error('cf.' . $cfKey) is-invalid @enderror" @if($i === 0) id="{{ $cfId }}" @endif name="{{ $cfName }}[]" rows="2" aria-label="{{ $field->field_label }}">{{ $cfOne }}</textarea>
+                        @else
+                          <input type="{{ $cfInputType }}" class="form-control mb-1 @error('cf.' . $cfKey) is-invalid @enderror" @if($i === 0) id="{{ $cfId }}" @endif name="{{ $cfName }}[]" value="{{ $cfOne }}" aria-label="{{ $field->field_label }}" @if($cfInputType === 'number') step="any" @endif>
+                        @endif
+                      @endforeach
+                    </div>
+                    <button type="button" class="btn btn-sm atom-btn-white" data-cf-add>{{ __('Add another') }}</button>
                   @elseif($field->field_type === 'textarea')
                     <textarea class="form-control @error('cf.' . $cfKey) is-invalid @enderror" id="{{ $cfId }}" name="{{ $cfName }}" rows="3">{{ $cfValue }}</textarea>
                   @else
@@ -90,4 +94,21 @@
       </div>
     </div>
   </div>
+  @once
+    <script nonce="{{ function_exists('csp_nonce') ? csp_nonce() : '' }}">
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-cf-add]');
+      if (!btn) { return; }
+      var box = btn.previousElementSibling;
+      var last = box && box.querySelector('input, textarea:last-of-type');
+      if (!last) { return; }
+      var inputs = box.querySelectorAll('input, textarea');
+      var copy = inputs[inputs.length - 1].cloneNode(false);
+      copy.value = '';
+      copy.removeAttribute('id');
+      box.appendChild(copy);
+      copy.focus();
+    });
+    </script>
+  @endonce
 @endif

@@ -220,6 +220,16 @@ class RicSerializationService
             $record['rico:hasRecordPart'] = $children;
         }
 
+        // heratio#1548: custom fields marked for export, as descriptive notes
+        // ("Label: value"), the RiC-O home for information given nowhere else.
+        if (class_exists(\AhgCustomFields\Services\CustomFieldService::class)) {
+            $notes = array_map(fn ($f) => $f['label'].': '.$f['value'],
+                app(\AhgCustomFields\Services\CustomFieldService::class)->exportValues($ioId));
+            if ($notes) {
+                $record['rico:descriptiveNote'] = count($notes) === 1 ? $notes[0] : $notes;
+            }
+        }
+
         return $this->applyProvenance(
             $this->applyDeprecation($record, 'information_object', $ioId),
             'information_object',

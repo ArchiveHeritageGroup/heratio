@@ -558,8 +558,10 @@ class AccessionController extends Controller
             'location_information', 'received_extent_units', 'physical_characteristics',
             'appraisal', 'processing_notes',
         ]);
+        \AhgCustomFields\Services\CustomFieldService::validateRequest($request, 'accession'); // heratio#1548
 
         $id = $this->service->create($data);
+        \AhgCustomFields\Services\CustomFieldService::saveFromRequest((int) $id, $request, 'accession'); // heratio#1548
         $slug = $this->service->getSlug($id);
         $this->service->saveAccessionEvents($id, (array) $request->input('events', []));
 
@@ -638,8 +640,10 @@ class AccessionController extends Controller
             'location_information', 'received_extent_units', 'physical_characteristics',
             'appraisal', 'processing_notes',
         ]);
+        \AhgCustomFields\Services\CustomFieldService::validateRequest($request, 'accession'); // heratio#1548
 
         $this->service->update($accession->id, $data);
+        \AhgCustomFields\Services\CustomFieldService::saveFromRequest((int) $accession->id, $request, 'accession'); // heratio#1548
         $this->service->saveAccessionEvents($accession->id, (array) $request->input('events', []));
 
         $this->caais->save($accession->id, (array) $request->input('caais', []));

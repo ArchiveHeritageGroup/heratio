@@ -435,7 +435,9 @@ class DamService
 
         $auditBefore = $this->auditSnapshot((int) $objectId);
 
-        DB::transaction(function () use ($objectId, $data) {
+        $fingerprintBefore = \AhgInformationObjectManage\Services\InformationObjectService::contentFingerprint((int) $objectId); // #1549
+
+        DB::transaction(function () use ($objectId, $data, $fingerprintBefore) {
             // 1. Update information_object
             $ioUpdate = [];
             foreach (['identifier', 'parent_id', 'repository_id', 'level_of_description_id', 'icip_sensitivity'] as $field) {
@@ -536,10 +538,11 @@ class DamService
             }
 
             // 4. Touch the object record
-            DB::table('object')->where('id', $objectId)->update([
-                'updated_at' => now(),
-                'serial_number' => DB::raw('serial_number + 1'),
-            ]);
+            // #1549: only on a real change (OAI-PMH datestamps and harvest
+            // deltas are built from updated_at).
+            if (\AhgInformationObjectManage\Services\InformationObjectService::touchIfChanged((int) $objectId, $fingerprintBefore)) {
+                DB::table('object')->where('id', $objectId)->increment('serial_number');
+            }
         });
 
         $auditAfter = $this->auditSnapshot((int) $objectId);

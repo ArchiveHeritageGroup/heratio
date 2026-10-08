@@ -49,6 +49,7 @@ use Illuminate\Support\Facades\DB;
 class MarcxmlSerializer
 {
     use InformationObjectFetcher;
+    use Concerns\EmitsCustomFields; // heratio#1548
 
     private RdaCarrierMapper $rda;
 
@@ -242,6 +243,13 @@ class MarcxmlSerializer
             $xml .= '  <datafield tag="'.$tag.'" ind1=" " ind2=" ">'."\n";
             $xml .= '    <subfield code="a">'.$this->escXml($subs['a'])."</subfield>\n";
             $xml .= '    <subfield code="2">'.$this->escXml($subs['2'])."</subfield>\n";
+            $xml .= "  </datafield>\n";
+        }
+
+        // 500 general note: custom fields, "Label: value" (heratio#1548)
+        foreach ($this->customFields([$objectId])[$objectId] ?? [] as $f) {
+            $xml .= '  <datafield tag="500" ind1=" " ind2=" ">'."\n";
+            $xml .= '    <subfield code="a">'.$this->escXml($f['label'].': '.$f['value'])."</subfield>\n";
             $xml .= "  </datafield>\n";
         }
 

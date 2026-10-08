@@ -467,7 +467,9 @@ class LibraryService
         // Snapshot before - for security_audit_log before/after diff.
         $auditBefore = $this->auditSnapshot($id);
 
-        DB::transaction(function () use ($id, $data) {
+        $fingerprintBefore = \AhgInformationObjectManage\Services\InformationObjectService::contentFingerprint((int) $id); // #1549
+
+        DB::transaction(function () use ($id, $data, $fingerprintBefore) {
             // 1. Update information_object
             $ioUpdate = [];
             $ioFields = ['identifier', 'level_of_description_id', 'repository_id', 'icip_sensitivity'];
@@ -581,10 +583,11 @@ class LibraryService
             }
 
             // 5. Touch the object record
-            DB::table('object')->where('id', $id)->update([
-                'updated_at' => now(),
-                'serial_number' => DB::raw('serial_number + 1'),
-            ]);
+            // #1549: only on a real change (OAI-PMH datestamps and harvest
+            // deltas are built from updated_at).
+            if (\AhgInformationObjectManage\Services\InformationObjectService::touchIfChanged((int) $id, $fingerprintBefore)) {
+                DB::table('object')->where('id', $id)->increment('serial_number');
+            }
         });
 
         // Snapshot after the transaction commits, then capture the diff

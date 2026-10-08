@@ -424,6 +424,14 @@ class OaiPmhController extends Controller
 
         $record['title'] = $row->title ?: '[Untitled]';
         $record['description'] = $row->scope_and_content ?: null;
+        // heratio#1548: custom fields marked for export, as labelled descriptions.
+        if (class_exists(\AhgCustomFields\Services\CustomFieldService::class)) {
+            $custom = array_map(fn ($f) => $f['label'].': '.$f['value'],
+                app(\AhgCustomFields\Services\CustomFieldService::class)->exportValues((int) $row->id));
+            if ($custom) {
+                $record['description'] = array_values(array_filter(array_merge([$record['description']], $custom)));
+            }
+        }
 
         // dc:identifier - the human-facing reference code plus the public URL.
         $identifiers = [];

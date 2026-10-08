@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\DB;
 class Ead3Serializer
 {
     use InformationObjectFetcher;
+    use Concerns\EmitsCustomFields; // heratio#1548
 
     public function getFormat(): string
     {
@@ -214,6 +215,10 @@ class Ead3Serializer
             $xml .= '  <accessrestrict><legalstatus>'.$this->escXml($legalStatus)."</legalstatus></accessrestrict>\n";
         }
 
+        // heratio#1548: admin-defined custom fields for this record and its components
+        $cf = $this->customFields(array_merge([(int) $io->id], $includeChildren ? $children->pluck('id')->all() : []));
+        $xml .= $this->customFieldsOdd($cf[(int) $io->id] ?? [], '  ', true);
+
         if ($subjects->isNotEmpty() || $places->isNotEmpty() || $genres->isNotEmpty()) {
             $xml .= "  <controlaccess>\n";
             foreach ($subjects as $s) {
@@ -269,6 +274,7 @@ class Ead3Serializer
                 if ($child->scope_and_content) {
                     $xml .= '      <scopecontent><p>'.$this->escXml($child->scope_and_content)."</p></scopecontent>\n";
                 }
+                $xml .= $this->customFieldsOdd($cf[(int) $child->id] ?? [], '      ', true);
                 if ($child->rgt == $child->lft + 1) {
                     $xml .= "    </c>\n";
                 } else {

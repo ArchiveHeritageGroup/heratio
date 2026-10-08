@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\DB;
 class Ead2002Serializer
 {
     use InformationObjectFetcher;
+    use Concerns\EmitsCustomFields; // heratio#1548
 
     public function getFormat(): string
     {
@@ -177,6 +178,10 @@ class Ead2002Serializer
             $xml .= '  <otherfindaid encodinganalog="3.4.5"><p>'.$this->escXml($io->finding_aids)."</p></otherfindaid>\n";
         }
 
+        // heratio#1548: admin-defined custom fields for this record and its components
+        $cf = $this->customFields(array_merge([(int) $io->id], $includeChildren ? $children->pluck('id')->all() : []));
+        $xml .= $this->customFieldsOdd($cf[(int) $io->id] ?? [], '  ', false);
+
         // Control access
         if ($subjects->isNotEmpty() || $places->isNotEmpty() || $genres->isNotEmpty()) {
             $xml .= "  <controlaccess>\n";
@@ -220,6 +225,7 @@ class Ead2002Serializer
                 if ($child->arrangement) {
                     $xml .= '      <arrangement><p>'.$this->escXml($child->arrangement)."</p></arrangement>\n";
                 }
+                $xml .= $this->customFieldsOdd($cf[(int) $child->id] ?? [], '      ', false);
                 if ($child->rgt == $child->lft + 1) {
                     $xml .= "    </c>\n";
                 } else {

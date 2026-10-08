@@ -663,6 +663,9 @@
       </div>
     </div>
 
+    {{-- heratio#1548: admin-defined custom fields, saved with the record --}}
+    @include('ahg-custom-fields::partials._edit-fields', ['entityType' => 'actor', 'objectId' => $actor->id ?? null])
+
     <ul class="actions mb-3 nav gap-2">
       @if($actor)
         <li><a href="{{ route('actor.show', $actor->slug) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>

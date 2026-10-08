@@ -481,6 +481,7 @@ class AccessionService
      */
     public function delete(int $id): void
     {
+        DB::table('custom_field_value')->where('object_id', $id)->delete(); // heratio#1548
         \AhgCore\Support\AuditLog::captureDelete($id, 'accession', $this->auditSnapshot($id));
 
         DB::transaction(function () use ($id) {

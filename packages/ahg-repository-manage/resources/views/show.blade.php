@@ -434,6 +434,9 @@
     $canCreate = \AhgCore\Services\AclService::check($repository, 'create');
     $isAdmin   = $canUpdate;
   @endphp
+  {{-- heratio#1548: admin-defined custom fields --}}
+  @include('ahg-custom-fields::partials._view-fields', ['entityType' => 'repository', 'objectId' => $repository->id])
+
   @if($canUpdate || $canDelete || $canCreate)
   <section class="actions">
     <ul class="nav gap-2">

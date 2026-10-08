@@ -31,6 +31,8 @@ use Illuminate\Support\Facades\DB;
 
 class Ead4Serializer
 {
+    use Concerns\EmitsCustomFields; // heratio#1548
+
     /**
      * EAD 4 namespace URI (draft).
      */
@@ -427,6 +429,9 @@ class Ead4Serializer
             $archdesc->appendChild($accruals);
         }
 
+        // heratio#1548: admin-defined custom fields
+        $this->addCustomFields($archdesc, (int) $io->id);
+
         // <controlaccess> for subject/place access points
         $this->addControlAccess($archdesc, $io->id, $culture);
 
@@ -741,6 +746,7 @@ class Ead4Serializer
         }
 
         $c->appendChild($did);
+        $this->addCustomFields($c, (int) $child->id); // heratio#1548
 
         // Optional elements
         if (! empty($child->scope_and_content)) {
@@ -869,6 +875,18 @@ class Ead4Serializer
     /**
      * Create a namespaced element with optional text content.
      */
+    /** One <odd localtype="key"> per custom field marked for export (heratio#1548). */
+    protected function addCustomFields(\DOMElement $parent, int $objectId): void
+    {
+        foreach ($this->customFields([$objectId])[$objectId] ?? [] as $f) {
+            $odd = $this->el('odd');
+            $odd->setAttribute('localtype', $f['key']);
+            $odd->appendChild($this->el('head', $f['label']));
+            $odd->appendChild($this->el('p', $f['value']));
+            $parent->appendChild($odd);
+        }
+    }
+
     protected function el(string $name, ?string $value = null): \DOMElement
     {
         $element = $this->dom->createElementNS(self::NS_EAD, $name);

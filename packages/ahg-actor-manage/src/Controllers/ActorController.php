@@ -527,6 +527,7 @@ class ActorController extends Controller
             'other_names.*.name' => 'nullable|string|max:1024',
             'other_names.*.type_id' => 'nullable|integer',
         ]);
+        \AhgCustomFields\Services\CustomFieldService::validateRequest($request, 'actor'); // heratio#1548
 
         $data = $request->only([
             'authorized_form_of_name', 'entity_type_id', 'dates_of_existence',
@@ -539,6 +540,7 @@ class ActorController extends Controller
         ]);
 
         $id = $this->service->create($data);
+        \AhgCustomFields\Services\CustomFieldService::saveFromRequest((int) $id, $request, 'actor'); // heratio#1548
 
         // Publication status (159 draft / 160 published) + embargo date (Part B).
         $embargo = $request->input('embargo_until');
@@ -627,6 +629,7 @@ class ActorController extends Controller
             'other_names.*.name' => 'nullable|string|max:1024',
             'other_names.*.type_id' => 'nullable|integer',
         ]);
+        \AhgCustomFields\Services\CustomFieldService::validateRequest($request, 'actor'); // heratio#1548
 
         $data = $request->only([
             'authorized_form_of_name', 'entity_type_id', 'dates_of_existence',
@@ -641,6 +644,7 @@ class ActorController extends Controller
         ]);
 
         $this->service->update($actor->id, $data);
+        \AhgCustomFields\Services\CustomFieldService::saveFromRequest((int) $actor->id, $request, 'actor'); // heratio#1548
 
         // Publication status (159 draft / 160 published) + embargo date (Part B).
         $embargo = $request->input('embargo_until');

@@ -1205,6 +1205,12 @@ class OaiPmhController extends Controller
         if (! empty($record->scope_and_content)) {
             $xml .= '          <dc:description>'.$this->esc(strip_tags($record->scope_and_content)).'</dc:description>'."\n";
         }
+        // heratio#1548: custom fields marked for export, as labelled descriptions
+        if (class_exists(\AhgCustomFields\Services\CustomFieldService::class)) {
+            foreach (app(\AhgCustomFields\Services\CustomFieldService::class)->exportValues((int) $record->id) as $f) {
+                $xml .= '          <dc:description>'.$this->esc($f['label'].': '.$f['value']).'</dc:description>'."\n";
+            }
+        }
 
         // dc:publisher - from events (publishers)
         $publishers = DB::table('event as e')

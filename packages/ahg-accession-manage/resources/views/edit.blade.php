@@ -575,6 +575,9 @@
 
     </div>
 
+    {{-- heratio#1548: admin-defined custom fields, saved with the record --}}
+    @include('ahg-custom-fields::partials._edit-fields', ['entityType' => 'accession', 'objectId' => $accession->id ?? null])
+
     <ul class="actions mb-3 nav gap-2">
       @if($accession)
         <li><a class="btn atom-btn-outline-light" role="button" href="{{ route('accession.show', $accession->slug) }}">{{ __('Cancel') }}</a></li>

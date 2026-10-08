@@ -534,6 +534,9 @@
     </div>
   </section>
 
+  {{-- heratio#1548: admin-defined custom fields --}}
+  @include('ahg-custom-fields::partials._view-fields', ['entityType' => 'accession', 'objectId' => $accession->id])
+
   @endif {{-- end heratio/ric view mode --}}
 
   {{-- RiC Context Sidebar --}}

@@ -652,6 +652,9 @@
     $canCreate = \AhgCore\Services\AclService::check($actor, 'create');
     $isAdmin   = $canUpdate;
   @endphp
+  {{-- heratio#1548: admin-defined custom fields --}}
+  @include('ahg-custom-fields::partials._view-fields', ['entityType' => 'actor', 'objectId' => $actor->id])
+
   @if($canUpdate || $canDelete || $canCreate)
   <section class="actions">
     <ul class="nav gap-2">
