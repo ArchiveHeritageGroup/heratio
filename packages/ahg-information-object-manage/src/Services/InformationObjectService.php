@@ -374,6 +374,84 @@ class InformationObjectService
      * Data keys may be either snake_case or camelCase.
      */
     /**
+     * heratio#1536. A hash of everything a person edits on a description: the
+     * record, every culture's text (encrypted columns decrypted, since their
+     * ciphertext changes on every write), publication status, slug, events,
+     * notes, access points, relations, properties and other names.
+     *
+     * Row ids, serial numbers, timestamps and the editing user are left out on
+     * purpose: the edit form deletes and re-inserts its sub-entities on every
+     * save, so they change even when nothing a reader would see did.
+     */
+    public static function contentFingerprint(int $id): string
+    {
+        $strip = fn ($rows, array $drop) => collect($rows)->map(function ($r) use ($drop) {
+            $r = (array) $r;
+            foreach ($drop as $k) {
+                unset($r[$k]);
+            }
+            ksort($r);
+
+            return $r;
+        })->sortBy(fn ($r) => json_encode($r))->values()->all();
+        $i18n = fn (string $table, $ids) => DB::table($table)->whereIn('id', collect($ids)->all())->get()
+            ->groupBy('id')->map(fn ($rows) => $strip($rows, ['id']))->all();
+        $withI18n = function (string $table, string $i18nTable, $rows, array $drop) use ($strip, $i18n) {
+            $rows = collect($rows);
+            $text = $i18n($i18nTable, $rows->pluck('id'));
+
+            return $strip($rows->map(function ($r) use ($text) {
+                $r = (array) $r;
+                $r['_i18n'] = $text[$r['id']] ?? [];
+
+                return $r;
+            }), $drop);
+        };
+
+        $enc = new \AhgCore\Services\EncryptionService();
+        $text = DB::table('information_object_i18n')->where('id', $id)->get()->map(function ($r) use ($enc, $id) {
+            foreach (['access_conditions', 'reproduction_conditions'] as $col) {
+                if (isset($r->{$col})) {
+                    $r->{$col} = $enc->decrypt(\AhgCore\Services\EncryptionService::CATEGORY_ACCESS_RESTRICTIONS, $r->{$col}, 'information_object_i18n', $col, $id);
+                }
+            }
+
+            return $r;
+        });
+
+        $parts = [
+            'io' => $strip([DB::table('information_object')->where('id', $id)->first() ?? []], ['id', 'lft', 'rgt']),
+            'i18n' => $strip($text, ['id']),
+            'status' => $strip(DB::table('status')->where('object_id', $id)->get(), ['id', 'object_id', 'serial_number']),
+            'slug' => DB::table('slug')->where('object_id', $id)->value('slug'),
+            'events' => $withI18n('event', 'event_i18n', DB::table('event')->where('object_id', $id)->get(), ['id', 'object_id']),
+            'notes' => $withI18n('note', 'note_i18n', DB::table('note')->where('object_id', $id)->get(), ['id', 'object_id', 'serial_number', 'user_id']),
+            'terms' => $strip(DB::table('object_term_relation')->where('object_id', $id)->get(), ['id', 'object_id']),
+            'relations' => $strip(DB::table('relation')->where(fn ($q) => $q->where('subject_id', $id)->orWhere('object_id', $id))->get(), ['id']),
+            'properties' => $withI18n('property', 'property_i18n', DB::table('property')->where('object_id', $id)->get(), ['id', 'object_id', 'serial_number']),
+            'other_names' => $withI18n('other_name', 'other_name_i18n', DB::table('other_name')->where('object_id', $id)->get(), ['id', 'object_id', 'serial_number']),
+        ];
+
+        return sha1(json_encode($parts));
+    }
+
+    /**
+     * Move "last modified" (object.updated_at) only if the description's
+     * content really changed since $before was taken (heratio#1536). A save
+     * that changes nothing must not bump the date that OAI-PMH datestamps and
+     * harvest deltas are built from.
+     */
+    public static function touchIfChanged(int $id, string $before): bool
+    {
+        if (self::contentFingerprint($id) === $before) {
+            return false;
+        }
+        DB::table('object')->where('id', $id)->update(['updated_at' => now()]);
+
+        return true;
+    }
+
+    /**
      * Flat snapshot of IO-update fields for the security_audit_log
      * before/after diff. Captures the structural columns + the i18n
      * narrative fields most edits touch. See packages/ahg-core/src/Support/AuditLog.php.
@@ -449,8 +527,9 @@ class InformationObjectService
         }
 
         $auditBefore = self::auditSnapshot($id, $culture);
+        $fingerprintBefore = self::contentFingerprint($id);
 
-        DB::transaction(function () use ($id, $data, $culture) {
+        DB::transaction(function () use ($id, $data, $culture, $fingerprintBefore) {
             // 1. Update structural fields on information_object
             $structuralFields = [
                 'identifier', 'level_of_description_id', 'collection_type_id',
@@ -542,8 +621,8 @@ class InformationObjectService
                 ]);
             }
 
-            // 4. Touch the object
-            DB::table('object')->where('id', $id)->update(['updated_at' => now()]);
+            // 4. Touch the object, only if something actually changed (#1536)
+            self::touchIfChanged($id, $fingerprintBefore);
         });
 
         $auditAfter = self::auditSnapshot($id, $culture);

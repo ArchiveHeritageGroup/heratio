@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS ahg_form_template (
     description TEXT,
     form_type VARCHAR(68) COMMENT 'information_object, accession, actor, repository, custom' NOT NULL DEFAULT 'information_object',
     config_json JSON COMMENT 'Template-level configuration (sections, tabs, layout)',
+    config TEXT NULL COMMENT 'Layout config written by FormsController / FormService (heratio#1537)',
     is_default TINYINT(1) NOT NULL DEFAULT 0,
     is_system TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'System templates cannot be deleted',
     is_active TINYINT(1) NOT NULL DEFAULT 1,

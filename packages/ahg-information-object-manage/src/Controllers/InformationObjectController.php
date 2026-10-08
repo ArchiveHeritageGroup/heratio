@@ -2150,6 +2150,41 @@ class InformationObjectController extends Controller
     /**
      * Show the create form for a new information object.
      */
+    /**
+     * Default values from the form template that resolves for a new description
+     * (heratio#1537), keyed by the create form's input names: the field's
+     * atom_field when set, else its field_name in snake_case (scopeAndContent
+     * -> scope_and_content). Empty when ahg-forms is absent or nothing resolves.
+     *
+     * @return array<string,string>
+     */
+    private function templateDefaults(?int $parentId): array
+    {
+        try {
+            if (! class_exists(\AhgForms\Services\FormService::class) || ! \Illuminate\Support\Facades\Schema::hasTable('ahg_form_template')) {
+                return [];
+            }
+            $repositoryId = $parentId ? DB::table('information_object')->where('id', $parentId)->value('repository_id') : null;
+            $template = app(\AhgForms\Services\FormService::class)->resolveTemplate('information_object', ['repository_id' => $repositoryId]);
+            if (! $template) {
+                return [];
+            }
+
+            $defaults = [];
+            // Whole rows: atom_field is absent on installs built from older schemas.
+            foreach (DB::table('ahg_form_field')->where('template_id', $template->id)->get() as $f) {
+                if (($f->default_value ?? null) === null || $f->default_value === '') {
+                    continue;
+                }
+                $defaults[($f->atom_field ?? null) ?: \Illuminate\Support\Str::snake((string) $f->field_name)] = (string) $f->default_value;
+            }
+
+            return $defaults;
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
     public function create(Request $request)
     {
         $culture = app()->getLocale();
@@ -2181,6 +2216,14 @@ class InformationObjectController extends Controller
         session()->forget('_old_input');
         session()->put('_old_input', []);
         session()->save();
+
+        // #1537: pre-fill the form from the default values of the form template
+        // that would apply here (assignment for the parent's repository, else
+        // the global default). now() keeps them to this request only, so they
+        // cannot stick to later forms the way the old put() did.
+        if ($defaults = $this->templateDefaults($parentId ? (int) $parentId : null)) {
+            session()->now('_old_input', $defaults);
+        }
 
         // If parent_id provided, resolve parent title for display
         $parentTitle = null;
@@ -2368,6 +2411,8 @@ class InformationObjectController extends Controller
         // Capture before/after explicitly so /admin/acl/audit-log surfaces
         // a field-level diff for archival edits as it does for sector edits.
         $auditBefore = \AhgInformationObjectManage\Services\InformationObjectService::auditSnapshot((int) $ioId, $culture);
+        // #1536: "last modified" moves only if this save changes the content.
+        $fingerprintBefore = \AhgInformationObjectManage\Services\InformationObjectService::contentFingerprint((int) $ioId);
 
         // Update information_object table
         $ioUpdate = [
@@ -3089,12 +3134,8 @@ class InformationObjectController extends Controller
             }
         }
 
-        // Update object.updated_at
-        DB::table('object')
-            ->where('id', $ioId)
-            ->update([
-                'updated_at' => now(),
-            ]);
+        // Update object.updated_at - only on a real change (#1536)
+        \AhgInformationObjectManage\Services\InformationObjectService::touchIfChanged((int) $ioId, $fingerprintBefore);
 
         $auditAfter = \AhgInformationObjectManage\Services\InformationObjectService::auditSnapshot((int) $ioId, $culture);
         \AhgCore\Support\AuditLog::captureEdit((int) $ioId, 'information_object', $auditBefore, $auditAfter);
@@ -4310,7 +4351,9 @@ class InformationObjectController extends Controller
         $newTitle = $request->input('title');
         $newSlug = $request->input('slug');
 
-        DB::transaction(function () use ($ioRow, $newTitle, $newSlug, $culture) {
+        $fingerprintBefore = \AhgInformationObjectManage\Services\InformationObjectService::contentFingerprint((int) $ioRow->id);
+
+        DB::transaction(function () use ($ioRow, $newTitle, $newSlug, $culture, $fingerprintBefore) {
             // Update title
             if ($newTitle !== null) {
                 DB::table('information_object_i18n')
@@ -4341,8 +4384,8 @@ class InformationObjectController extends Controller
                 $newSlug = $ioRow->slug;
             }
 
-            // Touch the object
-            DB::table('object')->where('id', $ioRow->id)->update(['updated_at' => now()]);
+            // Touch the object, only if the title or slug really changed (#1536)
+            \AhgInformationObjectManage\Services\InformationObjectService::touchIfChanged((int) $ioRow->id, $fingerprintBefore);
         });
 
         return redirect()
@@ -4511,6 +4554,7 @@ class InformationObjectController extends Controller
         if (!$io) {
             abort(404);
         }
+        $fingerprintBefore = \AhgInformationObjectManage\Services\InformationObjectService::contentFingerprint((int) $io->id);
 
         // Get all descendant IDs
         $descendantIds = DB::table('information_object')
@@ -4559,8 +4603,8 @@ class InformationObjectController extends Controller
                 ->update(['date' => $displayDate]);
         }
 
-        // Touch the object
-        DB::table('object')->where('id', $io->id)->update(['updated_at' => now()]);
+        // Touch the object, only if the calculated dates differ (#1536)
+        \AhgInformationObjectManage\Services\InformationObjectService::touchIfChanged((int) $io->id, $fingerprintBefore);
 
         return redirect()
             ->route('informationobject.show', $slug)
