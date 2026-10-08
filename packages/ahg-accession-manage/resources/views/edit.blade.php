@@ -436,23 +436,28 @@
                   </tr>
                 </thead>
                 <tbody>
+                  {{-- heratio#1520: existing events come back pre-filled with their id, so a
+                       save updates them instead of losing them; one empty row otherwise. --}}
+                  @php $eventRows = collect($accessionEvents ?? [])->values(); if ($eventRows->isEmpty()) { $eventRows = collect([(object) []]); } @endphp
+                  @foreach($eventRows as $i => $ev)
                   <tr>
                     <td>
-                      <select name="events[0][eventType]" class="form-select form-select-sm" aria-labelledby="accession-events-type-head" aria-describedby="accession-events-help">
+                      @if(!empty($ev->id))<input type="hidden" name="events[{{ $i }}][id]" value="{{ $ev->id }}">@endif
+                      <select name="events[{{ $i }}][eventType]" class="form-select form-select-sm" aria-labelledby="accession-events-type-head" aria-describedby="accession-events-help">
                         <option value=""></option>
                         @foreach($formChoices['eventTypes'] ?? [] as $et)
-                          <option value="{{ $et->id }}">{{ $et->name }}</option>
+                          <option value="{{ $et->id }}" @selected(old("events.$i.eventType", $ev->type_id ?? null) == $et->id)>{{ $et->name }}</option>
                         @endforeach
                       </select>
                     </td>
                     <td>
-                      <input type="text" name="events[0][date]" class="form-control form-control-sm" aria-labelledby="accession-events-date-head" aria-describedby="accession-events-help">
+                      <input type="text" name="events[{{ $i }}][date]" value="{{ old("events.$i.date", $ev->date ?? '') }}" class="form-control form-control-sm" aria-labelledby="accession-events-date-head" aria-describedby="accession-events-help">
                     </td>
                     <td>
-                      <input type="text" name="events[0][agent]" class="form-control form-control-sm" aria-labelledby="accession-events-agent-head" aria-describedby="accession-events-help">
+                      <input type="text" name="events[{{ $i }}][agent]" value="{{ old("events.$i.agent", $ev->agent ?? '') }}" class="form-control form-control-sm" aria-labelledby="accession-events-agent-head" aria-describedby="accession-events-help">
                     </td>
                     <td>
-                      <textarea name="events[0][note]" class="form-control form-control-sm" rows="1" aria-labelledby="accession-events-notes-head" aria-describedby="accession-events-help"></textarea>
+                      <textarea name="events[{{ $i }}][note]" class="form-control form-control-sm" rows="1" aria-labelledby="accession-events-notes-head" aria-describedby="accession-events-help">{{ old("events.$i.note", $ev->note ?? '') }}</textarea>
                     </td>
                     <td>
                       <button type="button" class="btn atom-btn-white remove-event-row">
@@ -461,6 +466,7 @@
                       </button>
                     </td>
                   </tr>
+                  @endforeach
                 </tbody>
                 <tfoot>
                   <tr>
@@ -643,8 +649,10 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Events multi-row
-  var eventIdx = 1;
-  var eventTypeOptions = document.querySelector('#events-table select')?.innerHTML || '';
+  // Continue after any pre-filled rows, and copy the type options without the
+  // first row's selection (heratio#1520).
+  var eventIdx = document.querySelectorAll('#events-table tbody tr').length;
+  var eventTypeOptions = (document.querySelector('#events-table select')?.innerHTML || '').replace(/\sselected(="[^"]*")?/g, '');
   document.getElementById('add-event-row')?.addEventListener('click', function() {
     var tr = document.createElement('tr');
     tr.innerHTML = '<td><select name="events[' + eventIdx + '][eventType]" class="form-select form-select-sm">' + eventTypeOptions + '</select></td>' +

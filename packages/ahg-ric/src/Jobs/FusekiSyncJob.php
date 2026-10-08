@@ -36,6 +36,11 @@ class FusekiSyncJob implements ShouldQueue
 
     public function handle()
     {
+        // heratio#1527: the queued path writes on its own, so it needs the guard too.
+        if (\AhgRic\Services\SparqlUpdateService::writesBlocked()) {
+            return;
+        }
+
         $ch = curl_init($this->updateEndpoint);
         curl_setopt_array($ch, [
             CURLOPT_POST => true,

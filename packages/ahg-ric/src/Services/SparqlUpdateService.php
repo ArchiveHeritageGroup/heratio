@@ -271,10 +271,29 @@ class SparqlUpdateService
     }
 
     /**
+     * heratio#1527 - no Fuseki writes from the test suite.
+     *
+     * The test database's settings point at the shared triplestore, the same
+     * /openric-model production reads, and a test's MySQL rows roll back while
+     * its triples do not. ResearchEventEmitTest alone left 45 orphan activity
+     * graphs there. Under APP_ENV=testing every write is skipped, unless a test
+     * opts in with config ahg-ric.fuseki_writes_in_tests - and such a test must
+     * fake or isolate the endpoint itself.
+     */
+    public static function writesBlocked(): bool
+    {
+        return app()->runningUnitTests() && ! config('ahg-ric.fuseki_writes_in_tests', false);
+    }
+
+    /**
      * POST a SPARQL UPDATE statement to the configured endpoint.
      */
     private function postUpdate(string $sparqlUpdate): array
     {
+        if (self::writesBlocked()) {
+            return ['ok' => true, 'status' => 0, 'error' => null, 'skipped' => 'fuseki writes are disabled under tests (heratio#1527)'];
+        }
+
         $ch = curl_init($this->updateEndpoint);
         curl_setopt_array($ch, [
             CURLOPT_POST           => true,

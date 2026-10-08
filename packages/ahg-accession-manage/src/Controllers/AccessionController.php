@@ -520,6 +520,7 @@ class AccessionController extends Controller
 
         return view('ahg-accession-manage::edit', [
             'accession' => $accession,
+            'accessionEvents' => $this->service->getAccessionEvents($accession->id),
             'donor' => $donor,
             'donorContact' => $donorContact,
             'donorRows' => $donorRows,
@@ -547,7 +548,7 @@ class AccessionController extends Controller
             'physical_characteristics' => 'nullable|string',
             'appraisal' => 'nullable|string',
             'processing_notes' => 'nullable|string',
-        ] + $this->caais->rules());
+        ] + $this->caais->rules() + $this->eventRules());
 
         $data = $request->only([
             'identifier', 'title', 'date',
@@ -560,6 +561,7 @@ class AccessionController extends Controller
 
         $id = $this->service->create($data);
         $slug = $this->service->getSlug($id);
+        $this->service->saveAccessionEvents($id, (array) $request->input('events', []));
 
         $this->caais->save($id, (array) $request->input('caais', []));
         $this->caais->recordRevision($id, 'created');
@@ -586,6 +588,23 @@ class AccessionController extends Controller
             ->with('success', 'Accession record created successfully.');
     }
 
+    /**
+     * Validation for the Event(s) table (heratio#1520). The type must be an
+     * accession event type (taxonomy 83); a row without type and date is
+     * skipped on save, as in AtoM, so both are optional here.
+     */
+    private function eventRules(): array
+    {
+        return [
+            'events' => 'nullable|array',
+            'events.*.id' => 'nullable|integer',
+            'events.*.eventType' => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('term', 'id')->where('taxonomy_id', 83)],
+            'events.*.date' => 'nullable|date',
+            'events.*.agent' => 'nullable|string|max:255',
+            'events.*.note' => 'nullable|string|max:65535',
+        ];
+    }
+
     public function update(Request $request, string $slug)
     {
         $accession = $this->service->getBySlug($slug);
@@ -609,7 +628,7 @@ class AccessionController extends Controller
             'physical_characteristics' => 'nullable|string',
             'appraisal' => 'nullable|string',
             'processing_notes' => 'nullable|string',
-        ] + $this->caais->rules());
+        ] + $this->caais->rules() + $this->eventRules());
 
         $data = $request->only([
             'identifier', 'title', 'date',
@@ -621,6 +640,7 @@ class AccessionController extends Controller
         ]);
 
         $this->service->update($accession->id, $data);
+        $this->service->saveAccessionEvents($accession->id, (array) $request->input('events', []));
 
         $this->caais->save($accession->id, (array) $request->input('caais', []));
         $this->caais->recordRevision($accession->id, 'revised');

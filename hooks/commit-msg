@@ -1,0 +1,20 @@
+#!/bin/sh
+# AHG rule (Dr Johan Pieterse, 2026-10-07): no AI attribution in commit
+# messages - no AI co-author line, no Claude-Session trailer, no "Generated
+# with Claude", and the words Claude / Anthropic do not appear. The .claude
+# folder and CLAUDE.md may be named as files. Installed per repository,
+# because most repositories here set their own hooksPath.
+msg=$(grep -v '^#' "$1" | sed -e 's/\.claude\b//Ig' -e 's/claude\.md//Ig')
+hits=$(printf '%s\n' "$msg" | grep -n -i -E \
+  -e '^co-authored-by:.*(claude|anthropic|openai|chatgpt|gpt-|copilot|gemini|cursor|codex|noreply@anthropic)' \
+  -e '^claude-session:' \
+  -e 'generated (with|by) .*(claude|anthropic|ai\b)' \
+  -e '🤖' \
+  -e '(^|[^a-z0-9_-])(claude|anthropic)([^a-z0-9_-]|$)')
+if [ -n "$hits" ]; then
+    echo "commit-msg: commit refused - AI attribution is not allowed in commit messages." >&2
+    printf '%s\n' "$hits" | sed 's/^/  line /' >&2
+    echo "Remove the line(s) above and commit again." >&2
+    exit 1
+fi
+exit 0

@@ -625,6 +625,7 @@ class AccessionService
             ->where('accession_event.accession_id', $accessionId)
             ->select([
                 'accession_event.id',
+                'accession_event.type_id',
                 'accession_event.date',
                 'term_i18n.name as type_name',
                 'accession_event_i18n.agent',
@@ -643,6 +644,86 @@ class AccessionService
         }
 
         return $events;
+    }
+
+    /**
+     * Persist the accession form's Event(s) table (heratio#1520), the same way
+     * the AtoM accession events component does: a row needs a type and a date
+     * or it is skipped; a row carrying the id of one of this accession's events
+     * updates it, any other row creates one; the note is a `note` row of type
+     * ACCESSION_EVENT_NOTE on the event; and events not submitted again are
+     * deleted. accession_event is a child of `object` (class table inheritance).
+     *
+     * @param  array<int,array{id?:mixed,eventType?:mixed,date?:mixed,agent?:mixed,note?:mixed}>  $rows
+     */
+    public function saveAccessionEvents(int $accessionId, array $rows): void
+    {
+        DB::transaction(function () use ($accessionId, $rows) {
+            $existing = DB::table('accession_event')->where('accession_id', $accessionId)->pluck('id')->map('intval')->all();
+            $kept = [];
+
+            foreach ($rows as $row) {
+                $typeId = (int) ($row['eventType'] ?? 0);
+                $date = trim((string) ($row['date'] ?? ''));
+                if ($typeId <= 0 || $date === '') {
+                    continue;
+                }
+                $date = \Carbon\Carbon::parse($date)->toDateString();
+                $agent = trim((string) ($row['agent'] ?? '')) ?: null;
+                $note = trim((string) ($row['note'] ?? ''));
+
+                $id = (int) ($row['id'] ?? 0);
+                if ($id > 0 && in_array($id, $existing, true)) {
+                    DB::table('accession_event')->where('id', $id)->update(['type_id' => $typeId, 'date' => $date]);
+                    DB::table('object')->where('id', $id)->update(['updated_at' => now()]);
+                } else {
+                    $id = (int) DB::table('object')->insertGetId([
+                        'class_name' => 'QubitAccessionEvent', 'created_at' => now(), 'updated_at' => now(), 'serial_number' => 0,
+                    ]);
+                    DB::table('accession_event')->insert([
+                        'id' => $id, 'type_id' => $typeId, 'accession_id' => $accessionId,
+                        'date' => $date, 'source_culture' => $this->culture,
+                    ]);
+                }
+                DB::table('accession_event_i18n')->updateOrInsert(['id' => $id, 'culture' => $this->culture], ['agent' => $agent]);
+                $this->saveAccessionEventNote($id, $note);
+                $kept[] = $id;
+            }
+
+            $gone = array_values(array_diff($existing, $kept));
+            if ($gone !== []) {
+                $noteIds = DB::table('note')->whereIn('object_id', $gone)
+                    ->where('type_id', \AhgCore\Constants\TermId::ACCESSION_EVENT_NOTE)->pluck('id');
+                DB::table('note_i18n')->whereIn('id', $noteIds)->delete();
+                DB::table('note')->whereIn('id', $noteIds)->delete();
+                DB::table('accession_event_i18n')->whereIn('id', $gone)->delete();
+                DB::table('accession_event')->whereIn('id', $gone)->delete();
+                DB::table('object')->whereIn('id', $gone)->delete();
+            }
+        });
+    }
+
+    /** One ACCESSION_EVENT_NOTE per event; an empty note removes it. */
+    private function saveAccessionEventNote(int $eventId, string $content): void
+    {
+        $noteId = DB::table('note')->where('object_id', $eventId)
+            ->where('type_id', \AhgCore\Constants\TermId::ACCESSION_EVENT_NOTE)->value('id');
+
+        if ($content === '') {
+            if ($noteId) {
+                DB::table('note_i18n')->where('id', $noteId)->delete();
+                DB::table('note')->where('id', $noteId)->delete();
+            }
+
+            return;
+        }
+        if (! $noteId) {
+            $noteId = (int) DB::table('note')->insertGetId([
+                'object_id' => $eventId, 'type_id' => \AhgCore\Constants\TermId::ACCESSION_EVENT_NOTE,
+                'source_culture' => $this->culture,
+            ]);
+        }
+        DB::table('note_i18n')->updateOrInsert(['id' => $noteId, 'culture' => $this->culture], ['content' => $content]);
     }
 
     /**
@@ -759,31 +840,15 @@ class AccessionService
 
     /**
      * Get contact information for a donor.
+     *
+     * heratio#1521: delegates to DonorService::getContacts(). Email and city are
+     * encrypted at rest; this used to select them raw, so the accession page
+     * showed the ciphertext while the donor and accession edit pages, which
+     * already went through DonorService, showed the plaintext.
      */
     public function getDonorContacts(int $actorId): \Illuminate\Support\Collection
     {
-        return DB::table('contact_information')
-            ->leftJoin('contact_information_i18n', function ($j) {
-                $j->on('contact_information.id', '=', 'contact_information_i18n.id')
-                    ->where('contact_information_i18n.culture', '=', $this->culture);
-            })
-            ->where('contact_information.actor_id', $actorId)
-            ->select([
-                'contact_information.id',
-                // contact_person/street_address/postal_code/country_code live on
-                // the BASE contact_information table; only city/region are i18n.
-                'contact_information.contact_person',
-                'contact_information.street_address',
-                'contact_information_i18n.city',
-                'contact_information_i18n.region',
-                'contact_information.postal_code',
-                'contact_information.country_code',
-                'contact_information.telephone',
-                'contact_information.fax',
-                'contact_information.email',
-                'contact_information.website',
-            ])
-            ->get();
+        return (new \AhgDonorManage\Services\DonorService($this->culture))->getContacts($actorId);
     }
 
     /**
