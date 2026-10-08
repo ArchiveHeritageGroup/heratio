@@ -97,6 +97,21 @@ class AhgCoreServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // heratio#1515. AclService keeps the signed-in user and their ACL groups
+        // in statics, and TermProtocolGate memoises what restricts. Under PHP-FPM
+        // they die with the request, which is the intended lifetime; in a
+        // long-lived process they would carry one identity into the next unit
+        // of work. Reset them before every queued job, and before every request
+        // under Octane if it is ever installed.
+        $forgetIdentity = static function (): void {
+            \AhgCore\Services\AclService::forgetUser();
+            \AhgCore\Services\TermProtocolGate::forgetMemo();
+        };
+        \Illuminate\Support\Facades\Queue::before($forgetIdentity);
+        if (class_exists(\Laravel\Octane\Events\RequestReceived::class)) {
+            \Illuminate\Support\Facades\Event::listen(\Laravel\Octane\Events\RequestReceived::class, $forgetIdentity);
+        }
+
         // Hydrate UI labels from the AtoM setting table so that
         // config('app.ui_label_*') returns admin-customised values, per current
         // request culture, with fallback to en when the target culture has no

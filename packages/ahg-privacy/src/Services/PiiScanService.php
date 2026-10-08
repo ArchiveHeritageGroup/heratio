@@ -907,6 +907,14 @@ final class PiiScanService
      *
      * @return array<string,string> code => label
      */
+    /**
+     * heratio#1508. GDPR spans 27 member states and has no identifier or phone
+     * format of its own. Its phone patterns are a generic international +NN
+     * form and a generic leading-zero local form, so the label says so rather
+     * than implying EU-specific coverage.
+     */
+    public const GDPR_LABEL_SUFFIX = ' - generic international formats, no member-state patterns';
+
     public static function jurisdictionOptions(): array
     {
         $supported = self::allSupportedJurisdictions();
@@ -917,6 +925,8 @@ final class PiiScanService
                 $label = trim((string) $info['name'].' ('.(string) $info['country'].')');
                 if (! in_array((string) $code, $supported, true)) {
                     $label .= ' - no market-specific patterns';
+                } elseif ((string) $code === 'gdpr') {
+                    $label .= self::GDPR_LABEL_SUFFIX;
                 }
                 $options[(string) $code] = $label;
             }
@@ -931,7 +941,7 @@ final class PiiScanService
         if ($options === []) {
             $options = [
                 'popia' => 'POPIA (South Africa)',
-                'gdpr'  => 'GDPR (European Union)',
+                'gdpr'  => 'GDPR (European Union)'.self::GDPR_LABEL_SUFFIX,
             ];
         }
 
