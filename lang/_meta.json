@@ -144,9 +144,10 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-09-15",
-            "mt_batch_count": 17008,
-            "mt_batch_model": "qwen3:8b via translate-adapter"
+            "mt_batch_last_run": "2026-10-08",
+            "mt_batch_count": 17076,
+            "mt_batch_model": "qwen3.6:27b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
+            "review_required": "native-speaker review required before production"
         },
         "ga": {
             "credit": "(empty in AtoM upstream — needs translator)",

@@ -1,0 +1,28 @@
+#!/bin/bash
+#===============================================================================
+# Heratio - overnight UI translation fill (heratio#1510, #1416)
+#
+# Fills missing UI strings through the AI gateway LLM route, off-peak only, in
+# the order agreed on 8 Oct 2026: the priority locales first, then the other
+# widely used ones, then the South African languages, then low-resource ones.
+# Each night resumes where the last stopped (filled strings are skipped), and
+# the run stops at 06:00 so the GPU node is free in working hours.
+#
+# Afrikaans is not here: the LLM must not seed it (heratio#1410); it is filled
+# by ahg:translation-mt-batch af through the gateway's translation model.
+#
+# Writes lang/*.json and lang/_meta.json in this checkout only. Releasing the
+# filled files is a separate, deliberate step.
+#===============================================================================
+set -uo pipefail
+cd "$(dirname "$0")/.."
+
+LOCALES="ar,fr,pt_BR,es,de,pt,zh,nl,it,ru,ja,ko,tr,pl,sv,he,uk,fa,id,vi,th,el,cs,ro,hu"
+LOCALES="$LOCALES,mk,cy,bs,hr,sr,ca,ca@valencia,gl,sl,de_CH,de_AT,eu,is,ka,ta,uz,et,fil,ga,nb,sk,sq,ur"
+LOCALES="$LOCALES,zu,xh,ss,nso,tn,ts,st"
+LOCALES="$LOCALES,ve,nr,nd,sn,kj,umb,khi,am"
+
+LOG="storage/logs/i18n-overnight-$(date +%Y-%m-%d).log"
+echo "$(date '+%F %T') start" >> "$LOG"
+php artisan ahg:translation-llm-fill "$LOCALES" --until="${I18N_UNTIL:-06:00}" >> "$LOG" 2>&1
+echo "$(date '+%F %T') end rc=$?" >> "$LOG"
