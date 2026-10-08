@@ -160,6 +160,8 @@ At the AtoM Foundation AGM in September 2026, members put their wishes for the p
 | Link an accession to its repository | Part of the CAAIS profile |
 | OAI-PMH that stays in step with the web view | OAI-PMH served live from the database, through the same publication and access checks as the public site (`ahg-oai`) |
 | Customisable carousel | Configurable digital-object carousel (autoplay, interval, thumbnails) |
+| "Last modified" set only on a real change | A description's last-modified date (and so its OAI-PMH datestamp) moves only when its content actually changes |
+| Default text on new records | New descriptions open with the default values of the form template that applies to them |
 
 ### To do
 
@@ -174,8 +176,6 @@ The wishes Heratio does not fully meet yet. Each has an open issue, and this lis
 | Merge duplicate terms (authorities already merge) | 2020 #53 | To do | [#1533](https://github.com/ArchiveHeritageGroup/heratio/issues/1533) |
 | Move a term to another taxonomy with its links | 2020 #50 | To do | [#1534](https://github.com/ArchiveHeritageGroup/heratio/issues/1534) |
 | CSV update and replace for accessions and authorities; CSV work for non-admin roles | 2020 #6, #47, #57 | To do | [#1535](https://github.com/ArchiveHeritageGroup/heratio/issues/1535) |
-| "Last modified" set only on a real change | 2020 #11 | To do | [#1536](https://github.com/ArchiveHeritageGroup/heratio/issues/1536) |
-| Default text on new records | 2020 #32 | Templates apply on edit; create to follow | [#1537](https://github.com/ArchiveHeritageGroup/heratio/issues/1537) |
 | Wikidata links on the description page | 2020 #28 | Shown on authority pages; descriptions to follow | [#1538](https://github.com/ArchiveHeritageGroup/heratio/issues/1538) |
 | GraphQL with create, update and delete | 2020 #27, #29 | REST has full CRUD; GraphQL is read-only today | [#1539](https://github.com/ArchiveHeritageGroup/heratio/issues/1539) |
 | Universal Viewer as an IIIF viewer option | 2020 #18-20 | Mirador and OpenSeadragon today | [#1540](https://github.com/ArchiveHeritageGroup/heratio/issues/1540) |
