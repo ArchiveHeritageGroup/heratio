@@ -520,6 +520,10 @@ fi
 # the install, but the warning means the schema is incomplete - investigate.
 say "Stage 9b/14 - package migrations (artisan migrate --force)"
 php artisan migrate --force && ok "migrations applied" || warn "some migrations reported errors - review with 'php artisan migrate:status'"
+# heratio#1547: hierarchy reads prefer the closure tables, but nothing built
+# them on a fresh install (no self-rows for the term root 110 or the
+# description root 1), so a move under a root attached to nothing.
+php artisan ahg:build-closure --all && ok "closure tables built" || warn "closure build reported errors - rerun 'php artisan ahg:build-closure --all'"
 
 # ============================================================================
 # 10. Storage paths

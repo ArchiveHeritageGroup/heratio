@@ -30,7 +30,7 @@
                             <tr>
                                 <th style="width:40px;">{{ __('Order') }}</th>
                                 <th>{{ __('Label') }}</th>
-                                <th>{{ __('Machine Name') }}</th>
+                                <th>{{ __('Field key') }}</th>
                                 <th>{{ __('Entity Type') }}</th>
                                 <th>{{ __('Field Type') }}</th>
                                 <th>{{ __('Required') }}</th>
@@ -43,7 +43,7 @@
                                 <tr>
                                     <td>{{ $def->sort_order ?? 0 }}</td>
                                     <td><strong>{{ $def->field_label }}</strong></td>
-                                    <td><code>{{ $def->machine_name ?? '' }}</code></td>
+                                    <td><code>{{ $def->field_key }}</code></td>
                                     <td>{{ $def->entity_type ?? '' }}</td>
                                     <td>{{ $def->field_type ?? '' }}</td>
                                     <td>

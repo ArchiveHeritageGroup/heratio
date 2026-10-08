@@ -255,6 +255,11 @@ class InformationObjectController extends Controller
         if (!$io) {
             // Slug may belong to a different entity - check object table and redirect
             $slugRow = DB::table('slug')->where('slug', $slug)->first();
+            // heratio#1533: a slug retired by a dedupe merge redirects to the record kept.
+            if (! $slugRow && class_exists(\AhgDedupe\Services\RecordMergeService::class)
+                && ($mergedInto = \AhgDedupe\Services\RecordMergeService::redirectTarget($slug))) {
+                return redirect('/' . $mergedInto, 301);
+            }
             if ($slugRow) {
                 $className = DB::table('object')->where('id', $slugRow->object_id)->value('class_name');
                 $redirectMap = [
@@ -2381,6 +2386,7 @@ class InformationObjectController extends Controller
         $request->validate([
             'title' => 'required|string|max:65535',
         ]);
+        \AhgCustomFields\Services\CustomFieldService::validateRequest($request); // heratio#1530
 
         // Resolve the IO id from slug
         $io = DB::table('slug')
@@ -3134,6 +3140,8 @@ class InformationObjectController extends Controller
             }
         }
 
+        \AhgCustomFields\Services\CustomFieldService::saveFromRequest((int) $ioId, $request); // heratio#1530
+
         // Update object.updated_at - only on a real change (#1536)
         \AhgInformationObjectManage\Services\InformationObjectService::touchIfChanged((int) $ioId, $fingerprintBefore);
 
@@ -3250,6 +3258,7 @@ class InformationObjectController extends Controller
         $request->validate([
             'title' => 'required|string|max:65535',
         ]);
+        \AhgCustomFields\Services\CustomFieldService::validateRequest($request); // heratio#1530
 
         $parentId = $request->input('parent_id', 1); // Default to root (id=1)
 
@@ -3460,6 +3469,8 @@ class InformationObjectController extends Controller
         // overlay its standard-specific fields via that standard's persist().
         // No-op (returns false) for ISAD or an unwired standard.
         $this->dispatchStandardPersist((int) $objectId, $request);
+
+        \AhgCustomFields\Services\CustomFieldService::saveFromRequest((int) $objectId, $request); // heratio#1530
 
         DB::commit();
         } catch (\Throwable $e) {
@@ -4800,50 +4811,9 @@ class InformationObjectController extends Controller
             return back()->withErrors(['parent' => 'Record is already under that parent.']);
         }
 
-        DB::transaction(function () use ($ioRow, $newParent, $newParentId) {
-            // Standard MPTT subtree move via three signed-shift updates:
-            // 1) Negate the moving subtree's lft/rgt (mark it).
-            // 2) Close the gap at the original location.
-            // 3) Open a gap at the destination.
-            // 4) Re-position the negated subtree by an offset, restoring sign.
-            $oldLft = (int) $ioRow->lft;
-            $oldRgt = (int) $ioRow->rgt;
-            $size   = $oldRgt - $oldLft + 1;
-
-            if ($oldLft > 0 && $oldRgt > 0) {
-                // 1) Mark the moving subtree.
-                DB::table('information_object')
-                    ->whereBetween('lft', [$oldLft, $oldRgt])
-                    ->update([
-                        'lft' => DB::raw('lft * -1'),
-                        'rgt' => DB::raw('rgt * -1'),
-                    ]);
-
-                // 2) Close the gap at the original position.
-                DB::table('information_object')->where('lft', '>', $oldRgt)->decrement('lft', $size);
-                DB::table('information_object')->where('rgt', '>', $oldRgt)->decrement('rgt', $size);
-
-                // 3) Re-fetch the destination's rgt - it may have shifted from step 2.
-                $destRgt = (int) DB::table('information_object')->where('id', $newParentId)->value('rgt');
-
-                // Open a gap at the destination (insertion point = destRgt).
-                DB::table('information_object')->where('lft', '>=', $destRgt)->where('lft', '>', 0)->increment('lft', $size);
-                DB::table('information_object')->where('rgt', '>=', $destRgt)->where('rgt', '>', 0)->increment('rgt', $size);
-
-                // 4) Move the marked subtree into the gap.
-                $offset = $destRgt - $oldLft;
-                DB::table('information_object')->where('lft', '<', 0)
-                    ->update([
-                        'lft' => DB::raw('(lft * -1) + ' . $offset),
-                        'rgt' => DB::raw('(rgt * -1) + ' . $offset),
-                    ]);
-            }
-
-            // Finally: update the moving node's parent_id.
-            DB::table('information_object')
-                ->where('id', $ioRow->id)
-                ->update(['parent_id' => $newParentId]);
-        });
+        // #1533: the shared move also keeps the closure tree, sibling order and
+        // ES ancestors right (this page used to update the nested set only).
+        \AhgInformationObjectManage\Services\InformationObjectService::moveUnder((int) $ioRow->id, (int) $newParentId);
 
         // Determine sector-aware redirect
         $redirectRoute = 'informationobject.show';

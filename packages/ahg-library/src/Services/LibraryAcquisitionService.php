@@ -832,15 +832,19 @@ class LibraryAcquisitionService
      */
     protected function hasFundSplitTable(): bool
     {
-        static $cached = null;
-        if ($cached === null) {
+        // Keyed by connection and database: a process-wide answer leaked from
+        // one database to another (a test suite switching MySQL and SQLite).
+        static $cached = [];
+        $conn = DB::connection();
+        $key = $conn->getName().'|'.$conn->getDatabaseName();
+        if (! array_key_exists($key, $cached)) {
             try {
-                $cached = \Schema::hasTable('library_order_line_fund');
+                $cached[$key] = \Schema::connection($conn->getName())->hasTable('library_order_line_fund');
             } catch (\Throwable) {
-                $cached = false;
+                $cached[$key] = false;
             }
         }
-        return $cached;
+        return $cached[$key];
     }
 
     /**

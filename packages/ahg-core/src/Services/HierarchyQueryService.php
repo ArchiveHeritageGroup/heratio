@@ -95,7 +95,13 @@ class HierarchyQueryService
         return $result;
     }
 
-    /** Whether the closure for $entity is populated for this ancestor. */
+    /**
+     * Whether the closure for $entity covers this node: it has descendants
+     * there, or it is in the closure at all (its own depth-0 row, or a row as
+     * someone's descendant). A leaf in a built closure is covered too and must
+     * NOT fall back to lft/rgt: stale bounds on a leaf made the range sweep in
+     * unrelated records, and delete() removed them (heratio#1533).
+     */
     public function closureReady(string $entity, int $ancestorId): bool
     {
         $table = self::CLOSURE[$entity] ?? null;
@@ -104,7 +110,8 @@ class HierarchyQueryService
         }
         try {
             return Schema::hasTable($table)
-                && DB::table($table)->where('ancestor', $ancestorId)->where('depth', '>', 0)->exists();
+                && DB::table($table)->where('ancestor', $ancestorId)->where('depth', '>', 0)
+                    ->orWhere('descendant', $ancestorId)->exists();
         } catch (\Throwable $e) {
             return false;
         }

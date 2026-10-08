@@ -231,7 +231,10 @@ class ImportJob implements ShouldQueue
         $locationOfCopies = $this->extractText($node, 'altformavail');
         $relatedUnits = $this->extractText($node, 'relatedmaterial');
 
-        if ($this->updateType === 'match-and-update' && $identifier) {
+        // heratio#1535: "replace" overwrites the matched record in place (blank
+        // values clear fields) and keeps its children; it no longer deletes and
+        // re-creates, which lost the record's id, links and subtree.
+        if (in_array($this->updateType, ['match-and-update', 'delete-and-replace'], true) && $identifier) {
             $existingId = $this->findByIdentifier($identifier);
             if ($existingId) {
                 return $this->updateExisting($existingId, [
@@ -252,14 +255,7 @@ class ImportJob implements ShouldQueue
                     'location_of_originals' => $locationOfOriginals,
                     'location_of_copies' => $locationOfCopies,
                     'related_units_of_description' => $relatedUnits,
-                ], $culture);
-            }
-        }
-
-        if ($this->updateType === 'delete-and-replace' && $identifier) {
-            $existingId = $this->findByIdentifier($identifier);
-            if ($existingId) {
-                $this->deleteRecord($existingId);
+                ], $culture, $this->updateType === 'delete-and-replace');
             }
         }
 
@@ -449,25 +445,19 @@ class ImportJob implements ShouldQueue
                 }
 
                 // Handle update types
-                if ($this->updateType === 'match-and-update' && ! empty($mapped['identifier'])) {
+                // heratio#1535: replace = overwrite in place, see importEadNode().
+                if (in_array($this->updateType, ['match-and-update', 'delete-and-replace'], true) && ! empty($mapped['identifier'])) {
                     $existingId = $this->findByIdentifier($mapped['identifier']);
                     if ($existingId) {
                         $this->updateExisting($existingId, array_merge(
                             array_filter($mapped, fn ($k) => ! str_starts_with($k, '_'), ARRAY_FILTER_USE_KEY),
                             ['level_of_description_id' => $levelId]
-                        ), $rowCulture);
+                        ), $rowCulture, $this->updateType === 'delete-and-replace');
                         if ($legacyId) {
                             $legacyIdMap[$legacyId] = $existingId;
                         }
 
                         continue;
-                    }
-                }
-
-                if ($this->updateType === 'delete-and-replace' && ! empty($mapped['identifier'])) {
-                    $existingId = $this->findByIdentifier($mapped['identifier']);
-                    if ($existingId) {
-                        $this->deleteRecord($existingId);
                     }
                 }
 
@@ -670,7 +660,11 @@ class ImportJob implements ShouldQueue
         }
     }
 
-    protected function updateExisting(int $id, array $data, string $culture): int
+    /**
+     * @param  bool  $overwriteBlanks  replace mode: a mapped field that is blank
+     *                                 in the import clears the stored value
+     */
+    protected function updateExisting(int $id, array $data, string $culture, bool $overwriteBlanks = false): int
     {
         try {
             // Update information_object structural fields
@@ -699,8 +693,8 @@ class ImportJob implements ShouldQueue
 
             $i18nUpdate = [];
             foreach ($i18nFields as $field) {
-                if (array_key_exists($field, $data) && $data[$field] !== null && $data[$field] !== '') {
-                    $i18nUpdate[$field] = $data[$field];
+                if (array_key_exists($field, $data) && ($overwriteBlanks || ($data[$field] !== null && $data[$field] !== ''))) {
+                    $i18nUpdate[$field] = $data[$field] === '' ? null : $data[$field];
                 }
             }
 
@@ -734,60 +728,6 @@ class ImportJob implements ShouldQueue
 
         return $id;
     }
-
-    protected function deleteRecord(int $id): void
-    {
-        try {
-            $record = DB::table('information_object')
-                ->where('id', $id)
-                ->select('lft', 'rgt')
-                ->first();
-
-            if (! $record) {
-                return;
-            }
-
-            $width = $record->rgt - $record->lft + 1;
-
-            // Collect descendant IDs (incl. self). Closure when built (also
-            // catches null-lft orphans the nested-set range misses), else lft/rgt.
-            // heratio#1333 read-swap; the gap-close below stays nested-set.
-            $descendantIds = app(\AhgCore\Services\HierarchyQueryService::class)
-                ->descendantIds('information_object', (int) $id, true);
-
-            // Delete related records
-            DB::table('information_object_i18n')->whereIn('id', $descendantIds)->delete();
-            DB::table('status')->whereIn('object_id', $descendantIds)->delete();
-            DB::table('information_object')->whereIn('id', $descendantIds)->delete();
-            DB::table('slug')->whereIn('object_id', $descendantIds)->delete();
-            DB::table('object')->whereIn('id', $descendantIds)->delete();
-
-            // #1333 dual-write: closure rows for the deleted subtree cascade via
-            // the ON DELETE CASCADE FK on information_object_closure; the sibling
-            // sidecar has no FK, so clear its rows for the deleted ids.
-            if (\Illuminate\Support\Facades\Schema::hasTable('ahg_node_sibling_order')) {
-                DB::table('ahg_node_sibling_order')
-                    ->where('entity', 'information_object')
-                    ->whereIn('node_id', $descendantIds)
-                    ->delete();
-            }
-
-            // Close nested set gap
-            DB::table('information_object')
-                ->where('lft', '>', $record->rgt)
-                ->decrement('lft', $width);
-
-            DB::table('information_object')
-                ->where('rgt', '>', $record->rgt)
-                ->decrement('rgt', $width);
-
-            $this->log("Deleted record ID {$id} and ".(count($descendantIds) - 1).' descendant(s).');
-        } catch (\Throwable $e) {
-            $this->logError("Delete record {$id} failed: {$e->getMessage()}");
-        }
-    }
-
-    // ─── Lookup helpers ──────────────────────────────────────────────
 
     protected function resolveParentId(): int
     {
@@ -1035,12 +975,42 @@ class ImportJob implements ShouldQueue
                 unset($mapped['_entity_type'], $mapped['_culture']);
 
                 $service = new \AhgActorManage\Services\ActorService($rowCulture);
-                $service->create($mapped);
+
+                // heratio#1535: honour match / replace for authorities too,
+                // matching on the authority identifier first, then the name.
+                $existingId = in_array($this->updateType, ['match-and-update', 'delete-and-replace'], true)
+                    ? $this->findActor($mapped, $rowCulture) : null;
+                if ($existingId) {
+                    $service->update($existingId, $this->updateType === 'delete-and-replace'
+                        ? array_map(fn ($v) => $v === '' ? null : $v, $mapped)
+                        : array_filter($mapped, fn ($v) => $v !== null && $v !== ''));
+                } else {
+                    $service->create($mapped);
+                }
                 $this->importedCount++;
             } catch (\Throwable $e) {
                 $this->logError("Row {$rowNum}: {$e->getMessage()}");
             }
         }
+    }
+
+    /** An existing authority by description identifier, else by exact authorized name. */
+    protected function findActor(array $mapped, string $culture): ?int
+    {
+        if (! empty($mapped['description_identifier'])) {
+            $id = DB::table('actor')->join('object', 'object.id', '=', 'actor.id')
+                ->where('object.class_name', 'QubitActor')
+                ->where('actor.description_identifier', $mapped['description_identifier'])->value('actor.id');
+            if ($id) {
+                return (int) $id;
+            }
+        }
+        $id = DB::table('actor_i18n')->join('object', 'object.id', '=', 'actor_i18n.id')
+            ->where('object.class_name', 'QubitActor')
+            ->where('actor_i18n.culture', $culture)
+            ->where('actor_i18n.authorized_form_of_name', $mapped['authorized_form_of_name'])->value('actor_i18n.id');
+
+        return $id ? (int) $id : null;
     }
 
     protected function log(string $message): void

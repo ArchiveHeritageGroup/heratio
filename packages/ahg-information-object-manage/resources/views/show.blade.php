@@ -598,6 +598,9 @@
   {{-- #98 Phase 1: extracted section, see partials/sections/access-points-area.blade.php --}}
   @include('ahg-information-object-manage::partials.sections.access-points-area')
 
+  {{-- heratio#1530: admin-defined custom fields --}}
+  @include('ahg-custom-fields::partials._view-fields', ['objectId' => $io->id])
+
   {{-- #98 Phase 1: extracted section, see partials/sections/description-control-area.blade.php --}}
   @include('ahg-information-object-manage::partials.sections.description-control-area')
 

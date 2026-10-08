@@ -61,4 +61,32 @@ class OcrLlmCorrectorTest extends TestCase
         $this->assertStringContainsString('64.2', $prompt);
         $this->assertStringContainsString('sample OCR text', $prompt);
     }
+
+    /**
+     * heratio#1525 regression: on the Brenthurst cuttings the model "corrected"
+     * Vol. 2 p. 5 into fluent, wrong English. The guard must reject it.
+     */
+    public function test_the_brenthurst_rewrite_is_rejected(): void
+    {
+        $raw = 'The column was apparently trekking for Van Reenen\'s Pass';
+        $rewrite = 'The column was trying to get to Van Reenen\'s Pass';
+
+        $this->assertTrue(OcrLlmCorrector::rewriteGuard($raw, $rewrite)['rejected']);
+    }
+
+    public function test_a_typical_ocr_fix_passes_the_guard(): void
+    {
+        $raw = 'SEAFORTH HIGHLANDERS BRILLIANT WOLK at the river crossing on the second day of the advance';
+        $fixed = 'SEAFORTH HIGHLANDERS BRILLIANT WORK at the river crossing on the second day of the advance';
+
+        $guard = OcrLlmCorrector::rewriteGuard($raw, $fixed);
+        $this->assertFalse($guard['rejected']);
+        $this->assertLessThanOrEqual(OcrLlmCorrector::MAX_WORD_CHANGE, $guard['word_change']);
+    }
+
+    public function test_a_large_length_change_is_rejected_even_with_few_word_edits(): void
+    {
+        $raw = str_repeat('word ', 50);
+        $this->assertTrue(OcrLlmCorrector::rewriteGuard($raw, $raw.str_repeat('extra ', 10))['rejected']);
+    }
 }

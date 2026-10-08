@@ -148,6 +148,9 @@
     </section>
   @endif
 
+  {{-- heratio#1530: admin-defined custom fields --}}
+  @include('ahg-custom-fields::partials._view-fields', ['objectId' => $io->id])
+
   {{-- ===== Description control ===== --}}
   @if(($io->description_identifier ?? null) || ($io->rules ?? null) || ($io->sources ?? null))
     <section class="border-bottom">

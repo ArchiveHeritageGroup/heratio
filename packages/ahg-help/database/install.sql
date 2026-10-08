@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS help_article_link (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   article_id BIGINT UNSIGNED NOT NULL,
   related_article_id BIGINT UNSIGNED NOT NULL,
+  source VARCHAR(16) NOT NULL DEFAULT 'markdown',
   created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE KEY uq_help_link (article_id, related_article_id),
   KEY idx_help_link_related (related_article_id)

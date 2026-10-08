@@ -176,47 +176,23 @@ class TermService
             $name = $data['name'];
             $code = $data['code'] ?? null;
 
-            // Determine parent_id. Terms in AtoM use the taxonomy root
-            // term as parent. Find the root term for this taxonomy (parent_id IS NULL or
-            // the term with the smallest lft in the taxonomy).
-            $parentTerm = DB::table('term')
-                ->where('taxonomy_id', $taxonomyId)
-                ->orderBy('lft', 'asc')
-                ->select('id', 'lft', 'rgt')
-                ->first();
+            // The term tree is one global tree under ROOT_TERM_ID; a taxonomy's
+            // top-level terms are children of the root (#1546). A broad term
+            // from the form (id or exact name) is honoured when it belongs to
+            // the same taxonomy.
+            $parentId = $this->resolveBroadTerm($data['parent_id'] ?? null, (int) $taxonomyId, $culture)
+                ?? self::ROOT_TERM_ID;
 
-            if ($parentTerm) {
-                // Place as last child: new lft = parent rgt, new rgt = parent rgt + 1
-                // But for terms, we want to place at the end of the taxonomy's tree.
-                // Find the max rgt for this taxonomy.
-                $maxRgt = DB::table('term')
-                    ->where('taxonomy_id', $taxonomyId)
-                    ->max('rgt');
-
-                $newLft = $maxRgt + 1;
-                $newRgt = $maxRgt + 2;
-
-                // Shift existing nested set values to make room
-                // Only shift terms in the same taxonomy whose rgt >= maxRgt + 1
-                // Actually for terms, the nested set is per-taxonomy (they share the term table),
-                // so we shift all terms with lft or rgt >= newLft
-                DB::table('term')
-                    ->where('taxonomy_id', $taxonomyId)
-                    ->where('rgt', '>=', $newLft)
-                    ->increment('rgt', 2);
-
-                DB::table('term')
-                    ->where('taxonomy_id', $taxonomyId)
-                    ->where('lft', '>=', $newLft)
-                    ->increment('lft', 2);
-
-                $parentId = $parentTerm->id;
+            // Append as the parent's last child in the global nested set.
+            $parentRgt = (int) DB::table('term')->where('id', $parentId)->value('rgt');
+            if ($parentRgt > 0) {
+                DB::table('term')->where('rgt', '>=', $parentRgt)->increment('rgt', 2);
+                DB::table('term')->where('lft', '>', $parentRgt)->increment('lft', 2);
+                $newLft = $parentRgt;
             } else {
-                // No existing terms in this taxonomy - first term
-                $newLft = 1;
-                $newRgt = 2;
-                $parentId = null;
+                $newLft = (int) DB::table('term')->max('rgt') + 1;
             }
+            $newRgt = $newLft + 1;
 
             // Insert into object table
             $objectId = DB::table('object')->insertGetId([
@@ -265,6 +241,26 @@ class TermService
 
             return $slug;
         });
+    }
+
+    /**
+     * A broad term chosen on the create form: a term id, or an exact name in
+     * the given taxonomy. Null when blank or not a term of that taxonomy.
+     */
+    private function resolveBroadTerm(mixed $value, int $taxonomyId, string $culture): ?int
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return null;
+        }
+        $q = DB::table('term')->where('term.taxonomy_id', $taxonomyId);
+        $id = ctype_digit($value)
+            ? $q->where('term.id', (int) $value)->value('term.id')
+            : $q->join('term_i18n', 'term_i18n.id', '=', 'term.id')
+                ->where('term_i18n.culture', $culture)->where('term_i18n.name', $value)
+                ->value('term.id');
+
+        return $id ? (int) $id : null;
     }
 
     /**
@@ -359,6 +355,110 @@ class TermService
             ['taxonomy_id' => $targetTaxonomyId, 'parent_id' => $reparent ? self::ROOT_TERM_ID : (int) $term->parent_id]);
 
         return ['moved' => count($subtree), 'reparented' => $reparent];
+    }
+
+    /**
+     * Merge one term into another of the same taxonomy (heratio#1533). Every
+     * reference to the loser moves to the winner: description access points
+     * (a description that already has the winner keeps one link), term
+     * relations, narrower terms, and every column with a foreign key to
+     * term.id (levels of description, event types, note types and so on, so
+     * nothing cascades away). The loser's names become "use for" labels on the
+     * winner, and the loser is deleted.
+     *
+     * @return array{links: int, narrower: int, labels: int}
+     */
+    public function mergeInto(int $loserId, int $winnerId): array
+    {
+        $loser = DB::table('term')->where('id', $loserId)->first(['id', 'taxonomy_id', 'parent_id']);
+        $winner = DB::table('term')->where('id', $winnerId)->first(['id', 'taxonomy_id']);
+        if (! $loser || ! $winner || in_array(self::ROOT_TERM_ID, [$loserId, $winnerId], true)) {
+            throw new \DomainException(__('Term not found.'));
+        }
+        if ($loserId === $winnerId) {
+            throw new \DomainException(__('A term cannot be merged into itself.'));
+        }
+        if ((int) $loser->taxonomy_id !== (int) $winner->taxonomy_id) {
+            throw new \DomainException(__('Terms can only be merged within one taxonomy.'));
+        }
+        if (in_array((int) $loser->taxonomy_id, self::LOCKED_TAXONOMY_IDS, true)) {
+            throw new \DomainException(__('Terms of a system taxonomy cannot be merged.'));
+        }
+        $loserSubtree = app(\AhgCore\Services\HierarchyQueryService::class)->descendantIds('term', $loserId, false);
+        if (in_array($winnerId, array_map('intval', $loserSubtree), true)) {
+            throw new \DomainException(__('The term kept is narrower than the term merged; move it out first.'));
+        }
+
+        $auditBefore = ['merged_id' => $loserId, 'into' => $winnerId];
+        $result = DB::transaction(function () use ($loserId, $winnerId) {
+            // Access points: one link per description.
+            $already = DB::table('object_term_relation')->where('term_id', $winnerId)->pluck('object_id')->all();
+            $doubled = DB::table('object_term_relation')->where('term_id', $loserId)->whereIn('object_id', $already)->pluck('id')->all();
+            if ($doubled) {
+                DB::table('object_term_relation')->whereIn('id', $doubled)->delete();
+                DB::table('object')->whereIn('id', $doubled)->delete();
+            }
+            $links = DB::table('object_term_relation')->where('term_id', $loserId)->update(['term_id' => $winnerId]);
+
+            // Every other column that points at a term.
+            $columns = DB::select("SELECT k.table_name AS t, k.column_name AS c FROM information_schema.key_column_usage k
+                WHERE k.constraint_schema = DATABASE() AND k.referenced_table_name = 'term' AND k.referenced_column_name = 'id'");
+            foreach ($columns as $col) {
+                if (in_array($col->t, ['term', 'term_i18n', 'term_closure', 'object_term_relation'], true)) {
+                    continue;
+                }
+                $links += DB::table($col->t)->where($col->c, $loserId)->update([$col->c => $winnerId]);
+            }
+
+            // Term-to-term relations (related, converse): drop the pair's own, re-point the rest.
+            $between = DB::table('relation')
+                ->where(fn ($q) => $q->where('subject_id', $loserId)->where('object_id', $winnerId))
+                ->orWhere(fn ($q) => $q->where('subject_id', $winnerId)->where('object_id', $loserId))
+                ->pluck('id')->all();
+            if ($between) {
+                DB::table('relation_i18n')->whereIn('id', $between)->delete();
+                DB::table('relation')->whereIn('id', $between)->delete();
+                DB::table('object')->whereIn('id', $between)->delete();
+            }
+            DB::table('relation')->where('subject_id', $loserId)->update(['subject_id' => $winnerId]);
+            DB::table('relation')->where('object_id', $loserId)->update(['object_id' => $winnerId]);
+
+            // Narrower terms move under the winner.
+            $narrower = DB::table('term')->where('parent_id', $loserId)->pluck('id');
+            $closure = app(\AhgCore\Services\ClosureMaintenanceService::class);
+            foreach ($narrower as $childId) {
+                DB::table('term')->where('id', $childId)->update(['parent_id' => $winnerId]);
+                $closure->moveNode('term', (int) $childId, $winnerId);
+            }
+
+            // The loser's names and use-for labels become use-for labels of the winner.
+            $winnerNames = DB::table('term_i18n')->where('id', $winnerId)->pluck('name', 'culture')->all();
+            $labels = DB::table('other_name')->where('object_id', $loserId)->update(['object_id' => $winnerId]);
+            foreach (DB::table('term_i18n')->where('id', $loserId)->get(['culture', 'name']) as $row) {
+                if ($row->name === null || $row->name === '' || ($winnerNames[$row->culture] ?? null) === $row->name) {
+                    continue;
+                }
+                $otherNameId = DB::table('other_name')->insertGetId(['object_id' => $winnerId, 'type_id' => null, 'source_culture' => $row->culture]);
+                DB::table('other_name_i18n')->insert(['id' => $otherNameId, 'culture' => $row->culture, 'name' => $row->name]);
+                $labels++;
+            }
+
+            $this->delete($loserId);
+            DB::table('object')->where('id', $winnerId)->update(['updated_at' => now()]);
+
+            return ['links' => $links, 'narrower' => $narrower->count(), 'labels' => $labels];
+        });
+
+        // Narrower terms changed parent and delete() closed a gap: rebuild the
+        // one global term nested set (see moveToTaxonomy for --connection).
+        \Illuminate\Support\Facades\Artisan::call('ahg:nested-set-rebuild', [
+            '--model' => 'term',
+            '--connection' => DB::connection()->getName(),
+        ]);
+
+        \AhgCore\Support\AuditLog::captureMutation($winnerId, 'term', 'merge', ['data' => $auditBefore + $result]);
+
+        return $result;
     }
 
     public function update(int $termId, array $data, string $culture): void

@@ -51,6 +51,11 @@ Route::post('/set-locale', function (\Illuminate\Http\Request $request) {
 Route::post('/accessibility-preferences', [\AhgCore\Controllers\AccessibilityPreferenceController::class, 'set'])
     ->name('accessibility.preferences.set');
 
+// heratio#1543: "Stay signed in" from the session-timeout warning. Any
+// authenticated request renews the session; this one does nothing else.
+Route::post('/session/keepalive', fn () => response()->noContent())
+    ->middleware('auth')->name('session.keepalive');
+
 // Authentication routes
 // #47: POST /login is throttled via the 'login' RateLimiter::for closure
 // in AppServiceProvider (5/min per IP + 5/min per username). GET stays

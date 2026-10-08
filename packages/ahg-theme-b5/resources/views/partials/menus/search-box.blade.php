@@ -67,6 +67,9 @@
       placeholder="{{ __('Search') }}"
       data-url="{{ url('/search/autocomplete') }}"
       data-bs-toggle="dropdown"
+      role="combobox"
+      aria-autocomplete="list"
+      aria-controls="search-box-results"
       aria-label="{{ __('Search') }}"
       aria-expanded="false">
     <ul id="search-box-results" class="dropdown-menu mt-2" aria-labelledby="search-box-input"></ul>

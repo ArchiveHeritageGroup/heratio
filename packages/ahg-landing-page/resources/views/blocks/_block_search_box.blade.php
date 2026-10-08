@@ -10,7 +10,8 @@ if ($style === 'large') {
 @endphp
 
 <div class="search-box-block {{ $style === 'large' ? 'py-4' : '' }}">
-  <form action="{{ route('search.index') }}" method="get">
+  {{-- Same target as the header search box (search.index never existed). --}}
+  <form action="{{ route('glam.browse') }}" method="get">
     <div class="{{ $style === 'large' ? 'input-group input-group-lg' : 'input-group' }}">
       <input type="text" name="query" class="{{ $inputClass }}"
              placeholder="{{ e($placeholder) }}"

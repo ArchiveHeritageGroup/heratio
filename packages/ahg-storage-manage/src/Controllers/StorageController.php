@@ -30,14 +30,17 @@ use AhgCore\Services\SettingHelper;
 use AhgStorageManage\Services\StorageBrowseService;
 use AhgStorageManage\Services\StorageLocationService;
 use AhgStorageManage\Services\StorageMovementService;
+use AhgStorageManage\Services\StoragePlacementService;
 use AhgStorageManage\Services\StorageService;
-use AhgStorageManage\Services\StrongroomService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class StorageController extends Controller
 {
+    /** How many moves the box page shows; the rest are in the movement log (heratio#1545). */
+    public const LATEST_MOVES = 5;
+
     protected StorageService $service;
 
     public function __construct()
@@ -98,9 +101,10 @@ class StorageController extends Controller
         $descriptions = $this->service->getLinkedDescriptions($storage->id);
         $accessions = $this->service->getLinkedAccessions($storage->id);
 
-        $movements = new StorageMovementService;
-        $locationId = $movements->currentLocationOf((int) $storage->id);
-        $locations = new StorageLocationService;
+        // heratio#1545 - the box's place as a linked path, and its latest moves.
+        // The full record is on each location's page and in the movement log.
+        $placement = (new StoragePlacementService(app()->getLocale()))->placementView((int) $storage->id, self::LATEST_MOVES)
+            ?? ['location' => null, 'path' => [], 'moves' => []];
 
         return view('ahg-storage-manage::show', [
             'storage' => $storage,
@@ -108,9 +112,9 @@ class StorageController extends Controller
             'descriptions' => $descriptions,
             'accessions' => $accessions,
             'extendedData' => $this->service->getExtendedData($storage->id),
-            'currentLocation' => $locationId === null ? null : $locations->getById($locationId),
-            'locationPath' => $locationId === null ? [] : $locations->getPath($locationId),
-            'movements' => $movements->historyFor(StorageMovementService::SUBJECT_OBJECT, (int) $storage->id),
+            'currentLocation' => $placement['location'],
+            'locationPath' => $placement['path'],
+            'movements' => $placement['moves'],
         ]);
     }
 
@@ -167,11 +171,13 @@ class StorageController extends Controller
 
     public function create()
     {
-        return view('ahg-storage-manage::edit', array_merge([
+        return view('ahg-storage-manage::edit', [
             'storage' => null,
             'typeChoices' => $this->service->getFormChoices(),
             'extendedData' => [],
-        ], $this->strongroomViewData(null)));
+            'storageLevels' => null,
+            'placementAvailable' => StoragePlacementService::available(),
+        ]);
     }
 
     public function edit(string $slug)
@@ -181,11 +187,15 @@ class StorageController extends Controller
             abort(404);
         }
 
-        return view('ahg-storage-manage::edit', array_merge([
+        return view('ahg-storage-manage::edit', [
             'storage' => $storage,
             'typeChoices' => $this->service->getFormChoices(),
             'extendedData' => $this->service->getExtendedData($storage->id),
-        ], $this->strongroomViewData($storage->id)));
+            // heratio#1545 - Building ... Shelf come from the storage location
+            // tree when the box is placed there, else from the flat fields.
+            'storageLevels' => $this->storageLevels((int) $storage->id),
+            'placementAvailable' => StoragePlacementService::available(),
+        ]);
     }
 
     public function store(Request $request)
@@ -193,11 +203,12 @@ class StorageController extends Controller
         $request->validate(['name' => 'required|string|max:1024']);
         $id = $this->service->create($request->only($this->baseFields()));
         $this->service->saveExtendedData($id, $request->only($this->extendedFields()));
-        $this->applyStrongroomAssignment($request, $id);
+        $warning = $this->placeFromForm($request, $id);
 
         return redirect()
             ->route('physicalobject.show', $this->service->getSlug($id))
-            ->with('success', 'Physical storage created successfully.');
+            ->with('success', 'Physical storage created successfully.')
+            ->with('warning', $warning);
     }
 
     public function update(Request $request, string $slug)
@@ -210,53 +221,58 @@ class StorageController extends Controller
         $request->validate(['name' => 'required|string|max:1024']);
         $this->service->update($storage->id, $request->only($this->baseFields()));
         $this->service->saveExtendedData($storage->id, $request->only($this->extendedFields()));
-        $this->applyStrongroomAssignment($request, $storage->id);
+        $warning = $this->placeFromForm($request, (int) $storage->id);
 
         return redirect()
             ->route('physicalobject.show', $slug)
-            ->with('success', 'Physical storage updated successfully.');
+            ->with('success', 'Physical storage updated successfully.')
+            ->with('warning', $warning);
     }
 
     /**
-     * Build strongroom-related view data. Returns empty array if the
-     * ahg_strongroom table does not yet exist (feature not installed).
+     * heratio#1545 - place the box in the storage location tree from the form's
+     * Building ... Shelf fields, through the movement log. Editors and
+     * administrators may add places that do not exist yet; for anybody else an
+     * unknown name leaves the box where it was. Returns what to tell the user,
+     * or null. Never throws: the box itself is already saved, and a placement
+     * failure must not lose that.
      */
-    private function strongroomViewData(?int $physicalObjectId): array
+    private function placeFromForm(Request $request, int $objectId): ?string
     {
-        if (! \Illuminate\Support\Facades\Schema::hasTable('ahg_strongroom')) {
-            return ['strongroomChoices' => [], 'currentAssignment' => null];
+        if (! StoragePlacementService::available()) {
+            return null;
         }
-        $svc = new StrongroomService;
 
-        return [
-            'strongroomChoices' => $svc->dropdownChoices(),
-            'currentAssignment' => $physicalObjectId ? $svc->getAssignment($physicalObjectId) : null,
-        ];
+        try {
+            $result = (new StoragePlacementService(app()->getLocale()))->saveFromForm(
+                $objectId,
+                $request->only(StoragePlacementService::LEVELS),
+                StoragePlacementService::mayCreate()
+            );
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('storage.placement_failed: object '.$objectId.': '.$e->getMessage());
+
+            return __('Saved, but the box could not be placed in the storage location tree: :message', ['message' => $e->getMessage()]);
+        }
+
+        return $result === StoragePlacementService::NOT_ALLOWED
+            ? __('Saved, but the location was not changed: only editors and administrators can add new places. Choose existing places from the suggestions.')
+            : null;
     }
 
-    /**
-     * Handle strongroom_action POST values: 'assign' / 'unassign' / '' (no-op).
-     * Silently skips if the feature is not installed.
-     */
-    private function applyStrongroomAssignment(Request $request, int $physicalObjectId): void
+    /** The form's prefill from the tree, or null to use the flat fields. */
+    private function storageLevels(int $objectId): ?array
     {
-        if (! \Illuminate\Support\Facades\Schema::hasTable('ahg_strongroom')) {
-            return;
+        if (! StoragePlacementService::available()) {
+            return null;
         }
-        $svc = new StrongroomService;
-        $action = (string) $request->input('strongroom_action', '');
 
-        if ($action === 'unassign') {
-            $svc->unassign($physicalObjectId);
+        try {
+            return (new StoragePlacementService(app()->getLocale()))->levelsFor($objectId);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('storage.placement_prefill_failed: '.$e->getMessage());
 
-            return;
-        }
-        if ($action === 'assign') {
-            $roomId = (int) $request->input('strongroom_id', 0);
-            $size = (float) $request->input('size_units_used', 0);
-            if ($roomId > 0) {
-                $svc->assign($physicalObjectId, $roomId, $size);
-            }
+            return null;
         }
     }
 

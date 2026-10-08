@@ -29,7 +29,6 @@
 
 namespace Tests\Feature;
 
-use AhgCore\Models\User;
 use AhgInformationObjectManage\Services\InformationObjectService as Io;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
@@ -39,16 +38,6 @@ use Tests\TestCase;
 class ExternalAuthorityLinksTest extends TestCase
 {
     use DatabaseTransactions;
-
-    /** As in LastModifiedTest: auditSnapshot() reads a column heratio_test may lack. */
-    protected function setUpTraits()
-    {
-        if (! Schema::hasColumn('information_object', 'icip_sensitivity')) {
-            Schema::table('information_object', fn ($t) => $t->string('icip_sensitivity', 512)->nullable());
-        }
-
-        return parent::setUpTraits();
-    }
 
     protected function setUp(): void
     {
@@ -112,17 +101,9 @@ class ExternalAuthorityLinksTest extends TestCase
         $this->assertStringNotContainsString('External authority links', $this->section($io, $slug));
     }
 
-    /**
-     * Render the access-points section the way every show template includes
-     * it. The full show page also pulls in panels whose tables heratio_test
-     * lags behind on, which is not what this test is about.
-     */
+    /** The full description page, as a visitor sees it (heratio#1547: no longer a section-only render). */
     private function section(int $io, string $slug): string
     {
-        $this->actingAs(User::query()->first() ?? new User());
-
-        return view('ahg-information-object-manage::partials.sections.access-points-area', [
-            'io' => (object) ['id' => $io, 'slug' => $slug],
-        ])->render();
+        return $this->get('/'.$slug)->assertOk()->getContent();
     }
 }

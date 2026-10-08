@@ -115,9 +115,10 @@ class MetadataExportCommand extends Command
                     ->leftJoin('information_object_i18n as i18n', function ($j) {
                         $j->on('i18n.id', '=', 'i.id')->where('i18n.culture', '=', 'en');
                     })
-                    ->whereBetween('i.lft', [$base->lft, $base->rgt])
                     ->select('i.id', 'i.identifier', 'i.repository_id', 'i.lft', 'i.rgt',
                         'i18n.title', 'i18n.scope_and_content', 'i18n.extent_and_medium');
+                // heratio#1541: closure subquery, not the nested set.
+                app(\AhgCore\Services\HierarchyQueryService::class)->scopeDescendants($children, 'information_object', (int) $base->id, 'i.id', true);
                 \AhgCore\Services\TermProtocolGate::excludeRestrictedRecords($children, 'i.id'); // #1388
                 return $children->get();
             }

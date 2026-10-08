@@ -1028,14 +1028,13 @@ class OaiPmhController extends Controller
             // Set is an OAI identifier pointing to a collection; get its lft/rgt
             $setOaiId = $this->parseOaiIdentifier($set);
             if ($setOaiId !== null) {
-                $collection = DB::table('information_object')
+                $collectionId = DB::table('information_object')
                     ->where('oai_local_identifier', $setOaiId)
-                    ->select('lft', 'rgt')
-                    ->first();
+                    ->value('id');
 
-                if ($collection) {
-                    $query->where('io.lft', '>=', $collection->lft);
-                    $query->where('io.rgt', '<=', $collection->rgt);
+                if ($collectionId) {
+                    // heratio#1541: closure subquery, not the nested set.
+                    app(\AhgCore\Services\HierarchyQueryService::class)->scopeDescendants($query, 'information_object', (int) $collectionId, 'io.id', true);
                 }
             }
         }
@@ -1383,10 +1382,10 @@ class OaiPmhController extends Controller
     {
         // Walk up parent_id chain to find the top-level collection (parent_id = 1)
         // Use lft/rgt: find the ancestor whose parent_id = 1 and lft <= record.lft and rgt >= record.rgt
+        // heratio#1541: the top-level ancestor via the closure tables.
         $root = DB::table('information_object')
             ->where('parent_id', '=', 1)
-            ->where('lft', '<=', $record->lft)
-            ->where('rgt', '>=', $record->rgt)
+            ->whereIn('id', app(\AhgCore\Services\HierarchyQueryService::class)->ancestorIds('information_object', (int) $record->id, true))
             ->select('id', 'oai_local_identifier')
             ->first();
 

@@ -300,7 +300,8 @@
           @endif
 
           @if(count($movements) > 0)
-            <h6 class="mt-3">{{ __('Movement history') }}</h6>
+            {{-- heratio#1545 - the latest moves only; the full record is in the movement log. --}}
+            <h6 class="mt-3">{{ __('Latest moves') }}</h6>
             <ul class="list-unstyled small mb-0">
               @foreach($movements as $move)
                 <li class="mb-2">

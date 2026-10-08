@@ -444,6 +444,25 @@
     </div>
   @endif
 
+  {{-- #1533: merge into another term of the same taxonomy. --}}
+  @if($term && !in_array((int) $term->taxonomy_id, \AhgTermTaxonomy\Services\TermService::LOCKED_TAXONOMY_IDS, true))
+    <div class="card mt-4">
+      <div class="card-header">{{ __('Merge into another term') }}</div>
+      <div class="card-body">
+        <p class="small text-muted mb-2">{{ __('For a duplicate. Every description, narrower term and relation of this term moves to the term you keep, this term\'s name becomes a "use for" label there, and this term is deleted.') }}</p>
+        <form method="POST" action="{{ route('term.merge', $term->slug) }}" class="row g-2 align-items-end"
+              onsubmit="return confirm(@json(__('Merge this term into the term named below and delete it? This cannot be undone.')));">
+          @csrf
+          <div class="col-sm-8">
+            <label for="merge_target" class="form-label">{{ __('Term to keep (name or slug, same taxonomy)') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+            <input type="text" name="target" id="merge_target" class="form-control" required maxlength="1024" autocomplete="off">
+          </div>
+          <div class="col-sm-4"><button type="submit" class="btn atom-btn-outline-danger w-100">{{ __('Merge') }}</button></div>
+        </form>
+      </div>
+    </div>
+  @endif
+
 @push('css')
 <style>
 .accordion-button {

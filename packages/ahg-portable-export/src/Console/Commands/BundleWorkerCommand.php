@@ -348,10 +348,10 @@ class BundleWorkerCommand extends Command
                     $anc = DB::table('information_object as io')
                         ->join('slug', 'io.id', '=', 'slug.object_id')
                         ->where('slug.slug', $row->scope_slug)
-                        ->select('io.lft', 'io.rgt')
+                        ->select('io.id')
                         ->first();
                     if ($anc) {
-                        $ioQ->whereBetween('lft', [$anc->lft, $anc->rgt]);
+                        app(\AhgCore\Services\HierarchyQueryService::class)->scopeDescendants($ioQ, 'information_object', (int) $anc->id, 'id', true); // heratio#1541
                     } else {
                         return [];
                     }

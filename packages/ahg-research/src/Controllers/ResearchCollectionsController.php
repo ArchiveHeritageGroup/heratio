@@ -121,14 +121,9 @@ class ResearchCollectionsController extends Controller
                     $addedCount = 0;
                     $objectsToAdd = [$objectId];
                     if ($includeDescendants) {
-                        $item = DB::table('information_object')->where('id', $objectId)->first();
-                        if ($item) {
-                            $descendants = DB::table('information_object')
-                                ->where('lft', '>', $item->lft)
-                                ->where('rgt', '<', $item->rgt)
-                                ->pluck('id')->toArray();
-                            $objectsToAdd = array_merge($objectsToAdd, $descendants);
-                        }
+                        // heratio#1541: closure tables, not the nested set (records with no lft/rgt are included).
+                        $objectsToAdd = array_merge($objectsToAdd, app(\AhgCore\Services\HierarchyQueryService::class)
+                            ->descendantIds('information_object', (int) $objectId, false));
                     }
                     foreach ($objectsToAdd as $oid) {
                         $exists = DB::table('research_collection_item')
@@ -357,14 +352,9 @@ class ResearchCollectionsController extends Controller
             $addedCount = 0;
             $objectsToAdd = [$objectId];
             if ($includeDescendants) {
-                $item = DB::table('information_object')->where('id', $objectId)->first();
-                if ($item) {
-                    $descendants = DB::table('information_object')
-                        ->where('lft', '>', $item->lft)
-                        ->where('rgt', '<', $item->rgt)
-                        ->pluck('id')->toArray();
-                    $objectsToAdd = array_merge($objectsToAdd, $descendants);
-                }
+                // heratio#1541: closure tables, not the nested set (records with no lft/rgt are included).
+                $objectsToAdd = array_merge($objectsToAdd, app(\AhgCore\Services\HierarchyQueryService::class)
+                    ->descendantIds('information_object', (int) $objectId, false));
             }
             foreach ($objectsToAdd as $oid) {
                 $exists = DB::table('research_collection_item')

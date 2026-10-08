@@ -221,88 +221,9 @@ class TreeViewPageController extends Controller
             ]);
         }
 
-        $width = $node->rgt - $node->lft + 1;
-
-        // #1333: capture the moved node's ancestor chain BEFORE any mutation so
-        // we can fire a single ES ancestor-delta after commit.
-        $hierarchy = app(\AhgCore\Services\HierarchyQueryService::class);
-        $oldAncestors = $hierarchy->ancestorIds('information_object', (int) $id);
-
-        DB::beginTransaction();
         try {
-            // Step 1: temporarily negate the moved subtree's lft/rgt so
-            // shifts that follow don't touch them.
-            DB::table('information_object')
-                ->where('lft', '>=', $node->lft)
-                ->where('rgt', '<=', $node->rgt)
-                ->update([
-                    'lft' => DB::raw('lft * -1'),
-                    'rgt' => DB::raw('rgt * -1'),
-                ]);
-
-            // Step 2: close the gap left behind.
-            DB::table('information_object')
-                ->where('lft', '>', $node->rgt)
-                ->decrement('lft', $width);
-
-            DB::table('information_object')
-                ->where('rgt', '>', $node->rgt)
-                ->decrement('rgt', $width);
-
-            // Step 3: re-read the new parent (its rgt may have shifted
-            // when the gap closed).
-            $freshParent = DB::table('information_object')
-                ->where('id', $newParentId)
-                ->select('lft', 'rgt')
-                ->first();
-
-            $insertAt = $freshParent->rgt;
-
-            // Step 4: open a gap of `width` at the insertion point.
-            DB::table('information_object')
-                ->where('lft', '>=', $insertAt)
-                ->increment('lft', $width);
-
-            DB::table('information_object')
-                ->where('rgt', '>=', $insertAt)
-                ->increment('rgt', $width);
-
-            // Step 5: restore the negated subtree at the insertion point.
-            $offset = $insertAt - $node->lft;
-            DB::table('information_object')
-                ->where('lft', '<', 0)
-                ->update([
-                    'lft' => DB::raw('(lft * -1) + ' . $offset),
-                    'rgt' => DB::raw('(rgt * -1) + ' . $offset),
-                ]);
-
-            // Step 6: update parent_id on the moved node itself.
-            DB::table('information_object')
-                ->where('id', $id)
-                ->update(['parent_id' => $newParentId]);
-
-            \AhgCore\Support\AuditLog::captureMutation($id, 'information_object', 'move', [
-                'data' => [
-                    'old_parent_id' => (int) $node->parent_id,
-                    'new_parent_id' => $newParentId,
-                ],
-            ]);
-
-            // #1333 dual-write: true reparent - move the closure subtree and
-            // re-derive sibling order for the old and new parents.
-            $closureSvc = app(\AhgCore\Services\ClosureMaintenanceService::class);
-            $closureSvc->moveNode('information_object', (int) $id, (int) $newParentId);
-            $closureSvc->resyncSiblingOrder('information_object', $node->parent_id !== null ? (int) $node->parent_id : null);
-            $closureSvc->resyncSiblingOrder('information_object', (int) $newParentId);
-
-            DB::commit();
-
-            // #1333: one async _update_by_query repoints the `ancestors` of the
-            // whole moved subtree in ES (the delta is identical for every node in
-            // the subtree). Best-effort - never fails the move.
-            $newAncestors = $hierarchy->ancestorIds('information_object', (int) $id);
-            app(\AhgSearch\Services\ElasticsearchService::class)
-                ->updateSubtreeAncestorsOnMove((int) $id, $oldAncestors, $newAncestors);
+            // #1533: one shared move (nested set, closure, sibling order, audit, ES).
+            \AhgInformationObjectManage\Services\InformationObjectService::moveUnder((int) $id, (int) $newParentId);
 
             return response()->json([
                 'ok' => true,
@@ -310,7 +231,6 @@ class TreeViewPageController extends Controller
                 'new_parent_id' => $newParentId,
             ]);
         } catch (\Exception $e) {
-            DB::rollBack();
             return response()->json([
                 'ok' => false,
                 'error' => 'Move failed: ' . $e->getMessage(),

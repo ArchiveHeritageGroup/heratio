@@ -20,6 +20,13 @@ class AhgStorageManageServiceProvider extends ServiceProvider
             ->group(__DIR__.'/../../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-storage-manage');
         $this->install();
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                // heratio#1528 - flat location fields into the location tree.
+                \AhgStorageManage\Commands\StorageMigrateFlatLocationsCommand::class,
+            ]);
+        }
     }
 
     /**

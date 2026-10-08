@@ -375,10 +375,10 @@ class PortableExportController extends Controller
             $ancestor = DB::table('information_object as io')
                 ->join('slug', 'io.id', '=', 'slug.object_id')
                 ->where('slug.slug', $slug)
-                ->select('io.lft', 'io.rgt')
+                ->select('io.id')
                 ->first();
             if ($ancestor) {
-                $ioQuery->whereBetween('lft', [$ancestor->lft, $ancestor->rgt]);
+                app(\AhgCore\Services\HierarchyQueryService::class)->scopeDescendants($ioQuery, 'information_object', (int) $ancestor->id, 'id', true); // heratio#1541
             }
         }
         // Note: clipboard scope deferred here - apiStart caps it later via
@@ -427,10 +427,10 @@ class PortableExportController extends Controller
             $ancestor = DB::table('information_object as io')
                 ->join('slug', 'io.id', '=', 'slug.object_id')
                 ->where('slug.slug', $slug)
-                ->select('io.lft', 'io.rgt')
+                ->select('io.id')
                 ->first();
             if ($ancestor) {
-                $ioQuery->whereBetween('lft', [$ancestor->lft, $ancestor->rgt]);
+                app(\AhgCore\Services\HierarchyQueryService::class)->scopeDescendants($ioQuery, 'information_object', (int) $ancestor->id, 'id', true); // heratio#1541
             }
         }
 

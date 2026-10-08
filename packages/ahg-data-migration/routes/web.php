@@ -3,7 +3,7 @@
 use AhgDataMigration\Controllers\DataMigrationController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('admin')->group(function () {
+Route::middleware(['auth', 'acl:import'])->group(function () { // heratio#1535
 
     // ── Main admin UI pages ──────────────────────────────────
     Route::get('/admin/data-migration',

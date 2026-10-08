@@ -3,7 +3,7 @@
 use AhgExport\Controllers\ExportController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'admin'])->prefix('export')->group(function () {
+Route::middleware(['auth', 'acl:export'])->prefix('export')->group(function () { // heratio#1535
     Route::get('/', [ExportController::class, 'index'])->name('export.index');
     // GET renders the form; POST generates the actual download (#1357 - the
     // forms POST to these names, which were previously GET-only → 405/no output).

@@ -720,6 +720,9 @@
            area at the top of the form (shown for every create, not just copy). --}}
     @endif
 
+    {{-- heratio#1530: admin-defined custom fields, saved with the record --}}
+    @include('ahg-custom-fields::partials._edit-fields', ['objectId' => null])
+
     <ul class="actions mb-3 nav gap-2">
       @if(request('copy_from') && $parentTitle)
         @php $sourceSlug = \Illuminate\Support\Facades\DB::table('slug')->where('object_id', request('copy_from'))->value('slug'); @endphp

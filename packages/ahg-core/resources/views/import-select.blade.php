@@ -81,7 +81,7 @@
                   <select class="form-select" name="updateType" id="update-type-select">
                     <option value="import-as-new">{{ __('Ignore matches and create new records on import') }}</option>
                     <option value="match-and-update">{{ __('Update matches ignoring blank fields in CSV') }}</option>
-                    <option value="delete-and-replace">{{ __('Delete matches and replace with imported records') }}</option>
+                    <option value="delete-and-replace">{{ __('Replace matches in place (blank cells clear fields; children kept)') }}</option>
                   </select>
                 </div>
               @endif
@@ -91,7 +91,7 @@
                   <label class="form-label" for="update-type-select">{{ __('Update behaviours') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select class="form-select" name="updateType" id="update-type-select">
                     <option value="import-as-new">{{ __('Ignore matches and import as new') }}</option>
-                    <option value="delete-and-replace">{{ __('Delete matches and replace with imports') }}</option>
+                    <option value="delete-and-replace">{{ __('Replace matches in place (blank cells clear fields; children kept)') }}</option>
                   </select>
                 </div>
               @endif

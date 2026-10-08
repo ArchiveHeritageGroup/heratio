@@ -608,17 +608,9 @@ class EmbargoService
 
         // If propagation requested, apply to all descendants via lft/rgt
         if ($applyToChildren) {
-            $object = DB::table('information_object')
-                ->where('id', $objectId)
-                ->select(['lft', 'rgt'])
-                ->first();
-
-            if ($object && $object->lft && $object->rgt) {
-                $descendants = DB::table('information_object')
-                    ->where('lft', '>', $object->lft)
-                    ->where('rgt', '<', $object->rgt)
-                    ->pluck('id')
-                    ->toArray();
+            // heratio#1541: closure tables, so records with no lft/rgt are included.
+            $descendants = app(\AhgCore\Services\HierarchyQueryService::class)->descendantIds('information_object', (int) $objectId, false);
+            if ($descendants) {
 
                 foreach ($descendants as $childId) {
                     try {

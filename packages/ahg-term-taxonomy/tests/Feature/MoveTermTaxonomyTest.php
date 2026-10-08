@@ -57,10 +57,6 @@ class MoveTermTaxonomyTest extends TestCase
         if (! DB::table('term')->where('id', TermService::ROOT_TERM_ID)->exists()) {
             $this->markTestSkipped('term root 110 missing');
         }
-        // A built closure always holds the root's self-row (dev and prod do);
-        // heratio_test's may not. moveNode() re-attaches under a parent by
-        // copying that parent's rows, so the root needs it (rolled back).
-        DB::table('term_closure')->insertOrIgnore(['ancestor' => TermService::ROOT_TERM_ID, 'descendant' => TermService::ROOT_TERM_ID, 'depth' => 0]);
     }
 
     private function term(string $name, int $taxonomy, int $parent): int

@@ -25,6 +25,7 @@ class AhgPdfToolsServiceProvider extends ServiceProvider
             $this->commands([
                 \AhgPdfTools\Console\CombineFolderCommand::class,
                 \AhgPdfTools\Console\PurgeCombineTrashCommand::class,
+                \AhgPdfTools\Console\RebuildTextLayerCommand::class, // heratio#1523
             ]);
 
             // #1177: daily purge of quarantined combine source files past retention.

@@ -673,6 +673,11 @@
     {{-- Floating Feedback Tab --}}
     @include('theme::partials.feedback-tab')
 
+    {{-- heratio#1543: warn before an idle session ends --}}
+    @auth
+      @include('theme::partials.session-timeout-warning')
+    @endauth
+
     {{-- Global JS error logger - sends client errors to Laravel log --}}
     <script nonce="{{ $cspNonce }}">
     window.onerror = function(msg, url, line, col, err) {

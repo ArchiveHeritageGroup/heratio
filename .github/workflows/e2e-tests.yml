@@ -143,6 +143,9 @@ jobs:
           # schema above was loaded as root; --env=testing supplies APP_KEY.
           DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
             php artisan migrate --force --env=testing
+          # heratio#1547: closure tables, as bin/install does after migrations.
+          DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
+            php artisan ahg:build-closure --all --env=testing
 
       - name: Run Laravel tests
         # --testsuite=All runs the single comprehensive suite. Bare `php artisan
@@ -306,6 +309,11 @@ jobs:
 
       - name: Run CRUD Tests
         run: npx playwright test tests/e2e/03-workflows/crud-records.spec.ts --reporter=list
+
+      # heratio#1532: WCAG 2.2 AA axe scans of the main public pages. Fails on a
+      # regression against tests/e2e/05-ui-components/a11y-baseline.json.
+      - name: Run Accessibility Scans
+        run: npx playwright test tests/e2e/05-ui-components/accessibility.spec.ts --project=chromium --reporter=list
 
       - name: Upload workflow test results
         if: always()

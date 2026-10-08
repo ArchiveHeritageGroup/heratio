@@ -426,15 +426,16 @@ class ClassificationRuleService
         if (! $row) {
             return '';
         }
+        $ancIds = app(\AhgCore\Services\HierarchyQueryService::class)->ancestorIds('information_object', (int) $ioId, true); // heratio#1541, root-most first
+
         $ancestors = DB::table('information_object as io')
             ->leftJoin('information_object_i18n as ioi', function ($j) {
                 $j->on('ioi.id', '=', 'io.id')->where('ioi.culture', '=', 'en');
             })
             ->leftJoin('slug', 'slug.object_id', '=', 'io.id')
-            ->where('io.lft', '<=', $row->lft)
-            ->where('io.rgt', '>=', $row->rgt)
+            ->whereIn('io.id', $ancIds)
             ->where('io.id', '!=', 1) // skip root sentinel
-            ->orderBy('io.lft')
+            ->orderByRaw($ancIds ? 'FIELD(io.id, '.implode(',', array_map('intval', $ancIds)).')' : 'io.id')
             ->select('ioi.title', 'slug.slug')
             ->get();
 

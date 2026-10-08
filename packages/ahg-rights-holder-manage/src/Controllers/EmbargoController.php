@@ -79,10 +79,8 @@ class EmbargoController extends Controller
             abort(404);
         }
 
-        $descendantCount = DB::table('information_object')
-            ->where('lft', '>', $resource->lft ?? 0)
-            ->where('rgt', '<', $resource->rgt ?? 0)
-            ->count();
+        // heratio#1541: closure tables, not the nested set.
+        $descendantCount = count(app(\AhgCore\Services\HierarchyQueryService::class)->descendantIds('information_object', (int) $objectId, false));
 
         return view('ahg-rights-holder-manage::embargo.add', compact('resource', 'objectId', 'descendantCount'));
     }

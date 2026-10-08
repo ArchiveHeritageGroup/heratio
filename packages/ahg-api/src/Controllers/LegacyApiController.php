@@ -198,24 +198,20 @@ class LegacyApiController extends Controller
             return response()->json(['error' => 'Collection not found'], 404);
         }
 
-        // Count descendants
-        $totalDescriptions = DB::table('information_object')
-            ->where('lft', '>=', $collection->lft)
-            ->where('rgt', '<=', $collection->rgt)
-            ->count();
+        // Count descendants (heratio#1541: closure tables, not the nested set)
+        $subtree = app(\AhgCore\Services\HierarchyQueryService::class)->descendantIds('information_object', $collectionId, true);
+        $totalDescriptions = count($subtree);
 
         // Count digital objects
         $digitalObjects = DB::table('digital_object')
             ->join('information_object as io', 'digital_object.object_id', '=', 'io.id')
-            ->where('io.lft', '>=', $collection->lft)
-            ->where('io.rgt', '<=', $collection->rgt)
+            ->whereIn('io.id', $subtree)
             ->count();
 
         // Estimate sizes
         $totalSize = DB::table('digital_object')
             ->join('information_object as io', 'digital_object.object_id', '=', 'io.id')
-            ->where('io.lft', '>=', $collection->lft)
-            ->where('io.rgt', '<=', $collection->rgt)
+            ->whereIn('io.id', $subtree)
             ->sum('digital_object.byte_size') ?? 0;
 
         $csvSize = $totalDescriptions * 500;

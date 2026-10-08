@@ -254,12 +254,12 @@
               <select class="form-select @error('import_type') is-invalid @enderror" id="import_type" name="import_type" required>
                 <option value="create" {{ old('import_type', 'create') === 'create' ? 'selected' : '' }}>{{ __('Create new records') }}</option>
                 <option value="update" {{ old('import_type') === 'update' ? 'selected' : '' }}>{{ __('Match and update existing') }}</option>
-                <option value="replace" {{ old('import_type') === 'replace' ? 'selected' : '' }}>{{ __('Delete and replace') }}</option>
+                <option value="replace" {{ old('import_type') === 'replace' ? 'selected' : '' }}>{{ __('Replace in place') }}</option>
               </select>
               <div class="form-text">
                 <strong>{{ __('Create new:') }}</strong> {{ __('All rows create new records.') }}<br>
-                <strong>{{ __('Match and update:') }}</strong> {{ __('Match by identifier/name and update existing records.') }}<br>
-                <strong>{{ __('Delete and replace:') }}</strong> {{ __('Delete matched records and re-create from CSV.') }}
+                <strong>{{ __('Match and update:') }}</strong> {{ __('Match by identifier (authorities: identifier, then name) and fill in the non-blank cells.') }}<br>
+                <strong>{{ __('Replace in place:') }}</strong> {{ __('Match the same way and overwrite every mapped field, so blank cells clear values. The record keeps its id, links and children.') }}
               </div>
               @error('import_type')
                 <div class="invalid-feedback">{{ $message }}</div>

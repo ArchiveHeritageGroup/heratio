@@ -1,0 +1,8 @@
+{
+  "_note": "heratio#1532. Known axe violations (critical/serious) per page: rule id -> node count, measured on heratio.theahg.co.za. CI fails on a new rule or a higher count. Lower these as fixes reach prod; never raise them to make a run pass.",
+  "home": { "aria-allowed-attr": 1, "color-contrast": 5, "target-size": 2 },
+  "browse": { "aria-allowed-attr": 1, "color-contrast": 27, "target-size": 2 },
+  "login": { "aria-allowed-attr": 1, "color-contrast": 5, "target-size": 2 },
+  "accessibility statement": { "aria-allowed-attr": 1, "color-contrast": 5, "target-size": 2 },
+  "record": { "aria-allowed-attr": 1, "color-contrast": 27, "target-size": 2 }
+}

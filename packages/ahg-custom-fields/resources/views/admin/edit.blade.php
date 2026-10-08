@@ -18,6 +18,7 @@
                 'definition' => $definition,
                 'entityTypes' => $entityTypes,
                 'fieldTypes' => $fieldTypes,
+                'dropdownTaxonomies' => $dropdownTaxonomies,
             ])
         </div>
     </div>

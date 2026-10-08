@@ -72,6 +72,7 @@ CREATE TABLE IF NOT EXISTS ahg_merge_log (
     field_choices_json JSON COMMENT 'Which fields were taken from which record',
     slugs_redirected JSON COMMENT 'Old slugs now redirecting',
     digital_objects_moved JSON COMMENT 'Digital objects transferred',
+    loser_snapshot_json LONGTEXT NULL COMMENT 'Full snapshot of the deleted duplicate',
     merged_by INT NOT NULL,
     merged_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     notes TEXT,

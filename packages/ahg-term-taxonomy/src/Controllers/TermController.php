@@ -1645,6 +1645,46 @@ class TermController extends Controller
         ));
     }
 
+    /** heratio#1533: merge this term into another term of the same taxonomy. */
+    public function merge(Request $request, string $slug)
+    {
+        $data = $request->validate(['target' => 'required|string|max:1024']);
+        $term = DB::table('term')->join('slug', 'slug.object_id', '=', 'term.id')
+            ->where('slug.slug', $slug)->first(['term.id', 'term.taxonomy_id']);
+        if (! $term) {
+            abort(404);
+        }
+
+        // The term to keep: its slug, or its exact name in this taxonomy.
+        $target = trim($data['target']);
+        $winnerId = (int) DB::table('slug')->join('term', 'term.id', '=', 'slug.object_id')
+            ->where('slug.slug', $target)->value('term.id');
+        if (! $winnerId) {
+            $matches = DB::table('term')->join('term_i18n', 'term_i18n.id', '=', 'term.id')
+                ->where('term.taxonomy_id', $term->taxonomy_id)->where('term_i18n.culture', app()->getLocale())
+                ->where('term_i18n.name', $target)->pluck('term.id')->unique();
+            if ($matches->count() > 1) {
+                return redirect()->route('term.edit', $slug)->with('error', __('More than one term has that name; enter the slug of the term to keep.'));
+            }
+            $winnerId = (int) $matches->first();
+        }
+        if (! $winnerId) {
+            return redirect()->route('term.edit', $slug)->with('error', __('No term with that name or slug was found in this taxonomy.'));
+        }
+
+        try {
+            $result = $this->termService->mergeInto((int) $term->id, $winnerId);
+        } catch (\DomainException $e) {
+            return redirect()->route('term.edit', $slug)->with('error', $e->getMessage());
+        }
+
+        $winnerSlug = (string) DB::table('slug')->where('object_id', $winnerId)->value('slug');
+
+        return redirect()->route('term.edit', $winnerSlug)->with('success', __(
+            'Term merged: :links links and :narrower narrower terms moved; :labels use-for labels added.', $result
+        ));
+    }
+
     public function update(Request $request, string $slug)
     {
         $culture = app()->getLocale();

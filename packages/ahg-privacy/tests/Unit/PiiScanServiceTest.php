@@ -175,13 +175,13 @@ class PiiScanServiceTest extends TestCase
     /**
      * An unsupported jurisdiction used to hand collectPhones()/collectNationalIds()
      * a key their isset() guards skipped, so the scan returned ZERO phone and
-     * ZERO national-ID findings and reported success. Reachable today: the
-     * privacy_jurisdiction registry ships ndpa, kenya_dpa and pipeda, none of
-     * which either pattern constant carries.
+     * ZERO national-ID findings and reported success. It was reachable for
+     * ndpa, kenya_dpa and pipeda until heratio#1505 gave them patterns; lgpd
+     * (Brazil) stands in for any code the scanner still has no patterns for.
      */
     public function test_an_unsupported_jurisdiction_still_detects_phones_and_ids(): void
     {
-        $f = $this->svc([], 'pipeda')->scan('Call 0821234567, ID 8001015009087.');
+        $f = $this->svc([], 'lgpd')->scan('Call 0821234567, ID 8001015009087.');
         $this->assertCount(1, $this->ofType($f, 'phone'));
         $this->assertCount(1, $this->ofType($f, 'national_id'));
     }
@@ -194,7 +194,7 @@ class PiiScanServiceTest extends TestCase
      */
     public function test_an_unsupported_jurisdiction_does_not_misclassify_an_id_as_a_card(): void
     {
-        $f = $this->svc([], 'pipeda')->scan('ID 8001015009087 on file.');
+        $f = $this->svc([], 'lgpd')->scan('ID 8001015009087 on file.');
         $this->assertSame([], $this->ofType($f, 'credit_card'));
         $this->assertCount(1, $this->ofType($f, 'national_id'));
     }
@@ -205,8 +205,64 @@ class PiiScanServiceTest extends TestCase
         $strip = static fn (array $f) => array_map(static fn ($x) => $x['type'].':'.$x['value'], $f);
         $this->assertSame(
             $strip($this->svc([], 'gdpr')->scan($text)),
-            $strip($this->svc([], 'ndpa')->scan($text))
+            $strip($this->svc([], 'lgpd')->scan($text))
         );
+    }
+
+    // =====================================================================
+    //  Nigeria, Kenya, Canada (heratio#1505)
+    // =====================================================================
+
+    public function test_nigeria_kenya_and_canada_now_have_their_own_patterns(): void
+    {
+        foreach (['ndpa', 'kenya_dpa', 'pipeda'] as $code) {
+            $this->assertContains($code, PiiScanService::supportedJurisdictions('phone'));
+            $this->assertContains($code, PiiScanService::supportedJurisdictions('national_id'));
+        }
+    }
+
+    public function test_local_mobile_numbers_are_found(): void
+    {
+        $this->assertCount(1, $this->ofType($this->svc([], 'ndpa')->scan('Phone +234 803 123 4567 after hours.'), 'phone'));
+        $this->assertCount(1, $this->ofType($this->svc([], 'kenya_dpa')->scan('Phone 0712 345 678 after hours.'), 'phone'));
+    }
+
+    public function test_a_bare_digit_run_without_an_identifying_word_is_not_an_id(): void
+    {
+        $this->assertSame([], $this->ofType($this->svc([], 'kenya_dpa')->scan('Box 12345678, shelf 3.'), 'national_id'));
+        $this->assertSame([], $this->ofType($this->svc([], 'ndpa')->scan('Accession 12345678901 received.'), 'national_id'));
+    }
+
+    public function test_an_id_next_to_its_word_is_found_but_can_never_assert(): void
+    {
+        $ke = $this->ofType($this->svc([], 'kenya_dpa')->scan('National ID 23456789 recorded.'), 'national_id');
+        $this->assertCount(1, $ke);
+        $this->assertNull($ke[0]['validated'], 'no checksum exists, so the finding is review-only');
+
+        $ng = $this->ofType($this->svc([], 'ndpa')->scan('Her NIN is 12345678901.'), 'national_id');
+        $this->assertCount(1, $ng);
+        $this->assertNull($ng[0]['validated']);
+
+        $pin = $this->ofType($this->svc([], 'kenya_dpa')->scan('KRA PIN A123456789Z on the form.'), 'national_id');
+        $this->assertCount(1, $pin);
+    }
+
+    public function test_the_word_gate_is_whole_word_not_substring(): void
+    {
+        // "identifier" and "video" contain "id" but must not open the gate.
+        $this->assertSame([], $this->ofType($this->svc([], 'kenya_dpa')->scan('Video identifier 23456789.'), 'national_id'));
+    }
+
+    public function test_a_canadian_sin_is_validated_by_its_check_digit(): void
+    {
+        // 046 454 286 is the SIN Service Canada publishes as a valid example.
+        $good = $this->ofType($this->svc([], 'pipeda')->scan('SIN 046 454 286 on file.'), 'national_id');
+        $this->assertCount(1, $good);
+        $this->assertTrue($good[0]['validated']);
+
+        $bad = $this->ofType($this->svc([], 'pipeda')->scan('SIN 046 454 287 on file.'), 'national_id');
+        $this->assertCount(1, $bad);
+        $this->assertFalse($bad[0]['validated'], 'a failed check digit is surfaced for review, never asserted');
     }
 
     // =====================================================================

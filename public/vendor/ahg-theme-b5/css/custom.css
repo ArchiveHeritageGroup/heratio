@@ -397,6 +397,19 @@ footer.ahg-site-footer a.footer-link:hover {
   text-decoration: underline !important;
 }
 
+/* heratio#1532 (WCAG 2.2 AA): Bootstrap's text-white-50 is 3.4:1 on the footer
+   green (4.5:1 needed), and the footer links were 18.6px tall (24px minimum
+   target size, 2.5.8). */
+footer.ahg-site-footer .text-white-50 {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+footer.ahg-site-footer a.footer-link {
+  display: inline-block;
+  min-height: 24px;
+  padding: 3px 2px;
+}
+
 /* Static page content - ensure Markdown/HTML renders properly */
 .static-page-content h1 { font-size: 2rem; font-weight: 600; margin: 1.5rem 0 1rem; }
 .static-page-content h2 { font-size: 1.5rem; font-weight: 600; margin: 1.25rem 0 0.75rem; border-bottom: 1px solid var(--ahg-border, #dee2e6); padding-bottom: 0.3rem; }
@@ -415,3 +428,16 @@ footer.ahg-site-footer a.footer-link:hover {
 .static-page-content table th { background: var(--ahg-light, #f8f9fa); font-weight: 600; }
 .static-page-content a { color: var(--ahg-link-color, #005837); text-decoration: underline; }
 .static-page-content img { max-width: 100%; height: auto; }
+
+/* heratio#1532 (WCAG 2.2 AA 1.4.3): the success green #28a745 is 3.1:1 on white,
+   used for record links and the sector badges in browse. #1e7e34 is 5.2:1 for
+   green text on white and for white text on green. */
+.text-success,
+a.text-success {
+  color: #1e7e34 !important;
+}
+
+.badge.bg-success,
+.bg-success {
+  background-color: #1e7e34 !important;
+}

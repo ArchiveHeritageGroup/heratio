@@ -91,6 +91,8 @@ Route::middleware('auth')->group(function () {
 Route::middleware('admin')->group(function () {
     Route::get('/storagelocation/{slug}/delete', [StorageLocationController::class, 'confirmDelete'])->name('storagelocation.confirmDelete');
     Route::delete('/storagelocation/{slug}/delete', [StorageLocationController::class, 'destroy'])->name('storagelocation.destroy')->middleware('acl:delete');
+    // heratio#1528 - first placement of unplaced objects, editors and administrators.
+    Route::post('/storagelocation/{slug}/place-objects', [StorageLocationController::class, 'placeObjects'])->name('storagelocation.place-objects');
 });
 
 Route::get('/storagelocation/{slug}', [StorageLocationController::class, 'show'])

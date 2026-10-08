@@ -48,6 +48,17 @@ class StorageLocationService
     /** Depth ceiling for in-memory tree assembly. */
     public const MAX_DEPTH = 100;
 
+    /**
+     * The location types this package ships with (seed_dropdowns.sql). The list
+     * an archive actually uses is the Dropdown Manager taxonomy above, where it
+     * can be added to, reordered and retired; this is only what types() falls
+     * back to when that list is empty or not there (heratio#1528).
+     */
+    public const TYPES = ['building', 'floor', 'room', 'aisle', 'bay', 'rack', 'shelf', 'container', 'storage_unit'];
+
+    /** @var array<string, string>|null code => label, read once per instance */
+    private ?array $types = null;
+
     public function __construct(
         private ?ClosureMaintenanceService $closure = null,
         private ?StorageMovementService $movements = null,
@@ -68,6 +79,150 @@ class StorageLocationService
             ->orderBy('label')
             ->pluck('label', 'code')
             ->all();
+    }
+
+    /**
+     * The location types, code => label, in the order the archive set
+     * (heratio#1528, parity with atom-ahg-plugins#193).
+     *
+     * Read from the Dropdown Manager, so a type can be added, renamed or retired
+     * without a release. Falls back to the shipped list when ahg_dropdown is not
+     * there or the taxonomy is empty: a location form with no types in it cannot
+     * save anything, and that is worse than an out-of-date list. A type switched
+     * off is no longer offered; locations that already carry it keep it.
+     */
+    public function types(): array
+    {
+        if ($this->types !== null) {
+            return $this->types;
+        }
+
+        $types = [];
+        try {
+            $types = $this->options(self::TYPE_TAXONOMY);
+        } catch (\Throwable $e) {
+            $types = [];   // no ahg_dropdown on this install
+        }
+
+        if ($types === []) {
+            foreach (self::TYPES as $code) {
+                $types[$code] = ucfirst(str_replace('_', ' ', $code));
+            }
+        }
+
+        return $this->types = $types;
+    }
+
+    /** The label for a type code, or a readable form of a code no longer listed. */
+    public function typeLabel(?string $code): string
+    {
+        if ($code === null || $code === '') {
+            return '';
+        }
+
+        return $this->types()[$code] ?? ucfirst(str_replace('_', ' ', $code));
+    }
+
+    /**
+     * The name a place is stored under. Below building level a bare number or
+     * code ("1", "C3", "12B") gets its level in front ("Floor 1", "Room C3"), so
+     * the tree reads on its own; a name that is already words ("Strongroom B",
+     * "Floor 1") is kept as typed. Used by the flat-field migration and the box
+     * form alike, so both find the same place (atom-ahg-plugins v3.116.5).
+     */
+    public static function placeName(string $type, string $name): string
+    {
+        $name = trim($name);
+        $labels = ['floor' => 'Floor', 'room' => 'Room', 'aisle' => 'Aisle', 'bay' => 'Bay', 'rack' => 'Rack', 'shelf' => 'Shelf'];
+
+        if (isset($labels[$type]) && preg_match('/^[A-Za-z]{0,3}\d+[A-Za-z]{0,3}$/', $name)) {
+            return $labels[$type].' '.$name;
+        }
+
+        return $name;
+    }
+
+    /**
+     * The location of one type and name directly under $parentId (null: a root),
+     * or null. The same place is the same parent, type and name, the name
+     * compared without regard to case or surrounding space: "Room 12" typed two
+     * ways on two boxes is one room (heratio#1528, heratio#1545).
+     */
+    public function findChild(?int $parentId, string $type, string $name): ?int
+    {
+        $id = DB::table('ahg_storage_location')
+            ->where('location_type', $type)
+            ->whereRaw('LOWER(TRIM(name)) = ?', [mb_strtolower(trim($name))])
+            ->when($parentId === null,
+                fn ($q) => $q->whereNull('parent_id'),
+                fn ($q) => $q->where('parent_id', $parentId))
+            ->orderBy('id')
+            ->value('id');
+
+        return $id === null ? null : (int) $id;
+    }
+
+    /**
+     * What a location can hold, and what it does hold, counted down the tree
+     * (heratio#1528).
+     *
+     * Capacity is whatever was declared on each location, in whatever unit, so
+     * it is summed per unit and never across units: forty boxes and twelve
+     * linear metres are not fifty-two of anything. A location's own figure and
+     * the sum declared beneath it are reported apart, because an archive may
+     * declare capacity on the room, on its shelves, or on both, and adding the
+     * two would count the same space twice.
+     *
+     * Occupancy is a count of physical objects, the one thing the movement log
+     * knows for certain. Nothing records how much of a shelf a box takes up, so
+     * there is no percentage full.
+     *
+     * @return array own (null or [value, unit]), beneath (unit => total),
+     *               declared_beneath, objects_here, objects_beneath, objects_total
+     */
+    public function capacityRollup(int $id): array
+    {
+        $own = $this->getById($id);
+        if ($own === null) {
+            throw new RuntimeException('Storage location not found.');
+        }
+
+        $beneath = [];
+        $declared = 0;
+
+        $rows = DB::table('ahg_storage_location_closure as c')
+            ->join('ahg_storage_location as l', 'l.id', '=', 'c.descendant')
+            ->where('c.ancestor', $id)
+            ->where('c.depth', '>', 0)
+            ->whereNotNull('l.capacity_value')
+            ->groupBy('l.capacity_unit')
+            ->orderBy('l.capacity_unit')
+            ->selectRaw('l.capacity_unit as unit, SUM(l.capacity_value) as total, COUNT(*) as locations')
+            ->get();
+
+        foreach ($rows as $row) {
+            $beneath[(string) ($row->unit ?? '')] = (float) $row->total;
+            $declared += (int) $row->locations;
+        }
+
+        $here = (int) DB::table('ahg_physical_object_location')->where('location_id', $id)->count();
+
+        $total = (int) DB::table('ahg_storage_location_closure as c')
+            ->join('ahg_physical_object_location as pol', 'pol.location_id', '=', 'c.descendant')
+            ->where('c.ancestor', $id)
+            ->count();
+
+        return [
+            'own' => $own->capacity_value === null ? null : [
+                'value' => (float) $own->capacity_value,
+                'unit' => (string) ($own->capacity_unit ?? ''),
+            ],
+            'beneath' => $beneath,
+            'declared_beneath' => $declared,
+            'objects_here' => $here,
+            'objects_beneath' => $total - $here,
+            'objects_total' => $total,
+        ];
     }
 
     // ---------- Read --------------------------------------------------
@@ -260,7 +415,10 @@ class StorageLocationService
 
         if ($creating || array_key_exists('location_type', $data)) {
             $type = (string) ($data['location_type'] ?? '');
-            if (! array_key_exists($type, $this->options(self::TYPE_TAXONOMY))) {
+            // A location being edited may keep a type that has since been
+            // retired from the list; it may not be given one (heratio#1528).
+            $keeping = ! $creating && $type !== '' && ($this->getById($id)->location_type ?? null) === $type;
+            if (! $keeping && ! array_key_exists($type, $this->types())) {
                 throw new RuntimeException('Invalid location type.');
             }
             $row['location_type'] = $type;

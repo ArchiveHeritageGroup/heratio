@@ -64,6 +64,8 @@ CREATE TABLE IF NOT EXISTS `custom_field_definition` (
     `is_visible_public` TINYINT(1) DEFAULT 1,
     `is_visible_edit` TINYINT(1) DEFAULT 1,
     `is_repeatable` TINYINT(1) DEFAULT 0,
+    `include_in_export` TINYINT(1) DEFAULT 1
+        COMMENT 'carried into the finding aid and exports',
     `default_value` VARCHAR(500) NULL,
     `help_text` VARCHAR(500) NULL,
     `validation_rule` VARCHAR(255) NULL

@@ -63,7 +63,21 @@
                   {{ $doc['name'] ?: '[Untitled]' }}
                 </a>
               </td>
-              <td>{{ $doc['location'] ?? '' }}</td>
+              {{-- heratio#1545 - the tree path when the box is placed, else the flat
+                   location fields; the old free-text location, if any, as a note. --}}
+              <td>
+                @if(! empty($doc['tree_path']))
+                  @foreach($doc['tree_path'] as $place)
+                    @if(! $loop->first) <span class="text-muted">&gt;</span> @endif
+                    <a href="{{ route('storagelocation.show', $place['slug']) }}">{{ $place['name'] }}</a>
+                  @endforeach
+                @elseif(($doc['flat_path'] ?? '') !== '')
+                  {{ $doc['flat_path'] }}
+                @endif
+                @if(trim((string) ($doc['location'] ?? '')) !== '')
+                  <div class="small text-muted">{{ __('Note: :note', ['note' => $doc['location']]) }}</div>
+                @endif
+              </td>
               <td>{{ $typeNames[$doc['type_id']] ?? '' }}</td>
             </tr>
           @endforeach
@@ -78,6 +92,7 @@
     <section class="actions mb-3">
       <a class="btn atom-btn-outline-light" href="{{ route('physicalobject.create') }}" title="{{ __('Add new') }}">{{ __('Add new') }}</a>
       <a class="btn atom-btn-outline-light" href="{{ url('/physicalobject/holdingsReportExport') }}" title="{{ __('Export storage report') }}">{{ __('Export storage report') }}</a>
+      <a class="btn atom-btn-outline-light" href="{{ route('storagelocation.browse') }}" title="{{ __('Storage locations') }}">{{ __('Storage locations') }}</a>
     </section>
   @endauth
 

@@ -568,6 +568,7 @@ class GalleryService
             }
 
             $ioId = $io->id;
+            $fingerprintBefore = \AhgInformationObjectManage\Services\InformationObjectService::contentFingerprint((int) $ioId); // #1536
 
             // Update information_object
             $ioUpdate = [
@@ -650,8 +651,7 @@ class GalleryService
                 DB::table('museum_metadata')->insert(array_merge(['object_id' => $ioId], $metaFields));
             }
 
-            // Update object.updated_at
-            DB::table('object')->where('id', $ioId)->update(['updated_at' => now()]);
+            \AhgInformationObjectManage\Services\InformationObjectService::touchIfChanged((int) $ioId, $fingerprintBefore); // #1536: only on a real change
         });
 
         if ($resolved) {

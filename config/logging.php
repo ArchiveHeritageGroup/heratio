@@ -111,6 +111,20 @@ return [
             'processors' => [PsrLogMessageProcessor::class],
         ],
 
+        // heratio#1543: ship logs to a remote syslog / SIEM over UDP.
+        // Enable with LOG_STACK=daily,remote_syslog. See docs/remote-logging.md.
+        'remote_syslog' => [
+            'driver' => 'monolog',
+            'level' => env('LOG_REMOTE_SYSLOG_LEVEL', 'info'),
+            'handler' => SyslogUdpHandler::class,
+            'handler_with' => [
+                'host' => env('LOG_REMOTE_SYSLOG_HOST', '127.0.0.1'),
+                'port' => (int) env('LOG_REMOTE_SYSLOG_PORT', 514),
+                'ident' => env('LOG_REMOTE_SYSLOG_IDENT', 'heratio'),
+            ],
+            'processors' => [PsrLogMessageProcessor::class],
+        ],
+
         'stderr' => [
             'driver' => 'monolog',
             'level' => env('LOG_LEVEL', 'debug'),

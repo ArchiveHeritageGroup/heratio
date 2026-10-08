@@ -33,7 +33,6 @@ namespace Tests\Feature;
 use AhgInformationObjectManage\Services\InformationObjectService as Io;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class LastModifiedTest extends TestCase
@@ -43,21 +42,6 @@ class LastModifiedTest extends TestCase
     private const LONG_AGO = '2000-01-01 00:00:00';
 
     private int $id;
-
-    /**
-     * auditSnapshot() reads information_object.icip_sensitivity, which the ICIP
-     * install adds on live instances but heratio_test may lack. Add it before
-     * DatabaseTransactions opens (DDL would commit the transaction), matching
-     * the live definition.
-     */
-    protected function setUpTraits()
-    {
-        if (! Schema::hasColumn('information_object', 'icip_sensitivity')) {
-            Schema::table('information_object', fn ($t) => $t->string('icip_sensitivity', 512)->nullable());
-        }
-
-        return parent::setUpTraits();
-    }
 
     protected function setUp(): void
     {

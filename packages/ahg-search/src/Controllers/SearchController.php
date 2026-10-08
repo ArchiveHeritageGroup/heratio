@@ -614,6 +614,11 @@ class SearchController extends Controller
             'revision_history' => 'Revision history',
         ];
 
+        // heratio#1542: superseded by the scoped, audited, undoable bulk edit.
+        if ($request->isMethod('get') && \Illuminate\Support\Facades\Route::has('bulk-edit.index')) {
+            return redirect()->route('bulk-edit.index', ['kind' => 'find_replace']);
+        }
+
         if ($request->isMethod('get')) {
             return view('ahg-search::global-replace', [
                 'columns' => $columns,

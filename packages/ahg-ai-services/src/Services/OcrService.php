@@ -63,6 +63,7 @@ class OcrService
     public function __construct(
         private ?LlmService $llm = null,
         private ?OcrLlmCorrector $corrector = null,
+        private ?VisionOcrService $vision = null,
     ) {
         $this->binary = $this->setting('ocr_tesseract_binary', 'tesseract');
     }
@@ -214,9 +215,34 @@ class OcrService
             $result['words']      = $parsed['words'];
             $result['confidence'] = $parsed['mean_confidence'];
             $result['success']    = true;
+            $result['engine']     = 'tesseract';
 
-            // Optional LLM post-correction (opt-in).
-            $shouldCorrect = $opts['llm_correct'] ?? $this->correctionEnabled();
+            // heratio#1522: the vision model reads the page; Tesseract stays as
+            // the cross-check and supplies the word positions. Falls back to
+            // Tesseract's text when the gateway cannot be reached.
+            $engine = (string) ($opts['engine'] ?? $this->setting('ocr_engine', 'vision'));
+            if ($engine === 'vision') {
+                $vision = $this->vision ?? app(VisionOcrService::class);
+                $read = $vision->available() ? $vision->read($imagePath, $result['words']) : ['success' => false, 'error' => 'no_gateway_key'];
+                if (! empty($read['success'])) {
+                    $result['raw_text']   = $result['text'];
+                    $result['text']       = $read['text'];
+                    $result['engine']     = 'vision';
+                    $result['ocr_model']  = $read['model'];
+                    $result['strips']     = $read['strips'];
+                    $this->emitPremis($ioId, $doId, 'ocr.vision', 'success', null, [
+                        'model' => $read['model'],
+                        'strips' => count($read['strips']),
+                        'flagged' => count(array_filter($read['strips'], fn ($st) => $st['flagged'])),
+                    ]);
+                } else {
+                    Log::warning('[ahg-ai] vision OCR unavailable, kept Tesseract text', ['error' => $read['error'] ?? null]);
+                }
+            }
+
+            // Optional LLM post-correction (opt-in). Never over vision text:
+            // the post-corrector exists to repair Tesseract (heratio#1525).
+            $shouldCorrect = ($opts['llm_correct'] ?? $this->correctionEnabled()) && $result['engine'] === 'tesseract';
             if ($shouldCorrect && $result['text'] !== '') {
                 $minConf = (float) $this->setting('ocr_llm_correction_min_confidence', '70');
                 $pageConf = (float) ($result['confidence'] ?? 100);
@@ -227,11 +253,17 @@ class OcrService
                         'tesseract_confidence' => $pageConf,
                         'language' => $lang,
                     ]);
-                    if (is_array($corrected) && isset($corrected['text'])) {
+                    if (is_array($corrected) && empty($corrected['skipped']) && isset($corrected['text'])) {
+                        // heratio#1525: never replace the raw OCR - keep it beside the correction.
+                        $result['raw_text']         = $result['text'];
                         $result['text']             = $corrected['text'];
+                        $result['machine_edited']   = true;
                         $result['llm_corrected']    = true;
                         $result['corrections']      = $corrected['corrections'] ?? [];
                         $result['llm_model']        = $corrected['model'] ?? null;
+                    } elseif (is_array($corrected)) {
+                        $result['llm_corrected']   = false;
+                        $result['llm_skip_reason'] = $corrected['reason'] ?? 'skipped';
                     }
                 } else {
                     $result['llm_corrected'] = false;
@@ -304,6 +336,8 @@ class OcrService
                 'digital_object_id' => $doId,
                 'object_id'         => $ioId ?? 0,
                 'full_text'         => $result['text'],
+                'raw_text'          => $result['raw_text'] ?? null,
+                'machine_edited'    => ! empty($result['machine_edited']) ? 1 : 0,
                 'format'            => 'plain',
                 'language'          => substr(preg_replace('/[^A-Za-z]+/', '', $lang) ?: 'en', 0, 10),
                 'confidence'        => $result['confidence'],

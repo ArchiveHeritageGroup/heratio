@@ -19,7 +19,7 @@
 
 <div class="alert alert-warning">
     <i class="fas fa-exclamation-triangle me-2"></i>
-    <strong>{{ __('Warning:') }}</strong> {{ __('Merging records is permanent. The secondary record will be archived and its digital objects and child records transferred to the primary record.') }}
+    <strong>{{ __('Warning:') }}</strong> {{ __('Merging records is permanent. Everything attached to the secondary record moves to the primary record, and the secondary record is deleted.') }}
   </div>
 
   <form method="post" action="{{ route('dedupe.merge.execute', $duplicate->id) }}" id="mergeForm">
@@ -135,11 +135,7 @@
         <ul class="list-group list-group-flush">
           <li class="list-group-item">
             <i class="fas fa-file me-2 text-primary"></i>
-            {{ __('Digital objects from the secondary record will be transferred to the primary record') }}
-          </li>
-          <li class="list-group-item">
-            <i class="fas fa-sitemap me-2 text-primary"></i>
-            {{ __('Child records from the secondary record will be moved under the primary record') }}
+            {{ __('Child records, events, notes, access points, relations, the digital object and custom field values move from the secondary record to the primary record. The primary record keeps its own field values.') }}
           </li>
           <li class="list-group-item">
             <i class="fas fa-link me-2 text-primary"></i>
@@ -147,7 +143,7 @@
           </li>
           <li class="list-group-item">
             <i class="fas fa-archive me-2 text-primary"></i>
-            {{ __('The secondary record will be archived (not deleted) for audit purposes') }}
+            {{ __('The secondary record is then deleted; a full copy of it is kept in the merge log') }}
           </li>
           <li class="list-group-item">
             <i class="fas fa-history me-2 text-primary"></i>
@@ -163,6 +159,11 @@
         <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>{{ __('Step 3: Confirm Merge') }}</h5>
       </div>
       <div class="card-body">
+        <div class="mb-3">
+          <label for="mergeNotes" class="form-label">{{ __('Notes') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+          <textarea class="form-control" id="mergeNotes" name="notes" rows="2" maxlength="5000"></textarea>
+        </div>
+
         <div class="form-check mb-3">
           <input class="form-check-input" type="checkbox" id="confirmMerge" required>
           <label class="form-check-label" for="confirmMerge">

@@ -132,6 +132,7 @@ At the AtoM Foundation AGM in September 2026, members put their wishes for the p
 | Nested parent-child storage locations | A storage-location tree (building, floor, room, aisle, bay, rack, shelf, container) with browse, search, a page per location and a move-safe parent picker (`ahg-storage-manage`) |
 | Improve physical storage; multiple changes and easier relocation | An append-only movement log of where every container has been, current location at a glance, and bulk moves of a selection in one transaction |
 | Compliance with new standards: RiC | RiC-O as a first-class mode: RiC entities, a Fuseki-backed graph, SHACL validation and OpenRiC serialisations (`ahg-ric`) |
+| Custom metadata fields beyond RAD and ISAD(G), carried into PDF finding aids and exports | Admin-defined fields on every description form and page, in the PDF finding aid, EAD 2002 and EAD3, Dublin Core, MODS and CSV; a field can be kept out of exports (`ahg-custom-fields`) |
 | Compliance with new standards: CAAIS | A CAAIS 1.0 accession profile: structured extent, source confidentiality, language of material, preservation requirements, custody and legal-transfer events, revision log, and a CAAIS export (`ahg-accession-manage`) |
 | IIIF integration | IIIF Image API 3 through Cantaloupe, deep zoom, IIIF collections and manifests, and a choice of Mirador, Universal Viewer or OpenSeadragon |
 | Search improvements | Elasticsearch keyword search, semantic and thesaurus-expanded search, and a discovery layer (`ahg-search`, `ahg-semantic-search`, `ahg-discovery`) |
@@ -148,6 +149,10 @@ At the AtoM Foundation AGM in September 2026, members put their wishes for the p
 | A modern, long-term-supported framework (PHP 7.3+, Composer) | Laravel 12 on PHP 8.3, managed with Composer |
 | Get rid of nested sets for performance | Closure-table hierarchy queries (`HierarchyQueryService`) |
 | A better REST API with create, update and delete | REST v1/v2 with full CRUD on descriptions and authorities, keyed and rate-limited |
+| Merge duplicate terms | Merge a term into another of its taxonomy: every description link, narrower term and term-typed field moves across and the old name becomes a "use for" label. Dedupe merges duplicate descriptions for real, keeps a copy in the merge log and redirects the old address |
+| CSV update and replace; CSV work for non-admin roles | Match-and-update and replace-in-place for descriptions, authorities (matched on identifier, then name), accessions and repositories; import and export are ACL actions any role can be granted |
+| Search and replace across a fonds; batch edit and rename; numeric sort of children | Bulk edit: scoped find and replace, set the level, repository or publication status of a selection, rename from a pattern, natural or numeric sort of children; previewed, run in the background, audited and undoable |
+| Remote logging; a warning before session timeout | A remote syslog channel for SIEMs (`docs/remote-logging.md`) and a "Stay signed in" warning before an idle session ends |
 | Audit trail and change tracking | A full audit trail (`ahg-audit-trail`) |
 | Reading-room requests, circulation, patron accounts | A research portal with bookings, seats, walk-ins, equipment and access requests (`ahg-research`, `ahg-access-request`) |
 | Private, temporary access to records | Expiring share links (`ahg-share-link`) |
@@ -172,16 +177,11 @@ The wishes Heratio does not fully meet yet. Each has an open issue, and this lis
 | Wish | From | Where it stands | Issue |
 | --- | --- | --- | --- |
 | Single sign-on across instances (OIDC, SAML, LDAP) | AGM 2026; 2020 #58-60 | Login stubs only; protocol choice pending | [#1531](https://github.com/ArchiveHeritageGroup/heratio/issues/1531) |
-| Custom metadata fields carried into PDF finding aids and exports | AGM 2026 | Definitions exist; values not yet stored or exported | [#1530](https://github.com/ArchiveHeritageGroup/heratio/issues/1530) |
-| Accessibility and web accessibility testing (WCAG) | AGM 2026 | Groundwork in place; formal audit and CI scans to do | [#1532](https://github.com/ArchiveHeritageGroup/heratio/issues/1532) |
+| Accessibility and web accessibility testing (WCAG) | AGM 2026 | Automated WCAG 2.2 AA scans run in CI and fail on a regression; the shared header and footer issues they found are fixed. An external audit and a published VPAT are still to do | [#1532](https://github.com/ArchiveHeritageGroup/heratio/issues/1532) |
 | Physical storage: place objects, boxes inside boxes, capacity roll-up | AGM 2026 | Location tree and movement log shipped; these follow | [#1528](https://github.com/ArchiveHeritageGroup/heratio/issues/1528) |
-| Merge duplicate terms (authorities already merge) | 2020 #53 | To do | [#1533](https://github.com/ArchiveHeritageGroup/heratio/issues/1533) |
-| CSV update and replace for accessions and authorities; CSV work for non-admin roles | 2020 #6, #47, #57 | To do | [#1535](https://github.com/ArchiveHeritageGroup/heratio/issues/1535) |
-| GraphQL with create, update and delete | 2020 #27, #29 | REST has full CRUD; GraphQL is read-only today | [#1539](https://github.com/ArchiveHeritageGroup/heratio/issues/1539) |
-| Retire the last nested-set queries | 2020 #41 | Most hierarchy reads already on closure tables | [#1541](https://github.com/ArchiveHeritageGroup/heratio/issues/1541) |
-| Search and replace across a fonds; batch edit and rename; numeric sort of children | 2020 #33, #37, #55 | To do | [#1542](https://github.com/ArchiveHeritageGroup/heratio/issues/1542) |
-| Remote logging; a warning before session timeout | 2020 #13, #61 | To do | [#1543](https://github.com/ArchiveHeritageGroup/heratio/issues/1543) |
-| Bot and SEO policy, agent access policy, worked API examples | AGM 2026 | To do (documentation) | [#1544](https://github.com/ArchiveHeritageGroup/heratio/issues/1544) |
+| GraphQL with create, update and delete | 2020 #27, #29 | REST v2 has full CRUD with API keys; GraphQL is read-only for signed-in staff, and the docs now say so (#1539). A full GraphQL server waits for a client that needs it | [#1539](https://github.com/ArchiveHeritageGroup/heratio/issues/1539) |
+| Retire the last nested-set queries | 2020 #41 | Subtree and breadcrumb reads in research, rights, embargo, OAI-PMH, exports and the APIs now use the closure tables; the description editor, tree view and disclosure gate follow | [#1541](https://github.com/ArchiveHeritageGroup/heratio/issues/1541) |
+| Bot and SEO policy, agent access policy, worked API examples | AGM 2026 | Drafted in `docs/` (bot and SEO policy, agent access policy, worked API examples); wording awaiting approval before publication | [#1544](https://github.com/ArchiveHeritageGroup/heratio/issues/1544) |
 
 ## Requirements
 

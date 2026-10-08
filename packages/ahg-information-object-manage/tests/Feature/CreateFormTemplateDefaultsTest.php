@@ -46,20 +46,6 @@ class CreateFormTemplateDefaultsTest extends TestCase
 
     private int $fieldId;
 
-    /**
-     * ahg_form_template.config is missing on installs built from the old
-     * install.sql, heratio_test included (the 2026_10_08 migration adds it on
-     * deploy). Add it before DatabaseTransactions opens, since DDL commits.
-     */
-    protected function setUpTraits()
-    {
-        if (Schema::hasTable('ahg_form_template') && ! Schema::hasColumn('ahg_form_template', 'config')) {
-            Schema::table('ahg_form_template', fn ($t) => $t->text('config')->nullable());
-        }
-
-        return parent::setUpTraits();
-    }
-
     protected function setUp(): void
     {
         parent::setUp();

@@ -10,15 +10,14 @@ use Illuminate\Support\Facades\DB;
 if (!function_exists('ahg_get_collection_root_id')) {
     function ahg_get_collection_root_id($resource): ?int
     {
-        if (!$resource || !isset($resource->lft) || !isset($resource->rgt)) {
+        if (!$resource || empty($resource->id)) {
             return $resource->id ?? null;
         }
 
+        // heratio#1541: the top-level ancestor via the closure tables.
         $root = DB::table('information_object')
-            ->where('lft', '<=', $resource->lft)
-            ->where('rgt', '>=', $resource->rgt)
+            ->whereIn('id', app(\AhgCore\Services\HierarchyQueryService::class)->ancestorIds('information_object', (int) $resource->id, true))
             ->where('parent_id', 1)
-            ->orderBy('lft')
             ->first();
 
         return $root ? $root->id : ($resource->id ?? null);

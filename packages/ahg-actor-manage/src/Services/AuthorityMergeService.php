@@ -167,14 +167,17 @@ class AuthorityMergeService
         $contactsTransferred = 0;
         $identifiersTransferred = 0;
 
-        foreach ($secondaryIds as $secId) {
-            $this->applyFieldChoices($primaryId, $secId, $fieldChoices);
-            $relationsTransferred += $this->transferRelations($primaryId, $secId);
-            $resourcesTransferred += $this->transferResources($primaryId, $secId);
-            $contactsTransferred += $this->transferContacts($primaryId, $secId);
-            $identifiersTransferred += $this->transferIdentifiers($primaryId, $secId);
-            $this->createSlugRedirect($primaryId, $secId);
-        }
+        // One transaction: a failure part-way must not leave relations moved
+        // and the merge row still pending (heratio#1533).
+        DB::transaction(function () use ($primaryId, $secondaryIds, $fieldChoices, &$relationsTransferred, &$resourcesTransferred, &$contactsTransferred, &$identifiersTransferred) {
+            foreach ($secondaryIds as $secId) {
+                $this->applyFieldChoices($primaryId, $secId, $fieldChoices);
+                $relationsTransferred += $this->transferRelations($primaryId, $secId);
+                $resourcesTransferred += $this->transferResources($primaryId, $secId);
+                $contactsTransferred += $this->transferContacts($primaryId, $secId);
+                $identifiersTransferred += $this->transferIdentifiers($primaryId, $secId);
+            }
+        });
 
         DB::table('ahg_actor_merge')
             ->where('id', $mergeId)
@@ -301,19 +304,6 @@ class AuthorityMergeService
         }
 
         return $count;
-    }
-
-    protected function createSlugRedirect(int $primaryId, int $secondaryId): void
-    {
-        $oldSlug = DB::table('slug')
-            ->where('object_id', $secondaryId)
-            ->first();
-
-        if ($oldSlug) {
-            DB::table('slug')
-                ->where('object_id', $secondaryId)
-                ->update(['object_id' => $primaryId]);
-        }
     }
 
     protected function getActorDetail(int $actorId): ?object

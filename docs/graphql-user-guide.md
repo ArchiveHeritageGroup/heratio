@@ -1,35 +1,34 @@
 # GraphQL API User Guide
 
-The GraphQL API provides a flexible alternative to the REST API, allowing you to request exactly the data you need in a single query.
+The GraphQL endpoint lets a signed-in user ask for exactly the fields they need in a single query.
+
+> **Read-only, staff session only.** GraphQL in Heratio answers queries; it has no mutations, and it is not reachable with an API key. To create, update or delete records from a program, use the REST API v2, which has full CRUD with API keys (see the API user guide and `docs/api-worked-examples.md`). heratio#1539.
 
 ## Overview
 
 | Feature | Description |
 |---------|-------------|
-| Endpoint | `POST /api/graphql` |
-| Authentication | API Key or Session |
+| Endpoint | `POST /admin/graphql/execute` |
+| Authentication | Signed-in browser session (read permission); no API keys |
+| Operations | Queries only (read-only) |
 | Format | JSON |
-| Playground | `/api/graphql/playground` (dev only) |
+| Playground | `/admin/graphql/playground` |
 
 ## Quick Start
 
-### 1. Get an API Key
+### 1. Sign in
 
-Use the existing API key system (same keys work for REST and GraphQL):
-
-```bash
-# Via REST API
-curl -X POST https://your-instance.com/api/v2/keys \
-  -H "Content-Type: application/json" \
-  -d '{"name": "GraphQL Client", "scopes": ["read"]}'
-```
+Sign in to Heratio in the browser. The playground at `/admin/graphql/playground` uses that session, so it is the easiest place to try queries.
 
 ### 2. Make Your First Query
 
+From the playground, or from a script that carries the browser session cookie and CSRF token:
+
 ```bash
-curl -X POST https://your-instance.com/api/graphql \
+curl -X POST https://your-instance.com/admin/graphql/execute \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: your-api-key" \
+  -H "X-CSRF-TOKEN: <token from the page>" \
+  -b "laravel_session=<your session cookie>" \
   -d '{"query": "{ items(first: 5) { totalCount edges { node { title slug } } } }"}'
 ```
 
@@ -51,13 +50,7 @@ curl -X POST https://your-instance.com/api/graphql \
 
 ## Authentication
 
-GraphQL uses the same authentication as the REST API:
-
-| Method | Header |
-|--------|--------|
-| API Key | `X-API-Key: your-key` |
-| Bearer Token | `Authorization: Bearer your-key` |
-| Session | Automatic (if logged in via browser) |
+GraphQL uses the signed-in session only. An API key in `X-API-Key` or `Authorization: Bearer` is **not** accepted here; programs that authenticate with a key should use the REST API.
 
 ## Core Queries
 
@@ -344,7 +337,7 @@ Common errors:
 
 | Error | Cause | Solution |
 |-------|-------|----------|
-| `Unauthorized` | Missing/invalid API key | Check X-API-Key header |
+| `Unauthorized` | Not signed in, or the session expired | Sign in again in the browser |
 | `Depth limit exceeded` | Query too deep (>10 levels) | Reduce nesting |
 | `Complexity exceeded` | Query too expensive (>1000) | Reduce fields/pagination |
 
@@ -362,7 +355,7 @@ Common errors:
 In development mode, access the interactive GraphQL Playground at:
 
 ```
-https://your-instance.com/api/graphql/playground
+https://your-instance.com/admin/graphql/playground
 ```
 
 Features:

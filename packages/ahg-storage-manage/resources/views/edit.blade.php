@@ -55,7 +55,10 @@
           </div>
         </div>
 
-        {{-- Extended Location --}}
+        {{-- Extended Location. heratio#1545 - Building ... Shelf come from the
+             storage location tree when the box is placed there, else from the
+             flat fields; on save they place the box in the tree. --}}
+        @php $loc = $storageLevels ?? null; $loc = $loc !== null ? $loc : $extendedData; @endphp
         <div class="card mb-4">
           <div class="card-header bg-success text-white">
             <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>{{ __('Location Details') }}</h5>
@@ -66,21 +69,21 @@
                 <div class="mb-3">
                   <label for="building" class="form-label">{{ __('Building') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" name="building" id="building" class="form-control"
-                         value="{{ old('building', $extendedData['building'] ?? '') }}">
+                         value="{{ old('building', $loc['building'] ?? '') }}">
                 </div>
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
                   <label for="floor" class="form-label">{{ __('Floor') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" name="floor" id="floor" class="form-control"
-                         value="{{ old('floor', $extendedData['floor'] ?? '') }}">
+                         value="{{ old('floor', $loc['floor'] ?? '') }}">
                 </div>
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
                   <label for="room" class="form-label">{{ __('Room') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" name="room" id="room" class="form-control"
-                         value="{{ old('room', $extendedData['room'] ?? '') }}">
+                         value="{{ old('room', $loc['room'] ?? '') }}">
                 </div>
               </div>
             </div>
@@ -89,31 +92,34 @@
                 <div class="mb-3">
                   <label for="aisle" class="form-label">{{ __('Aisle') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" name="aisle" id="aisle" class="form-control"
-                         value="{{ old('aisle', $extendedData['aisle'] ?? '') }}">
+                         value="{{ old('aisle', $loc['aisle'] ?? '') }}">
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="mb-3">
                   <label for="bay" class="form-label">{{ __('Bay') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" name="bay" id="bay" class="form-control"
-                         value="{{ old('bay', $extendedData['bay'] ?? '') }}">
+                         value="{{ old('bay', $loc['bay'] ?? '') }}">
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="mb-3">
                   <label for="rack" class="form-label">{{ __('Rack') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" name="rack" id="rack" class="form-control"
-                         value="{{ old('rack', $extendedData['rack'] ?? '') }}">
+                         value="{{ old('rack', $loc['rack'] ?? '') }}">
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="mb-3">
                   <label for="shelf" class="form-label">{{ __('Shelf') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" name="shelf" id="shelf" class="form-control"
-                         value="{{ old('shelf', $extendedData['shelf'] ?? '') }}">
+                         value="{{ old('shelf', $loc['shelf'] ?? '') }}">
                 </div>
               </div>
             </div>
+            @if($placementAvailable ?? false)
+              <div class="mb-3">@include('ahg-storage-manage::_location-pickers')</div>
+            @endif
             <div class="row">
               <div class="col-md-4">
                 <div class="mb-3">
@@ -349,62 +355,8 @@
           </div>
         </div>
 
-        {{-- heratio#144 - Strongroom assignment (only when strongroom feature installed) --}}
-        @if(!empty($strongroomChoices ?? []) || ($currentAssignment ?? null))
-        <div class="card mb-4">
-          <div class="card-header bg-info text-white">
-            <h5 class="mb-0"><i class="fas fa-warehouse me-2"></i>{{ __('Strongroom assignment') }}</h5>
-          </div>
-          <div class="card-body">
-            @if($currentAssignment)
-              <div class="alert alert-secondary py-2 mb-3">
-                {{ __('Currently in:') }}
-                <strong>{{ $currentAssignment->strongroom_name }}</strong>
-                - {{ (float) $currentAssignment->size_units_used }}
-                {{ __($currentAssignment->capacity_unit) }}
-              </div>
-            @endif
-
-            <div class="mb-3">
-              <label class="form-label fw-semibold">{{ __('Action') }}</label>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="strongroom_action" id="sra_none" value="" checked>
-                <label class="form-check-label" for="sra_none">{{ __('No change') }}</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="strongroom_action" id="sra_assign" value="assign">
-                <label class="form-check-label" for="sra_assign">{{ $currentAssignment ? __('Move to another strongroom (or update units)') : __('Assign to a strongroom') }}</label>
-              </div>
-              @if($currentAssignment)
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="strongroom_action" id="sra_unassign" value="unassign">
-                <label class="form-check-label" for="sra_unassign">{{ __('Remove from current strongroom') }}</label>
-              </div>
-              @endif
-            </div>
-
-            <div class="row g-3">
-              <div class="col-md-8">
-                <label for="strongroom_id" class="form-label">{{ __('Strongroom') }}</label>
-                <select name="strongroom_id" id="strongroom_id" class="form-select">
-                  <option value="">{{ __('-- Select a strongroom --') }}</option>
-                  @foreach($strongroomChoices ?? [] as $rid => $label)
-                    <option value="{{ $rid }}" @selected(old('strongroom_id', $currentAssignment->strongroom_id ?? '') == $rid)>{{ $label }}</option>
-                  @endforeach
-                </select>
-                <div class="form-text">{{ __('Used only when "Assign" or "Move" is selected above.') }}</div>
-              </div>
-              <div class="col-md-4">
-                <label for="size_units_used" class="form-label">{{ __('Units used') }}</label>
-                <input type="number" name="size_units_used" id="size_units_used" class="form-control"
-                       min="0" step="0.01"
-                       value="{{ old('size_units_used', $currentAssignment->size_units_used ?? '') }}">
-                <div class="form-text">{{ __('e.g. linear-metre / box count, matched to the room\'s unit.') }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        @endif
+        {{-- heratio#1545 - strongrooms are rooms in the storage location tree
+             (Building ... Shelf above); the separate strongroom block is gone. --}}
 
       </div>
     </div>

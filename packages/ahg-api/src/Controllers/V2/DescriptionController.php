@@ -380,6 +380,9 @@ class DescriptionController extends BaseApiController
             'dates.*.date_display' => 'nullable|string|max:1024',
         ]);
 
+        // #1536: last modified moves only if this request changes the content.
+        $fingerprintBefore = \AhgInformationObjectManage\Services\InformationObjectService::contentFingerprint((int) $id);
+
         DB::transaction(function () use ($id, $input) {
             // Update base table fields
             $baseFields = ['identifier', 'level_of_description_id', 'repository_id'];
@@ -434,8 +437,8 @@ class DescriptionController extends BaseApiController
                     ->update(['status_id' => $statusId]);
             }
 
-            // Update timestamp
-            DB::table('object')->where('id', $id)->update(['updated_at' => now()]);
+            // Update timestamp - only on a real change (#1536)
+            \AhgInformationObjectManage\Services\InformationObjectService::touchIfChanged((int) $id, $fingerprintBefore);
         });
 
         $this->webhooks->trigger('item.updated', 'informationobject', $id, [
@@ -708,16 +711,17 @@ class DescriptionController extends BaseApiController
             return [];
         }
 
+        $ancIds = app(\AhgCore\Services\HierarchyQueryService::class)->ancestorIds('information_object', (int) $objectId, false); // heratio#1541, root-most first
+
         $ancestors = DB::table('information_object as io')
             ->join('information_object_i18n as ioi', function ($j) {
                 $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', $this->culture);
             })
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
-            ->where('io.lft', '<', $current->lft)
-            ->where('io.rgt', '>', $current->rgt)
+            ->whereIn('io.id', $ancIds)
             ->where('io.id', '!=', 1)
             ->select('io.id', 'slug.slug', 'ioi.title', 'io.lft')
-            ->orderBy('io.lft', 'asc')
+            ->orderByRaw($ancIds ? 'FIELD(io.id, '.implode(',', array_map('intval', $ancIds)).')' : 'io.id')
             ->get();
 
         return $ancestors->map(fn ($row) => [

@@ -545,18 +545,18 @@ class DataMigrationService
 
         // Check for existing record if update mode
         $existingId = null;
-        if ($importType === 'update' && ! empty($mapped['identifier'])) {
+        if ($this->matches($importType) && ! empty($mapped['identifier'])) {
             $existingId = DB::table('information_object')
                 ->where('identifier', $mapped['identifier'])
                 ->value('id');
         }
 
-        if ($existingId && $importType === 'update') {
+        if ($existingId) {
             // Update existing record
             $ioData = [];
             foreach ($ioFields as $f) {
-                if (array_key_exists($f, $mapped) && $mapped[$f] !== '') {
-                    $ioData[$f] = $mapped[$f];
+                if ($this->writes($mapped, $f, $importType)) {
+                    $ioData[$f] = $mapped[$f] === '' ? null : $mapped[$f];
                 }
             }
             if (! empty($ioData)) {
@@ -565,8 +565,8 @@ class DataMigrationService
 
             $i18nData = [];
             foreach ($i18nFields as $f) {
-                if (array_key_exists($f, $mapped)) {
-                    $i18nData[$f] = $mapped[$f];
+                if ($this->writes($mapped, $f, $importType)) {
+                    $i18nData[$f] = $mapped[$f] === '' ? null : $mapped[$f];
                 }
             }
             if (! empty($i18nData)) {
@@ -675,18 +675,26 @@ class DataMigrationService
 
         // Check for existing record if update mode
         $existingId = null;
-        if ($importType === 'update' && ! empty($mapped['authorized_form_of_name'])) {
-            $existingId = DB::table('actor_i18n')
-                ->where('authorized_form_of_name', $mapped['authorized_form_of_name'])
-                ->where('culture', $culture)
-                ->value('id');
+        // heratio#1535: match on the authority identifier first, then the name.
+        if ($this->matches($importType) && ! empty($mapped['description_identifier'])) {
+            $existingId = DB::table('actor')->join('object', 'object.id', '=', 'actor.id')
+                ->where('object.class_name', 'QubitActor')
+                ->where('actor.description_identifier', $mapped['description_identifier'])
+                ->value('actor.id');
+        }
+        if (! $existingId && $this->matches($importType) && ! empty($mapped['authorized_form_of_name'])) {
+            $existingId = DB::table('actor_i18n')->join('object', 'object.id', '=', 'actor_i18n.id')
+                ->where('object.class_name', 'QubitActor')
+                ->where('actor_i18n.authorized_form_of_name', $mapped['authorized_form_of_name'])
+                ->where('actor_i18n.culture', $culture)
+                ->value('actor_i18n.id');
         }
 
-        if ($existingId && $importType === 'update') {
+        if ($existingId) {
             $i18nData = [];
             foreach ($i18nFields as $f) {
-                if (array_key_exists($f, $mapped)) {
-                    $i18nData[$f] = $mapped[$f];
+                if ($this->writes($mapped, $f, $importType)) {
+                    $i18nData[$f] = $mapped[$f] === '' ? null : $mapped[$f];
                 }
             }
             if (! empty($i18nData)) {
@@ -753,17 +761,17 @@ class DataMigrationService
 
         // Check for existing record if update mode
         $existingId = null;
-        if ($importType === 'update' && ! empty($mapped['identifier'])) {
+        if ($this->matches($importType) && ! empty($mapped['identifier'])) {
             $existingId = DB::table('accession')
                 ->where('identifier', $mapped['identifier'])
                 ->value('id');
         }
 
-        if ($existingId && $importType === 'update') {
+        if ($existingId) {
             $accData = [];
             foreach ($accFields as $f) {
-                if (array_key_exists($f, $mapped) && $mapped[$f] !== '' && $f !== 'identifier') {
-                    $accData[$f] = $mapped[$f];
+                if ($this->writes($mapped, $f, $importType) && $f !== 'identifier') {
+                    $accData[$f] = $mapped[$f] === '' ? null : $mapped[$f];
                 }
             }
             $accData['updated_at'] = now();
@@ -773,8 +781,8 @@ class DataMigrationService
 
             $i18nData = [];
             foreach ($i18nFields as $f) {
-                if (array_key_exists($f, $mapped)) {
-                    $i18nData[$f] = $mapped[$f];
+                if ($this->writes($mapped, $f, $importType)) {
+                    $i18nData[$f] = $mapped[$f] === '' ? null : $mapped[$f];
                 }
             }
             if (! empty($i18nData)) {
@@ -858,7 +866,7 @@ class DataMigrationService
 
         // Check for existing record if update mode
         $existingId = null;
-        if ($importType === 'update' && ! empty($mapped['authorized_form_of_name'])) {
+        if ($this->matches($importType) && ! empty($mapped['authorized_form_of_name'])) {
             $existingId = DB::table('actor_i18n')
                 ->join('object', 'actor_i18n.id', '=', 'object.id')
                 ->where('object.class_name', 'QubitRepository')
@@ -867,11 +875,11 @@ class DataMigrationService
                 ->value('actor_i18n.id');
         }
 
-        if ($existingId && $importType === 'update') {
+        if ($existingId) {
             $i18nData = [];
             foreach ($actorI18nFields as $f) {
-                if (array_key_exists($f, $mapped)) {
-                    $i18nData[$f] = $mapped[$f];
+                if ($this->writes($mapped, $f, $importType)) {
+                    $i18nData[$f] = $mapped[$f] === '' ? null : $mapped[$f];
                 }
             }
             if (! empty($i18nData)) {
@@ -883,8 +891,8 @@ class DataMigrationService
 
             $repoData = [];
             foreach ($repoI18nFields as $f) {
-                if (array_key_exists($f, $mapped)) {
-                    $repoData[$f] = $mapped[$f];
+                if ($this->writes($mapped, $f, $importType)) {
+                    $repoData[$f] = $mapped[$f] === '' ? null : $mapped[$f];
                 }
             }
             if (! empty($repoData)) {
@@ -957,6 +965,21 @@ class DataMigrationService
     /**
      * Generate a unique slug, appending a suffix if needed.
      */
+    /**
+     * heratio#1535. "update" and "replace" both match existing records;
+     * replace also writes blank cells (clearing the field), update leaves
+     * the stored value when the cell is blank.
+     */
+    private function matches(string $importType): bool
+    {
+        return in_array($importType, ['update', 'replace'], true);
+    }
+
+    private function writes(array $mapped, string $field, string $importType): bool
+    {
+        return array_key_exists($field, $mapped) && ($importType === 'replace' || $mapped[$field] !== '');
+    }
+
     private function generateUniqueSlug(string $base): string
     {
         $slug = $base ?: 'untitled';

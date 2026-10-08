@@ -1,11 +1,9 @@
 # Heratio - Accessibility Statement
 
 **Version:** 2.8.2
-**Date:** 16 March 2026
-**Standard:** WCAG 2.1 Level AA
+**Date:** 8 October 2026
+**Standard:** WCAG 2.2 Level AA (self-assessed)
 **Author:** The Archive and Heritage Group (Pty) Ltd
-
----
 
 ## Our Commitment
 
@@ -13,7 +11,9 @@ Heratio is committed to ensuring digital accessibility for people with disabilit
 
 ## Conformance Status
 
-Heratio aims to conform to the **Web Content Accessibility Guidelines (WCAG) 2.1 at Level AA**. These guidelines explain how to make web content more accessible to people with a wide range of disabilities.
+Heratio aims to conform to the **Web Content Accessibility Guidelines (WCAG) 2.2 at Level AA**. These guidelines explain how to make web content more accessible to people with a wide range of disabilities.
+
+This is a self-assessment. Heratio has not yet had an independent accessibility audit, and no VPAT or Accessibility Conformance Report has been published. Automated testing finds only part of what WCAG covers, so Heratio does not claim full conformance until an external audit confirms it.
 
 ## Accessibility Features
 
@@ -59,11 +59,11 @@ Heratio aims to conform to the **Web Content Accessibility Guidelines (WCAG) 2.1
 
 ## Automated Testing
 
-Accessibility is continuously verified using:
+Every push and pull request runs **axe-core** through Playwright against the main public pages (home, browse, login, a published record and this statement) with the WCAG 2.0, 2.1 and 2.2 A and AA rule sets. The suite is `tests/e2e/05-ui-components/accessibility.spec.ts`.
 
-- **axe-core** via Playwright - automated WCAG 2.1 AA checks on key pages
-- **10 test cases** covering: homepage, browse, search results, admin, facet ARIA, sidebar roles, footer roles, live regions, table scopes, reduced-motion CSS
-- Test suite: `testing/playwright/tests/accessibility.spec.ts`
+The build fails on a regression: a critical or serious violation that is not already known, or more failing elements than are known. Known violations are listed in `tests/e2e/05-ui-components/a11y-baseline.json` and that list only shrinks as fixes land. In October 2026 the shared header and footer were corrected: the search box's ARIA role, footer text contrast, footer link target size, and the green used for record links and badges.
+
+Staff and admin pages are not scanned yet.
 
 ## Browser Support
 
@@ -90,6 +90,4 @@ Accessibility relies on the following technologies:
 - Bootstrap 5.3
 - WAI-ARIA landmarks and roles
 
----
-
-*This statement was last updated on 16 March 2026.*
+*This statement was last updated on 8 October 2026.*

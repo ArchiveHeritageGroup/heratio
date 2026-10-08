@@ -174,6 +174,14 @@ else
     php artisan heratio:install-bootstrap --pass=2 --no-interaction 2>&1 | tail -3 || true
 fi
 
+# heratio#1547: migrations (migration-only schema, idempotent) and the
+# hierarchy closure tables, as bin/install Stage 9b does. Without them the
+# container ran a schema no other install has.
+echo "[init] running migrations"
+php artisan migrate --force --no-interaction 2>&1 | tail -3 || true
+echo "[init] building closure tables"
+php artisan ahg:build-closure --all 2>&1 | tail -3 || true
+
 # ─── Stage 11: Elasticsearch indices ─────────────────────────────────────────
 if [ -n "${ELASTICSEARCH_HOST:-}" ]; then
     if curl -fsS "$ELASTICSEARCH_HOST/heratio_qubitinformationobject" -o /dev/null 2>/dev/null; then

@@ -215,9 +215,9 @@ class ExportService
         if ($parentSlug !== '') {
             $pid = (int) DB::table('slug')->where('slug', $parentSlug)->value('object_id');
             if ($pid) {
-                $p = DB::table('information_object')->where('id', $pid)->first();
-                if ($p && $includeDesc) {
-                    $q->whereBetween('io.lft', [$p->lft, $p->rgt]);
+                if ($includeDesc) {
+                    // heratio#1541: closure subquery, not the nested set.
+                    app(\AhgCore\Services\HierarchyQueryService::class)->scopeDescendants($q, 'information_object', $pid, 'io.id', true);
                 } else {
                     $q->where('io.parent_id', $pid);
                 }

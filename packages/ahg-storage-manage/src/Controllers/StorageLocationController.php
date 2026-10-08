@@ -15,6 +15,7 @@ namespace AhgStorageManage\Controllers;
 
 use AhgStorageManage\Services\StorageLocationService;
 use AhgStorageManage\Services\StorageMovementService;
+use AhgStorageManage\Services\StoragePlacementService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -34,6 +35,9 @@ use RuntimeException;
 class StorageLocationController extends Controller
 {
     public const PER_PAGE = 30;
+
+    /** How many unplaced objects a location's page offers at once; the search narrows it (heratio#1528). */
+    public const PLACE_LIMIT = 100;
 
     private StorageLocationService $service;
 
@@ -62,19 +66,35 @@ class StorageLocationController extends Controller
         return view('ahg-storage-manage::storage-location.browse', [
             'locations' => $locations,
             'tree' => $this->service->getTree(),
-            'types' => $this->service->options(StorageLocationService::TYPE_TAXONOMY),
+            'types' => $this->service->types(),
             'units' => $this->service->options(StorageLocationService::UNIT_TAXONOMY),
             'search' => $search,
             'type' => $type,
         ]);
     }
 
-    public function show(string $slug)
+    public function show(Request $request, string $slug)
     {
         $location = $this->find($slug);
         $id = (int) $location->id;
 
         $movements = new StorageMovementService;
+
+        // heratio#1528 - what sits in the locations beneath this one: the boxes
+        // in the cartons on this pallet. Objects held here directly are listed
+        // in their own card, with the move form.
+        $beneath = array_values(array_filter(
+            $movements->objectsUnder($id),
+            static fn ($object) => (int) $object['depth'] > 0
+        ));
+
+        // Objects with no place yet, so they can be given this one. Only worked
+        // out for somebody who can act on it.
+        $unplacedSearch = trim((string) $request->input('q', ''));
+        $canPlace = StoragePlacementService::mayCreate();
+        $unplaced = $canPlace
+            ? $movements->unplacedObjects($unplacedSearch, self::PLACE_LIMIT)
+            : ['rows' => [], 'total' => 0];
 
         return view('ahg-storage-manage::storage-location.show', [
             'location' => $location,
@@ -82,12 +102,54 @@ class StorageLocationController extends Controller
             'children' => $this->service->getChildren($id),
             'descendants' => $this->service->getDescendants($id),
             'subtree' => $this->service->getTree($id),
-            'types' => $this->service->options(StorageLocationService::TYPE_TAXONOMY),
+            'types' => $this->service->types(),
             'units' => $this->service->options(StorageLocationService::UNIT_TAXONOMY),
             'objects' => $movements->objectsIn($id),
             'movements' => $movements->historyForLocation($id),
             'locations' => $this->service->getLocations(),
+            'rollup' => $this->service->capacityRollup($id),
+            'beneath' => $beneath,
+            'canPlace' => $canPlace,
+            'unplaced' => $unplaced,
+            'unplacedSearch' => $unplacedSearch,
         ]);
+    }
+
+    /**
+     * heratio#1528 - put objects that have no place yet into this location, in
+     * one batch of first placements. This is how anything enters the tree from
+     * the location side; objects that already have a place are moved from the
+     * page of the location they are in.
+     */
+    public function placeObjects(Request $request, string $slug)
+    {
+        $location = $this->find($slug);
+
+        $data = $request->validate([
+            'object_ids' => ['required', 'array', 'min:1'],
+            'object_ids.*' => ['integer', 'exists:physical_object,id'],
+            'note' => ['nullable', 'string', 'max:2000'],
+        ], [
+            'object_ids.required' => __('Select at least one object to place.'),
+        ]);
+
+        $movements = new StorageMovementService;
+
+        // Only objects that are still unplaced: this is a first placement, not a
+        // way round the move form for objects already somewhere else.
+        $ids = array_values(array_filter(
+            array_map('intval', $data['object_ids']),
+            fn ($id) => $movements->currentLocationOf($id) === null
+        ));
+
+        try {
+            $written = $movements->moveObjects($ids, (int) $location->id, ['note' => $data['note'] ?? null]);
+        } catch (RuntimeException $e) {
+            return back()->with('error', __('Error placing objects: :message', ['message' => $e->getMessage()]));
+        }
+
+        return redirect()->route('storagelocation.show', $location->slug)
+            ->with('success', trans_choice('{0}Nothing placed: those objects already have a place.|{1}One object placed here.|[2,*]:count objects placed here.', count($written), ['count' => count($written)]));
     }
 
     /**
@@ -134,7 +196,7 @@ class StorageLocationController extends Controller
             'parent' => $parent,
             'path' => $parent ? $this->service->getPath((int) $parent->id) : [],
             'parents' => $this->service->getLocations(),
-            'types' => $this->service->options(StorageLocationService::TYPE_TAXONOMY),
+            'types' => $this->service->types(),
             'units' => $this->service->options(StorageLocationService::UNIT_TAXONOMY),
         ]);
     }
@@ -162,6 +224,13 @@ class StorageLocationController extends Controller
         // Neither the location nor anything under it can become its parent.
         $exclude = array_merge([$id], array_map(fn ($d) => (int) $d->id, $this->service->getDescendants($id)));
 
+        // A type retired in the Dropdown Manager stays on the location that has
+        // it, so it stays in this location's own select (heratio#1528).
+        $types = $this->service->types();
+        if ($location->location_type !== null && ! array_key_exists($location->location_type, $types)) {
+            $types[$location->location_type] = $this->service->typeLabel($location->location_type);
+        }
+
         return view('ahg-storage-manage::storage-location.edit', [
             'location' => $location,
             'parent' => null,
@@ -170,7 +239,7 @@ class StorageLocationController extends Controller
                 $this->service->getLocations(),
                 fn ($c) => ! in_array((int) $c->id, $exclude, true)
             )),
-            'types' => $this->service->options(StorageLocationService::TYPE_TAXONOMY),
+            'types' => $types,
             'units' => $this->service->options(StorageLocationService::UNIT_TAXONOMY),
         ]);
     }
@@ -178,7 +247,7 @@ class StorageLocationController extends Controller
     public function update(Request $request, string $slug)
     {
         $location = $this->find($slug);
-        $data = $this->validated($request);
+        $data = $this->validated($request, $location->location_type);
 
         try {
             $this->service->update((int) $location->id, $data);
@@ -201,7 +270,7 @@ class StorageLocationController extends Controller
             'path' => $this->service->getPath($id),
             'children' => $this->service->getChildren($id),
             'descendants' => $this->service->getDescendants($id),
-            'types' => $this->service->options(StorageLocationService::TYPE_TAXONOMY),
+            'types' => $this->service->types(),
         ]);
     }
 
@@ -256,11 +325,21 @@ class StorageLocationController extends Controller
         return $this->service->getBySlug($slug) ?? abort(404, 'Storage location not found');
     }
 
-    private function validated(Request $request): array
+    /**
+     * @param  string|null  $keepType  the type the location already has: it may
+     *                                 keep one since retired in the Dropdown
+     *                                 Manager, but not be given one (heratio#1528)
+     */
+    private function validated(Request $request, ?string $keepType = null): array
     {
+        $allowed = array_keys($this->service->types());
+        if ($keepType !== null && $keepType !== '') {
+            $allowed[] = $keepType;
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
-            'location_type' => ['required', 'string', Rule::in(array_keys($this->service->options(StorageLocationService::TYPE_TAXONOMY)))],
+            'location_type' => ['required', 'string', Rule::in($allowed)],
             'parent_id' => 'nullable|integer|exists:ahg_storage_location,id',
             'description' => 'nullable|string|max:65535',
             'capacity_value' => 'nullable|numeric|min:0',

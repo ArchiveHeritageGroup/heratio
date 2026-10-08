@@ -183,6 +183,67 @@ class StorageMovementService
         );
     }
 
+    /**
+     * Everything in a location and in all that sits beneath it: the boxes in a
+     * carton, the cartons on a pallet, the pallets in a bay (heratio#1528). One
+     * closure join. Each row says which location the object is actually in, and
+     * at what depth below this one (0 = held here directly), so the list reads
+     * as a shelf list.
+     */
+    public function objectsUnder(int $locationId): array
+    {
+        return $this->rows(
+            DB::table('ahg_storage_location_closure as c')
+                ->join('ahg_physical_object_location as pol', 'pol.location_id', '=', 'c.descendant')
+                ->join('ahg_storage_location as l', 'l.id', '=', 'pol.location_id')
+                ->leftJoin('physical_object_i18n as i', function ($join) {
+                    $join->on('i.id', '=', 'pol.physical_object_id')->where('i.culture', '=', $this->culture);
+                })
+                ->where('c.ancestor', $locationId)
+                ->orderBy('c.depth')
+                ->orderBy('l.name')
+                ->orderBy('i.name')
+                ->select(
+                    'pol.physical_object_id', 'pol.location_id', 'pol.updated_at', 'i.name',
+                    'l.name as location_name', 'l.slug as location_slug', 'l.location_type', 'c.depth'
+                )
+        );
+    }
+
+    /**
+     * Physical objects that are in no location yet, for placing (heratio#1528).
+     *
+     * Capped, because an archive that has just switched the tree on has every
+     * box it owns in this list. The search narrows it; the total says how many
+     * there are in all.
+     *
+     * @return array rows (physical_object_id, name), total
+     */
+    public function unplacedObjects(string $search = '', int $limit = 100): array
+    {
+        $query = DB::table('physical_object as p')
+            ->leftJoin('ahg_physical_object_location as pol', 'pol.physical_object_id', '=', 'p.id')
+            ->leftJoin('physical_object_i18n as i', function ($join) {
+                $join->on('i.id', '=', 'p.id')->where('i.culture', '=', $this->culture);
+            })
+            ->whereNull('pol.physical_object_id');
+
+        $search = trim($search);
+        if ($search !== '') {
+            $query->where('i.name', 'LIKE', '%'.addcslashes($search, '%_\\').'%');
+        }
+
+        $total = (clone $query)->count();
+
+        return [
+            'rows' => $this->rows(
+                $query->orderBy('i.name')->orderBy('p.id')->limit(max(1, $limit))
+                    ->select('p.id as physical_object_id', 'i.name')
+            ),
+            'total' => (int) $total,
+        ];
+    }
+
     /** Where an object is now, or null when it is not in storage. */
     public function currentLocationOf(int $objectId): ?int
     {

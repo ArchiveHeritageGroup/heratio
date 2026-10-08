@@ -53,22 +53,9 @@ class CustomFieldAdminController extends Controller
         $definition = $id ? $this->service->getDefinition($id) : null;
         $entityTypes = $this->service->getEntityTypes();
         $fieldTypes = $this->service->getFieldTypes();
+        $dropdownTaxonomies = $this->service->getDropdownTaxonomies();
 
-        return view('ahg-custom-fields::admin.edit', compact('definition', 'entityTypes', 'fieldTypes'));
-    }
-
-    /**
-     * Admin dashboard for custom fields.
-     */
-    public function admin()
-    {
-        $definitions = $this->service->getDefinitions();
-        $stats = [
-            'total' => count($definitions),
-            'active' => collect($definitions)->where('is_active', 1)->count(),
-        ];
-
-        return view('ahg-custom-fields::admin.dashboard', compact('definitions', 'stats'));
+        return view('ahg-custom-fields::admin.edit', compact('definition', 'entityTypes', 'fieldTypes', 'dropdownTaxonomies'));
     }
 
     /**
@@ -76,21 +63,38 @@ class CustomFieldAdminController extends Controller
      */
     public function save(Request $request)
     {
+        $id = $request->filled('id') ? (int) $request->input('id') : null;
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'field_type' => 'required|string|max:50',
-            'entity_type' => 'required|string|max:50',
+            'field_label' => 'required|string|max:255',
+            'field_key' => ['nullable', 'string', 'max:100', 'regex:/^[a-z0-9_]+$/'],
+            'field_type' => ['required', \Illuminate\Validation\Rule::in(array_keys($this->service->getFieldTypes()))],
+            'entity_type' => ['required', \Illuminate\Validation\Rule::in(array_keys($this->service->getEntityTypes()))],
+            'dropdown_taxonomy' => ['nullable', 'string', 'max:100', 'required_if:field_type,dropdown,multiselect'],
+            'field_group' => 'nullable|string|max:100',
+            'help_text' => 'nullable|string|max:500',
+            'default_value' => 'nullable|string|max:500',
+            'validation_rule' => ['nullable', 'string', 'max:255', 'regex:/^(max:\d+|regex:.+)$/'],
+            'sort_order' => 'nullable|integer|min:0',
+            'is_required' => 'boolean', 'is_active' => 'boolean', 'is_repeatable' => 'boolean',
+            'is_visible_edit' => 'boolean', 'is_visible_public' => 'boolean',
+            'include_in_export' => 'boolean', 'is_searchable' => 'boolean',
         ]);
-
-        $id = $request->get('id');
-
-        if ($id) {
-            $this->service->updateDefinition((int) $id, $request->except('_token'));
-        } else {
-            $id = $this->service->createDefinition($request->except('_token'));
+        $validated['field_key'] = $this->service->generateFieldKey(($validated['field_key'] ?? '') ?: $validated['field_label']);
+        $validated['sort_order'] = (int) ($validated['sort_order'] ?? 0);
+        if ($validated['field_key'] === '') {
+            return back()->withInput()->withErrors(['field_key' => __('The field key cannot be made from this label; enter one.')]);
+        }
+        if (! $this->service->isKeyUnique($validated['field_key'], $validated['entity_type'], $id)) {
+            return back()->withInput()->withErrors(['field_key' => __('A field with this key already exists for this entity type.')]);
         }
 
-        return redirect()->route('customFields.index')->with('notice', 'Custom field saved.');
+        if ($id) {
+            $this->service->updateDefinition($id, $validated);
+        } else {
+            $this->service->createDefinition($validated);
+        }
+
+        return redirect()->route('customFields.index')->with('notice', __('Custom field saved.'));
     }
 
     /**
@@ -108,22 +112,16 @@ class CustomFieldAdminController extends Controller
      */
     public function export()
     {
-        $definitions = $this->service->getDefinitions();
+        $columns = ['field_key', 'field_label', 'field_type', 'entity_type', 'field_group', 'dropdown_taxonomy',
+            'is_required', 'is_repeatable', 'is_visible_edit', 'is_visible_public', 'include_in_export', 'is_searchable',
+            'default_value', 'help_text', 'validation_rule', 'sort_order', 'is_active'];
 
         $output = fopen('php://temp', 'r+');
         fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
-        fputcsv($output, ['ID', 'Name', 'Field Type', 'Entity Type', 'Is Active']);
-
-        foreach ($definitions as $def) {
-            fputcsv($output, [
-                $def->id ?? '',
-                $def->name ?? '',
-                $def->field_type ?? '',
-                $def->entity_type ?? '',
-                $def->is_active ?? 0,
-            ]);
+        fputcsv($output, $columns);
+        foreach ($this->service->getDefinitions() as $def) {
+            fputcsv($output, array_map(fn ($c) => $def->{$c} ?? '', $columns));
         }
-
         rewind($output);
         $csv = stream_get_contents($output);
         fclose($output);
@@ -135,32 +133,37 @@ class CustomFieldAdminController extends Controller
     }
 
     /**
-     * Import custom field definitions from CSV.
+     * Import custom field definitions from a CSV in the export's format.
+     * Existing keys (per entity type) are skipped, not overwritten.
      */
     public function import(Request $request)
     {
-        $request->validate([
-            'file' => 'required|file|mimes:csv,txt',
-        ]);
+        $request->validate(['file' => 'required|file|mimes:csv,txt']);
 
-        $file = $request->file('file');
-        $rows = array_map('str_getcsv', file($file->getRealPath()));
-        $header = array_shift($rows);
+        $rows = array_map('str_getcsv', file($request->file('file')->getRealPath(), FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES));
+        $header = array_map(fn ($h) => trim(preg_replace('/^\xEF\xBB\xBF/', '', (string) $h)), array_shift($rows) ?? []);
+        $fieldTypes = array_keys($this->service->getFieldTypes());
+        $entityTypes = array_keys($this->service->getEntityTypes());
 
         $imported = 0;
         foreach ($rows as $row) {
-            if (count($row) >= 3) {
-                $this->service->createDefinition([
-                    'name' => $row[1] ?? '',
-                    'field_type' => $row[2] ?? 'text',
-                    'entity_type' => $row[3] ?? 'information_object',
-                    'is_active' => $row[4] ?? 1,
-                ]);
-                $imported++;
+            if (count($row) !== count($header)) {
+                continue;
             }
+            $data = array_combine($header, $row);
+            $data['entity_type'] = \AhgCustomFields\Services\CustomFieldService::normaliseEntity((string) ($data['entity_type'] ?? ''));
+            $data['field_key'] = $this->service->generateFieldKey((string) (($data['field_key'] ?? '') ?: ($data['field_label'] ?? '')));
+            if ($data['field_key'] === '' || trim((string) ($data['field_label'] ?? '')) === ''
+                || ! in_array($data['field_type'] ?? '', $fieldTypes, true) || ! in_array($data['entity_type'], $entityTypes, true)
+                || ! $this->service->isKeyUnique($data['field_key'], $data['entity_type'])) {
+                continue;
+            }
+            $data = array_map(fn ($v) => $v === '' ? null : $v, $data);
+            $this->service->createDefinition(array_filter($data, fn ($v) => $v !== null));
+            $imported++;
         }
 
-        return redirect()->route('customFields.index')->with('notice', "{$imported} custom field(s) imported.");
+        return redirect()->route('customFields.index')->with('notice', __(':count custom field(s) imported.', ['count' => $imported]));
     }
 
     /**
@@ -175,15 +178,5 @@ class CustomFieldAdminController extends Controller
         }
 
         return response()->json(['success' => true]);
-    }
-
-    /**
-     * Web-facing custom fields view.
-     */
-    public function web()
-    {
-        $definitions = $this->service->getDefinitions();
-
-        return view('ahg-custom-fields::web', compact('definitions'));
     }
 }

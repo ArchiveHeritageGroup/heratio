@@ -373,6 +373,9 @@
   {{-- ========== Access Points (reuses ISAD partial) ========== --}}
   @if(\AhgCore\Services\SettingHelper::checkFieldVisibility('dacs_access_points_area'))
     @include('ahg-information-object-manage::partials.sections.access-points-area')
+
+    {{-- heratio#1530: admin-defined custom fields --}}
+    @include('ahg-custom-fields::partials._view-fields', ['objectId' => $io->id])
   @endif
 
   {{-- ========== Chapter 8 - Description Control (auth-only) ========== --}}

@@ -1065,6 +1065,9 @@
       </div>
     </div>
 
+    {{-- heratio#1530: admin-defined custom fields, saved with the record --}}
+    @include('ahg-custom-fields::partials._edit-fields', ['objectId' => $io->id])
+
     {{-- ===== Form actions ===== --}}
     <section class="actions mb-3">
       <ul class="actions mb-1 nav gap-2">

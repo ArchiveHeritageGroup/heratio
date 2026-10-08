@@ -191,6 +191,8 @@ CREATE TABLE IF NOT EXISTS `iiif_ocr_text` (
   `digital_object_id` int NOT NULL,
   `object_id` int NOT NULL,
   `full_text` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `raw_text` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Tesseract output before any machine correction',
+  `machine_edited` tinyint(1) NOT NULL DEFAULT '0',
   `format` VARCHAR(29) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'plain' COMMENT 'plain, alto, hocr',
   `language` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'en',
   `confidence` decimal(5,2) DEFAULT NULL,

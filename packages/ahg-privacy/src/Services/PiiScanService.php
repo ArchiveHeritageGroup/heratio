@@ -116,6 +116,22 @@ final class PiiScanService
             'e164'  => ['pattern' => '/\+1[\s\-]?\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{4}\b/', 'confidence' => 0.95],
             'local' => ['pattern' => '/\b\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{4}\b/', 'confidence' => 0.65],
         ],
+        // heratio#1505. Nigeria: +234 then a 10-digit mobile (80x/81x/70x/90x/91x);
+        // local form drops the country code for a leading 0.
+        'ndpa' => [
+            'e164'  => ['pattern' => '/\+234[\s\-]?[789][01]\d[\s\-]?\d{3}[\s\-]?\d{4}\b/', 'confidence' => 0.95],
+            'local' => ['pattern' => '/\b0[789][01]\d[\s\-]?\d{3}[\s\-]?\d{4}\b/', 'confidence' => 0.80],
+        ],
+        // Kenya: +254 then 7xx / 1xx and six digits; local 07xx / 01xx.
+        'kenya_dpa' => [
+            'e164'  => ['pattern' => '/\+254[\s\-]?[17]\d{2}[\s\-]?\d{3}[\s\-]?\d{3}\b/', 'confidence' => 0.95],
+            'local' => ['pattern' => '/\b0[17]\d{2}[\s\-]?\d{3}[\s\-]?\d{3}\b/', 'confidence' => 0.80],
+        ],
+        // Canada shares the North American numbering plan with the US.
+        'pipeda' => [
+            'e164'  => ['pattern' => '/\+1[\s\-]?\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{4}\b/', 'confidence' => 0.95],
+            'local' => ['pattern' => '/\b\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{4}\b/', 'confidence' => 0.65],
+        ],
     ];
 
     /**
@@ -143,6 +159,31 @@ final class PiiScanService
             'pattern'    => '/\b\d{3}-\d{2}-\d{4}\b/',
             'confidence' => 0.85,
             'validator'  => null,
+        ],
+        // heratio#1505. The rest are bare digit runs, the shape of accession,
+        // box and reference numbers, so each is GATED: it counts only with an
+        // identifying word within 50 characters of the match (word-boundary
+        // match, see hasContextNear). None of the NG/KE numbers has a
+        // checksum, so validated stays null and they surface for review only:
+        // they can never assert a category on an Article 30 record.
+        'ndpa' => [
+            // NIN (National Identification Number) and BVN, both 11 digits.
+            ['pattern' => '/\b\d{11}\b/', 'confidence' => 0.60, 'validator' => null,
+                'context' => ['nin', 'national identification', 'national id', 'identity number', 'nimc', 'bvn', 'bank verification']],
+        ],
+        'kenya_dpa' => [
+            // National ID card number, 7 or 8 digits; Huduma Namba is the digital ID.
+            ['pattern' => '/\b\d{7,8}\b/', 'confidence' => 0.55, 'validator' => null,
+                'context' => ['id', 'id no', 'identity', 'national id', 'huduma']],
+            // KRA PIN: a letter, nine digits, a letter.
+            ['pattern' => '/\b[A-Z]\d{9}[A-Z]\b/', 'confidence' => 0.75, 'validator' => null,
+                'context' => ['kra', 'pin', 'tax', 'taxpayer']],
+        ],
+        'pipeda' => [
+            // Social Insurance Number, 9 digits with a Luhn check digit: the
+            // one here that can be validated, still gated as a digit run.
+            ['pattern' => '/\b\d{3}[\s\-]?\d{3}[\s\-]?\d{3}\b/', 'confidence' => 0.60, 'validator' => 'validateSin',
+                'context' => ['sin', 'social insurance', 'nas', 'assurance sociale']],
         ],
     ];
 
@@ -551,43 +592,49 @@ final class PiiScanService
             if (! isset(self::NATIONAL_ID_PATTERNS[$j])) {
                 continue;
             }
-            $cfg = self::NATIONAL_ID_PATTERNS[$j];
-            if (! $this->matchAll($cfg['pattern'], $text, $matches, "national_id:{$j}")) {
-                continue;
-            }
-            foreach ($matches[0] as $match) {
-                $value = (string) $match[0];
-                $confidence = $cfg['confidence'];
-
-                // `validated` is the whole basis on which this finding may
-                // become a compliance assertion, so it records what was
-                // actually established rather than how sure the match felt:
-                //   true  - corroborated, by a checksum here and by the
-                //           surrounding prose for types that have none
-                //   false - the corroboration was attempted and FAILED
-                //   null  - nothing to corroborate against, so nothing was
-                //           established either way
-                // Only true may declare a category of personal data.
-                // Only true may declare a category of personal data. A number
-                // that fails its own check digit is evidence for a reviewer,
-                // not grounds for an Article 30 entry.
-                $validated = null;
-                if ($cfg['validator'] !== null) {
-                    $validated = (bool) $this->{$cfg['validator']}($value);
-                    $confidence = $validated
-                        ? min(0.95, $confidence + 0.2)
-                        : max(0.3, $confidence - 0.4);
+            // A jurisdiction holds one pattern config or a list of them.
+            $configs = isset(self::NATIONAL_ID_PATTERNS[$j]['pattern']) ? [self::NATIONAL_ID_PATTERNS[$j]] : self::NATIONAL_ID_PATTERNS[$j];
+            foreach ($configs as $n => $cfg) {
+                if (! $this->matchAll($cfg['pattern'], $text, $matches, "national_id:{$j}:{$n}")) {
+                    continue;
                 }
+                foreach ($matches[0] as $match) {
+                    $value = (string) $match[0];
+                    $confidence = $cfg['confidence'];
+                    if (! empty($cfg['context']) && ! $this->hasContextNear($text, (int) $match[1], $cfg['context'])) {
+                        continue;
+                    }
 
-                $offset = (int) $match[1];
-                $findings[] = [
-                    'type'         => 'national_id',
-                    'value'        => $value,
-                    'offset_start' => $offset,
-                    'offset_end'   => $offset + strlen($value),
-                    'confidence'   => $confidence,
-                    'validated'    => $validated,
-                ];
+                    // `validated` is the whole basis on which this finding may
+                    // become a compliance assertion, so it records what was
+                    // actually established rather than how sure the match felt:
+                    //   true  - corroborated, by a checksum here and by the
+                    //           surrounding prose for types that have none
+                    //   false - the corroboration was attempted and FAILED
+                    //   null  - nothing to corroborate against, so nothing was
+                    //           established either way
+                    // Only true may declare a category of personal data.
+                    // Only true may declare a category of personal data. A number
+                    // that fails its own check digit is evidence for a reviewer,
+                    // not grounds for an Article 30 entry.
+                    $validated = null;
+                    if ($cfg['validator'] !== null) {
+                        $validated = (bool) $this->{$cfg['validator']}($value);
+                        $confidence = $validated
+                            ? min(0.95, $confidence + 0.2)
+                            : max(0.3, $confidence - 0.4);
+                    }
+
+                    $offset = (int) $match[1];
+                    $findings[] = [
+                        'type'         => 'national_id',
+                        'value'        => $value,
+                        'offset_start' => $offset,
+                        'offset_end'   => $offset + strlen($value),
+                        'confidence'   => $confidence,
+                        'validated'    => $validated,
+                    ];
+                }
             }
         }
     }
@@ -814,6 +861,14 @@ final class PiiScanService
             $alt = ! $alt;
         }
         return $sum % 10 === 0;
+    }
+
+    /** Canadian SIN: nine digits passing Luhn, not all zeros. */
+    private function validateSin(string $value): bool
+    {
+        $digits = preg_replace('/\D/', '', $value);
+
+        return strlen($digits) === 9 && $digits !== '000000000' && $this->luhn($digits);
     }
 
     /**

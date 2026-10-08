@@ -280,14 +280,15 @@ class BibliographyService
             return [];
         }
 
+        $ancIds = app(\AhgCore\Services\HierarchyQueryService::class)->ancestorIds('information_object', (int) $objectId, false); // heratio#1541, root-most first
+
         return DB::table('information_object as io')
             ->leftJoin('information_object_i18n as ioi', function ($join) {
                 $join->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', 'en');
             })
-            ->where('io.lft', '<', $object->lft)
-            ->where('io.rgt', '>', $object->rgt)
+            ->whereIn('io.id', $ancIds)
             ->where('io.id', '!=', 1) // Exclude root
-            ->orderBy('io.lft')
+            ->orderByRaw($ancIds ? 'FIELD(io.id, '.implode(',', array_map('intval', $ancIds)).')' : 'io.id')
             ->select('io.id', 'ioi.title')
             ->get()
             ->toArray();

@@ -68,6 +68,9 @@
     </select>
   </div>
 
+  {{-- heratio#1530: admin-defined custom fields, saved with the record --}}
+  @include('ahg-custom-fields::partials._edit-fields', ['objectId' => $io->id ?? null])
+
   <ul class="actions mb-3 nav gap-2">
     <li><a href="{{ url('/'.($io->slug ?? '')) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
     <li><button class="btn atom-btn-outline-success" type="submit">{{ __('Save') }}</button></li>

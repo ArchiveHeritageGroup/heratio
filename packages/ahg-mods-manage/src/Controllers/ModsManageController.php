@@ -103,7 +103,9 @@ class ModsManageController extends Controller
         // ── POST: validate and save ──
         if ($request->isMethod('post')) {
             $request->validate(['title' => 'required|string|max:65535']);
+            \AhgCustomFields\Services\CustomFieldService::validateRequest($request);
             $this->persist($io->id, $request);
+            \AhgCustomFields\Services\CustomFieldService::saveFromRequest((int) $io->id, $request); // heratio#1530
 
             return redirect()->route('ahgmodsmanage.edit', ['slug' => $slug])
                 ->with('success', 'Description saved (MODS).');
@@ -379,6 +381,7 @@ class ModsManageController extends Controller
     /** Persist a MODS description onto an existing IO (#1425 dynamic form). */
     public function persist(int $ioId, Request $request): void
     {
+        $fingerprintBefore = \AhgInformationObjectManage\Services\InformationObjectService::contentFingerprint((int) $ioId); // #1536
         // #676: snapshot BEFORE the writes so the audit log can show a
         // before/after for a MODS edit. Reuses the information-object
         // service's own snapshot, so every standard diffs the same field set
@@ -501,7 +504,7 @@ class ModsManageController extends Controller
             }
 
             // Update object.updated_at
-            DB::table('object')->where('id', $ioId)->update(['updated_at' => now()]);
+            \AhgInformationObjectManage\Services\InformationObjectService::touchIfChanged((int) $ioId, $fingerprintBefore); // #1536: only on a real change
 
     }
 

@@ -103,6 +103,11 @@ class FindingAidGenerateCommand extends Command
                 'i18n.title', 'i18n.scope_and_content', 'i18n.extent_and_medium')
             ->get();
 
+        // heratio#1530: admin-defined custom fields marked for export
+        $cf = class_exists(\AhgCustomFields\Services\CustomFieldService::class)
+            ? app(\AhgCustomFields\Services\CustomFieldService::class)->exportValuesFor($rows->pluck('id')->all())
+            : [];
+
         $rootTitle = optional($rows->firstWhere('id', $rootId))->title ?? '(untitled)';
         $html = "<!doctype html><html><head><meta charset='utf-8'><title>".e($rootTitle).'</title>';
         $html .= '<style>body{font:12pt serif;margin:2cm} h1{font-size:18pt} .item{margin:.4em 0 .4em 1em;border-left:1px solid #ccc;padding-left:.5em} .id{color:#666;font-size:.85em}</style></head><body>';
@@ -119,6 +124,9 @@ class FindingAidGenerateCommand extends Command
             }
             if ($r->scope_and_content) {
                 $html .= '<p>'.e($r->scope_and_content).'</p>';
+            }
+            foreach ($cf[(int) $r->id] ?? [] as $f) {
+                $html .= '<div><em>'.e($f['label']).':</em> '.e($f['value']).'</div>';
             }
             $html .= '</div>';
         }

@@ -503,18 +503,27 @@ class DedupeController extends Controller
             abort(404);
         }
 
-        $primaryId = $request->input('primary_id');
-        $secondaryId = ($primaryId == $duplicate->record_a_id) ? $duplicate->record_b_id : $duplicate->record_a_id;
+        if ($duplicate->status === 'merged') {
+            return redirect()->route('dedupe.browse')->with('error', __('This pair has already been merged.'));
+        }
 
-        DB::table('ahg_duplicate_detection')
-            ->where('id', $id)
-            ->update([
-                'status' => 'merged',
-                'reviewed_by' => Auth::id(),
-                'reviewed_at' => now(),
-            ]);
+        $request->validate([
+            'primary_id' => ['required', 'integer', \Illuminate\Validation\Rule::in([(int) $duplicate->record_a_id, (int) $duplicate->record_b_id])],
+            'notes' => 'nullable|string|max:5000',
+        ]);
+        $primaryId = (int) $request->input('primary_id');
+        $secondaryId = $primaryId === (int) $duplicate->record_a_id ? (int) $duplicate->record_b_id : (int) $duplicate->record_a_id;
 
-        return redirect()->route('dedupe.browse')->with('notice', 'Records have been flagged for merge. A background task will complete the data transfer.');
+        // heratio#1533: a real merge (it used to only mark the pair as merged).
+        try {
+            $logId = app(\AhgDedupe\Services\RecordMergeService::class)
+                ->merge($primaryId, $secondaryId, (int) Auth::id(), (int) $duplicate->id, $request->input('notes'));
+        } catch (\DomainException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return redirect()->route('dedupe.browse')
+            ->with('notice', __('Records merged. Merge log entry :id keeps a copy of the removed record.', ['id' => $logId]));
     }
 
     /**

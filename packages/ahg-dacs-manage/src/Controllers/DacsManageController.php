@@ -101,7 +101,9 @@ class DacsManageController extends Controller
             $request->validate([
                 'title' => 'required|string|max:65535',
             ]);
+            \AhgCustomFields\Services\CustomFieldService::validateRequest($request);
             $this->persist($io->id, $request);
+            \AhgCustomFields\Services\CustomFieldService::saveFromRequest((int) $io->id, $request); // heratio#1530
 
             return redirect()->route('ahgdacsmanage.edit', ['slug' => $slug])
                 ->with('success', 'Description saved (DACS).');
@@ -280,6 +282,7 @@ class DacsManageController extends Controller
      */
     public function persist(int $ioId, Request $request): void
     {
+        $fingerprintBefore = \AhgInformationObjectManage\Services\InformationObjectService::contentFingerprint((int) $ioId); // #1536
         // #676: snapshot BEFORE the writes so the audit log can show a
         // before/after for a DACS edit. Reuses the information-object
         // service's own snapshot, so every standard diffs the same field set
@@ -469,7 +472,7 @@ class DacsManageController extends Controller
             }
 
             // Update object.updated_at
-            DB::table('object')->where('id', $ioId)->update(['updated_at' => now()]);
+            \AhgInformationObjectManage\Services\InformationObjectService::touchIfChanged((int) $ioId, $fingerprintBefore); // #1536: only on a real change
 
     }
 

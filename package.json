@@ -24,6 +24,7 @@
     "playwright:install-deps": "playwright install-deps"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.42.0",
     "@tailwindcss/vite": "^4.0.0",
     "@types/node": "^20.11.0",

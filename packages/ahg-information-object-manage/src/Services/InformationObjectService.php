@@ -430,6 +430,10 @@ class InformationObjectService
             'relations' => $strip(DB::table('relation')->where(fn ($q) => $q->where('subject_id', $id)->orWhere('object_id', $id))->get(), ['id']),
             'properties' => $withI18n('property', 'property_i18n', DB::table('property')->where('object_id', $id)->get(), ['id', 'object_id', 'serial_number']),
             'other_names' => $withI18n('other_name', 'other_name_i18n', DB::table('other_name')->where('object_id', $id)->get(), ['id', 'object_id', 'serial_number']),
+            'custom_fields' => $strip(DB::table('custom_field_value')->where('object_id', $id)->get(), ['id', 'object_id', 'created_at', 'updated_at']), // #1530
+            // Sector metadata (museum / gallery CCO fields) is description content too.
+            'museum' => \Illuminate\Support\Facades\Schema::hasTable('museum_metadata')
+                ? $strip(DB::table('museum_metadata')->where('object_id', $id)->get(), ['id', 'object_id', 'created_at', 'updated_at']) : [],
         ];
 
         return sha1(json_encode($parts));
@@ -632,6 +636,64 @@ class InformationObjectService
     // ─── Delete ──────────────────────────────────────────────────────
 
     /**
+     * Move a description, with its whole subtree, to be the last child of
+     * another (heratio#1533). One implementation for the tree drag-and-drop,
+     * the Move page and the dedupe merge: the nested set (signed-shift), the
+     * closure tree and sibling order, an audit entry, then one ES ancestor
+     * delta for the subtree. Callers check that the target is not inside the
+     * moved subtree and is not already the parent.
+     */
+    public static function moveUnder(int $id, int $newParentId): void
+    {
+        $node = DB::table('information_object')->where('id', $id)->select('id', 'lft', 'rgt', 'parent_id')->first();
+        if (! $node || ! DB::table('information_object')->where('id', $newParentId)->exists()) {
+            throw new \InvalidArgumentException("moveUnder: unknown record {$id} or parent {$newParentId}");
+        }
+
+        $hierarchy = app(\AhgCore\Services\HierarchyQueryService::class);
+        $oldAncestors = $hierarchy->ancestorIds('information_object', $id);
+
+        DB::transaction(function () use ($node, $id, $newParentId) {
+            if ($node->lft !== null && $node->rgt !== null && $node->lft > 0 && $node->rgt > 0) {
+                $width = $node->rgt - $node->lft + 1;
+                // 1) Mark the moving subtree by negating it, 2) close its gap,
+                // 3) open one at the new parent's rgt, 4) restore it there.
+                DB::table('information_object')->where('lft', '>=', $node->lft)->where('rgt', '<=', $node->rgt)
+                    ->update(['lft' => DB::raw('lft * -1'), 'rgt' => DB::raw('rgt * -1')]);
+                DB::table('information_object')->where('lft', '>', $node->rgt)->decrement('lft', $width);
+                DB::table('information_object')->where('rgt', '>', $node->rgt)->decrement('rgt', $width);
+
+                $insertAt = (int) DB::table('information_object')->where('id', $newParentId)->value('rgt');
+                DB::table('information_object')->where('lft', '>=', $insertAt)->increment('lft', $width);
+                DB::table('information_object')->where('rgt', '>=', $insertAt)->increment('rgt', $width);
+
+                $offset = $insertAt - $node->lft;
+                DB::table('information_object')->where('lft', '<', 0)
+                    ->update(['lft' => DB::raw('(lft * -1) + '.$offset), 'rgt' => DB::raw('(rgt * -1) + '.$offset)]);
+            }
+
+            DB::table('information_object')->where('id', $id)->update(['parent_id' => $newParentId]);
+
+            \AhgCore\Support\AuditLog::captureMutation($id, 'information_object', 'move', [
+                'data' => ['old_parent_id' => (int) $node->parent_id, 'new_parent_id' => $newParentId],
+            ]);
+
+            $closure = app(\AhgCore\Services\ClosureMaintenanceService::class);
+            $closure->moveNode('information_object', $id, $newParentId);
+            $closure->resyncSiblingOrder('information_object', $node->parent_id !== null ? (int) $node->parent_id : null);
+            $closure->resyncSiblingOrder('information_object', $newParentId);
+        });
+
+        // Best-effort: repoint the subtree's `ancestors` in ES; never fails the move.
+        try {
+            app(\AhgSearch\Services\ElasticsearchService::class)
+                ->updateSubtreeAncestorsOnMove($id, $oldAncestors, $hierarchy->ancestorIds('information_object', $id));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('moveUnder: ES ancestor update failed', ['id' => $id, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /**
      * Delete an information object and all its descendants.
      *
      * Handles: nested set cleanup, i18n, slug, object, status, events, notes,
@@ -712,6 +774,9 @@ class InformationObjectService
                 DB::table('property_i18n')->whereIn('id', $propertyIds)->delete();
                 DB::table('property')->whereIn('object_id', $descendantIds)->delete();
             }
+
+            // Custom field values (heratio#1530)
+            DB::table('custom_field_value')->whereIn('object_id', $descendantIds)->delete();
 
             // Delete digital objects
             try {

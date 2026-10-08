@@ -201,6 +201,12 @@ class FindingAidJob implements ShouldQueue
         $body = preg_replace('/<repository>/', '<p><strong>Repository:</strong> ', $body);
         $body = preg_replace('/<\/repository>/', '</p>', $body);
 
+        // Custom fields (heratio#1530): <odd> carries its own <head>
+        $body = preg_replace('/<odd[^>]*>/', '<div class="section">', $body);
+        $body = preg_replace('/<\/odd>/', '</div>', $body);
+        $body = preg_replace('/<head>/', '<h3>', $body);
+        $body = preg_replace('/<\/head>/', '</h3>', $body);
+
         // Section elements
         $sectionMap = [
             'scopecontent' => 'Scope and content',
@@ -414,6 +420,17 @@ HTML;
 
     // ─── EAD XML Builder (mirrors ExportController::buildEadXml) ─────
 
+    /** EAD <odd> blocks, one per custom field (heratio#1530). */
+    protected function customFieldsOdd(array $fields, string $indent): string
+    {
+        $xml = '';
+        foreach ($fields as $f) {
+            $xml .= $indent.'<odd type="'.$this->e($f['key']).'"><head>'.$this->e($f['label']).'</head><p>'.$this->e($f['value'])."</p></odd>\n";
+        }
+
+        return $xml;
+    }
+
     protected function e(?string $value): string
     {
         return htmlspecialchars($value ?? '', ENT_XML1 | ENT_QUOTES, 'UTF-8');
@@ -490,6 +507,9 @@ HTML;
         $eadLevel = $this->mapLevelToEad($levelName);
         $date = gmdate('Y-m-d H:i e');
         $dateNormal = gmdate('Y-m-d');
+        // heratio#1530: admin-defined custom fields for this record and its components
+        $cf = app(\AhgCustomFields\Services\CustomFieldService::class)
+            ->exportValuesFor(array_merge([(int) $io->id], collect($children)->pluck('id')->all()));
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'."\n";
         $xml .= '<!DOCTYPE ead PUBLIC "+//ISBN 1-931666-00-8//DTD ead.dtd (Encoded Archival Description (EAD) Version 2002)//EN" "http://lcweb2.loc.gov/xmlcommon/dtds/ead2002/ead.dtd">'."\n";
@@ -594,6 +614,8 @@ HTML;
             $xml .= "  </processinfo>\n";
         }
 
+        $xml .= $this->customFieldsOdd($cf[(int) $io->id] ?? [], '  ');
+
         // Control access
         if ($subjects->isNotEmpty() || $places->isNotEmpty() || $genres->isNotEmpty()) {
             $xml .= "  <controlaccess>\n";
@@ -643,6 +665,7 @@ HTML;
                 if (! $isInventory && $child->arrangement) {
                     $xml .= '      <arrangement><p>'.$this->e($child->arrangement)."</p></arrangement>\n";
                 }
+                $xml .= $this->customFieldsOdd($cf[(int) $child->id] ?? [], '      ');
                 if ($child->rgt == $child->lft + 1) {
                     $xml .= "    </c>\n";
                 } else {

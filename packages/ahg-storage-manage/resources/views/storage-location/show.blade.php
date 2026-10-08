@@ -80,6 +80,47 @@
     </div>
   </div>
 
+  {{-- heratio#1528 - capacity declared, and what is held, counted down the tree.
+       Per unit and never added across units, and the figure declared here is
+       never added to the one declared beneath: a room and its shelves may both
+       describe the same space. No percentage full: nothing records how much of a
+       shelf a box takes up. --}}
+  @php
+    $fmt = fn ($n) => rtrim(rtrim(number_format((float) $n, 2, '.', ''), '0'), '.');
+  @endphp
+  <div class="card mb-3">
+    <div class="card-header">{{ __('Capacity and contents') }}</div>
+    <div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-4">{{ __('Objects held here') }}</dt>
+        <dd class="col-sm-8">{{ $rollup['objects_here'] }}</dd>
+
+        @if(count($descendants) > 0)
+          <dt class="col-sm-4">{{ __('Objects in locations beneath') }}</dt>
+          <dd class="col-sm-8">{{ $rollup['objects_beneath'] }}</dd>
+
+          <dt class="col-sm-4">{{ __('Objects in all') }}</dt>
+          <dd class="col-sm-8"><strong>{{ $rollup['objects_total'] }}</strong></dd>
+        @endif
+
+        @if($rollup['own'])
+          <dt class="col-sm-4">{{ __('Capacity declared here') }}</dt>
+          <dd class="col-sm-8">{{ $fmt($rollup['own']['value']) }} {{ $units[$rollup['own']['unit']] ?? str_replace('_', ' ', $rollup['own']['unit']) }}</dd>
+        @endif
+
+        @if(count($rollup['beneath']) > 0)
+          <dt class="col-sm-4">{{ __('Capacity declared beneath') }}</dt>
+          <dd class="col-sm-8">
+            @foreach($rollup['beneath'] as $unit => $total)
+              <div>{{ $fmt($total) }} {{ (string) $unit === '' ? __('(no unit given)') : ($units[$unit] ?? str_replace('_', ' ', $unit)) }}</div>
+            @endforeach
+            <small class="text-muted">{{ __('Summed over :count location(s) that declare a capacity. Not added to the figure declared here: a room and its shelves may both describe the same space.', ['count' => $rollup['declared_beneath']]) }}</small>
+          </dd>
+        @endif
+      </dl>
+    </div>
+  </div>
+
   @if(count($children) > 0)
     <div class="card mb-3">
       <div class="card-header">{{ __('Child locations') }} <span class="badge bg-secondary">{{ count($children) }}</span></div>
@@ -164,6 +205,92 @@
       @endif
     </div>
   </div>
+
+  {{-- heratio#1528 - what sits in the locations beneath this one, with the
+       location each object is actually in. A carton or a pallet is a location,
+       so this is how "what is on this pallet" reads. --}}
+  @if(count($beneath) > 0)
+    <div class="card mb-3">
+      <div class="card-header">{{ __('Objects in locations beneath this one') }} <span class="badge bg-secondary">{{ count($beneath) }}</span></div>
+      <div class="card-body">
+        <table class="table table-sm mb-0">
+          <thead>
+            <tr>
+              <th>{{ __('Object') }}</th>
+              <th>{{ __('In') }}</th>
+              <th>{{ __('Type') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @foreach($beneath as $object)
+              <tr>
+                <td>{{ $object['name'] ?? '#'.$object['physical_object_id'] }}</td>
+                <td><a href="{{ route('storagelocation.show', $object['location_slug']) }}">{{ $object['location_name'] }}</a></td>
+                <td>{{ $types[$object['location_type']] ?? $object['location_type'] }}</td>
+              </tr>
+            @endforeach
+          </tbody>
+        </table>
+      </div>
+    </div>
+  @endif
+
+  {{-- heratio#1528 - give objects that have no place yet this one. One batch of
+       first placements in the movement log. Editors and administrators. --}}
+  @if($canPlace && ($unplaced['total'] > 0 || $unplacedSearch !== ''))
+    <div class="card mb-3">
+      <div class="card-header">{{ __('Place objects here') }} <span class="badge bg-secondary">{{ __(':count without a place', ['count' => $unplaced['total']]) }}</span></div>
+      <div class="card-body">
+        <form method="GET" action="{{ route('storagelocation.show', $location->slug) }}" class="row g-2 mb-3">
+          <div class="col-md-9">
+            <label class="visually-hidden" for="unplaced-q">{{ __('Find an object by name') }}</label>
+            <input class="form-control" type="text" id="unplaced-q" name="q" value="{{ $unplacedSearch }}"
+                   placeholder="{{ __('Find an object by name') }}">
+          </div>
+          <div class="col-md-3 d-grid">
+            <button class="btn btn-outline-secondary" type="submit">{{ __('Find') }}</button>
+          </div>
+        </form>
+
+        @if(count($unplaced['rows']) === 0)
+          <p class="mb-0 text-muted">{{ __('No object without a place matches that.') }}</p>
+        @else
+          <form method="POST" action="{{ route('storagelocation.place-objects', $location->slug) }}">
+            @csrf
+            @if($unplaced['total'] > count($unplaced['rows']))
+              <p class="text-muted">{{ __('Showing the first :shown of :total. Search to narrow the list.', ['shown' => count($unplaced['rows']), 'total' => $unplaced['total']]) }}</p>
+            @endif
+            @error('object_ids')<div class="alert alert-danger py-2">{{ $message }}</div>@enderror
+
+            <div class="row mb-3">
+              @foreach($unplaced['rows'] as $object)
+                <div class="col-md-4">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="object_ids[]"
+                           value="{{ $object['physical_object_id'] }}" id="place-{{ $object['physical_object_id'] }}">
+                    <label class="form-check-label" for="place-{{ $object['physical_object_id'] }}">
+                      {{ $object['name'] ?? '#'.$object['physical_object_id'] }}
+                    </label>
+                  </div>
+                </div>
+              @endforeach
+            </div>
+
+            <div class="row g-2 align-items-end">
+              <div class="col-md-9">
+                <label class="form-label" for="place-note">{{ __('Note') }}</label>
+                <input class="form-control" type="text" id="place-note" name="note" maxlength="2000"
+                       placeholder="{{ __('Why it is here, for the record (optional)') }}">
+              </div>
+              <div class="col-md-3 d-grid">
+                <button class="btn btn-primary" type="submit"><i class="fas fa-box me-1"></i>{{ __('Place here') }}</button>
+              </div>
+            </div>
+          </form>
+        @endif
+      </div>
+    </div>
+  @endif
 
   {{-- The record of what came and went. Append-only: a wrong move is corrected
        by another move, never by editing this list. --}}

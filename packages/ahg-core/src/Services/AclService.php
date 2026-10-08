@@ -58,6 +58,8 @@ class AclService
         'readThumbnail' => 'Read Thumbnail',
         'createTerm' => 'Create Term',
         'list' => 'List',
+        'import' => 'Import',   // heratio#1535: data migration, ingest
+        'export' => 'Export',   // heratio#1535: bulk export screens
     ];
 
     private static ?object $user = null;

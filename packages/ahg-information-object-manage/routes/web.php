@@ -1,6 +1,7 @@
 <?php
 
 use AhgInformationObjectManage\Controllers\InformationObjectController;
+use AhgInformationObjectManage\Controllers\BulkEditController;
 use AhgInformationObjectManage\Controllers\ExportController;
 use AhgInformationObjectManage\Controllers\ImportController;
 use AhgInformationObjectManage\Controllers\FindingAidController;
@@ -333,3 +334,11 @@ Route::get('/provenance/document/{id}/download', [ProvenanceController::class, '
 
 Route::get('/{slug}', [InformationObjectController::class, 'show'])->name('informationobject.show')->middleware('odrl:use')->where('slug', '^(?!search$|login$|logout$|register$|admin$|api$|storage$|up$|about$|privacy$|terms$|pages$|contact$|provenance$|condition$|spectrum$|heritage$|preservation$|ai$|rights$|research$|researcher$|oai$|accession$|aclGroup$|actor$|ahgSettings$|cart$|clipboard$|css$|digitalobject$|display$|donor$|favorites$|feedback$|ftpUpload$|function$|glam$|help$|informationobject$|ingest$|integrity$|jobs$|loan$|media$|object$|physicalobject$|portableExport$|portable-export$|reports$|repository$|registry$|requesttopublish$|rightsholder$|settings$|sfPluginAdminPlugin$|sfSkosPlugin$|staticpage$|taxonomy$|term$|user$|workflow$|security$|manifest-collections$|manifest-collection$|iiif-manifest$|dam$|museum$|gallery$|library$|ric$|vendor$|ipsas$|nmmz$|naz$|cdpa$|icip$|tenant$|forms$|exhibition$|statistics$|metadata-export$|semantic-search$|data-migration$|dacs-manage$|dc-manage$|mods-manage$|rad-manage$|ric-manage$|ric-capture$|scan$|version$|health$)[a-z0-9][a-z0-9-]*$');
 
+// heratio#1542: bulk edit of archival descriptions (Editors and Administrators).
+Route::middleware(['auth', 'admin'])->prefix('admin/bulk-edit')->group(function () {
+    Route::match(['get', 'post'], '/', [BulkEditController::class, 'index'])->name('bulk-edit.index');
+    Route::post('/run', [BulkEditController::class, 'run'])->name('bulk-edit.run');
+    Route::get('/{id}', [BulkEditController::class, 'show'])->name('bulk-edit.show')->whereNumber('id');
+    Route::get('/{id}/status', [BulkEditController::class, 'status'])->name('bulk-edit.status')->whereNumber('id');
+    Route::post('/{id}/undo', [BulkEditController::class, 'undo'])->name('bulk-edit.undo')->whereNumber('id');
+});

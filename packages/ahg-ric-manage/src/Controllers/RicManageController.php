@@ -216,6 +216,7 @@ class RicManageController extends Controller
      */
     public function persist(int $ioId, Request $request): void
     {
+        $fingerprintBefore = \AhgInformationObjectManage\Services\InformationObjectService::contentFingerprint((int) $ioId); // #1536
         // #676: snapshot BEFORE the writes so the audit log can show a
         // before/after for a RiC edit. Reuses the information-object
         // service's own snapshot, so every standard diffs the same field set
@@ -370,7 +371,7 @@ class RicManageController extends Controller
                 \AhgCore\Support\StatusRow::put($ioId, 158, (int) ($request->input('publication_status_id')));
             }
 
-            DB::table('object')->where('id', $ioId)->update(['updated_at' => now()]);
+            \AhgInformationObjectManage\Services\InformationObjectService::touchIfChanged((int) $ioId, $fingerprintBefore); // #1536: only on a real change
 
             // #1425 tail: manual rico:Instantiation rows from the repeatable
             // editor (create / update / delete, diffed against the record's

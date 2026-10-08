@@ -4,7 +4,7 @@ use AhgIngest\Controllers\IngestController;
 use AhgIngest\Controllers\ChunkedUploadController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'admin'])->prefix('ingest')->group(function () {
+Route::middleware(['auth', 'acl:import'])->prefix('ingest')->group(function () { // heratio#1535
     Route::get('/', [IngestController::class, 'index'])->name('ingest.index');
     Route::match(['get', 'post'], '/configure/{id?}', [IngestController::class, 'configure'])->name('ingest.configure');
     Route::match(['get', 'post'], '/{id}/upload', [IngestController::class, 'upload'])->name('ingest.upload');

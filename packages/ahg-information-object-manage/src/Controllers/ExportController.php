@@ -424,13 +424,23 @@ class ExportController extends Controller
             'related_units_of_description', 'rules', 'sources',
         ];
 
-        $callback = function () use ($rows, $headers) {
+        // heratio#1530: one cf_<key> column per custom field marked for export
+        $cf = $this->customFieldsFor($rows->pluck('id')->all());
+        $cfColumns = app(\AhgCustomFields\Services\CustomFieldService::class)
+            ->getFieldsForEntityType(\AhgCustomFields\Services\CustomFieldService::IO)
+            ->where('include_in_export', 1)->pluck('field_key')->all();
+
+        $callback = function () use ($rows, $headers, $cf, $cfColumns) {
             $fp = fopen('php://output', 'w');
-            fputcsv($fp, $headers);
+            fputcsv($fp, array_merge($headers, array_map(fn ($k) => 'cf_' . $k, $cfColumns)));
             foreach ($rows as $row) {
                 $line = [];
                 foreach ($headers as $h) {
                     $line[] = $row->$h ?? '';
+                }
+                $values = array_column($cf[(int) $row->id] ?? [], 'value', 'key');
+                foreach ($cfColumns as $k) {
+                    $line[] = $values[$k] ?? '';
                 }
                 fputcsv($fp, $line);
             }
@@ -551,6 +561,11 @@ class ExportController extends Controller
         // mods:note - #662 Phase 2 general note
         if (!empty($modsNote)) {
             $xml .= "  <note type=\"general\">" . $this->e($modsNote) . "</note>\n";
+        }
+
+        // heratio#1530: custom fields as labelled notes
+        foreach ($this->customFieldsFor([(int) $io->id])[(int) $io->id] ?? [] as $f) {
+            $xml .= "  <note type=\"custom\" displayLabel=\"" . $this->e($f['label']) . "\">" . $this->e($f['value']) . "</note>\n";
         }
 
         // Subjects
@@ -767,6 +782,27 @@ class ExportController extends Controller
         return $query->get();
     }
 
+    /**
+     * Custom field values for output (heratio#1530), object id => list of
+     * ['key', 'label', 'value']; only fields marked for export.
+     */
+    private function customFieldsFor(array $ids): array
+    {
+        return app(\AhgCustomFields\Services\CustomFieldService::class)->exportValuesFor($ids);
+    }
+
+    /** EAD <odd> blocks, one per custom field; EAD3 uses localtype for the key. */
+    private function customFieldsOdd(array $fields, string $indent, bool $ead3): string
+    {
+        $xml = '';
+        foreach ($fields as $f) {
+            $xml .= $indent . '<odd ' . ($ead3 ? 'localtype' : 'type') . '="' . $this->e($f['key']) . '"><head>' . $this->e($f['label'])
+                . '</head><p>' . $this->e($f['value']) . "</p></odd>\n";
+        }
+
+        return $xml;
+    }
+
     private function e(string $value = null): string
     {
         return htmlspecialchars($value ?? '', ENT_XML1 | ENT_QUOTES, 'UTF-8');
@@ -831,6 +867,8 @@ class ExportController extends Controller
         $eadLevel = $this->mapLevelToEad($levelName);
         $date = gmdate('Y-m-d H:i e');
         $dateNormal = gmdate('Y-m-d');
+        // heratio#1530: admin-defined custom fields for this record and its components
+        $cf = $this->customFieldsFor(array_merge([(int) $io->id], $children->pluck('id')->all()));
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<!DOCTYPE ead PUBLIC "+//ISBN 1-931666-00-8//DTD ead.dtd (Encoded Archival Description (EAD) Version 2002)//EN" "http://lcweb2.loc.gov/xmlcommon/dtds/ead2002/ead.dtd">' . "\n";
@@ -930,6 +968,8 @@ class ExportController extends Controller
             $xml .= "  </processinfo>\n";
         }
 
+        $xml .= $this->customFieldsOdd($cf[(int) $io->id] ?? [], '  ', false);
+
         // Control access
         if ($subjects->isNotEmpty() || $places->isNotEmpty() || $genres->isNotEmpty()) {
             $xml .= "  <controlaccess>\n";
@@ -973,6 +1013,7 @@ class ExportController extends Controller
                 if ($child->arrangement) {
                     $xml .= "      <arrangement><p>" . $this->e($child->arrangement) . "</p></arrangement>\n";
                 }
+                $xml .= $this->customFieldsOdd($cf[(int) $child->id] ?? [], '      ', false);
                 if ($child->rgt == $child->lft + 1) {
                     $xml .= "    </c>\n";
                 } else {
@@ -1137,6 +1178,11 @@ class ExportController extends Controller
             $xml .= "  <dcterms:spatial>" . $this->e($p->name) . "</dcterms:spatial>\n";
         }
 
+        // heratio#1530: custom fields as labelled descriptions
+        foreach ($this->customFieldsFor([(int) $io->id])[(int) $io->id] ?? [] as $f) {
+            $xml .= "  <dc:description>" . $this->e($f['label'] . ': ' . $f['value']) . "</dc:description>\n";
+        }
+
         if ($io->access_conditions) {
             $xml .= "  <dc:rights>" . $this->e($io->access_conditions) . "</dc:rights>\n";
         }
@@ -1149,6 +1195,8 @@ class ExportController extends Controller
     {
         $eadLevel = $this->mapLevelToEad($levelName);
         $dateNormal = gmdate('Y-m-d');
+        // heratio#1530: admin-defined custom fields for this record and its components
+        $cf = $this->customFieldsFor(array_merge([(int) $io->id], $children->pluck('id')->all()));
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<ead xmlns="http://ead3.archivists.org/schema/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://ead3.archivists.org/schema/ https://www.loc.gov/ead/ead3.xsd">' . "\n";
@@ -1258,6 +1306,8 @@ class ExportController extends Controller
             $xml .= "  <relatedmaterial><p>" . $this->e($io->related_units_of_description) . "</p></relatedmaterial>\n";
         }
 
+        $xml .= $this->customFieldsOdd($cf[(int) $io->id] ?? [], '  ', true);
+
         if ($subjects->isNotEmpty() || $places->isNotEmpty() || $genres->isNotEmpty()) {
             $xml .= "  <controlaccess>\n";
             foreach ($subjects as $s) {
@@ -1297,6 +1347,7 @@ class ExportController extends Controller
                 if ($child->scope_and_content) {
                     $xml .= "      <scopecontent><p>" . $this->e($child->scope_and_content) . "</p></scopecontent>\n";
                 }
+                $xml .= $this->customFieldsOdd($cf[(int) $child->id] ?? [], '      ', true);
                 if ($child->rgt == $child->lft + 1) {
                     $xml .= "    </c>\n";
                 } else {

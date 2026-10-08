@@ -138,6 +138,24 @@ class OcrLlmCorrector
         $parsed = $this->parseInline($response);
         $duration = (int) round((microtime(true) - $started) * 1000);
 
+        // heratio#1525: a correction that changes too much is a rewrite, not
+        // a correction (Brenthurst: "trekking for" became "trying to get to").
+        // Keep the raw OCR rather than a fluent invention.
+        $guard = self::rewriteGuard($text, $parsed['text']);
+        if ($guard['rejected']) {
+            Log::info('[ahg-ai] OcrLlmCorrector rejected a rewrite', $guard + ['io_id' => $context['io_id'] ?? null]);
+
+            return [
+                'text'        => $text,
+                'corrections' => [],
+                'model'       => $modelId,
+                'duration_ms' => $duration,
+                'skipped'     => true,
+                'reason'      => 'rewrite_guard',
+                'guard'       => $guard,
+            ];
+        }
+
         // Audit + PREMIS.
         $this->audit(
             $context['io_id'] ?? null,
@@ -163,6 +181,50 @@ class OcrLlmCorrector
             'duration_ms' => $duration,
             'skipped'     => false,
             'reason'      => null,
+        ];
+    }
+
+    /** Words changed and length drift above which a "correction" is rejected. */
+    public const MAX_WORD_CHANGE = 0.20;
+
+    public const MAX_LENGTH_DRIFT = 0.12;
+
+    /**
+     * How far the corrected text strays from the raw OCR: the share of words
+     * not kept in order (1 - LCS / longer word count) and the relative change
+     * in length. Either over its limit rejects the correction.
+     *
+     * @return array{word_change: float, length_drift: float, rejected: bool}
+     */
+    public static function rewriteGuard(string $raw, string $corrected): array
+    {
+        $a = preg_split('/\s+/u', trim($raw), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        $b = preg_split('/\s+/u', trim($corrected), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        $longer = max(count($a), count($b));
+        if ($longer === 0) {
+            return ['word_change' => 0.0, 'length_drift' => 0.0, 'rejected' => false];
+        }
+
+        // ponytail: O(n*m) word LCS, fine for a page; over 4,000 words a side the
+        // guard compares the first 4,000. Upgrade: a linear-space diff.
+        $a = array_slice($a, 0, 4000);
+        $b = array_slice($b, 0, 4000);
+        $prev = array_fill(0, count($b) + 1, 0);
+        foreach ($a as $wa) {
+            $cur = [0];
+            foreach ($b as $j => $wb) {
+                $cur[$j + 1] = $wa === $wb ? $prev[$j] + 1 : max($prev[$j + 1], $cur[$j]);
+            }
+            $prev = $cur;
+        }
+        $wordChange = 1 - end($prev) / max(count($a), count($b));
+        $rawLen = max(1, mb_strlen(trim($raw)));
+        $lengthDrift = abs(mb_strlen(trim($corrected)) - $rawLen) / $rawLen;
+
+        return [
+            'word_change' => round($wordChange, 4),
+            'length_drift' => round($lengthDrift, 4),
+            'rejected' => $wordChange > self::MAX_WORD_CHANGE || $lengthDrift > self::MAX_LENGTH_DRIFT,
         ];
     }
 
