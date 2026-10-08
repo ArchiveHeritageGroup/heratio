@@ -61,6 +61,11 @@ class SchemaJsonLdInjector
         if ($request->method() !== 'GET' || $request->ajax() || $request->wantsJson()) {
             return false;
         }
+        // Only a page that was actually served. A 404 or 403 (a draft or a
+        // withheld record shown to a guest) must not carry the record's data.
+        if ($response->getStatusCode() !== 200) {
+            return false;
+        }
         $contentType = (string) $response->headers->get('Content-Type', '');
         if (stripos($contentType, 'text/html') !== 0) {
             return false;
@@ -108,6 +113,14 @@ class SchemaJsonLdInjector
                     'i18n.title', 'i18n.scope_and_content')
             ->first();
         if ($io) {
+            // Schema.org markup is public data for search engines, so it follows
+            // the public rule whoever is viewing: published, and released by the
+            // DisclosureGate (ICIP, ODRL, embargo, classification).
+            $published = DB::table('status')->where('object_id', $io->id)->where('type_id', 158)->value('status_id');
+            if ((int) $published !== 160 || ! app(\AhgCore\Services\DisclosureGate::class)->allows((int) $io->id)) {
+                return null;
+            }
+
             return $this->buildIoJsonLd($io, $slug, $request);
         }
 
@@ -184,6 +197,10 @@ class SchemaJsonLdInjector
             'name'     => (string) ($actor->authorized_form_of_name ?? ''),
             'url'      => $url,
         ];
+        // The verified external authorities this actor is the same as.
+        if ($sameAs = \AhgCore\Support\ExternalAuthorityLinks::forActor((int) $actor->id)) {
+            $doc['sameAs'] = $sameAs;
+        }
         if (!empty($actor->history)) {
             $doc['description'] = mb_substr(
                 trim(preg_replace('/\s+/', ' ', strip_tags((string) $actor->history))),

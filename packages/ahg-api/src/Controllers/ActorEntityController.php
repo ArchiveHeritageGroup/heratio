@@ -223,8 +223,12 @@ class ActorEntityController extends Controller
             $entity['seeAlso'] = $seeAlso;
         }
 
-        // schema:sameAs to the canonical public authority page (human view).
-        $entity['sameAs'] = $this->actorPublicUrl($slug);
+        // schema:sameAs: the canonical public authority page (human view) and
+        // the verified external authorities (Wikidata, VIAF, LoC ...).
+        $sameAs = array_values(array_unique(array_merge(
+            [$this->actorPublicUrl($slug)], \AhgCore\Support\ExternalAuthorityLinks::forActor($id)
+        )));
+        $entity['sameAs'] = count($sameAs) === 1 ? $sameAs[0] : $sameAs;
 
         $context = array_merge($this->serializer->context(), [
             'dcterms' => 'http://purl.org/dc/terms/',

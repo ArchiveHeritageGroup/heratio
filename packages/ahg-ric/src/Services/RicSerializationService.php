@@ -340,6 +340,7 @@ class RicSerializationService
                 'rdf' => self::RDF_NS,
                 'rdfs' => self::RDFS_NS,
                 'xsd' => self::XSD_NS,
+                'owl' => 'http://www.w3.org/2002/07/owl#',
             ],
             '@id' => $this->baseUri . '/actor/' . ($actor->slug ?: $actor->id),
             '@type' => 'rico:' . $ricType,
@@ -403,6 +404,11 @@ class RicSerializationService
         $contact = $this->getContactInfo($actorId);
         if ($contact) {
             $agent['rico:contact'] = $contact;
+        }
+
+        // owl:sameAs: the verified external authorities (Wikidata, VIAF, LoC ...).
+        if ($sameAs = \AhgCore\Support\ExternalAuthorityLinks::forActor($actorId)) {
+            $agent['owl:sameAs'] = array_map(fn ($u) => ['@id' => $u], $sameAs);
         }
 
         return $agent;
