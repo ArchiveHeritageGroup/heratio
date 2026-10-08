@@ -121,6 +121,69 @@ OpenRiC powers the RiC capabilities within Heratio and is available as a standal
 
 ---
 
+## The AtoM community's wish lists, and what Heratio delivers
+
+At the AtoM Foundation AGM in September 2026, members put their wishes for the platform on a board. Many of them repeat the "AtoM 3" wish list gathered around TAATU in 2020, because AtoM 3 never shipped. We checked every item against Heratio's code; the full review, with file-level evidence, is in [#1514](https://github.com/ArchiveHeritageGroup/heratio/issues/1514). This is what you can use today.
+
+### AtoM Foundation AGM 2026 board
+
+| Wish | In Heratio |
+| --- | --- |
+| Nested parent-child storage locations | A storage-location tree (building, floor, room, aisle, bay, rack, shelf, container) with browse, search, a page per location and a move-safe parent picker (`ahg-storage-manage`) |
+| Improve physical storage; multiple changes and easier relocation | An append-only movement log of where every container has been, current location at a glance, and bulk moves of a selection in one transaction |
+| Compliance with new standards: RiC | RiC-O as a first-class mode: RiC entities, a Fuseki-backed graph, SHACL validation and OpenRiC serialisations (`ahg-ric`) |
+| Compliance with new standards: CAAIS | A CAAIS 1.0 accession profile: structured extent, source confidentiality, language of material, preservation requirements, custody and legal-transfer events, revision log, and a CAAIS export (`ahg-accession-manage`) |
+| IIIF integration | IIIF Image API 3 through Cantaloupe, deep zoom, IIIF collections and manifests, Mirador and OpenSeadragon viewers |
+| Search improvements | Elasticsearch keyword search, semantic and thesaurus-expanded search, and a discovery layer (`ahg-search`, `ahg-semantic-search`, `ahg-discovery`) |
+| Provenance | Provenance records on descriptions, AI-inference provenance as PROV-O, C2PA signing of digital objects (`ahg-provenance-ai`, `ahg-c2pa`) |
+| A sandbox or testing environment | A one-command Docker test stack and a VM provisioner (`docker/`, `bin/heratio-vm.sh`) |
+| Analytics and SEO | Usage statistics, `sitemap.xml` and `robots.txt` (`ahg-statistics`) |
+| Share tools and reports instead of phpMyAdmin workarounds | A report builder and central dashboards (`ahg-reports`) |
+| Ready for the agentic internet | REST API v1/v2 with API keys, OAI-PMH, ResourceSync, and a catalogue chatbot grounded in the collection and limited to public records |
+
+### The 2020 "AtoM 3" wish list
+
+| Wish | In Heratio |
+| --- | --- |
+| A modern, long-term-supported framework (PHP 7.3+, Composer) | Laravel 12 on PHP 8.3, managed with Composer |
+| Get rid of nested sets for performance | Closure-table hierarchy queries (`HierarchyQueryService`) |
+| A better REST API with create, update and delete | REST v1/v2 with full CRUD on descriptions and authorities, keyed and rate-limited |
+| Audit trail and change tracking | A full audit trail (`ahg-audit-trail`) |
+| Reading-room requests, circulation, patron accounts | A research portal with bookings, seats, walk-ins, equipment and access requests (`ahg-research`, `ahg-access-request`) |
+| Private, temporary access to records | Expiring share links (`ahg-share-link`) |
+| IIIF manifests and related IIIF collections | IIIF manifests and collections (`ahg-iiif-collection`) |
+| Merge duplicate authority records | Authority (actor) merge |
+| Barcodes in physical storage | Barcodes on physical objects and label printing (`ahg-storage-manage`, `ahg-label`) |
+| Internal reports for administrators | The report builder and dashboards |
+| More usable rights | Extended rights, embargoes and ODRL access policies enforced on viewing and reproduction (`ahg-extended-rights`) |
+| Hosting for small archives without IT staff | A packaged Docker stack, one instance per institution |
+| Link an accession to its repository | Part of the CAAIS profile |
+| OAI-PMH that stays in step with the web view | OAI-PMH served live from the database, through the same publication and access checks as the public site (`ahg-oai`) |
+| Customisable carousel | Configurable digital-object carousel (autoplay, interval, thumbnails) |
+
+### To do
+
+The wishes Heratio does not fully meet yet. Each has an open issue, and this list is updated as they close.
+
+| Wish | From | Where it stands | Issue |
+| --- | --- | --- | --- |
+| Single sign-on across instances (OIDC, SAML, LDAP) | AGM 2026; 2020 #58-60 | Login stubs only; protocol choice pending | [#1531](https://github.com/ArchiveHeritageGroup/heratio/issues/1531) |
+| Custom metadata fields carried into PDF finding aids and exports | AGM 2026 | Definitions exist; values not yet stored or exported | [#1530](https://github.com/ArchiveHeritageGroup/heratio/issues/1530) |
+| Accessibility and web accessibility testing (WCAG) | AGM 2026 | Groundwork in place; formal audit and CI scans to do | [#1532](https://github.com/ArchiveHeritageGroup/heratio/issues/1532) |
+| Physical storage: place objects, boxes inside boxes, capacity roll-up | AGM 2026 | Location tree and movement log shipped; these follow | [#1528](https://github.com/ArchiveHeritageGroup/heratio/issues/1528) |
+| Merge duplicate terms (authorities already merge) | 2020 #53 | To do | [#1533](https://github.com/ArchiveHeritageGroup/heratio/issues/1533) |
+| Move a term to another taxonomy with its links | 2020 #50 | To do | [#1534](https://github.com/ArchiveHeritageGroup/heratio/issues/1534) |
+| CSV update and replace for accessions and authorities; CSV work for non-admin roles | 2020 #6, #47, #57 | To do | [#1535](https://github.com/ArchiveHeritageGroup/heratio/issues/1535) |
+| "Last modified" set only on a real change | 2020 #11 | To do | [#1536](https://github.com/ArchiveHeritageGroup/heratio/issues/1536) |
+| Default text on new records | 2020 #32 | Templates apply on edit; create to follow | [#1537](https://github.com/ArchiveHeritageGroup/heratio/issues/1537) |
+| Wikidata links on the description page | 2020 #28 | Shown on authority pages; descriptions to follow | [#1538](https://github.com/ArchiveHeritageGroup/heratio/issues/1538) |
+| GraphQL with create, update and delete | 2020 #27, #29 | REST has full CRUD; GraphQL is read-only today | [#1539](https://github.com/ArchiveHeritageGroup/heratio/issues/1539) |
+| Universal Viewer as an IIIF viewer option | 2020 #18-20 | Mirador and OpenSeadragon today | [#1540](https://github.com/ArchiveHeritageGroup/heratio/issues/1540) |
+| Retire the last nested-set queries | 2020 #41 | Most hierarchy reads already on closure tables | [#1541](https://github.com/ArchiveHeritageGroup/heratio/issues/1541) |
+| Search and replace across a fonds; batch edit and rename; numeric sort of children | 2020 #33, #37, #55 | To do | [#1542](https://github.com/ArchiveHeritageGroup/heratio/issues/1542) |
+| Remote logging; a warning before session timeout | 2020 #13, #61 | To do | [#1543](https://github.com/ArchiveHeritageGroup/heratio/issues/1543) |
+| Bot and SEO policy, agent access policy, worked API examples | AGM 2026 | To do (documentation) | [#1544](https://github.com/ArchiveHeritageGroup/heratio/issues/1544) |
+
 ## Requirements
 
 | Requirement | Version | Notes |
