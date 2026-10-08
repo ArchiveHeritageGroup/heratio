@@ -287,6 +287,80 @@ class TermService
         return array_merge($term, $i18n);
     }
 
+    /**
+     * Taxonomies whose terms the platform itself depends on: AtoM's
+     * QubitTaxonomy::$lockedTaxonomies (root, actor name types, setting labels,
+     * collection types, media types, digital object usage, relation types and
+     * notes, term relation types, status types, publication status,
+     * information object templates, job status). Nothing moves into or out.
+     */
+    public const LOCKED_TAXONOMY_IDS = [30, 36, 41, 45, 46, 47, 49, 56, 57, 59, 60, 70, 79];
+
+    /** The single root of the term tree; every taxonomy's top-level terms hang off it. */
+    public const ROOT_TERM_ID = 110;
+
+    /**
+     * Move a term, with everything beneath it, into another taxonomy
+     * (heratio#1534). AtoM only re-labels the one term; here the whole subtree
+     * moves, and a term that sat under a parent in the old taxonomy is placed
+     * at the top level of the new one, with closure and nested set kept right.
+     * Links to descriptions (object_term_relation) key on the term id and are
+     * untouched, so every record keeps its access point.
+     *
+     * @return array{moved:int,reparented:bool}
+     */
+    public function moveToTaxonomy(int $termId, int $targetTaxonomyId): array
+    {
+        $term = DB::table('term')->where('id', $termId)->first(['id', 'parent_id', 'taxonomy_id', 'lft', 'rgt']);
+        if (! $term || $termId === self::ROOT_TERM_ID) {
+            throw new \DomainException('Term not found.');
+        }
+        if ((int) $term->taxonomy_id === $targetTaxonomyId) {
+            throw new \DomainException('The term is already in that taxonomy.');
+        }
+        if (in_array((int) $term->taxonomy_id, self::LOCKED_TAXONOMY_IDS, true) || in_array($targetTaxonomyId, self::LOCKED_TAXONOMY_IDS, true)) {
+            throw new \DomainException('Terms cannot be moved into or out of a system taxonomy.');
+        }
+        if (! DB::table('taxonomy')->where('id', $targetTaxonomyId)->exists()) {
+            throw new \DomainException('Target taxonomy not found.');
+        }
+
+        $subtree = \Illuminate\Support\Facades\Schema::hasTable('term_closure')
+            ? DB::table('term_closure')->where('ancestor', $termId)->pluck('descendant')->map('intval')->all()
+            : [];
+        if ($subtree === []) {
+            $subtree = DB::table('term')->whereBetween('lft', [$term->lft, $term->rgt])->pluck('id')->map('intval')->all();
+        }
+        $subtree = array_values(array_unique(array_merge([$termId], $subtree)));
+        $reparent = (int) $term->parent_id !== self::ROOT_TERM_ID;
+
+        DB::transaction(function () use ($termId, $targetTaxonomyId, $subtree, $reparent) {
+            DB::table('term')->whereIn('id', $subtree)->update(['taxonomy_id' => $targetTaxonomyId]);
+            if ($reparent) {
+                DB::table('term')->where('id', $termId)->update(['parent_id' => self::ROOT_TERM_ID]);
+                app(\AhgCore\Services\ClosureMaintenanceService::class)->moveNode('term', $termId, self::ROOT_TERM_ID);
+            }
+            DB::table('object')->whereIn('id', $subtree)->update(['updated_at' => now()]);
+        });
+
+        if ($reparent) {
+            // The term tree is one global nested set; rebuild it from parent_id
+            // rather than shift ranges by hand (about 2,000 rows, a rare admin act).
+            // --connection is explicit: the command still defaults to 'atom',
+            // which would rebuild the wrong database.
+            \Illuminate\Support\Facades\Artisan::call('ahg:nested-set-rebuild', [
+                '--model' => 'term',
+                '--connection' => DB::connection()->getName(),
+            ]);
+        }
+
+        \AhgCore\Support\AuditLog::captureEdit($termId, 'term',
+            ['taxonomy_id' => (int) $term->taxonomy_id, 'parent_id' => (int) $term->parent_id],
+            ['taxonomy_id' => $targetTaxonomyId, 'parent_id' => $reparent ? self::ROOT_TERM_ID : (int) $term->parent_id]);
+
+        return ['moved' => count($subtree), 'reparented' => $reparent];
+    }
+
     public function update(int $termId, array $data, string $culture): void
     {
         // Before the transaction, so a rolled-back edit records nothing.

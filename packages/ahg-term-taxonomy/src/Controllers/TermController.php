@@ -1622,6 +1622,29 @@ class TermController extends Controller
     /**
      * Update a term.
      */
+    /** heratio#1534: move a term (and its subtree) into another taxonomy. */
+    public function moveTaxonomy(Request $request, string $slug)
+    {
+        $data = $request->validate([
+            'target_taxonomy_id' => 'required|integer|exists:taxonomy,id',
+        ]);
+        $termId = (int) DB::table('slug')->where('slug', $slug)->value('object_id');
+        if (! $termId || ! DB::table('term')->where('id', $termId)->exists()) {
+            abort(404);
+        }
+
+        try {
+            $result = $this->termService->moveToTaxonomy($termId, (int) $data['target_taxonomy_id']);
+        } catch (\DomainException $e) {
+            return redirect()->route('term.edit', $slug)->with('error', $e->getMessage());
+        }
+
+        return redirect()->route('term.edit', $slug)->with('success', trans_choice(
+            '{1} Term moved to the new taxonomy.|[2,*] Term and :n narrower terms moved to the new taxonomy.',
+            $result['moved'], ['n' => $result['moved'] - 1]
+        ));
+    }
+
     public function update(Request $request, string $slug)
     {
         $culture = app()->getLocale();

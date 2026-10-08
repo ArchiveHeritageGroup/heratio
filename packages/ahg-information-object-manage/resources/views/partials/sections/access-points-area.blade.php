@@ -92,6 +92,48 @@
         </div>
       @endif
 
+      {{-- #1538: Wikidata, VIAF and other authority links of the record's
+           creators and name access points, as recorded on their authority
+           records. Hidden when none has a link; never breaks the page. --}}
+      @php
+        $__authLinks = collect();
+        try {
+          if (\Illuminate\Support\Facades\Schema::hasTable('ahg_actor_identifier')) {
+            $__actorIds = \Illuminate\Support\Facades\DB::table('event')->where('object_id', $io->id)->where('type_id', 111)->whereNotNull('actor_id')->pluck('actor_id')
+              ->merge(\Illuminate\Support\Facades\DB::table('relation')->where('subject_id', $io->id)->where('type_id', 161)->pluck('object_id'))
+              ->unique()->values();
+            if ($__actorIds->isNotEmpty()) {
+              $__culture = app()->getLocale();
+              $__authLinks = \Illuminate\Support\Facades\DB::table('ahg_actor_identifier as ai')
+                ->leftJoin('actor_i18n as an', function ($j) use ($__culture) { $j->on('an.id', '=', 'ai.actor_id')->where('an.culture', '=', $__culture); })
+                ->whereIn('ai.actor_id', $__actorIds)
+                ->orderBy('an.authorized_form_of_name')->orderBy('ai.identifier_type')
+                ->get(['ai.actor_id', 'an.authorized_form_of_name as name', 'ai.identifier_type', 'ai.identifier_value', 'ai.uri', 'ai.is_verified'])
+                ->groupBy('actor_id');
+            }
+          }
+        } catch (\Throwable $e) { $__authLinks = collect(); }
+      @endphp
+      @if($__authLinks->isNotEmpty())
+        <div class="field text-break row g-0 externalAuthorityLinks">
+          <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('External authority links') }}</h3>
+          <div class="col-9 p-2">
+            <ul class="m-0 ms-1 ps-3">
+              @foreach($__authLinks as $__links)
+                <li>
+                  {{ $__links->first()->name ?? __('Unnamed authority') }}:
+                  @foreach($__links as $__l)
+                    @if($__l->uri)
+                      <a href="{{ $__l->uri }}" target="_blank" rel="noopener" title="{{ ucfirst($__l->identifier_type) }}">{{ ucfirst($__l->identifier_type) }} {{ $__l->identifier_value }}</a>@else{{ ucfirst($__l->identifier_type) }} {{ $__l->identifier_value }}@endif
+                    @if($__l->is_verified)<i class="fas fa-check text-success ms-1" title="{{ __('Verified') }}" aria-label="{{ __('Verified') }}"></i>@endif{{ $loop->last ? '' : ',' }}
+                  @endforeach
+                </li>
+              @endforeach
+            </ul>
+          </div>
+        </div>
+      @endif
+
     </div>
   </section>
   @endif {{-- end isad_access_points_area visibility --}}

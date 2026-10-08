@@ -202,6 +202,10 @@ return [
     |
     */
     'fuseki_endpoint' => env('FUSEKI_ENDPOINT', 'http://localhost:3030/openric-model'),
+
+    // heratio#1540: IIIF image server (Cantaloupe) base for server-side
+    // info.json reads; the IIIF Server URL setting overrides it.
+    'iiif_image_server_url' => env('IIIF_IMAGE_SERVER_URL', 'http://127.0.0.1:8182'),
     'ric_sparql_via_python' => env('RIC_SPARQL_VIA_PYTHON', false),
     'ric_text_index' => env('RIC_TEXT_INDEX', false),
 

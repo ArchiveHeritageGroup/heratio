@@ -418,6 +418,32 @@
 
   </form>
 
+  {{-- #1534: move to another taxonomy. A separate form: forms cannot nest. --}}
+  @if($term && !in_array((int) $term->taxonomy_id, \AhgTermTaxonomy\Services\TermService::LOCKED_TAXONOMY_IDS, true))
+    <div class="card mt-4">
+      <div class="card-header">{{ __('Move to another taxonomy') }}</div>
+      <div class="card-body">
+        <p class="small text-muted mb-2">{{ __('Moves this term and every term beneath it. Descriptions keep their links to these terms.') }}</p>
+        <form method="POST" action="{{ route('term.move-taxonomy', $term->slug) }}" class="row g-2 align-items-end"
+              onsubmit="return confirm(@json(__('Move this term and its narrower terms to the selected taxonomy?')));">
+          @csrf
+          <div class="col-sm-8">
+            <label for="target_taxonomy_id" class="form-label">{{ __('Target taxonomy') }}</label>
+            <select name="target_taxonomy_id" id="target_taxonomy_id" class="form-select" required>
+              <option value="">{{ __('- Select taxonomy -') }}</option>
+              @foreach($taxonomies ?? [] as $tax)
+                @if((int) $tax->id !== (int) $term->taxonomy_id && !in_array((int) $tax->id, \AhgTermTaxonomy\Services\TermService::LOCKED_TAXONOMY_IDS, true))
+                  <option value="{{ $tax->id }}">{{ $tax->name }}</option>
+                @endif
+              @endforeach
+            </select>
+          </div>
+          <div class="col-sm-4"><button type="submit" class="btn atom-btn-outline-light w-100">{{ __('Move') }}</button></div>
+        </form>
+      </div>
+    </div>
+  @endif
+
 @push('css')
 <style>
 .accordion-button {

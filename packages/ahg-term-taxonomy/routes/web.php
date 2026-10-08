@@ -19,6 +19,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/term/store', [TermController::class, 'store'])->name('term.store')->middleware('acl:createTerm');
     Route::get('/term/{slug}/edit', [TermController::class, 'edit'])->name('term.edit')->middleware('acl:update'); // #1349
     Route::put('/term/{slug}', [TermController::class, 'update'])->name('term.update')->middleware('acl:update');
+    Route::post('/term/{slug}/move-taxonomy', [TermController::class, 'moveTaxonomy'])->name('term.move-taxonomy')->middleware('acl:update'); // #1534
     Route::get('/term/{slug}/delete', [TermController::class, 'confirmDelete'])->name('term.confirmDelete')->middleware('acl:delete'); // #1349
     Route::delete('/term/{slug}', [TermController::class, 'destroy'])->name('term.destroy')->middleware('acl:delete');
 });

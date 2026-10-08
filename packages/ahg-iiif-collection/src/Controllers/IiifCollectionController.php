@@ -339,7 +339,9 @@ class IiifCollectionController extends Controller
             ->first();
         if (!$object) abort(404);
         $manifestUrl = route('iiif-collection.object-manifest', $slug);
-        return view('ahg-iiif-collection::iiif.viewer', ['objectTitle' => $object->title, 'objectSlug' => $slug, 'manifestUrl' => $manifestUrl]);
+        // #1540: Mirador by default; ?viewer=uv opens the same manifest in the Universal Viewer.
+        $viewer = request('viewer') === 'uv' ? 'uv' : 'mirador';
+        return view('ahg-iiif-collection::iiif.viewer', ['objectTitle' => $object->title, 'objectSlug' => $slug, 'manifestUrl' => $manifestUrl, 'viewer' => $viewer]);
     }
 
     /** IIIF Comparison viewer. */

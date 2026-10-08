@@ -335,7 +335,7 @@ class IiifContentSearchService
 
         $map = [];
         $canvasIndex = 1;
-        $cantaloupeBase = 'http://127.0.0.1:8182';
+        $cantaloupeBase = \AhgIiifCollection\Services\IiifCollectionService::imageServerBase(); // #1540
         $maxProbePages = 25;
 
         foreach ($digitalObjects as $do) {

@@ -713,9 +713,26 @@ class IiifCollectionService
      * request `#t=ss,ee` ranges. A poster-frame thumbnail is emitted on
      * the canvas when one is available.
      */
+    /**
+     * Base URL of the IIIF image server (Cantaloupe), used server-side to read
+     * info.json for page counts (heratio#1540). The IIIF Server URL setting
+     * wins; otherwise config heratio.iiif_image_server_url, which defaults to
+     * the local Cantaloupe on 127.0.0.1:8182.
+     */
+    public static function imageServerBase(): string
+    {
+        $setting = '';
+        try {
+            $setting = trim((string) \AhgCore\Services\AhgSettingsService::get('iiif_server_url', ''));
+        } catch (\Throwable $e) {
+        }
+
+        return rtrim($setting !== '' ? $setting : (string) config('heratio.iiif_image_server_url', 'http://127.0.0.1:8182'), '/');
+    }
+
     private function buildCanvasesV3(string $manifestId, string $baseUrl, $digitalObjects): array
     {
-        $cantaloupeBaseUrl = 'http://127.0.0.1:8182';
+        $cantaloupeBaseUrl = self::imageServerBase();
         $canvases = [];
         $canvasIndex = 1;
 
@@ -1204,7 +1221,7 @@ class IiifCollectionService
         $baseUrl = rtrim(config('app.url'), '/');
         $label = $object->title ?: $object->identifier ?: 'Untitled';
         $manifestId = $baseUrl . '/iiif-manifest/' . $object->slug;
-        $cantaloupeBaseUrl = 'http://127.0.0.1:8182';
+        $cantaloupeBaseUrl = self::imageServerBase(); // #1540
 
         $canvases = [];
         $canvasIndex = 1;
