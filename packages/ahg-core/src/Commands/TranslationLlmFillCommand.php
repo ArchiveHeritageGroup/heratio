@@ -76,6 +76,15 @@ class TranslationLlmFillCommand extends Command
 
     private ?int $deadline = null;
 
+    /** Seconds to wait before each retry of a batch the gateway did not answer. */
+    private const RETRY_WAITS = [30, 120, 300];
+
+    private const MAX_FAILED_IN_A_ROW = 5;
+
+    private int $failedInARow = 0;
+
+    private bool $stopRun = false;
+
     public function handle(): int
     {
         if ($until = $this->option('until')) {
@@ -97,6 +106,9 @@ class TranslationLlmFillCommand extends Command
             }
             if ($this->pastDeadline()) {
                 $this->info('Stop time reached.');
+                break;
+            }
+            if ($this->stopRun) {
                 break;
             }
             $this->fillLocale($locale, $source);
@@ -125,19 +137,37 @@ class TranslationLlmFillCommand extends Command
             $name = 'Valencian (Catalan as written in Valencia)';
         }
         $limit = (int) $this->option('limit');
-        $ok = $rejected = $batches = 0;
+        $ok = $rejected = $batches = $untried = 0;
         $newSame = [];
         foreach (array_chunk($todo, max(1, (int) $this->option('batch'))) as $chunk) {
-            if ($this->pastDeadline() || ($limit && $ok >= $limit)) {
+            if ($this->pastDeadline() || $this->stopRun || ($limit && $ok >= $limit)) {
                 break;
             }
             $reply = $this->translateBatch($chunk, $name);
+            for ($try = 0; $reply === null && $try < count(self::RETRY_WAITS) && ! $this->pastDeadline(); $try++) {
+                sleep(self::RETRY_WAITS[$try]);
+                $reply = $this->translateBatch($chunk, $name);
+            }
+            if ($reply === null) {
+                // The gateway did not answer: the batch is untried, not rejected,
+                // and the next run picks it up. Several in a row means the node is
+                // busy or down; stop rather than run through the queue unanswered.
+                $untried += count($chunk);
+                if (++$this->failedInARow >= self::MAX_FAILED_IN_A_ROW) {
+                    $this->stopRun = true;
+                    $this->warn("  {$locale}: the gateway failed ".self::MAX_FAILED_IN_A_ROW.' batches in a row; stopping this run.');
+                    break;
+                }
+
+                continue;
+            }
+            $this->failedInARow = 0;
             foreach ($chunk as $i => $en) {
                 $out = $reply['s'.$i] ?? $reply[$en] ?? null;
                 if (is_string($out) && trim($out) === $en) {
                     $newSame[] = $en;
                 } elseif (is_string($out) && $this->acceptable($en, trim($out), $locale)) {
-                    $target[$en] = trim($out);
+                    $target[$en] = self::plainDashes(trim($out));
                     $ok++;
                 } else {
                     $rejected++;
@@ -150,11 +180,11 @@ class TranslationLlmFillCommand extends Command
         }
         $this->save($path, $target);
         $this->recordMeta($locale, $ok, $newSame);
-        $this->info("{$locale}: {$ok} accepted, ".count($newSame)." same as English, {$rejected} rejected (kept English)");
+        $this->info("{$locale}: {$ok} accepted, ".count($newSame)." same as English, {$rejected} rejected (kept English), {$untried} untried (gateway did not answer)");
     }
 
-    /** @return array<string, string> */
-    private function translateBatch(array $chunk, string $language): array
+    /** @return array<string, string>|null null when the gateway did not answer */
+    private function translateBatch(array $chunk, string $language): ?array
     {
         $items = [];
         foreach ($chunk as $i => $en) {
@@ -170,13 +200,19 @@ class TranslationLlmFillCommand extends Command
                 'options' => ['temperature' => 0.1],
                 'messages' => [['role' => 'system', 'content' => $system], ['role' => 'user', 'content' => json_encode($items, JSON_UNESCAPED_UNICODE)]],
             ]);
-            $data = $resp->successful() ? json_decode((string) $resp->json('message.content', ''), true) : null;
+            if (! $resp->successful()) {
+                $this->warn('  gateway answered '.$resp->status().': '.mb_substr($resp->body(), 0, 160));
 
+                return null;
+            }
+            $data = json_decode((string) $resp->json('message.content', ''), true);
+
+            // An answer that is not a JSON object counts as answered-but-unusable.
             return is_array($data) ? array_filter($data, 'is_string') : [];
         } catch (\Throwable $e) {
             $this->warn('  gateway call failed: '.$e->getMessage());
 
-            return [];
+            return null;
         }
     }
 
@@ -212,6 +248,12 @@ class TranslationLlmFillCommand extends Command
         }
 
         return true;
+    }
+
+    /** House style: plain hyphens, never em or en dashes. */
+    public static function plainDashes(string $s): string
+    {
+        return strtr($s, ["\u{2014}" => '-', "\u{2013}" => '-', "\u{2015}" => '-']);
     }
 
     /** @return list<string> sorted placeholder multiset */
