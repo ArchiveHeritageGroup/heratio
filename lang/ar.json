@@ -24232,5 +24232,10 @@
     "not in storage": "غير موجود في التخزين",
     "or every description of a repository": "أو كل وصف لمستودع",
     "removed from storage": "تمت إزالته من التخزين",
-    "the object leaves storage entirely rather than moving to another location": "يغادر الكائن التخزين بالكامل بدلاً من الانتقال إلى موقع آخر"
+    "the object leaves storage entirely rather than moving to another location": "يغادر الكائن التخزين بالكامل بدلاً من الانتقال إلى موقع آخر",
+    "breadcrumb": "مسار التنقل",
+    "Derivative and processing options (thumbnails, reference images, virus scan, OCR, SIP/AIP/DIP packaging) will be configurable in the Ingest wizard after this folder is created - a persistent ingest session is created on save.": "سيتم إعداد خيارات المشتقات والمعالجة (الصور المصغرة، الصور المرجعية، فحص الفيروسات، التعرف الضوئي على الحروف، تعبئة SIP/AIP/DIP) في معالج الاستيراد بعد إنشاء هذا المجلد - يتم إنشاء جلسة استيراد دائمة عند الحفظ.",
+    "Each verb accepts both GET and POST as required by the OAI-PMH spec.": "تقبل كل فعل كلًا من GET و POST كما هو مطلوب بواسطة مواصفة OAI-PMH.",
+    "Yes. Both Heratio and AtoM are licensed under AGPL-3.0 and can be self-hosted at no licence cost. Heratio also offers hosted and support plans from The AHG.": "نعم. كلا النظامين Heratio و AtoM مرخصان بموجب AGPL-3.0 ويمكن استضافتهما ذاتياً دون تكلفة ترخيص. كما تقدم Heratio خطط استضافة ودعم من The AHG.",
+    "Repository and CAAIS profile": "الملف الشخصي للمستودع و CAAIS"
 }

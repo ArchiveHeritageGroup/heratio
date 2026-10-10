@@ -55,7 +55,7 @@ class TranslationLlmFillCommand extends Command
         {--model=qwen3.6:27b : Gateway model}
         {--batch=40 : Strings per model call}
         {--limit=0 : Stop a locale after this many accepted strings (0 = all)}
-        {--until= : Stop the whole run at this local time, HH:MM (an overnight window may cross midnight)}
+        {--until= : Stop the whole run at this time on the host clock, HH:MM (an overnight window may cross midnight)}
         {--dry-run : Count what would be translated; call nothing, write nothing}';
 
     protected $description = 'Fill missing UI strings for one or more locales through the AI gateway LLM route, with placeholder and script checks';
@@ -93,8 +93,12 @@ class TranslationLlmFillCommand extends Command
 
                 return self::FAILURE;
             }
-            $t = now()->setTime((int) $m[1], (int) $m[2]);
-            $this->deadline = ($t->lessThanOrEqualTo(now()) ? $t->addDay() : $t)->getTimestamp();
+            // The host's local time (cron and the operator's clock), not the
+            // application timezone, which may be UTC: 06:00 means 06:00 here.
+            $tz = getenv('TZ') ?: (trim((string) @file_get_contents('/etc/timezone')) ?: config('app.timezone'));
+            $local = now($tz);
+            $t = $local->copy()->setTime((int) $m[1], (int) $m[2]);
+            $this->deadline = ($t->lessThanOrEqualTo($local) ? $t->addDay() : $t)->getTimestamp();
         }
 
         $source = json_decode((string) file_get_contents(base_path('lang/en.json')), true) ?: [];

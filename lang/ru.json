@@ -24103,5 +24103,20 @@
     "not in storage": "не в хранилище",
     "or every description of a repository": "или любое описание репозитория",
     "removed from storage": "удалено из хранилища",
-    "the object leaves storage entirely rather than moving to another location": "объект полностью покидает хранилище, а не перемещается в другое место"
+    "the object leaves storage entirely rather than moving to another location": "объект полностью покидает хранилище, а не перемещается в другое место",
+    ":total preservation events on record": ":total событий сохранения в реестре",
+    "Adhoc": "Adhoc (разовый)",
+    "NGN - Nigerian Naira": "NGN - Нигерийская наира",
+    "Content for Dpia View.": "Содержимое для просмотра Dpia.",
+    "Content for Dpo.": "Содержимое для Dpo.",
+    "A finding aid is a document that describes a collection of records. It helps researchers locate relevant materials by providing hierarchical descriptions, access points, and administrative metadata.": "Описательный указатель - это документ, описывающий фонд документов. Он помогает исследователям находить соответствующие материалы, предоставляя иерархические описания, точки доступа и административные метаданные.",
+    "Download the full catalogue as a NISO KBART TSV file. Filter by date range or limit the row count.": "Скачайте полный каталог в виде файла NISO KBART TSV. Фильтруйте по диапазону дат или ограничьте количество строк.",
+    "Use this interface to update the authorized form of name, slug (permalink), and/or digital object filename.": "Используйте этот интерфейс для обновления авторитетной формы имени, слага (постоянной ссылки) и/или имени файла цифрового объекта.",
+    "Use this interface to update the description title, slug (permalink), and/or digital object filename.": "Используйте этот интерфейс для обновления названия описания, слага (постоянной ссылки) и/или имени файла цифрового объекта.",
+    "When checked, authenticated users see a \"Generate 3D model\" button on each IO that has an image but no 3D model yet. Disable to keep TripoSR cron-only.": "Если этот флажок установлен, аутентифицированные пользователи видят кнопку «Сгенерировать 3D-модель» на каждом объекте информации (IO), который имеет изображение, но еще не имеет 3D-модели. Отключите, чтобы оставить TripoSR только для выполнения по расписанию.",
+    "A fonds or series (slug), with everything beneath it": "Фонд или серия (слаг), со всем находящимся под ним",
+    "More than one term has that name; enter the slug of the term to keep.": "С таким именем имеется более одного термина; введите слаг термина, который нужно сохранить.",
+    "No archival description has that slug.": "Ни одно архивное описание не имеет такого слага.",
+    "No term with that name or slug was found in this taxonomy.": "Термин с таким именем или слагом не найден в данной таксономии.",
+    "Term to keep (name or slug, same taxonomy)": "Термин для сохранения (имя или слаг, та же таксономия)"
 }
