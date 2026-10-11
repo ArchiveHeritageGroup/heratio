@@ -23978,5 +23978,12 @@
     "not in storage": "no en almacenamiento",
     "or every description of a repository": "o cada descripción de un repositorio",
     "removed from storage": "eliminado del almacenamiento",
-    "the object leaves storage entirely rather than moving to another location": "el objeto sale completamente del almacenamiento en lugar de moverse a otra ubicación"
+    "the object leaves storage entirely rather than moving to another location": "el objeto sale completamente del almacenamiento en lugar de moverse a otra ubicación",
+    "DPIA": "EIPD",
+    "DPIA:": "EIPD:",
+    "DSAR": "SARD",
+    "DSAR:": "SARD:",
+    "DSARs": "SARDs",
+    "Kenya DPA": "Ley de Protección de Datos de Kenia",
+    "Payout method": "Método de pago"
 }

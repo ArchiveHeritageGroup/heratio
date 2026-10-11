@@ -24126,5 +24126,7 @@
     "No thumbnails found.": "هیچ تصغیر بندانگشتی یافت نشد.",
     "Restrict harvesting to a specific OAI set": "محدود کردن برداشت به یک مجموعه OAI خاص",
     "This will create the same embargo on all child records below this item in the hierarchy.": "این کار همان محدودیت دسترسی را بر تمام رکوردهای فرزند زیر این مورد در سلسله مراتب ایجاد خواهد کرد.",
-    "Total accessions": "کل دریافت‌ها"
+    "Total accessions": "کل دریافت‌ها",
+    "ISO 3166-1 country code (e.g., ZAF, GBR, USA).": "کد کشور ISO 3166-1 (مثلاً ZAF, GBR, USA).",
+    "Master switch for all RIC sync operations": "کلید اصلی برای تمام عملیات همگام‌سازی RIC"
 }

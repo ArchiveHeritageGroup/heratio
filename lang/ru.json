@@ -24118,5 +24118,10 @@
     "More than one term has that name; enter the slug of the term to keep.": "С таким именем имеется более одного термина; введите слаг термина, который нужно сохранить.",
     "No archival description has that slug.": "Ни одно архивное описание не имеет такого слага.",
     "No term with that name or slug was found in this taxonomy.": "Термин с таким именем или слагом не найден в данной таксономии.",
-    "Term to keep (name or slug, same taxonomy)": "Термин для сохранения (имя или слаг, та же таксономия)"
+    "Term to keep (name or slug, same taxonomy)": "Термин для сохранения (имя или слаг, та же таксономия)",
+    "AAD object id → Heratio user id. Auto-created on first manual push (toggle in Admin > AHG Settings > SharePoint).": "Идентификатор объекта AAD → идентификатор пользователя Heratio. Автоматически создается при первом ручном обновлении (переключатель в Администрирование > Настройки AHG > SharePoint).",
+    "Light Box": "Лайтбокс",
+    "Alternative email": "Альтернативный адрес электронной почты",
+    "Queue Records for Minting": "Очередь записей для генерации идентификаторов (Minting)",
+    "Submission, Archival, and Dissemination Information Packages": "Пакеты информации о подаче, архивировании и распространении"
 }

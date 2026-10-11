@@ -24004,5 +24004,10 @@
     "not in storage": "nie w magazynie",
     "or every description of a repository": "lub każdy opis repozytorium",
     "removed from storage": "usunięty z magazynu",
-    "the object leaves storage entirely rather than moving to another location": "obiekt opuszcza magazyn całkowicie, a nie przenosi się do innej lokalizacji"
+    "the object leaves storage entirely rather than moving to another location": "obiekt opuszcza magazyn całkowicie, a nie przenosi się do innej lokalizacji",
+    ":total preservation events on record": ":total zarejestrowanych zdarzeń konserwatorskich",
+    "Results :from to :to of :total": "Wyniki :from do :to z :total",
+    ":field does not match the required format.": ":field nie odpowiada wymaganemu formatowi.",
+    ":field is required.": ":field jest wymagane.",
+    ":field must be a number.": ":field musi być liczbą."
 }

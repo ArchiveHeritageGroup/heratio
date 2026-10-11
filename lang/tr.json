@@ -24060,5 +24060,16 @@
     "not in storage": "depolamada değil",
     "or every description of a repository": "veya bir arşiv kurumu açıklamasının tamamı",
     "removed from storage": "depolamadan çıkarıldı",
-    "the object leaves storage entirely rather than moving to another location": "nesne depolamadan tamamen ayrılır, başka bir konuma taşınmaz"
+    "the object leaves storage entirely rather than moving to another location": "nesne depolamadan tamamen ayrılır, başka bir konuma taşınmaz",
+    ":label metadata": ":label meta verisi",
+    ":label name": ":label adı",
+    ":reviewed% of :total AI steps reviewed by a person": ":total yapay zeka adımından :reviewed tan bir kişi tarafından incelendi",
+    ":signed of :total master files signed (:pct%)": ":total ana dosyadan :signed tanı imzalandı (:pct%%)",
+    ":skipped skipped.": ":skipped atlandı.",
+    ":total keys": ":total anahtar",
+    ":total preservation events on record": ":total kayıt altında koruma olayı",
+    ":units unit(s) in the file, :matched matched to a context here, :rel relationship(s) parsed.": "dosyada :units birim, burada bağlama :matched eşleşti, :rel ilişki ayrıştırıldı.",
+    "Copy of": "Kopyası",
+    "Trigger disposal action": "Tahrip eylemini tetikle",
+    "Open the pending-requests queue in the admin panel to approve or deny.": "Onaylamak veya reddetmek için yönetici panelinde bekleyen istekler kuyruğunu açın."
 }

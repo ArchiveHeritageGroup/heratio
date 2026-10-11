@@ -24065,5 +24065,10 @@
     "not in storage": "не в сховищі",
     "or every description of a repository": "або будь-який опис репозитарію",
     "removed from storage": "видалено зі сховища",
-    "the object leaves storage entirely rather than moving to another location": "об'єкт повністю залишає сховище, а не переміщується в інше місце"
+    "the object leaves storage entirely rather than moving to another location": "об'єкт повністю залишає сховище, а не переміщується в інше місце",
+    "Crawler": "Сканер",
+    "HttpOnly Cookies": "Куки HttpOnly",
+    "No orphan work designations found.": "Не знайдено жодного позначення як «сирітське творчість».",
+    "Queue Records for Minting": "Чергування записів для генерації ідентифікаторів",
+    "Submission, Archival, and Dissemination Information Packages": "Пакети інформації для подання, архівування та поширення"
 }

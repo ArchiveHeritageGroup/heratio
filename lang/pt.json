@@ -23959,5 +23959,7 @@
     "not in storage": "não no armazenamento",
     "or every description of a repository": "ou toda descrição de um repositório",
     "removed from storage": "removido do armazenamento",
-    "the object leaves storage entirely rather than moving to another location": "o objeto sai completamente do armazenamento em vez de se mover para outro local"
+    "the object leaves storage entirely rather than moving to another location": "o objeto sai completamente do armazenamento em vez de se mover para outro local",
+    ":units unit(s) in the file, :matched matched to a context here, :rel relationship(s) parsed.": ":units unidade(s) no arquivo, :matched correspondido(a) a um contexto aqui, :rel relação(ões) analisada(s).",
+    "Relation edges": "Arestas de Relação"
 }

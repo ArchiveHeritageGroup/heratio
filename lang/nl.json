@@ -23598,5 +23598,10 @@
     "not in storage": "niet in opslag",
     "or every description of a repository": "of elke beschrijving van een depot",
     "removed from storage": "verwijderd uit opslag",
-    "the object leaves storage entirely rather than moving to another location": "het object verlaat de opslag volledig in plaats van naar een andere locatie te verplaatsen"
+    "the object leaves storage entirely rather than moving to another location": "het object verlaat de opslag volledig in plaats van naar een andere locatie te verplaatsen",
+    "Dead Letter": "Dood brief",
+    "Book Cradle": "Boekenkruk",
+    "All fixity checks are current": "Alle fixiteitscontroles zijn actueel",
+    "No TK Labels have been assigned yet.": "Er zijn nog geen TK-labels toegewezen.",
+    "No matches found for \"": "Geen overeenkomsten gevonden voor \""
 }

@@ -24030,5 +24030,13 @@
     "not in storage": "不在库房中",
     "or every description of a repository": "或档案馆的任何描述",
     "removed from storage": "已从库房移除",
-    "the object leaves storage entirely rather than moving to another location": "该对象完全离开库房，而非移至其他位置"
+    "the object leaves storage entirely rather than moving to another location": "该对象完全离开库房，而非移至其他位置",
+    "TrOCR (HTR)": "TrOCR（手写文本识别）",
+    "VRAM:": "显存：",
+    "Local auto-detects GPU. Remote sends to GPU server.": "本地模式自动检测 GPU；远程模式发送至 GPU 服务器。",
+    "No TK Labels configured.": "未配置 TK 标签。",
+    "No TK labels applied to this record.": "此记录未应用任何 TK 标签。",
+    "No activity log entries for this DOI.": "此 DOI 没有活动日志条目。",
+    "AI-powered visual description of": "由 AI 驱动的视觉描述，针对",
+    "Select a secondary actor to merge into this record. All relations, resources, contacts, and identifiers will be transferred.": "选择一个次要责任者合并到此记录中。所有关系、资源、联系方式和标识符都将被转移。"
 }

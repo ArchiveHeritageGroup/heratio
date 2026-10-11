@@ -23768,5 +23768,7 @@
     "not in storage": "nicht im Bestand",
     "or every description of a repository": "oder jede Beschreibung eines Archivs",
     "removed from storage": "aus dem Bestand entfernt",
-    "the object leaves storage entirely rather than moving to another location": "das Objekt verlässt den Bestand vollständig, anstatt an einen anderen Standort zu wechseln"
+    "the object leaves storage entirely rather than moving to another location": "das Objekt verlässt den Bestand vollständig, anstatt an einen anderen Standort zu wechseln",
+    "Reconstructing everything recorded up to": "Rekonstruktion aller bis dahin aufgezeichneten Daten",
+    "repositories": "Repositorien"
 }
