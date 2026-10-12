@@ -24634,5 +24634,10 @@
     "not in storage": "not in storage",
     "or every description of a repository": "or every description of a repository",
     "removed from storage": "removed from storage",
-    "the object leaves storage entirely rather than moving to another location": "the object leaves storage entirely rather than moving to another location"
+    "the object leaves storage entirely rather than moving to another location": "the object leaves storage entirely rather than moving to another location",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "Your researcher registration is waiting for approval. You will receive an email when it is approved.",
+    "Your researcher registration was not approved. Please contact the reading room.": "Your researcher registration was not approved. Please contact the reading room.",
+    "Your researcher account is suspended. Please contact the reading room.": "Your researcher account is suspended. Please contact the reading room.",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "A password reset link was emailed to the researcher. It is valid for one hour.",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "The reset email could not be sent. Check the mail settings and the researcher's email address."
 }

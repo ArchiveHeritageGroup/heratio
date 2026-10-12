@@ -32,11 +32,15 @@ class ResearchJournalService
 
     // ── Journals ──────────────────────────────────────────────────────────
 
-    public function listJournals(?string $kind = null): array
+    /** $ownerId: only that researcher's journals; null lists every journal (admins). */
+    public function listJournals(?string $kind = null, ?int $ownerId = null, bool $all = false): array
     {
         $q = DB::table('research_journal')->orderByDesc('updated_at');
         if ($kind !== null) {
             $q->where('kind', $kind);
+        }
+        if (! $all) {
+            $q->where('researcher_id', $ownerId ?? 0);
         }
 
         return $q->get()->map(fn ($j) => (array) $j)->all();

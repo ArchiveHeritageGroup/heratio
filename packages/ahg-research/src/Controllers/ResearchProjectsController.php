@@ -129,8 +129,8 @@ class ResearchProjectsController extends Controller
         $researcher = $this->service->getResearcherByUserId(Auth::id());
         if (!$researcher) return redirect()->route('researcher.register');
 
-        $project = DB::table('research_project')->where('id', $id)->first();
-        if (!$project) abort(404, 'Project not found');
+        // SECURITY: owner, accepted collaborator or admin only.
+        [$project] = $this->loadProjectContext($id);
 
         $isOwner = ($project->owner_id ?? 0) == ($researcher->id ?? 0);
 

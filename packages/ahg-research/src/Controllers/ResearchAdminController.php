@@ -377,11 +377,9 @@ class ResearchAdminController extends Controller
         $researcher = $this->service->getResearcher($id);
         if (!$researcher) abort(404);
 
-        $newPassword = \Illuminate\Support\Str::random(12);
-        // Use the provisioner so the password uses the canonical auth scheme
-        // (salt + sha1 + argon2), not a one-off bcrypt that login cannot verify.
-        app(\AhgResearch\Contracts\UserProvisionerInterface::class)
-            ->setPassword($researcher->user_id, $newPassword);
+        // SECURITY: never show a password on screen; email a reset link instead.
+        $user = DB::table('user')->where('id', $researcher->user_id)->first();
+        $sent = $user && $user->email && app(\App\Http\Controllers\Auth\LoginController::class)->sendPasswordResetLink($user);
 
         $this->logResearchActivity(
             'update',
@@ -391,8 +389,11 @@ class ResearchAdminController extends Controller
             ['method' => 'ResearchAdminController@resetPassword']
         );
 
-        return redirect()->route('research.viewResearcher', $id)
-            ->with('success', 'Password reset. New password: <strong>' . e($newPassword) . '</strong> - share this with the researcher securely.');
+        return redirect()->route('research.viewResearcher', $id)->with(
+            $sent ? 'success' : 'error',
+            $sent ? __('A password reset link was emailed to the researcher. It is valid for one hour.')
+                  : __('The reset email could not be sent. Check the mail settings and the researcher\'s email address.')
+        );
     }
 
     public function suspendResearcher(int $id)

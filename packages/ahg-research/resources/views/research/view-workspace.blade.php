@@ -471,8 +471,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 .catch(function() { callback(); });
         },
         render: {
-            option: function(item) { return '<div><strong>' + item.name + '</strong><br><small class="text-muted">' + (item.email || '') + '</small></div>'; },
-            item: function(item) { return '<div>' + item.name + ' <small>(' + (item.email || '') + ')</small></div>'; }
+            option: function(item, escape) { return '<div><strong>' + escape(item.name || '') + '</strong><br><small class="text-muted">' + escape(item.email || '') + '</small></div>'; },
+            item: function(item, escape) { return '<div>' + escape(item.name || '') + ' <small>(' + escape(item.email || '') + ')</small></div>'; }
         },
         onChange: function(value) { document.getElementById('inviteEmailHidden').value = value; }
     });
@@ -499,8 +499,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 .catch(function() { callback(); });
         },
         render: {
-            option: function(item) { return '<div><strong>' + (item.name || '[Untitled]') + '</strong> <small class="text-muted">#' + item.id + '</small></div>'; },
-            item: function(item) { return '<div>' + (item.name || '[Untitled]') + '</div>'; }
+            option: function(item, escape) { return '<div><strong>' + escape(item.name || '[Untitled]') + '</strong> <small class="text-muted">#' + escape(item.id) + '</small></div>'; },
+            item: function(item, escape) { return '<div>' + escape(item.name || '[Untitled]') + '</div>'; }
         },
         onChange: function(value) {
             document.getElementById('resourceIdHidden').value = value;

@@ -186,8 +186,8 @@ document.addEventListener('DOMContentLoaded', function() {
             load: function(q, cb) { if (q.length<2) return cb(); fetch('/informationobject/autocomplete?query='+encodeURIComponent(q)+'&limit=20').then(function(r){return r.json()}).then(cb).catch(function(){cb()}); },
             onChange: function(v) { document.getElementById('createReproObjectId').value = v; },
             render: {
-                option: function(i) { return '<div><strong>'+(i.name||'[Untitled]')+'</strong> <small class="text-muted">#'+i.id+'</small></div>'; },
-                item: function(i) { return '<div>'+(i.name||'[Untitled]')+'</div>'; }
+                option: function(i, escape) { return '<div><strong>'+escape(i.name || '[Untitled]')+'</strong> <small class="text-muted">#'+escape(i.id)+'</small></div>'; },
+                item: function(i, escape) { return '<div>'+escape(i.name || '[Untitled]')+'</div>'; }
             }
         });
     }

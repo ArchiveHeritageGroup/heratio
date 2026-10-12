@@ -21,7 +21,9 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="fas fa-layer-group text-primary me-2"></i>{{ __('Report Templates') }}</h1>
     <div>
+        @if($isAdmin ?? false)
         <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createTemplateModal"><i class="fas fa-plus me-1"></i>{{ __('New Template') }}</button>
+        @endif
         <a href="{{ route('research.reports') }}" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}</a>
     </div>
 </div>
@@ -32,15 +34,16 @@
         <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h6 class="mb-0">
-                    {{ e($tpl->name) }}
+                    {{ $tpl->name }}
                     @if($tpl->is_system)<span class="badge bg-info ms-2">{{ __('System') }}</span>@endif
                 </h6>
+                @if($isAdmin ?? false)
                 <div class="d-flex gap-1">
                     <button class="btn btn-sm btn-outline-secondary edit-tpl-btn"
                         data-id="{{ $tpl->id }}"
-                        data-name="{{ e($tpl->name) }}"
-                        data-description="{{ e($tpl->description ?? '') }}"
-                        data-sections="{{ e(implode("\n", json_decode($tpl->sections_config ?? '[]', true) ?: [])) }}"
+                        data-name="{{ $tpl->name }}"
+                        data-description="{{ $tpl->description ?? '' }}"
+                        data-sections="{{ implode("\n", json_decode($tpl->sections_config ?? '[]', true) ?: []) }}"
                         data-system="{{ $tpl->is_system }}"
                         title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></button>
                     @if(!$tpl->is_system)
@@ -52,6 +55,7 @@
                     </form>
                     @endif
                 </div>
+                @endif
             </div>
             <div class="card-body">
                 @if($tpl->description)

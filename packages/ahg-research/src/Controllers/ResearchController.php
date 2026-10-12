@@ -66,7 +66,10 @@ class ResearchController extends Controller
 
     public function dashboard()
     {
-        $stats = $this->service->getDashboardStats();
+        // SECURITY: site-wide stats, pending applicants and today's bookings
+        // name other people; only staff see them.
+        $isAdmin = Auth::check() && \AhgCore\Services\AclService::canAdmin(Auth::id());
+        $stats = $isAdmin ? $this->service->getDashboardStats() : [];
         $researcher = null;
         $enhancedData = [];
         $unreadNotifications = 0;
@@ -81,8 +84,8 @@ class ResearchController extends Controller
             }
         }
 
-        $pendingResearchers = $this->service->getResearchers(['status' => 'pending']);
-        $todayBookings = DB::table('research_booking as b')
+        $pendingResearchers = $isAdmin ? $this->service->getResearchers(['status' => 'pending']) : [];
+        $todayBookings = ! $isAdmin ? [] : DB::table('research_booking as b')
             ->join('research_researcher as r', 'b.researcher_id', '=', 'r.id')
             ->join('research_reading_room as rm', 'b.reading_room_id', '=', 'rm.id')
             ->where('b.booking_date', date('Y-m-d'))
@@ -93,7 +96,6 @@ class ResearchController extends Controller
         $pendingApprovals = $pendingResearchers;
         $todaySchedule = $todayBookings;
         $recentJournalEntries = $enhancedData['recent_journal_entries'] ?? [];
-        $isAdmin = Auth::check() && \AhgCore\Services\AclService::canAdmin(Auth::id());
 
         return view('research::research.dashboard', array_merge(
             $this->getSidebarData('workspace'),

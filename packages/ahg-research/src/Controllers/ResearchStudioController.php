@@ -28,6 +28,7 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Controllers\Concerns\LoadsProjectContext;
 use AhgResearch\Controllers\Concerns\ResearchControllerHelpers;
 use AhgResearch\Services\ResearchService;
 use AhgResearch\Services\ResearchStudioService;
@@ -49,6 +50,7 @@ use Illuminate\Support\Facades\DB;
 class ResearchStudioController extends Controller
 {
     use ResearchControllerHelpers;
+    use LoadsProjectContext;
 
     protected ResearchService $service;
 
@@ -63,8 +65,8 @@ class ResearchStudioController extends Controller
         $researcher = $this->service->getResearcherByUserId(Auth::id());
         if (!$researcher) return redirect()->route('researcher.register');
 
-        $project = DB::table('research_project')->where('id', $projectId)->first();
-        if (!$project) abort(404, 'Project not found');
+        // SECURITY: owner, accepted collaborators and admins only.
+        [$project] = $this->loadProjectContext($projectId);
 
         $studio = app(\AhgResearch\Services\ResearchStudioService::class);
 
@@ -96,6 +98,8 @@ class ResearchStudioController extends Controller
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
         if (!$researcher) return redirect()->route('researcher.register');
+        // SECURITY: owner, accepted collaborators and admins only.
+        $this->loadProjectContext($projectId);
 
         $validated = $request->validate([
             'output_type'          => 'required|string|in:briefing,study_guide,faq,timeline,diagram,video_script,spreadsheet,audio',
@@ -129,8 +133,8 @@ class ResearchStudioController extends Controller
     public function studioShow(Request $request, int $projectId, int $artefactId)
     {
         if (!Auth::check()) return redirect()->route('login');
-        $project = DB::table('research_project')->where('id', $projectId)->first();
-        if (!$project) abort(404);
+        // SECURITY: owner, accepted collaborators and admins only.
+        [$project] = $this->loadProjectContext($projectId);
 
         $artefact = app(\AhgResearch\Services\ResearchStudioService::class)->get($artefactId);
         if (!$artefact || (int) $artefact->project_id !== $projectId) abort(404);
@@ -149,14 +153,8 @@ class ResearchStudioController extends Controller
         $artefact = app(\AhgResearch\Services\ResearchStudioService::class)->get($artefactId);
         if (!$artefact || (int) $artefact->project_id !== $projectId) abort(404);
 
-        // #1395(G) - project private to owner / collaborators / admins (IDOR).
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        $project = DB::table('research_project')->where('id', $projectId)->first();
-        $isAdmin = \AhgCore\Services\AclService::canAdmin((int) Auth::id());
-        $isOwner = $researcher && $project && (int) ($project->owner_id ?? 0) === (int) ($researcher->id ?? 0);
-        $isCollab = $researcher && \Illuminate\Support\Facades\Schema::hasTable('research_project_collaborator')
-            && DB::table('research_project_collaborator')->where('project_id', $projectId)->where('researcher_id', $researcher->id)->exists();
-        if (! ($isAdmin || $isOwner || $isCollab)) abort(403, 'You do not have access to this project.');
+        // #1395(G) - project private to owner / accepted collaborators / admins (IDOR).
+        $this->loadProjectContext($projectId);
 
         if ($artefact->output_type === 'spreadsheet' && $artefact->xlsx_path && is_file($artefact->xlsx_path)) {
             return response()->download($artefact->xlsx_path, basename($artefact->xlsx_path));
@@ -174,6 +172,8 @@ class ResearchStudioController extends Controller
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
         if (!$researcher) return redirect()->route('researcher.register');
+        // SECURITY: owner, accepted collaborators and admins only.
+        $this->loadProjectContext($projectId);
 
         $artefact = app(\AhgResearch\Services\ResearchStudioService::class)->get($artefactId);
         if (!$artefact || (int) $artefact->project_id !== $projectId) abort(404);

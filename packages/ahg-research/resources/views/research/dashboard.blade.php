@@ -149,12 +149,13 @@
     @endif
   @endauth
 
-  {{-- Statistics --}}
+  {{-- Statistics (staff only) --}}
+  @if($isAdmin ?? false)
   <div class="row mb-4">
     <div class="col-md-3">
       <div class="card text-center h-100">
         <div class="card-body">
-          <h2 class="text-primary">{{ number_format($stats['researchers'] ?? 0) }}</h2>
+          <h2 class="text-primary">{{ number_format($stats['total_researchers'] ?? 0) }}</h2>
           <p class="mb-0">{{ __('Registered Researchers') }}</p>
         </div>
       </div>
@@ -162,7 +163,7 @@
     <div class="col-md-3">
       <div class="card text-center h-100">
         <div class="card-body">
-          <h2 class="text-success">{{ number_format($stats['todayBookings'] ?? $stats['bookings_today'] ?? 0) }}</h2>
+          <h2 class="text-success">{{ number_format($stats['today_bookings'] ?? 0) }}</h2>
           <p class="mb-0">{{ __('Today\'s Bookings') }}</p>
         </div>
       </div>
@@ -170,7 +171,7 @@
     <div class="col-md-3">
       <div class="card text-center h-100">
         <div class="card-body">
-          <h2 class="text-info">{{ number_format($stats['weekBookings'] ?? $stats['bookings_week'] ?? 0) }}</h2>
+          <h2 class="text-info">{{ number_format($stats['week_bookings'] ?? 0) }}</h2>
           <p class="mb-0">{{ __('This Week') }}</p>
         </div>
       </div>
@@ -178,12 +179,13 @@
     <div class="col-md-3">
       <div class="card text-center h-100">
         <div class="card-body">
-          <h2 class="text-warning">{{ number_format($stats['pendingRequests'] ?? $stats['pending_requests'] ?? 0) }}</h2>
+          <h2 class="text-warning">{{ number_format($stats['pending_requests'] ?? 0) }}</h2>
           <p class="mb-0">{{ __('Pending Requests') }}</p>
         </div>
       </div>
     </div>
   </div>
+  @endif
 
   {{-- Pending Approvals (Admin) --}}
   @if($isAdmin ?? false)
@@ -214,7 +216,8 @@
     @endif
   @endif
 
-  {{-- Today's Schedule --}}
+  {{-- Today's Schedule (staff only: it names other researchers) --}}
+  @if($isAdmin ?? false)
   <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
       <span><i class="fas fa-calendar-day me-2"></i>{{ __("Today's Schedule") }}</span>
@@ -251,6 +254,7 @@
       </table>
     </div>
   </div>
+  @endif
 
   {{-- Recent Activity --}}
   @auth

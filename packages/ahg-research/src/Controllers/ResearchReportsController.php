@@ -129,8 +129,11 @@ class ResearchReportsController extends Controller
     public function reportTemplates(Request $request)
     {
         if (!Auth::check()) return redirect()->route('login');
+        $isAdmin = \AhgCore\Services\AclService::canAdmin((int) Auth::id());
 
+        // SECURITY: templates are shared by every researcher; only admins change them.
         if ($request->isMethod('post')) {
+            if (!$isAdmin) abort(403);
             $action = $request->input('form_action');
 
             if ($action === 'create') {
@@ -173,7 +176,7 @@ class ResearchReportsController extends Controller
 
         return view('research::research.report-templates', array_merge(
             $this->getSidebarData('reports'),
-            compact('templates')
+            compact('templates', 'isAdmin')
         ));
     }
 
@@ -212,6 +215,7 @@ class ResearchReportsController extends Controller
                 $content = $this->service->sanitizeHtml($request->input('content', ''));
                 DB::table('research_report_section')
                     ->where('id', (int) $request->input('section_id'))
+                    ->where('report_id', $id)
                     ->update([
                         'title' => $request->input('title'),
                         'content' => $content,
@@ -223,6 +227,7 @@ class ResearchReportsController extends Controller
             if ($action === 'delete_section') {
                 DB::table('research_report_section')
                     ->where('id', (int) $request->input('section_id'))
+                    ->where('report_id', $id)
                     ->delete();
                 return redirect()->route('research.viewReport', $id)->with('success', 'Section deleted');
             }
@@ -241,7 +246,7 @@ class ResearchReportsController extends Controller
             if ($action === 'move_section') {
                 $sectionId = (int) $request->input('section_id');
                 $direction = $request->input('direction');
-                $section = DB::table('research_report_section')->where('id', $sectionId)->first();
+                $section = DB::table('research_report_section')->where('id', $sectionId)->where('report_id', $id)->first();
                 if ($section) {
                     $swap = DB::table('research_report_section')
                         ->where('report_id', $id)

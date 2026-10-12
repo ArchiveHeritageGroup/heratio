@@ -30,6 +30,7 @@ class ResearchTargetJournalController extends Controller
     public function index(Request $request)
     {
         return view('research::target-journals.index', [
+            'isAdmin' => $this->isAdmin(),
             'journals' => $this->service->list([
                 'q'      => $request->query('q'),
                 'market' => $request->query('market'),
@@ -41,11 +42,13 @@ class ResearchTargetJournalController extends Controller
 
     public function create()
     {
+        $this->requireAdmin();
         return view('research::target-journals.builder', ['journal' => null, 'styles' => ResearchTargetJournalService::REFERENCE_STYLES]);
     }
 
     public function store(Request $request)
     {
+        $this->requireAdmin();
         $id = $this->service->create($this->validateData($request));
 
         $this->logResearchActivity('create', 'target_journal', (int) $id, $request->input('title'), ['method' => 'ResearchTargetJournalController@store']);
@@ -58,11 +61,12 @@ class ResearchTargetJournalController extends Controller
         $journal = $this->service->get($id);
         abort_if(! $journal, 404);
 
-        return view('research::target-journals.show', ['journal' => $journal]);
+        return view('research::target-journals.show', ['journal' => $journal, 'isAdmin' => $this->isAdmin()]);
     }
 
     public function edit(int $id)
     {
+        $this->requireAdmin();
         $journal = $this->service->get($id);
         abort_if(! $journal, 404);
 
@@ -71,6 +75,7 @@ class ResearchTargetJournalController extends Controller
 
     public function update(int $id, Request $request)
     {
+        $this->requireAdmin();
         abort_if(! $this->service->get($id), 404);
         $this->service->update($id, $this->validateData($request));
 
@@ -81,6 +86,7 @@ class ResearchTargetJournalController extends Controller
 
     public function destroy(int $id)
     {
+        $this->requireAdmin();
         $this->service->delete($id);
 
         $this->logResearchActivity('delete', 'target_journal', $id, null, ['method' => 'ResearchTargetJournalController@destroy']);
@@ -90,12 +96,24 @@ class ResearchTargetJournalController extends Controller
 
     public function seedDhet()
     {
+        $this->requireAdmin();
         $n = $this->service->seedDhetStarter();
 
         $this->logResearchActivity('create', 'target_journal', null, null, ['method' => 'ResearchTargetJournalController@seedDhet', 'seeded' => $n]);
 
         return redirect()->route('research.target-journal.index')
             ->with('success', __(':n DHET-accredited journals seeded/updated (South-African accreditation module).', ['n' => $n]));
+    }
+
+    /** The directory is shared by every researcher; only admins change it. */
+    private function isAdmin(): bool
+    {
+        return \Illuminate\Support\Facades\Auth::check() && \AhgCore\Services\AclService::canAdmin((int) \Illuminate\Support\Facades\Auth::id());
+    }
+
+    private function requireAdmin(): void
+    {
+        abort_unless($this->isAdmin(), 403);
     }
 
     private function validateData(Request $request): array
@@ -106,8 +124,8 @@ class ResearchTargetJournalController extends Controller
             'issn'                 => 'nullable|string|max:20',
             'eissn'                => 'nullable|string|max:20',
             'publisher'            => 'nullable|string|max:255',
-            'homepage_url'         => 'nullable|string|max:1000',
-            'submission_url'       => 'nullable|string|max:1000',
+            'homepage_url'         => ['nullable', 'string', 'max:1000', 'url:http,https'],
+            'submission_url'       => ['nullable', 'string', 'max:1000', 'url:http,https'],
             'languages'            => 'nullable|string|max:120',
             'subject_scope'        => 'nullable|string',
             'article_types'        => 'nullable|string|max:255',

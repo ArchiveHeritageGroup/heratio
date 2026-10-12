@@ -95,6 +95,22 @@ class LoginController extends Controller
         ];
 
         if (Auth::attempt($credentials)) {
+            // SECURITY: a researcher account opens only once staff approve it.
+            $researcherStatus = \Illuminate\Support\Facades\Schema::hasTable('research_researcher')
+                ? DB::table('research_researcher')->where('user_id', Auth::id())->value('status') : null;
+            if (in_array($researcherStatus, ['pending', 'rejected', 'suspended'], true)
+                && ! \AhgCore\Services\AclService::canAdmin((int) Auth::id())) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()->withInput($request->only('email'))->withErrors(['email' => match ($researcherStatus) {
+                    'pending' => __('Your researcher registration is waiting for approval. You will receive an email when it is approved.'),
+                    'rejected' => __('Your researcher registration was not approved. Please contact the reading room.'),
+                    default => __('Your researcher account is suspended. Please contact the reading room.'),
+                }]);
+            }
+
             $request->session()->regenerate();
             $this->recordAttempt($identifier, $ip, true);
 
@@ -259,44 +275,61 @@ class LoginController extends Controller
         $user = DB::table('user')->where('email', $email)->first();
 
         if ($user) {
-            // Delete any existing tokens for this user
-            DB::table('research_password_reset')->where('user_id', $user->id)->delete();
-
-            // Generate token
-            $token = bin2hex(random_bytes(32));
-            $expiresAt = now()->addHour();
-
-            DB::table('research_password_reset')->insert([
-                'user_id' => $user->id,
-                'token' => $token,
-                'expires_at' => $expiresAt,
-                'created_at' => now(),
-            ]);
-
-            // Send email (#674 Phase 2: gate on bounce list + thread the
-            // recipient's preferred_locale so the Mailable picks the right
-            // template).
-            try {
-                $this->configureMailFromDatabase();
-                $resetUrl = url('/user/password-reset/'.$token);
-                if (! \App\Services\EmailSuppressionGate::isSuppressed($email)) {
-                    Mail::to($email)->queue(new PasswordResetMail(
-                        $resetUrl,
-                        $user->username ?? $email,
-                        $email,
-                        $user->preferred_locale ?? null,
-                    ));
-                } else {
-                    \Log::info('Password reset suppressed (bounced address)', ['email' => $email]);
-                }
-            } catch (\Exception $e) {
-                // Log error but don't reveal to user
-                \Log::error('Password reset email failed: '.$e->getMessage());
-            }
+            $this->sendPasswordResetLink($user);
         }
 
         // Always show same message whether email exists or not (security)
         return back()->with('success', 'If an account with that email exists, password reset instructions have been sent.');
+    }
+
+    /**
+     * Email $user a one-hour password reset link. Also used by the research
+     * admin "reset password" action, so no password is ever shown on screen.
+     */
+    public function sendPasswordResetLink(object $user): bool
+    {
+        $email = (string) $user->email;
+
+        // Delete any existing tokens for this user
+        DB::table('research_password_reset')->where('user_id', $user->id)->delete();
+
+        // Generate token
+        $token = bin2hex(random_bytes(32));
+        $expiresAt = now()->addHour();
+
+        DB::table('research_password_reset')->insert([
+            'user_id' => $user->id,
+            'token' => $token,
+            'expires_at' => $expiresAt,
+            'created_at' => now(),
+        ]);
+
+        // Send email (#674 Phase 2: gate on bounce list + thread the
+        // recipient's preferred_locale so the Mailable picks the right
+        // template).
+        try {
+            $this->configureMailFromDatabase();
+            $resetUrl = url('/user/password-reset/'.$token);
+            if (! \App\Services\EmailSuppressionGate::isSuppressed($email)) {
+                Mail::to($email)->queue(new PasswordResetMail(
+                    $resetUrl,
+                    $user->username ?? $email,
+                    $email,
+                    $user->preferred_locale ?? null,
+                ));
+            } else {
+                \Log::info('Password reset suppressed (bounced address)', ['email' => $email]);
+
+                return false;
+            }
+        } catch (\Exception $e) {
+            // Log error but don't reveal to user
+            \Log::error('Password reset email failed: '.$e->getMessage());
+
+            return false;
+        }
+
+        return true;
     }
 
     // =============================================

@@ -163,8 +163,8 @@ class ResearchCollaborationController extends Controller
     public function collabJoin(Request $request, int $projectId)
     {
         if (!Auth::check()) abort(401);
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) abort(403);
+        // SECURITY: members (owner, accepted collaborators) and admins only.
+        [, $researcher] = $this->loadProjectContext($projectId);
 
         $svc = app(\AhgResearch\Services\CollaborationRealtimeService::class);
         $data = $svc->joinProject($projectId, (int) $researcher->id, $request->input('cursor_target'));
@@ -175,8 +175,8 @@ class ResearchCollaborationController extends Controller
     public function collabPoll(Request $request, int $projectId)
     {
         if (!Auth::check()) abort(401);
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) abort(403);
+        // SECURITY: members (owner, accepted collaborators) and admins only.
+        [, $researcher] = $this->loadProjectContext($projectId);
 
         $svc = app(\AhgResearch\Services\CollaborationRealtimeService::class);
         $svc->heartbeat($projectId, (int) $researcher->id, $request->input('cursor_target'));
@@ -188,8 +188,8 @@ class ResearchCollaborationController extends Controller
     public function collabComment(Request $request, int $projectId)
     {
         if (!Auth::check()) abort(401);
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) abort(403);
+        // SECURITY: members (owner, accepted collaborators) and admins only.
+        [, $researcher] = $this->loadProjectContext($projectId);
 
         $validated = $request->validate([
             'body'              => 'required|string|max:5000',
@@ -207,10 +207,11 @@ class ResearchCollaborationController extends Controller
     public function collabCommentResolve(Request $request, int $projectId, int $commentId)
     {
         if (!Auth::check()) abort(401);
-        $researcher = $this->service->getResearcherByUserId(Auth::id());
-        if (!$researcher) abort(403);
+        // SECURITY: members (owner, accepted collaborators) and admins only.
+        [, $researcher] = $this->loadProjectContext($projectId);
 
         $svc = app(\AhgResearch\Services\CollaborationRealtimeService::class);
+        abort_unless(DB::table('research_evidence_comment')->where('id', $commentId)->where('project_id', $projectId)->exists(), 404);
         $svc->resolveComment($commentId, (int) $researcher->id);
 
         return response()->json(['status' => 'resolved']);
@@ -222,8 +223,7 @@ class ResearchCollaborationController extends Controller
         $researcher = $this->service->getResearcherByUserId(Auth::id());
         if (!$researcher) return redirect()->route('researcher.register');
 
-        $project = DB::table('research_project')->where('id', $projectId)->first();
-        if (!$project) abort(404);
+        [$project] = $this->loadProjectContext($projectId);
 
         $svc = app(\AhgResearch\Services\CollaborationRealtimeService::class);
         $comments = $svc->comments($projectId);

@@ -352,11 +352,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 hiddenInput.value = value || '';
             },
             render: {
-                option: function(item) {
-                    return '<div><strong>' + (item.name || '[Untitled]') + '</strong> <small class="text-muted">#' + item.id + '</small></div>';
+                option: function(item, escape) {
+                    return '<div><strong>' + escape(item.name || '[Untitled]') + '</strong> <small class="text-muted">#' + escape(item.id) + '</small></div>';
                 },
-                item: function(item) {
-                    return '<div>' + (item.name || '[Untitled]') + ' <small>#' + item.id + '</small></div>';
+                item: function(item, escape) {
+                    return '<div>' + escape(item.name || '[Untitled]') + ' <small>#' + escape(item.id) + '</small></div>';
                 }
             }
         });
@@ -392,11 +392,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 .catch(function() { callback(); });
         },
         render: {
-            option: function(item) {
-                return '<div><strong>' + item.name + '</strong> <small class="text-muted">' + (item.email || '') + '</small></div>';
+            option: function(item, escape) {
+                return '<div><strong>' + escape(item.name || '') + '</strong> <small class="text-muted">' + escape(item.email || '') + '</small></div>';
             },
-            item: function(item) {
-                return '<div>' + item.name + '</div>';
+            item: function(item, escape) {
+                return '<div>' + escape(item.name || '') + '</div>';
             }
         }
     });
@@ -437,11 +437,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 .catch(function() { callback(); });
         },
         render: {
-            option: function(item) {
-                return '<div><strong>' + item.name + '</strong> <small class="text-muted">' + (item.email || '') + '</small></div>';
+            option: function(item, escape) {
+                return '<div><strong>' + escape(item.name || '') + '</strong> <small class="text-muted">' + escape(item.email || '') + '</small></div>';
             },
-            item: function(item) {
-                return '<div>' + item.name + '</div>';
+            item: function(item, escape) {
+                return '<div>' + escape(item.name || '') + '</div>';
             }
         }
     });
@@ -467,11 +467,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('edit-target-id-hidden').value = value || '';
             },
             render: {
-                option: function(item) {
-                    return '<div><strong>' + (item.name || '[Untitled]') + '</strong> <small class="text-muted">#' + item.id + '</small></div>';
+                option: function(item, escape) {
+                    return '<div><strong>' + escape(item.name || '[Untitled]') + '</strong> <small class="text-muted">#' + escape(item.id) + '</small></div>';
                 },
-                item: function(item) {
-                    return '<div>' + (item.name || '[Untitled]') + ' <small>#' + item.id + '</small></div>';
+                item: function(item, escape) {
+                    return '<div>' + escape(item.name || '[Untitled]') + ' <small>#' + escape(item.id) + '</small></div>';
                 }
             }
         });

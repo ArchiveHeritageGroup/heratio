@@ -55,8 +55,7 @@ class ResearchCitationsController extends Controller
 
     public function cite(Request $request, string $slug)
     {
-        $object = DB::table('slug')->where('slug', $slug)->first();
-        if (!$object) abort(404);
+        $object = $this->citableObject($slug);
 
         $styles = ['chicago', 'mla', 'turabian', 'apa', 'harvard', 'unisa'];
         $citations = [];
@@ -69,8 +68,9 @@ class ResearchCitationsController extends Controller
             $r = $this->service->getResearcherByUserId(Auth::id());
             if ($r) $researcherId = $r->id;
         }
+        // Only signed-in use is logged: anonymous hits are mostly crawlers.
         foreach ($citations as $style => $data) {
-            if (!isset($data['error'])) {
+            if (Auth::check() && !isset($data['error'])) {
                 $this->service->logCitation($researcherId, $object->object_id, $style, $data['citation']);
             }
         }
@@ -86,8 +86,7 @@ class ResearchCitationsController extends Controller
 
     public function citeExport(Request $request, string $slug, string $format)
     {
-        $object = DB::table('slug')->where('slug', $slug)->first();
-        if (!$object) abort(404);
+        $object = $this->citableObject($slug);
 
         $citation = app(\AhgResearch\Services\CitationService::class)->export((int) $object->object_id, strtolower($format));
 
@@ -99,5 +98,24 @@ class ResearchCitationsController extends Controller
             'Content-Type'        => $citation['mime'],
             'Content-Disposition' => 'attachment; filename="' . $citation['filename'] . '"',
         ]);
+    }
+
+    /**
+     * SECURITY: the cite page prints title, creator and dates, so a draft or
+     * restricted record is citable only by staff who can already see it.
+     */
+    private function citableObject(string $slug): object
+    {
+        $object = DB::table('slug')->where('slug', $slug)->first();
+        if (!$object) abort(404);
+
+        $staff = Auth::check() && (\AhgCore\Services\AclService::isAdministrator(Auth::user())
+            || \AhgCore\Services\AclService::isEditor(Auth::user())
+            || \AhgCore\Services\AclService::isContributor(Auth::user()));
+        if (!$staff && !app(\AhgCore\Services\DisclosureGate::class)->allows((int) $object->object_id)) {
+            abort(404);
+        }
+
+        return $object;
     }
 }

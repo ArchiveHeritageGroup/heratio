@@ -12,10 +12,12 @@
   <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
     <h1 class="h3 mb-0"><i class="fas fa-bullseye text-primary me-2"></i>{{ __('Where to Publish') }} <small class="text-muted">{{ __('(target-journal directory)') }}</small></h1>
     <div class="d-flex gap-2">
+@if($isAdmin ?? false)
       <a href="{{ route('research.target-journal.create') }}" class="btn btn-primary"><i class="fas fa-plus me-1"></i>{{ __('Add Journal') }}</a>
       <form action="{{ route('research.target-journal.seed-dhet') }}" method="post" onsubmit="return confirm('{{ __('Seed/refresh the DHET-accredited starter set (SA accreditation module)?') }}')">@csrf
         <button class="btn atom-btn-white"><i class="fas fa-seedling me-1"></i>{{ __('Seed DHET starter') }}</button>
       </form>
+@endif
     </div>
   </div>
 
@@ -41,8 +43,10 @@
           <td class="small">{{ $j['accreditation'] }}</td>
           <td class="small">{{ $j['reference_style'] ?: '-' }}</td>
           <td class="text-end">
+@if($isAdmin ?? false)
             <a href="{{ route('research.target-journal.edit', $j['id']) }}" class="btn btn-sm atom-btn-white">{{ __('Edit') }}</a>
             <form action="{{ route('research.target-journal.destroy', $j['id']) }}" method="post" class="d-inline" onsubmit="return confirm('{{ __('Remove from directory?') }}')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger">{{ __('Delete') }}</button></form>
+@endif
           </td>
         </tr>
         @endforeach

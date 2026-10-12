@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
             loadThrottle: 300,
             load: function(q, cb) { if (q.length<2) return cb(); fetch('/informationobject/autocomplete?query='+encodeURIComponent(q)+'&limit=20').then(function(r){return r.json()}).then(cb).catch(function(){cb()}); },
             onChange: function(v) { document.getElementById('addItemObjectId').value = v; },
-            render: { option: function(i) { return '<div><strong>'+(i.name||'[Untitled]')+'</strong> <small>#'+i.id+'</small></div>'; }, item: function(i) { return '<div>'+(i.name||'[Untitled]')+'</div>'; } }
+            render: { option: function(i, escape) { return '<div><strong>'+escape(i.name || '[Untitled]')+'</strong> <small>#'+escape(i.id)+'</small></div>'; }, item: function(i, escape) { return '<div>'+escape(i.name || '[Untitled]')+'</div>'; } }
         });
     }
 });

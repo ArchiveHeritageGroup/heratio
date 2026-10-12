@@ -19,7 +19,9 @@
         @if($journal['status'] !== 'active')· <span class="badge bg-secondary">{{ ucfirst($journal['status']) }}</span>@endif
       </small>
     </div>
+@if($isAdmin ?? false)
     <a href="{{ route('research.target-journal.edit', $journal['id']) }}" class="btn atom-btn-white">{{ __('Edit') }}</a>
+@endif
   </div>
 
   @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
@@ -52,8 +54,8 @@
   @if ($journal['notes'])<p class="text-muted"><em>{{ $journal['notes'] }}</em></p>@endif
 
   <div class="d-flex gap-3">
-    @if($journal['homepage_url'])<a href="{{ $journal['homepage_url'] }}" target="_blank" rel="noopener"><i class="fas fa-globe me-1"></i>{{ __('Homepage') }}</a>@endif
-    @if($journal['submission_url'])<a href="{{ $journal['submission_url'] }}" target="_blank" rel="noopener"><i class="fas fa-paper-plane me-1"></i>{{ __('Submit') }}</a>@endif
+    @if(preg_match('#^https?://#i', (string) $journal['homepage_url']))<a href="{{ $journal['homepage_url'] }}" target="_blank" rel="noopener"><i class="fas fa-globe me-1"></i>{{ __('Homepage') }}</a>@endif
+    @if(preg_match('#^https?://#i', (string) $journal['submission_url']))<a href="{{ $journal['submission_url'] }}" target="_blank" rel="noopener"><i class="fas fa-paper-plane me-1"></i>{{ __('Submit') }}</a>@endif
   </div>
 
   <p class="mt-3"><a href="{{ route('research.target-journal.index') }}" class="btn atom-btn-white btn-sm">&larr; {{ __('Back to directory') }}</a></p>

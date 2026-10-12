@@ -35,9 +35,13 @@ class ResearchJournalController extends Controller
 
     public function index()
     {
+        // SECURITY: a researcher sees only their own journals; admins see all.
+        $all = \AhgCore\Services\AclService::isAdministrator(Auth::user());
+        $mine = $this->researcherId();
+
         return view('research::journals.index', [
-            'publications' => $this->service->listJournals(ResearchJournalService::KIND_PUBLICATION),
-            'manuscripts'  => $this->service->listJournals(ResearchJournalService::KIND_MANUSCRIPT),
+            'publications' => $this->service->listJournals(ResearchJournalService::KIND_PUBLICATION, $mine, $all),
+            'manuscripts'  => $this->service->listJournals(ResearchJournalService::KIND_MANUSCRIPT, $mine, $all),
         ]);
     }
 
@@ -188,7 +192,7 @@ class ResearchJournalController extends Controller
         $journal = $this->service->getJournal($journalId);
         abort_if(! $journal, 404);
         $this->assertOwner($journal);
-        $id = $this->service->createArticle($journalId, $this->validateArticle($request));
+        $id = $this->service->createArticle($journalId, $this->validateArticle($request, $journalId));
 
         $this->logResearchActivity('create', 'journal', (int) $id, $request->input('title'), ['method' => 'ResearchJournalController@storeArticle', 'entity' => 'article', 'journal_id' => (int) $journalId]);
 
@@ -218,7 +222,7 @@ class ResearchJournalController extends Controller
         $article = $this->service->getArticle($id);
         abort_if(! $article, 404);
         $this->assertOwner($this->service->getJournal((int) $article['journal_id']));
-        $this->service->updateArticle($id, $this->validateArticle($request));
+        $this->service->updateArticle($id, $this->validateArticle($request, (int) $article['journal_id']));
 
         $this->logResearchActivity('update', 'journal', (int) $id, $article['title'] ?? null, ['method' => 'ResearchJournalController@updateArticle', 'entity' => 'article', 'journal_id' => (int) $article['journal_id']]);
 
@@ -273,10 +277,11 @@ class ResearchJournalController extends Controller
         ]);
     }
 
-    private function validateArticle(Request $request): array
+    private function validateArticle(Request $request, int $journalId): array
     {
         return $request->validate([
-            'issue_id'          => 'nullable|integer',
+            // SECURITY: the issue must belong to the article's own journal.
+            'issue_id'          => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('research_journal_issue', 'id')->where('journal_id', $journalId)],
             'title'             => 'required|string|max:500',
             'authors'           => 'nullable|string',
             'abstract'          => 'nullable|string',
