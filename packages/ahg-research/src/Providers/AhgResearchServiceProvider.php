@@ -45,6 +45,7 @@ class AhgResearchServiceProvider extends ServiceProvider
                 \AhgResearch\Commands\SeedDropdownsCommand::class,
                 \AhgResearch\Commands\SeedTargetJournalsCommand::class,
                 OrcidSyncCommand::class,
+                \AhgResearch\Console\Commands\SeedResearcherWorksCommand::class,
                 \AhgResearch\Console\Commands\FieldAlertsCommand::class, // #1235 Living Field Alerts
                 \AhgResearch\Console\Commands\ImpactRefreshCommand::class, // #1241 Impact Tracking
             ]);
