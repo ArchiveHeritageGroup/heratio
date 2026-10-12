@@ -24071,5 +24071,10 @@
     ":units unit(s) in the file, :matched matched to a context here, :rel relationship(s) parsed.": "dosyada :units birim, burada bağlama :matched eşleşti, :rel ilişki ayrıştırıldı.",
     "Copy of": "Kopyası",
     "Trigger disposal action": "Tahrip eylemini tetikle",
-    "Open the pending-requests queue in the admin panel to approve or deny.": "Onaylamak veya reddetmek için yönetici panelinde bekleyen istekler kuyruğunu açın."
+    "Open the pending-requests queue in the admin panel to approve or deny.": "Onaylamak veya reddetmek için yönetici panelinde bekleyen istekler kuyruğunu açın.",
+    "%du% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> of <em>Unlimited</em>": "%du% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> <em>Sınırsız</em>",
+    "%du% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> of <em>Unlimited</em>&nbsp;": "%du% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> <em>Sınırsız</em>&nbsp;",
+    "%du% of %limit% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> (%percent%%)": "%limit% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr>'den %du% (%percent%%)",
+    ":du <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> of <em>Unlimited</em>": ":du <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> <em>Sınırsız</em>",
+    ":du of :limit <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> (:percent%)": ":limit <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr>'den :du (:percent%)"
 }

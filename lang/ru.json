@@ -24123,5 +24123,6 @@
     "Light Box": "Лайтбокс",
     "Alternative email": "Альтернативный адрес электронной почты",
     "Queue Records for Minting": "Очередь записей для генерации идентификаторов (Minting)",
-    "Submission, Archival, and Dissemination Information Packages": "Пакеты информации о подаче, архивировании и распространении"
+    "Submission, Archival, and Dissemination Information Packages": "Пакеты информации о подаче, архивировании и распространении",
+    "API key for Claude cloud vision. Stored encrypted.": "Ключ API для облачного зрения Claude. Хранится в зашифрованном виде."
 }

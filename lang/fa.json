@@ -24128,5 +24128,7 @@
     "This will create the same embargo on all child records below this item in the hierarchy.": "این کار همان محدودیت دسترسی را بر تمام رکوردهای فرزند زیر این مورد در سلسله مراتب ایجاد خواهد کرد.",
     "Total accessions": "کل دریافت‌ها",
     "ISO 3166-1 country code (e.g., ZAF, GBR, USA).": "کد کشور ISO 3166-1 (مثلاً ZAF, GBR, USA).",
-    "Master switch for all RIC sync operations": "کلید اصلی برای تمام عملیات همگام‌سازی RIC"
+    "Master switch for all RIC sync operations": "کلید اصلی برای تمام عملیات همگام‌سازی RIC",
+    "Content for Object Icip.": "محتوا برای Icip شیء.",
+    "International Standard Serial Number": "شماره استاندارد بین‌المللی نشریات دوره‌ای"
 }

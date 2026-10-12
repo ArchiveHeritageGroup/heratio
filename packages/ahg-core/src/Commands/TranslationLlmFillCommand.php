@@ -76,10 +76,22 @@ class TranslationLlmFillCommand extends Command
 
     private ?int $deadline = null;
 
+    private string $currentLocale = '';
+
+    /** Script names for the prompt, so the model writes the script the locale file uses (sr is Cyrillic). */
+    private const SCRIPT_NAMES = [
+        'ar' => 'Arabic', 'fa' => 'Perso-Arabic', 'ur' => 'Urdu (Arabic)', 'he' => 'Hebrew', 'zh' => 'Simplified Chinese',
+        'ja' => 'Japanese', 'ko' => 'Hangul', 'th' => 'Thai', 'ka' => 'Georgian', 'ta' => 'Tamil', 'el' => 'Greek',
+        'ru' => 'Cyrillic', 'uk' => 'Cyrillic', 'mk' => 'Cyrillic', 'sr' => 'Serbian Cyrillic', 'am' => 'Ethiopic (Ge\'ez)',
+    ];
+
     /** Seconds to wait before each retry of a batch the gateway did not answer. */
     private const RETRY_WAITS = [30, 120, 300];
 
     private const MAX_FAILED_IN_A_ROW = 5;
+
+    /** Rejections after which a string is no longer sent (it keeps the English fallback). */
+    public const MAX_REJECTIONS = 3;
 
     private int $failedInARow = 0;
 
@@ -129,13 +141,18 @@ class TranslationLlmFillCommand extends Command
         // spelt the same in both languages): the English fallback is right for
         // them, so they are not sent again.
         $same = array_flip($this->meta()['locales'][$locale]['mt_same_as_source'] ?? []);
+        // Strings the checks have rejected MAX_REJECTIONS times keep the English
+        // fallback; re-sending them every night only spends GPU time.
+        $rejections = $this->meta()['locales'][$locale]['mt_rejections'] ?? [];
         $todo = array_values(array_filter(array_keys($source), fn ($k) => preg_match('/\p{L}.*\p{L}/u', (string) $k)
-            && (! isset($target[$k]) || $target[$k] === $k) && ! isset($same[$k])));
+            && (! isset($target[$k]) || $target[$k] === $k) && ! isset($same[$k])
+            && ($rejections[$k] ?? 0) < self::MAX_REJECTIONS));
         $this->info("{$locale}: ".count($todo).' string(s) to fill');
         if ($this->option('dry-run') || ! $todo) {
             return;
         }
 
+        $this->currentLocale = $locale;
         $name = (class_exists(\Locale::class) ? \Locale::getDisplayName(str_replace('@valencia', '', $locale), 'en') : '') ?: $locale;
         if ($locale === 'ca@valencia') {
             $name = 'Valencian (Catalan as written in Valencia)';
@@ -143,6 +160,7 @@ class TranslationLlmFillCommand extends Command
         $limit = (int) $this->option('limit');
         $ok = $rejected = $batches = $untried = 0;
         $newSame = [];
+        $newRejected = [];
         foreach (array_chunk($todo, max(1, (int) $this->option('batch'))) as $chunk) {
             if ($this->pastDeadline() || $this->stopRun || ($limit && $ok >= $limit)) {
                 break;
@@ -175,6 +193,7 @@ class TranslationLlmFillCommand extends Command
                     $ok++;
                 } else {
                     $rejected++;
+                    $newRejected[$en] = ($newRejected[$en] ?? 0) + 1;
                 }
             }
             if (++$batches % 10 === 0) {
@@ -183,7 +202,7 @@ class TranslationLlmFillCommand extends Command
             }
         }
         $this->save($path, $target);
-        $this->recordMeta($locale, $ok, $newSame);
+        $this->recordMeta($locale, $ok, $newSame, $newRejected);
         $this->info("{$locale}: {$ok} accepted, ".count($newSame)." same as English, {$rejected} rejected (kept English), {$untried} untried (gateway did not answer)");
     }
 
@@ -194,7 +213,9 @@ class TranslationLlmFillCommand extends Command
         foreach ($chunk as $i => $en) {
             $items['s'.$i] = $en;
         }
-        $system = "You translate the user interface of an archival management system used by archives, libraries, museums and galleries into {$language}. "
+        $script = self::SCRIPT_NAMES[explode('_', explode('@', $this->currentLocale)[0])[0]] ?? null;
+        $system = "You translate the user interface of an archival management system used by archives, libraries, museums and galleries into {$language}"
+            .($script ? ", written in the {$script} script" : '').'. '
             .'Use the terms archivists and librarians use in that language. Keep every placeholder exactly as written: %1%, %2%, %s, %d, %{name}, :name, {{ var }}, HTML tags and entities. '
             .'Keep acronyms and standard names (ISAD(G), ISAAR, EAD, OAI-PMH, IIIF, RiC, CSV, PDF, URL, API, ICIP) unchanged. Do not add explanations. '
             .'Reply with a JSON object mapping each id to its translation, with the same ids.';
@@ -283,9 +304,9 @@ class TranslationLlmFillCommand extends Command
         return json_decode((string) @file_get_contents(base_path('lang/_meta.json')), true) ?: ['locales' => []];
     }
 
-    private function recordMeta(string $locale, int $ok, array $same = []): void
+    private function recordMeta(string $locale, int $ok, array $same = [], array $rejected = []): void
     {
-        if ($ok === 0 && $same === []) {
+        if ($ok === 0 && $same === [] && $rejected === []) {
             return;
         }
         $path = base_path('lang/_meta.json');
@@ -293,6 +314,13 @@ class TranslationLlmFillCommand extends Command
         $entry = $meta['locales'][$locale] ?? [];
         if ($same) {
             $entry['mt_same_as_source'] = array_values(array_unique(array_merge($entry['mt_same_as_source'] ?? [], $same)));
+        }
+        if ($rejected) {
+            $counts = $entry['mt_rejections'] ?? [];
+            foreach ($rejected as $key => $n) {
+                $counts[$key] = ($counts[$key] ?? 0) + $n;
+            }
+            $entry['mt_rejections'] = $counts;
         }
         if ($ok === 0) {
             $meta['locales'][$locale] = $entry;

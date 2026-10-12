@@ -23898,5 +23898,12 @@
     "not in storage": "není v úložišti",
     "or every description of a repository": "nebo každý popis repozitáře",
     "removed from storage": "odstraněno z úložiště",
-    "the object leaves storage entirely rather than moving to another location": "objekt opouští úložiště zcela, nikoliv přesunem na jiné místo"
+    "the object leaves storage entirely rather than moving to another location": "objekt opouští úložiště zcela, nikoliv přesunem na jiné místo",
+    "FRBR Export": "Export ve formátu FRBR",
+    "IIIF 3D Manifest": "IIIF manifest pro 3D",
+    "Multi-Tenancy": "Vícepronájemní architektura",
+    "Biosafety": "Biologická bezpečnost",
+    "Safety Film": "Bezpečnostní film",
+    "Pending Drafts": "Čekající návrhy",
+    "Main headline displayed in the hero section.": "Hlavní nadpis zobrazený v hero sekci."
 }

@@ -24070,5 +24070,7 @@
     "HttpOnly Cookies": "Куки HttpOnly",
     "No orphan work designations found.": "Не знайдено жодного позначення як «сирітське творчість».",
     "Queue Records for Minting": "Чергування записів для генерації ідентифікаторів",
-    "Submission, Archival, and Dissemination Information Packages": "Пакети інформації для подання, архівування та поширення"
+    "Submission, Archival, and Dissemination Information Packages": "Пакети інформації для подання, архівування та поширення",
+    "Processing&hellip;": "Обробка&hellip;",
+    "Enable multi-tenancy": "Увімкнути багатокористувацький режим"
 }

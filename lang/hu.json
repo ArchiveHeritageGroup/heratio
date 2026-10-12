@@ -24030,5 +24030,7 @@
     "Name, Identifier, History": "Név, Azonosító, Történet",
     "Named Entity Recognition - extract persons, organizations, places, dates from": "Nevezett Entitás Felismerés - személyek, szervezetek, helyek, dátumok kinyerése",
     "Narrower Terms (hasPart)": "Szűkebb fogalmak (hasPart)",
-    "When enabled, library:process-fines cron creates daily fine entries for overdue items.": "Ha engedélyezve van, a library:process-fines cron napi késedelmi díjbejegyzéseket hoz létre az átlépett határidővel rendelkező tételekhez."
+    "When enabled, library:process-fines cron creates daily fine entries for overdue items.": "Ha engedélyezve van, a library:process-fines cron napi késedelmi díjbejegyzéseket hoz létre az átlépett határidővel rendelkező tételekhez.",
+    "Reading room": "Olvasóterem",
+    "Save searches from browse results": "Keresések mentése a böngészési eredményekből"
 }

@@ -23770,5 +23770,8 @@
     "removed from storage": "aus dem Bestand entfernt",
     "the object leaves storage entirely rather than moving to another location": "das Objekt verlässt den Bestand vollständig, anstatt an einen anderen Standort zu wechseln",
     "Reconstructing everything recorded up to": "Rekonstruktion aller bis dahin aufgezeichneten Daten",
-    "repositories": "Repositorien"
+    "repositories": "Repositorien",
+    "Due diligence": "Sorgfaltspflicht",
+    "genre": "Gattung",
+    "rate s": "Bewertungen"
 }

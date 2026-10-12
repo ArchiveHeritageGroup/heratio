@@ -23734,5 +23734,8 @@
     "not in storage": "nu se află în depozit",
     "or every description of a repository": "sau fiecare descriere a unui depozitar",
     "removed from storage": "scos din depozit",
-    "the object leaves storage entirely rather than moving to another location": "obiectul părăsește complet depozitul, în loc să fie mutat într-o altă locație"
+    "the object leaves storage entirely rather than moving to another location": "obiectul părăsește complet depozitul, în loc să fie mutat într-o altă locație",
+    "Lift": "Ridicare",
+    "No errors logged.": "Nicio eroare înregistrată.",
+    "Overlay Color": "Culoare suprapusă"
 }

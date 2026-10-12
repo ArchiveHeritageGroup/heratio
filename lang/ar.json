@@ -24240,5 +24240,6 @@
     "Repository and CAAIS profile": "الملف الشخصي للمستودع و CAAIS",
     "A fonds or series (slug), with everything beneath it": "صندوق أرشيف أو سلسلة (مسار مرن)، مع كل ما تحته",
     "No archival description has that slug.": "لا يوجد وصف أرشيفي يحمل هذا الرمز المختصر.",
-    "No term with that name or slug was found in this taxonomy.": "لم يتم العثور على مصطلح بهذا الاسم أو الرمز المختصر في هذه التصنيفية."
+    "No term with that name or slug was found in this taxonomy.": "لم يتم العثور على مصطلح بهذا الاسم أو الرمز المختصر في هذه التصنيفية.",
+    "Permissive slug creation (allow non-ASCII characters)": "إنشاء مسارات مرنة (السماح بالأحرف غير ASCII)"
 }
