@@ -56,6 +56,28 @@ class BlogController extends Controller
         ]);
     }
 
+    /**
+     * Count a read: called by the article page after it has been visible for
+     * a few seconds. Needs the page's CSRF token and session cookie, so a
+     * crawler that does not run the page's script never counts. One read per
+     * session per article; administrators' views are not counted.
+     */
+    public function read(\Illuminate\Http\Request $request, string $slug)
+    {
+        $article = $this->blog->getPublishedBySlug($slug);
+        if (! $article || ! $request->ajax()) {
+            return response()->noContent(404);
+        }
+        $isAdmin = auth()->check() && (auth()->user()->is_admin ?? false);
+        $seenKey = 'article_viewed_'.$article->id;
+        if (! $isAdmin && ! session()->has($seenKey)) {
+            $this->blog->incrementViews((int) $article->id);
+            session()->put($seenKey, true);
+        }
+
+        return response()->noContent();
+    }
+
     /** A single published article. */
     public function show(string $slug)
     {
@@ -64,14 +86,9 @@ class BlogController extends Controller
             abort(404);
         }
 
-        // Count one read per session per article; don't count admin previews.
-        $isAdmin = auth()->check() && (auth()->user()->is_admin ?? false);
-        $seenKey = 'article_viewed_' . $article->id;
-        if (! $isAdmin && ! session()->has($seenKey)) {
-            $this->blog->incrementViews((int) $article->id);
-            session()->put($seenKey, true);
-            $article->view_count = (int) ($article->view_count ?? 0) + 1;
-        }
+        // Reads are counted by read(), which the page calls once it has been
+        // visible in a real browser for a few seconds. Counting here counted
+        // every crawler hit: a bot without cookies gets a new session each time.
 
         // Related articles (bidirectional links) - only surface published ones publicly.
         $related = array_values(array_filter(

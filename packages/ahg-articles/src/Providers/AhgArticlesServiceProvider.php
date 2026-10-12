@@ -40,6 +40,10 @@ class AhgArticlesServiceProvider extends ServiceProvider
                 $router->get('/articles', [BlogController::class, 'index'])->name('articles.index');
                 $router->get('/articles/{slug}', [BlogController::class, 'show'])
                     ->where('slug', '[a-z0-9][a-z0-9-]*')->name('articles.show');
+                // A read is counted by the page itself, once it has been visible in
+                // a browser for a few seconds (see show.blade.php).
+                $router->post('/articles/{slug}/read', [BlogController::class, 'read'])
+                    ->where('slug', '[a-z0-9][a-z0-9-]*')->middleware('throttle:30,1')->name('articles.read');
                 $router->post('/articles/{slug}/comments', [BlogController::class, 'comment'])
                     ->where('slug', '[a-z0-9][a-z0-9-]*')->middleware('throttle:6,1')->name('articles.comment');
             });

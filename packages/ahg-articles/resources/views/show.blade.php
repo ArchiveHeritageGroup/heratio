@@ -166,4 +166,26 @@
         </form>
     </section>
 </div>
+
+{{-- Count a read once the article has been visible for 5 seconds in a real
+     browser (not on page load, which counted every crawler). --}}
+<script nonce="{{ function_exists('csp_nonce') ? csp_nonce() : '' }}">
+(function () {
+  var url = @json(route('articles.read', $article->slug)), shown = 0, sent = false, last = null;
+  function tick() {
+    if (sent) { return; }
+    var now = Date.now();
+    if (document.visibilityState === 'visible' && last !== null) { shown += now - last; }
+    last = document.visibilityState === 'visible' ? now : null;
+    if (shown < 5000) { return; }
+    sent = true;
+    var token = document.querySelector('meta[name="csrf-token"]');
+    fetch(url, { method: 'POST', credentials: 'same-origin', keepalive: true,
+      headers: { 'X-CSRF-TOKEN': token ? token.content : '', 'X-Requested-With': 'XMLHttpRequest' } }).catch(function () {});
+  }
+  document.addEventListener('visibilitychange', tick);
+  last = document.visibilityState === 'visible' ? Date.now() : null;
+  setInterval(tick, 1000);
+})();
+</script>
 @endsection
