@@ -56,15 +56,18 @@ class ResearchWorksSeedTest extends TestCase
         file_put_contents($dir.'/manifest.json', json_encode([
             'user_email' => $email,
             'researcher' => ['first_name' => 'Test', 'last_name' => 'Author'],
+            'seed_target_directory' => true,
+            'manuscripts' => ['title' => 'Test manuscripts'],
             'works' => [
                 ['title' => 'A delivered talk', 'status' => 'Presented',
                     'files' => [['src' => 'src/Talk Slides.pdf', 'label' => 'Slides', 'kind' => 'slides']],
                     'talk' => ['date' => '2026-07-01', 'location' => 'Somewhere']],
-                ['title' => 'Under review', 'entry_type' => 'article', 'status' => 'Under review', 'files' => false],
+                ['title' => 'Under review', 'entry_type' => 'article', 'status' => 'Under review', 'files' => false,
+                    'article' => ['status' => 'submitted', 'target_journal' => ['title' => 'RWS Test Journal of Things']]],
             ],
         ]));
 
-        foreach ([1, 2] as $run) {
+        foreach ([1, 2] as $_) {
             $this->artisan('ahg:research-works-seed', ['manifest' => $dir.'/manifest.json'])->assertSuccessful();
         }
 
@@ -78,6 +81,15 @@ class ResearchWorksSeedTest extends TestCase
         $this->assertCount(1, $lecture);
         $this->assertSame('/uploads/research-works/a-delivered-talk/talk-slides.pdf', $lecture[0]->slides_url);
         $this->assertSame(1, DB::table('research_lecture_resource')->where('lecture_id', $lecture[0]->id)->count());
+        $journal = DB::table('research_journal')->where('researcher_id', $rid)->where('title', 'Test manuscripts')->get();
+        $this->assertCount(1, $journal);
+        $this->assertSame('manuscript', $journal[0]->kind);
+        $article = DB::table('research_journal_article')->where('journal_id', $journal[0]->id)->get();
+        $this->assertCount(1, $article);
+        $this->assertSame('submitted', $article[0]->status);
+        $this->assertSame(1, DB::table('research_target_journal')->where('title', 'RWS Test Journal of Things')->count());
+        $this->assertSame((int) $article[0]->target_journal_id, (int) DB::table('research_target_journal')->where('title', 'RWS Test Journal of Things')->value('id'));
+        $this->assertSame(1, DB::table('research_target_journal')->where('title', 'Journal of the South African Society of Archivists')->count());
         $this->assertFileExists($dir.'/storage/uploads/research-works/a-delivered-talk/talk-slides.pdf');
     }
 }

@@ -49,5 +49,12 @@ That makes it suitable for a demo site whose database is restored from a snapsho
 - **`talk.type`** is `talk` (the default), `curriculum` or `standalone`.
 - **`talk.status`** is one of `draft`, `scheduled`, `delivered` (the default), `published` or `archived`.
 - **A relative `src`** is resolved against the manifest's folder.
+- **`manuscripts`** (`{"title", "description"}`) creates one manuscript journal in the journal builder (`/research/journals`). Every work with an `article` block becomes a manuscript in that journal.
+- **`article`** takes:
+  - `status`: one of `draft`, `submitted` (the default) or `published`;
+  - `keywords` and `abstract`;
+  - `body_src`: a Markdown file holding the full text. Leave it out for title only;
+  - `target_journal`: a directory entry, found by title and added to the directory if it is missing.
+- **`seed_target_directory: true`** also seeds the target-journal directory with the starter set, the same set as `ahg:seed-target-journals`.
 
 The command finds the user by email. If there is no user with that email, it stops with an error. A researcher record is created, or set to approved, for that user.

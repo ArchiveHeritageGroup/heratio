@@ -680,22 +680,31 @@
 
     {{-- Global JS error logger - sends client errors to Laravel log --}}
     <script nonce="{{ $cspNonce }}">
+    // A browser without WebGL cannot run the 3D viewers; three.js and
+    // model-viewer then fail inside their own code. That is the device, not a
+    // fault to fix, so those errors are not reported when WebGL is missing.
+    var ahgNoWebgl = (function () {
+      try { var c = document.createElement('canvas'); return !(c.getContext('webgl2') || c.getContext('webgl')); } catch (e) { return true; }
+    });
+    var ahg3dVendor = /\/vendor\/(three|model-viewer)\//;
     window.onerror = function(msg, url, line, col, err) {
       try {
+        if (ahg3dVendor.test(String(url || '') + String(err?.stack || '')) && ahgNoWebgl()) return;
         fetch('/api/log-error', {
           method: 'POST',
           headers: {'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]')?.content||''},
-          body: JSON.stringify({message:msg, url:url, line:line, col:col, stack:err?.stack||''})
+          body: JSON.stringify({message:msg, url:url, page:location.href, line:line, col:col, stack:err?.stack||''})
         }).catch(function(){});
       } catch(e) {}
     };
     window.addEventListener('unhandledrejection', function(ev) {
       try {
         var msg = ev.reason?.message || String(ev.reason || 'Unhandled promise rejection');
+        if (ahg3dVendor.test(String(ev.reason?.stack || '')) && ahgNoWebgl()) return;
         fetch('/api/log-error', {
           method: 'POST',
           headers: {'Content-Type':'application/json','X-CSRF-TOKEN':document.querySelector('meta[name="csrf-token"]')?.content||''},
-          body: JSON.stringify({message:msg, url:location.href, stack:ev.reason?.stack||''})
+          body: JSON.stringify({message:msg, url:location.href, page:location.href, stack:ev.reason?.stack||''})
         }).catch(function(){});
       } catch(e) {}
     });

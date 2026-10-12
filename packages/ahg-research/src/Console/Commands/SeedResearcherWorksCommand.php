@@ -42,6 +42,8 @@
 
 namespace AhgResearch\Console\Commands;
 
+use AhgResearch\Services\ResearchJournalService;
+use AhgResearch\Services\ResearchTargetJournalService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -62,7 +64,7 @@ class SeedResearcherWorksCommand extends Command
 
     private bool $dry = false;
 
-    private array $counts = ['entries' => 0, 'talks' => 0, 'files' => 0];
+    private array $counts = ['entries' => 0, 'talks' => 0, 'articles' => 0, 'files' => 0];
 
     public function handle(): int
     {
@@ -91,6 +93,10 @@ class SeedResearcherWorksCommand extends Command
         $researcherId = $this->researcher($user, (array) ($m['researcher'] ?? []));
         $bib = (array) ($m['bibliography'] ?? []);
         $bibId = $this->bibliography($researcherId, (string) ($bib['name'] ?? 'Publications and presentations'), $bib['description'] ?? null);
+        if (! empty($m['seed_target_directory']) && ! $this->dry) {
+            $this->line(app(ResearchTargetJournalService::class)->seedDhetStarter().' starter journals in the target-journal directory.');
+        }
+        $journalId = isset($m['manuscripts']) ? $this->manuscriptJournal($researcherId, (array) $m['manuscripts']) : null;
 
         foreach ($m['works'] as $i => $w) {
             if (empty($w['title'])) {
@@ -103,9 +109,12 @@ class SeedResearcherWorksCommand extends Command
             if (! empty($w['talk'])) {
                 $this->talk($researcherId, $w, (array) $w['talk'], $files, $i);
             }
+            if ($journalId !== null && ! empty($w['article'])) {
+                $this->article($journalId, $w, (array) $w['article'], $baseDir, $i);
+            }
         }
 
-        $this->info(sprintf('%s%d bibliography entries, %d talks, %d files copied.', $this->dry ? '[dry run] ' : '', $this->counts['entries'], $this->counts['talks'], $this->counts['files']));
+        $this->info(sprintf('%s%d bibliography entries, %d talks, %d manuscripts, %d files copied.', $this->dry ? '[dry run] ' : '', $this->counts['entries'], $this->counts['talks'], $this->counts['articles'], $this->counts['files']));
 
         return self::SUCCESS;
     }
@@ -276,5 +285,71 @@ class SeedResearcherWorksCommand extends Command
                 'sort_order' => $n, 'created_at' => now(), 'updated_at' => now(),
             ]);
         }
+    }
+
+    /** The researcher's manuscript workspace in the journal builder, by title. */
+    private function manuscriptJournal(int $researcherId, array $j): int
+    {
+        $title = (string) ($j['title'] ?? 'Manuscripts');
+        $id = DB::table('research_journal')->where('researcher_id', $researcherId)->where('title', $title)->value('id');
+        if ($this->dry) {
+            return (int) $id;
+        }
+        $data = ['kind' => ResearchJournalService::KIND_MANUSCRIPT, 'title' => $title, 'description' => $j['description'] ?? null, 'researcher_id' => $researcherId, 'status' => 'draft'];
+        $svc = app(ResearchJournalService::class);
+        if ($id) {
+            $svc->updateJournal((int) $id, $data);
+
+            return (int) $id;
+        }
+
+        return $svc->createJournal($data);
+    }
+
+    /** A target journal by title, added to the directory when it is not there. */
+    private function targetJournal(array $t): ?int
+    {
+        if (empty($t['title'])) {
+            return null;
+        }
+        $id = DB::table('research_target_journal')->where('title', $t['title'])->value('id');
+        if ($id || $this->dry) {
+            return $id ? (int) $id : null;
+        }
+
+        return (int) app(ResearchTargetJournalService::class)->create($t + ['issn' => null]);
+    }
+
+    private function article(int $journalId, array $w, array $a, string $baseDir, int $i): void
+    {
+        $body = '';
+        if (! empty($a['body_src'])) {
+            $src = str_starts_with($a['body_src'], '/') ? $a['body_src'] : $baseDir.'/'.$a['body_src'];
+            $body = is_file($src) ? (string) file_get_contents($src) : '';
+            if ($body === '') {
+                $this->warn("Manuscript text not found, title only: {$src}");
+            }
+        }
+        $data = [
+            'title' => (string) $w['title'],
+            'authors' => $w['authors'] ?? null,
+            'abstract' => $a['abstract'] ?? ($w['abstract'] ?? null),
+            'keywords' => $a['keywords'] ?? null,
+            'body_markdown' => $body,
+            'reference_style' => $a['reference_style'] ?? null,
+            'target_journal_id' => $this->targetJournal((array) ($a['target_journal'] ?? [])),
+            'doi' => $w['doi'] ?? null,
+            'status' => in_array($a['status'] ?? '', ['draft', 'submitted', 'published'], true) ? $a['status'] : 'submitted',
+            'sort_order' => $i,
+        ];
+        $this->counts['articles']++;
+        if ($this->dry) {
+            $this->line("Manuscript: {$data['title']}");
+
+            return;
+        }
+        $svc = app(ResearchJournalService::class);
+        $id = DB::table('research_journal_article')->where('journal_id', $journalId)->where('title', $data['title'])->value('id');
+        $id ? $svc->updateArticle((int) $id, $data) : $svc->createArticle($journalId, $data);
     }
 }

@@ -124,7 +124,13 @@
     // First-person controls. Recent PointerLockControls move the camera directly
     // (getObject() is deprecated in r169); we drive camera.position ourselves (see tick).
     const controls = new PointerLockControls(camera, document.body);
-    blocker.addEventListener('click', function () { controls.lock(); });
+    // The browser can refuse pointer lock (unfocused frame, recent exit, no
+    // permission); the refusal is a rejected promise, so catch it and leave the
+    // overlay up for another click instead of raising an unhandled error.
+    blocker.addEventListener('click', function () {
+      const req = document.body.requestPointerLock && document.body.requestPointerLock();
+      if (req && typeof req.catch === 'function') req.catch(function () {});
+    });
     controls.addEventListener('lock', function () { blocker.style.display = 'none'; });
     controls.addEventListener('unlock', function () { blocker.style.display = 'flex'; });
 

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('/api/log-error', function (\Illuminate\Http\Request $request) {
     \Log::warning('[JS Error] '.($request->input('message', 'Unknown JS error')), [
         'url' => $request->input('url', ''),
+        'page' => $request->input('page', ''),
         'line' => $request->input('line', ''),
         'col' => $request->input('col', ''),
         'stack' => $request->input('stack', ''),
