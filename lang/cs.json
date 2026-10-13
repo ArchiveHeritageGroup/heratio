@@ -23905,5 +23905,10 @@
     "Biosafety": "Biologická bezpečnost",
     "Safety Film": "Bezpečnostní film",
     "Pending Drafts": "Čekající návrhy",
-    "Main headline displayed in the hero section.": "Hlavní nadpis zobrazený v hero sekci."
+    "Main headline displayed in the hero section.": "Hlavní nadpis zobrazený v hero sekci.",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "Vaše registrace výzkumníka čeká na schválení. Po schválení obdržíte e-mail.",
+    "Your researcher registration was not approved. Please contact the reading room.": "Vaše registrace výzkumníka nebyla schválena. Kontaktujte čítárnu.",
+    "Your researcher account is suspended. Please contact the reading room.": "Váš účet výzkumníka je pozastaven. Kontaktujte čítárnu.",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "Odkaz pro resetování hesla byl zaslán výzkumníkovi e-mailem. Je platný po dobu jedné hodiny.",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "E-mail s odkazem na resetování nebylo možné odeslat. Zkontrolujte nastavení pošty a e-mailovou adresu výzkumníka."
 }

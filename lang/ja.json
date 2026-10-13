@@ -20568,7 +20568,7 @@
     "From name": "送信者名",
     "From: :name": "差出人: :name",
     "Go to :name": ":name へ移動",
-    "Good — item returned in normal condition": "良好 — 資料は通常の状態に戻されました",
+    "Good — item returned in normal condition": "良好 - 資料は通常の状態に戻されました",
     "Heritage landing configuration saved.": "文化遺産ランディング設定が保存されました。",
     "Heritage languages are living and belong to their communities.": "文化遺産言語は生きたものであり、そのコミュニティに属しています。",
     "HttpOnly Cookies": "HttpOnly クッキー",
@@ -23942,5 +23942,10 @@
     "Use the test API URL while developing. Test DOIs are not resolvable but allow you to verify your integration.": "開発中はテスト用 API URL を使用してください。テスト DOI は解決できませんが、統合の確認は可能です。",
     "Valid BIBFRAME 2.0 document.": "有効な BIBFRAME 2.0 ドキュメント。",
     "Validate a BIBFRAME document for structural correctness against the LoC profile.": "LoC プロファイルに対して構造的な正確性を検証するための BIBFRAME ドキュメントを検証します。",
-    "Validate an FRBR document for structural correctness against the IFLA model.": "IFLA モデルに対して構造的な正確性を検証するための FRBR ドキュメントを検証します。"
+    "Validate an FRBR document for structural correctness against the IFLA model.": "IFLA モデルに対して構造的な正確性を検証するための FRBR ドキュメントを検証します。",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "研究者登録は承認待ちです。承認されるとメールが届きます。",
+    "Your researcher registration was not approved. Please contact the reading room.": "研究者登録が承認されませんでした。閲覧室までお問い合わせください。",
+    "Your researcher account is suspended. Please contact the reading room.": "研究者アカウントは停止されています。閲覧室までお問い合わせください。",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "パスワード再設定リンクが研究者宛てに送信されました。有効期限は1時間です。",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "再設定メールを送信できませんでした。メール設定と研究者のメールアドレスを確認してください。"
 }

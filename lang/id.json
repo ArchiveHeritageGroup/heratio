@@ -23831,5 +23831,10 @@
     "removed from storage": "dihapus dari penyimpanan",
     "the object leaves storage entirely rather than moving to another location": "objek keluar sepenuhnya dari penyimpanan alih-alih pindah ke lokasi lain",
     "Legal &amp; Protection Status": "Status Hukum &amp; Perlindungan",
-    "My Bids &amp; Wins": "Penawaran &amp; Kemenangan Saya"
+    "My Bids &amp; Wins": "Penawaran &amp; Kemenangan Saya",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "Pendaftaran peneliti Anda sedang menunggu persetujuan. Anda akan menerima surel saat pendaftaran disetujui.",
+    "Your researcher registration was not approved. Please contact the reading room.": "Pendaftaran peneliti Anda tidak disetujui. Silakan hubungi ruang baca.",
+    "Your researcher account is suspended. Please contact the reading room.": "Akun peneliti Anda ditangguhkan. Silakan hubungi ruang baca.",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "Tautan reset kata sandi telah dikirim melalui surel kepada peneliti. Tautan ini berlaku selama satu jam.",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "Surel reset tidak dapat dikirim. Periksa pengaturan surel dan alamat surel peneliti."
 }

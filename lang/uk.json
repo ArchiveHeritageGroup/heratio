@@ -24072,5 +24072,10 @@
     "Queue Records for Minting": "Чергування записів для генерації ідентифікаторів",
     "Submission, Archival, and Dissemination Information Packages": "Пакети інформації для подання, архівування та поширення",
     "Processing&hellip;": "Обробка&hellip;",
-    "Enable multi-tenancy": "Увімкнути багатокористувацький режим"
+    "Enable multi-tenancy": "Увімкнути багатокористувацький режим",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "Реєстрацію вашого дослідника очікує на затвердження. Ви отримаєте електронний лист, коли вона буде затверджена.",
+    "Your researcher registration was not approved. Please contact the reading room.": "Реєстрація вашого дослідника не була затверджена. Зв'яжіться з читальним залом.",
+    "Your researcher account is suspended. Please contact the reading room.": "Обліковий запис вашого дослідника призупинено. Зв'яжіться з читальним залом.",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "Посилання для скидання пароля надіслано досліднику електронною поштою. Воно дійсне протягом однієї години.",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "Не вдалося надіслати електронний лист для скидання. Перевірте налаштування пошти та адресу електронної пошти дослідника."
 }

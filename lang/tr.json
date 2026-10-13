@@ -24076,5 +24076,10 @@
     "%du% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> of <em>Unlimited</em>&nbsp;": "%du% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> <em>Sınırsız</em>&nbsp;",
     "%du% of %limit% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> (%percent%%)": "%limit% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr>'den %du% (%percent%%)",
     ":du <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> of <em>Unlimited</em>": ":du <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> <em>Sınırsız</em>",
-    ":du of :limit <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> (:percent%)": ":limit <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr>'den :du (:percent%)"
+    ":du of :limit <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> (:percent%)": ":limit <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr>'den :du (:percent%)",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "Araştırmacı kaydınız onay bekliyor. Onaylandığında e-posta alacaksınız.",
+    "Your researcher registration was not approved. Please contact the reading room.": "Araştırmacı kaydınız onaylanmadı. Lütfen okuma salonuyla iletişime geçin.",
+    "Your researcher account is suspended. Please contact the reading room.": "Araştırmacı hesabınız askıya alındı. Lütfen okuma salonuyla iletişime geçin.",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "Şifre sıfırlama bağlantısı araştırmacının e-postasına gönderildi. Bir saat boyunca geçerlidir.",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "Sıfırlama e-postası gönderilemedi. Posta ayarlarını ve araştırmacının e-posta adresini kontrol edin."
 }

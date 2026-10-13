@@ -23835,5 +23835,13 @@
     "not in storage": "no a l'emmagatzematge",
     "or every description of a repository": "o qualsevol descripció d'un dipòsit",
     "removed from storage": "retirat de l'emmagatzematge",
-    "the object leaves storage entirely rather than moving to another location": "l'objecte surt completament de l'emmagatzematge en lloc de traslladar-se a una altra ubicació"
+    "the object leaves storage entirely rather than moving to another location": "l'objecte surt completament de l'emmagatzematge en lloc de traslladar-se a una altra ubicació",
+    ":units unit(s) in the file, :matched matched to a context here, :rel relationship(s) parsed.": ":units unitat(s) al fitxer, :matched associades a un context aquí, :rel relació(s) analitzada(s).",
+    "DPIA Name": "Nom de la DPIA",
+    "No holds": "Sense reserves",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "La vostra inscripció com a investigador està pendent d'aprovació. Recebreu un correu electrònic quan sigui aprovada.",
+    "Your researcher registration was not approved. Please contact the reading room.": "La vostra inscripció com a investigador no ha estat aprovada. Poseu-vos en contacte amb la sala de lectura.",
+    "Your researcher account is suspended. Please contact the reading room.": "El vostre compte d'investigador està suspès. Poseu-vos en contacte amb la sala de lectura.",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "S'ha enviat un enllaç per restablir la contrasenya al correu electrònic de l'investigador. És vàlid durant una hora.",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "No s'ha pogut enviar el correu de restabliment. Comproveu la configuració del correu i l'adreça electrònica de l'investigador."
 }

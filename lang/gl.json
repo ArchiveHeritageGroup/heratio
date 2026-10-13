@@ -23963,5 +23963,10 @@
     "not in storage": "non en almacenamento",
     "or every description of a repository": "ou cada descrición dun repositorio",
     "removed from storage": "retirado do almacenamento",
-    "the object leaves storage entirely rather than moving to another location": "o obxecto abandona completamente o almacenamento en lugar de moverse a outra localización"
+    "the object leaves storage entirely rather than moving to another location": "o obxecto abandona completamente o almacenamento en lugar de moverse a outra localización",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "A súa rexistración como investigador está pendente de aprobación. Recibirá un correo electrónico cando sexa aprobada.",
+    "Your researcher registration was not approved. Please contact the reading room.": "A súa rexistración como investigador non foi aprobada. Póñase en contacto coa sala de lectura.",
+    "Your researcher account is suspended. Please contact the reading room.": "A súa conta de investigador está suspendida. Póñase en contacto coa sala de lectura.",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "Enviouse por correo electrónico un enlace para restablecer o contrasinal ao investigador. É válido durante unha hora.",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "Non se puido enviar o correo electrónico de reinicio. Comproba a configuración do correo e o enderezo electrónico do investigador."
 }

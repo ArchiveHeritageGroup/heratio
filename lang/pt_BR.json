@@ -23946,5 +23946,10 @@
     "not in storage": "não no armazenamento",
     "or every description of a repository": "ou toda descrição de um repositório",
     "removed from storage": "removido do armazenamento",
-    "the object leaves storage entirely rather than moving to another location": "o objeto sai completamente do armazenamento em vez de ser movido para outro local"
+    "the object leaves storage entirely rather than moving to another location": "o objeto sai completamente do armazenamento em vez de ser movido para outro local",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "O seu cadastro de pesquisador está aguardando aprovação. Você receberá um e-mail quando for aprovado.",
+    "Your researcher registration was not approved. Please contact the reading room.": "O seu cadastro de pesquisador não foi aprovado. Entre em contato com a sala de leitura.",
+    "Your researcher account is suspended. Please contact the reading room.": "A sua conta de pesquisador está suspensa. Entre em contato com a sala de leitura.",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "Um link para redefinição de senha foi enviado por e-mail ao pesquisador. Ele é válido por uma hora.",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "Não foi possível enviar o e-mail de redefinição. Verifique as configurações de e-mail e o endereço de e-mail do pesquisador."
 }

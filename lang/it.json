@@ -23881,5 +23881,10 @@
     "Prevent duplicate authority record identifiers": "Prevenire identificatori duplicati nei record delle autorità",
     "Primary Colour": "Colore primario",
     "Frame Rate:": "Frequenza di fotogrammi:",
-    "Processing&hellip;": "Elaborazione&hellip;"
+    "Processing&hellip;": "Elaborazione&hellip;",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "La tua registrazione come ricercatore è in attesa di approvazione. Riceverai un'e-mail quando sarà approvata.",
+    "Your researcher registration was not approved. Please contact the reading room.": "La tua registrazione come ricercatore non è stata approvata. Contatta la sala di lettura.",
+    "Your researcher account is suspended. Please contact the reading room.": "Il tuo account di ricercatore è sospeso. Contatta la sala di lettura.",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "Un link per il reset della password è stato inviato via e-mail al ricercatore. È valido per un'ora.",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "L'e-mail di reset non può essere inviata. Verifica le impostazioni di posta elettronica e l'indirizzo e-mail del ricercatore."
 }

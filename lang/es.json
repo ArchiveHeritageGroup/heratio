@@ -23985,5 +23985,10 @@
     "DSAR:": "SARD:",
     "DSARs": "SARDs",
     "Kenya DPA": "Ley de Protección de Datos de Kenia",
-    "Payout method": "Método de pago"
+    "Payout method": "Método de pago",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "Su registro como investigador está pendiente de aprobación. Recibirá un correo electrónico cuando se apruebe.",
+    "Your researcher registration was not approved. Please contact the reading room.": "Su registro como investigador no fue aprobado. Póngase en contacto con la sala de lectura.",
+    "Your researcher account is suspended. Please contact the reading room.": "Su cuenta de investigador está suspendida. Póngase en contacto con la sala de lectura.",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "Se ha enviado un enlace para restablecer la contraseña al correo electrónico del investigador. Es válido durante una hora.",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "No se pudo enviar el correo electrónico de restablecimiento. Compruebe la configuración del correo y la dirección de correo electrónico del investigador."
 }

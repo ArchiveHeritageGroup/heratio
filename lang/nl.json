@@ -23605,5 +23605,10 @@
     "No TK Labels have been assigned yet.": "Er zijn nog geen TK-labels toegewezen.",
     "No matches found for \"": "Geen overeenkomsten gevonden voor \"",
     "Release Notes": "Release-opmerkingen",
-    "In Review": "In beoordeling"
+    "In Review": "In beoordeling",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "Uw registratie als onderzoeker wacht op goedkeuring. U ontvangt een e-mail wanneer deze is goedgekeurd.",
+    "Your researcher registration was not approved. Please contact the reading room.": "Uw registratie als onderzoeker is niet goedgekeurd. Neem contact op met de leeszaal.",
+    "Your researcher account is suspended. Please contact the reading room.": "Uw onderzoeksaccount is geschorst. Neem contact op met de leeszaal.",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "Er is een link voor het opnieuw instellen van het wachtwoord per e-mail naar de onderzoeker gestuurd. Deze is één uur geldig.",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "De e-mail voor het opnieuw instellen kon niet worden verzonden. Controleer de e-mailinstellingen en het e-mailadres van de onderzoeker."
 }

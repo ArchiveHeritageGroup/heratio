@@ -744,7 +744,7 @@
     "Select a %1% to upload": "Válasszon ki egy %1%-t feltöltésre",
     "Select a date range to overwrite:": "Válasszon ki egy felülírandó időkőrt:",
     "Select a file to import": "Válassza ki az importálandó fájlt",
-    "Select a note type from the drop-down menu and enter note text in accordance with RAD 1.8B1 through 1.8B6.": "Válasszon ki a legördölő menüből egy jegyzet típust és írja be a jegyzet szövegét a RAD 1.8.B1–1.8B6 pontjainak megfelelően",
+    "Select a note type from the drop-down menu and enter note text in accordance with RAD 1.8B1 through 1.8B6.": "Válasszon ki a legördölő menüből egy jegyzet típust és írja be a jegyzet szövegét a RAD 1.8.B1-1.8B6 pontjainak megfelelően",
     "Select a note type from the drop-down menu and enter note text in accordance with the following sections in RAD: 1.5E (Accompanying material); 1.8 B11 (Alpha-numeric designations); 1.8B9b (Conservation); 1.8B7 (Edition); 1.8B9 (Physical Description); 1.8B16b (Rights).": "Válasszon egy jegyzettípust a legördülő menüből és készítsen jegyzetet a RAD alábbi szekcióinak megfelelően: 1.5E (kísérő anyag); 1.8B11 (alfanumerikus meghatározások); 1.8B9b (konzerválás); 1.8B7 (kiadás); 1.8B9 (fizikai leírás); 1.8B16b (jogok).",
     "Select a note type from the drop-down menu and record, as needed, specialized information not accommodated by any of the defined elements of description, including Conservation (DACS 7.1.3), Citation (DACS 7.1.5), Alphanumeric designations (DACS 7.1.6), Variant title information (DACS 7.1.7), or Processing information (DACS 7.1.8).": "Válasszon ki a legördülő menüből egy jegyzet típust, és szükség szerint rögzítse azokat a speciális információkat, melyek a megadott leírási elemek, úgy mint Megőrzés (DACS 7.1.3), Hivatkozás (DACS 7.1.5), Alfanumerikus megjelölések (DACS 7.1.6.) Címváltozatok (DACS 7.1.7) vagy Feldolgozási információ (DACS 7.1.8) egyikébe sem illenek.",
     "Select file": "Válassza ki a fájlot",
@@ -948,7 +948,7 @@
     "You must enter your username": "Meg kell adnia felhasználói nevét",
     "You must show at least %min% hits per page": "Oldalanként legalább %min% találatot kell mutatni.",
     "Your browser does not support JavaScript. See %1%minimum requirements%2%.": "A böngészője nem támogatja a Javascriptet. Olvassa el a %1%rendszerkövetelményeket%2%.",
-    "Your description has been updated. Lower level descriptions are being updated now – check the <a href=\"%1\">job scheduler page</a> for status and details.": "A leírás frissítve lett. Az alsóbb szintű leírások most frissülnek – az aktuális állapot és részletek megtalálhatók a <a href=\"%1\">feladat időzítő oldalon</a>.",
+    "Your description has been updated. Lower level descriptions are being updated now – check the <a href=\"%1\">job scheduler page</a> for status and details.": "A leírás frissítve lett. Az alsóbb szintű leírások most frissülnek - az aktuális állapot és részletek megtalálhatók a <a href=\"%1\">feladat időzítő oldalon</a>.",
     "Your edits to this description have been saved and the description has reverted to Draft status. Please ask a user with sufficient permissions to publish the description again to make it publicly visible.": "Ezen a leíráson végzett szerkesztései mentve lettek, és a leírás visszakerült Vázlat állapotba. Kérjen meg egy olyan felhasználót, aki megfelelő engedéllyel rendelkezik, hogy tegye ismét közzé, hogy nyilvánosan is látható legyen.",
     "Your password confirmation did not match your password.": "A jelszó megerősítése nem azonos a jelszóval.",
     "Your password is not strong enough (too short).": "A jelszava nem elég erős (túl rövid).",
@@ -24032,5 +24032,10 @@
     "Narrower Terms (hasPart)": "Szűkebb fogalmak (hasPart)",
     "When enabled, library:process-fines cron creates daily fine entries for overdue items.": "Ha engedélyezve van, a library:process-fines cron napi késedelmi díjbejegyzéseket hoz létre az átlépett határidővel rendelkező tételekhez.",
     "Reading room": "Olvasóterem",
-    "Save searches from browse results": "Keresések mentése a böngészési eredményekből"
+    "Save searches from browse results": "Keresések mentése a böngészési eredményekből",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "Kutatói regisztrációja jóváhagyásra vár. E-mailt kap, amikor a jóváhagyás megtörtént.",
+    "Your researcher registration was not approved. Please contact the reading room.": "Kutatói regisztrációját nem hagyták jóvá. Kérjük, lépjen kapcsolatba az olvasóteremmel.",
+    "Your researcher account is suspended. Please contact the reading room.": "Kutatói fiókja felfüggesztve. Kérjük, lépjen kapcsolatba az olvasóteremmel.",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "A kutató e-mail címére jelszó-visszaállító linket küldtünk. Az egy órán keresztül érvényes.",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "A visszaállító e-mail nem küldhető el. Ellenőrizze a levelezési beállításokat és a kutató e-mail címét."
 }

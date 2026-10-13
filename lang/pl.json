@@ -24009,5 +24009,10 @@
     "Results :from to :to of :total": "Wyniki :from do :to z :total",
     ":field does not match the required format.": ":field nie odpowiada wymaganemu formatowi.",
     ":field is required.": ":field jest wymagane.",
-    ":field must be a number.": ":field musi być liczbą."
+    ":field must be a number.": ":field musi być liczbą.",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "Rejestracja badacza oczekuje na zatwierdzenie. Otrzymasz e-mail, gdy zostanie ona zatwierdzona.",
+    "Your researcher registration was not approved. Please contact the reading room.": "Rejestracja badacza nie została zatwierdzona. Prosimy o kontakt z czytelnią.",
+    "Your researcher account is suspended. Please contact the reading room.": "Konto badacza zostało zawieszone. Prosimy o kontakt z czytelnią.",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "Link do resetowania hasła został wysłany do badacza e-mailem. Jest ważny przez jedną godzinę.",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "Nie udało się wysłać wiadomości e-mail dotyczącej resetowania hasła. Sprawdź ustawienia poczty oraz adres e-mail badacza."
 }

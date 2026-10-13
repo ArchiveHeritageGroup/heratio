@@ -23961,5 +23961,10 @@
     "removed from storage": "removido do armazenamento",
     "the object leaves storage entirely rather than moving to another location": "o objeto sai completamente do armazenamento em vez de se mover para outro local",
     ":units unit(s) in the file, :matched matched to a context here, :rel relationship(s) parsed.": ":units unidade(s) no arquivo, :matched correspondido(a) a um contexto aqui, :rel relação(ões) analisada(s).",
-    "Relation edges": "Arestas de Relação"
+    "Relation edges": "Arestas de Relação",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "O seu registo de investigador está à espera de aprovação. Receberá um e-mail quando for aprovado.",
+    "Your researcher registration was not approved. Please contact the reading room.": "O seu registo de investigador não foi aprovado. Entre em contacto com a sala de leitura.",
+    "Your researcher account is suspended. Please contact the reading room.": "A sua conta de investigador está suspensa. Entre em contacto com a sala de leitura.",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "Um link para redefinição de palavra-passe foi enviado por e-mail ao investigador. É válido durante uma hora.",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "O e-mail de redefinição não pôde ser enviado. Verifique as definições de correio e o endereço de e-mail do investigador."
 }

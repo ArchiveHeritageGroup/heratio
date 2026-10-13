@@ -24063,5 +24063,20 @@
     "Default consultation follow-up (days)": "ระยะเวลาติดตามผลคำปรึกษาเริ่มต้น (วัน)",
     "Default email for integrity alerts (used by new schedules and alert rules).": "อีเมลเริ่มต้นสำหรับแจ้งเตือนความสมบูรณ์ของข้อมูล (ใช้โดยตารางเวลาและกฎการแจ้งเตือนใหม่)",
     "Default number of days for consultation follow-up reminders. Default: 30 days.": "จำนวนวันที่เริ่มต้นสำหรับการแจ้งเตือนติดตามผลคำปรึกษา ค่าเริ่มต้น: 30 วัน",
-    "Serve and harvest (OAI-PMH provider and harvester)": "ให้บริการและเก็บเกี่ยว (ผู้ให้บริการและผู้เก็บเกี่ยว OAI-PMH)"
+    "Serve and harvest (OAI-PMH provider and harvester)": "ให้บริการและเก็บเกี่ยว (ผู้ให้บริการและผู้เก็บเกี่ยว OAI-PMH)",
+    "Default %1% upload limit for a new %2%.  A value of &quot;0&quot; (zero) disables file upload.  A value of &quot;-1&quot; allows unlimited uploads for all %2%s, overriding limit set for individual %2%s.": "ขีดจำกัดการอัปโหลด %1% เริ่มต้นสำหรับ %2% ใหม่ ค่า &quot;0&quot; ปิดการใช้งานการอัปโหลดไฟล์ ค่า &quot;-1&quot; อนุญาตให้อัปโหลดได้ไม่จำกัดสำหรับ %2% ทั้งหมด โดยละเลยขีดจำกัดที่ตั้งไว้สำหรับ %2% แต่ละรายการ",
+    "When enabled, an &quot;Upload limit&quot; meter is displayed for authenticated users on the %1% view page, and administrators can limit the disk space each %1% is allowed for %2% uploads": "เมื่อเปิดใช้งาน จะแสดงมิเตอร์ &quot;ขีดจำกัดการอัปโหลด&quot; สำหรับผู้ใช้ที่เข้าสู่ระบบในหน้ามุมมอง %1% และผู้ดูแลระบบสามารถจำกัดพื้นที่ดิสก์ที่แต่ละ %1% ได้รับอนุญาตสำหรับการอัปโหลด %2%",
+    "Content for Object Icip.": "เนื้อหาสำหรับ Object Icip",
+    "Master switch for all RIC sync operations": "สวิตช์หลักสำหรับการดำเนินการซิงค์ RIC ทั้งหมด",
+    "No assets found.": "ไม่พบทรัพย์สิน",
+    "No audit entries found.": "ไม่พบรายการตรวจสอบ",
+    "No authority link available": "ไม่มีลิงก์อำนาจอ้างอิง",
+    "Create checklists to track tasks for planning, installation, and closing.": "สร้างรายการตรวจสอบเพื่อติดตามงานสำหรับการวางแผน การติดตั้ง และการปิดโครงการ",
+    "Supported formats: BIBFRAME 2.0 XML/RDF, Turtle. The importer will upsert Works, Instances, and Items it finds in the document. Records that already exist (matched by title for Works) are updated.": "รูปแบบที่รองรับ: BIBFRAME 2.0 XML/RDF, Turtle ตัวนำเข้าจะอัปโหลดหรือเพิ่ม Works, Instances และ Items ที่พบในเอกสาร บันทึกที่มีอยู่แล้ว (จับคู่โดยชื่อเรื่องสำหรับ Works) จะได้รับการอัปเดต",
+    "Replace matches in place (blank cells clear fields; children kept)": "แทนที่การจับคู่ในตำแหน่ง (เซลล์ว่างจะล้างฟิลด์; รักษาบุตรหลานไว้)",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "การลงทะเบียนนักวิจัยของคุณกำลังรอการอนุมัติ คุณจะรับอีเมลเมื่อได้รับการอนุมัติ",
+    "Your researcher registration was not approved. Please contact the reading room.": "การลงทะเบียนนักวิจัยของคุณไม่ได้รับการอนุมัติ โปรดติดต่อห้องอ่านหนังสือ",
+    "Your researcher account is suspended. Please contact the reading room.": "บัญชีนักวิจัยของคุณถูกระงับ โปรดติดต่อห้องอ่านหนังสือ",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "ลิงก์รีเซ็ตรหัสผ่านถูกส่งทางอีเมลไปยังนักวิจัย มีอายุหนึ่งชั่วโมง",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "ไม่สามารถส่งอีเมลรีเซ็ตได้ ตรวจสอบการตั้งค่าอีเมลและที่อยู่อีเมลของนักวิจัย"
 }

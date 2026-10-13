@@ -23906,5 +23906,10 @@
     "Processing&hellip;": "처리 중&hellip;",
     "Type A": "유형 A",
     "Type B": "유형 B",
-    "Type C": "유형 C"
+    "Type C": "유형 C",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "연구자 등록이 승인 대기 중입니다. 승인이 되면 이메일을 받게 됩니다.",
+    "Your researcher registration was not approved. Please contact the reading room.": "연구자 등록이 승인되지 않았습니다. 열람실로 문의하십시오.",
+    "Your researcher account is suspended. Please contact the reading room.": "연구자 계정이 정지되었습니다. 열람실로 문의하십시오.",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "비밀번호 재설정 링크가 연구자에게 이메일로 전송되었습니다. 유효 기간은 1시간입니다.",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "재설정 이메일을 보낼 수 없습니다. 메일 설정과 연구자의 이메일 주소를 확인하십시오."
 }

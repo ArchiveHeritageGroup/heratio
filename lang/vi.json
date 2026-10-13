@@ -24048,5 +24048,11 @@
     "Scope &amp; Content": "Phạm vi &amp; Nội dung",
     "Statements &amp; Licenses": "Tuyên bố &amp; Giấy phép",
     "Status &amp; Budget": "Trạng thái &amp; Ngân sách",
-    "Storylines &amp; Narratives": "Dòng sự kiện &amp; Kể chuyện"
+    "Storylines &amp; Narratives": "Dòng sự kiện &amp; Kể chuyện",
+    "Read every command aloud (say &quot;stop&quot; to stop)": "Đọc to mọi lệnh (nói &quot;dừng&quot; để dừng lại)",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "Đăng ký nhà nghiên cứu của bạn đang chờ phê duyệt. Bạn sẽ nhận được email khi đăng ký được phê duyệt.",
+    "Your researcher registration was not approved. Please contact the reading room.": "Đăng ký nhà nghiên cứu của bạn không được phê duyệt. Vui lòng liên hệ với phòng đọc.",
+    "Your researcher account is suspended. Please contact the reading room.": "Tài khoản nhà nghiên cứu của bạn đã bị tạm ngưng. Vui lòng liên hệ với phòng đọc.",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "Liên kết đặt lại mật khẩu đã được gửi qua email đến nhà nghiên cứu. Liên kết này có hiệu lực trong một giờ.",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "Không thể gửi email đặt lại. Vui lòng kiểm tra cài đặt thư và địa chỉ email của nhà nghiên cứu."
 }

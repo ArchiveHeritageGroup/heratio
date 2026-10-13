@@ -24038,5 +24038,10 @@
     "No TK labels applied to this record.": "此记录未应用任何 TK 标签。",
     "No activity log entries for this DOI.": "此 DOI 没有活动日志条目。",
     "AI-powered visual description of": "由 AI 驱动的视觉描述，针对",
-    "Select a secondary actor to merge into this record. All relations, resources, contacts, and identifiers will be transferred.": "选择一个次要责任者合并到此记录中。所有关系、资源、联系方式和标识符都将被转移。"
+    "Select a secondary actor to merge into this record. All relations, resources, contacts, and identifiers will be transferred.": "选择一个次要责任者合并到此记录中。所有关系、资源、联系方式和标识符都将被转移。",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "您的研究人员注册正在等待审批。审批通过后，您将收到电子邮件通知。",
+    "Your researcher registration was not approved. Please contact the reading room.": "您的研究人员注册未获批准。请联系阅览室。",
+    "Your researcher account is suspended. Please contact the reading room.": "您的研究人员账户已被暂停。请联系阅览室。",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "密码重置链接已通过电子邮件发送给研究人员。该链接在一小时内有效。",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "无法发送重置邮件。请检查邮件设置和研究人员的电子邮件地址。"
 }

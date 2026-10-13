@@ -23839,5 +23839,10 @@
     "or every description of a repository": "eller varje beskrivning av ett arkiv",
     "removed from storage": "borttagen från förvaring",
     "the object leaves storage entirely rather than moving to another location": "objektet lämnar förvaringen helt istället för att flyttas till en annan plats",
-    "SGD - Singapore Dollar": "SGD - Singapore dollar"
+    "SGD - Singapore Dollar": "SGD - Singapore dollar",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "Din forskaranmälan väntar på godkännande. Du får ett e-postmeddelande när den har godkänts.",
+    "Your researcher registration was not approved. Please contact the reading room.": "Din forskaranmälan godkändes inte. Vänligen kontakta läsrummet.",
+    "Your researcher account is suspended. Please contact the reading room.": "Ditt forskarkonto är inaktivt. Vänligen kontakta läsrummet.",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "En länk för återställning av lösenord har skickats till forskaren via e-post. Länken är giltig i en timme.",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "Återställningsmejlet kunde inte skickas. Kontrollera e-postinställningarna och forskarens e-postadress."
 }

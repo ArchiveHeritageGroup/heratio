@@ -1,5 +1,5 @@
 {
-    "\"Record, when relevant, the start and the end date of the relationship.\" (ISDF 6.3) Enter the date as you would like it to appear in the show page for the function, using qualifiers and/or typographical symbols to express uncertainty if desired.": "\"Die Daten für den Beginn und das Ende der Beziehung sind  – soweit wichtig  - anzugeben.\" (ISDF 6.3)  Geben Sie die Daten so ein, wie sie in der Normdatei erscheinen sollen. Sie können nähere Bestimmungen und/oder typographische Zeichen verwenden, um Ungewissheit auszudrücken.",
+    "\"Record, when relevant, the start and the end date of the relationship.\" (ISDF 6.3) Enter the date as you would like it to appear in the show page for the function, using qualifiers and/or typographical symbols to express uncertainty if desired.": "\"Die Daten für den Beginn und das Ende der Beziehung sind - soweit wichtig  - anzugeben.\" (ISDF 6.3)  Geben Sie die Daten so ein, wie sie in der Normdatei erscheinen sollen. Sie können nähere Bestimmungen und/oder typographische Zeichen verwenden, um Ungewissheit auszudrücken.",
     "\"Use for\" labels": "\"Verwenden zu\" Aufschrift",
     "#": "#",
     "%1 - report criteria": "%1 - Kriterien für das Verzeichnis",
@@ -23818,5 +23818,23 @@
     "not in storage": "nicht im Lager",
     "or every description of a repository": "oder jede Beschreibung eines Archivs",
     "removed from storage": "aus dem Lager entfernt",
-    "the object leaves storage entirely rather than moving to another location": "das Objekt verlässt das Lager vollständig, anstatt an einen anderen Ort zu wechseln"
+    "the object leaves storage entirely rather than moving to another location": "das Objekt verlässt das Lager vollständig, anstatt an einen anderen Ort zu wechseln",
+    "A brief site description or &quot;tagline&quot; for the header": "Eine kurze Beschreibung der Website oder ein &quot;Slogan&quot; für den Kopfbereich",
+    "Adversarial reviewer": "Gegnerischer Prüfer",
+    "Ask a question... e.g. &quot;photographs of District Six in the 1960s&quot;": "Stellen Sie eine Frage... z. B. &quot;Fotografien von District Six in den 1960er Jahren&quot;",
+    "Due diligence": "Sorgfaltspflicht",
+    "Format Holdings &amp; Access": "Formatbestände &amp; Zugang",
+    "Sign off &amp; finalise": "Absegnen &amp; abschliessen",
+    "Split &amp; Annotate": "Aufteilen &amp; Annotieren",
+    "Statements &amp; Licenses": "Erklärungen &amp; Lizenzen",
+    "Storage &amp; Access": "Speicherung &amp; Zugang",
+    "Storylines &amp; Narratives": "Storylines &amp; Narrative",
+    "Summary &amp; Outcomes": "Zusammenfassung &amp; Ergebnisse",
+    "When enabled, an &quot;Upload limit&quot; meter is displayed for authenticated users on the %1% view page, and administrators can limit the disk space each %1% is allowed for %2% uploads": "Wenn aktiviert, wird für authentifizierte Benutzer auf der %1%-Ansicht eine &quot;Upload-Limit&quot;-Anzeige angezeigt, und Administratoren können den Festplattenspeicher begrenzen, den jeder %1% für %2%-Uploads verwenden darf.",
+    "Your exchange file has been imported as a": "Ihre Austauschdatei wurde als eine importiert",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "Ihre Forscherregistrierung wartet auf Genehmigung. Sie erhalten eine E-Mail, sobald sie genehmigt wurde.",
+    "Your researcher registration was not approved. Please contact the reading room.": "Ihre Forscherregistrierung wurde nicht genehmigt. Bitte wenden Sie sich an den Lesesaal.",
+    "Your researcher account is suspended. Please contact the reading room.": "Ihr Forscherkonto ist gesperrt. Bitte wenden Sie sich an den Lesesaal.",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "Ein Link zum Zurücksetzen des Passworts wurde dem Forscher per E-Mail gesendet. Er ist eine Stunde lang gültig.",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "Die E-Mail zum Zurücksetzen konnte nicht gesendet werden. Überprüfen Sie die E-Mail-Einstellungen und die E-Mail-Adresse des Forschers."
 }

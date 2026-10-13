@@ -86,7 +86,7 @@
     "Are you sure you want to replace \"%1%\" with \"%2%\" in %3%?": "Ste prepričani, da želite zamenjati \"%1%\" z/s \"%2%\" v %3%?",
     "Associated terms": "Povezani izrazi",
     "Authorized form of name": "Standardizirana oblika imena",
-    "Authorized form of name - This is a mandatory element.": "Standardizirana oblika imena – vnos tega elementa je obvezen.",
+    "Authorized form of name - This is a mandatory element.": "Standardizirana oblika imena - vnos tega elementa je obvezen.",
     "BT %1%": "BT %1%",
     "Back": "Nazaj",
     "Back to previous page": "Nazaj na prejšnjo stran",
@@ -334,7 +334,7 @@
     "N/A": "ni podatkov",
     "NT %1%": "NT %1%",
     "Name": "Ime",
-    "Name - A term with this name already exists.": "Ime – izraz s tem imenom že obstaja.",
+    "Name - A term with this name already exists.": "Ime - izraz s tem imenom že obstaja.",
     "Name access points": "Imenska gesla",
     "Name of creator": "Ime ustvarjalca",
     "Name of the person(s) or organization(s) which has the authority to grant permissions or set rights restrictions.": "Ime osebe (oseb) ali organizacije (organizacij), ki je pooblaščena za podeljevanje dovoljenj ali postavljanje omejitev pravic.",
@@ -24035,5 +24035,13 @@
     "not in storage": "ni v skladišču",
     "or every description of a repository": "ali vsak opis repozitorija",
     "removed from storage": "odstranjeno iz skladišča",
-    "the object leaves storage entirely rather than moving to another location": "predmet popolnoma zapusti skladišče, namesto da bi se preselil na drugo lokacijo"
+    "the object leaves storage entirely rather than moving to another location": "predmet popolnoma zapusti skladišče, namesto da bi se preselil na drugo lokacijo",
+    "No export permits found.": "Ni bilo najdenih izvoznih dovoljenj.",
+    "Main headline displayed in the hero section.": "Glavna naslovna vrstica, prikazana v hero razdelku.",
+    "Transaction": "Transakcija",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "Vaša registracija raziskovalca čaka na odobritev. Ko bo odobrena, boste prejeli e-poštno sporočilo.",
+    "Your researcher registration was not approved. Please contact the reading room.": "Vaše prijave za registracijo raziskovalca ni bilo odobreno. Prosimo, kontaktirajte bralno dvorano.",
+    "Your researcher account is suspended. Please contact the reading room.": "Vaš račun raziskovalca je začasno onemogočen. Prosimo, kontaktirajte bralno dvorano.",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "Povezava za ponastavitev gesla je bila poslana raziskovalcu po e-pošti. Veljavna je eno uro.",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "E-poštnega sporočila ni bilo mogoče poslati. Preverite nastavitve pošte in e-poštni naslov raziskovalca."
 }

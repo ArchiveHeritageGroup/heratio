@@ -24060,5 +24060,10 @@
     "Automatically generate baseline checksums on first verification if none exist.": "צור חתימות בסיס אוטומטיות בבדיקה הראשונה אם לא קיימות.",
     "Default webhook URL for alert notifications (Slack, Teams, PagerDuty, etc).": "כתובת URL ברירת מחדל של ווב-הוק להודעות התראה (Slack, Teams, PagerDuty וכו').",
     "Editing the title will automatically update the slug field if \"Update slug\" is selected - you can still edit it after.": "עריכת הכותרת תעדכן אוטומטית את שדה השם הקצר אם \"עדכן שם קצר\" מסומן - ניתן עדיין לערוך אותו לאחר מכן.",
-    "In live mode, the buyer is redirected to PayFast and the marketplace listing is automatically marked sold once the ITN webhook confirms the payment.": "במצב חי, הקונה מועבר ל-PayFast ורשימת השוק מסומנת אוטומטית כנמכרת לאחר אישוי התשלום דרך ווב-הוק ITN."
+    "In live mode, the buyer is redirected to PayFast and the marketplace listing is automatically marked sold once the ITN webhook confirms the payment.": "במצב חי, הקונה מועבר ל-PayFast ורשימת השוק מסומנת אוטומטית כנמכרת לאחר אישוי התשלום דרך ווב-הוק ITN.",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "רישום החוקר שלך ממתינה לאישור. תתקבל הודעת דוא״ל כאשר האישור יינתן.",
+    "Your researcher registration was not approved. Please contact the reading room.": "רישום החוקר שלך לא אושר. אנא פנה לחדר הקריאה.",
+    "Your researcher account is suspended. Please contact the reading room.": "חשבון החוקר שלך מושעה. אנא פנה לחדר הקריאה.",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "קישור לאיפוס סיסמה נשלח בדוא״ל לחוקר. הקישור תקף לשעה אחת.",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "לא ניתן היה לשלוח את מייל האיפוס. בדוק את הגדרות הדוא״ל ואת כתובת הדוא״ל של החוקר."
 }

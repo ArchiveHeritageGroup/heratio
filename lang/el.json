@@ -24018,5 +24018,18 @@
     "Data Protection Officer required for public authorities and large-scale processing.": "Απαιτείται Υπεύθυνος Προστασίας Δεδομένων για δημόσιες αρχές και επεξεργασία σε μεγάλη κλίμακα.",
     "No embargoes found.": "Δεν βρέθηκαν εμπάργκο.",
     "No instantiations found": "Δεν βρέθηκαν στιγμιότυπα",
-    "Traditional archival levels (ISAD(G), RAD, DACS)": "Παραδοσιακά αρχιβεϊακά επίπεδα (ISAD(G), RAD, DACS)"
+    "Traditional archival levels (ISAD(G), RAD, DACS)": "Παραδοσιακά αρχιβεϊακά επίπεδα (ISAD(G), RAD, DACS)",
+    "Blog & News": "Blog & Ειδήσεις",
+    "Archival Information Package": "Αρχείο Πληροφοριών Αρχείου",
+    "Art & Architecture Thesaurus": "Θησαυρός Τέχνης & Αρχιτεκτονικής",
+    "Submission Information Package": "Συλλογή Πληροφοριών Υποβολής (Submission Information Package)",
+    "Queue Records for Minting": "Ουρά αρχείων για δημιουργία (Minting)",
+    "You can view and manage all embargoes from the embargoes list.": "Μπορείτε να δείτε και να διαχειριστείτε όλα τα εμπάργκο από τη λίστα εμπάργκο.",
+    "Bitrate:": "Ρυθμός μετάδοσης δεδομένων (Bitrate):",
+    "Built-in: IIIF deep-zoom, 3D viewing, media at scale": "Ενσωματωμένα: βαθιά ζουμ IIIF, προβολή 3D, πολυμέσα σε μεγάλη κλίμακα",
+    "Display a flash notification on login when the password is expiring soon or has expired.": "Εμφάνιση προσωρινής ειδοποίησης κατά την είσοδο όταν ο κωδικός πρόσβασης λήγει σύντομα ή έχει ήδη λήξει.",
+    "Orphan works are copyrighted works whose rights holders cannot be identified or located after a diligent search. Before using an orphan work, institutions should conduct and document a thorough due diligence search.": "Τα ορφανά έργα είναι έργα που προστατεύονται από πνευματικά δικαιώματα των οποίων οι κάτοχοι δικαιωμάτων δεν μπορούν να εντοπιστούν ή να βρεθούν μετά από επιμελή αναζήτηση. Πριν χρησιμοποιήσετε ένα ορφανό έργο, οι θεσμοί πρέπει να διεξάγουν και να τεκμηριώνουν μια πλήρη έρευνα προσοχής.",
+    "Rotation Speed (deg/sec)": "Ταχύτητα περιστροφής (βαθμ/δευτ)",
+    "The required database tables for the RiC module have not been created yet. Please run the RiC migration to set up the following tables:": "Οι απαιτούμενοι πίνακες βάσης δεδομένων για το πρόγραμμα RiC δεν έχουν δημιουργηθεί ακόμη. Παρακαλώ εκτελέστε τη μεταφορά RiC για να ορίσετε τους ακόλουθους πίνακες:",
+    "Your researcher registration was not approved. Please contact the reading room.": "Η εγγραφή σας ως ερευνητής δεν εγκρίθηκε. Παρακαλούμε επικοινωνήστε με το διάβασμα αίθουσα."
 }

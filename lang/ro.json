@@ -23737,5 +23737,10 @@
     "the object leaves storage entirely rather than moving to another location": "obiectul părăsește complet depozitul, în loc să fie mutat într-o altă locație",
     "Lift": "Ridicare",
     "No errors logged.": "Nicio eroare înregistrată.",
-    "Overlay Color": "Culoare suprapusă"
+    "Overlay Color": "Culoare suprapusă",
+    "Your researcher registration is waiting for approval. You will receive an email when it is approved.": "Înregistrarea ta ca cercetător așteaptă aprobare. Vei primi un e-mail când va fi aprobată.",
+    "Your researcher registration was not approved. Please contact the reading room.": "Înregistrarea ta ca cercetător nu a fost aprobată. Te rugăm să contactezi sala de lectură.",
+    "Your researcher account is suspended. Please contact the reading room.": "Contul tău de cercetător este suspendat. Te rugăm să contactezi sala de lectură.",
+    "A password reset link was emailed to the researcher. It is valid for one hour.": "Un link pentru resetarea parolei a fost trimis prin e-mail cercetătorului. Este valabil timp de o oră.",
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "E-mailul de resetare nu a putut fi trimis. Verifică setările de poștă și adresa de e-mail a cercetătorului."
 }
