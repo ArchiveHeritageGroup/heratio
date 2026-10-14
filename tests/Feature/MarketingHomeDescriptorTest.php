@@ -44,4 +44,24 @@ class MarketingHomeDescriptorTest extends TestCase
             ->assertSee('Version '.$version)
             ->assertSee('github.com/ArchiveHeritageGroup/heratio#installation', false);
     }
+
+    public function test_h08_metadata_licence_contribution_and_one_call_to_action(): void
+    {
+        config(['heratio.homepage_mode' => 'marketing']);
+        $html = $this->get('/')->assertOk()->getContent();
+
+        $this->assertMatchesRegularExpression('#<script type="application/ld\+json"[^>]*>(.*?)</script>#s', $html);
+        preg_match('#<script type="application/ld\+json"[^>]*>(.*?)</script>#s', $html, $m);
+        $ld = json_decode($m[1], true);
+        $this->assertSame('SoftwareApplication', $ld['@type']);
+        $this->assertSame('https://www.gnu.org/licenses/agpl-3.0.html', $ld['license']);
+        $this->assertSame(json_decode((string) file_get_contents(base_path('version.json')), true)['version'], $ld['softwareVersion']);
+
+        $this->assertStringContainsString('<meta property="og:title"', $html);
+        $this->assertStringNotContainsString("world's first", $html);
+        $this->assertStringContainsString('CONTRIBUTING.md', $html);
+        $this->assertStringContainsString('blob/main/LICENSE', $html);
+
+        $this->assertSame(1, substr_count($html, '>Try the live demo</a>'), 'one primary call to action');
+    }
 }

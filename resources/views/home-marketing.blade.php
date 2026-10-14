@@ -13,16 +13,20 @@
   <div class="mb-3">
     <p class="lead fw-semibold mb-1">{{ __('Open-source GLAM and archival management software') }}</p>
     <p class="mb-2">{{ __('Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system.') }}</p>
+    {{-- H08: one clear call to action; everything else is a quiet link. --}}
+    <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
+      <a href="{{ route('solutions.tour') }}" class="btn btn-primary">{{ __('Try the live demo') }}</a>
+      <span class="small">
+        <span class="badge bg-success">{{ __('Released') }}</span>
+        @if($heratioVersion !== ''){{ __('Version :version', ['version' => $heratioVersion]) }} &middot; @endif
+        <a href="https://github.com/ArchiveHeritageGroup/heratio/blob/main/LICENSE" rel="noopener license">{{ __('Free under the GNU AGPL-3.0') }}</a>
+      </span>
+    </div>
     <p class="small mb-0">
-      <span class="badge bg-success">{{ __('Released') }}</span>
-      @if($heratioVersion !== '')
-        {{ __('Version :version', ['version' => $heratioVersion]) }} &middot;
-      @endif
-      {{ __('AGPL-3.0') }} &middot;
-      <a href="{{ route('glam.browse') }}">{{ __('Explore the live demo') }}</a> &middot;
-      <a href="{{ route('solutions.tour') }}">{{ __('Take the guided tour') }}</a> &middot;
       <a href="https://github.com/ArchiveHeritageGroup/heratio#installation" rel="noopener">{{ __('Install') }}</a> &middot;
-      <a href="https://github.com/ArchiveHeritageGroup/heratio" rel="noopener">{{ __('Source on GitHub') }}</a>
+      <a href="https://github.com/ArchiveHeritageGroup/heratio" rel="noopener">{{ __('Source on GitHub') }}</a> &middot;
+      <a href="https://github.com/ArchiveHeritageGroup/heratio/blob/main/CONTRIBUTING.md" rel="noopener">{{ __('Contribute') }}</a> &middot;
+      <a href="{{ route('glam.browse') }}">{{ __('Browse the demo collections') }}</a>
     </p>
     <p class="small mb-0 mt-1">
       <a href="{{ route('solutions.index') }}" class="fw-semibold">{{ __('Solutions') }}</a>:
@@ -34,7 +38,41 @@
 @endsection
 
 @push('css')
-  <meta name="description" content="Heratio is the world's first fully integrated open-source platform for galleries, libraries, archives, and museums. Built by archives professionals, AGPL-licensed, available in 18 languages.">
+  {{-- H08: one description everywhere - this tag, Open Graph, the JSON-LD below and the README. --}}
+  @php
+    $hDesc = __('Heratio is open-source GLAM and archival management software. Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system. Free under the GNU AGPL-3.0 licence.');
+    $hVersion = json_decode((string) @file_get_contents(base_path('version.json')), true)['version'] ?? '';
+    $hRepo = 'https://github.com/ArchiveHeritageGroup/heratio';
+  @endphp
+  <meta name="description" content="{{ $hDesc }}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Heratio">
+  <meta property="og:title" content="{{ __('Heratio - Open-source GLAM and archival management software') }}">
+  <meta property="og:description" content="{{ $hDesc }}">
+  <meta property="og:url" content="{{ url('/') }}">
+  <meta property="og:image" content="{{ asset('vendor/ahg-theme-b5/images/heratio_logo.png') }}">
+  <meta name="twitter:card" content="summary">
+  <script type="application/ld+json" nonce="{{ $cspNonce ?? '' }}">
+  {!! json_encode([
+      '@context' => 'https://schema.org',
+      '@type' => 'SoftwareApplication',
+      'name' => 'Heratio',
+      'description' => $hDesc,
+      'applicationCategory' => 'BusinessApplication',
+      'applicationSubCategory' => 'Archival and collections management',
+      'operatingSystem' => 'Linux',
+      'softwareVersion' => $hVersion,
+      'license' => 'https://www.gnu.org/licenses/agpl-3.0.html',
+      'isAccessibleForFree' => true,
+      'offers' => ['@type' => 'Offer', 'price' => '0', 'priceCurrency' => 'USD'],
+      'url' => url('/'),
+      'downloadUrl' => $hRepo,
+      'installUrl' => $hRepo.'#installation',
+      'softwareHelp' => url('/help'),
+      'sameAs' => [$hRepo],
+      'publisher' => ['@type' => 'Organization', 'name' => 'The Archive and Heritage Digital Commons Group', 'url' => 'https://theahg.co.za'],
+  ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}
+  </script>
 @endpush
 
 @section('content')

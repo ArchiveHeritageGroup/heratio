@@ -1,6 +1,8 @@
 # Heratio
 
-**Open-source GLAM platform on Laravel 12 - archival description, museum collections, digital asset management, and records management in one system, with Records in Contexts (RiC) as a first-class capability.**
+**Open-source GLAM and archival management software. Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system, with Records in Contexts (RiC) as a first-class capability. Free under the GNU AGPL-3.0 licence.**
+
+Live demo and guided tour: [heratio.org](https://heratio.org) - Contribute: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 A modern, self-hostable alternative to legacy archival and museum software such as AtoM and ArchivesSpace, built for the international GLAM market.
 

@@ -64,7 +64,7 @@
     if (a.hasAttribute('data-demo-tour-start')) { send('tour'); return; }
     var href = a.getAttribute('href') || '';
     if (/github\.com\/ArchiveHeritageGroup/i.test(href)) { send('github', href.indexOf('#installation') > -1 ? 'install' : 'source'); }
-    else if (/\/(glam\/browse|exhibition-space\/)/.test(href)) { send('demo', href.replace(/^https?:\/\/[^/]+/, '').slice(0, 120)); }
+    else if (/\/(glam\/browse|exhibition-space\/|solutions\/tour)/.test(href)) { send('demo', href.replace(/^https?:\/\/[^/]+/, '').slice(0, 120)); }
     else if (/\/(help\/|solutions\/)/.test(href)) { send('docs', href.replace(/^https?:\/\/[^/]+/, '').slice(0, 120)); }
   }, true);
 })();

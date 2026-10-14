@@ -21,9 +21,9 @@
       <a class="navbar-brand d-flex flex-wrap flex-lg-nowrap align-items-center py-0 me-0" href="{{ url('/') }}" title="{{ __('Home') }}" rel="home">
         @if($themeData['toggleLogo'] ?? true)
           @if($themeData['customLogo'] ?? null)
-            <img src="{{ $themeData['customLogo'] }}" alt="{{ __('Logo') }}" class="d-inline-block me-3" height="70" style="padding: 0;">
+            <img src="{{ $themeData['customLogo'] }}" alt="{{ ($themeData['siteTitle'] ?? '') !== '' ? $themeData['siteTitle'] : config('app.name', 'Heratio') }}" class="d-inline-block me-3" height="70" style="padding: 0;">
           @else
-            <img src="{{ asset('vendor/ahg-theme-b5/images/image.png') }}" alt="{{ __('Logo') }}" class="d-inline-block me-3" height="70" style="padding: 0;">
+            <img src="{{ asset('vendor/ahg-theme-b5/images/image.png') }}" alt="{{ ($themeData['siteTitle'] ?? '') !== '' ? $themeData['siteTitle'] : config('app.name', 'Heratio') }}" class="d-inline-block me-3" height="70" style="padding: 0;">
           @endif
         @endif
         @if(($themeData['toggleTitle'] ?? true) && !empty($themeData['siteTitle']))
