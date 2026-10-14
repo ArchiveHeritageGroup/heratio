@@ -23,6 +23,12 @@
       <a href="https://github.com/ArchiveHeritageGroup/heratio#installation" rel="noopener">{{ __('Install') }}</a> &middot;
       <a href="https://github.com/ArchiveHeritageGroup/heratio" rel="noopener">{{ __('Source on GitHub') }}</a>
     </p>
+    <p class="small mb-0 mt-1">
+      <a href="{{ route('solutions.index') }}" class="fw-semibold">{{ __('Solutions') }}</a>:
+      @foreach(\App\Http\Controllers\SolutionsController::PAGES as $slug => [$t, $s])
+        <a href="{{ route('solutions.show', $slug) }}">{{ __($t) }}</a>@if(!$loop->last) &middot; @endif
+      @endforeach
+    </p>
   </div>
 @endsection
 

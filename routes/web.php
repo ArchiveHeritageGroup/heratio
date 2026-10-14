@@ -153,6 +153,11 @@ Route::middleware(['auth.required', 'admin'])->group(function () {
     Route::post('/admin/email/branding', [\App\Http\Controllers\EmailBrandingController::class, 'save'])->name('admin.email.branding.save');
 });
 
+// H03 buyer pages: one per kind of institution, plus migration from AtoM.
+Route::get('/solutions', [App\Http\Controllers\SolutionsController::class, 'index'])->name('solutions.index');
+Route::get('/solutions/{page}', [App\Http\Controllers\SolutionsController::class, 'show'])->name('solutions.show')
+    ->where('page', '[a-z][a-z-]*');
+
 // Homepage
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/homepage', [App\Http\Controllers\HomeController::class, 'index'])->name('homepage'); // AtoM alias
