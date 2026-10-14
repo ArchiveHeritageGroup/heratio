@@ -155,6 +155,7 @@ Route::middleware(['auth.required', 'admin'])->group(function () {
 
 // H03 buyer pages: one per kind of institution, plus migration from AtoM.
 Route::get('/solutions', [App\Http\Controllers\SolutionsController::class, 'index'])->name('solutions.index');
+Route::get('/solutions/tour', [App\Http\Controllers\SolutionsController::class, 'tour'])->name('solutions.tour');
 Route::get('/solutions/capabilities', [App\Http\Controllers\SolutionsController::class, 'capabilities'])->name('solutions.capabilities');
 Route::get('/solutions/{page}', [App\Http\Controllers\SolutionsController::class, 'show'])->name('solutions.show')
     ->where('page', '[a-z][a-z-]*');

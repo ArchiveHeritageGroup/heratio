@@ -20,5 +20,8 @@
       </div>
     @endforeach
   </div>
-  <p class="mt-3"><a href="{{ route('solutions.capabilities') }}">{{ __('Every capability, with its status: released, preview or planned') }}</a></p>
+  @if(\App\Support\DemoTour::enabled())
+    <p class="mt-3 mb-1"><a href="{{ route('solutions.tour') }}">{{ __('Take the guided tour of the live demo') }}</a></p>
+  @endif
+  <p class="mt-1"><a href="{{ route('solutions.capabilities') }}">{{ __('Every capability, with its status: released, preview or planned') }}</a></p>
 @endsection

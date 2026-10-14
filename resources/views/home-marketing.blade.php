@@ -20,6 +20,7 @@
       @endif
       {{ __('AGPL-3.0') }} &middot;
       <a href="{{ route('glam.browse') }}">{{ __('Explore the live demo') }}</a> &middot;
+      <a href="{{ route('solutions.tour') }}">{{ __('Take the guided tour') }}</a> &middot;
       <a href="https://github.com/ArchiveHeritageGroup/heratio#installation" rel="noopener">{{ __('Install') }}</a> &middot;
       <a href="https://github.com/ArchiveHeritageGroup/heratio" rel="noopener">{{ __('Source on GitHub') }}</a>
     </p>

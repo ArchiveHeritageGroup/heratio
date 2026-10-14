@@ -678,6 +678,9 @@
       @include('theme::partials.session-timeout-warning')
     @endauth
 
+    {{-- H06: guided demo tour card (demo hosts only; idle until a visitor starts the tour) --}}
+    @includeIf('partials.demo-tour')
+
     {{-- Global JS error logger - sends client errors to Laravel log --}}
     <script nonce="{{ $cspNonce }}">
     // A browser without WebGL cannot run the 3D viewers; three.js and

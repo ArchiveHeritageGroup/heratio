@@ -12,7 +12,7 @@ class HomeController extends Controller
      * ahg-admin-menu.blade.php - when these disagree, the navbar and the page
      * body render for different modes.
      */
-    private const MARKETING_HOSTS = [
+    public const MARKETING_HOSTS = [
         'heratio.org',
         'www.heratio.org',
         'heratio.theahg.co.za',

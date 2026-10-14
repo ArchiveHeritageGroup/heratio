@@ -29,6 +29,7 @@
 namespace App\Http\Controllers;
 
 use App\Support\CapabilityMatrix;
+use App\Support\DemoTour;
 
 class SolutionsController extends Controller
 {
@@ -54,6 +55,14 @@ class SolutionsController extends Controller
             'page' => $page, 'meta' => self::PAGES[$page], 'pages' => self::PAGES,
             'capabilities' => CapabilityMatrix::releasedFor($page),
         ]);
+    }
+
+    /** H06: the guided demo tour, on the demo hosts only. */
+    public function tour()
+    {
+        abort_unless(DemoTour::enabled(), 404);
+
+        return view('solutions.tour', ['steps' => DemoTour::steps()]);
     }
 
     /** H04: every capability with its status and a proof link. */
