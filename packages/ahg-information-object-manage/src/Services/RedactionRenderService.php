@@ -258,22 +258,61 @@ class RedactionRenderService
      */
     public function isRedactedIdentifier(string $identifier): bool
     {
+        // Upload paths are content-addressed, so one file can back several
+        // records - redacted on one, not on another. The pixels are the same,
+        // so the file is refused when ANY record using it has it redacted.
+        foreach ($this->mastersForIdentifier($identifier) as [$masterId, $ioIds]) {
+            foreach ($ioIds as $ioId) {
+                if ($this->regionsQuery($ioId, $masterId)->exists()) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * The records that a file under /uploads belongs to: every information
+     * object whose digital object (or a derivative of it) is this file. Empty
+     * when the file is not a digital object at all.
+     *
+     * @return int[]
+     */
+    public function recordIdsForIdentifier(string $identifier): array
+    {
+        $ids = [];
+        foreach ($this->mastersForIdentifier($identifier) as [, $ioIds]) {
+            foreach ($ioIds as $id) {
+                $ids[$id] = true;
+            }
+        }
+
+        return array_keys($ids);
+    }
+
+    /**
+     * Resolve an upload path or Cantaloupe identifier to [master digital object
+     * id, record ids] pairs.
+     *
+     * @return list<array{0: int, 1: int[]}>
+     */
+    private function mastersForIdentifier(string $identifier): array
+    {
         // uploads_SL_r_SL_837_SL_x.jpg[;page] -> /uploads/r/837/ + x.jpg
         $decoded = str_replace('_SL_', '/', preg_replace('/;\d+$/', '', rawurldecode($identifier)));
         $name = basename($decoded);
         $dir = trim(dirname($decoded), '/');
         if ($name === '' || $dir === '' || $dir === '.') {
-            return false;
+            return [];
         }
 
-        // Upload paths are content-addressed, so one file can back several
-        // records - redacted on one, not on another. The pixels are the same,
-        // so the file is refused when ANY record using it has it redacted.
         $rows = DB::table('digital_object')
             ->where('name', $name)
             ->whereIn('path', ['/' . $dir . '/', $dir . '/', '/' . $dir, $dir])
             ->get(['id', 'object_id', 'parent_id']);
 
+        $out = [];
         foreach ($rows as $row) {
             $master = $row->parent_id
                 ? DB::table('digital_object')->where('id', $row->parent_id)->first(['id', 'object_id'])
@@ -290,15 +329,10 @@ class RedactionRenderService
                     ? DB::table(\AhgCore\Services\AttachedDigitalObjectService::TABLE)
                         ->where('digital_object_id', $master->id)->pluck('information_object_id')->map('intval')->all()
                     : []);
-
-            foreach ($ioIds as $ioId) {
-                if ($this->regionsQuery($ioId, (int) $master->id)->exists()) {
-                    return true;
-                }
-            }
+            $out[] = [(int) $master->id, $ioIds];
         }
 
-        return false;
+        return $out;
     }
 
     /** Ids of the record's images that carry live regions. */

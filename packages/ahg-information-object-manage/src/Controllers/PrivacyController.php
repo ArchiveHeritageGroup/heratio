@@ -520,7 +520,29 @@ class PrivacyController extends Controller
             && \Schema::hasTable('privacy_visual_redaction')
             && app(RedactionRenderService::class)->isRedactedIdentifier($path);
 
+        // SECURITY: a record's files are public only while the record is. A file
+        // belonging to draft or restricted records is refused unless at least one
+        // record using it is publicly disclosable, or the viewer can already see
+        // unpublished descriptions. Files that belong to no record are unaffected.
+        if (!$refuse && $path !== '' && !self::canSeeUnpublished()) {
+            $ioIds = app(RedactionRenderService::class)->recordIdsForIdentifier($path);
+            if ($ioIds) {
+                $gate = app(\AhgCore\Services\DisclosureGate::class);
+                $refuse = !collect($ioIds)->contains(fn ($id) => $gate->allows((int) $id));
+            }
+        }
+
         return response('', $refuse ? 403 : 204);
+    }
+
+    /** Administrators, editors and contributors already see draft descriptions. */
+    private static function canSeeUnpublished(): bool
+    {
+        $u = auth()->user();
+
+        return $u !== null && (\AhgCore\Services\AclService::isAdministrator($u)
+            || \AhgCore\Services\AclService::isEditor($u)
+            || \AhgCore\Services\AclService::isContributor($u));
     }
 
     private function streamOriginal(object $master)
