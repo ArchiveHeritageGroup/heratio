@@ -6,6 +6,8 @@ Live demo and guided tour: [heratio.org](https://heratio.org) - Contribute: [CON
 
 A modern, self-hostable alternative to legacy archival and museum software such as AtoM and ArchivesSpace, built for the international GLAM market.
 
+[![Latest release](https://img.shields.io/github/v/release/ArchiveHeritageGroup/heratio?sort=semver)](https://github.com/ArchiveHeritageGroup/heratio/releases/latest)
+[![Clean install](https://github.com/ArchiveHeritageGroup/heratio/actions/workflows/build-install-artifact.yml/badge.svg)](https://github.com/ArchiveHeritageGroup/heratio/actions/workflows/build-install-artifact.yml)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![PHP](https://img.shields.io/badge/PHP-8.3-purple)](https://php.net)
 [![Laravel](https://img.shields.io/badge/Laravel-12-red)](https://laravel.com)
@@ -24,7 +26,7 @@ Supported standards include ISAD(G), ISAAR(CPF), ISDIAH, Records in Contexts (Ri
 
 The RiC-native semantic framework, documentation, and ecosystem is centralised under **[OpenRiC](https://openric.org)**.
 
-A live demonstration instance is available at **[https://heratio.theahg.co.za](https://heratio.theahg.co.za)**.
+A live demonstration instance, reset every night, is available at **[https://heratio.org](https://heratio.org)**, with a [guided tour](https://heratio.org/solutions/tour) and a [list of every capability](https://heratio.org/solutions/capabilities) marked released, preview or planned.
 
 ---
 
@@ -186,6 +188,8 @@ The wishes Heratio does not fully meet yet. Each has an open issue, and this lis
 | Bot and SEO policy, agent access policy, worked API examples | AGM 2026 | Drafted in `docs/` (bot and SEO policy, agent access policy, worked API examples); wording awaiting approval before publication | [#1544](https://github.com/ArchiveHeritageGroup/heratio/issues/1544) |
 
 ## Requirements
+
+Every release tag is installed from scratch in CI on Ubuntu 24.04 with **PHP 8.3, MySQL 8.0 and Elasticsearch 8.13**, and the installed site must serve its home, sign-in and browse pages (the "Clean install" badge above). Those are the tested versions; the other versions in the table are expected to work but are not tested on every release. Only the latest release receives fixes - see [SECURITY.md](SECURITY.md#supported-versions).
 
 | Requirement | Version | Notes |
 |---|---|---|

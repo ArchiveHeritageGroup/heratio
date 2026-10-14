@@ -162,8 +162,11 @@ jobs:
         # actually runs. Serve the app and require the home, sign-in and browse
         # pages to answer 200.
         run: |
-          sudo chown -R "$(id -u):$(id -g)" storage bootstrap/cache 2>/dev/null || true
-          php artisan serve --host=127.0.0.1 --port=8000 > /tmp/serve.log 2>&1 &
+          # Serve as www-data, as a real install runs: bin/install leaves .env
+          # root:www-data 640, so the runner user cannot read it and Laravel
+          # would fall back to SQLite.
+          sudo chown -R www-data:www-data storage bootstrap/cache
+          sudo -u www-data php artisan serve --host=127.0.0.1 --port=8000 > /tmp/serve.log 2>&1 &
           for i in $(seq 1 30); do curl -s -o /dev/null http://127.0.0.1:8000/login && break; sleep 1; done
           fail=0
           for p in / /login /glam/browse; do
@@ -173,7 +176,7 @@ jobs:
           done
           if [ "$fail" = 1 ]; then
             tail -60 /tmp/serve.log
-            tail -60 storage/logs/laravel*.log 2>/dev/null || true
+            sudo tail -60 storage/logs/laravel*.log 2>/dev/null || true
             exit 1
           fi
 

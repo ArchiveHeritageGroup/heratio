@@ -1,0 +1,46 @@
+# =============================================================================
+# readme-links - crawl every link in the README and the install, upgrade and
+# security guides (G02). Local files and #anchors are checked as well as URLs.
+# Runs when those files change, on every release tag, and weekly to catch
+# outside sites that move.
+# =============================================================================
+
+name: readme-links
+
+on:
+  push:
+    branches: ['main']
+    tags: ['v*']
+    paths:
+      - 'README.md'
+      - 'SECURITY.md'
+      - 'docs/upgrade.md'
+      - 'docs/standalone-install-howto.md'
+      - 'docs/overlay-install-howto.md'
+      - 'docs/security.md'
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  links:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Crawl links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          fail: true
+          args: >-
+            --no-progress
+            --include-fragments
+            --max-retries 3
+            --accept 200,429
+            --user-agent "Mozilla/5.0 (lychee link check)"
+            README.md SECURITY.md docs/upgrade.md
+            docs/standalone-install-howto.md docs/overlay-install-howto.md docs/security.md
