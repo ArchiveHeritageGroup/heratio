@@ -57,7 +57,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label" for="am_ss_api_key">{{ __('Storage Service API key') }}</label>
-              <input type="password" name="settings[am_ss_api_key]" id="am_ss_api_key" class="form-control" value="{{ $settings['am_ss_api_key'] ?? '' }}" autocomplete="new-password">
+              <input type="password" name="settings[am_ss_api_key]" id="am_ss_api_key" class="form-control" value="" autocomplete="new-password" placeholder="{{ !empty($settings['am_ss_api_key']) ? __('Saved - leave blank to keep the current value') : '' }}" autocomplete="new-password">
               <small class="text-muted">{{ __('Stored in the settings table only.') }}</small>
             </div>
           </div>
@@ -84,7 +84,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label" for="am_dashboard_api_key">{{ __('Dashboard API key') }}</label>
-              <input type="password" name="settings[am_dashboard_api_key]" id="am_dashboard_api_key" class="form-control" value="{{ $settings['am_dashboard_api_key'] ?? '' }}" autocomplete="new-password">
+              <input type="password" name="settings[am_dashboard_api_key]" id="am_dashboard_api_key" class="form-control" value="" autocomplete="new-password" placeholder="{{ !empty($settings['am_dashboard_api_key']) ? __('Saved - leave blank to keep the current value') : '' }}" autocomplete="new-password">
               <small class="text-muted">{{ __('Stored in the settings table only.') }}</small>
             </div>
           </div>

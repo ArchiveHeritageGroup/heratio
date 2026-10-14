@@ -71,7 +71,15 @@ class TradingPartnerController
     /** Update partner */
     public function update(StoreTradingPartnerRequest $request, TradingPartner $partner): RedirectResponse
     {
-        $partner->update($request->validated());
+        $data = $request->validated();
+        // Secrets are never sent back to the form; a blank one keeps the stored value.
+        $stored = $partner->endpoint_config ?? [];
+        foreach (['password', 'smtp_password', 'private_key'] as $secret) {
+            if (trim((string) ($data['endpoint_config'][$secret] ?? '')) === '' && ! empty($stored[$secret])) {
+                $data['endpoint_config'][$secret] = $stored[$secret];
+            }
+        }
+        $partner->update($data);
         return redirect()
             ->route('library.trading-partners.index')
             ->with('success', 'Trading partner updated.');

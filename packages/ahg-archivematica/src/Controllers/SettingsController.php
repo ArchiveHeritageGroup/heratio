@@ -99,6 +99,10 @@ class SettingsController extends Controller
             if (! array_key_exists($key, $input)) {
                 continue;
             }
+            // API keys are never sent back to the form; blank means keep them.
+            if (in_array($key, ['am_ss_api_key', 'am_dashboard_api_key'], true) && trim((string) ($input[$key] ?? '')) === '') {
+                continue;
+            }
             $this->putSetting($key, (string) ($input[$key] ?? ''));
         }
 

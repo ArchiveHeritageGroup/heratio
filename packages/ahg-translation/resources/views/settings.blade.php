@@ -32,7 +32,7 @@
 
           <div class="mb-3">
             <label class="form-label">{{ __('API Key') }}</label>
-            <input class="form-control" name="api_key" value="{{ $apiKey }}" type="password" />
+            <input class="form-control" name="api_key" value="" type="password" autocomplete="new-password" placeholder="{{ $apiKey !== '' ? __('Saved - leave blank to keep the current value') : '' }}" />
           </div>
         </div>
       </div>

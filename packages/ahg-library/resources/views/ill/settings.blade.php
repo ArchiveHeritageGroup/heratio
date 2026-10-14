@@ -83,7 +83,7 @@
               <div class="col-md-6 mb-3">
                 <label class="form-label">{{ __('OCLC API Key') }}</label>
                 <input type="password" name="oclc_api_key"
-                       value="{{ old('oclc_api_key', $settings['ill_oclc_api_key'] ?? '') }}"
+                       value="" autocomplete="new-password" placeholder="{{ !empty($settings['ill_oclc_api_key']) ? __('Saved - leave blank to keep the current value') : '' }}"
                        class="form-control" maxlength="200" autocomplete="new-password">
                 <div class="form-text">{{ __('Stored encrypted. Never shown after save.') }}</div>
               </div>

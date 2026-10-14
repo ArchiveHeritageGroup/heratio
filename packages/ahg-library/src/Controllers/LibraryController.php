@@ -940,6 +940,10 @@ class LibraryController extends Controller
         ]);
 
         foreach ($data as $key => $val) {
+            // The OCLC key is never sent back to the form; blank means keep it.
+            if ($key === 'oclc_api_key' && trim((string) $val) === '') {
+                continue;
+            }
             SettingHelper::set('ill_' . $key, $val);
         }
 

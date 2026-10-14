@@ -209,7 +209,8 @@
           <div class="col-md-3">
             <label class="form-label">{{ __('API Key') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="password" name="settings_general[api_key]" class="form-control"
-                   value="{{ $generalSettings->get('api_key')->setting_value ?? '' }}">
+                   value="" autocomplete="new-password"
+                   placeholder="{{ !empty($generalSettings->get('api_key')->setting_value) ? __('Saved - leave blank to keep the current value') : '' }}">
           </div>
           <div class="col-md-3">
             <label class="form-label">{{ __('API Timeout (seconds)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>

@@ -24849,5 +24849,6 @@
     "Works once you connect a language model; none ships by default.": "Works once you connect a language model; none ships by default.",
     "in the code but partial, off by default or needing an outside service": "in the code but partial, off by default or needing an outside service",
     "in the current release": "in the current release",
-    "not working yet, tracked in an open issue": "not working yet, tracked in an open issue"
+    "not working yet, tracked in an open issue": "not working yet, tracked in an open issue",
+    "Saved - leave blank to keep the current value": "Saved - leave blank to keep the current value"
 }

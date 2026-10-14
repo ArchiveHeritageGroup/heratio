@@ -2991,6 +2991,10 @@ class SettingsController extends Controller
 
             foreach ($fieldsToSave as $field) {
                 $value = $request->input($field, '');
+                // The key is never sent back to the form; blank means keep it.
+                if ($field === 'api_key' && trim((string) $value) === '') {
+                    continue;
+                }
                 if (in_array($field, $checkboxFields)) {
                     $value = $request->has($field) && $request->input($field) ? '1' : '0';
                 }
@@ -3091,7 +3095,9 @@ class SettingsController extends Controller
     public function aiServicesTest(Request $request)
     {
         $url = trim((string) $request->input('url', ''));
-        $apiKey = trim((string) $request->input('api_key', ''));
+        // The form no longer holds the saved key; fall back to it when blank.
+        $apiKey = trim((string) $request->input('api_key', ''))
+            ?: (string) DB::table('ahg_ner_settings')->where('setting_key', 'api_key')->value('setting_value');
 
         if ($url === '') {
             return response()->json(['success' => false, 'error' => 'URL is empty'], 422);

@@ -69,7 +69,8 @@
         <label class="col-sm-3 col-form-label">{{ __('API Key') }}</label>
         <div class="col-sm-6">
           <input type="password" class="form-control" name="api_key" id="api_key"
-            value="{{ $settings['api_key'] ?? '' }}">
+            value="" autocomplete="new-password"
+            placeholder="{{ !empty($settings['api_key']) ? __('Saved - leave blank to keep the current value') : '' }}">
         </div>
         <div class="col-sm-3">
           <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-toggle-api-key">

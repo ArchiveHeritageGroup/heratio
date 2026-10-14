@@ -212,6 +212,10 @@ class AiController extends Controller
 
                 if (is_array($featureSettings)) {
                     foreach ($featureSettings as $key => $value) {
+                        // Keys are never sent back to the form; blank means keep them.
+                        if ($key === 'api_key' && trim((string) $value) === '') {
+                            continue;
+                        }
                         $this->llmService->saveAiSetting($feature, $key, $value);
                     }
                 }

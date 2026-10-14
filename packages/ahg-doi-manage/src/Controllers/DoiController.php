@@ -314,6 +314,10 @@ class DoiController extends Controller
 
         foreach ($keys as $key) {
             $value = $request->input($key, '');
+            // The password is never sent back to the form; blank means keep it.
+            if ($key === 'datacite_password' && trim((string) $value) === '') {
+                continue;
+            }
             DB::table('ahg_settings')->updateOrInsert(
                 ['setting_group' => 'doi', 'setting_key' => $key],
                 ['setting_value' => $value]

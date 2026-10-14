@@ -74,7 +74,8 @@
               <label for="datacite_password" class="col-sm-3 col-form-label">{{ __('Password') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <div class="col-sm-9">
                 <input type="password" class="form-control" id="datacite_password" name="datacite_password"
-                       value="{{ old('datacite_password', $settings['datacite_password'] ?? '') }}">
+                       value="" autocomplete="new-password"
+                       placeholder="{{ !empty($settings['datacite_password']) ? __('Saved - leave blank to keep the current value') : '' }}">
                 <div class="form-text">{{ __('DataCite API password') }}</div>
               </div>
             </div>

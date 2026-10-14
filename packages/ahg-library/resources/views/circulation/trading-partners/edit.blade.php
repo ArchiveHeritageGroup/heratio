@@ -63,7 +63,7 @@
               <div class="col-md-4"><label class="form-label">{{ __('Host') }}</label><input name="endpoint_config[host]" value="{{ old('endpoint_config.host', $cfg['host'] ?? '') }}" class="form-control"></div>
               <div class="col-md-2"><label class="form-label">{{ __('Port') }}</label><input name="endpoint_config[port]" value="{{ old('endpoint_config.port', $cfg['port'] ?? 22) }}" class="form-control"></div>
               <div class="col-md-3"><label class="form-label">{{ __('Username') }}</label><input name="endpoint_config[username]" value="{{ old('endpoint_config.username', $cfg['username'] ?? '') }}" class="form-control"></div>
-              <div class="col-md-3"><label class="form-label">{{ __('Password') }}</label><input name="endpoint_config[password]" type="password" value="{{ old('endpoint_config.password', $cfg['password'] ?? '') }}" class="form-control" placeholder="{{ __('leave blank to keep') }}"></div>
+              <div class="col-md-3"><label class="form-label">{{ __('Password') }}</label><input name="endpoint_config[password]" type="password" value="" autocomplete="new-password" class="form-control" placeholder="{{ __('leave blank to keep') }}"></div>
               <div class="col-md-6"><label class="form-label">{{ __('Outbound Directory') }}</label><input name="outbound_directory" value="{{ old('outbound_directory', $partner->outbound_directory) }}" class="form-control"></div>
               <div class="col-md-6"><label class="form-label">{{ __('Inbound Directory') }}</label><input name="inbound_directory" value="{{ old('inbound_directory', $partner->inbound_directory) }}" class="form-control"></div>
             </div>
