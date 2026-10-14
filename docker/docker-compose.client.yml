@@ -6,8 +6,8 @@
 # customer evaluations, support replicas, and any "I just want it running"
 # scenario.
 #
-# Pin to a version tag in production:
-#   HERATIO_VERSION=v1.41.3
+# Pin to a version tag in production (in .env.docker):
+#   HERATIO_VERSION=vX.Y.Z
 # or use 'latest' for the most recent release.
 #
 # AI is INTENTIONALLY external. The Heratio image contains zero model

@@ -65,6 +65,38 @@ class SolutionsController extends Controller
         return view('solutions.tour', ['steps' => DemoTour::steps()]);
     }
 
+    /**
+     * H07: install, upgrade, demonstration and security documentation, every link
+     * pinned to the git tag of the running release so the text matches the code.
+     */
+    public function documentation()
+    {
+        $version = json_decode((string) @file_get_contents(base_path('version.json')), true)['version'] ?? '';
+        $ref = $version !== '' ? 'v'.$version : 'main';
+        $doc = fn (string $path) => 'https://github.com/ArchiveHeritageGroup/heratio/blob/'.$ref.'/'.$path;
+
+        return view('solutions.documentation', [
+            'version' => $version,
+            'releaseUrl' => $version !== '' ? 'https://github.com/ArchiveHeritageGroup/heratio/releases/tag/'.$ref : 'https://github.com/ArchiveHeritageGroup/heratio/releases',
+            'sections' => [
+                ['Install', [
+                    ['Docker quickstart', $doc('README.md').'#3a-client-install-prebuilt-image-no-source', 'One command pulls the image for this release with MySQL and Elasticsearch and starts it.'],
+                    ['Standalone install on Linux', $doc('docs/standalone-install-howto.md'), 'A fresh server with PHP 8.3, MySQL 8 and Elasticsearch 8, set up by bin/install.'],
+                    ['Over an existing AtoM database', $doc('docs/overlay-install-howto.md'), 'Heratio adds its own tables beside AtoM\'s and leaves every AtoM row in place.'],
+                    ['Requirements', $doc('README.md').'#requirements', 'Server software and versions.'],
+                ]],
+                ['Upgrade', [
+                    ['Upgrading Heratio', $doc('docs/upgrade.md'), 'Back up, move to a newer release tag or image, and let the schema catch up.'],
+                ]],
+                ['Security', [
+                    ['Security policy', $doc('SECURITY.md'), 'How to report a vulnerability, which versions get fixes, and what Heratio protects.'],
+                    ['Operator security runbook', $doc('docs/security.md'), 'Checks before going public, routine tasks, incident response and ports.'],
+                ]],
+            ],
+            'tour' => DemoTour::enabled(),
+        ]);
+    }
+
     /** H04: every capability with its status and a proof link. */
     public function capabilities()
     {

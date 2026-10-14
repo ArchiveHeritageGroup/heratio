@@ -12,7 +12,7 @@ This guide walks an operator through installing **Heratio** on a fresh Linux box
 |---|---|---|
 | **Git clone** (recommended) | Standard deployments, easy updates | `git pull && sudo bin/install` |
 | **Tarball release** | Air-gapped, no `git` available | Re-download tarball, replace `/usr/share/nginx/heratio`, `sudo bin/install` |
-| Docker | Future - not yet | n/a |
+| Docker | Evaluation, or hosts that already run containers | Set `HERATIO_VERSION` in `.env.docker`, then `docker compose pull && docker compose up -d` (see [upgrade.md](upgrade.md)) |
 
 Both methods run the same `bin/install` and produce identical results.
 

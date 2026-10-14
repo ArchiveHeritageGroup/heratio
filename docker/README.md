@@ -17,7 +17,7 @@ are remote-only on production, and not needed to test the app itself.
 ```bash
 cd /usr/share/nginx/heratio
 cp docker/.env.docker.example docker/.env.docker
-# edit docker/.env.docker - set ADMIN_PASSWORD at minimum
+# edit docker/.env.docker - replace the three CHANGEME_ passwords (admin, DB, DB root)
 
 docker compose -f docker/docker-compose.yml --env-file docker/.env.docker up -d --build
 docker compose -f docker/docker-compose.yml logs -f heratio

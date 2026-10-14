@@ -213,6 +213,8 @@ Heratio supports three install scenarios.
 
 Scenarios 1 and 2 share the same Laravel-side bootstrap (composer install, `.env`, `key:generate`, ServiceProvider auto-seed). The two scenarios differ only in how the database is brought to life. Scenario 3 wraps Scenario 2's pipeline inside a containerised stack - same code, no host setup.
 
+Upgrading an existing install: [`docs/upgrade.md`](docs/upgrade.md). Reporting a vulnerability and the supported versions: [`SECURITY.md`](SECURITY.md). The same guides, pinned to the release a site runs, are linked from `/solutions/documentation` (on [heratio.org](https://heratio.org/solutions/documentation) for the current release).
+
 ### Scenario 1 - Overlay onto existing AtoM
 
 Heratio sits **on top of** your existing AtoM database without destroying any data. The overlay adds Heratio-only tables, syncs missing columns on shared tables, and seeds Heratio's settings + help - using `INSERT IGNORE` everywhere so customer customisations are preserved. Re-runnable / idempotent.
@@ -263,9 +265,10 @@ curl -fsSL https://raw.githubusercontent.com/ArchiveHeritageGroup/heratio/main/d
 Or pin to a specific version:
 
 ```bash
-HERATIO_VERSION=v1.41.3 \
-    curl -fsSL https://raw.githubusercontent.com/ArchiveHeritageGroup/heratio/main/docker/install-heratio.sh | bash
+curl -fsSL https://raw.githubusercontent.com/ArchiveHeritageGroup/heratio/main/docker/install-heratio.sh | HERATIO_VERSION=vX.Y.Z bash
 ```
+
+Use a tag from [Releases](https://github.com/ArchiveHeritageGroup/heratio/releases). The version is written to `.env.docker`, so later restarts stay on it; to upgrade, see [docs/upgrade.md](docs/upgrade.md).
 
 The installer:
 1. Downloads `docker-compose.client.yml` and `.env.docker.example` into `./heratio/`
@@ -283,7 +286,7 @@ For contributors and local code-change testing.
 git clone https://github.com/ArchiveHeritageGroup/heratio.git
 cd heratio
 cp docker/.env.docker.example docker/.env.docker
-# edit docker/.env.docker - set ADMIN_PASSWORD at minimum
+# edit docker/.env.docker - replace the three CHANGEME_ passwords (admin, DB, DB root)
 
 docker compose -f docker/docker-compose.yml --env-file docker/.env.docker up -d --build
 docker compose -f docker/docker-compose.yml logs -f heratio

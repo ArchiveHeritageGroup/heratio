@@ -23,5 +23,6 @@
   @if(\App\Support\DemoTour::enabled())
     <p class="mt-3 mb-1"><a href="{{ route('solutions.tour') }}">{{ __('Take the guided tour of the live demo') }}</a></p>
   @endif
+  <p class="mt-1 mb-1"><a href="{{ route('solutions.documentation') }}">{{ __('Install, upgrade and security documentation for this release') }}</a></p>
   <p class="mt-1"><a href="{{ route('solutions.capabilities') }}">{{ __('Every capability, with its status: released, preview or planned') }}</a></p>
 @endsection

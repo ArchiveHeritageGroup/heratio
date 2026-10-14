@@ -9,9 +9,9 @@
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/ArchiveHeritageGroup/heratio/main/docker/install-heratio.sh | bash
 #
-# Or with a specific version:
-#   HERATIO_VERSION=v1.41.3 \
-#       curl -fsSL https://.../install-heratio.sh | bash
+# Or pinned to a release (the variable goes on bash, not curl, so the
+# script sees it):
+#   curl -fsSL https://.../install-heratio.sh | HERATIO_VERSION=vX.Y.Z bash
 #
 # What this does NOT do:
 #   - Run any AI service. Heratio is an AI client. After install, configure
@@ -27,9 +27,11 @@
 set -euo pipefail
 
 REPO="ArchiveHeritageGroup/heratio"
-RAW_BASE="https://raw.githubusercontent.com/${REPO}/main/docker"
 INSTALL_DIR="${INSTALL_DIR:-./heratio}"
 VERSION="${HERATIO_VERSION:-latest}"
+# A pinned install takes its compose file from the same release tag as the image.
+if [ "$VERSION" = "latest" ]; then RAW_REF=main; else RAW_REF="$VERSION"; fi
+RAW_BASE="https://raw.githubusercontent.com/${REPO}/${RAW_REF}/docker"
 
 echo
 echo "─── Heratio one-shot installer ─────────────────────────────────────────"
@@ -61,6 +63,14 @@ curl -fL -o .env.docker.example   "${RAW_BASE}/.env.docker.example"
 # ── First-run: collect credentials ───────────────────────────────────────────
 if [ ! -f .env.docker ]; then
     cp .env.docker.example .env.docker
+    # The template serves the developer stack too; a client install runs in
+    # production mode (no stack traces) and stays on the version it installed.
+    sed -i -e 's|^APP_ENV=.*|APP_ENV=production|' -e 's|^APP_DEBUG=.*|APP_DEBUG=false|' .env.docker
+    if grep -q '^HERATIO_VERSION=' .env.docker; then
+        sed -i "s|^HERATIO_VERSION=.*|HERATIO_VERSION=${VERSION}|" .env.docker
+    else
+        printf '\n# Image tag. Change it and re-run pull + up to upgrade (docs/upgrade.md).\nHERATIO_VERSION=%s\n' "$VERSION" >> .env.docker
+    fi
 
     if [ -t 0 ]; then
         echo
@@ -80,6 +90,7 @@ if [ ! -f .env.docker ]; then
             -e "s|^DB_PASSWORD=.*|DB_PASSWORD=${DB_PASSWORD_IN}|" \
             -e "s|^DB_ROOT_PASSWORD=.*|DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD_IN}|" \
             -e "s|^HERATIO_PORT=.*|HERATIO_PORT=${PORT_IN}|" \
+            -e "s|^APP_URL=.*|APP_URL=http://localhost:${PORT_IN}|" \
             .env.docker
         rm -f .env.docker.bak
         chmod 600 .env.docker

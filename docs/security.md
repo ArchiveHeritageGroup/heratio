@@ -1,12 +1,12 @@
 # Heratio - Security Model & Operator Runbook
 
-One-pager. Read before exposing a Heratio instance to the public internet.
+One-pager. Read before exposing a Heratio instance to the public internet. To report a vulnerability, see [SECURITY.md](../SECURITY.md).
 
 ---
 
 ## 1. Threat model - what Heratio protects against
 
-| Threat | Layer | Mitigation in v1.37+ |
+| Threat | Layer | Mitigation |
 |---|---|---|
 | SQL injection | App | Eloquent ORM parameterises everything. Manual `DB::raw()` paths exist in ~10 files (ported from AtoM Symfony) - review before public exposure. |
 | XSS (stored / reflected) | App | Blade auto-escapes `{{ … }}`. `{!! … !!}` raw output exists in views - audit those when extending. CSP blocks third-party scripts. |
@@ -16,7 +16,7 @@ One-pager. Read before exposing a Heratio instance to the public internet.
 | MIME-type confusion | Headers | `X-Content-Type-Options: nosniff`. |
 | Information disclosure via .env / stack traces | App + nginx | `APP_DEBUG=false`, `APP_ENV=production`, `LOG_LEVEL=warning`. nginx denies `*.env`, `*.sql`, `*.log`, `*.md`, `vendor/`, `storage/`, `database/`, `config/`, `composer.lock`. |
 | Credential leak via AI / RAG | KM service | `/api/ask` requires `Authorization: Bearer <KM_API_KEY>`. Ingest pipeline scrubs passwords / API keys / private IPs / SSH keys via `redact_secrets()` before chunking. |
-| Brute-force login | Operator | Heratio has no built-in rate limiting; **add nginx `limit_req_zone` or fail2ban per deployment**. |
+| Brute-force login | App + operator | `POST /login` and registration are throttled to 5 a minute per IP and per account; password reset to 3 a minute per IP. Opt-in TOTP second factor. Add nginx `limit_req_zone` or fail2ban for network-level blocking. |
 | Privilege escalation | App | Admin role checked via `AhgAcl\Middleware\AuthAdmin` on `/admin/*`. |
 | File-upload abuse | App | `ahg-ingest` validates MIME + extension + virus-scans via `ahg:preservation-virus-scan`. |
 | Path traversal | App + nginx | Laravel `Storage` facade + nginx `^~ /uploads/` + `try_files`. |

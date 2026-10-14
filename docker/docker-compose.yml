@@ -75,7 +75,7 @@ services:
       MYSQL_DATABASE:      ${DB_DATABASE:-heratio}
       MYSQL_USER:          ${DB_USERNAME:-heratio}
       MYSQL_PASSWORD:      ${DB_PASSWORD:-heratio-test}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root-test}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD must be set in docker/.env.docker}
     command:
       # Heratio's AtoM-derived schema relies on row-level binlog format and
       # default authentication that older clients understand. utf8mb4 is the
@@ -88,7 +88,7 @@ services:
     volumes:
       - heratio-mysql:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-uroot", "-p${DB_ROOT_PASSWORD:-root-test}"]
+      test: ["CMD", "mysqladmin", "ping", "-uroot", "-p${DB_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 10

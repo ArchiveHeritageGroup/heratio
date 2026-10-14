@@ -160,6 +160,7 @@ Route::post('/acq/event', [App\Http\Controllers\AcquisitionController::class, 'e
 Route::get('/admin/acquisition', [App\Http\Controllers\AcquisitionController::class, 'dashboard'])->name('acquisition.dashboard')->middleware('admin');
 Route::get('/solutions/tour', [App\Http\Controllers\SolutionsController::class, 'tour'])->name('solutions.tour');
 Route::get('/solutions/capabilities', [App\Http\Controllers\SolutionsController::class, 'capabilities'])->name('solutions.capabilities');
+Route::get('/solutions/documentation', [App\Http\Controllers\SolutionsController::class, 'documentation'])->name('solutions.documentation');
 Route::get('/solutions/{page}', [App\Http\Controllers\SolutionsController::class, 'show'])->name('solutions.show')
     ->where('page', '[a-z][a-z-]*');
 

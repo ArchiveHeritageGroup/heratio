@@ -157,6 +157,26 @@ jobs:
           # handful of legitimately-skipped packages without false-failing.
           [[ "$T" -ge 800 ]] || { echo "ERROR: expected ≥ 800 tables, got $T"; exit 1; }
 
+      - name: Quickstart smoke test - the installed site serves its pages
+        # H07: the table count proves the schema; this proves a clean install
+        # actually runs. Serve the app and require the home, sign-in and browse
+        # pages to answer 200.
+        run: |
+          sudo chown -R "$(id -u):$(id -g)" storage bootstrap/cache 2>/dev/null || true
+          php artisan serve --host=127.0.0.1 --port=8000 > /tmp/serve.log 2>&1 &
+          for i in $(seq 1 30); do curl -s -o /dev/null http://127.0.0.1:8000/login && break; sleep 1; done
+          fail=0
+          for p in / /login /glam/browse; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:8000$p")
+            echo "$p -> $code"
+            [ "$code" = 200 ] || fail=1
+          done
+          if [ "$fail" = 1 ]; then
+            tail -60 /tmp/serve.log
+            tail -60 storage/logs/laravel*.log 2>/dev/null || true
+            exit 1
+          fi
+
       - name: mysqldump — schema only
         run: |
           mysqldump -h 127.0.0.1 -uroot \

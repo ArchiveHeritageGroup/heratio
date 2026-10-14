@@ -35,7 +35,10 @@ fi
 # A published default is not a password. The example ships CHANGEME_ placeholders
 # so a copy-paste deploy cannot silently run on credentials that are in the public
 # repo; refuse to boot rather than come up reachable with known values.
-for _v in DB_PASSWORD DB_ROOT_PASSWORD ADMIN_PASSWORD; do
+# DB_ROOT_PASSWORD is not checked here: only the MySQL container receives it,
+# and both compose files refuse to start without it (H07: checking it here
+# stopped every Docker install at first boot).
+for _v in DB_PASSWORD ADMIN_PASSWORD; do
     case "${!_v:-}" in
         CHANGEME_*|"")
             echo "[init] FATAL: $_v is unset or still the placeholder from .env.docker.example." >&2
@@ -151,7 +154,11 @@ if [ ! -f "$MARKER" ]; then
 
     # ── Stage 9: admin user ──────────────────────────────────────────────────
     echo "[init] creating admin user (${ADMIN_EMAIL:-admin@heratio.test})"
-    HASH=$(php -r "echo password_hash(getenv('ADMIN_PASSWORD') ?: 'admin-please-change', PASSWORD_BCRYPT);")
+    # Same scheme as bin/install: auth verifies password_verify(sha1(salt .
+    # password), password_hash), so a bcrypt of the bare password with an empty
+    # salt could never sign in (H07).
+    SALT=$(php -r 'echo bin2hex(random_bytes(16));')
+    HASH=$(SALT="$SALT" php -r "echo password_hash(sha1(getenv('SALT').getenv('ADMIN_PASSWORD')), PASSWORD_BCRYPT);")
     mysql_run <<SQL 2>/dev/null
 INSERT INTO object (class_name, created_at, updated_at, serial_number)
 VALUES ('QubitUser', NOW(), NOW(), 0);
@@ -161,10 +168,12 @@ VALUES (@uid, 'en', NULL, NULL, NULL);
 INSERT INTO actor_i18n (id, culture, authorized_form_of_name)
 VALUES (@uid, 'en', 'Administrator');
 INSERT INTO \`user\` (id, username, email, password_hash, salt, active)
-VALUES (@uid, 'admin', '${ADMIN_EMAIL:-admin@heratio.test}', '${HASH}', '', 1);
+VALUES (@uid, 'admin', '${ADMIN_EMAIL:-admin@heratio.test}', '${HASH}', '${SALT}', 1);
 -- /user/list and /user/{slug} inner-join the slug table; without a slug row
 -- the admin is invisible in the UI even though it can log in.
 INSERT INTO slug (object_id, slug) VALUES (@uid, 'admin');
+-- Administrator group (100), as bin/install grants; without it every admin page is refused.
+INSERT INTO acl_user_group (user_id, group_id, serial_number) VALUES (@uid, 100, 0);
 SQL
 
     touch "$MARKER"
@@ -197,5 +206,10 @@ fi
 php artisan config:cache  --no-interaction 2>/dev/null || true
 php artisan route:cache   --no-interaction 2>/dev/null || true
 php artisan view:cache    --no-interaction 2>/dev/null || true
+
+# Every artisan step above ran as root and left root-owned cache, view and log
+# files behind; php-fpm runs as www-data and could not write them, so the first
+# sign-in failed with a 500 (H07). Hand the tree back as the last step.
+chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
 
 echo "[init] === Heratio bootstrap complete ==="
