@@ -155,6 +155,9 @@ Route::middleware(['auth.required', 'admin'])->group(function () {
 
 // H03 buyer pages: one per kind of institution, plus migration from AtoM.
 Route::get('/solutions', [App\Http\Controllers\SolutionsController::class, 'index'])->name('solutions.index');
+// H09 acquisition tracking: beacon (demo site only, throttled) and the weekly dashboard.
+Route::post('/acq/event', [App\Http\Controllers\AcquisitionController::class, 'event'])->name('acquisition.event')->middleware('throttle:60,1');
+Route::get('/admin/acquisition', [App\Http\Controllers\AcquisitionController::class, 'dashboard'])->name('acquisition.dashboard')->middleware('admin');
 Route::get('/solutions/tour', [App\Http\Controllers\SolutionsController::class, 'tour'])->name('solutions.tour');
 Route::get('/solutions/capabilities', [App\Http\Controllers\SolutionsController::class, 'capabilities'])->name('solutions.capabilities');
 Route::get('/solutions/{page}', [App\Http\Controllers\SolutionsController::class, 'show'])->name('solutions.show')

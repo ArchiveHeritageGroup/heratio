@@ -32,15 +32,12 @@
 
 namespace App\Support;
 
-use App\Http\Controllers\HomeController;
-
 class DemoTour
 {
     /** True on the demo hosts (or when an install opts in with homepage_mode=marketing). */
     public static function enabled(): bool
     {
-        return config('heratio.homepage_mode') === 'marketing'
-            || in_array(request()->getHost(), HomeController::MARKETING_HOSTS, true);
+        return MarketingSite::is();
     }
 
     /**

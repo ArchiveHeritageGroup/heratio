@@ -39,6 +39,8 @@ class ContactController extends Controller
             'email' => 'required|email:rfc|max:200',
             'organisation' => 'nullable|string|max:200',
             'message' => 'required|string|min:10|max:5000',
+            'enquiry_type' => ['nullable', 'string', \Illuminate\Validation\Rule::in(array_keys(\AhgCore\Support\DropdownOptions::resolve('contact_enquiry_type', [])))],
+            'acq_source' => ['nullable', 'string', 'regex:'.\App\Http\Controllers\AcquisitionController::SOURCE],
             // Honeypot: real users leave this empty; bots fill it.
             'website' => 'nullable|max:0',
         ], [
@@ -55,6 +57,7 @@ class ContactController extends Controller
             ."Name        : {$data['name']}\n"
             ."Email       : {$data['email']}\n"
             .'Organisation: '.($data['organisation'] ?? '-')."\n"
+            .'About       : '.(\AhgCore\Support\DropdownOptions::resolve('contact_enquiry_type', [])[$data['enquiry_type'] ?? ''] ?? '-')."\n"
             .'Submitted   : '.now()->toDateTimeString().' '.config('app.timezone', 'UTC')."\n"
             .'Source IP   : '.$request->ip()."\n"
             ."\n--- Message ---\n"
@@ -91,6 +94,11 @@ class ContactController extends Controller
             });
         } catch (\Throwable $e) {
             Log::warning('Contact form: auto-reply failed (owner mail already sent)', ['err' => $e->getMessage()]);
+        }
+
+        // H09: count the enquiry (type and source only, no personal detail) on the demo site.
+        if (\App\Support\MarketingSite::is()) {
+            app(\App\Services\AcquisitionService::class)->record('enquiry', $data['acq_source'] ?? 'direct', $data['enquiry_type'] ?? null, '/contact');
         }
 
         return redirect()->route('contact.show')

@@ -73,6 +73,22 @@
           @error('organisation')<div class="invalid-feedback">{{ $message }}</div>@enderror
         </div>
 
+        @php $enquiryTypes = \AhgCore\Support\DropdownOptions::resolve('contact_enquiry_type', []); @endphp
+        @if($enquiryTypes)
+          <div class="col-12">
+            <label for="contact-type" class="form-label">{{ __('What is this about?') }}</label>
+            <select class="form-select @error('enquiry_type') is-invalid @enderror" id="contact-type" name="enquiry_type">
+              <option value="">{{ __('Choose one (optional)') }}</option>
+              @foreach($enquiryTypes as $code => $label)
+                <option value="{{ $code }}" @selected(old('enquiry_type', request('type')) === $code)>{{ __($label) }}</option>
+              @endforeach
+            </select>
+            @error('enquiry_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
+          </div>
+        @endif
+        <input type="hidden" name="acq_source" id="contact-acq-source" value="">
+        <script nonce="{{ $cspNonce ?? '' }}">document.getElementById('contact-acq-source').value = window.heratioAcqSource || '';</script>
+
         <div class="col-12">
           <label for="contact-message" class="form-label">
             {{ __('Your message') }} <span class="text-danger" aria-hidden="true">*</span>

@@ -680,6 +680,8 @@
 
     {{-- H06: guided demo tour card (demo hosts only; idle until a visitor starts the tour) --}}
     @includeIf('partials.demo-tour')
+    {{-- H09: acquisition beacon (demo site only) --}}
+    @includeIf('partials.acquisition-beacon')
 
     {{-- Global JS error logger - sends client errors to Laravel log --}}
     <script nonce="{{ $cspNonce }}">
