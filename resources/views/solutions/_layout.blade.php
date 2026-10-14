@@ -1,7 +1,7 @@
 {{-- Shared frame for the H03 solution pages. A page sets: title (via $meta),
-     section('intro'), and $capabilities = [[name, what it does, standard or null], ...]
+     section('intro'), and the controller supplies $capabilities
      plus optional $demoLinks = [[label, url], ...]. Every capability listed must
-     be in a tagged release; preview features are not advertised here (H04). --}}
+     be in a tagged release: they come from App\Support\CapabilityMatrix, RELEASED rows only (H04). --}}
 @extends('theme::layouts.1col')
 
 @section('title', __($meta[0]).' - Heratio')
@@ -30,14 +30,15 @@
         <table class="table table-sm align-top">
           <thead><tr><th scope="col">{{ __('Capability') }}</th><th scope="col">{{ __('What it gives you') }}</th></tr></thead>
           <tbody>
-            @foreach($capabilities as [$name, $what, $standard])
+            @foreach($capabilities as [$name, $what, $standard, $note])
               <tr>
                 <th scope="row" class="fw-semibold">{{ __($name) }}@if($standard)<br><span class="small text-muted fw-normal">{{ $standard }}</span>@endif</th>
-                <td>{{ __($what) }}</td>
+                <td>{{ __($what) }}@if($note)<br><span class="small text-muted">{{ __($note) }}</span>@endif</td>
               </tr>
             @endforeach
           </tbody>
         </table>
+        <p class="small"><a href="{{ route('solutions.capabilities') }}">{{ __('See every capability, including those in preview or planned') }}</a></p>
       </section>
 
       @hasSection('more')

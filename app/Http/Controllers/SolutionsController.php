@@ -28,6 +28,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\CapabilityMatrix;
+
 class SolutionsController extends Controller
 {
     /** slug => [title, one-line summary]; the order is the order on the index. */
@@ -48,6 +50,15 @@ class SolutionsController extends Controller
     {
         abort_unless(isset(self::PAGES[$page]), 404);
 
-        return view('solutions.'.$page, ['page' => $page, 'meta' => self::PAGES[$page], 'pages' => self::PAGES]);
+        return view('solutions.'.$page, [
+            'page' => $page, 'meta' => self::PAGES[$page], 'pages' => self::PAGES,
+            'capabilities' => CapabilityMatrix::releasedFor($page),
+        ]);
+    }
+
+    /** H04: every capability with its status and a proof link. */
+    public function capabilities()
+    {
+        return view('solutions.capabilities', ['rows' => CapabilityMatrix::rows(), 'pages' => self::PAGES]);
     }
 }

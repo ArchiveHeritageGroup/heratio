@@ -28,6 +28,7 @@
 namespace Tests\Feature;
 
 use App\Http\Controllers\SolutionsController;
+use App\Support\CapabilityMatrix;
 use Tests\TestCase;
 
 class SolutionsPagesTest extends TestCase
@@ -53,6 +54,43 @@ class SolutionsPagesTest extends TestCase
             foreach (self::NOT_YET as $term) {
                 $this->assertStringNotContainsStringIgnoringCase($term, strip_tags($main), "/solutions/$slug mentions '$term'");
             }
+        }
+    }
+
+    public function test_every_capability_has_a_status_and_a_proof_and_planned_work_links_an_issue(): void
+    {
+        $statuses = [CapabilityMatrix::RELEASED, CapabilityMatrix::PREVIEW, CapabilityMatrix::PLANNED];
+        foreach (CapabilityMatrix::rows() as [$pages, $name, $what, $standard, $status, $proof, $note]) {
+            $this->assertContains($status, $statuses, $name);
+            $this->assertNotSame('', trim($proof), $name);
+            $this->assertNotEmpty(array_intersect($pages, array_keys(SolutionsController::PAGES)), $name);
+            if ($status === CapabilityMatrix::PLANNED) {
+                $this->assertStringStartsWith('https://github.com/ArchiveHeritageGroup/heratio/issues/', $proof, $name);
+            }
+        }
+    }
+
+    public function test_solution_pages_list_only_released_capabilities(): void
+    {
+        foreach (array_keys(SolutionsController::PAGES) as $slug) {
+            $html = $this->get('/solutions/'.$slug)->assertOk()->getContent();
+            foreach (CapabilityMatrix::rows() as [$pages, $name, , , $status]) {
+                if (! in_array($slug, $pages, true)) {
+                    continue;
+                }
+                $status === CapabilityMatrix::RELEASED
+                    ? $this->assertStringContainsString(e($name), $html, "$slug should list $name")
+                    : $this->assertStringNotContainsString('>'.e($name).'<', $html, "$slug must not list $status '$name'");
+            }
+        }
+    }
+
+    public function test_the_capability_page_shows_every_row_with_its_badge(): void
+    {
+        $res = $this->get('/solutions/capabilities')->assertOk()
+            ->assertSee('Released')->assertSee('Preview')->assertSee('Planned');
+        foreach (CapabilityMatrix::rows() as [, $name]) {
+            $res->assertSee($name);
         }
     }
 

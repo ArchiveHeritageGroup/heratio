@@ -20,4 +20,5 @@
       </div>
     @endforeach
   </div>
+  <p class="mt-3"><a href="{{ route('solutions.capabilities') }}">{{ __('Every capability, with its status: released, preview or planned') }}</a></p>
 @endsection
