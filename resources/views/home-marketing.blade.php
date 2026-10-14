@@ -1,9 +1,29 @@
 @extends('theme::layouts.1col')
 
+@section('title', __('Heratio - Open-source GLAM and archival management software'))
+
 @section('title-block')
   @if($page)
     <h1>{{ $page->title }}</h1>
   @endif
+  {{-- H02: say what Heratio is, who it is for and whether it is real, beside the headline. --}}
+  @php
+    $heratioVersion = json_decode((string) @file_get_contents(base_path('version.json')), true)['version'] ?? '';
+  @endphp
+  <div class="mb-3">
+    <p class="lead fw-semibold mb-1">{{ __('Open-source GLAM and archival management software') }}</p>
+    <p class="mb-2">{{ __('Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system.') }}</p>
+    <p class="small mb-0">
+      <span class="badge bg-success">{{ __('Released') }}</span>
+      @if($heratioVersion !== '')
+        {{ __('Version :version', ['version' => $heratioVersion]) }} &middot;
+      @endif
+      {{ __('AGPL-3.0') }} &middot;
+      <a href="{{ route('glam.browse') }}">{{ __('Explore the live demo') }}</a> &middot;
+      <a href="https://github.com/ArchiveHeritageGroup/heratio#installation" rel="noopener">{{ __('Install') }}</a> &middot;
+      <a href="https://github.com/ArchiveHeritageGroup/heratio" rel="noopener">{{ __('Source on GitHub') }}</a>
+    </p>
+  </div>
 @endsection
 
 @push('css')

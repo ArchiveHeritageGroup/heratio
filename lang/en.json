@@ -24639,5 +24639,11 @@
     "Your researcher registration was not approved. Please contact the reading room.": "Your researcher registration was not approved. Please contact the reading room.",
     "Your researcher account is suspended. Please contact the reading room.": "Your researcher account is suspended. Please contact the reading room.",
     "A password reset link was emailed to the researcher. It is valid for one hour.": "A password reset link was emailed to the researcher. It is valid for one hour.",
-    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "The reset email could not be sent. Check the mail settings and the researcher's email address."
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "The reset email could not be sent. Check the mail settings and the researcher's email address.",
+    "Heratio - Open-source GLAM and archival management software": "Heratio - Open-source GLAM and archival management software",
+    "Open-source GLAM and archival management software": "Open-source GLAM and archival management software",
+    "Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system.": "Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system.",
+    "Version :version": "Version :version",
+    "AGPL-3.0": "AGPL-3.0",
+    "Explore the live demo": "Explore the live demo"
 }
