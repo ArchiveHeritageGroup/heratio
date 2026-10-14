@@ -162,15 +162,14 @@ jobs:
         # actually runs. Serve the app and require the home, sign-in and browse
         # pages to answer 200.
         run: |
-          # Serve as www-data, as a real install runs: bin/install leaves .env
-          # root:www-data 640, so the runner user cannot read it and Laravel
-          # would fall back to SQLite.
-          sudo chown -R www-data:www-data storage bootstrap/cache
-          sudo -u www-data php artisan serve --host=127.0.0.1 --port=8000 > /tmp/serve.log 2>&1 &
+          # bin/install leaves .env root:www-data 640, so the runner user cannot
+          # read it (Laravel falls back to SQLite), and www-data cannot enter
+          # the runner's home where the checkout lives. Serve as root.
+          sudo php artisan serve --host=127.0.0.1 --port=8000 > /tmp/serve.log 2>&1 &
           for i in $(seq 1 30); do curl -s -o /dev/null http://127.0.0.1:8000/login && break; sleep 1; done
           fail=0
           for p in / /login /glam/browse; do
-            code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:8000$p")
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:8000$p" || true)
             echo "$p -> $code"
             [ "$code" = 200 ] || fail=1
           done
