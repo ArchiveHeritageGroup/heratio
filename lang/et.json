@@ -24023,5 +24023,7 @@
     "Your researcher registration was not approved. Please contact the reading room.": "Teie uurija registreerimist ei kinnitatud. Palun võtke ühendust lugemisruumiga.",
     "Your researcher account is suspended. Please contact the reading room.": "Teie uurija konto on peatatud. Palun võtke ühendust lugemisruumiga.",
     "A password reset link was emailed to the researcher. It is valid for one hour.": "Uurijale saadeti parooli lähtestamise link e-postil. See kehtib ühe tunni jooksul.",
-    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "Lähtestamise e-kirja ei õnnestunud saata. Kontrollige posti seadeid ja uurija e-posti aadressi."
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "Lähtestamise e-kirja ei õnnestunud saata. Kontrollige posti seadeid ja uurija e-posti aadressi.",
+    "EAD Import": "EAD-i import",
+    "EAD Import (EAD 2002 / EAD 3)": "EAD-i import (EAD 2002 / EAD 3)"
 }

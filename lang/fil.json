@@ -23018,5 +23018,6 @@
     "Your researcher registration was not approved. Please contact the reading room.": "Hindi naaprubahan ang iyong rehistrasyon bilang mananaliksik. Paki-contact ang reading room.",
     "Your researcher account is suspended. Please contact the reading room.": "Suspended ang iyong account bilang mananaliksik. Paki-contact ang reading room.",
     "A password reset link was emailed to the researcher. It is valid for one hour.": "Na-email sa mananaliksik ang link para sa pag-reset ng password. Mayroon itong valididad na isang oras.",
-    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "Hindi maipadala ang email para sa pag-reset. Suriin ang mga setting ng mail at ang address ng email ng mananaliksik."
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "Hindi maipadala ang email para sa pag-reset. Suriin ang mga setting ng mail at ang address ng email ng mananaliksik.",
+    "Results :from to :to of :total": "Mga Resulta :from hanggang :to ng :total"
 }

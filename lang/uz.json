@@ -26,7 +26,7 @@
     "%1% used of %2%": "%2% ning %1% foydalanildi",
     "%1% visits": "%1% tashriflar",
     "%1%Export initiated.%2% Check %3%job management%4% page to download the results when it has completed.": "%1%Eksport boshlandi.%2% Natijani ko`chirib olish uchun %3%vazifalarni boshqarish%4% sahifasiga o`ting.",
-    "%du% of %limit% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> (%percent%%)": "%du% of %limit% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> (%percent%%)",
+    "%du% of %limit% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> (%percent%%)": "%limit% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> dan %du%%percent%%",
     "'Use for' labels": "'Qo'llash' yorliqlari",
     "(Re)generate API key": "API kalitini (qayta) hosil qilish",
     "-- Select action --": "-- Tanlang --",
@@ -23918,5 +23918,10 @@
     "Your researcher registration was not approved. Please contact the reading room.": "Sizning tadqiqotchi ro'yxatdan o'tishingiz tasdiqlanmadi. Iltimos, o'quv xonasi bilan bog'laning.",
     "Your researcher account is suspended. Please contact the reading room.": "Sizning tadqiqotchi hisobingiz to'xtatilgan. Iltimos, o'quv xonasi bilan bog'laning.",
     "A password reset link was emailed to the researcher. It is valid for one hour.": "Parolni tiklash havolasi tadqiqotchiga elektron pochta orqali yuborildi. U bir soat davomida amal qiladi.",
-    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "Tiklash xatini yuborib bo'lmadi. Pochta sozlamalari va tadqiqotchi elektron pochta manzilini tekshiring."
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "Tiklash xatini yuborib bo'lmadi. Pochta sozlamalari va tadqiqotchi elektron pochta manzilini tekshiring.",
+    "%du% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> of <em>Unlimited</em>": "%du% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> <em>Cheksiz</em>",
+    "%du% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> of <em>Unlimited</em>&nbsp;": "%du% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> <em>Cheksiz</em>&nbsp;",
+    ":du of :limit <abbr title=": ":limit dan :du <abbr title=",
+    "PII Count": "PII soni",
+    "PII Scanning": "PII skanerlash"
 }

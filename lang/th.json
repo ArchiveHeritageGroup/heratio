@@ -24078,5 +24078,7 @@
     "Your researcher registration was not approved. Please contact the reading room.": "การลงทะเบียนนักวิจัยของคุณไม่ได้รับการอนุมัติ โปรดติดต่อห้องอ่านหนังสือ",
     "Your researcher account is suspended. Please contact the reading room.": "บัญชีนักวิจัยของคุณถูกระงับ โปรดติดต่อห้องอ่านหนังสือ",
     "A password reset link was emailed to the researcher. It is valid for one hour.": "ลิงก์รีเซ็ตรหัสผ่านถูกส่งทางอีเมลไปยังนักวิจัย มีอายุหนึ่งชั่วโมง",
-    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "ไม่สามารถส่งอีเมลรีเซ็ตได้ ตรวจสอบการตั้งค่าอีเมลและที่อยู่อีเมลของนักวิจัย"
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "ไม่สามารถส่งอีเมลรีเซ็ตได้ ตรวจสอบการตั้งค่าอีเมลและที่อยู่อีเมลของนักวิจัย",
+    "This page will be shown when visitors access the root URL": "หน้านี้จะแสดงเมื่อผู้เยี่ยมชมเข้าถึง URL ราก",
+    "Zimbabwe has 5 inscribed World Heritage Sites including Great Zimbabwe, Khami Ruins, and Mana Pools.": "ซิมบับเวมีแหล่งมรดกโลกที่ได้รับการจารึก 5 แห่ง รวมถึงเกรตซิมบับเว ซากโบราณสถานขามิ และแมนาพูลส์"
 }

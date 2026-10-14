@@ -24031,5 +24031,10 @@
     "Your researcher registration was not approved. Please contact the reading room.": "Zure ikertzaile-erregistroa ez da onartu. Mesedez, jarri harremanetan irakurketa-gelarekin.",
     "Your researcher account is suspended. Please contact the reading room.": "Zure ikertzaile kontua etenaldian dago. Mesedez, jarri harremanetan irakurketa-gelarekin.",
     "A password reset link was emailed to the researcher. It is valid for one hour.": "Pasahitza berritzeko esteka bidali da ikertzaileari e-posta bidez. Ordu batez baliozkoa izango da.",
-    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "Ezin izan da berritze-e-posta bidali. Egiaztatu posta-ezarpenak eta ikertzailearen helbide elektronikoa."
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "Ezin izan da berritze-e-posta bidali. Egiaztatu posta-ezarpenak eta ikertzailearen helbide elektronikoa.",
+    "%du% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> of <em>Unlimited</em>": "%du% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> <em>Mugagabe</em>",
+    "%du% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> of <em>Unlimited</em>&nbsp;": "%du% <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> <em>Mugagabe</em>&nbsp;",
+    "of master files are verifiable": "master fitxategien egiaztagarriak dira",
+    "Form Builder": "Inprimaki Eraikitzailea",
+    "Edit the JSON data below, then click \"Accept with Changes\".": "Editatu beheko JSON datuak, eta egin klik \"Onartu Aldaketekin\"."
 }

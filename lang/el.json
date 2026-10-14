@@ -24031,5 +24031,11 @@
     "Orphan works are copyrighted works whose rights holders cannot be identified or located after a diligent search. Before using an orphan work, institutions should conduct and document a thorough due diligence search.": "Τα ορφανά έργα είναι έργα που προστατεύονται από πνευματικά δικαιώματα των οποίων οι κάτοχοι δικαιωμάτων δεν μπορούν να εντοπιστούν ή να βρεθούν μετά από επιμελή αναζήτηση. Πριν χρησιμοποιήσετε ένα ορφανό έργο, οι θεσμοί πρέπει να διεξάγουν και να τεκμηριώνουν μια πλήρη έρευνα προσοχής.",
     "Rotation Speed (deg/sec)": "Ταχύτητα περιστροφής (βαθμ/δευτ)",
     "The required database tables for the RiC module have not been created yet. Please run the RiC migration to set up the following tables:": "Οι απαιτούμενοι πίνακες βάσης δεδομένων για το πρόγραμμα RiC δεν έχουν δημιουργηθεί ακόμη. Παρακαλώ εκτελέστε τη μεταφορά RiC για να ορίσετε τους ακόλουθους πίνακες:",
-    "Your researcher registration was not approved. Please contact the reading room.": "Η εγγραφή σας ως ερευνητής δεν εγκρίθηκε. Παρακαλούμε επικοινωνήστε με το διάβασμα αίθουσα."
+    "Your researcher registration was not approved. Please contact the reading room.": "Η εγγραφή σας ως ερευνητής δεν εγκρίθηκε. Παρακαλούμε επικοινωνήστε με το διάβασμα αίθουσα.",
+    "API key for Claude cloud vision. Stored encrypted.": "Κλειδί API για την οπτική σύννεφο Claude. Αποθηκεύεται κρυπτογραφημένο.",
+    "Actual filesystem path on the server where files land. Shown to users for the CSV digitalObjectPath column.": "Η πραγματική διαδρομή του συστήματος αρχείων στον διακομιστή όπου καταλήγουν τα αρχεία. Εμφανίζεται στους χρήστες για τη στήλη CSV digitalObjectPath.",
+    "Search by title or identifier to find the fonds/collection.": "Αναζήτηση με τίτλο ή αναγνωριστικό για να βρείτε το αρχείο/συλλογή.",
+    "Types are inherited by children. Setting a type on a fonds will apply to all series, files, and items within.": "Οι τύποι κληρονομούνται από τα παιδιά. Η ορισμός ενός τύπου σε ένα αρχείο θα εφαρμοστεί σε όλες τις σειρές, φακέλους και αντικείμενα εντός αυτού.",
+    "Choose a fonds or series, or a repository.": "Επιλέξτε ένα αρχείο ή σειρά, ή ένα αποθετήριο.",
+    "Your researcher account is suspended. Please contact the reading room.": "Ο λογαριασμός σας ως ερευνητής έχει ανασταλεί. Παρακαλώ επικοινωνήστε με το διάβασμα αίθουσα."
 }

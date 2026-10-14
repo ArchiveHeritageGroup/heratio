@@ -23820,5 +23820,8 @@
     "Your researcher registration was not approved. Please contact the reading room.": "Ihre Forscherregistrierung wurde nicht genehmigt. Bitte wenden Sie sich an die Lesesaalverwaltung.",
     "Your researcher account is suspended. Please contact the reading room.": "Ihr Forscherkonto ist gesperrt. Bitte wenden Sie sich an die Lesesaalverwaltung.",
     "A password reset link was emailed to the researcher. It is valid for one hour.": "Ein Link zum Zurücksetzen des Passworts wurde dem Forscher per E-Mail gesendet. Er ist eine Stunde lang gültig.",
-    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "Die E-Mail konnte nicht gesendet werden. Überprüfen Sie die E-Mail-Einstellungen und die E-Mail-Adresse des Forschers."
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "Die E-Mail konnte nicht gesendet werden. Überprüfen Sie die E-Mail-Einstellungen und die E-Mail-Adresse des Forschers.",
+    "genre": "Gattung",
+    "rate s": "Bewertungen",
+    "Framework / stack": "Framework / Stapel"
 }

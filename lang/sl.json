@@ -24043,5 +24043,10 @@
     "Your researcher registration was not approved. Please contact the reading room.": "Vaše prijave za registracijo raziskovalca ni bilo odobreno. Prosimo, kontaktirajte bralno dvorano.",
     "Your researcher account is suspended. Please contact the reading room.": "Vaš račun raziskovalca je začasno onemogočen. Prosimo, kontaktirajte bralno dvorano.",
     "A password reset link was emailed to the researcher. It is valid for one hour.": "Povezava za ponastavitev gesla je bila poslana raziskovalcu po e-pošti. Veljavna je eno uro.",
-    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "E-poštnega sporočila ni bilo mogoče poslati. Preverite nastavitve pošte in e-poštni naslov raziskovalca."
+    "The reset email could not be sent. Check the mail settings and the researcher's email address.": "E-poštnega sporočila ni bilo mogoče poslati. Preverite nastavitve pošte in e-poštni naslov raziskovalca.",
+    "Cron Format": "Oblika Cron",
+    "PDF Standard": "Standard PDF",
+    "XML Format": "Oblika XML",
+    "No records returned from": "Ni vrnjenih zapisov iz",
+    "Personally Identifiable Information detected in": "Zaznane osebno identificirajoče informacije v"
 }
