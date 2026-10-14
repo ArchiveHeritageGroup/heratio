@@ -36,6 +36,10 @@
 
   var i = get();
   if (i === null || isNaN(i) || !steps[i]) { return; }
+  // Signing in sends the visitor back to the page they came from, and /login
+  // redirects a signed-in user away; so once signed in, the sign-in step is done.
+  var signedIn = @json(auth()->check());
+  if (signedIn && steps[i].path === '/login' && steps[i + 1]) { i = i + 1; set(i); }
   var card = document.getElementById('demo-tour-card');
   var here = window.location.pathname.replace(/\/+$/, '') || '/';
   var onStep = here === steps[i].path;
