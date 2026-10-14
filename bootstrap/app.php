@@ -46,6 +46,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,
+            // H05: canonical and robots hints for browse, search, print and export addresses.
+            \App\Http\Middleware\SearchIndexHints::class,
             // Issue #690 — enforces post-login MFA verify when the session
             // carries the `pending_mfa` flag. No-op for users without MFA
             // and for users who have already verified this session.

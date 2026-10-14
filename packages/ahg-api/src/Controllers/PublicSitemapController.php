@@ -188,6 +188,10 @@ class PublicSitemapController extends Controller
             '/scan',
             '/requesttopublish',
             '/storage',
+            // H05: print views and exports duplicate the browse and record pages.
+            '/*/print',
+            '/*/exportCsv',
+            '/*/export/',
         ];
 
         $lines = [];
