@@ -306,6 +306,10 @@ class RedactionRenderService
         if ($name === '' || $dir === '' || $dir === '.') {
             return [];
         }
+        // A C2PA-signed copy (scan.c2pa.jpg) or sidecar (scan.jpg.c2pa.json) sits
+        // next to its original and carries the same pixels or metadata, so it is
+        // judged as the original.
+        $name = preg_replace(['/\.c2pa\.json$/', '/\.c2pa(\.[^.\/]+)$/'], ['', '$1'], $name);
 
         $rows = DB::table('digital_object')
             ->where('name', $name)

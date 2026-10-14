@@ -105,6 +105,9 @@ class DraftRecordFileGateTest extends TestCase
 
         $this->gate('consent.jpg')->assertForbidden();
         $this->gate('consent_141.jpg')->assertForbidden();
+        // Signed copies and sidecars written next to the original follow it.
+        $this->gate('consent.c2pa.jpg')->assertForbidden();
+        $this->gate('consent.jpg.c2pa.json')->assertForbidden();
     }
 
     public function test_published_shared_and_unlinked_files_stay_public(): void
@@ -114,6 +117,7 @@ class DraftRecordFileGateTest extends TestCase
         $this->file($this->record(160), 'shared.jpg');
 
         $this->gate('public.jpg')->assertNoContent();
+        $this->gate('public.c2pa.jpg')->assertNoContent();
         $this->gate('shared.jpg')->assertNoContent();
         $this->gate('not-a-record-file.png')->assertNoContent();
     }
