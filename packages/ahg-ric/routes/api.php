@@ -160,7 +160,8 @@ Route::prefix('api/ric/v1')->middleware([
     Route::get('/places/flat', [LinkedDataApiController::class, 'placesFlat']);
 
     // ------------------------------------------------------------
-    // API-2 write surface - gated by api.auth:write
+    // API-2 write surface - gated by api.auth:write; every delete also needs
+    // the delete scope, as on every other Heratio API route (CH-000273).
     // ------------------------------------------------------------
     Route::middleware(['api.auth:write'])->group(function () {
         // Bulk import (CSV or JSON). See AhgRic\Http\Controllers\ImportController
@@ -174,37 +175,37 @@ Route::prefix('api/ric/v1')->middleware([
 
         Route::post('/relations', [LinkedDataApiController::class, 'createRelation']);
         Route::match(['patch', 'put'], '/relations/{id}', [LinkedDataApiController::class, 'updateRelation'])->where('id', '[0-9]+');
-        Route::delete('/relations/{id}', [LinkedDataApiController::class, 'deleteRelation'])->where('id', '[0-9]+');
+        Route::delete('/relations/{id}', [LinkedDataApiController::class, 'deleteRelation'])->where('id', '[0-9]+')->middleware('api.auth:delete');
 
         // Agents (rico:Agent / rico:Person / rico:CorporateBody / rico:Family)
         Route::post('/agents', [LinkedDataApiController::class, 'createAgent']);
         Route::match(['patch', 'put'], '/agents/{id}', [LinkedDataApiController::class, 'updateAgent'])->where('id', '[0-9]+');
-        Route::delete('/agents/{id}', [LinkedDataApiController::class, 'deleteAgent'])->where('id', '[0-9]+');
+        Route::delete('/agents/{id}', [LinkedDataApiController::class, 'deleteAgent'])->where('id', '[0-9]+')->middleware('api.auth:delete');
 
         // Records (rico:Record / rico:RecordSet - information_object)
         Route::post('/records', [LinkedDataApiController::class, 'createRecord']);
         Route::match(['patch', 'put'], '/records/{id}', [LinkedDataApiController::class, 'updateRecord'])->where('id', '[0-9]+');
-        Route::delete('/records/{id}', [LinkedDataApiController::class, 'deleteRecord'])->where('id', '[0-9]+');
+        Route::delete('/records/{id}', [LinkedDataApiController::class, 'deleteRecord'])->where('id', '[0-9]+')->middleware('api.auth:delete');
 
         // Repositories (ISDIAH - rico:CorporateBody with repository extension)
         Route::post('/repositories', [LinkedDataApiController::class, 'createRepository']);
         Route::match(['patch', 'put'], '/repositories/{id}', [LinkedDataApiController::class, 'updateRepository'])->where('id', '[0-9]+');
-        Route::delete('/repositories/{id}', [LinkedDataApiController::class, 'deleteRepository'])->where('id', '[0-9]+');
+        Route::delete('/repositories/{id}', [LinkedDataApiController::class, 'deleteRepository'])->where('id', '[0-9]+')->middleware('api.auth:delete');
 
         // Functions (ISDF - rico:Function)
         Route::post('/functions', [LinkedDataApiController::class, 'createFunction']);
         Route::match(['patch', 'put'], '/functions/{id}', [LinkedDataApiController::class, 'updateFunction'])->where('id', '[0-9]+');
-        Route::delete('/functions/{id}', [LinkedDataApiController::class, 'deleteFunctionEntity'])->where('id', '[0-9]+');
+        Route::delete('/functions/{id}', [LinkedDataApiController::class, 'deleteFunctionEntity'])->where('id', '[0-9]+')->middleware('api.auth:delete');
 
         // Generic delete-by-id (looks up class_name and dispatches) - useful
         // for UIs that hold only an id, not a type.
-        Route::delete('/entities/{id}', [LinkedDataApiController::class, 'deleteEntityById'])->where('id', '[0-9]+');
+        Route::delete('/entities/{id}', [LinkedDataApiController::class, 'deleteEntityById'])->where('id', '[0-9]+')->middleware('api.auth:delete');
 
         Route::post('/{type}', [LinkedDataApiController::class, 'createEntity'])->where('type', 'places|rules|activities|instantiations');
         Route::match(['patch', 'put'], '/{type}/{id}', [LinkedDataApiController::class, 'updateEntity'])
             ->where('type', 'places|rules|activities|instantiations')->where('id', '[0-9]+');
         Route::delete('/{type}/{id}', [LinkedDataApiController::class, 'deleteEntity'])
-            ->where('type', 'places|rules|activities|instantiations')->where('id', '[0-9]+');
+            ->where('type', 'places|rules|activities|instantiations')->where('id', '[0-9]+')->middleware('api.auth:delete');
     });
     
     // Health check

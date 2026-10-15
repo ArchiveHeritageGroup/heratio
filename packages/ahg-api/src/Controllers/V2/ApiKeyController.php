@@ -46,10 +46,19 @@ class ApiKeyController extends BaseApiController
             'expires_at' => 'nullable|date|after:now',
         ]);
 
+        // A new key can never hold a scope its creator does not have: a read-only
+        // key or session could otherwise mint a write/delete/batch key
+        // (GHSA-vg9h-jcc6-jvvv).
+        $scopes = $input['scopes'] ?? ['read'];
+        $beyond = array_values(array_diff($scopes, (array) $request->attributes->get('api_scopes', [])));
+        if ($beyond) {
+            return $this->error('Forbidden', 'A key cannot have scopes you do not have: '.implode(', ', $beyond).'.', 403);
+        }
+
         $key = $this->keyService->createKey(
             $userId,
             $input['name'],
-            $input['scopes'] ?? ['read'],
+            $scopes,
             $input['rate_limit'] ?? 1000,
             $input['expires_at'] ?? null,
         );
