@@ -84,7 +84,7 @@ The baseline itself is part of the demo data. Removing or changing anything on t
 - **"BEAUTIFUL IN BEAUFORT-WES (2006)"** uses a still from a commercial documentary and names a living poet. The still has no rights statement.
 - **"JPG Object"** (`jpg-object-1`) is a photograph of a page from a published book. The book's copyright status is not recorded.
 - **"Egyptian Boat"** (`egyptian-boat`) carries a 3D model licensed CC BY-NC 4.0. Non-commercial terms sit awkwardly with a demonstration that markets the software. On 15 Oct 2026 the OpenRiC demonstration switched to the AI-generated model. The boat's digital object (#905836) was unlinked: the row and file are kept, but the boat record no longer shows 3D on heratio.org.
-- **"Gilded dining suite (AI-generated 3D model)"** (#916172, `gilded-dining-suite-ai-generated-3d-model`, identifier OPENRIC-DEMO-3D-1) was created on 15 Oct 2026 for the OpenRiC demonstration. Its digital object is a copy of MUS-FURN-0002's master row and points at the same file, `/uploads/r/913847/side-chair-and-occasional-table-set-opt.glb`. Moving, replacing or deleting MUS-FURN-0002's file, including when its description is corrected, also breaks this record. Give it its own copy of the file before changing either.
+- **"Gilded dining suite (AI-generated 3D model)"** (#916172, `gilded-dining-suite-ai-generated-3d-model`, identifier OPENRIC-DEMO-3D-1) was created on 15 Oct 2026 for the OpenRiC demonstration. It first shared MUS-FURN-0002's model file. On 15 Oct 2026 it was given its own copy, byte-identical (SHA-256 `bad6792c...0a3f`), at `/uploads/r/916172/side-chair-and-occasional-table-set-opt.glb` (digital object #916173). The two records no longer depend on each other's files.
 
 ## Resolved
 
