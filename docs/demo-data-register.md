@@ -83,3 +83,9 @@ The baseline itself is part of the demo data. Removing or changing anything on t
 - **"Renaldo1 Venter"** is a published authority record that appears to name a real person. Keep it only with that person's agreement, or rename it.
 - **"BEAUTIFUL IN BEAUFORT-WES (2006)"** uses a still from a commercial documentary and names a living poet. The still has no rights statement.
 - **"JPG Object"** (`jpg-object-1`) is a photograph of a page from a published book. The book's copyright status is not recorded.
+- **"Side Chair and Occasional Table Set"** (MUS-FURN-0002, `side-chair-and-occasional-table-set`) describes the wrong object.
+  - The record describes one Edwardian walnut side chair and a small occasional table with a cane seat, about 1900, H 92 cm.
+  - Its 3D model (`side-chair-and-occasional-table-set-opt.glb`) shows something else: a gilded dining table set for a meal, with a flower centrepiece and six carved tub chairs.
+  - The model was generated from an AI-generated image, but the rights field says "Copyright, Heratio Demonstration Museum". The description should match the model and say it is AI-generated. Found 15 Oct 2026.
+- **"Royal Chair"** (exhibition furniture, `/uploads/exhibition-furniture/royal-chair-441c550f.glb`) was made from `adult-throne-chair-f2b1e9c0.png`, which looks like a product photograph from the web. Both files can be downloaded from heratio.org, and the chair is placed in exhibition space 1. Its source and licence are not recorded. Confirm the image's rights, or replace the model with one made from an image we own. Found 15 Oct 2026.
+- **"Egyptian Boat"** (`egyptian-boat`) carries a 3D model licensed CC BY-NC 4.0. Non-commercial terms sit awkwardly with a demonstration that markets the software. On 15 Oct 2026 Johan decided the OpenRiC demonstration will use the AI-generated model instead; the one-off script that does this unlinks the boat's model, so the boat record no longer shows 3D on heratio.org.
