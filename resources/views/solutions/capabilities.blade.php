@@ -21,6 +21,7 @@
     <span class="badge {{ $badge['preview'][0] }}">{{ $badge['preview'][1] }}</span> {{ __('in the code but partial, off by default or needing an outside service') }}, {{ $counts['preview'] ?? 0 }} &middot;
     <span class="badge {{ $badge['planned'][0] }}">{{ $badge['planned'][1] }}</span> {{ __('not working yet, tracked in an open issue') }}, {{ $counts['planned'] ?? 0 }}
   </p>
+  <p class="small text-muted mb-3">{{ __('Where a capability has an automated test, the Proof column links to it at this release. A test shows the capability is checked on every change; it is not an independent certification.') }}</p>
 @endsection
 
 @section('content')
@@ -48,6 +49,9 @@
                   <a href="{{ \App\Support\CapabilityMatrix::proofUrl($proof) }}">
                     @if($status === 'planned'){{ __('Issue') }}@elseif(str_contains($proof, '/help/article/') || str_contains($proof, 'github.com')){{ __('Documentation') }}@else{{ __('Live demo') }}@endif
                   </a>
+                  @if($test = \App\Support\CapabilityMatrix::testUrl($name))
+                    <br><a href="{{ $test }}" rel="noopener">{{ __('Automated test') }}</a>
+                  @endif
                 </td>
               </tr>
             @endforeach

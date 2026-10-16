@@ -163,6 +163,59 @@ class CapabilityMatrix
     }
 
     /** A proof link as an absolute URL. */
+    /**
+     * Released capabilities with an automated test that exercises them (HER-01,
+     * 16 Oct 2026): capability name => test file. Only tests whose methods cover
+     * the capability's main behaviour are listed; some cover part of it (e.g. the
+     * IIIF test covers audio and video canvases). Unlisted means no such test yet.
+     */
+    private const TESTS = [
+        'Multi-level description' => 'tests/Feature/InformationObjectCrudTest.php',
+        'Authority records' => 'tests/Feature/ActorCrudTest.php',
+        'Alternative description views' => 'tests/Feature/ModsEditTest.php',
+        'EAD import and export' => 'packages/ahg-metadata-export/tests/EadXmlImporterTest.php',
+        'Accessions and donors' => 'packages/ahg-accession-manage/tests/Feature/CaaisProfileTest.php',
+        'Storage locations' => 'packages/ahg-storage-manage/tests/Feature/StorageLocationTest.php',
+        'Records in Contexts' => 'packages/ahg-ric/tests/Feature/RicRoundTripTest.php',
+        'Archivematica' => 'packages/ahg-archivematica/tests/TransferServiceTest.php',
+        'Provenance' => 'tests/Feature/MuseumProvenanceDisplayTest.php',
+        'Linked data export' => 'packages/ahg-ric/tests/Unit/CrmSerializerTest.php',
+        'Archaeology' => 'tests/Feature/ArchaeologyMatrixTest.php',
+        'Indigenous cultural and intellectual property' => 'packages/ahg-icip/tests/Feature/LocalContextsHubServiceTest.php',
+        'MARC21' => 'packages/ahg-library/tests/Unit/Marc21DecoderServiceTest.php',
+        'Circulation' => 'packages/ahg-library/tests/Feature/CirculationDeskTest.php',
+        'Patron accounts' => 'packages/ahg-library/tests/Unit/LibraryPatronServiceTest.php',
+        'Acquisitions' => 'tests/Feature/Api/LibraryAcquisitionsApiTest.php',
+        'Serials' => 'packages/ahg-library/tests/Unit/LibrarySerialServiceTest.php',
+        'Interlibrary loan' => 'packages/ahg-library/tests/Feature/IllRequestTest.php',
+        'E-resources' => 'packages/ahg-library/tests/Feature/SushiServerTest.php',
+        'IIIF' => 'packages/ahg-iiif-collection/tests/Unit/IiifAvCanvasEmissionTest.php',
+        'Open APIs' => 'tests/Feature/Api/InformationObjectApiTest.php',
+        'Privacy and data protection' => 'packages/ahg-privacy/tests/Unit/PiiScanServiceTest.php',
+        'Content credentials' => 'packages/ahg-c2pa/tests/Unit/ManifestBuilderTest.php',
+        'Audit and versions' => 'packages/ahg-audit-trail/tests/Unit/AuditServiceTest.php',
+        'Controlled lists and custom fields' => 'packages/ahg-custom-fields/tests/Feature/CustomFieldsEndToEndTest.php',
+        'Housekeeping' => 'packages/ahg-dedupe/tests/Feature/RecordMergeTest.php',
+        'CSV and EAD import' => 'packages/ahg-data-migration/tests/Feature/ImportReplaceTest.php',
+    ];
+
+    /** GitHub link to the test covering a capability, pinned to the running release, or null. */
+    public static function testUrl(string $name): ?string
+    {
+        if (! isset(self::TESTS[$name])) {
+            return null;
+        }
+        $version = json_decode((string) @file_get_contents(base_path('version.json')), true)['version'] ?? '';
+
+        return 'https://github.com/ArchiveHeritageGroup/heratio/blob/'.($version !== '' ? 'v'.$version : 'main').'/'.self::TESTS[$name];
+    }
+
+    /** @return array<string, string> capability name => test file, for tests and audits. */
+    public static function tests(): array
+    {
+        return self::TESTS;
+    }
+
     public static function proofUrl(string $proof): string
     {
         return str_starts_with($proof, '/') ? url($proof) : $proof;
