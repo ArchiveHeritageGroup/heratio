@@ -81,7 +81,7 @@ The baseline itself is part of the demo data. Removing or changing anything on t
 
 ## Open questions
 
-- **"Renaldo1 Venter"** is a published authority record that appears to name a real person. Keep it only with that person's agreement, or rename it.
+None open as of 16 Oct 2026.
 
 ## Resolved
 
@@ -91,3 +91,4 @@ The baseline itself is part of the demo data. Removing or changing anything on t
 - **"JPG Object"** (`jpg-object-1`) showed a phone photograph of a page from a published book, with the camera details in its physical characteristics. On 16 Oct 2026 it was given a public-domain page of the Gutenberg Bible (Genesis, about 1455; Wikimedia Commons), with the licence recorded and the camera details removed.
 - **"Egyptian Boat"** (`egyptian-boat`) kept its record, which OpenRiC's demonstration relies on, but on 16 Oct 2026 its CC BY-NC 4.0 3D model was deleted: digital object #905836, its derivatives, its multi-angle renders and its folder. The two RiC instantiations that described the model were detached by OpenRiC's one-off script. No non-commercial material remains on the server.
 - **"Gilded dining suite (AI-generated 3D model)"** (#916172, `gilded-dining-suite-ai-generated-3d-model`, identifier OPENRIC-DEMO-3D-1) was created on 15 Oct 2026 for the OpenRiC demonstration. It first shared MUS-FURN-0002's model file. On 15 Oct 2026 it was given its own copy, byte-identical (SHA-256 `bad6792c...0a3f`), at `/uploads/r/916172/side-chair-and-occasional-table-set-opt.glb` (digital object #916173). The two records no longer depend on each other's files.
+- **"Renaldo1 Venter"** is not a demonstration record but the profile of a staff user account: Renaldo Venter works for The Archive and Heritage Group (confirmed by Dr Johan Pieterse, 16 Oct 2026). It is kept unchanged.
