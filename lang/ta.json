@@ -24496,5 +24496,10 @@
     "Heratio is open-source GLAM and archival management software. Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system. Free under the GNU AGPL-3.0 licence.": "ஹெரேஷியோ என்பது திறந்த மூல GLAM மற்றும் ஆவண மேலாண்மை மென்பொருள் ஆகும். ஆவணங்கள், அருங்காட்சியகங்கள், நூலகங்கள் மற்றும் காட்சித்தளங்களின் சேகரிப்புகளை ஒரு முறையில் விவரிக்கவும், பாதுகாக்கவும், வெளியிடவும். GNU AGPL-3.0 உரிமத்தின் கீழ் இலவசம்.",
     "Try the live demo": "நேரடி நிரூபணத்தை முயற்சி செய்யுங்கள்",
     "Free under the GNU AGPL-3.0": "GNU AGPL-3.0 உரிமத்தின் கீழ் இலவசம்",
-    "Browse the demo collections": "நிரூபண சேகரிப்புகளை உலாவுங்கள்"
+    "Browse the demo collections": "நிரூபண சேகரிப்புகளை உலாவுங்கள்",
+    "Manifests for records, collections, exhibitions and 3D models, shown in Mirador, Universal Viewer or OpenSeadragon. Deep-zoom tiles need a Cantaloupe image server.": "பதிவுகள், சேகரிப்புகள், காட்சிகள் மற்றும் 3D மாதிரிகளுக்கான மெனிபெஸ்டுகள், Mirador, Universal Viewer அல்லது OpenSeadragon-ல் காட்டப்படுகின்றன. ஆழ்-சுருக்கம் டைல்களுக்கு Cantaloupe பட சர்வர் தேவை.",
+    "Image tiles need a Cantaloupe image server.": "பட டைல்களுக்கு Cantaloupe பட சர்வர் தேவை.",
+    "Listings, auctions and checkout for reproductions and items.": "மீள் உருவாக்கங்கள் மற்றும் பொருட்களுக்கான பட்டியல்கள், ஏலங்கள் மற்றும் செக்அவுட்.",
+    "Map CSV or Excel exports from other systems in the browser and run the import.": "பிற அமைப்புகளிலிருந்து CSV அல்லது Excel ஏற்றுமதிகளை வலைப்பூவில் வரைபடமாக்கவும் மற்றும் இறக்குமதியை இயக்கவும்.",
+    "Single sign-on": "ஒற்றை சைன்-ஆன்"
 }

@@ -24326,5 +24326,8 @@
     "Heratio is open-source GLAM and archival management software. Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system. Free under the GNU AGPL-3.0 licence.": "Heratio เป็นซอฟต์แวร์จัดการจดหมายเหตุและ GLAM แบบโอเพนซอร์ส อธิบาย บำรุงรักษา และเผยแพร่คอลเลกชันของหอจดหมายเหตุ พิพิธภัณฑ์ ห้องสมุด และแกลเลอรีในระบบเดียว ฟรีภายใต้ใบอนุญาต GNU AGPL-3.0",
     "Try the live demo": "ทดลองใช้สาธิตสด",
     "Free under the GNU AGPL-3.0": "ฟรีภายใต้ใบอนุญาต GNU AGPL-3.0",
-    "Browse the demo collections": "เรียกดูคอลเลกชันสาธิต"
+    "Browse the demo collections": "เรียกดูคอลเลกชันสาธิต",
+    "Deep zoom and IIIF": "การซูมลึกและ IIIF",
+    "Deep-zoom viewing, IIIF manifests and curated collections, and a compare view. Image tiles need a Cantaloupe image server.": "การแสดงผลแบบซูมลึก มานิเฟสต์ IIIF และคอลเลกชันที่คัดสรรแล้ว รวมถึงมุมมองเปรียบเทียบ ไทล์ภาพต้องการเซิร์ฟเวอร์ภาพ Cantaloupe",
+    "Change a field, add a subject or a place, and save. Every change is recorded in the audit trail.": "แก้ไขฟิลด์ เพิ่มหัวเรื่องหรือสถานที่ แล้วบันทึก ทุกการเปลี่ยนแปลงจะถูกบันทึกไว้ในบันทึกการตรวจสอบ"
 }

@@ -24397,5 +24397,8 @@
     "Heratio is open-source GLAM and archival management software. Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system. Free under the GNU AGPL-3.0 licence.": "Heratio е со отворен код GLAM и архивска управувачка програма. Опишете, зачувајте и објавувајте ги колекциите на архиви, музеи, библиотеки и галерии во еден систем. Бесплатно под лиценцата GNU AGPL-3.0.",
     "Try the live demo": "Испробајте ја живо демо верзијата",
     "Free under the GNU AGPL-3.0": "Бесплатно под лиценцата GNU AGPL-3.0",
-    "Browse the demo collections": "Разгледајте ги демо колекциите"
+    "Browse the demo collections": "Разгледајте ги демо колекциите",
+    "Object and container labels with barcodes, printed in batches.": "Етикети за објекти и контејнери со баркодови, печатени во сериски.",
+    "Requests from data subjects, impact assessments, a processing register, scanning for personal data and redaction. The rules for each jurisdiction are pluggable modules.": "Барања од субјекти на податоци, проценки на влијанието, регистар на обработка, скенирање за лични податоци и цензурирање. Правилата за секоја јурисдикција се модули кои можат да се приклучат.",
+    "A visit counts once a page has been open in a real browser for five seconds, so crawlers are left out. No IP address, cookie or personal detail is stored.": "Посетата се брои еднаш кога страницата била отворена во вистински прелистувач пет секунди, па краулерите се исклучени. Не се чува IP адреса, колачиња или лични детали."
 }

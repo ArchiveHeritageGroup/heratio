@@ -24379,5 +24379,7 @@
     "Heratio is open-source GLAM and archival management software. Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system. Free under the GNU AGPL-3.0 licence.": "هراتیو نرم‌افزار مدیریت بایگانی و GLAM متن‌باز است. توصیف، حفظ و انتشار مجموعه‌های بایگان‌ها، موزه‌ها، کتابخانه‌ها و گالری‌ها را در یک سیستم انجام دهید. رایگان تحت مجوز GNU AGPL-3.0.",
     "Try the live demo": "نمایش زنده را امتحان کنید",
     "Free under the GNU AGPL-3.0": "رایگان تحت مجوز GNU AGPL-3.0",
-    "Browse the demo collections": "مرور مجموعه‌های نمایشی"
+    "Browse the demo collections": "مرور مجموعه‌های نمایشی",
+    "Send material to Archivematica and bring the DIP back. Needs your Archivematica server.": "ارسال مواد به Archivematica و بازگرداندن DIP. نیاز به سرور Archivematica شما دارد.",
+    "Mint DOIs one at a time or in batches and keep them in step with your records.": "ساخت DOIs یکی یکی یا به صورت دسته‌ای و هماهنگ نگه داشتن آن‌ها با رکوردهای شما."
 }

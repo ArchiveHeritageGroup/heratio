@@ -24450,5 +24450,14 @@
     "Heratio is open-source GLAM and archival management software. Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system. Free under the GNU AGPL-3.0 licence.": "Heratio اوپن سورس GLAM اور آرکائیوز مینجمنٹ سافٹ ویئر ہے۔ ایک ہی سسٹم میں آرکائیوز، میوزیم، لائبریریوں اور گیلریوں کے مجموعوں کی وضاحت، تحفظ اور اشاعت کریں۔ GNU AGPL-3.0 لائسنس کے تحت مفت۔",
     "Try the live demo": "لائیو ڈیمو آزما کریں",
     "Free under the GNU AGPL-3.0": "GNU AGPL-3.0 کے تحت مفت",
-    "Browse the demo collections": "ڈیمو مجموعوں کا جائزہ لیں"
+    "Browse the demo collections": "ڈیمو مجموعوں کا جائزہ لیں",
+    "One traversable diagram of the whole platform - acquire, ingest, describe, preserve, search, display, exhibit, AI, and interoperate. Pan, zoom, and drill into any stage.": "پوری پلیٹ فارم کا ایک قابلِ عبور ڈایاگرام - حصول، انجیسٹ، وضاحت، تحفظ، تلاش، نمائش، نمائش، مصنوعی ذہانت، اور آپس میں تعامل۔ کسی بھی مرحلے پر پین، زوم کریں، اور گہرائی میں جائیں۔",
+    "CQL Query string": "CQL کوئری سٹرنگ",
+    "Run the scheduler via cron to execute due workflows:": "کرون کے ذریعے شیڈیولر چلائیں تاکہ واجب الادا ورک فلوز کو عمل میں لایا جا سکے:",
+    "Interlibrary loan": "انٹر لائبریری لون",
+    "Keyword, advanced and autocomplete search across every kind of record.": "ہر قسم کے ریکارڈ پر کلیدی الفاظ، جدید اور آٹو کمپلیٹ تلاش۔",
+    "Persistent identifiers": "پائیدار شناخت کنندگان",
+    "Requests from data subjects, impact assessments, a processing register, scanning for personal data and redaction. The rules for each jurisdiction are pluggable modules.": "ڈیٹا کے ذمہ داروں کی درخواستیں، اثرات کا جائزہ، پروسیسنگ رجسٹر، ذاتی ڈیٹا کی تلاش اور سرخ کرنا۔ ہر جغرافیائی علاقے کے قواعد پلگ ایبل ماڈیولز ہیں۔",
+    "Needs DataCite credentials.": "DataCite کی تصدیقی معلومات درکار ہیں۔",
+    "Public catalogue (OPAC)": "عوامی کیٹلاگ (OPAC)"
 }

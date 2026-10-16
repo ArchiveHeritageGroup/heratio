@@ -24144,5 +24144,6 @@
     "Where demo-site visitors come from, and how far they get.": "데모 사이트 방문자의 출처 및 진행 정도.",
     "Try the live demo": "라이브 데모 체험하기",
     "Free under the GNU AGPL-3.0": "GNU AGPL-3.0에 따라 무료",
-    "Browse the demo collections": "데모 컬렉션 둘러보기"
+    "Browse the demo collections": "데모 컬렉션 둘러보기",
+    "A public read API, an authenticated API with full create and update, harvesting and change notification.": "공개 읽기 API, 전체 생성 및 업데이트, 하베스팅 및 변경 알림이 가능한 인증된 API."
 }

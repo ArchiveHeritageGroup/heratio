@@ -24301,5 +24301,6 @@
     "Heratio is open-source GLAM and archival management software. Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system. Free under the GNU AGPL-3.0 licence.": "A Heratio nyílt forráskódú GLAM- és levéltári kezelő szoftver. Írja le, őrizze meg és tegye közzé a levéltárak, múzeumok, könyvtárak és galériák gyűjteményeit egyetlen rendszerben. Ingyenes a GNU AGPL-3.0 licenc alapján.",
     "Try the live demo": "Próbálja ki az élő demót",
     "Free under the GNU AGPL-3.0": "Ingyenes a GNU AGPL-3.0 licenc alapján",
-    "Browse the demo collections": "Böngéssze a demo gyűjteményeket"
+    "Browse the demo collections": "Böngéssze a demo gyűjteményeket",
+    "Group manifestations into works, with overrides when the grouping is wrong.": "Csoportosítsa a megnyilvánulásokat művekbe, és tegyen felülírásokat, ha a csoportosítás hibás."
 }

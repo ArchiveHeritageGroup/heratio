@@ -8,6 +8,10 @@
 # Each night resumes where the last stopped (filled strings are skipped), and
 # the run stops at 06:00 so the GPU node is free in working hours.
 #
+# eDerma's card reading (qwen2.5vl:7b) has priority on the GPU (Johan, 16 Oct
+# 2026): before each batch the fill waits while that model is loaded, and it
+# pauses 10 s after each batch so a queued eDerma call gets the card first.
+#
 # Afrikaans is not here: the LLM must not seed it (heratio#1410); it is filled
 # by ahg:translation-mt-batch af through the gateway's translation model.
 #
@@ -24,5 +28,5 @@ LOCALES="$LOCALES,ve,nr,nd,sn,kj,umb,khi,am"
 
 LOG="storage/logs/i18n-overnight-$(date +%Y-%m-%d).log"
 echo "$(date '+%F %T') start" >> "$LOG"
-php artisan ahg:translation-llm-fill "$LOCALES" --until="${I18N_UNTIL:-06:00}" >> "$LOG" 2>&1
+php artisan ahg:translation-llm-fill "$LOCALES" --until="${I18N_UNTIL:-06:00}" --pause=10 --yield-to=qwen2.5vl:7b >> "$LOG" 2>&1
 echo "$(date '+%F %T') end rc=$?" >> "$LOG"

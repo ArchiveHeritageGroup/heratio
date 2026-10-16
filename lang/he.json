@@ -24320,5 +24320,10 @@
     "Heratio is open-source GLAM and archival management software. Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system. Free under the GNU AGPL-3.0 licence.": "Heratio היא תוכנה קוד פתוח לניהול ארכיונים, מוזיאונים, ספריות וגלריות. תארו, שמרו ופרסמו אוספים של ארכיונים, מוזיאונים, ספריות וגלריות במערכת אחת. חינם תחת רישיון GNU AGPL-3.0.",
     "Try the live demo": "נסו את הדגמה חיה",
     "Free under the GNU AGPL-3.0": "חינם תחת רישיון GNU AGPL-3.0",
-    "Browse the demo collections": "דפדפו באוספי ההדגמה"
+    "Browse the demo collections": "דפדפו באוספי ההדגמה",
+    "Describe from fonds down to item, with the hierarchy kept as you arrange and rearrange.": "תיאור מהרמה של קרן ועד לרמת הפריט, תוך שמירה על היררכיה בעת סידור וארגון מחדש.",
+    "Generate a finding aid for a collection as EAD or PDF.": "יצירת מדריך איתור לאוסף כ-EAD או PDF.",
+    "Heratio catalogues museum and gallery collections to CCO, then carries each object through the work that happens around it: condition checks, loans, provenance research, exhibitions and accounting for the collection as an asset.": "Heratio מקטלג אוספים של מוזיאונים וגלריות לפי CCO, ואז מלווה כל אובייקט דרך העבודות המתרחשות סביבו: בדיקות מצב, הלוואות, מחקר מקור, תערוכות וחשבונאות עבור האוסף כנכס.",
+    "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Group to host it for you.": "Heratio חינם תחת רישיון AGPL-3.0. התקינו אותו בעצמכם, או בקשו מהקבוצה לארכיונים ומורשת להאחז אותו עבורכם.",
+    "Hosting by The Archive and Heritage Group": "אחסון על ידי הקבוצה לארכיונים ומורשת"
 }

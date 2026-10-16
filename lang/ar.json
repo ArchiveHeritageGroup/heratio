@@ -24491,5 +24491,7 @@
     "Heratio is open-source GLAM and archival management software. Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system. Free under the GNU AGPL-3.0 licence.": "Heratio هو برنامج إدارة مفتوح المصدر للمؤسسات الثقافية والأرشيفية (GLAM). صف، احفظ، ونشر مجموعات الأرشيفات والمتاحف والمكتبات والمعارض في نظام واحد. مجاني بموجب رخصة GNU AGPL-3.0.",
     "Try the live demo": "جرّب العرض التوضيحي المباشر",
     "Free under the GNU AGPL-3.0": "مجاني بموجب رخصة GNU AGPL-3.0",
-    "Browse the demo collections": "تصفح مجموعات العرض التوضيحي"
+    "Browse the demo collections": "تصفح مجموعات العرض التوضيحي",
+    "Assets with IPTC metadata, bulk creation and reports.": "الأصول ذات بيانات IPTC الوصفية، وإنشاء التقارير والعمليات الجماعية.",
+    "Single sign-on (OIDC, SAML or LDAP) is not provided yet. Users sign in with their AtoM usernames and passwords.": "التسجيل الأحادي (OIDC أو SAML أو LDAP) غير متاح بعد. يقوم المستخدمون بتسجيل الدخول باستخدام أسماء المستخدمين وكلمات المرور الخاصة بـ AtoM."
 }

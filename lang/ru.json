@@ -24387,5 +24387,6 @@
     "Heratio is open-source GLAM and archival management software. Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system. Free under the GNU AGPL-3.0 licence.": "Heratio - это программное обеспечение с открытым исходным кодом для управления GLAM и архивными материалами. Описывайте, сохраняйте и публикуйте коллекции архивов, музеев, библиотек и галерей в одной системе. Бесплатно по лицензии GNU AGPL-3.0.",
     "Try the live demo": "Попробовать живую демонстрацию",
     "Free under the GNU AGPL-3.0": "Бесплатно по лицензии GNU AGPL-3.0",
-    "Browse the demo collections": "Просмотреть демо-коллекции"
+    "Browse the demo collections": "Просмотреть демо-коллекции",
+    "A public read API, an authenticated API with full create and update, harvesting and change notification.": "Публичный API для чтения, аутентифицированный API с полным доступом на создание и обновление, сбор данных и уведомление об изменениях."
 }

@@ -56,11 +56,20 @@ class TranslationLlmFillCommand extends Command
         {--batch=40 : Strings per model call}
         {--limit=0 : Stop a locale after this many accepted strings (0 = all)}
         {--until= : Stop the whole run at this time on the host clock, HH:MM (an overnight window may cross midnight)}
+        {--pause=0 : Seconds to wait after each batch, so a call for another model queued meanwhile gets the GPU first}
+        {--yield-to= : Comma-separated gateway models with priority on the GPU: before each batch, wait while any of them is loaded or was seen loaded within --yield-grace seconds}
+        {--yield-grace=180 : Seconds a priority model counts as active after it was last seen loaded}
         {--dry-run : Count what would be translated; call nothing, write nothing}';
 
     protected $description = 'Fill missing UI strings for one or more locales through the AI gateway LLM route, with placeholder and script checks';
 
     private const URL = 'https://ai.theahg.co.za/ai/v1/ollama/api/chat';
+
+    /** Loaded models on the node behind the gateway (Ollama /api/ps). */
+    private const PS_URL = 'https://ai.theahg.co.za/ai/v1/ollama/api/ps';
+
+    /** Seconds between /api/ps checks while a priority model holds the GPU. */
+    private const YIELD_CHECK = 30;
 
     /** Locale prefix => regex for a character of its script. Latin-script locales are absent. */
     private const SCRIPTS = [
@@ -97,6 +106,9 @@ class TranslationLlmFillCommand extends Command
 
     private bool $stopRun = false;
 
+    /** When a --yield-to model was last seen loaded (unix time). */
+    private ?int $prioritySeenAt = null;
+
     public function handle(): int
     {
         if ($until = $this->option('until')) {
@@ -107,8 +119,7 @@ class TranslationLlmFillCommand extends Command
             }
             // The host's local time (cron and the operator's clock), not the
             // application timezone, which may be UTC: 06:00 means 06:00 here.
-            $tz = getenv('TZ') ?: (trim((string) @file_get_contents('/etc/timezone')) ?: config('app.timezone'));
-            $local = now($tz);
+            $local = now($this->hostTz());
             $t = $local->copy()->setTime((int) $m[1], (int) $m[2]);
             $this->deadline = ($t->lessThanOrEqualTo($local) ? $t->addDay() : $t)->getTimestamp();
         }
@@ -131,6 +142,12 @@ class TranslationLlmFillCommand extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    /** The host's timezone (cron and the operator's clock), not the application's, which may be UTC. */
+    private function hostTz(): string
+    {
+        return getenv('TZ') ?: (trim((string) @file_get_contents('/etc/timezone')) ?: config('app.timezone'));
     }
 
     private function fillLocale(string $locale, array $source): void
@@ -161,7 +178,11 @@ class TranslationLlmFillCommand extends Command
         $ok = $rejected = $batches = $untried = 0;
         $newSame = [];
         $newRejected = [];
-        foreach (array_chunk($todo, max(1, (int) $this->option('batch'))) as $chunk) {
+        foreach (array_chunk($todo, max(1, (int) $this->option('batch'))) as $n => $chunk) {
+            if ($n > 0 && ($pause = (int) $this->option('pause')) > 0) {
+                sleep($pause);
+            }
+            $this->waitForPriorityModels();
             if ($this->pastDeadline() || $this->stopRun || ($limit && $ok >= $limit)) {
                 break;
             }
@@ -204,6 +225,53 @@ class TranslationLlmFillCommand extends Command
         $this->save($path, $target);
         $this->recordMeta($locale, $ok, $newSame, $newRejected);
         $this->info("{$locale}: {$ok} accepted, ".count($newSame)." same as English, {$rejected} rejected (kept English), {$untried} untried (gateway did not answer)");
+    }
+
+    /**
+     * Give the GPU to the --yield-to models (16 Oct 2026: eDerma's qwen2.5vl:7b has
+     * priority overnight). A 27B model kept busy back to back is never idle, so
+     * Ollama cannot load a second model beside it and the other caller's requests
+     * time out. Waits while a priority model is loaded, or was seen loaded within
+     * --yield-grace seconds (it can drop out of /api/ps between calls), until the
+     * stop time.
+     */
+    private function waitForPriorityModels(): void
+    {
+        $models = array_filter(array_map('trim', explode(',', (string) $this->option('yield-to'))));
+        if (! $models) {
+            return;
+        }
+        $grace = max(0, (int) $this->option('yield-grace'));
+        $waited = 0;
+        while (! $this->pastDeadline()) {
+            if ($this->priorityModelLoaded($models)) {
+                $this->prioritySeenAt = time();
+            }
+            if ($this->prioritySeenAt === null || time() - $this->prioritySeenAt >= $grace) {
+                break;
+            }
+            sleep(self::YIELD_CHECK);
+            $waited += self::YIELD_CHECK;
+        }
+        if ($waited > 0) {
+            $this->line(sprintf('  %s %s: waited %ds for %s', now($this->hostTz())->format('H:i'), $this->currentLocale, $waited, implode(', ', $models)));
+        }
+    }
+
+    /**
+     * ponytail: an unreadable /api/ps counts as "not loaded" so a gateway hiccup
+     * cannot stall the night; the batch call's own retries cover a real outage.
+     */
+    private function priorityModelLoaded(array $models): bool
+    {
+        try {
+            $resp = Http::withToken((string) $this->gatewayKey())->timeout(20)->get(self::PS_URL);
+        } catch (\Throwable) {
+            return false;
+        }
+        $loaded = array_column((array) ($resp->successful() ? $resp->json('models') : []), 'name');
+
+        return (bool) array_intersect($models, $loaded);
     }
 
     /** @return array<string, string>|null null when the gateway did not answer */

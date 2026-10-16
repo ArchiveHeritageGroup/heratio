@@ -24032,5 +24032,9 @@
     "Where demo-site visitors come from, and how far they get.": "Одакле долазе посетиоци демо-сајта и колико далеко стижу.",
     "Try the live demo": "Испробајте живу демонстрацију",
     "Free under the GNU AGPL-3.0": "Бесплатно под лиценцом GNU AGPL-3.0",
-    "Browse the demo collections": "Прегледајте демо збирке"
+    "Browse the demo collections": "Прегледајте демо збирке",
+    "Staff request artworks, check availability, track placements and turn a request into a loan.": "Особље подноси захтеве за уметничка дела, проверава доступност, прати распоред и претвара захтев у позајмљивање.",
+    "Needs a vector database and an embedding model.": "Потребна је векторска база података и модел уграђивања.",
+    "Single sign-on": "Јединствено пријављивање",
+    "Heratio is open-source GLAM and archival management software. Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system. Free under the GNU AGPL-3.0 licence.": "Heratio је софтвер отвореног кода за управљање GLAM и архивским фондовима. Описујте, чувајте и објављујте збирке архива, музеја, библиотека и галерија у једном систему. Бесплатан је под лиценцом GNU AGPL-3.0."
 }
