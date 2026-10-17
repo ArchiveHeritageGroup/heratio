@@ -24501,5 +24501,10 @@
     "Image tiles need a Cantaloupe image server.": "பட டைல்களுக்கு Cantaloupe பட சர்வர் தேவை.",
     "Listings, auctions and checkout for reproductions and items.": "மீள் உருவாக்கங்கள் மற்றும் பொருட்களுக்கான பட்டியல்கள், ஏலங்கள் மற்றும் செக்அவுட்.",
     "Map CSV or Excel exports from other systems in the browser and run the import.": "பிற அமைப்புகளிலிருந்து CSV அல்லது Excel ஏற்றுமதிகளை வலைப்பூவில் வரைபடமாக்கவும் மற்றும் இறக்குமதியை இயக்கவும்.",
-    "Single sign-on": "ஒற்றை சைன்-ஆன்"
+    "Single sign-on": "ஒற்றை சைன்-ஆன்",
+    "Describe from fonds down to item, with the hierarchy kept as you arrange and rearrange.": "வளம் முதல் பொருள் வரை விவரிக்கவும், நீங்கள் அமைக்கும் போது மற்றும் மறுஅமைக்கும் போது படிநிலை கடைபிடிக்கப்படும்.",
+    "Edit every dropdown, and add your own fields to any form, carried through to exports.": "ஒவ்வொரு திரட்டும் பெட்டியையும் தொகுக்கவும், ஏற்றுமதிகளுக்கு எடுத்துச் செல்லப்படும் வகையில் எந்தவொரு படிவத்திற்கும் உங்கள் சொந்த புலங்களைச் சேர்க்கவும்.",
+    "Generate a finding aid for a collection as EAD or PDF.": "EAD அல்லது PDF ஆக ஒரு சேகரிப்பிற்கான கண்டுபிடிப்பு உதவியை உருவாக்கவும்.",
+    "Sites, contexts and finds, with a stratigraphic Harris matrix you can export.": "தளங்கள், சூழல்கள் மற்றும் கண்டுபிடிப்புகள், ஏற்றுமதி செய்யக்கூடிய ஒரு புவியியல் Harris அணி உடன்.",
+    "Needs a vector database and an embedding model.": "ஒரு வெக்டர் தரவுத்தளம் மற்றும் ஒரு பொதி மாதிரி தேவை."
 }

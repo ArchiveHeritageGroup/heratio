@@ -24329,5 +24329,7 @@
     "Browse the demo collections": "เรียกดูคอลเลกชันสาธิต",
     "Deep zoom and IIIF": "การซูมลึกและ IIIF",
     "Deep-zoom viewing, IIIF manifests and curated collections, and a compare view. Image tiles need a Cantaloupe image server.": "การแสดงผลแบบซูมลึก มานิเฟสต์ IIIF และคอลเลกชันที่คัดสรรแล้ว รวมถึงมุมมองเปรียบเทียบ ไทล์ภาพต้องการเซิร์ฟเวอร์ภาพ Cantaloupe",
-    "Change a field, add a subject or a place, and save. Every change is recorded in the audit trail.": "แก้ไขฟิลด์ เพิ่มหัวเรื่องหรือสถานที่ แล้วบันทึก ทุกการเปลี่ยนแปลงจะถูกบันทึกไว้ในบันทึกการตรวจสอบ"
+    "Change a field, add a subject or a place, and save. Every change is recorded in the audit trail.": "แก้ไขฟิลด์ เพิ่มหัวเรื่องหรือสถานที่ แล้วบันทึก ทุกการเปลี่ยนแปลงจะถูกบันทึกไว้ในบันทึกการตรวจสอบ",
+    "Descriptions, authority records, terms, repositories, accessions and their web addresses are read from the AtoM tables directly.": "คำอธิบาย บันทึกรายชื่อควบคุม คำศัพท์ คลังเก็บข้อมูล การรับเข้า และที่อยู่เว็บของหน่วยงานต่าง ๆ ถูกอ่านโดยตรงจากตารางฐานข้อมูล AtoM",
+    "Store objects in an OCFL repository layout.": "จัดเก็บวัตถุในรูปแบบโครงสร้างคลัง OCFL"
 }

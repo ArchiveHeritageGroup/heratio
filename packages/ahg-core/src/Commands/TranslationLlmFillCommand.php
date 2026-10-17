@@ -109,6 +109,9 @@ class TranslationLlmFillCommand extends Command
     /** When a --yield-to model was last seen loaded (unix time). */
     private ?int $prioritySeenAt = null;
 
+    /** Last expires_at seen per priority model in /api/ps; a change means it served a request. */
+    private array $priorityExpiry = [];
+
     public function handle(): int
     {
         if ($until = $this->option('until')) {
@@ -229,11 +232,13 @@ class TranslationLlmFillCommand extends Command
 
     /**
      * Give the GPU to the --yield-to models (16 Oct 2026: eDerma's qwen2.5vl:7b has
-     * priority overnight). A 27B model kept busy back to back is never idle, so
-     * Ollama cannot load a second model beside it and the other caller's requests
-     * time out. Waits while a priority model is loaded, or was seen loaded within
-     * --yield-grace seconds (it can drop out of /api/ps between calls), until the
-     * stop time.
+     * priority). A 27B model kept busy back to back is never idle, so Ollama cannot
+     * load a second model beside it and the other caller's requests time out.
+     * Waits while a priority model is in use, or was in use within --yield-grace
+     * seconds, until the stop time. "In use" means its expires_at moved since the
+     * last check: Ollama pushes it forward on every request. Merely loaded is not
+     * enough - an idle model kept loaded by keep_alive held the whole run on
+     * 16 Oct; Ollama unloads an idle model when the next one needs the memory.
      */
     private function waitForPriorityModels(): void
     {
@@ -244,7 +249,7 @@ class TranslationLlmFillCommand extends Command
         $grace = max(0, (int) $this->option('yield-grace'));
         $waited = 0;
         while (! $this->pastDeadline()) {
-            if ($this->priorityModelLoaded($models)) {
+            if ($this->priorityModelInUse($models)) {
                 $this->prioritySeenAt = time();
             }
             if ($this->prioritySeenAt === null || time() - $this->prioritySeenAt >= $grace) {
@@ -262,16 +267,33 @@ class TranslationLlmFillCommand extends Command
      * ponytail: an unreadable /api/ps counts as "not loaded" so a gateway hiccup
      * cannot stall the night; the batch call's own retries cover a real outage.
      */
-    private function priorityModelLoaded(array $models): bool
+    private function priorityModelInUse(array $models): bool
     {
         try {
             $resp = Http::withToken((string) $this->gatewayKey())->timeout(20)->get(self::PS_URL);
         } catch (\Throwable) {
             return false;
         }
-        $loaded = array_column((array) ($resp->successful() ? $resp->json('models') : []), 'name');
+        $inUse = false;
+        $seen = [];
+        foreach ((array) ($resp->successful() ? $resp->json('models') : []) as $m) {
+            $name = $m['name'] ?? '';
+            if (! in_array($name, $models, true)) {
+                continue;
+            }
+            $seen[$name] = true;
+            $expiry = (string) ($m['expires_at'] ?? '');
+            // First sight counts as in use, so a model that just loaded for a call gets
+            // one check interval; after that only a moved expiry keeps the wait going.
+            if (! array_key_exists($name, $this->priorityExpiry) || $this->priorityExpiry[$name] !== $expiry) {
+                $inUse = true;
+            }
+            $this->priorityExpiry[$name] = $expiry;
+        }
+        // A model that unloaded is forgotten, so its next load is seen as new use.
+        $this->priorityExpiry = array_intersect_key($this->priorityExpiry, $seen);
 
-        return (bool) array_intersect($models, $loaded);
+        return $inUse;
     }
 
     /** @return array<string, string>|null null when the gateway did not answer */

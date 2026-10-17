@@ -3707,7 +3707,7 @@
     "Deep-zoom (IIIF) images": "Swifaniso swa ku dzika swinene (IIIF)",
     "Default": "Ku nga ri na",
     "Default %1% upload limit (GB)": "Xilimito xa ku hlayisa %1% xa nkarhi wo sungula (GB)",
-    "Default %1% upload limit for a new %2%.  A value of &quot;0&quot; (zero) disables file upload.  A value of &quot;-1&quot; allows unlimited uploads": "Default %1% upload limit for a new %2%.  A value of &quot;0&quot; (zero) disables file upload.  A value of &quot;-1&quot; allows unlimited uploads",
+    "Default %1% upload limit for a new %2%.  A value of &quot;0&quot; (zero) disables file upload.  A value of &quot;-1&quot; allows unlimited uploads": "Xitsalo xa vutlhari bya %1% lexi nga ha yimbihi hi ku tlhela %2%. Nomboro wa &quot;0&quot; (zero) wu kuma file upload. Nomboro wa &quot;-1&quot; wu kuma uploads ya hinkwaswo",
     "Default AIP output path": "Ndlela leyi AIP yi humaka ha yona",
     "Default Alert Email": "E-mail Ya Xitsundzuxo Lexi Nga Riki Na Nchumu",
     "Default Algorithm": "Ku Hlawula Ti-Algorithm",
@@ -6436,7 +6436,7 @@
     "Items flagged at risk": "Swilo leswi nga ni mfungho wa khombo",
     "Items out": "Swilo leswi humesiweke",
     "Items per page": "Swiyenge hi tluka",
-    "Items per page can be a minimum of %1% and a maximum of %2%": "Items per page can be a minimum of %1% and a maximum of %2%",
+    "Items per page can be a minimum of %1% and a maximum of %2%": "Swihlawulekisi hi page swi nga va na minimum ya %1% na maximum ya %2%",
     "JPEG Quality": "Xiyenge xa le hansi",
     "JSON": "Xitirhisiwa xa JSON",
     "JSON Export": "Ku Tleketla Xitirhisiwa Xa JSON",
@@ -22601,5 +22601,10 @@
     "Heratio is open-source GLAM and archival management software. Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system. Free under the GNU AGPL-3.0 licence.": "Heratio i software ya GLAM na archival management leyi pfuriweke. Vona, hlayisa na ku phindha swihloko swa archives, museums, libraries na galleries eka xihloko xin'we. Mahala hi GNU AGPL-3.0 licence.",
     "Try the live demo": "Ringeta demo leyi tirhaka",
     "Free under the GNU AGPL-3.0": "Mahala hi GNU AGPL-3.0",
-    "Browse the demo collections": "Browse swihloko swa demo"
+    "Browse the demo collections": "Browse swihloko swa demo",
+    "Assign repository to :count objects": "Hlamusela repository ku ya ka :count swihlawulekisi",
+    "How the collection is spread across time.": "Ku hambana ka xiyimo xa nkarhi.",
+    "How to create a package:": "Ku endla package:",
+    "Set the base URL for your region.": "Hetisisa base URL ya region ya wena.",
+    "No templates.": "A ku na templates."
 }

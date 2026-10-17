@@ -244,6 +244,15 @@ class CheckMissedCronRunsCommand extends Command
                 ),
                 'eventType'    => 'alert',
                 'deadlineHint' => 'now',
+                // One CallHub call per outage, not per check (16-17 Oct 2026: 484 calls
+                // for one stalled job). The workbench files calls and bells by entityId
+                // (a UUID column, ON CONFLICT DO NOTHING), so every alert of the same
+                // outage - same command, same last successful finish - gets the same
+                // id, and a later, separate outage still opens a new call.
+                'entityId'     => \Ramsey\Uuid\Uuid::uuid5(
+                    \Ramsey\Uuid\Uuid::NAMESPACE_URL,
+                    'heratio:cron-missed:'.$command.':'.$expectedAt->copy()->subSeconds($gapSeconds)->format('Y-m-d H:i')
+                )->toString(),
             ];
 
             $filename = sprintf(

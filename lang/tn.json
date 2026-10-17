@@ -23883,5 +23883,7 @@
     "Heratio is open-source GLAM and archival management software. Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system. Free under the GNU AGPL-3.0 licence.": "Heratio ke software ya tsamaiso ya GLAM le diarchive e bulegileng. Tlhalosa, boloka le go phatlalatsa dikgobokanyo tsa diarchive, dimyuziamo, dibalaori le dipitiso mo tsamaisong e le nngwe. Mahala ka laisense ya GNU AGPL-3.0.",
     "Try the live demo": "Leka setshwantsho se phelang",
     "Free under the GNU AGPL-3.0": "Mahala ka laisense ya GNU AGPL-3.0",
-    "Browse the demo collections": "Batlisisa dikgobokanyo tsa setshwantsho"
+    "Browse the demo collections": "Batlisisa dikgobokanyo tsa setshwantsho",
+    "Migration: :from to :to": "Phetiso: :from go ya go :to",
+    "Data protection": "Sireletso ya data"
 }
