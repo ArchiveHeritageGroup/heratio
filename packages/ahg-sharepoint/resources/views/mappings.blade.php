@@ -7,7 +7,7 @@
     $standardsBySector = [
         'archive' => [['isadg','ISAD(G)'],['rad','RAD'],['dacs','DACS'],['dc','Dublin Core']],
         'library' => [['mods','MODS'],['dc','Dublin Core'],['isadg','ISAD(G)']],
-        'museum'  => [['spectrum','SPECTRUM'],['dc','Dublin Core']],
+        'museum'  => [['spectrum','Museum procedures'],['dc','Dublin Core']],
         'gallery' => [['cco','CCO'],['dc','Dublin Core']],
         'dam'     => [['dc','Dublin Core']],
     ];

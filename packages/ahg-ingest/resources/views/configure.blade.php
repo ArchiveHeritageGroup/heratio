@@ -94,7 +94,7 @@
                                     'rad' => ['label' => 'RAD', 'sectors' => 'archive'],
                                     'dacs' => ['label' => 'DACS', 'sectors' => 'archive'],
                                     'mods' => ['label' => 'MODS', 'sectors' => 'library'],
-                                    'spectrum' => ['label' => 'SPECTRUM', 'sectors' => 'museum'],
+                                    'spectrum' => ['label' => 'Museum procedures', 'sectors' => 'museum'],
                                     'cco' => ['label' => 'CCO', 'sectors' => 'gallery'],
                                 ] as $val => $info)
                                     <option value="{{ $val }}" data-sectors="{{ $info['sectors'] }}" @selected($standardVal === $val)>{{ $info['label'] }}</option>

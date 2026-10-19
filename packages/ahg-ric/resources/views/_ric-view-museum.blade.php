@@ -1,5 +1,10 @@
 {{--
-  RiC View: Museum object - record-resource context with creators and place of origin.
+  RiC View: Museum object - the same catalogue record expressed in RiC-CM terms:
+  the object as a Record Resource, its Production activity, custody, location,
+  rules and context. Field names follow MuseumService::getBySlug() (museum_metadata
+  joined to the information object); the earlier view read material,
+  date_created, place_of_origin and accession_number, which do not exist, so it
+  showed almost nothing (Oct 2026).
 
   @copyright  Johan Pieterse / Plain Sailing Information Systems
   @license    AGPL-3.0-or-later
@@ -24,6 +29,52 @@
           ->get();
   }
 
+  $v = fn (string $k) => trim((string) ($museum->{$k} ?? ''));
+  $join = fn (array $parts, string $sep = '; ') => implode($sep, array_filter(array_map('trim', $parts), fn ($p) => $p !== ''));
+  $dateRange = $join([$v('creation_date_earliest'), $v('creation_date_latest')], ' - ');
+  $date = $v('creation_date_display') !== '' ? $v('creation_date_display') : $dateRange;
+
+  // [RiC-O 1.0.2 property, plain label, value]; empty values are not shown. Every
+  // property name is checked against the ontology by RicMuseumViewTest.
+  $sections = [
+      [__('Record Resource'), 'fa-landmark', [
+          ['rico:title', __('Title'), $v('title')],
+          ['rico:identifier', __('Identifier'), $v('identifier')],
+          ['rico:hasOrHadCategory', __('Object type'), $join([$v('object_type'), $v('work_type')], ' / ')],
+          ['rico:hasOrHadCategory', __('Classification'), $join([$v('classification'), $v('object_class'), $v('object_category')])],
+          ['rico:scopeAndContent', __('Description'), $v('scope_and_content')],
+          ['rico:physicalCharacteristicsNote', __('Physical characteristics'), $join([$v('physical_characteristics'), $v('materials')])],
+          ['rico:hasProductionTechniqueType', __('Techniques'), $v('techniques')],
+          ['rico:hasExtent', __('Extent'), $join([$v('measurements'), $v('dimensions')])],
+      ]],
+      [__('Production (Activity)'), 'fa-hammer', [
+          ['rico:hasOrHadParticipant', __('Creator'), $join([$v('creator_identity'), $v('creator_role') !== '' ? '('.$v('creator_role').')' : ''], ' ')],
+          ['rico:hasCreator', __('Attribution'), $v('creator_attribution')],
+          ['rico:expressedDate', __('Date'), $date],
+          ['rico:hasOrHadLocation', __('Place of production'), $v('creation_place')],
+      ]],
+      [__('Custody and provenance'), 'fa-route', [
+          ['rico:history', __('Provenance'), $join([$v('provenance'), $v('provenance_text')], ' ')],
+          ['rico:hasOrHadHolder', __('Ownership history'), $v('ownership_history')],
+          ['rico:hasOrHadLocation', __('Current location'), $join([$v('current_location'), $v('current_location_repository'), $v('current_location_geography')], ', ')],
+      ]],
+      [__('Rules and condition'), 'fa-scale-balanced', [
+          ['rico:isOrWasRegulatedBy', __('Rights'), $join([$v('rights_type'), $v('rights_holder')], ' - ')],
+          ['rico:isOrWasRegulatedBy', __('Legal status'), $v('legal_status')],
+          ['rico:physicalCharacteristicsNote', __('Condition'), $join([$v('condition_term'), $v('condition_date'), $v('condition_notes')], ' - ')],
+      ]],
+      [__('Context'), 'fa-globe', [
+          ['rico:hasOrHadSubject', __('Style and period'), $join([$v('style'), $v('style_period'), $v('period')])],
+          ['rico:hasOrHadSubject', __('Cultural context'), $join([$v('cultural_context'), $v('cultural_group')])],
+          ['rico:hasOrHadSubject', __('Subjects'), $v('subject_display')],
+          ['rico:history', __('Historical context'), $v('historical_context')],
+      ]],
+      [__('Description activity'), 'fa-pen-to-square', [
+          ['rico:isOrWasDescribedBy', __('Catalogued by'), $join([$v('cataloger_name'), $v('cataloging_institution')], ', ')],
+          ['rico:expressedDate', __('Catalogued on'), $v('cataloging_date')],
+      ]],
+  ];
+
   $museumTitle = $museum->title ?? '[Untitled object]';
 @endphp
 
@@ -33,17 +84,24 @@
       <div><i class="fas fa-landmark me-2"></i><strong>{{ $museumTitle }}</strong></div>
       @include('ahg-ric::components.type-pill', ['type' => 'RecordResource', 'qualifier' => 'Museum object'])
     </div>
-    <div class="card-body">
-      <table class="table table-sm mb-0">
-        <tr><th class="text-muted" style="width:35%">{{ __('RiC Role') }}</th><td>{{ __('Cultural object / heritage asset') }}</td></tr>
-        @if(! empty($museum->object_type))<tr><th class="text-muted">{{ __('Object type') }}</th><td>{{ $museum->object_type }}</td></tr>@endif
-        @if(! empty($museum->material))<tr><th class="text-muted">{{ __('Material') }}</th><td>{{ $museum->material }}</td></tr>@endif
-        @if(! empty($museum->date_created))<tr><th class="text-muted">{{ __('Date created') }}</th><td>{{ $museum->date_created }}</td></tr>@endif
-        @if(! empty($museum->place_of_origin))<tr><th class="text-muted">{{ __('rico:hasOrigin') }}</th><td>{{ $museum->place_of_origin }}</td></tr>@endif
-        @if(! empty($museum->accession_number))<tr><th class="text-muted">{{ __('Accession number') }}</th><td><code>{{ $museum->accession_number }}</code></td></tr>@endif
-      </table>
-    </div>
   </div>
+
+  @foreach($sections as [$heading, $icon, $rows])
+    @php $rows = array_values(array_filter($rows, fn ($r) => $r[2] !== '')); @endphp
+    @if($rows)
+      <div class="card mb-3">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas {{ $icon }} me-1"></i> {{ $heading }}</div>
+        <table class="table table-sm mb-0">
+          @foreach($rows as [$property, $label, $value])
+            <tr>
+              <th class="text-muted" style="width:35%">{{ $label }}<br><code class="small fw-normal">{{ $property }}</code></th>
+              <td>{!! nl2br(e($value)) !!}</td>
+            </tr>
+          @endforeach
+        </table>
+      </div>
+    @endif
+  @endforeach
 
   @if($creators->count())
     <div class="card mb-3">

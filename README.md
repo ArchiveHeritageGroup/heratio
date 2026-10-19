@@ -20,7 +20,7 @@ Heratio is a pure Laravel 12 application designed and developed by **[The Archiv
 
 Heratio supports galleries, libraries, archives, and museums of any size, and universities managing special collections, institutional archives, and research data together. It is built for the international GLAM market: the core is jurisdiction-neutral, and country-specific compliance (for example GRAP 103, POPIA, GDPR, IPSAS) ships as pluggable per-market modules rather than baked into the core.
 
-Supported standards include ISAD(G), ISAAR(CPF), ISDIAH, Records in Contexts (RiC and RiC-O), and Dublin Core, with the OAIS / PREMIS / OCFL / BagIt preservation stack and IIIF deep-zoom image delivery. Museum collections management is Spectrum-capable, supporting the Spectrum 5.1 procedures.
+Supported standards include ISAD(G), ISAAR(CPF), ISDIAH, Records in Contexts (RiC and RiC-O), and Dublin Core, with the OAIS / PREMIS / OCFL / BagIt preservation stack and IIIF deep-zoom image delivery. Museum collections management supports the primary museum collections procedures defined by the UK Collections Trust.
 
 **RiC (Records in Contexts)** is a first-class capability within Heratio - not a hidden add-on. Every major entity page supports both a traditional archival view and a RiC contextual view over the same data, permissions, and identifiers.
 

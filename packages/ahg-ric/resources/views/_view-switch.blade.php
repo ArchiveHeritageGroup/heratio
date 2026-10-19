@@ -18,7 +18,9 @@
     $viewMode = $perRecord
         ? \AhgRic\Services\RicViewModeService::mode((string) $entityType, (int) $objectId)
         : session('ric_view_mode', config('ric.default_view', 'heratio'));
-    $flatLabel = $standard ?? 'Record';
+    // "Spectrum" is a Collections Trust trademark and may not appear in visible text,
+    // so museum, accession, loan and storage pages that pass it show "Museum".
+    $flatLabel = ($standard ?? null) === 'Spectrum' ? 'Museum' : ($standard ?? 'Record');
   @endphp
 
   <div class="ric-view-switch d-flex align-items-center gap-2 mb-3">
