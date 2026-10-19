@@ -58,7 +58,15 @@ class RicViewModeService
      */
     public static function mode(string $entityType, ?int $entityId): string
     {
-        if (! $entityId || $entityType === '' || ! self::available()) {
+        if (! $entityId || $entityType === '') {
+            return self::defaultMode();
+        }
+        // A visitor's own choice for this record, kept in their session only.
+        $own = session(self::sessionKey($entityType, $entityId));
+        if (in_array($own, self::MODES, true)) {
+            return $own;
+        }
+        if (! self::available()) {
             return self::defaultMode();
         }
 
@@ -72,6 +80,12 @@ class RicViewModeService
         }
 
         return in_array($stored, self::MODES, true) ? $stored : self::defaultMode();
+    }
+
+    /** Session key for one visitor's choice on one record. */
+    public static function sessionKey(string $entityType, int $entityId): string
+    {
+        return 'ric_view_mode_record.'.$entityType.'.'.$entityId;
     }
 
     /** Convenience predicate used by the show pages. */

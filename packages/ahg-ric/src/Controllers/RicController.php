@@ -133,7 +133,17 @@ class RicController extends Controller
 
         if (in_array($mode, ['heratio', 'ric'], true)) {
             if ($perRecord) {
-                \AhgRic\Services\RicViewModeService::set($entityType, $entityId, $mode);
+                // Only staff who may edit set a record's view for everyone. Anyone
+                // else - including anonymous visitors on the public demo, who could
+                // flip any record for every visitor (Oct 2026) - changes it for their
+                // own session only.
+                $user = auth()->user();
+                if ($user && \AhgCore\Services\AclService::check(null, 'update', $user)) {
+                    \AhgRic\Services\RicViewModeService::set($entityType, $entityId, $mode);
+                    session()->forget(\AhgRic\Services\RicViewModeService::sessionKey($entityType, $entityId));
+                } else {
+                    session([\AhgRic\Services\RicViewModeService::sessionKey($entityType, $entityId) => $mode]);
+                }
             } else {
                 session(['ric_view_mode' => $mode]);
             }

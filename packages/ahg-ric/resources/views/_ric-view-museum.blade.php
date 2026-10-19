@@ -30,6 +30,16 @@
   }
 
   $v = fn (string $k) => trim((string) ($museum->{$k} ?? ''));
+  $level = ! empty($museum->level_of_description_id)
+      ? (string) \Illuminate\Support\Facades\DB::table('term_i18n')->where('id', $museum->level_of_description_id)
+          ->whereIn('culture', [$culture, 'en'])->orderByRaw('culture = ? desc', [$culture])->value('name')
+      : '';
+  $master = isset($museum->id)
+      ? \Illuminate\Support\Facades\DB::table('digital_object')->where('object_id', $museum->id)->whereNull('parent_id')->first(['name', 'mime_type', 'byte_size'])
+      : null;
+  $instantiation = $master
+      ? trim($master->name.' ('.$master->mime_type.($master->byte_size ? ', '.number_format($master->byte_size / 1024, 1).' KB' : '').')')
+      : '';
   $join = fn (array $parts, string $sep = '; ') => implode($sep, array_filter(array_map('trim', $parts), fn ($p) => $p !== ''));
   $dateRange = $join([$v('creation_date_earliest'), $v('creation_date_latest')], ' - ');
   $date = $v('creation_date_display') !== '' ? $v('creation_date_display') : $dateRange;
@@ -41,11 +51,13 @@
           ['rico:title', __('Title'), $v('title')],
           ['rico:identifier', __('Identifier'), $v('identifier')],
           ['rico:hasOrHadCategory', __('Object type'), $join([$v('object_type'), $v('work_type')], ' / ')],
+          ['rico:hasDocumentaryFormType', __('Level of description'), $level],
           ['rico:hasOrHadCategory', __('Classification'), $join([$v('classification'), $v('object_class'), $v('object_category')])],
           ['rico:scopeAndContent', __('Description'), $v('scope_and_content')],
           ['rico:physicalCharacteristicsNote', __('Physical characteristics'), $join([$v('physical_characteristics'), $v('materials')])],
           ['rico:hasProductionTechniqueType', __('Techniques'), $v('techniques')],
           ['rico:hasExtent', __('Extent'), $join([$v('measurements'), $v('dimensions')])],
+          ['rico:hasOrHadInstantiation', __('Digital object'), $instantiation],
       ]],
       [__('Production (Activity)'), 'fa-hammer', [
           ['rico:hasOrHadParticipant', __('Creator'), $join([$v('creator_identity'), $v('creator_role') !== '' ? '('.$v('creator_role').')' : ''], ' ')],
@@ -72,6 +84,8 @@
       [__('Description activity'), 'fa-pen-to-square', [
           ['rico:isOrWasDescribedBy', __('Catalogued by'), $join([$v('cataloger_name'), $v('cataloging_institution')], ', ')],
           ['rico:expressedDate', __('Catalogued on'), $v('cataloging_date')],
+          ['rico:expressedDate', __('Record created'), $v('created_at')],
+          ['rico:hasModificationDate', __('Last updated'), $v('updated_at')],
       ]],
   ];
 

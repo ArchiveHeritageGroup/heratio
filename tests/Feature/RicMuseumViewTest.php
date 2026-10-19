@@ -36,6 +36,7 @@ class RicMuseumViewTest extends TestCase
         'expressedDate', 'hasCreator', 'hasExtent', 'hasOrHadCategory', 'hasOrHadHolder', 'hasOrHadLocation',
         'hasOrHadParticipant', 'hasOrHadSubject', 'hasProductionTechniqueType', 'history', 'identifier',
         'isOrWasDescribedBy', 'isOrWasRegulatedBy', 'physicalCharacteristicsNote', 'scopeAndContent', 'title',
+        'hasDocumentaryFormType', 'hasOrHadInstantiation', 'hasModificationDate',
         'hasCreator',
     ];
 
