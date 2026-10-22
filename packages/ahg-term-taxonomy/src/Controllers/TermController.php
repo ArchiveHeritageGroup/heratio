@@ -570,6 +570,7 @@ class TermController extends Controller
         $icon = $iconMap[$term->taxonomy_id] ?? 'fa-tag';
 
         return view('ahg-term-taxonomy::show', [
+            'facetPanels' => $this->termService->relatedFacets((int) $term->id, app()->getLocale()),
             'term' => $term,
             'taxonomyName' => $taxonomyName,
             'scopeNote' => $scopeNote,

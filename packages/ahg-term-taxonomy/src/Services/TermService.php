@@ -30,6 +30,73 @@ use Illuminate\Support\Str;
 
 class TermService
 {
+    /** Facet panels on the term page: taxonomy id => label, in display order. */
+    public const FACET_TAXONOMIES = [12 => 'Languages', 42 => 'Places', 35 => 'Subjects', 78 => 'Genres', 54 => 'Occupations'];
+
+    /**
+     * Top 10 co-occurring terms per facet taxonomy for descriptions tagged with
+     * $termId, as [taxonomy id => [{name, slug, cnt}, ...]].
+     *
+     * This used to be five uncached self-joins of object_term_relation run in the
+     * Blade view on every page view; a crawler paging /term/{slug}?sort=..&page=..
+     * kept MySQL at 480% CPU on the ANC host (22 Oct 2026). Now: one aggregation
+     * grouped by term id, names joined only for the winners, cached per term for
+     * ahg_display_count_cache_ttl seconds (0 = compute every time) - sort and
+     * paging parameters do not change it, so they no longer re-run it.
+     */
+    public function relatedFacets(int $termId, string $culture = 'en'): array
+    {
+        $compute = function () use ($termId, $culture): array {
+            $ids = array_keys(self::FACET_TAXONOMIES);
+            $counts = DB::table('object_term_relation as tagged')
+                ->join('object_term_relation as otr', 'otr.object_id', '=', 'tagged.object_id')
+                ->join('term as t', 't.id', '=', 'otr.term_id')
+                ->where('tagged.term_id', $termId)
+                ->whereIn('t.taxonomy_id', $ids)
+                ->groupBy('t.taxonomy_id', 'otr.term_id')
+                ->select('t.taxonomy_id', 'otr.term_id', DB::raw('COUNT(*) AS cnt'))
+                ->get();
+
+            $top = [];
+            foreach ($counts->groupBy('taxonomy_id') as $taxonomyId => $rows) {
+                $top[(int) $taxonomyId] = $rows->sortByDesc('cnt')->take(10)->values();
+            }
+            $termIds = collect($top)->flatten(1)->pluck('term_id')->all();
+            if ($termIds === []) {
+                return [];
+            }
+            $names = DB::table('term_i18n as ti')
+                ->join('slug as s', 's.object_id', '=', 'ti.id')
+                ->whereIn('ti.id', $termIds)
+                ->whereIn('ti.culture', array_unique([$culture, 'en']))
+                ->orderByRaw('ti.culture = ? desc', [$culture])
+                ->get(['ti.id', 'ti.name', 's.slug'])
+                ->unique('id')
+                ->keyBy('id');
+
+            $out = [];
+            foreach ($ids as $taxonomyId) {
+                foreach ($top[$taxonomyId] ?? [] as $row) {
+                    if ($n = $names->get($row->term_id)) {
+                        $out[$taxonomyId][] = (object) ['name' => $n->name, 'slug' => $n->slug, 'cnt' => (int) $row->cnt];
+                    }
+                }
+            }
+
+            return $out;
+        };
+
+        $ttl = \AhgCore\Services\AhgSettingsService::getInt('ahg_display_count_cache_ttl', 300);
+        if ($ttl <= 0) {
+            return $compute();
+        }
+        try {
+            return \Illuminate\Support\Facades\Cache::remember("term_facets:{$termId}:{$culture}", $ttl, $compute);
+        } catch (\Throwable $e) {
+            return $compute(); // cache store unavailable: correctness before speed
+        }
+    }
+
     /**
      * Scope note type_id in AtoM (term_id 122 = "Scope note" in note.type_id).
      */

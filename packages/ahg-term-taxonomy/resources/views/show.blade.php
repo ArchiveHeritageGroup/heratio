@@ -503,36 +503,12 @@
         </ul>
       @endif
 
-      {{-- Facet panels: aggregation of related descriptions by taxonomy --}}
-      @php
-        $facetTaxonomies = [
-            ['id' => 12, 'label' => 'Languages'],
-            ['id' => 42, 'label' => 'Places'],
-            ['id' => 35, 'label' => 'Subjects'],
-            ['id' => 78, 'label' => 'Genres'],
-            ['id' => 54, 'label' => 'Occupations'],
-        ];
-      @endphp
-      @foreach($facetTaxonomies as $facet)
-        @php
-          $facetTerms = \Illuminate\Support\Facades\DB::select("
-            SELECT ti.name, s.slug, COUNT(*) AS cnt
-            FROM object_term_relation otr
-            JOIN term t ON t.id = otr.term_id
-            JOIN term_i18n ti ON ti.id = t.id AND ti.culture = 'en'
-            JOIN taxonomy tx ON tx.id = t.taxonomy_id AND tx.id = ?
-            JOIN slug s ON s.object_id = t.id
-            JOIN object_term_relation otr2 ON otr2.object_id = otr.object_id
-            WHERE otr2.term_id = ?
-            GROUP BY ti.name, s.slug
-            ORDER BY cnt DESC
-            LIMIT 10
-          ", [$facet['id'], $term->id]);
-        @endphp
-        @if(!empty($facetTerms))
-          <h4 class="h5 mb-2">{{ $facet['label'] }}</h4>
+      {{-- Facet panels: co-occurring terms per taxonomy, cached in TermService::relatedFacets() --}}
+      @foreach(\AhgTermTaxonomy\Services\TermService::FACET_TAXONOMIES as $facetTaxonomyId => $facetLabel)
+        @if(!empty($facetPanels[$facetTaxonomyId] ?? []))
+          <h4 class="h5 mb-2">{{ __($facetLabel) }}</h4>
           <ul class="list-unstyled">
-            @foreach($facetTerms as $ft)
+            @foreach($facetPanels[$facetTaxonomyId] as $ft)
               <li><a href="{{ route('term.show', $ft->slug) }}">{{ $ft->name }}</a> <span class="text-muted">({{ $ft->cnt }})</span></li>
             @endforeach
           </ul>
