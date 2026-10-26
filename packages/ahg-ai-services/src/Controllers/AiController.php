@@ -509,6 +509,40 @@ class AiController extends Controller
     }
 
     /**
+     * AI > Relationship review: relationships between people or organisations
+     * proposed for records (heratio#1563), waiting for an archivist.
+     */
+    public function relationshipReview(Request $request)
+    {
+        $service = app(\AhgAiServices\Services\RelationshipProposalService::class);
+        $status = in_array($request->query('status'), $service::STATUSES, true) ? $request->query('status') : 'pending';
+
+        return view('ahg-ai-services::relationship-review', [
+            'rows' => $service->paginate($status),
+            'status' => $status,
+            'counts' => $service->counts(),
+            'statuses' => $service::STATUSES,
+        ]);
+    }
+
+    /**
+     * POST /admin/ai/relationship-review/{id} - approve or reject.
+     */
+    public function relationshipReviewDecision(Request $request, int $id)
+    {
+        $request->validate(['decision' => 'required|in:approve,reject', 'notes' => 'nullable|string|max:2000']);
+        try {
+            $message = app(\AhgAiServices\Services\RelationshipProposalService::class)->decide(
+                $id, $request->input('decision'), $request->input('notes'), (int) auth()->id()
+            );
+        } catch (\InvalidArgumentException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('success', $message);
+    }
+
+    /**
      * POST /admin/ai/suggest-review/{id} - approve (optionally edited) or reject.
      */
     public function suggestReviewDecision(Request $request, int $id)

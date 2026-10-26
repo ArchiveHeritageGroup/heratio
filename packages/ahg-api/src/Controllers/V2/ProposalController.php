@@ -46,7 +46,8 @@ use Illuminate\Support\Facades\Schema;
  *     fields     [{field, text, culture?, evidence?, sources?[]}] - a culture other than
  *                the record's is a translation; transcripts [{text, digital_object_id?,
  *                evidence?}] - the text of a file -> AI > Suggest review.
- *     relationships -> 501 until their review queue exists.
+ *     relationships [{subject_name, subject_actor_id?, relation, object_name, object_actor_id?,
+ *                date?, start_date?, end_date?, evidence?, sources?[]}] -> AI > Relationship review.
  *
  *   GET /api/v2/proposals?mine=1|0&status=&count=&start=
  *     The caller's proposals (mine=0: everyone's, administrators and editors
@@ -59,6 +60,9 @@ class ProposalController extends BaseApiController
     private const PLACES_TAXONOMY_ID = 42;
     private const AUTHORITY_FIELDS = ['dates_of_existence' => 255, 'history' => 8000, 'places' => 1000];
     private const LIST_MAX = 200;
+    private const RELATION_TYPE_TAXONOMY_ID = 55;
+    private const RELATION_TYPE_ROOT_ID = 110;
+    private const MAX_RELATIONSHIPS = 20;
     /** information_object_i18n fields a proposal may target. */
     private const FIELDS = ['title', 'scope_and_content', 'archival_history', 'extent_and_medium', 'arrangement', 'access_conditions', 'reproduction_conditions'];
 
@@ -83,10 +87,41 @@ class ProposalController extends BaseApiController
         if (! $entities && ! $fields && ! $transcripts && ! $relationships) {
             return $this->error('Bad Request', 'entities (a list of {type, value}), fields (a list of {field, text}), transcripts or relationships is required', 400);
         }
-        // ponytail: relationship proposals answer 501 until their review screen
-        // exists (heratio#1563).
-        if ($relationships) {
-            return $this->error('Not Implemented', 'Relationship proposals are not supported by this catalogue yet', 501);
+        if (count($relationships) > self::MAX_RELATIONSHIPS) {
+            return $this->error('Bad Request', 'At most '.self::MAX_RELATIONSHIPS.' relationships per request', 400);
+        }
+        $relRows = [];
+        foreach (array_values($relationships) as $i => $r) {
+            $r = is_array($r) ? $r : [];
+            $row = ['type_id' => self::relationType($r['relation'] ?? '')];
+            if (! $row['type_id']) {
+                return $this->error('Bad Request', "Relationship {$i}: relation must be an actor relation type such as \"is the spouse of\" or \"is the child of\" (see /api/v2/taxonomies/".self::RELATION_TYPE_TAXONOMY_ID.'/terms)', 400);
+            }
+            foreach (['subject', 'object'] as $side) {
+                $name = trim(preg_replace('/\s+/u', ' ', (string) ($r[$side.'_name'] ?? '')));
+                $actorId = (int) ($r[$side.'_actor_id'] ?? 0);
+                if ($actorId && ! self::actorOk($actorId)) {
+                    return $this->error('Bad Request', "Relationship {$i}: {$side}_actor_id is not an authority record", 400);
+                }
+                if ($name === '' && $actorId) {
+                    $name = (string) DB::table('actor_i18n')->where('id', $actorId)->orderByRaw("culture = 'en' DESC")->value('authorized_form_of_name');
+                }
+                if ($name === '' || mb_strlen($name) > 500) {
+                    return $this->error('Bad Request', "Relationship {$i}: {$side}_name (1-500 characters) or {$side}_actor_id is required", 400);
+                }
+                $row[$side.'_name'] = $name;
+                $row[$side.'_actor_id'] = $actorId ?: null;
+            }
+            $row += [
+                'date_text' => mb_substr(trim((string) ($r['date'] ?? '')), 0, 255) ?: null,
+                'start_date' => self::isoDate($r['start_date'] ?? ''), 'end_date' => self::isoDate($r['end_date'] ?? ''),
+                'evidence' => mb_substr(trim((string) ($r['evidence'] ?? '')), 0, 4000) ?: null,
+                'sources' => ($src = self::sources($r['sources'] ?? [])) ? json_encode($src) : null,
+            ];
+            $relRows[] = $row;
+        }
+        if ($relRows && ! Schema::hasTable('ahg_relationship_proposal')) {
+            return $this->error('Not Implemented', 'Relationship proposals need the ahg_relationship_proposal table (AI services install.sql)', 501);
         }
         if (count($fields) > 10) {
             return $this->error('Bad Request', 'At most 10 field proposals per request', 400);
@@ -220,6 +255,7 @@ class ProposalController extends BaseApiController
 
         $promoted = $newIds ? $this->promote($objectId, $newIds) : 0;
         [$fieldsQueued, $fieldsSkipped] = $fieldRows ? $this->queueFields($objectId, $fieldRows, $userId, $label) : [[], 0];
+        [$relQueued, $relSkipped] = $relRows ? $this->queueRelationships($objectId, $relRows, $userId, $label) : [[], 0];
 
         return $this->success([
             'slug' => $slug,
@@ -228,11 +264,51 @@ class ProposalController extends BaseApiController
             'promoted_for_resolution' => $promoted,
             'fields_queued' => $fieldsQueued,
             'fields_skipped_existing' => $fieldsSkipped,
-            'relationships' => [],
-            'relationships_skipped_existing' => 0,
+            'relationships' => $relQueued,
+            'relationships_skipped_existing' => $relSkipped,
+            'relationship_review_url' => url('/ai/relationship/review'),
             'review_url' => url('/ai/ner/review'),
             'description_review_url' => url('/ai/suggest/review'),
-        ], ($queued || $fieldsQueued) ? 201 : 200);
+        ], ($queued || $fieldsQueued || array_filter(array_column($relQueued, 'queued'))) ? 201 : 200);
+    }
+
+    /**
+     * Relationships go to AI > Relationship review. A side without an authority
+     * record must be a person or organisation proposed for this record (now or
+     * earlier): the archivist links that name first, then approves.
+     */
+    protected function queueRelationships(int $objectId, array $rows, int $userId, string $label): array
+    {
+        $queued = [];
+        $skipped = 0;
+        foreach ($rows as $row) {
+            foreach (['subject', 'object'] as $side) {
+                $row[$side.'_entity_id'] = $row[$side.'_actor_id'] ? null : DB::table('ahg_ner_entity')
+                    ->where('object_id', $objectId)->whereIn('entity_type', ['PERSON', 'ORG'])->where('status', '!=', 'rejected')
+                    ->whereRaw('LOWER(entity_value) = ?', [mb_strtolower($row[$side.'_name'])])->orderByDesc('id')->value('id');
+                if (! $row[$side.'_actor_id'] && ! $row[$side.'_entity_id']) {
+                    $queued[] = ['subject' => $row['subject_name'], 'object' => $row['object_name'], 'queued' => false,
+                        'error' => "\"{$row[$side.'_name']}\" is neither an authority record ({$side}_actor_id) nor a person or organisation proposed for this record: propose it as an entity too"];
+
+                    continue 2;
+                }
+            }
+            $dup = DB::table('ahg_relationship_proposal')->where('object_id', $objectId)->where('status', '!=', 'rejected')
+                ->where('type_id', $row['type_id'])->whereRaw('LOWER(subject_name) = ?', [mb_strtolower($row['subject_name'])])
+                ->whereRaw('LOWER(object_name) = ?', [mb_strtolower($row['object_name'])])->exists();
+            if ($dup) {
+                $skipped++;
+
+                continue;
+            }
+            DB::table('ahg_relationship_proposal')->insert($row + [
+                'object_id' => $objectId, 'status' => 'pending', 'proposed_via' => $label,
+                'created_by' => $userId ?: null, 'created_at' => now(),
+            ]);
+            $queued[] = ['subject' => $row['subject_name'], 'object' => $row['object_name'], 'queued' => true];
+        }
+
+        return [$queued, $skipped];
     }
 
     /**
@@ -406,6 +482,25 @@ class ProposalController extends BaseApiController
             }
         }
 
+        if (Schema::hasTable('ahg_relationship_proposal')) {
+            $q = DB::table('ahg_relationship_proposal as r')->leftJoin('term_i18n as ti', function ($j) {
+                $j->on('ti.id', '=', 'r.type_id')->where('ti.culture', $this->culture);
+            });
+            if ($mine) {
+                $q->where('r.created_by', $userId);
+            }
+            foreach ($q->orderByDesc('r.id')->limit(self::LIST_MAX * 5)->get(['r.id', 'r.object_id', 'r.subject_name', 'ti.name as relation',
+                'r.object_name', 'r.date_text', 'r.status', 'r.review_notes', 'r.created_by', 'r.reviewed_by', 'r.reviewed_at', 'r.created_at']) as $r) {
+                $items[] = [
+                    'kind' => 'relationship', 'id' => (int) $r->id, 'object_id' => (int) $r->object_id,
+                    'value' => trim($r->subject_name.' '.$r->relation.' '.$r->object_name.($r->date_text ? ' ('.$r->date_text.')' : '')),
+                    'status' => (string) $r->status, 'review_notes' => $r->review_notes,
+                    'proposed_by' => $r->created_by ? (int) $r->created_by : null,
+                    'reviewed_by' => $r->reviewed_by, 'reviewed_at' => $r->reviewed_at, 'proposed_at' => (string) $r->created_at,
+                ];
+            }
+        }
+
         if ($status !== '') {
             $items = array_values(array_filter($items, fn ($i) => $i['status'] === $status));
         }
@@ -429,6 +524,26 @@ class ProposalController extends BaseApiController
         unset($i);
 
         return $this->success(['total' => $total, 'count' => $count, 'start' => $start, 'results' => $items]);
+    }
+
+    /** A specific actor relation type ("is the spouse of"), by id or name; the four categories are refused. */
+    private static function relationType($relation): ?int
+    {
+        $q = DB::table('term as t')->where('t.taxonomy_id', self::RELATION_TYPE_TAXONOMY_ID)
+            ->where('t.parent_id', '!=', self::RELATION_TYPE_ROOT_ID);
+        if (is_int($relation) || ctype_digit((string) $relation)) {
+            return $q->where('t.id', (int) $relation)->value('t.id');
+        }
+
+        return $q->join('term_i18n as ti', 'ti.id', '=', 't.id')
+            ->whereRaw('LOWER(ti.name) = ?', [mb_strtolower(trim((string) $relation))])->value('t.id');
+    }
+
+    private static function isoDate($v): ?string
+    {
+        $v = trim((string) $v);
+
+        return preg_match('/^\d{4}-\d{2}-\d{2}$/', $v) && checkdate((int) substr($v, 5, 2), (int) substr($v, 8, 2), (int) substr($v, 0, 4)) ? $v : null;
     }
 
     /** At most ten http(s) URLs of up to 500 characters. */

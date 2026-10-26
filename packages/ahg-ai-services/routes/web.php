@@ -40,6 +40,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin/ai')->group(function () {
     Route::get('/review', [AiController::class, 'review'])->name('admin.ai.review');
     Route::get('/suggest-review', [AiController::class, 'suggestReview'])->name('admin.ai.suggest-review');
     Route::post('/suggest-review/{id}', [AiController::class, 'suggestReviewDecision'])->name('admin.ai.suggest-review.decision')->whereNumber('id');
+    Route::get('/relationship-review', [AiController::class, 'relationshipReview'])->name('admin.ai.relationship-review');
+    Route::post('/relationship-review/{id}', [AiController::class, 'relationshipReviewDecision'])->name('admin.ai.relationship-review.decision')->whereNumber('id');
 
     // Condition assessment
     Route::get('/condition/assess', [AiController::class, 'conditionAssess'])->name('admin.ai.condition.assess');
@@ -207,6 +209,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/ai/suggest/{id}/view', fn ($id) => redirect()->route('admin.ai.suggest.view', $id))->whereNumber('id');
     Route::get('/ai/suggest/object/{id}', fn ($id) => redirect()->route('admin.ai.suggest.object', $id))->whereNumber('id');
     Route::get('/ai/suggest/review', fn () => redirect()->route('admin.ai.suggest-review'));
+    Route::get('/ai/relationship/review', fn () => redirect()->route('admin.ai.relationship-review'));
 
     // /ai/llm/* → /admin/ai/llm/*
     Route::get('/ai/llm/configs', fn () => redirect()->route('admin.ai.llm.configs'));

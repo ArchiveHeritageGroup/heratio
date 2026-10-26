@@ -120,7 +120,41 @@ CREATE TABLE IF NOT EXISTS ahg_ner_entity_evidence (
     entity_id BIGINT UNSIGNED NOT NULL PRIMARY KEY,
     evidence TEXT DEFAULT NULL COMMENT 'where in the record or which source supports it',
     sources JSON DEFAULT NULL COMMENT 'list of source URLs',
-    authority JSON DEFAULT NULL COMMENT 'person/organisation details for a new authority record: dates_of_existence, history, places; link: the proposed existing record',
+    authority JSON DEFAULT NULL COMMENT 'person/organisation details for a new authority record: dates_of_existence, history, places;
+
+-- Relationships between people or organisations proposed through the API
+-- (AHG Archives MCP, heratio#1563), e.g. "is the spouse of" read from a family register. Each side is
+-- an existing authority record (actor_id) or a name proposed on the same record
+-- (entity_id, resolved once that name is linked). Approval writes an actor
+-- relation and stores its id here.
+CREATE TABLE IF NOT EXISTS ahg_relationship_proposal (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    object_id INT NOT NULL COMMENT 'information_object the relationship was read from',
+    subject_name VARCHAR(500) NOT NULL,
+    subject_actor_id INT DEFAULT NULL,
+    subject_entity_id BIGINT UNSIGNED DEFAULT NULL COMMENT 'ahg_ner_entity.id',
+    type_id INT NOT NULL COMMENT 'term in Actor relation type (taxonomy 55), read subject-type-object',
+    object_name VARCHAR(500) NOT NULL,
+    object_actor_id INT DEFAULT NULL,
+    object_entity_id BIGINT UNSIGNED DEFAULT NULL COMMENT 'ahg_ner_entity.id',
+    date_text VARCHAR(255) DEFAULT NULL,
+    start_date DATE DEFAULT NULL,
+    end_date DATE DEFAULT NULL,
+    evidence TEXT DEFAULT NULL,
+    sources JSON DEFAULT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending' COMMENT 'pending, approved, rejected',
+    relation_id INT DEFAULT NULL COMMENT 'relation.id written on approval',
+    proposed_via VARCHAR(50) DEFAULT NULL,
+    created_by INT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    reviewed_by INT DEFAULT NULL,
+    reviewed_at TIMESTAMP NULL,
+    review_notes TEXT DEFAULT NULL,
+    INDEX idx_relprop_object (object_id),
+    INDEX idx_relprop_status (status),
+    INDEX idx_relprop_created_by (created_by)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+ link: the proposed existing record',
     created_by INT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (entity_id) REFERENCES ahg_ner_entity(id) ON DELETE CASCADE

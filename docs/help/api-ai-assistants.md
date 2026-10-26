@@ -77,6 +77,12 @@ Text goes to **AI > Suggest review** (`/admin/ai/suggest-review`):
 
 The reviewer sees the current text, or the page image for a transcript, beside the proposal with its evidence and sources. They may edit the text before approving. Approval writes the field, the field in the other language (creating that language's row when needed), or the file's transcript, which `GET /descriptions/{slug}/text` then returns. The outcome shows in `GET /api/v2/proposals` as approved, edited or rejected, with the reviewer's note.
 
-Relationship proposals answer `501` until their review screen is added.
+Relationships go to **AI > Relationship review** (`/admin/ai/relationship-review`):
+
+- `relationships` - `[{subject_name, subject_actor_id?, relation, object_name, object_actor_id?, date?, start_date?, end_date?, evidence?, sources?}]`, at most 20 per request.
+- `relation` is an actor relation type by name or id, such as "is the spouse of" or "is the child of" (`GET /api/v2/taxonomies/55/terms`). The four category terms are refused.
+- Each side is an existing authority record (`*_actor_id`) or a person or organisation proposed for the same record. Any other name comes back with `queued: false` and the reason.
+
+The reviewer approves once both names are linked to authority records, in NER review or Authority Resolution. Approval writes the relation, with its date, and it shows on both authority records. A relation already present in either direction is reused rather than duplicated.
 
 `GET /api/v2/proposals?mine=1&status=&count=&start=` lists the caller's proposals, newest first, with each one's status (pending, linked, rejected, and so on) and the record's slug and title. `mine=0` lists everyone's and needs an administrator or editor.
