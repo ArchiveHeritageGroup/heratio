@@ -1130,14 +1130,11 @@ class IiifCollectionService
             })
             ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
             ->where('s.slug', $slug)
-            // Guests get manifests for published objects only (status 158/160) - an
-            // unpublished IO must not leak its metadata + Cantaloupe image IDs to
-            // anon via IIIF (#1363). Authenticated staff may preview drafts.
-            ->when(! auth()->check(), fn ($q) => $q->whereExists(function ($s2) {
-                $s2->select(DB::raw(1))->from('status as pub_st')
-                    ->whereColumn('pub_st.object_id', 'io.id')
-                    ->where('pub_st.type_id', 158)->where('pub_st.status_id', 160);
-            }))
+            // Only records the viewer may read: published and not restricted
+            // (embargo, classification, ICIP/TK, ODRL), staff excepted - an
+            // unpublished or restricted IO must not leak its metadata + Cantaloupe
+            // image IDs via IIIF (#1363, GHSA-pfhq-87fh-gqfp).
+            ->tap(fn ($q) => \AhgIiifCollection\Support\IiifAccess::scope($q, 'io.id'))
             ->select(
                 'io.id',
                 'io.identifier',

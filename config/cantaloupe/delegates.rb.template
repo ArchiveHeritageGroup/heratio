@@ -1,3 +1,4 @@
+require 'digest'
 require 'json'
 require 'net/http'
 require 'uri'
@@ -57,7 +58,8 @@ class CustomDelegate
   # IIIF Auth enforcement.
   # Calls Heratio's internal auth check endpoint to validate access.
   # Returns true (allow), false (deny), or { 'max_scale' => N } (degraded).
-  # Fail-open: if the auth check fails, allow access.
+  # Fail-closed: if the check fails or answers anything but 200, refuse
+  # (GHSA-pfhq-87fh-gqfp; it used to allow).
   # ---------------------------------------------------------------------------
   def authorize(options = {})
     identifier = context['identifier'].to_s
@@ -69,7 +71,9 @@ class CustomDelegate
     auth_header = (headers['Authorization'] || '').to_s
     bearer = (auth_header =~ /Bearer\s+(.+)$/i) ? $1 : nil
 
-    cache_key = "#{identifier}:#{auth_cookie}:#{bearer}"
+    # Heratio decides by the viewer's own session, so the answer is cached per
+    # cookie set, never shared between a staff member and a visitor.
+    cache_key = "#{identifier}:#{auth_cookie}:#{bearer}:#{Digest::SHA256.hexdigest(cookie_header)}"
     cached = self.class.auth_cache[cache_key]
     if cached && cached[:expires] > Time.now
       return cached[:result]
@@ -95,6 +99,9 @@ class CustomDelegate
       request = Net::HTTP::Get.new(uri)
       host = (headers['Host'] || headers['X-Forwarded-Host'] || '').to_s.split(',').first.to_s.strip
       request['Host'] = host unless host.empty?
+      # The browser's cookies, so Heratio recognises staff, who may see images
+      # of unpublished and restricted records; everyone else may not.
+      request['Cookie'] = cookie_header unless cookie_header.empty?
       response = http.request(request)
 
       if response.code.to_i == 200
@@ -116,11 +123,12 @@ class CustomDelegate
 
         return result
       end
+      STDERR.puts "[Cantaloupe] Auth check answered #{response.code} for #{identifier} - refusing (fail-closed)"
     rescue => e
-      STDERR.puts "[Cantaloupe] Auth check failed: #{e.message} — allowing access (fail-open)"
+      STDERR.puts "[Cantaloupe] Auth check failed: #{e.message} - refusing (fail-closed)"
     end
 
-    true
+    false
   end
 
   def source(options = {}); 'FilesystemSource'; end

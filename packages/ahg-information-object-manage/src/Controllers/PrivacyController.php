@@ -496,6 +496,19 @@ class PrivacyController extends Controller
             && \Schema::hasTable('privacy_visual_redaction')
             && app(RedactionRenderService::class)->isRedactedIdentifier($identifier);
 
+        // GHSA-pfhq-87fh-gqfp: the same rule as fileCheck() - an image is served
+        // only while a record using it is publicly disclosable (published, no
+        // embargo, classification, ICIP/TK or ODRL restriction), unless the
+        // viewer already sees unpublished descriptions. Cantaloupe forwards the
+        // browser's cookies so staff are recognised.
+        if (!$denied && $identifier !== '' && !self::canSeeUnpublished()) {
+            $ioIds = app(RedactionRenderService::class)->recordIdsForIdentifier($identifier);
+            if ($ioIds) {
+                $gate = app(\AhgCore\Services\DisclosureGate::class);
+                $denied = !collect($ioIds)->contains(fn ($id) => $gate->allows((int) $id));
+            }
+        }
+
         return response()->json(['allowed' => !$denied]);
     }
 

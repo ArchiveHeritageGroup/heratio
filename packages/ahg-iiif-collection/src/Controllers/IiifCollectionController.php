@@ -328,13 +328,9 @@ class IiifCollectionController extends Controller
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('slug.slug', $slug)
             ->where('information_object_i18n.culture', $culture)
-            // Guests get the viewer for published objects only (status 158/160) - an
-            // unpublished IO must not leak its title here for anon (#1363).
-            ->when(! auth()->check(), fn ($q) => $q->whereExists(function ($s2) {
-                $s2->select(DB::raw(1))->from('status as pub_st')
-                    ->whereColumn('pub_st.object_id', 'information_object.id')
-                    ->where('pub_st.type_id', 158)->where('pub_st.status_id', 160);
-            }))
+            // Only records the viewer may read (published, not restricted; staff
+            // excepted) - GHSA-pfhq-87fh-gqfp, #1363.
+            ->tap(fn ($q) => \AhgIiifCollection\Support\IiifAccess::scope($q, 'information_object.id'))
             ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
             ->first();
         if (!$object) abort(404);

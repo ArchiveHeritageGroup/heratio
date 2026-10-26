@@ -70,6 +70,10 @@ class IiifNerAnnotationsController extends Controller
      */
     public function canvasAnnotations(Request $request, string $slug, int $n): JsonResponse
     {
+        // The names found on a page are the record's content too (GHSA-pfhq-87fh-gqfp).
+        if (! \AhgIiifCollection\Support\IiifAccess::allowsSlug($slug)) {
+            return response()->json(['error' => 'Not found'], 404);
+        }
         if (! Schema::hasTable('ahg_iiif_annotation')) {
             return $this->emptyPage($slug, $n);
         }

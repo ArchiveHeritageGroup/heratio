@@ -297,13 +297,9 @@ class IiifContentSearchService
         return DB::table('information_object as io')
             ->join('slug as s', 'io.id', '=', 's.object_id')
             ->where('s.slug', $slug)
-            // Guests can content-search published objects only (status 158/160) -
-            // don't leak OCR full-text of unpublished records to anon (#1363).
-            ->when(! auth()->check(), fn ($q) => $q->whereExists(function ($s2) {
-                $s2->select(DB::raw(1))->from('status as pub_st')
-                    ->whereColumn('pub_st.object_id', 'io.id')
-                    ->where('pub_st.type_id', 158)->where('pub_st.status_id', 160);
-            }))
+            // Only records the viewer may read (published, not restricted; staff
+            // excepted) - GHSA-pfhq-87fh-gqfp, #1363.
+            ->tap(fn ($q) => \AhgIiifCollection\Support\IiifAccess::scope($q, 'io.id'))
             ->select('io.id', 's.slug')
             ->first();
     }
