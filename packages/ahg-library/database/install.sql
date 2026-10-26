@@ -22,10 +22,12 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 SET @library_exists = (SELECT COUNT(*) FROM term WHERE code = 'library' AND taxonomy_id = 70);
 
-INSERT IGNORE INTO object (class_name, created_at, updated_at)
+-- heratio#1556: no IGNORE, so a failed insert stops the install, and the id is
+-- taken only from a row this statement inserted - never a stale LAST_INSERT_ID().
+INSERT INTO object (class_name, created_at, updated_at)
 SELECT 'QubitTerm', NOW(), NOW() FROM DUAL WHERE @library_exists = 0;
 
-SET @library_id = LAST_INSERT_ID();
+SET @library_id = IF(@library_exists = 0 AND ROW_COUNT() = 1, LAST_INSERT_ID(), NULL);
 
 INSERT IGNORE INTO term (id, taxonomy_id, code, source_culture)
 SELECT @library_id, 70, 'library', 'en' FROM DUAL WHERE @library_exists = 0 AND @library_id > 0;
@@ -39,88 +41,102 @@ SELECT @library_id, 'en', 'Library (MARC-inspired)' FROM DUAL WHERE @library_exi
 
 -- Book
 SET @book_exists = (SELECT t.id FROM term t JOIN term_i18n ti ON t.id=ti.id WHERE t.taxonomy_id=34 AND ti.name='Book' LIMIT 1);
-INSERT IGNORE INTO object (class_name, created_at, updated_at)
+-- heratio#1556: no IGNORE, so a failed insert stops the install, and the id is
+-- taken only from a row this statement inserted - never a stale LAST_INSERT_ID().
+INSERT INTO object (class_name, created_at, updated_at)
 SELECT 'QubitTerm', NOW(), NOW() FROM DUAL WHERE @book_exists IS NULL;
-SET @book_id = IF(@book_exists IS NULL, LAST_INSERT_ID(), @book_exists);
+SET @book_id = IF(@book_exists IS NULL AND ROW_COUNT() = 1, LAST_INSERT_ID(), @book_exists);
 INSERT IGNORE INTO term (id, taxonomy_id, source_culture)
-SELECT @book_id, 34, 'en' FROM DUAL WHERE @book_exists IS NULL;
+SELECT @book_id, 34, 'en' FROM DUAL WHERE @book_exists IS NULL AND @book_id IS NOT NULL;
 INSERT IGNORE INTO term_i18n (id, culture, name)
-SELECT @book_id, 'en', 'Book' FROM DUAL WHERE @book_exists IS NULL;
-INSERT IGNORE INTO slug (object_id, slug) VALUES (@book_id, 'level-book');
-INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) VALUES (@book_id, 'library', 10);
+SELECT @book_id, 'en', 'Book' FROM DUAL WHERE @book_exists IS NULL AND @book_id IS NOT NULL;
+INSERT IGNORE INTO slug (object_id, slug) SELECT @book_id, 'level-book' FROM DUAL WHERE @book_id IS NOT NULL;
+INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) SELECT @book_id, 'library', 10 FROM DUAL WHERE @book_id IS NOT NULL;
 
 -- Monograph
 SET @mono_exists = (SELECT t.id FROM term t JOIN term_i18n ti ON t.id=ti.id WHERE t.taxonomy_id=34 AND ti.name='Monograph' LIMIT 1);
-INSERT IGNORE INTO object (class_name, created_at, updated_at)
+-- heratio#1556: no IGNORE, so a failed insert stops the install, and the id is
+-- taken only from a row this statement inserted - never a stale LAST_INSERT_ID().
+INSERT INTO object (class_name, created_at, updated_at)
 SELECT 'QubitTerm', NOW(), NOW() FROM DUAL WHERE @mono_exists IS NULL;
-SET @mono_id = IF(@mono_exists IS NULL, LAST_INSERT_ID(), @mono_exists);
+SET @mono_id = IF(@mono_exists IS NULL AND ROW_COUNT() = 1, LAST_INSERT_ID(), @mono_exists);
 INSERT IGNORE INTO term (id, taxonomy_id, source_culture)
-SELECT @mono_id, 34, 'en' FROM DUAL WHERE @mono_exists IS NULL;
+SELECT @mono_id, 34, 'en' FROM DUAL WHERE @mono_exists IS NULL AND @mono_id IS NOT NULL;
 INSERT IGNORE INTO term_i18n (id, culture, name)
-SELECT @mono_id, 'en', 'Monograph' FROM DUAL WHERE @mono_exists IS NULL;
-INSERT IGNORE INTO slug (object_id, slug) VALUES (@mono_id, 'level-monograph');
-INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) VALUES (@mono_id, 'library', 20);
+SELECT @mono_id, 'en', 'Monograph' FROM DUAL WHERE @mono_exists IS NULL AND @mono_id IS NOT NULL;
+INSERT IGNORE INTO slug (object_id, slug) SELECT @mono_id, 'level-monograph' FROM DUAL WHERE @mono_id IS NOT NULL;
+INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) SELECT @mono_id, 'library', 20 FROM DUAL WHERE @mono_id IS NOT NULL;
 
 -- Periodical
 SET @peri_exists = (SELECT t.id FROM term t JOIN term_i18n ti ON t.id=ti.id WHERE t.taxonomy_id=34 AND ti.name='Periodical' LIMIT 1);
-INSERT IGNORE INTO object (class_name, created_at, updated_at)
+-- heratio#1556: no IGNORE, so a failed insert stops the install, and the id is
+-- taken only from a row this statement inserted - never a stale LAST_INSERT_ID().
+INSERT INTO object (class_name, created_at, updated_at)
 SELECT 'QubitTerm', NOW(), NOW() FROM DUAL WHERE @peri_exists IS NULL;
-SET @peri_id = IF(@peri_exists IS NULL, LAST_INSERT_ID(), @peri_exists);
+SET @peri_id = IF(@peri_exists IS NULL AND ROW_COUNT() = 1, LAST_INSERT_ID(), @peri_exists);
 INSERT IGNORE INTO term (id, taxonomy_id, source_culture)
-SELECT @peri_id, 34, 'en' FROM DUAL WHERE @peri_exists IS NULL;
+SELECT @peri_id, 34, 'en' FROM DUAL WHERE @peri_exists IS NULL AND @peri_id IS NOT NULL;
 INSERT IGNORE INTO term_i18n (id, culture, name)
-SELECT @peri_id, 'en', 'Periodical' FROM DUAL WHERE @peri_exists IS NULL;
-INSERT IGNORE INTO slug (object_id, slug) VALUES (@peri_id, 'level-periodical');
-INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) VALUES (@peri_id, 'library', 30);
+SELECT @peri_id, 'en', 'Periodical' FROM DUAL WHERE @peri_exists IS NULL AND @peri_id IS NOT NULL;
+INSERT IGNORE INTO slug (object_id, slug) SELECT @peri_id, 'level-periodical' FROM DUAL WHERE @peri_id IS NOT NULL;
+INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) SELECT @peri_id, 'library', 30 FROM DUAL WHERE @peri_id IS NOT NULL;
 
 -- Journal
 SET @jour_exists = (SELECT t.id FROM term t JOIN term_i18n ti ON t.id=ti.id WHERE t.taxonomy_id=34 AND ti.name='Journal' LIMIT 1);
-INSERT IGNORE INTO object (class_name, created_at, updated_at)
+-- heratio#1556: no IGNORE, so a failed insert stops the install, and the id is
+-- taken only from a row this statement inserted - never a stale LAST_INSERT_ID().
+INSERT INTO object (class_name, created_at, updated_at)
 SELECT 'QubitTerm', NOW(), NOW() FROM DUAL WHERE @jour_exists IS NULL;
-SET @jour_id = IF(@jour_exists IS NULL, LAST_INSERT_ID(), @jour_exists);
+SET @jour_id = IF(@jour_exists IS NULL AND ROW_COUNT() = 1, LAST_INSERT_ID(), @jour_exists);
 INSERT IGNORE INTO term (id, taxonomy_id, source_culture)
-SELECT @jour_id, 34, 'en' FROM DUAL WHERE @jour_exists IS NULL;
+SELECT @jour_id, 34, 'en' FROM DUAL WHERE @jour_exists IS NULL AND @jour_id IS NOT NULL;
 INSERT IGNORE INTO term_i18n (id, culture, name)
-SELECT @jour_id, 'en', 'Journal' FROM DUAL WHERE @jour_exists IS NULL;
-INSERT IGNORE INTO slug (object_id, slug) VALUES (@jour_id, 'level-journal');
-INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) VALUES (@jour_id, 'library', 40);
+SELECT @jour_id, 'en', 'Journal' FROM DUAL WHERE @jour_exists IS NULL AND @jour_id IS NOT NULL;
+INSERT IGNORE INTO slug (object_id, slug) SELECT @jour_id, 'level-journal' FROM DUAL WHERE @jour_id IS NOT NULL;
+INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) SELECT @jour_id, 'library', 40 FROM DUAL WHERE @jour_id IS NOT NULL;
 
 -- Article
 SET @arti_exists = (SELECT t.id FROM term t JOIN term_i18n ti ON t.id=ti.id WHERE t.taxonomy_id=34 AND ti.name='Article' LIMIT 1);
-INSERT IGNORE INTO object (class_name, created_at, updated_at)
+-- heratio#1556: no IGNORE, so a failed insert stops the install, and the id is
+-- taken only from a row this statement inserted - never a stale LAST_INSERT_ID().
+INSERT INTO object (class_name, created_at, updated_at)
 SELECT 'QubitTerm', NOW(), NOW() FROM DUAL WHERE @arti_exists IS NULL;
-SET @arti_id = IF(@arti_exists IS NULL, LAST_INSERT_ID(), @arti_exists);
+SET @arti_id = IF(@arti_exists IS NULL AND ROW_COUNT() = 1, LAST_INSERT_ID(), @arti_exists);
 INSERT IGNORE INTO term (id, taxonomy_id, source_culture)
-SELECT @arti_id, 34, 'en' FROM DUAL WHERE @arti_exists IS NULL;
+SELECT @arti_id, 34, 'en' FROM DUAL WHERE @arti_exists IS NULL AND @arti_id IS NOT NULL;
 INSERT IGNORE INTO term_i18n (id, culture, name)
-SELECT @arti_id, 'en', 'Article' FROM DUAL WHERE @arti_exists IS NULL;
-INSERT IGNORE INTO slug (object_id, slug) VALUES (@arti_id, 'level-article');
-INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) VALUES (@arti_id, 'library', 45);
+SELECT @arti_id, 'en', 'Article' FROM DUAL WHERE @arti_exists IS NULL AND @arti_id IS NOT NULL;
+INSERT IGNORE INTO slug (object_id, slug) SELECT @arti_id, 'level-article' FROM DUAL WHERE @arti_id IS NOT NULL;
+INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) SELECT @arti_id, 'library', 45 FROM DUAL WHERE @arti_id IS NOT NULL;
 
 -- Manuscript
 SET @manu_exists = (SELECT t.id FROM term t JOIN term_i18n ti ON t.id=ti.id WHERE t.taxonomy_id=34 AND ti.name='Manuscript' LIMIT 1);
-INSERT IGNORE INTO object (class_name, created_at, updated_at)
+-- heratio#1556: no IGNORE, so a failed insert stops the install, and the id is
+-- taken only from a row this statement inserted - never a stale LAST_INSERT_ID().
+INSERT INTO object (class_name, created_at, updated_at)
 SELECT 'QubitTerm', NOW(), NOW() FROM DUAL WHERE @manu_exists IS NULL;
-SET @manu_id = IF(@manu_exists IS NULL, LAST_INSERT_ID(), @manu_exists);
+SET @manu_id = IF(@manu_exists IS NULL AND ROW_COUNT() = 1, LAST_INSERT_ID(), @manu_exists);
 INSERT IGNORE INTO term (id, taxonomy_id, source_culture)
-SELECT @manu_id, 34, 'en' FROM DUAL WHERE @manu_exists IS NULL;
+SELECT @manu_id, 34, 'en' FROM DUAL WHERE @manu_exists IS NULL AND @manu_id IS NOT NULL;
 INSERT IGNORE INTO term_i18n (id, culture, name)
-SELECT @manu_id, 'en', 'Manuscript' FROM DUAL WHERE @manu_exists IS NULL;
-INSERT IGNORE INTO slug (object_id, slug) VALUES (@manu_id, 'level-manuscript');
-INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) VALUES (@manu_id, 'library', 50);
+SELECT @manu_id, 'en', 'Manuscript' FROM DUAL WHERE @manu_exists IS NULL AND @manu_id IS NOT NULL;
+INSERT IGNORE INTO slug (object_id, slug) SELECT @manu_id, 'level-manuscript' FROM DUAL WHERE @manu_id IS NOT NULL;
+INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) SELECT @manu_id, 'library', 50 FROM DUAL WHERE @manu_id IS NOT NULL;
 
 -- Document (shared with DAM)
 SET @doc_exists = (SELECT t.id FROM term t JOIN term_i18n ti ON t.id=ti.id WHERE t.taxonomy_id=34 AND ti.name='Document' LIMIT 1);
-INSERT IGNORE INTO object (class_name, created_at, updated_at)
+-- heratio#1556: no IGNORE, so a failed insert stops the install, and the id is
+-- taken only from a row this statement inserted - never a stale LAST_INSERT_ID().
+INSERT INTO object (class_name, created_at, updated_at)
 SELECT 'QubitTerm', NOW(), NOW() FROM DUAL WHERE @doc_exists IS NULL;
-SET @doc_id = IF(@doc_exists IS NULL, LAST_INSERT_ID(), @doc_exists);
+SET @doc_id = IF(@doc_exists IS NULL AND ROW_COUNT() = 1, LAST_INSERT_ID(), @doc_exists);
 INSERT IGNORE INTO term (id, taxonomy_id, source_culture)
-SELECT @doc_id, 34, 'en' FROM DUAL WHERE @doc_exists IS NULL;
+SELECT @doc_id, 34, 'en' FROM DUAL WHERE @doc_exists IS NULL AND @doc_id IS NOT NULL;
 INSERT IGNORE INTO term_i18n (id, culture, name)
-SELECT @doc_id, 'en', 'Document' FROM DUAL WHERE @doc_exists IS NULL;
-INSERT IGNORE INTO slug (object_id, slug) VALUES (@doc_id, 'level-document');
-INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) VALUES (@doc_id, 'library', 60);
-INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) VALUES (@doc_id, 'dam', 50);
+SELECT @doc_id, 'en', 'Document' FROM DUAL WHERE @doc_exists IS NULL AND @doc_id IS NOT NULL;
+INSERT IGNORE INTO slug (object_id, slug) SELECT @doc_id, 'level-document' FROM DUAL WHERE @doc_id IS NOT NULL;
+INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) SELECT @doc_id, 'library', 60 FROM DUAL WHERE @doc_id IS NOT NULL;
+INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) SELECT @doc_id, 'dam', 50 FROM DUAL WHERE @doc_id IS NOT NULL;
 
 -- =====================================================
 -- Subject Authority Tables (Issue #55)

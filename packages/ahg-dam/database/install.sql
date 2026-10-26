@@ -308,10 +308,12 @@ CREATE TABLE IF NOT EXISTS security_watermark_log (
 -- =====================================================
 SET @dam_exists = (SELECT COUNT(*) FROM term WHERE code = 'dam' AND taxonomy_id = 70);
 
-INSERT IGNORE INTO object (class_name, created_at, updated_at)
+-- heratio#1556: no IGNORE, so a failed insert stops the install, and the id is
+-- taken only from a row this statement inserted - never a stale LAST_INSERT_ID().
+INSERT INTO object (class_name, created_at, updated_at)
 SELECT 'QubitTerm', NOW(), NOW() FROM DUAL WHERE @dam_exists = 0;
 
-SET @dam_id = LAST_INSERT_ID();
+SET @dam_id = IF(@dam_exists = 0 AND ROW_COUNT() = 1, LAST_INSERT_ID(), NULL);
 
 INSERT IGNORE INTO term (id, taxonomy_id, code, source_culture)
 SELECT @dam_id, 70, 'dam', 'en' FROM DUAL WHERE @dam_exists = 0 AND @dam_id > 0;
@@ -325,64 +327,74 @@ SELECT @dam_id, 'en', 'Photo/DAM (IPTC/XMP)' FROM DUAL WHERE @dam_exists = 0 AND
 
 -- Photograph (shared with Gallery)
 SET @photo_exists = (SELECT t.id FROM term t JOIN term_i18n ti ON t.id=ti.id WHERE t.taxonomy_id=34 AND ti.name='Photograph' LIMIT 1);
-INSERT IGNORE INTO object (class_name, created_at, updated_at)
+-- heratio#1556: no IGNORE, so a failed insert stops the install, and the id is
+-- taken only from a row this statement inserted - never a stale LAST_INSERT_ID().
+INSERT INTO object (class_name, created_at, updated_at)
 SELECT 'QubitTerm', NOW(), NOW() FROM DUAL WHERE @photo_exists IS NULL;
-SET @photo_id = IF(@photo_exists IS NULL, LAST_INSERT_ID(), @photo_exists);
+SET @photo_id = IF(@photo_exists IS NULL AND ROW_COUNT() = 1, LAST_INSERT_ID(), @photo_exists);
 INSERT IGNORE INTO term (id, taxonomy_id, code, source_culture)
-SELECT @photo_id, 34, '', 'en' FROM DUAL WHERE @photo_exists IS NULL;
+SELECT @photo_id, 34, '', 'en' FROM DUAL WHERE @photo_exists IS NULL AND @photo_id IS NOT NULL;
 INSERT IGNORE INTO term_i18n (id, culture, name)
-SELECT @photo_id, 'en', 'Photograph' FROM DUAL WHERE @photo_exists IS NULL;
-INSERT IGNORE INTO slug (object_id, slug) VALUES (@photo_id, 'level-photograph');
-INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) VALUES (@photo_id, 'dam', 10);
-INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) VALUES (@photo_id, 'gallery', 20);
+SELECT @photo_id, 'en', 'Photograph' FROM DUAL WHERE @photo_exists IS NULL AND @photo_id IS NOT NULL;
+INSERT IGNORE INTO slug (object_id, slug) SELECT @photo_id, 'level-photograph' FROM DUAL WHERE @photo_id IS NOT NULL;
+INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) SELECT @photo_id, 'dam', 10 FROM DUAL WHERE @photo_id IS NOT NULL;
+INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) SELECT @photo_id, 'gallery', 20 FROM DUAL WHERE @photo_id IS NOT NULL;
 
 -- Audio
 SET @audio_exists = (SELECT t.id FROM term t JOIN term_i18n ti ON t.id=ti.id WHERE t.taxonomy_id=34 AND ti.name='Audio' LIMIT 1);
-INSERT IGNORE INTO object (class_name, created_at, updated_at)
+-- heratio#1556: no IGNORE, so a failed insert stops the install, and the id is
+-- taken only from a row this statement inserted - never a stale LAST_INSERT_ID().
+INSERT INTO object (class_name, created_at, updated_at)
 SELECT 'QubitTerm', NOW(), NOW() FROM DUAL WHERE @audio_exists IS NULL;
-SET @audio_id = IF(@audio_exists IS NULL, LAST_INSERT_ID(), @audio_exists);
+SET @audio_id = IF(@audio_exists IS NULL AND ROW_COUNT() = 1, LAST_INSERT_ID(), @audio_exists);
 INSERT IGNORE INTO term (id, taxonomy_id, code, source_culture)
-SELECT @audio_id, 34, '', 'en' FROM DUAL WHERE @audio_exists IS NULL;
+SELECT @audio_id, 34, '', 'en' FROM DUAL WHERE @audio_exists IS NULL AND @audio_id IS NOT NULL;
 INSERT IGNORE INTO term_i18n (id, culture, name)
-SELECT @audio_id, 'en', 'Audio' FROM DUAL WHERE @audio_exists IS NULL;
-INSERT IGNORE INTO slug (object_id, slug) VALUES (@audio_id, 'level-audio');
-INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) VALUES (@audio_id, 'dam', 20);
+SELECT @audio_id, 'en', 'Audio' FROM DUAL WHERE @audio_exists IS NULL AND @audio_id IS NOT NULL;
+INSERT IGNORE INTO slug (object_id, slug) SELECT @audio_id, 'level-audio' FROM DUAL WHERE @audio_id IS NOT NULL;
+INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) SELECT @audio_id, 'dam', 20 FROM DUAL WHERE @audio_id IS NOT NULL;
 
 -- Video
 SET @video_exists = (SELECT t.id FROM term t JOIN term_i18n ti ON t.id=ti.id WHERE t.taxonomy_id=34 AND ti.name='Video' LIMIT 1);
-INSERT IGNORE INTO object (class_name, created_at, updated_at)
+-- heratio#1556: no IGNORE, so a failed insert stops the install, and the id is
+-- taken only from a row this statement inserted - never a stale LAST_INSERT_ID().
+INSERT INTO object (class_name, created_at, updated_at)
 SELECT 'QubitTerm', NOW(), NOW() FROM DUAL WHERE @video_exists IS NULL;
-SET @video_id = IF(@video_exists IS NULL, LAST_INSERT_ID(), @video_exists);
+SET @video_id = IF(@video_exists IS NULL AND ROW_COUNT() = 1, LAST_INSERT_ID(), @video_exists);
 INSERT IGNORE INTO term (id, taxonomy_id, code, source_culture)
-SELECT @video_id, 34, '', 'en' FROM DUAL WHERE @video_exists IS NULL;
+SELECT @video_id, 34, '', 'en' FROM DUAL WHERE @video_exists IS NULL AND @video_id IS NOT NULL;
 INSERT IGNORE INTO term_i18n (id, culture, name)
-SELECT @video_id, 'en', 'Video' FROM DUAL WHERE @video_exists IS NULL;
-INSERT IGNORE INTO slug (object_id, slug) VALUES (@video_id, 'level-video');
-INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) VALUES (@video_id, 'dam', 30);
+SELECT @video_id, 'en', 'Video' FROM DUAL WHERE @video_exists IS NULL AND @video_id IS NOT NULL;
+INSERT IGNORE INTO slug (object_id, slug) SELECT @video_id, 'level-video' FROM DUAL WHERE @video_id IS NOT NULL;
+INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) SELECT @video_id, 'dam', 30 FROM DUAL WHERE @video_id IS NOT NULL;
 
 -- Image
 SET @image_exists = (SELECT t.id FROM term t JOIN term_i18n ti ON t.id=ti.id WHERE t.taxonomy_id=34 AND ti.name='Image' LIMIT 1);
-INSERT IGNORE INTO object (class_name, created_at, updated_at)
+-- heratio#1556: no IGNORE, so a failed insert stops the install, and the id is
+-- taken only from a row this statement inserted - never a stale LAST_INSERT_ID().
+INSERT INTO object (class_name, created_at, updated_at)
 SELECT 'QubitTerm', NOW(), NOW() FROM DUAL WHERE @image_exists IS NULL;
-SET @image_id = IF(@image_exists IS NULL, LAST_INSERT_ID(), @image_exists);
+SET @image_id = IF(@image_exists IS NULL AND ROW_COUNT() = 1, LAST_INSERT_ID(), @image_exists);
 INSERT IGNORE INTO term (id, taxonomy_id, code, source_culture)
-SELECT @image_id, 34, '', 'en' FROM DUAL WHERE @image_exists IS NULL;
+SELECT @image_id, 34, '', 'en' FROM DUAL WHERE @image_exists IS NULL AND @image_id IS NOT NULL;
 INSERT IGNORE INTO term_i18n (id, culture, name)
-SELECT @image_id, 'en', 'Image' FROM DUAL WHERE @image_exists IS NULL;
-INSERT IGNORE INTO slug (object_id, slug) VALUES (@image_id, 'level-image');
-INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) VALUES (@image_id, 'dam', 40);
+SELECT @image_id, 'en', 'Image' FROM DUAL WHERE @image_exists IS NULL AND @image_id IS NOT NULL;
+INSERT IGNORE INTO slug (object_id, slug) SELECT @image_id, 'level-image' FROM DUAL WHERE @image_id IS NOT NULL;
+INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) SELECT @image_id, 'dam', 40 FROM DUAL WHERE @image_id IS NOT NULL;
 
 -- Dataset
 SET @data_exists = (SELECT t.id FROM term t JOIN term_i18n ti ON t.id=ti.id WHERE t.taxonomy_id=34 AND ti.name='Dataset' LIMIT 1);
-INSERT IGNORE INTO object (class_name, created_at, updated_at)
+-- heratio#1556: no IGNORE, so a failed insert stops the install, and the id is
+-- taken only from a row this statement inserted - never a stale LAST_INSERT_ID().
+INSERT INTO object (class_name, created_at, updated_at)
 SELECT 'QubitTerm', NOW(), NOW() FROM DUAL WHERE @data_exists IS NULL;
-SET @data_id = IF(@data_exists IS NULL, LAST_INSERT_ID(), @data_exists);
+SET @data_id = IF(@data_exists IS NULL AND ROW_COUNT() = 1, LAST_INSERT_ID(), @data_exists);
 INSERT IGNORE INTO term (id, taxonomy_id, code, source_culture)
-SELECT @data_id, 34, '', 'en' FROM DUAL WHERE @data_exists IS NULL;
+SELECT @data_id, 34, '', 'en' FROM DUAL WHERE @data_exists IS NULL AND @data_id IS NOT NULL;
 INSERT IGNORE INTO term_i18n (id, culture, name)
-SELECT @data_id, 'en', 'Dataset' FROM DUAL WHERE @data_exists IS NULL;
-INSERT IGNORE INTO slug (object_id, slug) VALUES (@data_id, 'level-dataset');
-INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) VALUES (@data_id, 'dam', 70);
+SELECT @data_id, 'en', 'Dataset' FROM DUAL WHERE @data_exists IS NULL AND @data_id IS NOT NULL;
+INSERT IGNORE INTO slug (object_id, slug) SELECT @data_id, 'level-dataset' FROM DUAL WHERE @data_id IS NOT NULL;
+INSERT IGNORE INTO level_of_description_sector (term_id, sector, display_order) SELECT @data_id, 'dam', 70 FROM DUAL WHERE @data_id IS NOT NULL;
 
 -- =====================================================
 -- DAM External Links

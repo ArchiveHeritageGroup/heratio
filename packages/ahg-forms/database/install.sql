@@ -153,21 +153,26 @@ CREATE TABLE IF NOT EXISTS ahg_form_submission_log (
 -- ============================================
 
 -- ISAD-G Minimal Template
-INSERT IGNORE INTO ahg_form_template (name, description, form_type, is_system, config_json) VALUES
-('ISAD-G Minimal', 'Minimal ISAD(G) compliant form with essential fields only', 'information_object', 1,
-'{"layout": "single", "sections": ["identity", "context", "content"], "submitLabel": "Save Record"}');
+-- heratio#1556: seed each system template once; the fields below are added
+-- only when this run created it, never to a stale LAST_INSERT_ID().
+INSERT INTO ahg_form_template (name, description, form_type, is_system, config_json)
+SELECT 'ISAD-G Minimal', 'Minimal ISAD(G) compliant form with essential fields only', 'information_object', 1,
+'{"layout": "single", "sections": ["identity", "context", "content"], "submitLabel": "Save Record"}' FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM ahg_form_template WHERE name = 'ISAD-G Minimal' AND is_system = 1);
 
-SET @isadg_minimal_id = LAST_INSERT_ID();
+SET @isadg_minimal_id = IF(ROW_COUNT() = 1, LAST_INSERT_ID(), NULL);
 
-INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, section_name, sort_order, is_required, help_text) VALUES
-(@isadg_minimal_id, 'title', 'text', 'Title', 'identity', 1, 1, 'A word, phrase or character that names the unit of description'),
-(@isadg_minimal_id, 'identifier', 'text', 'Reference Code', 'identity', 2, 1, 'Unique identifier for the unit of description'),
-(@isadg_minimal_id, 'levelOfDescription', 'select', 'Level of Description', 'identity', 3, 1, 'Position of the unit of description in the hierarchy'),
-(@isadg_minimal_id, 'extentAndMedium', 'textarea', 'Extent and Medium', 'identity', 4, 0, 'Physical extent and medium of the unit'),
-(@isadg_minimal_id, 'date', 'daterange', 'Dates', 'identity', 5, 0, 'Date(s) of the unit of description'),
-(@isadg_minimal_id, 'creators', 'autocomplete', 'Creator(s)', 'context', 6, 0, 'Name of entity responsible for creation'),
-(@isadg_minimal_id, 'repository', 'autocomplete', 'Repository', 'context', 7, 0, 'Institution holding the materials'),
-(@isadg_minimal_id, 'scopeAndContent', 'richtext', 'Scope and Content', 'content', 8, 0, 'Summary of the content and context');
+INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, section_name, sort_order, is_required, help_text)
+SELECT * FROM (VALUES
+ROW(@isadg_minimal_id, 'title', 'text', 'Title', 'identity', 1, 1, 'A word, phrase or character that names the unit of description'),
+ROW(@isadg_minimal_id, 'identifier', 'text', 'Reference Code', 'identity', 2, 1, 'Unique identifier for the unit of description'),
+ROW(@isadg_minimal_id, 'levelOfDescription', 'select', 'Level of Description', 'identity', 3, 1, 'Position of the unit of description in the hierarchy'),
+ROW(@isadg_minimal_id, 'extentAndMedium', 'textarea', 'Extent and Medium', 'identity', 4, 0, 'Physical extent and medium of the unit'),
+ROW(@isadg_minimal_id, 'date', 'daterange', 'Dates', 'identity', 5, 0, 'Date(s) of the unit of description'),
+ROW(@isadg_minimal_id, 'creators', 'autocomplete', 'Creator(s)', 'context', 6, 0, 'Name of entity responsible for creation'),
+ROW(@isadg_minimal_id, 'repository', 'autocomplete', 'Repository', 'context', 7, 0, 'Institution holding the materials'),
+ROW(@isadg_minimal_id, 'scopeAndContent', 'richtext', 'Scope and Content', 'content', 8, 0, 'Summary of the content and context')) AS v
+WHERE @isadg_minimal_id IS NOT NULL;
 
 -- Field mappings for ISAD-G Minimal
 INSERT IGNORE INTO ahg_form_field_mapping (field_id, target_table, target_column, is_i18n)
@@ -180,135 +185,167 @@ INSERT IGNORE INTO ahg_form_field_mapping (field_id, target_table, target_column
 SELECT id, 'information_object_i18n', 'scope_and_content', 1 FROM ahg_form_field WHERE template_id = @isadg_minimal_id AND field_name = 'scopeAndContent';
 
 -- ISAD-G Full Template
-INSERT IGNORE INTO ahg_form_template (name, description, form_type, is_system, config_json) VALUES
-('ISAD-G Full', 'Complete ISAD(G) form with all 26 elements across 7 areas', 'information_object', 1,
-'{"layout": "tabs", "tabs": ["Identity", "Context", "Content & Structure", "Access", "Allied Materials", "Notes", "Description Control"]}');
+-- heratio#1556: seed each system template once; the fields below are added
+-- only when this run created it, never to a stale LAST_INSERT_ID().
+INSERT INTO ahg_form_template (name, description, form_type, is_system, config_json)
+SELECT 'ISAD-G Full', 'Complete ISAD(G) form with all 26 elements across 7 areas', 'information_object', 1,
+'{"layout": "tabs", "tabs": ["Identity", "Context", "Content & Structure", "Access", "Allied Materials", "Notes", "Description Control"]}' FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM ahg_form_template WHERE name = 'ISAD-G Full' AND is_system = 1);
 
-SET @isadg_full_id = LAST_INSERT_ID();
+SET @isadg_full_id = IF(ROW_COUNT() = 1, LAST_INSERT_ID(), NULL);
 
 -- Identity Area
-INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, tab_name, section_name, sort_order, is_required, help_text) VALUES
-(@isadg_full_id, 'identifier', 'text', 'Reference Code (3.1.1)', 'Identity', 'Reference', 1, 1, 'Unique identifier for the unit of description'),
-(@isadg_full_id, 'title', 'text', 'Title (3.1.2)', 'Identity', 'Reference', 2, 1, 'A word, phrase or character that names the unit of description'),
-(@isadg_full_id, 'date', 'daterange', 'Date(s) (3.1.3)', 'Identity', 'Reference', 3, 1, 'Date(s) of the unit of description'),
-(@isadg_full_id, 'levelOfDescription', 'select', 'Level of Description (3.1.4)', 'Identity', 'Reference', 4, 1, 'Position of the unit in the hierarchy'),
-(@isadg_full_id, 'extentAndMedium', 'textarea', 'Extent and Medium (3.1.5)', 'Identity', 'Physical', 5, 1, 'Physical extent and medium of the unit');
+INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, tab_name, section_name, sort_order, is_required, help_text)
+SELECT * FROM (VALUES
+ROW(@isadg_full_id, 'identifier', 'text', 'Reference Code (3.1.1)', 'Identity', 'Reference', 1, 1, 'Unique identifier for the unit of description'),
+ROW(@isadg_full_id, 'title', 'text', 'Title (3.1.2)', 'Identity', 'Reference', 2, 1, 'A word, phrase or character that names the unit of description'),
+ROW(@isadg_full_id, 'date', 'daterange', 'Date(s) (3.1.3)', 'Identity', 'Reference', 3, 1, 'Date(s) of the unit of description'),
+ROW(@isadg_full_id, 'levelOfDescription', 'select', 'Level of Description (3.1.4)', 'Identity', 'Reference', 4, 1, 'Position of the unit in the hierarchy'),
+ROW(@isadg_full_id, 'extentAndMedium', 'textarea', 'Extent and Medium (3.1.5)', 'Identity', 'Physical', 5, 1, 'Physical extent and medium of the unit')) AS v
+WHERE @isadg_full_id IS NOT NULL;
 
 -- Context Area
-INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, tab_name, section_name, sort_order, is_required, help_text) VALUES
-(@isadg_full_id, 'creators', 'autocomplete', 'Name of Creator(s) (3.2.1)', 'Context', 'Creator', 10, 0, 'Name of entity responsible for creation'),
-(@isadg_full_id, 'adminHistory', 'richtext', 'Administrative/Biographical History (3.2.2)', 'Context', 'Creator', 11, 0, 'History of the creator'),
-(@isadg_full_id, 'archivalHistory', 'richtext', 'Archival History (3.2.3)', 'Context', 'Provenance', 12, 0, 'Successive transfers of ownership'),
-(@isadg_full_id, 'acquisition', 'richtext', 'Immediate Source of Acquisition (3.2.4)', 'Context', 'Provenance', 13, 0, 'Source from which the unit was acquired');
+INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, tab_name, section_name, sort_order, is_required, help_text)
+SELECT * FROM (VALUES
+ROW(@isadg_full_id, 'creators', 'autocomplete', 'Name of Creator(s) (3.2.1)', 'Context', 'Creator', 10, 0, 'Name of entity responsible for creation'),
+ROW(@isadg_full_id, 'adminHistory', 'richtext', 'Administrative/Biographical History (3.2.2)', 'Context', 'Creator', 11, 0, 'History of the creator'),
+ROW(@isadg_full_id, 'archivalHistory', 'richtext', 'Archival History (3.2.3)', 'Context', 'Provenance', 12, 0, 'Successive transfers of ownership'),
+ROW(@isadg_full_id, 'acquisition', 'richtext', 'Immediate Source of Acquisition (3.2.4)', 'Context', 'Provenance', 13, 0, 'Source from which the unit was acquired')) AS v
+WHERE @isadg_full_id IS NOT NULL;
 
 -- Content and Structure Area
-INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, tab_name, section_name, sort_order, is_required, help_text) VALUES
-(@isadg_full_id, 'scopeAndContent', 'richtext', 'Scope and Content (3.3.1)', 'Content & Structure', 'Content', 20, 0, 'Summary of the content'),
-(@isadg_full_id, 'appraisal', 'richtext', 'Appraisal, Destruction and Scheduling (3.3.2)', 'Content & Structure', 'Content', 21, 0, 'Appraisal actions taken'),
-(@isadg_full_id, 'accruals', 'textarea', 'Accruals (3.3.3)', 'Content & Structure', 'Structure', 22, 0, 'Expected additions to the unit'),
-(@isadg_full_id, 'arrangement', 'richtext', 'System of Arrangement (3.3.4)', 'Content & Structure', 'Structure', 23, 0, 'Internal structure and filing system');
+INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, tab_name, section_name, sort_order, is_required, help_text)
+SELECT * FROM (VALUES
+ROW(@isadg_full_id, 'scopeAndContent', 'richtext', 'Scope and Content (3.3.1)', 'Content & Structure', 'Content', 20, 0, 'Summary of the content'),
+ROW(@isadg_full_id, 'appraisal', 'richtext', 'Appraisal, Destruction and Scheduling (3.3.2)', 'Content & Structure', 'Content', 21, 0, 'Appraisal actions taken'),
+ROW(@isadg_full_id, 'accruals', 'textarea', 'Accruals (3.3.3)', 'Content & Structure', 'Structure', 22, 0, 'Expected additions to the unit'),
+ROW(@isadg_full_id, 'arrangement', 'richtext', 'System of Arrangement (3.3.4)', 'Content & Structure', 'Structure', 23, 0, 'Internal structure and filing system')) AS v
+WHERE @isadg_full_id IS NOT NULL;
 
 -- Access Area
-INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, tab_name, section_name, sort_order, is_required, help_text) VALUES
-(@isadg_full_id, 'accessConditions', 'richtext', 'Conditions Governing Access (3.4.1)', 'Access', 'Access', 30, 0, 'Legal or other access restrictions'),
-(@isadg_full_id, 'reproductionConditions', 'richtext', 'Conditions Governing Reproduction (3.4.2)', 'Access', 'Access', 31, 0, 'Restrictions on copying'),
-(@isadg_full_id, 'language', 'multiselect', 'Language/Scripts of Material (3.4.3)', 'Access', 'Technical', 32, 0, 'Languages and scripts present'),
-(@isadg_full_id, 'physicalCharacteristics', 'textarea', 'Physical Characteristics (3.4.4)', 'Access', 'Technical', 33, 0, 'Physical condition and requirements'),
-(@isadg_full_id, 'findingAids', 'textarea', 'Finding Aids (3.4.5)', 'Access', 'Technical', 34, 0, 'Finding aids available');
+INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, tab_name, section_name, sort_order, is_required, help_text)
+SELECT * FROM (VALUES
+ROW(@isadg_full_id, 'accessConditions', 'richtext', 'Conditions Governing Access (3.4.1)', 'Access', 'Access', 30, 0, 'Legal or other access restrictions'),
+ROW(@isadg_full_id, 'reproductionConditions', 'richtext', 'Conditions Governing Reproduction (3.4.2)', 'Access', 'Access', 31, 0, 'Restrictions on copying'),
+ROW(@isadg_full_id, 'language', 'multiselect', 'Language/Scripts of Material (3.4.3)', 'Access', 'Technical', 32, 0, 'Languages and scripts present'),
+ROW(@isadg_full_id, 'physicalCharacteristics', 'textarea', 'Physical Characteristics (3.4.4)', 'Access', 'Technical', 33, 0, 'Physical condition and requirements'),
+ROW(@isadg_full_id, 'findingAids', 'textarea', 'Finding Aids (3.4.5)', 'Access', 'Technical', 34, 0, 'Finding aids available')) AS v
+WHERE @isadg_full_id IS NOT NULL;
 
 -- Allied Materials Area
-INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, tab_name, section_name, sort_order, is_required, help_text) VALUES
-(@isadg_full_id, 'locationOfOriginals', 'textarea', 'Existence/Location of Originals (3.5.1)', 'Allied Materials', 'Related', 40, 0, 'Location of originals if copies'),
-(@isadg_full_id, 'locationOfCopies', 'textarea', 'Existence/Location of Copies (3.5.2)', 'Allied Materials', 'Related', 41, 0, 'Location of any copies'),
-(@isadg_full_id, 'relatedUnits', 'textarea', 'Related Units of Description (3.5.3)', 'Allied Materials', 'Related', 42, 0, 'Related materials in same repository'),
-(@isadg_full_id, 'publicationNote', 'textarea', 'Publication Note (3.5.4)', 'Allied Materials', 'Related', 43, 0, 'Publications about or based on unit');
+INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, tab_name, section_name, sort_order, is_required, help_text)
+SELECT * FROM (VALUES
+ROW(@isadg_full_id, 'locationOfOriginals', 'textarea', 'Existence/Location of Originals (3.5.1)', 'Allied Materials', 'Related', 40, 0, 'Location of originals if copies'),
+ROW(@isadg_full_id, 'locationOfCopies', 'textarea', 'Existence/Location of Copies (3.5.2)', 'Allied Materials', 'Related', 41, 0, 'Location of any copies'),
+ROW(@isadg_full_id, 'relatedUnits', 'textarea', 'Related Units of Description (3.5.3)', 'Allied Materials', 'Related', 42, 0, 'Related materials in same repository'),
+ROW(@isadg_full_id, 'publicationNote', 'textarea', 'Publication Note (3.5.4)', 'Allied Materials', 'Related', 43, 0, 'Publications about or based on unit')) AS v
+WHERE @isadg_full_id IS NOT NULL;
 
 -- Notes Area
-INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, tab_name, section_name, sort_order, is_required, help_text) VALUES
-(@isadg_full_id, 'generalNote', 'richtext', 'Note (3.6.1)', 'Notes', 'Notes', 50, 0, 'Any additional information');
+INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, tab_name, section_name, sort_order, is_required, help_text)
+SELECT * FROM (VALUES
+ROW(@isadg_full_id, 'generalNote', 'richtext', 'Note (3.6.1)', 'Notes', 'Notes', 50, 0, 'Any additional information')) AS v
+WHERE @isadg_full_id IS NOT NULL;
 
 -- Description Control Area
-INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, tab_name, section_name, sort_order, is_required, help_text) VALUES
-(@isadg_full_id, 'archivistNote', 'textarea', 'Archivists Note (3.7.1)', 'Description Control', 'Control', 60, 0, 'Sources consulted and methods'),
-(@isadg_full_id, 'rules', 'text', 'Rules or Conventions (3.7.2)', 'Description Control', 'Control', 61, 0, 'Standards applied'),
-(@isadg_full_id, 'descriptionIdentifier', 'text', 'Description Identifier', 'Description Control', 'Control', 62, 0, 'Unique identifier for description'),
-(@isadg_full_id, 'sources', 'textarea', 'Sources Used', 'Description Control', 'Control', 63, 0, 'Sources consulted');
+INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, tab_name, section_name, sort_order, is_required, help_text)
+SELECT * FROM (VALUES
+ROW(@isadg_full_id, 'archivistNote', 'textarea', 'Archivists Note (3.7.1)', 'Description Control', 'Control', 60, 0, 'Sources consulted and methods'),
+ROW(@isadg_full_id, 'rules', 'text', 'Rules or Conventions (3.7.2)', 'Description Control', 'Control', 61, 0, 'Standards applied'),
+ROW(@isadg_full_id, 'descriptionIdentifier', 'text', 'Description Identifier', 'Description Control', 'Control', 62, 0, 'Unique identifier for description'),
+ROW(@isadg_full_id, 'sources', 'textarea', 'Sources Used', 'Description Control', 'Control', 63, 0, 'Sources consulted')) AS v
+WHERE @isadg_full_id IS NOT NULL;
 
 -- Dublin Core Simple Template
-INSERT IGNORE INTO ahg_form_template (name, description, form_type, is_system, config_json) VALUES
-('Dublin Core Simple', 'Dublin Core 15 core elements', 'information_object', 1,
-'{"layout": "single", "sections": ["core"]}');
+-- heratio#1556: seed each system template once; the fields below are added
+-- only when this run created it, never to a stale LAST_INSERT_ID().
+INSERT INTO ahg_form_template (name, description, form_type, is_system, config_json)
+SELECT 'Dublin Core Simple', 'Dublin Core 15 core elements', 'information_object', 1,
+'{"layout": "single", "sections": ["core"]}' FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM ahg_form_template WHERE name = 'Dublin Core Simple' AND is_system = 1);
 
-SET @dc_simple_id = LAST_INSERT_ID();
+SET @dc_simple_id = IF(ROW_COUNT() = 1, LAST_INSERT_ID(), NULL);
 
-INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, section_name, sort_order, is_required, help_text) VALUES
-(@dc_simple_id, 'title', 'text', 'Title', 'core', 1, 1, 'A name given to the resource'),
-(@dc_simple_id, 'creator', 'autocomplete', 'Creator', 'core', 2, 0, 'An entity primarily responsible for making the resource'),
-(@dc_simple_id, 'subject', 'autocomplete', 'Subject', 'core', 3, 0, 'Topic of the resource'),
-(@dc_simple_id, 'description', 'richtext', 'Description', 'core', 4, 0, 'An account of the resource'),
-(@dc_simple_id, 'publisher', 'text', 'Publisher', 'core', 5, 0, 'Entity responsible for making the resource available'),
-(@dc_simple_id, 'contributor', 'autocomplete', 'Contributor', 'core', 6, 0, 'Entity responsible for making contributions'),
-(@dc_simple_id, 'date', 'date', 'Date', 'core', 7, 0, 'A point or period of time associated with the resource'),
-(@dc_simple_id, 'type', 'select', 'Type', 'core', 8, 0, 'Nature or genre of the resource'),
-(@dc_simple_id, 'format', 'text', 'Format', 'core', 9, 0, 'File format, physical medium, or dimensions'),
-(@dc_simple_id, 'identifier', 'text', 'Identifier', 'core', 10, 0, 'Unambiguous reference to the resource'),
-(@dc_simple_id, 'source', 'text', 'Source', 'core', 11, 0, 'Related resource from which this is derived'),
-(@dc_simple_id, 'language', 'select', 'Language', 'core', 12, 0, 'Language of the resource'),
-(@dc_simple_id, 'relation', 'text', 'Relation', 'core', 13, 0, 'A related resource'),
-(@dc_simple_id, 'coverage', 'text', 'Coverage', 'core', 14, 0, 'Spatial or temporal topic of the resource'),
-(@dc_simple_id, 'rights', 'textarea', 'Rights', 'core', 15, 0, 'Information about rights held in and over the resource');
+INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, section_name, sort_order, is_required, help_text)
+SELECT * FROM (VALUES
+ROW(@dc_simple_id, 'title', 'text', 'Title', 'core', 1, 1, 'A name given to the resource'),
+ROW(@dc_simple_id, 'creator', 'autocomplete', 'Creator', 'core', 2, 0, 'An entity primarily responsible for making the resource'),
+ROW(@dc_simple_id, 'subject', 'autocomplete', 'Subject', 'core', 3, 0, 'Topic of the resource'),
+ROW(@dc_simple_id, 'description', 'richtext', 'Description', 'core', 4, 0, 'An account of the resource'),
+ROW(@dc_simple_id, 'publisher', 'text', 'Publisher', 'core', 5, 0, 'Entity responsible for making the resource available'),
+ROW(@dc_simple_id, 'contributor', 'autocomplete', 'Contributor', 'core', 6, 0, 'Entity responsible for making contributions'),
+ROW(@dc_simple_id, 'date', 'date', 'Date', 'core', 7, 0, 'A point or period of time associated with the resource'),
+ROW(@dc_simple_id, 'type', 'select', 'Type', 'core', 8, 0, 'Nature or genre of the resource'),
+ROW(@dc_simple_id, 'format', 'text', 'Format', 'core', 9, 0, 'File format, physical medium, or dimensions'),
+ROW(@dc_simple_id, 'identifier', 'text', 'Identifier', 'core', 10, 0, 'Unambiguous reference to the resource'),
+ROW(@dc_simple_id, 'source', 'text', 'Source', 'core', 11, 0, 'Related resource from which this is derived'),
+ROW(@dc_simple_id, 'language', 'select', 'Language', 'core', 12, 0, 'Language of the resource'),
+ROW(@dc_simple_id, 'relation', 'text', 'Relation', 'core', 13, 0, 'A related resource'),
+ROW(@dc_simple_id, 'coverage', 'text', 'Coverage', 'core', 14, 0, 'Spatial or temporal topic of the resource'),
+ROW(@dc_simple_id, 'rights', 'textarea', 'Rights', 'core', 15, 0, 'Information about rights held in and over the resource')) AS v
+WHERE @dc_simple_id IS NOT NULL;
 
 -- Accession Form Template
-INSERT IGNORE INTO ahg_form_template (name, description, form_type, is_system, config_json) VALUES
-('Accession Standard', 'Standard accession registration form', 'accession', 1,
-'{"layout": "tabs", "tabs": ["Basic Info", "Donor", "Materials", "Processing"]}');
+-- heratio#1556: seed each system template once; the fields below are added
+-- only when this run created it, never to a stale LAST_INSERT_ID().
+INSERT INTO ahg_form_template (name, description, form_type, is_system, config_json)
+SELECT 'Accession Standard', 'Standard accession registration form', 'accession', 1,
+'{"layout": "tabs", "tabs": ["Basic Info", "Donor", "Materials", "Processing"]}' FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM ahg_form_template WHERE name = 'Accession Standard' AND is_system = 1);
 
-SET @accession_id = LAST_INSERT_ID();
+SET @accession_id = IF(ROW_COUNT() = 1, LAST_INSERT_ID(), NULL);
 
-INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, tab_name, section_name, sort_order, is_required, help_text) VALUES
-(@accession_id, 'accessionNumber', 'text', 'Accession Number', 'Basic Info', 'Identity', 1, 1, 'Unique accession identifier'),
-(@accession_id, 'accessionDate', 'date', 'Accession Date', 'Basic Info', 'Identity', 2, 1, 'Date materials were accessioned'),
-(@accession_id, 'title', 'text', 'Title', 'Basic Info', 'Identity', 3, 1, 'Title of the accession'),
-(@accession_id, 'acquisitionType', 'select', 'Acquisition Type', 'Basic Info', 'Identity', 4, 0, 'How materials were acquired'),
-(@accession_id, 'receivedExtentNumber', 'text', 'Extent (Number)', 'Basic Info', 'Extent', 5, 0, 'Numeric extent'),
-(@accession_id, 'receivedExtentUnit', 'select', 'Extent (Unit)', 'Basic Info', 'Extent', 6, 0, 'Unit of extent'),
-(@accession_id, 'donorName', 'autocomplete', 'Donor Name', 'Donor', 'Donor Info', 10, 0, 'Name of donor'),
-(@accession_id, 'donorAddress', 'textarea', 'Donor Address', 'Donor', 'Donor Info', 11, 0, 'Contact address'),
-(@accession_id, 'donorContactInfo', 'text', 'Donor Contact', 'Donor', 'Donor Info', 12, 0, 'Phone or email'),
-(@accession_id, 'scopeAndContent', 'richtext', 'Scope and Content', 'Materials', 'Description', 20, 0, 'Description of materials'),
-(@accession_id, 'appraisal', 'richtext', 'Appraisal', 'Materials', 'Description', 21, 0, 'Appraisal statement'),
-(@accession_id, 'physicalCondition', 'textarea', 'Physical Condition', 'Materials', 'Condition', 22, 0, 'Condition of materials'),
-(@accession_id, 'processingStatus', 'select', 'Processing Status', 'Processing', 'Status', 30, 0, 'Current processing status'),
-(@accession_id, 'processingPriority', 'select', 'Processing Priority', 'Processing', 'Status', 31, 0, 'Processing priority level'),
-(@accession_id, 'processingNotes', 'richtext', 'Processing Notes', 'Processing', 'Notes', 32, 0, 'Notes for processing');
+INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, tab_name, section_name, sort_order, is_required, help_text)
+SELECT * FROM (VALUES
+ROW(@accession_id, 'accessionNumber', 'text', 'Accession Number', 'Basic Info', 'Identity', 1, 1, 'Unique accession identifier'),
+ROW(@accession_id, 'accessionDate', 'date', 'Accession Date', 'Basic Info', 'Identity', 2, 1, 'Date materials were accessioned'),
+ROW(@accession_id, 'title', 'text', 'Title', 'Basic Info', 'Identity', 3, 1, 'Title of the accession'),
+ROW(@accession_id, 'acquisitionType', 'select', 'Acquisition Type', 'Basic Info', 'Identity', 4, 0, 'How materials were acquired'),
+ROW(@accession_id, 'receivedExtentNumber', 'text', 'Extent (Number)', 'Basic Info', 'Extent', 5, 0, 'Numeric extent'),
+ROW(@accession_id, 'receivedExtentUnit', 'select', 'Extent (Unit)', 'Basic Info', 'Extent', 6, 0, 'Unit of extent'),
+ROW(@accession_id, 'donorName', 'autocomplete', 'Donor Name', 'Donor', 'Donor Info', 10, 0, 'Name of donor'),
+ROW(@accession_id, 'donorAddress', 'textarea', 'Donor Address', 'Donor', 'Donor Info', 11, 0, 'Contact address'),
+ROW(@accession_id, 'donorContactInfo', 'text', 'Donor Contact', 'Donor', 'Donor Info', 12, 0, 'Phone or email'),
+ROW(@accession_id, 'scopeAndContent', 'richtext', 'Scope and Content', 'Materials', 'Description', 20, 0, 'Description of materials'),
+ROW(@accession_id, 'appraisal', 'richtext', 'Appraisal', 'Materials', 'Description', 21, 0, 'Appraisal statement'),
+ROW(@accession_id, 'physicalCondition', 'textarea', 'Physical Condition', 'Materials', 'Condition', 22, 0, 'Condition of materials'),
+ROW(@accession_id, 'processingStatus', 'select', 'Processing Status', 'Processing', 'Status', 30, 0, 'Current processing status'),
+ROW(@accession_id, 'processingPriority', 'select', 'Processing Priority', 'Processing', 'Status', 31, 0, 'Processing priority level'),
+ROW(@accession_id, 'processingNotes', 'richtext', 'Processing Notes', 'Processing', 'Notes', 32, 0, 'Notes for processing')) AS v
+WHERE @accession_id IS NOT NULL;
 
 -- Photo Collection Template (example of specialized template)
-INSERT IGNORE INTO ahg_form_template (name, description, form_type, is_system, config_json) VALUES
-('Photo Collection Item', 'Specialized form for photograph collections', 'information_object', 1,
-'{"layout": "tabs", "tabs": ["Basic", "Technical", "Subjects", "Rights"]}');
+-- heratio#1556: seed each system template once; the fields below are added
+-- only when this run created it, never to a stale LAST_INSERT_ID().
+INSERT INTO ahg_form_template (name, description, form_type, is_system, config_json)
+SELECT 'Photo Collection Item', 'Specialized form for photograph collections', 'information_object', 1,
+'{"layout": "tabs", "tabs": ["Basic", "Technical", "Subjects", "Rights"]}' FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM ahg_form_template WHERE name = 'Photo Collection Item' AND is_system = 1);
 
-SET @photo_id = LAST_INSERT_ID();
+SET @photo_id = IF(ROW_COUNT() = 1, LAST_INSERT_ID(), NULL);
 
-INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, tab_name, section_name, sort_order, is_required, help_text) VALUES
-(@photo_id, 'title', 'text', 'Title/Caption', 'Basic', 'Identity', 1, 1, 'Title or caption of the photograph'),
-(@photo_id, 'identifier', 'text', 'Photo Number', 'Basic', 'Identity', 2, 1, 'Unique photo identifier'),
-(@photo_id, 'photographer', 'autocomplete', 'Photographer', 'Basic', 'Creator', 3, 0, 'Name of photographer'),
-(@photo_id, 'dateCreated', 'date', 'Date Taken', 'Basic', 'Dates', 4, 0, 'Date photograph was taken'),
-(@photo_id, 'datePrinted', 'date', 'Date Printed', 'Basic', 'Dates', 5, 0, 'Date of print'),
-(@photo_id, 'description', 'richtext', 'Description', 'Basic', 'Content', 6, 0, 'Description of photograph'),
-(@photo_id, 'format', 'select', 'Format', 'Technical', 'Physical', 10, 0, 'Physical format (print, negative, slide, digital)'),
-(@photo_id, 'dimensions', 'text', 'Dimensions', 'Technical', 'Physical', 11, 0, 'Size of photograph'),
-(@photo_id, 'colorMode', 'select', 'Color Mode', 'Technical', 'Physical', 12, 0, 'Color or black and white'),
-(@photo_id, 'process', 'select', 'Photographic Process', 'Technical', 'Physical', 13, 0, 'Photographic process used'),
-(@photo_id, 'condition', 'textarea', 'Condition', 'Technical', 'Preservation', 14, 0, 'Physical condition'),
-(@photo_id, 'subjects', 'autocomplete', 'Subjects', 'Subjects', 'Topics', 20, 0, 'Subject terms'),
-(@photo_id, 'personsDepicted', 'autocomplete', 'Persons Depicted', 'Subjects', 'People', 21, 0, 'People shown in photograph'),
-(@photo_id, 'location', 'text', 'Location Depicted', 'Subjects', 'Places', 22, 0, 'Location shown'),
-(@photo_id, 'geoCoordinates', 'text', 'Coordinates', 'Subjects', 'Places', 23, 0, 'GPS coordinates if known'),
-(@photo_id, 'copyright', 'select', 'Copyright Status', 'Rights', 'Rights', 30, 0, 'Copyright status'),
-(@photo_id, 'copyrightHolder', 'text', 'Copyright Holder', 'Rights', 'Rights', 31, 0, 'Name of copyright holder'),
-(@photo_id, 'accessRestrictions', 'textarea', 'Access Restrictions', 'Rights', 'Access', 32, 0, 'Any access restrictions'),
-(@photo_id, 'useRestrictions', 'textarea', 'Use Restrictions', 'Rights', 'Access', 33, 0, 'Restrictions on use');
+INSERT IGNORE INTO ahg_form_field (template_id, field_name, field_type, label, tab_name, section_name, sort_order, is_required, help_text)
+SELECT * FROM (VALUES
+ROW(@photo_id, 'title', 'text', 'Title/Caption', 'Basic', 'Identity', 1, 1, 'Title or caption of the photograph'),
+ROW(@photo_id, 'identifier', 'text', 'Photo Number', 'Basic', 'Identity', 2, 1, 'Unique photo identifier'),
+ROW(@photo_id, 'photographer', 'autocomplete', 'Photographer', 'Basic', 'Creator', 3, 0, 'Name of photographer'),
+ROW(@photo_id, 'dateCreated', 'date', 'Date Taken', 'Basic', 'Dates', 4, 0, 'Date photograph was taken'),
+ROW(@photo_id, 'datePrinted', 'date', 'Date Printed', 'Basic', 'Dates', 5, 0, 'Date of print'),
+ROW(@photo_id, 'description', 'richtext', 'Description', 'Basic', 'Content', 6, 0, 'Description of photograph'),
+ROW(@photo_id, 'format', 'select', 'Format', 'Technical', 'Physical', 10, 0, 'Physical format (print, negative, slide, digital)'),
+ROW(@photo_id, 'dimensions', 'text', 'Dimensions', 'Technical', 'Physical', 11, 0, 'Size of photograph'),
+ROW(@photo_id, 'colorMode', 'select', 'Color Mode', 'Technical', 'Physical', 12, 0, 'Color or black and white'),
+ROW(@photo_id, 'process', 'select', 'Photographic Process', 'Technical', 'Physical', 13, 0, 'Photographic process used'),
+ROW(@photo_id, 'condition', 'textarea', 'Condition', 'Technical', 'Preservation', 14, 0, 'Physical condition'),
+ROW(@photo_id, 'subjects', 'autocomplete', 'Subjects', 'Subjects', 'Topics', 20, 0, 'Subject terms'),
+ROW(@photo_id, 'personsDepicted', 'autocomplete', 'Persons Depicted', 'Subjects', 'People', 21, 0, 'People shown in photograph'),
+ROW(@photo_id, 'location', 'text', 'Location Depicted', 'Subjects', 'Places', 22, 0, 'Location shown'),
+ROW(@photo_id, 'geoCoordinates', 'text', 'Coordinates', 'Subjects', 'Places', 23, 0, 'GPS coordinates if known'),
+ROW(@photo_id, 'copyright', 'select', 'Copyright Status', 'Rights', 'Rights', 30, 0, 'Copyright status'),
+ROW(@photo_id, 'copyrightHolder', 'text', 'Copyright Holder', 'Rights', 'Rights', 31, 0, 'Name of copyright holder'),
+ROW(@photo_id, 'accessRestrictions', 'textarea', 'Access Restrictions', 'Rights', 'Access', 32, 0, 'Any access restrictions'),
+ROW(@photo_id, 'useRestrictions', 'textarea', 'Use Restrictions', 'Rights', 'Access', 33, 0, 'Restrictions on use')) AS v
+WHERE @photo_id IS NOT NULL;
 
 -- Update field options for select fields
 UPDATE ahg_form_field SET options_json = '[{"value":"fonds","label":"Fonds"},{"value":"series","label":"Series"},{"value":"file","label":"File"},{"value":"item","label":"Item"},{"value":"collection","label":"Collection"}]'

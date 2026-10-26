@@ -319,9 +319,11 @@ CREATE TABLE IF NOT EXISTS `gallery_space` (
 -- Taxonomy Term for Gallery sector
 -- =====================================================
 SET @gallery_exists = (SELECT COUNT(*) FROM term WHERE code = 'gallery' AND taxonomy_id = 70);
-INSERT IGNORE INTO object (class_name, created_at, updated_at)
+-- heratio#1556: no IGNORE, so a failed insert stops the install, and the id is
+-- taken only from a row this statement inserted - never a stale LAST_INSERT_ID().
+INSERT INTO object (class_name, created_at, updated_at)
 SELECT 'QubitTerm', NOW(), NOW() FROM DUAL WHERE @gallery_exists = 0;
-SET @gallery_id = LAST_INSERT_ID();
+SET @gallery_id = IF(@gallery_exists = 0 AND ROW_COUNT() = 1, LAST_INSERT_ID(), NULL);
 INSERT IGNORE INTO term (id, taxonomy_id, code, source_culture)
 SELECT @gallery_id, 70, 'gallery', 'en' FROM DUAL WHERE @gallery_exists = 0 AND @gallery_id > 0;
 INSERT IGNORE INTO term_i18n (id, culture, name)

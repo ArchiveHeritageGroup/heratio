@@ -203,6 +203,20 @@ else
     fi
 fi
 
+#-- 6. terms own their object rows (REPORTS, never blocks) --------------------
+# heratio#1556: a term whose id belongs to another object is deleted, with its
+# usage, when that object is deleted. Repair: ahg:term-object-collisions --apply.
+echo -en "6. terms own their object rows … "
+if TERM_OUT=$(artisan ahg:term-object-collisions 2>&1); then
+    echo -e "${GRN}OK${NC}"
+elif echo "$TERM_OUT" | grep -q "need repair"; then
+    echo -e "${YEL}WARN${NC}"
+    echo "$TERM_OUT" | grep -E "^term [0-9]+" | sed 's/^/   /'
+    echo -e "   ${YEL}repair: php artisan ahg:term-object-collisions --apply${NC}"
+else
+    echo -e "${YEL}SKIP${NC} (check could not run)"
+fi
+
 echo
 if [ "$fail" = 0 ]; then
     echo -e "${GRN}deploy-check passed.${NC}"

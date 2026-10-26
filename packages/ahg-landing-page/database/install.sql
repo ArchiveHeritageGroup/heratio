@@ -223,8 +223,10 @@ VALUES
 INSERT IGNORE INTO atom_landing_page (name, slug, description, is_default, is_active)
 VALUES ('Home', 'home', 'Default homepage', 1, 1);
 
--- Add default blocks to homepage (only if page was just created)
-SET @page_id = LAST_INSERT_ID();
+-- Add default blocks to the homepage when it has none. heratio#1556: look the
+-- page up by slug; LAST_INSERT_ID() is stale when the INSERT IGNORE above was
+-- skipped, and blocks went to page ids that do not exist.
+SET @page_id = (SELECT id FROM atom_landing_page WHERE slug = 'home' LIMIT 1);
 SET @has_blocks = (SELECT COUNT(*) FROM atom_landing_page_block WHERE page_id = @page_id);
 
 INSERT IGNORE INTO atom_landing_page_block (page_id, block_type_id, position, config)
