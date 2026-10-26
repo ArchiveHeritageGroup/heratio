@@ -72,6 +72,62 @@ abstract class BaseApiController extends Controller
     }
 
     /**
+     * List response in the PSIS shape: data = {total, limit, skip, results}
+     * (#1558, so one client reads PSIS and Heratio alike), with meta and links
+     * kept at the top level for page-based clients.
+     */
+    protected function listing($rows, int $total, int $limit, int $skip, string $path, string $key = 'results'): JsonResponse
+    {
+        $page = intdiv($skip, max(1, $limit)) + 1;
+        $lastPage = max(1, (int) ceil($total / max(1, $limit)));
+        $baseUrl = url($path);
+        $links = ['self' => "{$baseUrl}?page={$page}&limit={$limit}"];
+        if ($page < $lastPage) {
+            $links['next'] = "{$baseUrl}?page=".($page + 1)."&limit={$limit}";
+        }
+        if ($page > 1) {
+            $links['prev'] = "{$baseUrl}?page=".($page - 1)."&limit={$limit}";
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => ['total' => $total, 'limit' => $limit, 'skip' => $skip, $key => is_array($rows) ? array_values($rows) : $rows->values()],
+            'meta' => ['total' => $total, 'page' => $page, 'limit' => $limit, 'last_page' => $lastPage],
+            'links' => $links,
+            'timestamp' => now()->toIso8601String(),
+        ]);
+    }
+
+    /**
+     * Offset for a list: an explicit skip wins, else it follows from page.
+     */
+    protected function listOffset(Request $request, int $page, int $limit): int
+    {
+        return $request->filled('skip') ? max(0, (int) $request->get('skip')) : ($page - 1) * $limit;
+    }
+
+    /**
+     * The key owner as an ACL user object, or null for no user.
+     */
+    protected function apiUser(Request $request): ?object
+    {
+        $id = $this->apiUserId($request);
+
+        return $id ? (object) ['id' => (int) $id] : null;
+    }
+
+    /**
+     * Administrator or editor: may see provenance details kept from the public
+     * and everyone's proposals.
+     */
+    protected function isStaff(Request $request): bool
+    {
+        $user = $this->apiUser($request);
+
+        return $user && (\AhgCore\Services\AclService::isAdministrator($user) || \AhgCore\Services\AclService::isEditor($user));
+    }
+
+    /**
      * Parse pagination params from request.
      */
     protected function paginationParams(Request $request): array
@@ -83,6 +139,18 @@ abstract class BaseApiController extends Controller
         $sortDir = strtolower($request->get('sort_direction', 'desc')) === 'asc' ? 'asc' : 'desc';
 
         return compact('page', 'limit', 'skip', 'sort', 'sortDir');
+    }
+
+    /**
+     * Every word of $search (up to six) must appear in $column, in any order,
+     * so "Hendrik Engelbrecht" also finds "Engelbrecht, Hendrik".
+     */
+    protected function whereWords($query, string $column, string $search): void
+    {
+        $words = array_slice(preg_split('/[\s,]+/u', trim($search), -1, PREG_SPLIT_NO_EMPTY), 0, 6);
+        foreach ($words as $w) {
+            $query->where($column, 'like', '%'.addcslashes(mb_substr($w, 0, 100), '%_\\').'%');
+        }
     }
 
     /**

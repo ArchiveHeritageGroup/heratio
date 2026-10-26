@@ -13,6 +13,7 @@ use AhgApi\Controllers\FeedController;
 use AhgApi\Controllers\GraphController;
 use AhgApi\Controllers\GraphExplorerController;
 use AhgApi\Controllers\IiifPresentationController;
+use AhgApi\Controllers\KeyPageController;
 use AhgApi\Controllers\LegacyApiController;
 use AhgApi\Controllers\MaturityController;
 use AhgApi\Controllers\MetsController;
@@ -760,6 +761,11 @@ Route::middleware(['throttle:120,1', 'api.cors'])->group(function () {
     Route::get('iiif-presentation/{idOrSlug}/manifest.json', [IiifPresentationController::class, 'manifest'])
         ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9\-_/]*')
         ->name('iiif-presentation.manifest');
+    // #1558 - the address the AHG Archives MCP (and PSIS) give for a record's
+    // manifest. Needs the nginx passthrough `location ^~ /iiif/manifest/`
+    // ahead of the Cantaloupe `^~ /iiif/` block (deploy/nginx, cantaloupe snippet).
+    Route::get('iiif/manifest/{idOrSlug}', [IiifPresentationController::class, 'manifest'])
+        ->where('idOrSlug', '[A-Za-z0-9][A-Za-z0-9\-_]*');
 });
 
 /*
@@ -1204,7 +1210,8 @@ Route::prefix('api/v2')->middleware(['api.cors', 'api.auth:read', 'api.ratelimit
 
     // Descriptions - full CRUD
     Route::get('descriptions', [DescriptionController::class, 'index']);
-    Route::get('descriptions/{slug}', [DescriptionController::class, 'show']);
+    Route::get('descriptions/{slug}', [DescriptionController::class, 'show'])->middleware('privacy.redact');
+    Route::get('descriptions/{slug}/text', [DescriptionController::class, 'text'])->middleware('privacy.redact');
     Route::post('descriptions', [DescriptionController::class, 'store'])->middleware('api.auth:write');
     Route::match(['put', 'patch'], 'descriptions/{slug}', [DescriptionController::class, 'update'])->middleware('api.auth:write');
     Route::delete('descriptions/{slug}', [DescriptionController::class, 'destroy'])->middleware('api.auth:delete');
@@ -1374,3 +1381,15 @@ Route::fallback(function (\Illuminate\Http\Request $request) {
     // empty 200 (issue #41 - /admin/typo, /admin/dashboard, etc.).
     abort(404);
 })->middleware('api.cors');
+
+/*
+|--------------------------------------------------------------------------
+| /api/keys - a signed-in user's own API keys (#1558, #1566)
+|--------------------------------------------------------------------------
+| The page the AHG Archives MCP links to for the key a user signs in with.
+*/
+Route::middleware(['web', 'auth'])->group(function () {
+    Route::get('api/keys', [KeyPageController::class, 'index'])->name('api.keys');
+    Route::post('api/keys', [KeyPageController::class, 'store'])->name('api.keys.store');
+    Route::post('api/keys/{id}/revoke', [KeyPageController::class, 'revoke'])->whereNumber('id')->name('api.keys.revoke');
+});

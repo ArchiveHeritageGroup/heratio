@@ -29,34 +29,7 @@ class ApiAuthenticate
             // create grant) is read-only; contributors/editors who may catalogue
             // get write (and delete/publish where their role allows); admins get
             // everything. Prevents unauthorised CRUD via the api routes.
-            $u = (object) ['id' => $userId];
-            // #1395(B) - 'read' is itself an ACL capability, not a freebie for
-            // any logged-in session. Previously EVERY authenticated session got
-            // 'read' unconditionally, so a self-registered researcher could hit
-            // read-gated api routes returning decrypted donor/actor/accession
-            // PII. Mirror the #1395(A) derivation below: grant 'read' only to a
-            // user who actually has the read capability (contributors/editors/
-            // admins) via the SAME AclService::check() the write/delete/publish
-            // scopes use. A researcher with no read grant gets an empty scope
-            // set and is rejected by checkScopes. Public catalogue routes are
-            // NOT api.auth-gated, so they are unaffected. The API-KEY branch
-            // below is untouched: its scopes still come from the key record.
-            $scopes = [];
-            if (\AhgCore\Services\AclService::check(null, 'read', $u)) {
-                $scopes[] = 'read';
-            }
-            if (\AhgCore\Services\AclService::check(null, ['create', 'update'], $u)) {
-                $scopes[] = 'write';
-            }
-            if (\AhgCore\Services\AclService::check(null, 'delete', $u)) {
-                $scopes[] = 'delete';
-            }
-            if (\AhgCore\Services\AclService::check(null, 'publish', $u)) {
-                $scopes[] = 'publish:write';
-            }
-            if ($userId && \AhgCore\Services\AclService::canAdmin($userId)) {
-                $scopes[] = 'batch';
-            }
+            $scopes = self::sessionScopes($userId);
             $request->attributes->set('api_scopes', $scopes);
 
             return $this->checkScopes($request, $next, $requiredScopes);
@@ -106,6 +79,23 @@ class ApiAuthenticate
 
         $scopes = json_decode($apiKey->scopes, true) ?: [];
 
+        // #1558 - a key whose owner has no read capability (a user with no
+        // groups, e.g. the MCP's public service key) reads the public catalogue
+        // only: the visibility-gated v2 catalogue routes, never v1 donor,
+        // accession or other read-gated data. Same rule as PSIS (framework
+        // AhgApiController::hasScope).
+        $owner = self::sessionScopes((int) $apiKey->user_id);
+        if (! in_array('read', $owner, true)) {
+            if (! $this->isPublicCatalogueRoute($request)) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Forbidden',
+                    'message' => 'This key may read the public catalogue only.',
+                ], 403);
+            }
+            $scopes = array_values(array_intersect($scopes, ['read']));
+        }
+
         $request->attributes->set('api_key_id', $apiKey->id);
         $request->attributes->set('api_user_id', $apiKey->user_id);
         $request->attributes->set('api_scopes', $scopes);
@@ -131,6 +121,53 @@ class ApiAuthenticate
         }
 
         return $next($request);
+    }
+
+    /**
+     * The scopes a signed-in user holds, from their ACL capabilities (#1395 A/B):
+     * read, write, delete and publish by capability, batch for admins. Also the
+     * ceiling for any key that user creates.
+     */
+    public static function sessionScopes(?int $userId): array
+    {
+        $u = (object) ['id' => $userId];
+        $scopes = [];
+        if (\AhgCore\Services\AclService::check(null, 'read', $u)) {
+            $scopes[] = 'read';
+        }
+        if (\AhgCore\Services\AclService::check(null, ['create', 'update'], $u)) {
+            $scopes[] = 'write';
+        }
+        if (\AhgCore\Services\AclService::check(null, 'delete', $u)) {
+            $scopes[] = 'delete';
+        }
+        if (\AhgCore\Services\AclService::check(null, 'publish', $u)) {
+            $scopes[] = 'publish:write';
+        }
+        if ($userId && \AhgCore\Services\AclService::canAdmin($userId)) {
+            $scopes[] = 'batch';
+        }
+
+        return $scopes;
+    }
+
+    /**
+     * The routes a public-only key may use: GET/HEAD on the v2 catalogue reads,
+     * which apply publication, ICIP/TK, ODRL, embargo and classification
+     * themselves, plus a caller's own proposals list.
+     */
+    protected function isPublicCatalogueRoute(Request $request): bool
+    {
+        if (! in_array($request->method(), ['GET', 'HEAD', 'POST'], true)) {
+            return false;
+        }
+        $path = trim($request->path(), '/');
+        if ($request->method() === 'POST') {
+            return $path === 'api/v2/search';
+        }
+
+        return $path === 'api/v2'
+            || (bool) preg_match('#^api/v2/(descriptions(/[^/]+(/text)?)?|authorities(/[^/]+)?|repositories|taxonomies(/\d+/terms)?|exhibitions(/[^/]+)?|search|proposals)$#', $path);
     }
 
     protected function bearerToken(Request $request): ?string

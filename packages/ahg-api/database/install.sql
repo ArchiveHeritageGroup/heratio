@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS ahg_api_key (
     api_key_prefix VARCHAR(8) NOT NULL,
     scopes JSON DEFAULT NULL,
     rate_limit INT DEFAULT 1000,
+    daily_limit INT DEFAULT NULL COMMENT '#1566 requests per day; NULL or 0 = no cap',
     expires_at DATETIME DEFAULT NULL,
     last_used_at DATETIME DEFAULT NULL,
     is_active TINYINT(1) DEFAULT 1,

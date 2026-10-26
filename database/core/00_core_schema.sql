@@ -1708,6 +1708,7 @@ CREATE TABLE IF NOT EXISTS `ahg_api_key` (
   `api_key_prefix` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `scopes` json DEFAULT NULL,
   `rate_limit` int DEFAULT '1000',
+  `daily_limit` int DEFAULT NULL COMMENT '#1566 requests per day; NULL or 0 = no cap',
   `expires_at` datetime DEFAULT NULL,
   `last_used_at` datetime DEFAULT NULL,
   `is_active` tinyint(1) DEFAULT '1',

@@ -14,7 +14,7 @@ class AuthorityController extends BaseApiController
     public function index(Request $request): JsonResponse
     {
         ['page' => $page, 'limit' => $limit, 'sort' => $sort, 'sortDir' => $sortDir] = $this->paginationParams($request);
-        $offset = ($page - 1) * $limit;
+        $offset = $this->listOffset($request, $page, $limit);
 
         $query = DB::table('actor')
             ->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')
@@ -23,13 +23,22 @@ class AuthorityController extends BaseApiController
             ->where('actor_i18n.culture', $this->culture)
             ->where('object.class_name', 'QubitActor')
             ->where('actor.parent_id', '!=', 0);
+        // #1558 - published, not embargoed authority records only (staff see all).
+        \AhgCore\Services\AclService::addActorVisibilityCriteria($query, 'actor.id');
 
+        // ?entity_type= an ISAAR entity type id, or person|organization|family (PSIS).
         if ($type = $request->get('entity_type')) {
-            $query->where('actor.entity_type_id', $type);
+            $named = ['person' => 132, 'organization' => 131, 'organisation' => 131, 'corporate body' => 131, 'family' => 133];
+            $query->where('actor.entity_type_id', is_numeric($type) ? (int) $type : ($named[strtolower((string) $type)] ?? -1));
         }
+        $this->whereWords($query, 'actor_i18n.authorized_form_of_name', (string) $request->get('search', ''));
 
         $total = $query->count();
 
+        // A name search lists alphabetically unless a sort is asked for.
+        if ($request->filled('search') && ! $request->filled('sort')) {
+            [$sort, $sortDir] = ['name', 'asc'];
+        }
         match ($sort) {
             'alphabetic', 'name' => $query->orderBy('actor_i18n.authorized_form_of_name', $sortDir),
             default => $query->orderBy('object.updated_at', $sortDir),
@@ -53,7 +62,7 @@ class AuthorityController extends BaseApiController
             'updated_at' => $r->updated_at,
         ]);
 
-        return $this->paginated($data, $total, $page, $limit, '/api/v2/authorities');
+        return $this->listing($data, $total, $limit, $offset, '/api/v2/authorities');
     }
 
     /**
@@ -70,7 +79,8 @@ class AuthorityController extends BaseApiController
             ->select('actor.*', 'actor_i18n.*', 'object.created_at', 'object.updated_at', 'slug.slug')
             ->first();
 
-        if (! $actor) {
+        // A hidden authority record answers exactly like a missing one (#1558).
+        if (! $actor || ! \AhgCore\Services\AclService::isActorVisible((int) $actor->id)) {
             return $this->error('Not Found', "Authority '{$slug}' not found.", 404);
         }
 
@@ -108,6 +118,9 @@ class AuthorityController extends BaseApiController
             ->distinct()
             ->limit(50)
             ->get();
+        // Only descriptions a visitor may see (#1558).
+        $visible = array_flip(app(\AhgCore\Services\DisclosureGate::class)->filterIds($resources->pluck('id')->all()));
+        $resources = $resources->filter(fn ($r) => isset($visible[(int) $r->id]))->values();
 
         return $this->success([
             'id' => $actor->id,

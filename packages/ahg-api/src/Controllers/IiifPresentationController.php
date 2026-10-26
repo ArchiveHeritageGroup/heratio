@@ -449,6 +449,10 @@ class IiifPresentationController extends Controller
         if ((int) $row->status_id !== self::STATUS_PUBLISHED) {
             return null;
         }
+        // #1558 - embargo, classification, ICIP/TK and ODRL as well, fail-closed.
+        if (! app(\AhgCore\Services\DisclosureGate::class)->allows((int) $row->id)) {
+            return null;
+        }
 
         return [
             'id' => (int) $row->id,

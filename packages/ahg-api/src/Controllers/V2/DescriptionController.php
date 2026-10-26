@@ -25,7 +25,7 @@ class DescriptionController extends BaseApiController
     public function index(Request $request): JsonResponse
     {
         ['page' => $page, 'limit' => $limit, 'sort' => $sort, 'sortDir' => $sortDir] = $this->paginationParams($request);
-        $offset = ($page - 1) * $limit;
+        $offset = $this->listOffset($request, $page, $limit);
 
         $query = DB::table('information_object as io')
             ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
@@ -56,9 +56,14 @@ class DescriptionController extends BaseApiController
 
         $total = $query->count();
 
+        // A parent's children list in archival order unless a sort is asked for.
+        if ($parent && ! $request->filled('sort')) {
+            $sort = 'archival';
+        }
         match ($sort) {
             'alphabetic', 'title' => $query->orderBy('ioi.title', $sortDir),
             'identifier' => $query->orderBy('io.identifier', $sortDir),
+            'archival' => $query->orderBy('io.lft'),
             default => $query->orderBy('object.updated_at', $sortDir),
         };
 
@@ -82,7 +87,7 @@ class DescriptionController extends BaseApiController
             'updated_at' => $r->updated_at,
         ]);
 
-        return $this->paginated($data, $total, $page, $limit, '/api/v2/descriptions');
+        return $this->listing($data, $total, $limit, $offset, '/api/v2/descriptions');
     }
 
     /**
@@ -124,11 +129,17 @@ class DescriptionController extends BaseApiController
             $data['events'] = $this->getEvents($io->id);
             $data['creators'] = $this->getCreators($io->id);
             $data['access_points'] = $this->getAccessPoints($io->id);
+            // PSIS-shaped fields (#1558): one client reads both catalogues.
+            $data['dates'] = $this->getDates($data['events']);
+            $data['names'] = $this->getNames($io->id);
+            $data['subjects'] = $this->getTerms($io->id, 35);
+            $data['places'] = $this->getTerms($io->id, 42);
             $data['notes'] = $this->getNotes($io->id);
-            $data['digital_objects'] = $this->getDigitalObjects($io->id);
+            $data['digital_objects'] = $this->getDigitalObjects($io->id, $this->apiUser($request));
             $data['properties'] = $this->getProperties($io->id);
             $data['hierarchy'] = $this->getHierarchy($io->id);
             $data['children_count'] = $this->getChildrenCount($io->id);
+            $data['provenance'] = $this->getProvenance($io->id, $this->isStaff($request));
         }
 
         // Issue #747 - opt-in embedded EXIF/IPTC/XMP block. Default OFF to
@@ -141,6 +152,71 @@ class DescriptionController extends BaseApiController
         }
 
         return $this->success($data);
+    }
+
+    /**
+     * GET /api/v2/descriptions/{slug}/text?start=0&chars=20000 (#1560)
+     *
+     * The text held for a record's files - legacy extracted text (the
+     * "transcript" property), IIIF OCR and audio/video transcriptions - paged by
+     * character offset. Offered only where a visitor may see the record (same
+     * gate as show, same 404) and its reference copy: a record with visual
+     * redaction regions gives no text, since OCR can carry what the image hides.
+     * A "transcript" privacy field rule redacts it for everyone but admins.
+     */
+    public function text(string $slug, Request $request): JsonResponse
+    {
+        $id = (int) $this->slugToId($slug);
+        $gate = app(\AhgCore\Services\DisclosureGate::class);
+        if (! $id || ! $gate->allows($id)) {
+            return $this->error('Not Found', "Description '{$slug}' not found.", 404);
+        }
+        if ($gate->hasRedactions($id)) {
+            return $this->success(['slug' => $slug, 'texts' => [], 'note' => "You may not view this record's files."]);
+        }
+
+        // Own parameter names, as PSIS: limit/skip mean list paging elsewhere.
+        $offset = max(0, (int) $request->get('start', 0));
+        $chars = max(1, min((int) $request->get('chars', 20000), 50000));
+        $doIds = DB::table('digital_object')->where('object_id', $id)->whereNull('parent_id')->pluck('id')->all();
+
+        $sources = [];
+        if ($doIds) {
+            foreach (DB::table('property as p')->join('property_i18n as pi', 'pi.id', '=', 'p.id')
+                ->whereIn('p.object_id', $doIds)->where('p.name', 'transcript')
+                ->get(['p.object_id', 'pi.culture', 'pi.value']) as $r) {
+                $sources[] = ['extracted text', (int) $r->object_id, $r->culture, (string) $r->value];
+            }
+            foreach ([['iiif_ocr_text', 'ocr'], ['media_transcription', 'media transcription']] as [$table, $label]) {
+                foreach (DB::table($table)->whereIn('digital_object_id', $doIds)
+                    ->get(['digital_object_id', 'language', 'full_text']) as $r) {
+                    $sources[] = [$label, (int) $r->digital_object_id, $r->language, (string) $r->full_text];
+                }
+            }
+        }
+
+        $privacy = app(\AhgPrivacy\Services\PrivacyRedactionService::class);
+        $rule = $privacy->canViewUnredacted($this->apiUserId($request))
+            ? null : $privacy->getPrivacyProfile($id)?->fields->firstWhere('field_name', 'transcript');
+
+        $texts = [];
+        foreach ($sources as [$source, $doId, $language, $full]) {
+            $full = trim($full);
+            if ($full === '') {
+                continue;
+            }
+            if ($rule) {
+                $full = $privacy->redactValue($full, $rule->redaction_type, $rule->redaction_pattern);
+            }
+            $length = mb_strlen($full);
+            $texts[] = [
+                'source' => $source, 'digital_object_id' => $doId, 'language' => $language,
+                'length' => $length, 'offset' => $offset,
+                'text' => mb_substr($full, $offset, $chars), 'more' => $offset + $chars < $length,
+            ];
+        }
+
+        return $this->success(['slug' => $slug, 'texts' => $texts]);
     }
 
     /**
@@ -383,7 +459,7 @@ class DescriptionController extends BaseApiController
         // #1536: last modified moves only if this request changes the content.
         $fingerprintBefore = \AhgInformationObjectManage\Services\InformationObjectService::contentFingerprint((int) $id);
 
-        DB::transaction(function () use ($id, $input) {
+        DB::transaction(function () use ($id, $input, $fingerprintBefore) {
             // Update base table fields
             $baseFields = ['identifier', 'level_of_description_id', 'repository_id'];
             $baseUpdate = array_intersect_key($input, array_flip($baseFields));
@@ -591,6 +667,7 @@ class DescriptionController extends BaseApiController
             ->where('event.type_id', TermId::EVENT_TYPE_CREATION)
             ->where('actor_i18n.culture', $this->culture)
             ->whereNotNull('event.actor_id')
+            ->tap(fn ($q) => \AhgCore\Services\AclService::addActorVisibilityCriteria($q, 'actor.id'))
             ->select('event.actor_id as id', 'actor_i18n.authorized_form_of_name as name',
                 'actor_i18n.dates_of_existence', 'actor_i18n.history', 'cs.slug')
             ->distinct()
@@ -611,10 +688,12 @@ class DescriptionController extends BaseApiController
             ->pluck('term_i18n.name')->values()->toArray();
 
         $names = DB::table('relation')
+            ->join('actor', 'relation.object_id', '=', 'actor.id')
             ->join('actor_i18n', 'relation.object_id', '=', 'actor_i18n.id')
             ->where('relation.subject_id', $objectId)
             ->where('relation.type_id', TermId::RELATION_NAME_ACCESS_POINT)
             ->where('actor_i18n.culture', $this->culture)
+            ->tap(fn ($q) => \AhgCore\Services\AclService::addActorVisibilityCriteria($q, 'actor.id'))
             ->pluck('actor_i18n.authorized_form_of_name')->values()->toArray();
 
         return [
@@ -643,31 +722,45 @@ class DescriptionController extends BaseApiController
     }
 
     /**
-     * Get digital objects attached to an information object.
-     * Ported from AtoM ApiRepository::getDigitalObjects().
+     * Digital objects with links to the copies the caller may open (#1561):
+     * thumbnail and reference derivatives by their usage rows, the master only
+     * with readMaster. Links are plain paths on this site. A record with
+     * redaction regions offers no reference or master, which the upload gate
+     * would refuse anyway.
      */
-    protected function getDigitalObjects(int $objectId): array
+    protected function getDigitalObjects(int $objectId, ?object $user = null): array
     {
         $objects = DB::table('digital_object')
             ->where('object_id', $objectId)
+            ->whereNull('parent_id')
             ->select('id', 'name', 'path', 'mime_type', 'byte_size', 'checksum', 'usage_id')
             ->get();
+        if ($objects->isEmpty()) {
+            return [];
+        }
 
-        return $objects->map(function ($row) {
-            $thumbnailPath = null;
-            if ($row->path) {
-                $pathInfo = pathinfo($row->path);
-                $thumbnailPath = '/uploads/'.$pathInfo['dirname'].'/'.$pathInfo['filename'].'_142.'.($pathInfo['extension'] ?? 'jpg');
-            }
+        $derivatives = DB::table('digital_object')
+            ->whereIn('parent_id', $objects->pluck('id'))
+            ->select('parent_id', 'usage_id', 'path', 'name')
+            ->get()->groupBy('parent_id');
+        $redacted = app(\AhgCore\Services\DisclosureGate::class)->hasRedactions($objectId);
+        $resource = (object) ['id' => $objectId];
+        $may = fn (string $action) => $user && \AhgCore\Services\AclService::check($resource, $action, $user);
+        $link = fn ($row) => $row && $row->path ? rtrim($row->path, '/').'/'.$row->name : null;
+
+        return $objects->map(function ($row) use ($derivatives, $redacted, $may, $link) {
+            $byUsage = ($derivatives[$row->id] ?? collect())->keyBy('usage_id');
+            $master = ! $redacted && $may('readMaster') ? $link($row) : null;
 
             return [
                 'id' => $row->id,
                 'name' => $row->name,
                 'mime_type' => $row->mime_type,
-                'byte_size' => $row->byte_size,
-                'checksum' => $row->checksum,
-                'thumbnail_url' => $thumbnailPath,
-                'master_url' => $row->path ? '/uploads/'.$row->path : null,
+                'byte_size' => $master ? $row->byte_size : null,
+                'checksum' => $master ? $row->checksum : null,
+                'thumbnail_url' => $link($byUsage[TermId::DO_USAGE_THUMBNAIL] ?? null),
+                'reference_url' => $redacted ? null : $link($byUsage[TermId::DO_USAGE_REFERENCE] ?? null),
+                'master_url' => $master,
             ];
         })->values()->toArray();
     }
@@ -724,7 +817,9 @@ class DescriptionController extends BaseApiController
             ->orderByRaw($ancIds ? 'FIELD(io.id, '.implode(',', array_map('intval', $ancIds)).')' : 'io.id')
             ->get();
 
-        return $ancestors->map(fn ($row) => [
+        $visible = array_flip(app(\AhgCore\Services\DisclosureGate::class)->filterIds($ancestors->pluck('id')->all()));
+
+        return $ancestors->filter(fn ($row) => isset($visible[(int) $row->id]))->map(fn ($row) => [
             'id' => $row->id,
             'slug' => $row->slug,
             'title' => $row->title,
@@ -737,9 +832,109 @@ class DescriptionController extends BaseApiController
      */
     protected function getChildrenCount(int $objectId): int
     {
-        return DB::table('information_object')
-            ->where('parent_id', $objectId)
-            ->count();
+        $gate = app(\AhgCore\Services\DisclosureGate::class);
+        $query = DB::table('information_object')->where('parent_id', $objectId);
+        $gate->wherePublished($query);
+
+        return $gate->excludeRestricted($query, 'information_object.id')->count();
+    }
+
+    /**
+     * PSIS "dates": one entry per event, as written and normalised.
+     */
+    protected function getDates(array $events): array
+    {
+        return array_map(fn ($e) => [
+            'event_type' => $e['type'],
+            'date_display' => $e['date_display'],
+            'start_date' => $e['start_date'],
+            'end_date' => $e['end_date'],
+            'actor' => $e['actor'],
+        ], $events);
+    }
+
+    /**
+     * People and organisations linked to the record (creators and other event
+     * actors, then name access points), visible authority records only.
+     */
+    protected function getNames(int $objectId): array
+    {
+        $visible = fn ($q) => \AhgCore\Services\AclService::addActorVisibilityCriteria($q, 'actor.id');
+        $events = DB::table('event')
+            ->join('actor', 'event.actor_id', '=', 'actor.id')
+            ->join('actor_i18n', function ($j) {
+                $j->on('actor.id', '=', 'actor_i18n.id')->where('actor_i18n.culture', $this->culture);
+            })
+            ->leftJoin('slug', 'actor.id', '=', 'slug.object_id')
+            ->leftJoin('term_i18n as ti', function ($j) {
+                $j->on('event.type_id', '=', 'ti.id')->where('ti.culture', $this->culture);
+            })
+            ->where('event.object_id', $objectId)
+            ->tap($visible)
+            ->select('actor.id', 'slug.slug', 'actor_i18n.authorized_form_of_name as name', 'ti.name as relation_type')
+            ->get();
+        $points = DB::table('relation')
+            ->join('actor', 'relation.object_id', '=', 'actor.id')
+            ->join('actor_i18n', function ($j) {
+                $j->on('actor.id', '=', 'actor_i18n.id')->where('actor_i18n.culture', $this->culture);
+            })
+            ->leftJoin('slug', 'actor.id', '=', 'slug.object_id')
+            ->where('relation.subject_id', $objectId)
+            ->where('relation.type_id', TermId::RELATION_NAME_ACCESS_POINT)
+            ->tap($visible)
+            ->select('actor.id', 'slug.slug', 'actor_i18n.authorized_form_of_name as name', DB::raw("'Subject' as relation_type"))
+            ->get();
+
+        return $events->concat($points)->unique(fn ($r) => $r->id.'|'.$r->relation_type)->map(fn ($r) => [
+            'id' => $r->id, 'slug' => $r->slug, 'name' => $r->name, 'relation_type' => $r->relation_type,
+        ])->values()->toArray();
+    }
+
+    /** Access points from one taxonomy, as {id, name}. */
+    protected function getTerms(int $objectId, int $taxonomyId): array
+    {
+        return DB::table('object_term_relation as otr')
+            ->join('term as t', 'otr.term_id', '=', 't.id')
+            ->join('term_i18n as ti', function ($j) {
+                $j->on('t.id', '=', 'ti.id')->where('ti.culture', $this->culture);
+            })
+            ->where('otr.object_id', $objectId)
+            ->where('t.taxonomy_id', $taxonomyId)
+            ->select('t.id', 'ti.name')
+            ->get()->map(fn ($r) => ['id' => $r->id, 'name' => $r->name])->values()->toArray();
+    }
+
+    /**
+     * The provenance chain (#1561), as PSIS gives it: null when none is
+     * recorded or it is not public; sale details for staff only.
+     */
+    protected function getProvenance(int $objectId, bool $staff): ?array
+    {
+        $rec = DB::table('provenance_overview')->where('information_object_id', $objectId)->first();
+        $entries = DB::table('provenance_entry')->where('information_object_id', $objectId)->orderBy('sequence')->get();
+        if ((! $rec && $entries->isEmpty()) || ($rec && ! $rec->is_public && ! $staff) || (! $rec && ! $staff)) {
+            return null;
+        }
+        $when = fn ($q, $d) => trim(($q ? $q.' ' : '').$d) ?: null;
+
+        return [
+            'summary' => $rec->provenance_summary ?? null,
+            'current_status' => $rec->current_status ?? null,
+            'acquisition_type' => $rec->acquisition_type ?? null,
+            'certainty' => $rec->certainty_level ?? null,
+            'has_gaps' => (bool) ($rec->has_gaps ?? false),
+            'is_complete' => (bool) ($rec->is_complete ?? false),
+            'entries' => $entries->map(fn ($e) => [
+                'sequence' => (int) $e->sequence,
+                'owner' => $e->owner_name, 'owner_type' => $e->owner_type, 'location' => $e->owner_location,
+                'from' => $when($e->start_date_qualifier, $e->start_date), 'to' => $when($e->end_date_qualifier, $e->end_date),
+                'transfer' => $e->transfer_type, 'transfer_details' => $e->transfer_details,
+                'certainty' => $e->certainty, 'sources' => $e->sources,
+                'is_gap' => (bool) $e->is_gap, 'gap_explanation' => $e->gap_explanation,
+            ] + ($staff ? ['sale_price' => $e->sale_price, 'sale_currency' => $e->sale_currency,
+                'auction_house' => $e->auction_house, 'auction_lot' => $e->auction_lot] : []))->values()->toArray(),
+            'events' => [],
+        ];
     }
 
     protected function resolveTermNames($ids): array

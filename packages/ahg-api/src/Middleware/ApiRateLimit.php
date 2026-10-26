@@ -21,8 +21,20 @@ class ApiRateLimit
 
         $apiKey = DB::table('ahg_api_key')->where('id', $apiKeyId)->first();
         $rateLimit = $apiKey->rate_limit ?? 1000;
+        // #1566 - optional daily cap; 0, NULL or no column means none.
+        $dailyLimit = (int) ($apiKey->daily_limit ?? 0);
 
         $windowStart = now()->startOfHour();
+
+        if ($dailyLimit > 0) {
+            $today = (int) DB::table('ahg_api_rate_limit')
+                ->where('api_key_id', $apiKeyId)
+                ->where('window_start', '>=', now()->startOfDay())
+                ->sum('request_count');
+            if ($today >= $dailyLimit) {
+                return $this->tooMany("This key's daily limit of {$dailyLimit} requests is used up; it resets at midnight.", now()->startOfDay()->addDay());
+            }
+        }
 
         $row = DB::table('ahg_api_rate_limit')
             ->where('api_key_id', $apiKeyId)
@@ -30,13 +42,7 @@ class ApiRateLimit
             ->first();
 
         if ($row && $row->request_count >= $rateLimit) {
-            $retryAfter = now()->endOfHour()->diffInSeconds(now());
-
-            return response()->json([
-                'success' => false,
-                'error' => 'Too Many Requests',
-                'message' => "Rate limit of {$rateLimit} requests per hour exceeded.",
-            ], 429)->header('Retry-After', $retryAfter);
+            return $this->tooMany("Rate limit of {$rateLimit} requests per hour exceeded.", $windowStart->copy()->addHour());
         }
 
         DB::table('ahg_api_rate_limit')->updateOrInsert(
@@ -51,5 +57,15 @@ class ApiRateLimit
         $response->headers->set('X-RateLimit-Remaining', $remaining);
 
         return $response;
+    }
+
+    /** 429 with Retry-After: whole seconds until $resetsAt, at least one. */
+    protected function tooMany(string $message, \Carbon\CarbonInterface $resetsAt)
+    {
+        return response()->json([
+            'success' => false,
+            'error' => 'Too Many Requests',
+            'message' => $message,
+        ], 429)->header('Retry-After', (string) max(1, $resetsAt->getTimestamp() - time()));
     }
 }

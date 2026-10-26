@@ -48,12 +48,14 @@ class TaxonomyController extends BaseApiController
         }
 
         ['page' => $page, 'limit' => $limit] = $this->paginationParams($request);
-        $offset = ($page - 1) * $limit;
+        $offset = $this->listOffset($request, $page, $limit);
 
         $query = DB::table('term')
             ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
             ->where('term.taxonomy_id', $id)
             ->where('term_i18n.culture', $this->culture);
+        // ?search= - every word must appear in the name, in any order (PSIS).
+        $this->whereWords($query, 'term_i18n.name', (string) $request->get('search', ''));
 
         $total = $query->count();
 
@@ -64,6 +66,10 @@ class TaxonomyController extends BaseApiController
             ->limit($limit)
             ->get();
 
-        return $this->paginated($rows, $total, $page, $limit, "/api/v2/taxonomies/{$id}/terms");
+        $rows = $rows->map(fn ($r) => [
+            'id' => $r->id, 'name' => $r->name, 'parent_id' => $r->parent_id != 1 ? $r->parent_id : null,
+        ]);
+
+        return $this->listing($rows, $total, $limit, $offset, "/api/v2/taxonomies/{$id}/terms", 'terms');
     }
 }

@@ -26,7 +26,7 @@ class SearchController extends BaseApiController
         $queryStr = $input['query'];
         $limit = min(100, $input['limit'] ?? 10);
         $skip = $input['skip'] ?? 0;
-        $searchTerm = '%'.$queryStr.'%';
+        $searchTerm = '%'.addcslashes($queryStr, '%_\\').'%';
 
         $query = DB::table('information_object as io')
             ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
@@ -44,6 +44,10 @@ class SearchController extends BaseApiController
                     ->orWhere('ioi.scope_and_content', 'LIKE', $searchTerm)
                     ->orWhere('ioi.archival_history', 'LIKE', $searchTerm);
             });
+
+        // #1558 - the same ICIP/TK, ODRL, embargo and classification gate as
+        // the description reads, so search never lists what a read would refuse.
+        app(\AhgCore\Services\DisclosureGate::class)->excludeRestricted($query, 'io.id');
 
         // Filters
         $filters = $input['filters'] ?? [];
@@ -79,6 +83,7 @@ class SearchController extends BaseApiController
             'title' => $r->title,
             'identifier' => $r->identifier,
             'level' => $levelNames[$r->level_of_description_id] ?? null,
+            'level_of_description' => $levelNames[$r->level_of_description_id] ?? null,
         ]);
 
         return $this->success([
