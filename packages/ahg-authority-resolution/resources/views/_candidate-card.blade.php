@@ -63,6 +63,9 @@
                 <span class="badge bg-success ms-1"><i class="bi bi-star-fill me-1"></i>top</span>
             @endif
             <span class="badge bg-{{ $srcCfg['cls'] }} ms-1">{{ $srcCfg['label'] }}</span>
+            @if(! empty($candidate->evidence_data_decoded['proposed']))
+                <span class="badge bg-info text-dark ms-1" title="{{ __('Proposed through the API as the record this name most likely is') }}">{{ __('proposed') }}</span>
+            @endif
         </div>
         <div class="text-end">
             <small class="text-muted d-block">rank #{{ (int) $candidate->rank_position }}</small>
@@ -75,6 +78,9 @@
     </div>
 
     <div class="card-body py-2">
+        @if(! empty($candidate->evidence_data_decoded['proposed']) && ! empty($candidate->evidence_data_decoded['reason']))
+            <p class="small mb-2"><strong>{{ __('Why proposed') }}:</strong> {{ $candidate->evidence_data_decoded['reason'] }}</p>
+        @endif
         <div class="d-flex justify-content-between mb-2 small">
             <span>
                 @if($candidate->candidate_authority_id !== null)

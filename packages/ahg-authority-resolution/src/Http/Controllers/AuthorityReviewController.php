@@ -250,7 +250,21 @@ class AuthorityReviewController extends Controller
             }
         }
 
+        // heratio#1559 - a name proposed through the API carries its evidence,
+        // sources and authority details, and who proposed it.
+        $proposal = \Illuminate\Support\Facades\Schema::hasTable('ahg_ner_entity_evidence')
+            ? DB::table('ahg_ner_entity_evidence')->where('entity_id', $row->ner_entity_id)->first()
+            : null;
+        if ($proposal) {
+            $proposal->sources_list = json_decode((string) $proposal->sources, true) ?: [];
+            $proposal->authority_fields = array_diff_key(json_decode((string) $proposal->authority, true) ?: [], ['link' => 1]);
+            $proposal->via = DB::table('ahg_ner_entity as n')->join('ahg_ner_extraction as x', 'x.id', '=', 'n.extraction_id')
+                ->where('n.id', $row->ner_entity_id)->value('x.backend_used');
+            $proposal->proposer = $proposal->created_by ? DB::table('user')->where('id', $proposal->created_by)->value('username') : null;
+        }
+
         return view('auth-res::review', [
+            'proposal' => $proposal,
             'mention' => $row,
             'context' => $context,
             'candidates' => $candidates,

@@ -48,3 +48,28 @@ Lists answer in one shape: `data = {total, limit, skip, results}` (terms: `terms
 ## Privacy
 
 Field-level redaction rules apply to the full read and to file text, for everyone except administrators. A rule on the field `transcript` masks file text.
+
+## Proposals
+
+An archivist's assistant, signed in with the archivist's own key, may propose additions to a record. Nothing on the record changes: every proposal waits for a person to approve it. The key needs the write scope, and its owner must be allowed to edit the record.
+
+`POST /api/v2/descriptions/{slug}/proposals` with:
+
+```json
+{"source": "glam-mcp",
+ "entities": [{"type": "PERSON", "value": "Debora Engelbrecht",
+               "evidence": "Named on the reverse of the photograph",
+               "sources": ["https://..."],
+               "authority": {"dates_of_existence": "1890-1950", "history": "...", "places": "..."},
+               "actor_id": 123, "link_reason": "same name and dates"}]}
+```
+
+- `type` is PERSON, ORG, GPE (a place) or DATE. Each request takes at most 50.
+- `actor_id` (people and organisations) or `term_id` (places) names the existing record the proposal most likely is.
+- Values already waiting or linked for the record are skipped and counted in `skipped_existing`.
+
+Names and places go to **AI > NER review** and on to the **Authority Resolution** queue. There the reviewer sees the evidence, the sources, who proposed it, and the proposed record first, marked "proposed". Creating a new authority record pre-fills it from the proposed details. Dates stay in the NER dialog. Re-running NER on a record leaves proposals alone.
+
+Field, translation, transcription and relationship proposals answer `501` until their review screens are added.
+
+`GET /api/v2/proposals?mine=1&status=&count=&start=` lists the caller's proposals, newest first, with each one's status (pending, linked, rejected, and so on) and the record's slug and title. `mine=0` lists everyone's and needs an administrator or editor.

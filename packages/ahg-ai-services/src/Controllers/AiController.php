@@ -2058,9 +2058,14 @@ class AiController extends Controller
     private function saveExtraction(int $objectId, array $entities, ?string $sourceText = null, ?array $detailedEntities = null): void
     {
         try {
+            // A re-run replaces the pipeline's own pending entities, never ones a
+            // person proposed through the API (heratio#1559): those extractions
+            // are labelled "<source>:u<user id>".
             DB::table('ahg_ner_entity')
                 ->where('object_id', $objectId)
                 ->where('status', 'pending')
+                ->whereNotIn('extraction_id', DB::table('ahg_ner_extraction')
+                    ->where('object_id', $objectId)->where('backend_used', 'like', '%:u%')->select('id'))
                 ->delete();
 
             // #1472: open a ledger row and CLOSE it below. This used to insert

@@ -39,6 +39,7 @@ use AhgApi\Controllers\V1\ResearchProjectApiController;
 use AhgApi\Controllers\V1\TaxonomyApiController;
 use AhgApi\Controllers\V2\ApiKeyController;
 use AhgApi\Controllers\V2\ApiRootController;
+use AhgApi\Controllers\V2\ProposalController;
 use AhgApi\Controllers\V2\AssetController;
 use AhgApi\Controllers\V2\AuditController;
 use AhgApi\Controllers\V2\AuthorityController;
@@ -1212,6 +1213,9 @@ Route::prefix('api/v2')->middleware(['api.cors', 'api.auth:read', 'api.ratelimit
     Route::get('descriptions', [DescriptionController::class, 'index']);
     Route::get('descriptions/{slug}', [DescriptionController::class, 'show'])->middleware('privacy.redact');
     Route::get('descriptions/{slug}/text', [DescriptionController::class, 'text'])->middleware('privacy.redact');
+    // Proposals for review (#1559, #1565) - the AHG Archives MCP's write path.
+    Route::post('descriptions/{slug}/proposals', [ProposalController::class, 'store'])->middleware('api.auth:write');
+    Route::get('proposals', [ProposalController::class, 'index']);
     Route::post('descriptions', [DescriptionController::class, 'store'])->middleware('api.auth:write');
     Route::match(['put', 'patch'], 'descriptions/{slug}', [DescriptionController::class, 'update'])->middleware('api.auth:write');
     Route::delete('descriptions/{slug}', [DescriptionController::class, 'destroy'])->middleware('api.auth:delete');

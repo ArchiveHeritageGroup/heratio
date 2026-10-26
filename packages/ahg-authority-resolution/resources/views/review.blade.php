@@ -141,6 +141,34 @@
                 </div>
             </div>
 
+            @if(! empty($proposal))
+            <div class="card mb-3 border-info">
+                <div class="card-header"><strong><i class="bi bi-lightbulb me-1"></i>{{ __('Proposal') }}</strong></div>
+                <div class="card-body small">
+                    <p class="mb-2">
+                        {{ __('Proposed') }}@if($proposal->proposer) {{ __('by') }} <strong>{{ $proposal->proposer }}</strong>@endif
+                        @if($proposal->via) <span class="text-muted">({{ strtok($proposal->via, ':') }})</span>@endif,
+                        {{ $proposal->created_at }}
+                    </p>
+                    @if($proposal->evidence)
+                        <p class="mb-2"><strong>{{ __('Evidence') }}:</strong> {{ $proposal->evidence }}</p>
+                    @endif
+                    @if($proposal->sources_list)
+                        <p class="mb-1"><strong>{{ __('Sources') }}:</strong></p>
+                        <ul class="mb-2">
+                            @foreach($proposal->sources_list as $src)
+                                <li><a href="{{ $src }}" target="_blank" rel="noopener noreferrer nofollow">{{ $src }}</a></li>
+                            @endforeach
+                        </ul>
+                    @endif
+                    @foreach($proposal->authority_fields as $field => $value)
+                        <p class="mb-1"><strong>{{ __(ucfirst(str_replace('_', ' ', $field))) }}:</strong> {{ $value }}</p>
+                    @endforeach
+                    <p class="text-muted mb-0 mt-2">{{ __('Check the evidence before linking or creating a record. Nothing on the description changes until you decide.') }}</p>
+                </div>
+            </div>
+            @endif
+
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <strong><i class="bi bi-text-paragraph me-1"></i>{{ __('Context window') }}</strong>

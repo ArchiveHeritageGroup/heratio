@@ -113,6 +113,20 @@ CREATE TABLE IF NOT EXISTS ahg_ner_entity_link (
     FOREIGN KEY (entity_id) REFERENCES ahg_ner_entity(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Evidence for a name, place or date proposed through the API (heratio#1559,
+-- AHG Archives MCP): where in the record or which source supports it, and the
+-- details a new authority record is pre-filled from. Same table as PSIS.
+CREATE TABLE IF NOT EXISTS ahg_ner_entity_evidence (
+    entity_id BIGINT UNSIGNED NOT NULL PRIMARY KEY,
+    evidence TEXT DEFAULT NULL COMMENT 'where in the record or which source supports it',
+    sources JSON DEFAULT NULL COMMENT 'list of source URLs',
+    authority JSON DEFAULT NULL COMMENT 'person/organisation details for a new authority record: dates_of_existence, history, places; link: the proposed existing record',
+    created_by INT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (entity_id) REFERENCES ahg_ner_entity(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
 -- NER-specific settings (legacy table, retained for backward compatibility)
 CREATE TABLE IF NOT EXISTS ahg_ner_settings (
     id INT AUTO_INCREMENT PRIMARY KEY,

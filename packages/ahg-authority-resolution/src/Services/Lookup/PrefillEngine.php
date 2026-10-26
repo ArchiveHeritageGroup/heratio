@@ -194,6 +194,21 @@ class PrefillEngine
             }
         }
 
+        // heratio#1559 - details proposed with the name (through the API, with
+        // evidence the reviewer has just read) describe this very mention, so
+        // they win over a lookup's top hit, which may be someone else.
+        if (! $isPlace && \Illuminate\Support\Facades\Schema::hasTable('ahg_ner_entity_evidence')) {
+            $proposed = json_decode((string) DB::table('ahg_ner_entity_evidence')
+                ->where('entity_id', $mention->ner_entity_id)->value('authority'), true) ?: [];
+            foreach (['dates_of_existence', 'history', 'places'] as $key) {
+                if (! empty($proposed[$key]) && is_string($proposed[$key])) {
+                    $merged[$key] = $proposed[$key];
+                    $provenance[$key] = ['source' => 'proposal', 'uri' => null, 'licence' => null,
+                        'licence_url' => null, 'retrieved_at' => gmdate('Y-m-d\TH:i:s\Z')];
+                }
+            }
+        }
+
         // Context-derived hints (no external source, just our own context packet).
         if (! $isPlace && $context && empty($merged['history']) && ! empty($context->surrounding_text_before)) {
             $combined = trim((string) $context->surrounding_text_before.' ['.($mention->entity_value ?? '').'] '.(string) ($context->surrounding_text_after ?? ''));
