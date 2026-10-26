@@ -47,7 +47,13 @@ class UserController extends Controller
         $culture = app()->getLocale();
         $browseService = new UserBrowseService($culture);
 
-        $status = $request->get('status', 'active');
+        // The page's buttons send filter=onlyActive|onlyInactive; status=
+        // (active|inactive|all) is still accepted.
+        $status = match ($request->get('filter')) {
+            'onlyInactive' => 'inactive',
+            'onlyActive' => 'active',
+            default => in_array($request->get('status'), ['active', 'inactive', 'all'], true) ? $request->get('status') : 'active',
+        };
 
         $result = $browseService->browse([
             'page' => $request->get('page', 1),
@@ -89,11 +95,16 @@ class UserController extends Controller
             'user' => $user,
             'groups' => collect($user->groups),
         ];
-        if (isset($apiKeys['RestApiKey'])) {
-            $viewData['restApiKey'] = $apiKeys['RestApiKey'];
-        }
-        if (isset($apiKeys['OaiApiKey'])) {
-            $viewData['oaiApiKey'] = $apiKeys['OaiApiKey'];
+        // Old-style keys stored on the user (from AtoM) are not accepted by the
+        // API; real keys live in ahg_api_key, managed here by administrators.
+        $viewData['legacyKeys'] = $apiKeys->isNotEmpty();
+        if (\AhgCore\Services\AclService::isAdministrator(auth()->user())) {
+            $viewData['keyManager'] = app(\AhgApi\Controllers\KeyPageController::class)->managerData((int) $user->id) + [
+                'storeUrl' => route('user.api-keys.store', $user->slug),
+                'revokeRoute' => fn ($id) => route('user.api-keys.revoke', [$user->slug, $id]),
+            ];
+        } else {
+            $viewData['keyCount'] = DB::table('ahg_api_key')->where('user_id', $user->id)->where('is_active', 1)->count();
         }
 
         // Security clearance - only when the package + table are present.
@@ -163,9 +174,15 @@ class UserController extends Controller
             'contact_country_code', 'contact_website', 'contact_note',
             'preferred_locale',
         ]);
-        $data['active'] = $request->has('active') ? 1 : 0;
+        // Active is a Yes/No select, so it is always sent: read its value.
+        $data['active'] = (int) $request->input('active', 1) === 1 ? 1 : 0;
         $data['groups'] = $request->input('groups', []);
         $data['translate'] = $request->input('translate', []);
+        // The name is optional on the form; a user needs one to be found and
+        // shown, so the username stands in.
+        if (trim((string) ($data['authorized_form_of_name'] ?? '')) === '') {
+            $data['authorized_form_of_name'] = $data['username'];
+        }
 
         $id = $this->service->create($data);
 
@@ -212,7 +229,7 @@ class UserController extends Controller
         if (array_key_exists('preferred_locale', $data) && $data['preferred_locale'] === '') {
             $data['preferred_locale'] = null;
         }
-        $data['active'] = $request->has('active') ? 1 : 0;
+        $data['active'] = (int) $request->input('active', 1) === 1 ? 1 : 0;
         $data['groups'] = $request->input('groups', []);
         $data['translate'] = $request->input('translate', []);
 
@@ -228,12 +245,13 @@ class UserController extends Controller
     }
 
     /**
-     * Generate or delete a user API key stored in the property table.
-     * Mirrors AtoM's editAction processField('restApiKey'/'oaiApiKey') logic.
+     * Remove an old-style API key stored in the property table (from AtoM).
      */
     private function handleApiKeyAction(int $userId, string $propertyName, ?string $action): void
     {
-        if ($action !== 'generate' && $action !== 'delete') {
+        // Old-style keys can only be removed now; new keys are issued on the
+        // user page into ahg_api_key, which the API actually reads (#1558).
+        if ($action !== 'delete') {
             return;
         }
 
@@ -242,65 +260,11 @@ class UserController extends Controller
             ->where('name', $propertyName)
             ->first();
 
-        if ($action === 'delete') {
-            if ($existing) {
-                DB::table('property_i18n')->where('id', $existing->id)->delete();
-                DB::table('property')->where('id', $existing->id)->delete();
-                DB::table('object')->where('id', $existing->id)->delete();
-            }
-
-            return;
-        }
-
-        // generate. Always write/update against the property's source_culture
-        // (not the current UI locale) - API keys aren't language-dependent
-        // and editing under a different locale must not orphan the existing
-        // value or create a duplicate row in another culture.
-        $newKey = bin2hex(random_bytes(8));
-
         if ($existing) {
-            $sourceCulture = $existing->source_culture ?: app()->getLocale();
-            $hasI18n = DB::table('property_i18n')
-                ->where('id', $existing->id)
-                ->where('culture', $sourceCulture)
-                ->exists();
-            if ($hasI18n) {
-                DB::table('property_i18n')
-                    ->where('id', $existing->id)
-                    ->where('culture', $sourceCulture)
-                    ->update(['value' => $newKey]);
-            } else {
-                DB::table('property_i18n')->insert([
-                    'id' => $existing->id,
-                    'culture' => $sourceCulture,
-                    'value' => $newKey,
-                ]);
-            }
-
-            return;
+            DB::table('property_i18n')->where('id', $existing->id)->delete();
+            DB::table('property')->where('id', $existing->id)->delete();
+            DB::table('object')->where('id', $existing->id)->delete();
         }
-
-        // Create new property row (class table inheritance: object → property → property_i18n)
-        $culture = app()->getLocale();
-        DB::transaction(function () use ($userId, $propertyName, $culture, $newKey) {
-            $objectId = DB::table('object')->insertGetId([
-                'class_name' => 'QubitProperty',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-            DB::table('property')->insert([
-                'id' => $objectId,
-                'object_id' => $userId,
-                'name' => $propertyName,
-                'source_culture' => $culture,
-                'serial_number' => 0,
-            ]);
-            DB::table('property_i18n')->insert([
-                'id' => $objectId,
-                'culture' => $culture,
-                'value' => $newKey,
-            ]);
-        });
     }
 
     public function confirmDelete(string $slug)

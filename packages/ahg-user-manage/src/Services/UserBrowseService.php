@@ -47,16 +47,42 @@ class UserBrowseService extends BrowseService
 
     protected function getBaseJoins($query)
     {
+        // LEFT join: a user saved without a name (optional on the add form)
+        // still lists, under the name fallback below.
         return $query
-            ->join('actor_i18n', 'user.id', '=', 'actor_i18n.id')
+            ->leftJoin('actor_i18n', function ($j) {
+                $j->on('user.id', '=', 'actor_i18n.id')->where('actor_i18n.culture', '=', $this->culture);
+            })
             ->join('object', 'user.id', '=', 'object.id')
-            ->join('slug', 'user.id', '=', 'slug.object_id')
+            ->leftJoin('slug', 'user.id', '=', 'slug.object_id')
             ->leftJoin('acl_user_group', 'user.id', '=', 'acl_user_group.user_id')
             ->leftJoin('acl_group_i18n', function ($join) {
                 $join->on('acl_user_group.group_id', '=', 'acl_group_i18n.id')
                     ->where('acl_group_i18n.culture', '=', $this->culture);
-            })
-            ->where('actor_i18n.culture', $this->culture);
+            });
+    }
+
+    /** The name shown and sorted on: this language's, else any language's, else the username. */
+    protected function nameSql(): string
+    {
+        return "COALESCE(NULLIF(actor_i18n.authorized_form_of_name, ''), "
+            ."(SELECT x.authorized_form_of_name FROM actor_i18n x WHERE x.id = user.id AND x.authorized_form_of_name <> '' LIMIT 1), "
+            .'user.username)';
+    }
+
+    /** Search the name, the username and the email address. */
+    protected function applySearch($query, string $subquery)
+    {
+        if ($subquery !== '') {
+            $like = '%'.addcslashes($subquery, '%_\\').'%';
+            $query->where(function ($q) use ($like) {
+                $q->whereRaw($this->nameSql().' LIKE ?', [$like])
+                    ->orWhere('user.username', 'LIKE', $like)
+                    ->orWhere('user.email', 'LIKE', $like);
+            });
+        }
+
+        return $query;
     }
 
     protected function getBaseSelect(): array
@@ -89,7 +115,7 @@ class UserBrowseService extends BrowseService
 
             $query->select(DB::raw(implode(', ', [
                 'user.id',
-                'actor_i18n.authorized_form_of_name as name',
+                $this->nameSql().' as name',
                 'user.username',
                 'user.email',
                 'user.active',
@@ -112,10 +138,11 @@ class UserBrowseService extends BrowseService
 
             // Count total (without GROUP BY)
             $countQuery = DB::table('user')
-                ->join('actor_i18n', 'user.id', '=', 'actor_i18n.id')
+                ->leftJoin('actor_i18n', function ($j) {
+                    $j->on('user.id', '=', 'actor_i18n.id')->where('actor_i18n.culture', '=', $this->culture);
+                })
                 ->join('object', 'user.id', '=', 'object.id')
-                ->join('slug', 'user.id', '=', 'slug.object_id')
-                ->where('actor_i18n.culture', $this->culture);
+                ->leftJoin('slug', 'user.id', '=', 'slug.object_id');
 
             // Apply same status filter to count
             if ($status === 'active') {
@@ -158,7 +185,7 @@ class UserBrowseService extends BrowseService
     {
         switch ($sort) {
             case 'alphabetic':
-                $query->orderBy('actor_i18n.authorized_form_of_name', $sortDir);
+                $query->orderByRaw($this->nameSql().' '.($sortDir === 'desc' ? 'desc' : 'asc'));
                 break;
             case 'email':
                 $query->orderBy('user.email', $sortDir);

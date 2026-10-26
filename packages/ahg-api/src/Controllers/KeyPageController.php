@@ -33,10 +33,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 /**
- * /api/keys - a signed-in user's own API keys (#1558, #1566): create one
- * (scopes capped at the user's own, optional expiry and daily cap), see when
- * each was last used, revoke it. This is the page the AHG Archives MCP sends
- * people to for the key they sign in with; revoking a key disconnects it.
+ * API keys per user (#1558, #1566). /api/keys is a signed-in user's own keys;
+ * an administrator manages anyone's from their user page (/user/{slug}).
+ * Each key has its own scopes - never more than its owner's role allows -
+ * an optional expiry and daily limit, and shows its last use. The secret is
+ * shown once. Revoking a key refuses anything using it at once.
  */
 class KeyPageController extends Controller
 {
@@ -45,53 +46,79 @@ class KeyPageController extends Controller
     public function index()
     {
         $userId = (int) Auth::id();
-        $scopes = ApiAuthenticate::sessionScopes($userId);
-        $rows = DB::table('ahg_api_key')->where('user_id', $userId)->orderByDesc('created_at')->get()
-            ->map(function ($k) {
-                $k->scopes = json_decode($k->scopes ?? '[]', true) ?: [];
 
-                return $k;
-            });
-
-        return view('ahg-api::keys', [
-            'keys' => $rows,
-            'scopes' => $scopes,
-            'newKey' => session('new_key'),
+        return view('ahg-api::keys', $this->managerData($userId) + [
+            'storeUrl' => route('api.keys.store'),
+            'revokeRoute' => fn ($id) => route('api.keys.revoke', $id),
         ]);
     }
 
     public function store(Request $request)
     {
-        $userId = (int) Auth::id();
-        $allowed = ApiAuthenticate::sessionScopes($userId);
-        $input = $request->validate([
-            'name' => 'required|string|max:100',
-            'scopes' => 'nullable|array',
-            'scopes.*' => 'string|in:'.implode(',', $allowed ?: ['read']),
-            'expires_at' => 'nullable|date|after:today',
-            'daily_limit' => 'nullable|integer|min:1|max:1000000',
-        ]);
-
-        // A user with no catalogue capability gets a key for the public
-        // catalogue only (ApiAuthenticate); read is all it can carry.
-        $scopes = $allowed ? array_values(array_intersect($input['scopes'] ?? ['read'], $allowed)) : ['read'];
-        if (! $scopes) {
-            $scopes = ['read'];
-        }
-
-        $key = $this->keys->createKey($userId, $input['name'], $scopes, 1000, $input['expires_at'] ?? null);
-        if (! empty($input['daily_limit'])) {
-            DB::table('ahg_api_key')->where('id', $key['id'])->update(['daily_limit' => (int) $input['daily_limit']]);
-        }
+        $key = $this->issueFrom($request, (int) Auth::id());
 
         return redirect()->route('api.keys')->with('new_key', $key['api_key']);
     }
 
     public function revoke(int $id)
     {
-        DB::table('ahg_api_key')->where('id', $id)->where('user_id', (int) Auth::id())
-            ->update(['is_active' => 0, 'updated_at' => now()]);
+        $this->keys->revoke($id, (int) Auth::id());
 
         return redirect()->route('api.keys')->with('success', __('The key is revoked. Anything using it is disconnected.'));
+    }
+
+    /** POST /user/{slug}/api-keys - an administrator issues a key for this user. */
+    public function storeFor(Request $request, string $slug)
+    {
+        $ownerId = $this->ownerOf($slug);
+        $key = $this->issueFrom($request, $ownerId);
+
+        return redirect(route('user.show', $slug).'#apiKeys')->with('new_key', $key['api_key']);
+    }
+
+    /** POST /user/{slug}/api-keys/{id}/revoke */
+    public function revokeFor(string $slug, int $id)
+    {
+        $this->keys->revoke($id, $this->ownerOf($slug));
+
+        return redirect(route('user.show', $slug).'#apiKeys')->with('success', __('The key is revoked. Anything using it is disconnected.'));
+    }
+
+    /** What the key manager partial needs for one owner. */
+    public function managerData(int $ownerId): array
+    {
+        return [
+            'keys' => $this->keys->keysFor($ownerId),
+            'scopes' => $this->keys->allowedScopes($ownerId),
+            'scopeLabels' => ApiKeyService::SCOPES,
+            'publicOnly' => $this->keys->publicOnly($ownerId),
+            'newKey' => session('new_key'),
+        ];
+    }
+
+    protected function issueFrom(Request $request, int $ownerId): array
+    {
+        $input = $request->validate([
+            'name' => 'required|string|max:100',
+            'scopes' => 'nullable|array',
+            'scopes.*' => 'string|in:'.implode(',', $this->keys->allowedScopes($ownerId)),
+            'expires_at' => 'nullable|date|after:today',
+            'daily_limit' => 'nullable|integer|min:1|max:1000000',
+        ], [
+            'scopes.*.in' => __('This user\'s role does not allow the ":input" scope.'),
+        ]);
+
+        return $this->keys->issue($ownerId, $input['name'], $input['scopes'] ?? ['read'],
+            $input['expires_at'] ?? null, isset($input['daily_limit']) ? (int) $input['daily_limit'] : null);
+    }
+
+    /** The user behind a slug, for administrators only. */
+    protected function ownerOf(string $slug): int
+    {
+        abort_unless(\AhgCore\Services\AclService::isAdministrator(Auth::user()), 403);
+        $id = (int) DB::table('slug')->join('user', 'user.id', '=', 'slug.object_id')->where('slug.slug', $slug)->value('user.id');
+        abort_unless($id > 0, 404);
+
+        return $id;
     }
 }

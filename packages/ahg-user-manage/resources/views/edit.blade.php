@@ -292,37 +292,16 @@
                   ->value('property_i18n.value');
             @endphp
 
-            <div class="mb-3">
-              <label for="restApiKey" class="form-label">
-                REST API access key
-                @if($restApiKey)
-                  <code class="ms-2">{{ $restApiKey }}</code>
-                @endif <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-              <select name="restApiKey" id="restApiKey" class="form-select">
-                <option value="">-- Select action --</option>
-                <option value="generate">(Re)generate API key</option>
-                <option value="delete">{{ __('Delete API key') }}</option>
-              </select>
-              @if(!$restApiKey)
-                <div class="form-text">{{ __('Not generated yet.') }}</div>
+            <p class="mb-2">{{ __('Keys are created, scoped and revoked on the user page.') }}
+              <a href="{{ route('user.show', $user->slug) }}#apiKeys">{{ __('Manage API keys') }}</a></p>
+            @foreach(['restApiKey' => [$restApiKey, 'REST API'], 'oaiApiKey' => [$oaiApiKey, 'OAI-PMH']] as $field => [$old, $label])
+              @if($old)
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="{{ $field }}" value="delete" id="{{ $field }}-delete">
+                  <label class="form-check-label" for="{{ $field }}-delete">{{ __('Remove the old-style :label key (it is not accepted by the API)', ['label' => $label]) }}</label>
+                </div>
               @endif
-            </div>
-
-            <div class="mb-3">
-              <label for="oaiApiKey" class="form-label">
-                OAI-PMH API access key
-                @if($oaiApiKey)
-                  <code class="ms-2">{{ $oaiApiKey }}</code>
-                @endif <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-              <select name="oaiApiKey" id="oaiApiKey" class="form-select">
-                <option value="">-- Select action --</option>
-                <option value="generate">(Re)generate API key</option>
-                <option value="delete">{{ __('Delete API key') }}</option>
-              </select>
-              @if(!$oaiApiKey)
-                <div class="form-text">{{ __('Not generated yet.') }}</div>
-              @endif
-            </div>
+            @endforeach
           </div>
         </div>
       </div>

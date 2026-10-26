@@ -38,9 +38,14 @@
           @foreach($pager->getResults() as $doc)
             <tr>
               <td>
-                <a href="{{ route('user.show', $doc['slug']) }}">
+                @if($doc['slug'])
+                  <a href="{{ route('user.show', $doc['slug']) }}">
+                    {{ $doc['username'] ?? $doc['name'] ?? '[Untitled]' }}
+                  </a>
+                @else
                   {{ $doc['username'] ?? $doc['name'] ?? '[Untitled]' }}
-                </a>
+                  <span class="text-muted small">({{ __('no profile page') }})</span>
+                @endif
                 @if(!($doc['active'] ?? true))
                   (inactive)
                 @endif

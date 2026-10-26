@@ -1396,4 +1396,7 @@ Route::middleware(['web', 'auth'])->group(function () {
     Route::get('api/keys', [KeyPageController::class, 'index'])->name('api.keys');
     Route::post('api/keys', [KeyPageController::class, 'store'])->name('api.keys.store');
     Route::post('api/keys/{id}/revoke', [KeyPageController::class, 'revoke'])->whereNumber('id')->name('api.keys.revoke');
+    // An administrator manages any user's keys from their user page.
+    Route::post('user/{slug}/api-keys', [KeyPageController::class, 'storeFor'])->name('user.api-keys.store');
+    Route::post('user/{slug}/api-keys/{id}/revoke', [KeyPageController::class, 'revokeFor'])->whereNumber('id')->name('user.api-keys.revoke');
 });

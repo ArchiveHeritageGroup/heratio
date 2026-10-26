@@ -230,8 +230,10 @@ class OaiPmhController extends Controller
                 // not yet expired, and either has no scopes restriction
                 // (NULL or empty array, treat as wildcard) or contains
                 // 'oai' / '*' in scopes.
+                // Keys are stored as their SHA-256 hash (ApiKeyService); the
+                // raw value never matched, so every harvest key was refused.
                 $row = DB::table('ahg_api_key')
-                    ->where('api_key', $key)
+                    ->where('api_key', hash('sha256', (string) $key))
                     ->where('is_active', 1)
                     ->where(function ($q) {
                         $q->whereNull('expires_at')->orWhere('expires_at', '>', now());

@@ -10,7 +10,23 @@ The AHG Archives MCP server lets Claude, ChatGPT and other assistants search and
 
 ## Keys
 
-Every call sends a key in `X-API-Key` (or `Authorization: Bearer`). Keys are made and revoked at **`/api/keys`** once you are signed in. That page shows each key's scopes, when it was last used, its expiry and its daily limit.
+Every call sends a key in `X-API-Key` (or `Authorization: Bearer`).
+
+- **Your own keys:** make and revoke them at **`/api/keys`** once you are signed in.
+- **Anyone's keys:** an administrator manages them from that user's page (`/user/{slug}`, section *API keys*). This is how to give a service account, such as the MCP's user with no groups, its key without signing in as it.
+
+Both places use the same form and show each key's scopes, last use, expiry and daily limit. Each key has its own scopes, and a key can never hold a scope its owner's role does not allow:
+
+| Scope | Allows |
+| --- | --- |
+| `read` | Reading the catalogue |
+| `write` | Creating and updating records, and proposing changes for review |
+| `delete` | Deleting records |
+| `publish:write` | Publishing and unpublishing records |
+| `batch` | Batch operations |
+| `oai` | OAI-PMH harvesting, when OAI authentication is on |
+
+The REST and OAI-PMH key fields that older versions showed on the user page are not accepted by the API. Remove them on the user's edit page, and create a key as above.
 
 A key acts as the person who made it:
 

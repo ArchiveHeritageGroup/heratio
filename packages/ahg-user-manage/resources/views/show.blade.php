@@ -194,34 +194,21 @@
     </div>
   </section>
 
-  {{-- ===== API keys ===== --}}
+  {{-- ===== API keys (#1558, #1566) ===== --}}
   <section class="section border-bottom" id="apiKeys">
     <h2 class="h5 mb-0 atom-section-header">
-      <div class="d-flex p-3 border-bottom text-primary">
-        @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">{{ __('API keys') }}</a>@else API keys @endauth
-      </div>
+      <div class="d-flex p-3 border-bottom text-primary">{{ __('API keys') }}</div>
     </h2>
-    <div>
-      <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('REST API access key') }}</h3>
-        <div class="col-9 p-2">
-          @if(isset($restApiKey))
-            <code>{{ $restApiKey }}</code>
-          @else
-            <em>{{ __('Not generated yet.') }}</em>
-          @endif
-        </div>
-      </div>
-      <div class="field row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('OAI-PMH API access key') }}</h3>
-        <div class="col-9 p-2">
-          @if(isset($oaiApiKey))
-            <code>{{ $oaiApiKey }}</code>
-          @else
-            <em>{{ __('Not generated yet.') }}</em>
-          @endif
-        </div>
-      </div>
+    <div class="p-3">
+      @if(session('success') && session('new_key') === null)<div class="alert alert-success">{{ session('success') }}</div>@endif
+      @if(isset($keyManager))
+        @include('ahg-api::partials.key-manager', $keyManager)
+      @else
+        <p class="text-muted mb-0">{{ __('This user has :n API key(s). Keys are managed by administrators.', ['n' => $keyCount ?? 0]) }}</p>
+      @endif
+      @if(! empty($legacyKeys))
+        <p class="small text-muted mt-2 mb-0">{{ __('This user also has an old-style key from before, which the API does not accept. Remove it on the edit page.') }}</p>
+      @endif
     </div>
   </section>
 
