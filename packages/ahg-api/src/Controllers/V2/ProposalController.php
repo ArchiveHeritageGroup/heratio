@@ -43,7 +43,10 @@ use Illuminate\Support\Facades\Schema;
  *                 authority?: {dates_of_existence, history, places},
  *                 actor_id? | term_id?, link_reason?}]
  *       -> AI > NER review and the Authority Resolution queue, evidence beside them.
- *     fields, transcripts, relationships -> 501 until their review queues exist.
+ *     fields     [{field, text, culture?, evidence?, sources?[]}] - a culture other than
+ *                the record's is a translation; transcripts [{text, digital_object_id?,
+ *                evidence?}] - the text of a file -> AI > Suggest review.
+ *     relationships -> 501 until their review queue exists.
  *
  *   GET /api/v2/proposals?mine=1|0&status=&count=&start=
  *     The caller's proposals (mine=0: everyone's, administrators and editors
@@ -56,6 +59,8 @@ class ProposalController extends BaseApiController
     private const PLACES_TAXONOMY_ID = 42;
     private const AUTHORITY_FIELDS = ['dates_of_existence' => 255, 'history' => 8000, 'places' => 1000];
     private const LIST_MAX = 200;
+    /** information_object_i18n fields a proposal may target. */
+    private const FIELDS = ['title', 'scope_and_content', 'archival_history', 'extent_and_medium', 'arrangement', 'access_conditions', 'reproduction_conditions'];
 
     /**
      * POST /api/v2/descriptions/{slug}/proposals
@@ -78,15 +83,50 @@ class ProposalController extends BaseApiController
         if (! $entities && ! $fields && ! $transcripts && ! $relationships) {
             return $this->error('Bad Request', 'entities (a list of {type, value}), fields (a list of {field, text}), transcripts or relationships is required', 400);
         }
-        // ponytail: field, transcript and relationship proposals answer 501 until
-        // their review screens exist (heratio#1559 stages 2 and 3).
-        if ($fields || $transcripts) {
-            return $this->error('Not Implemented', 'Field, translation and transcription proposals are not supported by this catalogue yet', 501);
-        }
+        // ponytail: relationship proposals answer 501 until their review screen
+        // exists (heratio#1563).
         if ($relationships) {
             return $this->error('Not Implemented', 'Relationship proposals are not supported by this catalogue yet', 501);
         }
-        if (! Schema::hasTable('ahg_ner_entity')) {
+        if (count($fields) > 10) {
+            return $this->error('Bad Request', 'At most 10 field proposals per request', 400);
+        }
+        $fieldRows = [];
+        foreach (array_values($fields) as $i => $f) {
+            $f = is_array($f) ? $f : [];
+            $field = (string) ($f['field'] ?? '');
+            $text = trim((string) ($f['text'] ?? ''));
+            if (! in_array($field, self::FIELDS, true) || $text === '' || mb_strlen($text) > ($field === 'title' ? 1024 : 20000)) {
+                return $this->error('Bad Request', "Field {$i}: field must be one of ".implode(', ', self::FIELDS).', text 1-20000 characters (title 1-1024)', 400);
+            }
+            // A culture other than the record's makes it a translation into that language.
+            $culture = trim((string) ($f['culture'] ?? ''));
+            if ($culture !== '' && ! preg_match('/^[a-z]{2,3}(_[A-Za-z]{2,4})?$/', $culture)) {
+                return $this->error('Bad Request', "Field {$i}: culture must be a language code such as en, af or nl", 400);
+            }
+            $fieldRows[] = ['field' => $field, 'text' => $text, 'culture' => $culture ?: null,
+                'evidence' => mb_substr(trim((string) ($f['evidence'] ?? '')), 0, 4000), 'sources' => self::sources($f['sources'] ?? [])];
+        }
+        if (count($transcripts) > 5) {
+            return $this->error('Bad Request', 'At most 5 transcripts per request', 400);
+        }
+        foreach (array_values($transcripts) as $i => $t) {
+            $t = is_array($t) ? $t : [];
+            $text = trim((string) ($t['text'] ?? ''));
+            // ahg_description_suggestion.suggested_text is a TEXT column (64 KB).
+            if ($text === '' || strlen($text) > 65000) {
+                return $this->error('Bad Request', "Transcript {$i}: text is required, at most 65,000 bytes; propose a long document page by page", 400);
+            }
+            $doId = DB::table('digital_object')->where('object_id', $objectId)->whereNull('parent_id')
+                ->when(! empty($t['digital_object_id']), fn ($q) => $q->where('id', (int) $t['digital_object_id']))
+                ->orderBy('id')->value('id');
+            if (! $doId) {
+                return $this->error('Bad Request', "Transcript {$i}: ".(empty($t['digital_object_id']) ? 'this record has no file to transcribe' : 'digital_object_id is not a file of this record'), 400);
+            }
+            $fieldRows[] = ['field' => 'transcript', 'text' => $text, 'culture' => null, 'digital_object_id' => (int) $doId,
+                'evidence' => mb_substr(trim((string) ($t['evidence'] ?? '')), 0, 4000), 'sources' => self::sources($t['sources'] ?? [])];
+        }
+        if (! Schema::hasTable('ahg_ner_entity') || ($fieldRows && ! Schema::hasTable('ahg_description_suggestion'))) {
             return $this->error('Not Implemented', 'Proposals need the AI services package, whose review screens they go to', 501);
         }
         if (count($entities) > self::MAX) {
@@ -179,18 +219,70 @@ class ProposalController extends BaseApiController
         }
 
         $promoted = $newIds ? $this->promote($objectId, $newIds) : 0;
+        [$fieldsQueued, $fieldsSkipped] = $fieldRows ? $this->queueFields($objectId, $fieldRows, $userId, $label) : [[], 0];
 
         return $this->success([
             'slug' => $slug,
             'queued' => $queued,
             'skipped_existing' => count($clean) - count($new),
             'promoted_for_resolution' => $promoted,
-            'fields_queued' => [],
-            'fields_skipped_existing' => 0,
+            'fields_queued' => $fieldsQueued,
+            'fields_skipped_existing' => $fieldsSkipped,
             'relationships' => [],
             'relationships_skipped_existing' => 0,
             'review_url' => url('/ai/ner/review'),
-        ], $queued ? 201 : 200);
+            'description_review_url' => url('/ai/suggest/review'),
+        ], ($queued || $fieldsQueued) ? 201 : 200);
+    }
+
+    /**
+     * Field texts, translations and transcripts go to AI > Suggest review.
+     * source_data says what approval writes: the field in the culture its
+     * current text was read in, the field in another language, or the file's
+     * transcript. The same text already pending for the record is skipped.
+     */
+    protected function queueFields(int $objectId, array $rows, int $userId, string $label): array
+    {
+        $queued = [];
+        $skipped = 0;
+        $culture = $this->culture;
+        $current = (array) (DB::table('information_object_i18n')->where('id', $objectId)->where('culture', $culture)->first(self::FIELDS) ?? []);
+        foreach ($rows as $f) {
+            if (DB::table('ahg_description_suggestion')->where('object_id', $objectId)->where('status', 'pending')
+                ->where('suggested_text', $f['text'])->exists()) {
+                $skipped++;
+
+                continue;
+            }
+            if ($f['field'] === 'transcript') {
+                $existing = DB::table('property as p')->join('property_i18n as pi', 'pi.id', '=', 'p.id')
+                    ->where('p.object_id', $f['digital_object_id'])->where('p.name', 'transcript')->value('pi.value');
+                // The page image for the reviewer: the reference copy, else the master if it is an image.
+                $img = DB::table('digital_object')->where('parent_id', $f['digital_object_id'])->where('usage_id', \AhgCore\Constants\TermId::DO_USAGE_REFERENCE)->first(['path', 'name'])
+                    ?: DB::table('digital_object')->where('id', $f['digital_object_id'])->where('mime_type', 'like', 'image/%')->first(['path', 'name']);
+                $meta = ['kind' => 'transcript', 'digital_object_id' => $f['digital_object_id'],
+                    'image' => $img ? rtrim($img->path, '/').'/'.$img->name : null];
+            } elseif ($f['culture'] && $f['culture'] !== $culture) {
+                $existing = DB::table('information_object_i18n')->where('id', $objectId)->where('culture', $f['culture'])->value($f['field']);
+                $meta = ['kind' => 'translation', 'field' => $f['field'], 'culture' => $f['culture']];
+            } else {
+                $existing = $current[$f['field']] ?? null;
+                $meta = ['kind' => 'field', 'field' => $f['field'], 'culture' => $culture];
+            }
+            DB::table('ahg_description_suggestion')->insert([
+                'object_id' => $objectId,
+                'suggested_text' => $f['text'],
+                'existing_text' => $existing === null ? null : mb_strcut((string) $existing, 0, 65000),
+                'source_data' => json_encode($meta + ['evidence' => $f['evidence'], 'sources' => $f['sources'], 'proposed_via' => $label], JSON_UNESCAPED_UNICODE),
+                'status' => 'pending',
+                'model_used' => mb_substr($label, 0, 100),
+                'created_by' => $userId ?: null,
+                'created_at' => now(),
+            ]);
+            $queued[] = ['field' => $f['field']] + ($meta['kind'] === 'translation' ? ['culture' => $f['culture']] : []);
+        }
+
+        return [$queued, $skipped];
     }
 
     /**
@@ -290,6 +382,26 @@ class ProposalController extends BaseApiController
                     'linked_authority_id' => $e->linked_actor_id ? (int) $e->linked_actor_id : null,
                     'proposed_by' => (int) substr((string) strrchr((string) $e->backend_used, 'u'), 1) ?: null,
                     'reviewed_by' => $e->reviewed_by, 'reviewed_at' => $e->reviewed_at, 'proposed_at' => (string) $e->created_at,
+                ];
+            }
+        }
+
+        if (Schema::hasTable('ahg_description_suggestion')) {
+            $q = DB::table('ahg_description_suggestion')->whereNotNull(DB::raw("JSON_EXTRACT(source_data, '$.proposed_via')"));
+            if ($mine) {
+                $q->where('created_by', $userId);
+            }
+            foreach ($q->orderByDesc('id')->limit(self::LIST_MAX * 5)
+                ->get(['id', 'object_id', 'source_data', 'suggested_text', 'status', 'reviewed_by', 'reviewed_at', 'review_notes', 'created_by', 'created_at']) as $f) {
+                $meta = json_decode((string) $f->source_data, true) ?: [];
+                $items[] = [
+                    'kind' => 'field', 'id' => (int) $f->id, 'object_id' => (int) $f->object_id,
+                    'field' => ($meta['kind'] ?? '') === 'transcript' ? 'transcript' : ($meta['field'] ?? null),
+                    'culture' => ($meta['kind'] ?? '') === 'translation' ? ($meta['culture'] ?? null) : null,
+                    'value' => mb_substr((string) $f->suggested_text, 0, 300), 'status' => (string) $f->status,
+                    'review_notes' => $f->review_notes,
+                    'proposed_by' => $f->created_by ? (int) $f->created_by : null,
+                    'reviewed_by' => $f->reviewed_by, 'reviewed_at' => $f->reviewed_at, 'proposed_at' => (string) $f->created_at,
                 ];
             }
         }

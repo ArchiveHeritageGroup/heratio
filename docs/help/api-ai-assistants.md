@@ -70,6 +70,13 @@ An archivist's assistant, signed in with the archivist's own key, may propose ad
 
 Names and places go to **AI > NER review** and on to the **Authority Resolution** queue. There the reviewer sees the evidence, the sources, who proposed it, and the proposed record first, marked "proposed". Creating a new authority record pre-fills it from the proposed details. Dates stay in the NER dialog. Re-running NER on a record leaves proposals alone.
 
-Field, translation, transcription and relationship proposals answer `501` until their review screens are added.
+Text goes to **AI > Suggest review** (`/admin/ai/suggest-review`):
+
+- `fields` - `[{field, text, culture?, evidence?, sources?}]`, at most 10 per request. `field` is title, scope_and_content, archival_history, extent_and_medium, arrangement, access_conditions or reproduction_conditions. A `culture` other than the record's makes it a translation into that language.
+- `transcripts` - `[{text, digital_object_id?, evidence?}]`, at most 5, each up to 65,000 bytes. This is the text of one of the record's files, such as a scanned page with no text layer.
+
+The reviewer sees the current text, or the page image for a transcript, beside the proposal with its evidence and sources. They may edit the text before approving. Approval writes the field, the field in the other language (creating that language's row when needed), or the file's transcript, which `GET /descriptions/{slug}/text` then returns. The outcome shows in `GET /api/v2/proposals` as approved, edited or rejected, with the reviewer's note.
+
+Relationship proposals answer `501` until their review screen is added.
 
 `GET /api/v2/proposals?mine=1&status=&count=&start=` lists the caller's proposals, newest first, with each one's status (pending, linked, rejected, and so on) and the record's slug and title. `mine=0` lists everyone's and needs an administrator or editor.

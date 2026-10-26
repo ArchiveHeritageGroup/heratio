@@ -491,9 +491,42 @@ class AiController extends Controller
         return view('ahg-ai-services::review', ['rows' => collect()]);
     }
 
+    /**
+     * AI > Suggest review: field texts, translations and transcripts proposed
+     * for records (heratio#1559, #1564), waiting for an archivist.
+     */
     public function suggestReview(Request $request)
     {
-        return view('ahg-ai-services::suggest-review', ['rows' => collect()]);
+        $service = app(\AhgAiServices\Services\DescriptionSuggestionService::class);
+        $status = in_array($request->query('status'), $service::STATUSES, true) ? $request->query('status') : 'pending';
+
+        return view('ahg-ai-services::suggest-review', [
+            'rows' => $service->paginate($status),
+            'status' => $status,
+            'counts' => $service->counts(),
+            'statuses' => $service::STATUSES,
+        ]);
+    }
+
+    /**
+     * POST /admin/ai/suggest-review/{id} - approve (optionally edited) or reject.
+     */
+    public function suggestReviewDecision(Request $request, int $id)
+    {
+        $request->validate([
+            'decision' => 'required|in:approve,reject',
+            'edited_text' => 'nullable|string|max:65000',
+            'notes' => 'nullable|string|max:2000',
+        ]);
+        try {
+            $message = app(\AhgAiServices\Services\DescriptionSuggestionService::class)->decide(
+                $id, $request->input('decision'), $request->input('edited_text'), $request->input('notes'), (int) auth()->id()
+            );
+        } catch (\InvalidArgumentException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return back()->with('success', $message);
     }
 
     /* ================================================================== */
@@ -1450,7 +1483,7 @@ class AiController extends Controller
 
         if ($decision === 'approve') {
             $culture = app()->getLocale();
-            $text    = $editedText ?: $suggestion->suggested_text;
+            $text    = $editedText ?: $suggestion->suggested_value;
 
             DB::table('information_object_i18n')
                 ->where('id', $suggestion->object_id)

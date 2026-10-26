@@ -39,6 +39,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin/ai')->group(function () {
     Route::match(['get','post'], '/pdf-overlay', [AiController::class, 'pdfOverlay'])->name('admin.ai.pdf-overlay');
     Route::get('/review', [AiController::class, 'review'])->name('admin.ai.review');
     Route::get('/suggest-review', [AiController::class, 'suggestReview'])->name('admin.ai.suggest-review');
+    Route::post('/suggest-review/{id}', [AiController::class, 'suggestReviewDecision'])->name('admin.ai.suggest-review.decision')->whereNumber('id');
 
     // Condition assessment
     Route::get('/condition/assess', [AiController::class, 'conditionAssess'])->name('admin.ai.condition.assess');
