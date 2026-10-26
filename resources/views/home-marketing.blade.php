@@ -130,7 +130,7 @@
         ['type' => 'museum',  'label' => __('Museum collection'),  'icon' => 'fa-monument', 'grad' => '#3a1c71 0%,#b06ab3 100%',
          'desc' => __('Catalogued objects with CCO cataloguing, condition reporting and CIDOC CRM export.')],
         ['type' => 'gallery', 'label' => __('Gallery collection'), 'icon' => 'fa-palette',  'grad' => '#874da2 0%,#c43c5c 100%',
-         'desc' => __('Artworks with CCO/CDWA descriptive fields, Getty AAT terms and IIIF deep zoom.')],
+         'desc' => __('Artworks with CCO descriptive fields, Getty AAT terms and IIIF deep zoom.')],
         ['type' => 'library', 'label' => __('Library collection'), 'icon' => 'fa-book',     'grad' => '#134e5e 0%,#71b280 100%',
          'desc' => __('Bibliographic records with MARC21 ingest, Z39.50 copy cataloguing and BIBFRAME export.')],
       ] as $sector)

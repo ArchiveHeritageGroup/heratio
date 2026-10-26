@@ -963,6 +963,10 @@ class EsReindexCommand extends Command
                     ->whereIn('actor_id', $ids)
                     ->get()
                     ->groupBy('actor_id');
+                $contactI18n = DB::table('contact_information_i18n')
+                    ->whereIn('id', $contacts->flatten()->pluck('id'))
+                    ->get()
+                    ->groupBy('id');
 
                 $bulk = '';
                 foreach ($rows as $row) {
@@ -986,19 +990,29 @@ class EsReindexCommand extends Command
                         ]),
                     ];
 
-                    // Contact information
+                    // Contact information, in the strict contactInformations
+                    // mapping (heratio#1550: a snake_case contact_informations
+                    // field was rejected, dropping the repository from search).
+                    // Address fields only, as the mapping declares: telephone,
+                    // email and website are not indexed.
                     $contactList = $contacts[$row->id] ?? collect();
                     if ($contactList->isNotEmpty()) {
-                        $doc['contact_informations'] = $contactList->map(fn ($c) => [
-                            'street_address' => $c->street_address ?? null,
-                            'postal_code' => $c->postal_code ?? null,
-                            'region' => $c->region ?? null,
-                            'city' => $c->city ?? null,
-                            'country_code' => $c->country_code ?? null,
-                            'telephone' => $c->telephone ?? null,
-                            'email' => $c->email ?? null,
-                            'website' => $c->website ?? null,
-                        ])->toArray();
+                        $doc['contactInformations'] = $contactList->map(fn ($c) => array_filter([
+                            'id' => (int) $c->id,
+                            'contactPerson' => $c->contact_person ?? null,
+                            'streetAddress' => $c->street_address ?? null,
+                            'postalCode' => $c->postal_code ?? null,
+                            'countryCode' => $c->country_code ?? null,
+                            'location' => (is_numeric($c->latitude ?? null) && is_numeric($c->longitude ?? null))
+                                ? ['lat' => (float) $c->latitude, 'lon' => (float) $c->longitude] : null,
+                            'sourceCulture' => $c->source_culture ?? null,
+                            'i18n' => $this->buildI18n($contactI18n[$c->id] ?? collect(), [
+                                'city' => 'city',
+                                'region' => 'region',
+                                'contactType' => 'contact_type',
+                                'note' => 'note',
+                            ]),
+                        ], fn ($v) => $v !== null && $v !== ''))->values()->toArray();
                     }
 
                     $bulk .= json_encode(['index' => ['_index' => $index, '_id' => $row->id]])."\n";

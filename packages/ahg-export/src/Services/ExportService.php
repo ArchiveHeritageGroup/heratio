@@ -94,9 +94,19 @@ class ExportService
      */
     public function getAuthorityCount(): int
     {
-        return DB::table('actor')
-            ->whereNotNull('id')
-            ->count();
+        return $this->authorityQuery()->count();
+    }
+
+    /**
+     * Authority records only: class QubitActor, so not users, repositories,
+     * donors or rights holders, and not the root actor (id 3).
+     */
+    private function authorityQuery()
+    {
+        return DB::table('actor as a')
+            ->join('object as o', 'o.id', '=', 'a.id')
+            ->where('o.class_name', 'QubitActor')
+            ->where('a.id', '>', 3);
     }
 
     /**
@@ -376,10 +386,8 @@ class ExportService
             'authority-records-' . date('Ymd-His') . '.csv',
             ['id', 'authorizedFormOfName', 'datesOfExistence', 'history', 'culture'],
             function ($out) use ($limit) {
-                $q = DB::table('actor as a')
+                $q = $this->authorityQuery()
                     ->leftJoin('actor_i18n as i', fn ($j) => $j->on('a.id', '=', 'i.id')->where('i.culture', '=', 'en'))
-                    ->where('a.id', '>', 1)
-                    ->whereNotIn('a.id', fn ($sub) => $sub->from('repository')->select('id'))
                     ->select('a.id', 'i.authorized_form_of_name', 'i.dates_of_existence', 'i.history')
                     ->orderBy('a.id');
                 if ($limit > 0) {
@@ -390,6 +398,45 @@ class ExportService
                 }
             }
         );
+    }
+
+    /**
+     * EAC-CPF 2.0 export (heratio#1551): one XML file per authority record,
+     * named by slug, in a ZIP. A record with no name in its source culture
+     * cannot be valid EAC-CPF (identity needs a nameEntry) and is listed in
+     * skipped.txt instead.
+     */
+    public function downloadActorEac(int $limit = 0)
+    {
+        $serializer = app(\AhgMetadataExport\Services\Exporters\EacCpf2Serializer::class);
+        $q = $this->authorityQuery()
+            ->join('actor_i18n as i', fn ($j) => $j->on('a.id', '=', 'i.id')->on('i.culture', '=', 'a.source_culture'))
+            ->leftJoin('slug as s', 's.object_id', '=', 'a.id')
+            ->select('a.id', 'a.source_culture', 'i.authorized_form_of_name as name', 's.slug')
+            ->orderBy('a.id');
+        if ($limit > 0) {
+            $q->limit($limit);
+        }
+
+        $path = tempnam(sys_get_temp_dir(), 'eac');
+        $zip = new \ZipArchive();
+        $zip->open($path, \ZipArchive::OVERWRITE);
+        $skipped = [];
+        foreach ($q->cursor() as $r) {
+            if (trim((string) $r->name) === '') {
+                $skipped[] = $r->id.($r->slug ? ' '.$r->slug : '');
+
+                continue;
+            }
+            $zip->addFromString(($r->slug ?: 'actor-'.$r->id).'.xml', $serializer->serializeActor((int) $r->id, $r->source_culture ?: 'en'));
+        }
+        if ($skipped) {
+            $zip->addFromString('skipped.txt', "Authority records with no authorized name, not exported:\n".implode("\n", $skipped)."\n");
+        }
+        $zip->close();
+
+        return response()->download($path, 'authority-records-eac-cpf-'.date('Ymd-His').'.zip', ['Content-Type' => 'application/zip'])
+            ->deleteFileAfterSend();
     }
 
     /** Repository CSV; optional row limit. */

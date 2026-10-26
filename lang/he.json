@@ -23917,7 +23917,7 @@
     ":du <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> of <em>Unlimited</em>": ":du <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> מתוך <em>בלתי מוגבל</em>",
     ":du of :limit <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> (:percent%)": ":du מתוך :limit <abbr title=\"1 GB = 1 000 000 000 bytes\">GB</abbr> (:percent%)",
     "Allow users to view 3D models in augmented reality on supported devices (iOS Safari, Chrome for Android)": "אפשר למשתמשים לצפות במודלים תלת-ממדיים במציאות רבודה על מכשירים נתמכים (iOS Safari, Chrome לאנדרואיד)",
-    "Artworks with CCO/CDWA descriptive fields, Getty AAT terms and IIIF deep zoom.": "יצירות אמנות עם שדות תיאור CCO/CDWA, מונחי Getty AAT והזום עמוק IIIF.",
+    "Artworks with CCO descriptive fields, Getty AAT terms and IIIF deep zoom.": "יצירות אמנות עם שדות תיאור CCO, מונחי Getty AAT והזום עמוק IIIF.",
     "Captured in the audit trail.": "נרשם ביומן הביקורת.",
     "Cryptographic signing is unavailable on this host; provenance can be recorded but not sealed.": "חתימה קריפטוגרפית אינה זמינה במארח זה; ניתן לרשום מקור אך לא לחתום עליו.",
     "Heratio will display the UI in this language whenever you are signed in. Leave blank to fall back to the URL / cookie / browser preference chain.": "Heratio יציג את ממשק המשתמש בשפה זו בכל פעם שתהיה מחובר. השאר ריק כדי לחזור לשרשרת העדפות URL/עוגיה/דפדפן.",

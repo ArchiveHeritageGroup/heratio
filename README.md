@@ -360,7 +360,7 @@ Institutions are responsible for configuring the system appropriately for their 
 - [ ] Multi-language NER support (including isiZulu, Sesotho, Afrikaans)
 - [ ] Bulk shared drive ingestion agent with automated classification
 - [ ] Document Management (DM) - versioned digital-document workflows, check-in/check-out, redaction, watermarking, derivative chains
-- [ ] Records Management (RM) - file plans, retention schedules, disposal workflows (recommend / approve / execute / reject / legal hold), audit-grade event log; full ISO 15489 / ISO 16175 alignment
+- [x] Records Management (RM) - file plans, retention schedules, disposal workflows (recommend / approve / execute / reject / legal hold), audit event log (`ahg-records-manage`)
 
 ---
 

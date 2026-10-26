@@ -1608,46 +1608,15 @@ class ActorController extends Controller
             return response()->json(['success' => false, 'error' => 'Actor not found'], 404);
         }
 
-        // Retrieve external identifiers for EAC-CPF enrichment
-        $identifiers = DB::table('ahg_actor_identifier')
-            ->where('actor_id', $actorId)
-            ->get();
+        // EAC-CPF 2.0 XML (heratio#1551); external identifiers are carried as
+        // otherRecordId. This returned identifier JSON before and had no callers.
+        $actorRow = DB::table('actor')->where('id', $actorId)->first(['source_culture']);
+        $xml = app(\AhgMetadataExport\Services\Exporters\EacCpf2Serializer::class)
+            ->serializeActor($actorId, $actorRow->source_culture ?? 'en');
 
-        $otherRecordIds = [];
-        $sources = [];
-
-        $sourceLabels = [
-            'wikidata' => 'Wikidata',
-            'viaf' => 'Virtual International Authority File (VIAF)',
-            'ulan' => 'Getty Union List of Artist Names (ULAN)',
-            'lcnaf' => 'Library of Congress Name Authority File (LCNAF)',
-            'isni' => 'International Standard Name Identifier (ISNI)',
-            'orcid' => 'ORCID',
-            'gnd' => 'Gemeinsame Normdatei (GND)',
-        ];
-
-        foreach ($identifiers as $ident) {
-            $otherRecordIds[] = [
-                'localType' => $ident->identifier_type,
-                'value' => $ident->identifier_value,
-                'uri' => $ident->uri ?? '',
-                'isVerified' => (bool) ($ident->is_verified ?? false),
-            ];
-
-            if (! empty($ident->uri)) {
-                $sources[] = [
-                    'href' => $ident->uri,
-                    'label' => $ident->label ?? ($sourceLabels[$ident->identifier_type] ?? ucfirst($ident->identifier_type)),
-                ];
-            }
-        }
-
-        return response()->json([
-            'success' => true,
-            'eac_data' => [
-                'otherRecordIds' => $otherRecordIds,
-                'sources' => $sources,
-            ],
+        return response($xml, 200, [
+            'Content-Type' => 'application/xml; charset=UTF-8',
+            'Content-Disposition' => 'inline; filename="'.($actor->slug ?: 'actor-'.$actorId).'.xml"',
         ]);
     }
 

@@ -188,66 +188,61 @@ class EacCpf2Serializer
     }
 
     /**
-     * Build the <control> element.
+     * Build the <control> element, in the EAC-CPF 2.0 order: recordId,
+     * maintenanceAgency, maintenanceHistory, sources, then the declarations.
      */
     protected function buildControl(int $actorId, object $actor, object $actorI18n, ?string $slug, string $culture): \DOMElement
     {
         $control = $this->el('control');
+        $control->setAttribute('maintenanceStatus', 'derived');
 
-        // <recordId>
-        $recordId = $slug ?? ('actor-'.$actorId);
-        $control->appendChild($this->el('recordId', $recordId));
+        $control->appendChild($this->el('recordId', $slug ?? ('actor-'.$actorId)));
 
-        // <maintenanceStatus>
-        $maintenanceStatus = $this->el('maintenanceStatus');
-        $maintenanceStatus->setAttribute('value', 'derived');
-        $control->appendChild($maintenanceStatus);
-
-        // <maintenanceAgency>
         $maintenanceAgency = $this->el('maintenanceAgency');
-        $agencyName = $this->el('agencyName', 'Heratio Metadata Export');
-        $maintenanceAgency->appendChild($agencyName);
+        $maintenanceAgency->appendChild($this->el('agencyName', 'Heratio Metadata Export'));
         $control->appendChild($maintenanceAgency);
 
-        // <languageDeclaration>
-        $languageDeclaration = $this->el('languageDeclaration');
-        $language = $this->el('language');
-        $language->setAttribute('languageCode', $culture === 'en' ? 'eng' : $culture);
-        $languageDeclaration->appendChild($language);
-        $script = $this->el('script');
-        $script->setAttribute('scriptCode', 'Latn');
-        $languageDeclaration->appendChild($script);
-        $control->appendChild($languageDeclaration);
-
-        // <maintenanceHistory>
         $maintenanceHistory = $this->el('maintenanceHistory');
         $maintenanceEvent = $this->el('maintenanceEvent');
-
-        $eventType = $this->el('eventType');
-        $eventType->setAttribute('value', 'derived');
-        $maintenanceEvent->appendChild($eventType);
-
-        $eventDateTime = $this->el('eventDateTime', date('c'));
-        $maintenanceEvent->appendChild($eventDateTime);
-
-        $agentType = $this->el('agentType');
-        $agentType->setAttribute('value', 'machine');
-        $maintenanceEvent->appendChild($agentType);
-
+        $maintenanceEvent->setAttribute('maintenanceEventType', 'derived');
         $agent = $this->el('agent', 'Heratio EAC-CPF 2.0 Serializer');
+        $agent->setAttribute('agentType', 'machine');
         $maintenanceEvent->appendChild($agent);
-
+        $now = date('c');
+        $eventDateTime = $this->el('eventDateTime', $now);
+        $eventDateTime->setAttribute('standardDateTime', $now);
+        $maintenanceEvent->appendChild($eventDateTime);
         $maintenanceHistory->appendChild($maintenanceEvent);
         $control->appendChild($maintenanceHistory);
 
-        // <sources> from actor_i18n
         if (! empty($actorI18n->sources)) {
             $sources = $this->el('sources');
             $source = $this->el('source');
-            $sourceEntry = $this->el('sourceEntry', $actorI18n->sources);
-            $source->appendChild($sourceEntry);
+            $source->appendChild($this->el('reference', $actorI18n->sources));
             $sources->appendChild($source);
             $control->appendChild($sources);
+        }
+
+        // ponytail: 'en' maps to ISO 639-2 'eng'; other cultures are written
+        // as given (mostly ISO 639-1), which the schema accepts as an NMTOKEN.
+        $languageDeclaration = $this->el('languageDeclaration');
+        $languageDeclaration->setAttribute('languageCode', $culture === 'en' ? 'eng' : $culture);
+        $languageDeclaration->setAttribute('scriptCode', 'Latn');
+        $control->appendChild($languageDeclaration);
+
+        // The same person in other authority files (Wikidata, VIAF, ULAN ...).
+        if (\Illuminate\Support\Facades\Schema::hasTable('ahg_actor_identifier')) {
+            foreach (DB::table('ahg_actor_identifier')->where('actor_id', $actorId)->orderBy('id')->get() as $ident) {
+                if (trim((string) $ident->identifier_value) === '') {
+                    continue;
+                }
+                $other = $this->el('otherRecordId', $ident->identifier_value);
+                $other->setAttribute('localType', $ident->identifier_type);
+                if (! empty($ident->uri)) {
+                    $other->setAttribute('valueURI', $ident->uri);
+                }
+                $control->appendChild($other);
+            }
         }
 
         return $control;
@@ -342,209 +337,104 @@ class EacCpf2Serializer
     }
 
     /**
-     * Build the <description> element.
+     * Build the <description> element. EAC-CPF 2.0 fixes the order: functions,
+     * legalStatuses, mandates, places, then the narrative elements.
      */
     protected function buildDescription(object $actor, object $actorI18n, string $culture): \DOMElement
     {
         $description = $this->el('description');
 
-        // <existDates>
-        if (! empty($actorI18n->dates_of_existence)) {
-            $existDates = $this->el('existDates');
-            $dateRange = $this->el('dateRange');
-            $fromDate = $this->el('fromDate', $actorI18n->dates_of_existence);
-            $dateRange->appendChild($fromDate);
-            $existDates->appendChild($dateRange);
-            $description->appendChild($existDates);
+        foreach (['functions' => 'function', 'legal_status' => 'legalStatus', 'mandates' => 'mandate'] as $field => $name) {
+            if (! empty($actorI18n->{$field})) {
+                $wrapper = $this->el($name === 'legalStatus' ? 'legalStatuses' : $name.'s');
+                $item = $this->el($name);
+                $item->appendChild($this->el('term', $actorI18n->{$field}));
+                $wrapper->appendChild($item);
+                $description->appendChild($wrapper);
+            }
         }
 
-        // <places>
         if (! empty($actorI18n->places)) {
             $places = $this->el('places');
             $place = $this->el('place');
-            $placeEntry = $this->el('placeEntry', $actorI18n->places);
-            $place->appendChild($placeEntry);
+            $place->appendChild($this->el('placeName', $actorI18n->places));
             $places->appendChild($place);
             $description->appendChild($places);
         }
 
-        // <legalStatuses>
-        if (! empty($actorI18n->legal_status)) {
-            $legalStatuses = $this->el('legalStatuses');
-            $legalStatus = $this->el('legalStatus');
-            $term = $this->el('term', $actorI18n->legal_status);
-            $legalStatus->appendChild($term);
-            $legalStatuses->appendChild($legalStatus);
-            $description->appendChild($legalStatuses);
+        // Dates of existence are free text in ISAAR, so a plain <date>.
+        if (! empty($actorI18n->dates_of_existence)) {
+            $existDates = $this->el('existDates');
+            $existDates->appendChild($this->el('date', $actorI18n->dates_of_existence));
+            $description->appendChild($existDates);
         }
 
-        // <functions>
-        if (! empty($actorI18n->functions)) {
-            $functionsEl = $this->el('functions');
-            $functionEl = $this->el('function');
-            $term = $this->el('term', $actorI18n->functions);
-            $functionEl->appendChild($term);
-            $functionsEl->appendChild($functionEl);
-            $description->appendChild($functionsEl);
-        }
-
-        // <mandates>
-        if (! empty($actorI18n->mandates)) {
-            $mandates = $this->el('mandates');
-            $mandate = $this->el('mandate');
-            $term = $this->el('term', $actorI18n->mandates);
-            $mandate->appendChild($term);
-            $mandates->appendChild($mandate);
-            $description->appendChild($mandates);
-        }
-
-        // <structureOrGenealogy>
-        if (! empty($actorI18n->internal_structures)) {
-            $structureOrGenealogy = $this->el('structureOrGenealogy');
-            $p = $this->el('p', $actorI18n->internal_structures);
-            $structureOrGenealogy->appendChild($p);
-            $description->appendChild($structureOrGenealogy);
-        }
-
-        // <generalContext>
-        if (! empty($actorI18n->general_context)) {
-            $generalContext = $this->el('generalContext');
-            $p = $this->el('p', $actorI18n->general_context);
-            $generalContext->appendChild($p);
-            $description->appendChild($generalContext);
-        }
-
-        // <biogHist>
-        if (! empty($actorI18n->history)) {
-            $biogHist = $this->el('biogHist');
-            $p = $this->el('p', $actorI18n->history);
-            $biogHist->appendChild($p);
-            $description->appendChild($biogHist);
+        foreach (['internal_structures' => 'structureOrGenealogy', 'general_context' => 'generalContext', 'history' => 'biogHist'] as $field => $name) {
+            if (! empty($actorI18n->{$field})) {
+                $el = $this->el($name);
+                $el->appendChild($this->el('p', $actorI18n->{$field}));
+                $description->appendChild($el);
+            }
         }
 
         return $description;
     }
 
     /**
-     * Build the <relations> element.
+     * Build the <relations> element from the actor-to-actor rows in either
+     * direction; rows pointing at descriptions or other objects are skipped.
      */
     protected function buildRelations(object $actor, $relationsAsSubject, $relationsAsObject, string $culture): \DOMElement
     {
         $relations = $this->el('relations');
-
-        // Relations where this actor is the subject
+        $rows = [];
         foreach ($relationsAsSubject as $rel) {
-            $relatedActorI18n = DB::table('actor_i18n')
-                ->where('id', $rel->object_id)
-                ->where('culture', $culture)
-                ->first();
-
-            if (! $relatedActorI18n || empty($relatedActorI18n->authorized_form_of_name)) {
-                continue;
-            }
-
-            $relTypeName = null;
-            if ($rel->type_id) {
-                $relTypeName = DB::table('term_i18n')
-                    ->where('id', $rel->type_id)
-                    ->where('culture', $culture)
-                    ->value('name');
-            }
-
-            $relation = $this->el('relation');
-            $relation->setAttribute('relationType', $this->mapRelationType($relTypeName));
-
-            $targetEntity = $this->el('targetEntity');
-
-            $relSlug = DB::table('slug')->where('object_id', $rel->object_id)->value('slug');
-            if ($relSlug) {
-                $targetEntity->setAttribute('valueURI', $relSlug);
-            }
-
-            $part = $this->el('part', $relatedActorI18n->authorized_form_of_name);
-            $targetEntity->appendChild($part);
-            $relation->appendChild($targetEntity);
-
-            // Date range
-            if ($rel->start_date || $rel->end_date) {
-                $dateRange = $this->el('dateRange');
-                if ($rel->start_date) {
-                    $fromDate = $this->el('fromDate', (string) $rel->start_date);
-                    $fromDate->setAttribute('standardDate', (string) $rel->start_date);
-                    $dateRange->appendChild($fromDate);
-                }
-                if ($rel->end_date) {
-                    $toDate = $this->el('toDate', (string) $rel->end_date);
-                    $toDate->setAttribute('standardDate', (string) $rel->end_date);
-                    $dateRange->appendChild($toDate);
-                }
-                $relation->appendChild($dateRange);
-            }
-
-            if ($relTypeName) {
-                $descriptiveNote = $this->el('descriptiveNote');
-                $p = $this->el('p', $relTypeName);
-                $descriptiveNote->appendChild($p);
-                $relation->appendChild($descriptiveNote);
-            }
-
-            $relations->appendChild($relation);
+            $rows[] = [$rel, $rel->object_id];
+        }
+        foreach ($relationsAsObject as $rel) {
+            $rows[] = [$rel, $rel->subject_id];
         }
 
-        // Relations where this actor is the object
-        foreach ($relationsAsObject as $rel) {
-            $relatedActorI18n = DB::table('actor_i18n')
-                ->where('id', $rel->subject_id)
-                ->where('culture', $culture)
-                ->first();
-
-            if (! $relatedActorI18n || empty($relatedActorI18n->authorized_form_of_name)) {
+        foreach ($rows as [$rel, $otherId]) {
+            $other = DB::table('actor')->where('id', $otherId)->first(['id', 'entity_type_id']);
+            $otherName = $other ? DB::table('actor_i18n')->where('id', $otherId)->where('culture', $culture)->value('authorized_form_of_name') : null;
+            if (! $otherName) {
                 continue;
             }
 
-            $relTypeName = null;
-            if ($rel->type_id) {
-                $relTypeName = DB::table('term_i18n')
-                    ->where('id', $rel->type_id)
-                    ->where('culture', $culture)
-                    ->value('name');
-            }
+            $relTypeName = $rel->type_id
+                ? DB::table('term_i18n')->where('id', $rel->type_id)->where('culture', $culture)->value('name')
+                : null;
+            $otherType = $other->entity_type_id
+                ? DB::table('term_i18n')->where('id', $other->entity_type_id)->where('culture', 'en')->value('name')
+                : null;
 
             $relation = $this->el('relation');
-            $relation->setAttribute('relationType', $this->mapRelationType($relTypeName));
 
             $targetEntity = $this->el('targetEntity');
-
-            $relSlug = DB::table('slug')->where('object_id', $rel->subject_id)->value('slug');
+            $targetEntity->setAttribute('targetType', $this->entityTypeMap[$otherType] ?? 'agent');
+            $relSlug = DB::table('slug')->where('object_id', $otherId)->value('slug');
             if ($relSlug) {
-                $targetEntity->setAttribute('valueURI', $relSlug);
+                $targetEntity->setAttribute('valueURI', url('/actor/'.$relSlug));
             }
-
-            $part = $this->el('part', $relatedActorI18n->authorized_form_of_name);
-            $targetEntity->appendChild($part);
+            $targetEntity->appendChild($this->el('part', $otherName));
             $relation->appendChild($targetEntity);
 
             if ($rel->start_date || $rel->end_date) {
                 $dateRange = $this->el('dateRange');
-                if ($rel->start_date) {
-                    $fromDate = $this->el('fromDate', (string) $rel->start_date);
-                    $fromDate->setAttribute('standardDate', (string) $rel->start_date);
-                    $dateRange->appendChild($fromDate);
-                }
-                if ($rel->end_date) {
-                    $toDate = $this->el('toDate', (string) $rel->end_date);
-                    $toDate->setAttribute('standardDate', (string) $rel->end_date);
-                    $dateRange->appendChild($toDate);
+                foreach (['fromDate' => $rel->start_date, 'toDate' => $rel->end_date] as $name => $date) {
+                    if ($date) {
+                        $d = $this->el($name, (string) $date);
+                        $d->setAttribute('standardDate', (string) $date);
+                        $dateRange->appendChild($d);
+                    }
                 }
                 $relation->appendChild($dateRange);
             }
 
-            if ($relTypeName) {
-                $descriptiveNote = $this->el('descriptiveNote');
-                $p = $this->el('p', $relTypeName);
-                $descriptiveNote->appendChild($p);
-                $relation->appendChild($descriptiveNote);
-            }
+            $relationType = $this->el('relationType', $relTypeName ?: $this->mapRelationType(null));
+            $relationType->setAttribute('localType', $this->mapRelationType($relTypeName));
+            $relation->appendChild($relationType);
 
             $relations->appendChild($relation);
         }

@@ -124,7 +124,11 @@ class ExportController extends Controller
     public function authority(Request $request)
     {
         if ($request->isMethod('post')) {
-            return $this->exportService->streamActorCsv((int) $request->input('limit', 0));
+            $limit = (int) $request->input('limit', 0);
+
+            return $request->input('format') === 'csv'
+                ? $this->exportService->streamActorCsv($limit)
+                : $this->exportService->downloadActorEac($limit);
         }
         $authorityCount = $this->exportService->getAuthorityCount();
 
