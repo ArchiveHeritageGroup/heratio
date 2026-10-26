@@ -116,12 +116,12 @@ class CollectionsHealthService
      */
     public function publicationCoverage(): array
     {
-        $total = (int) DB::table('information_object')
+        $total = (int) DB::table('information_object')->tap(fn ($q) => \AhgCore\Support\TenantScope::apply($q, 'information_object.repository_id'))
             ->where('parent_id', '!=', self::ROOT_ID)
             ->count();
 
         $published = (int) DB::table('status')
-            ->join('information_object', 'information_object.id', '=', 'status.object_id')
+            ->join('information_object', 'information_object.id', '=', 'status.object_id')->tap(fn ($q) => \AhgCore\Support\TenantScope::apply($q, 'information_object.repository_id'))
             ->where('information_object.parent_id', '!=', self::ROOT_ID)
             ->where('status.type_id', TermId::STATUS_TYPE_PUBLICATION)
             ->where('status.status_id', TermId::PUBLICATION_STATUS_PUBLISHED)
@@ -129,7 +129,7 @@ class CollectionsHealthService
             ->count('status.object_id');
 
         $draft = (int) DB::table('status')
-            ->join('information_object', 'information_object.id', '=', 'status.object_id')
+            ->join('information_object', 'information_object.id', '=', 'status.object_id')->tap(fn ($q) => \AhgCore\Support\TenantScope::apply($q, 'information_object.repository_id'))
             ->where('information_object.parent_id', '!=', self::ROOT_ID)
             ->where('status.type_id', TermId::STATUS_TYPE_PUBLICATION)
             ->where('status.status_id', TermId::PUBLICATION_STATUS_DRAFT)
@@ -157,12 +157,12 @@ class CollectionsHealthService
      */
     public function digitalCoverage(): array
     {
-        $total = (int) DB::table('information_object')
+        $total = (int) DB::table('information_object')->tap(fn ($q) => \AhgCore\Support\TenantScope::apply($q, 'information_object.repository_id'))
             ->where('parent_id', '!=', self::ROOT_ID)
             ->count();
 
         $with = (int) DB::table('digital_object')
-            ->join('information_object', 'information_object.id', '=', 'digital_object.object_id')
+            ->join('information_object', 'information_object.id', '=', 'digital_object.object_id')->tap(fn ($q) => \AhgCore\Support\TenantScope::apply($q, 'information_object.repository_id'))
             ->where('information_object.parent_id', '!=', self::ROOT_ID)
             ->distinct()
             ->count('digital_object.object_id');
@@ -183,14 +183,14 @@ class CollectionsHealthService
      */
     public function conditionCoverage(): array
     {
-        $total = (int) DB::table('information_object')
+        $total = (int) DB::table('information_object')->tap(fn ($q) => \AhgCore\Support\TenantScope::apply($q, 'information_object.repository_id'))
             ->where('parent_id', '!=', self::ROOT_ID)
             ->count();
 
         $with = 0;
         if (Schema::hasTable('condition_report')) {
             $with = (int) DB::table('condition_report')
-                ->join('information_object', 'information_object.id', '=', 'condition_report.information_object_id')
+                ->join('information_object', 'information_object.id', '=', 'condition_report.information_object_id')->tap(fn ($q) => \AhgCore\Support\TenantScope::apply($q, 'information_object.repository_id'))
                 ->where('information_object.parent_id', '!=', self::ROOT_ID)
                 ->distinct()
                 ->count('condition_report.information_object_id');

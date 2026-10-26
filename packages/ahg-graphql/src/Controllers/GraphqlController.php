@@ -91,6 +91,10 @@ class GraphqlController extends Controller
      */
     private function scopePublished($query, string $alias): void
     {
+        // GHSA-fqxh-fv8c-mq23: editors are tenant-scoped too; TenantScope
+        // exempts administrators itself.
+        \AhgCore\Support\TenantScope::apply($query, $alias.'.repository_id');
+
         if ($this->callerIsAdmin()) {
             return;
         }

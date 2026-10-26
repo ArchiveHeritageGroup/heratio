@@ -600,7 +600,7 @@ class ReportBuilderController extends Controller
         try {
             $culture = app()->getLocale();
             if ($type === 'information_object') {
-                $results = DB::table('information_object as io')
+                $results = DB::table('information_object as io')->tap(fn ($q) => \AhgCore\Support\TenantScope::apply($q, 'io.repository_id'))
                     ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
                         $join->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
                     })

@@ -44,44 +44,34 @@ class ElasticsearchService
     }
 
     /**
-     * Multi-tenant repository filter for an IO-only ES query. Returns null
-     * when no scoping should apply (admin, feature off, no tenant, etc.) -
-     * callers should simply not append.
+     * Multi-tenant filter for an IO-only ES query: drop another tenant's
+     * records by id (GHSA-fqxh-fv8c-mq23). The index holds only a record's own
+     * repository, and most descendants have none, so a repository.id term
+     * would hide every child of the tenant's own fonds. Returns null when no
+     * scoping should apply (admin, feature off, open-scope tenant).
      */
     protected function tenantIoFilter(): ?array
     {
-        $repoId = TenantScope::getActiveRepoId();
-        if ($repoId === null) {
+        if (TenantScope::getActiveRepoId() === null) {
             return null;
         }
+        $outside = TenantScope::outsideIds();
 
-        return ['term' => ['repository.id' => $repoId]];
+        // ponytail: ids query bounded by index.max_terms_count (65,536 by
+        // default); a larger install needs an inherited-repository field in
+        // the index instead.
+        return $outside ? ['bool' => ['must_not' => [['ids' => ['values' => array_map('strval', $outside)]]]]] : null;
     }
 
     /**
-     * Multi-tenant scope clause for a multi-index search (IO + actor +
-     * repository + term). IO docs are filtered by repository.id; non-IO
-     * docs pass through (they have no repository.id field). Returns null
-     * when scoping should NOT apply.
+     * Multi-tenant clause for a multi-index search (IO + actor + repository +
+     * term). Object ids are unique across entity types, so excluding the
+     * out-of-tenant record ids leaves actor, repository and term docs alone.
+     * The old clause passed every IO doc without a repository.id of its own.
      */
     protected function tenantMultiIndexFilter(): ?array
     {
-        $repoId = TenantScope::getActiveRepoId();
-        if ($repoId === null) {
-            return null;
-        }
-
-        return [
-            'bool' => [
-                'should' => [
-                    // Non-IO docs (actor / term) - no repository.id field.
-                    ['bool' => ['must_not' => [['exists' => ['field' => 'repository.id']]]]],
-                    // IO docs scoped to the tenant.
-                    ['term' => ['repository.id' => $repoId]],
-                ],
-                'minimum_should_match' => 1,
-            ],
-        ];
+        return $this->tenantIoFilter();
     }
 
     // ──────────────────────────────────────────────────────────────────────

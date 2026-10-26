@@ -257,6 +257,24 @@ class PortableExportController extends Controller
         $mode = $data['mode'] ?? (string) $this->setting('portable_export_default_mode', 'read_only');
         $culture = $data['culture'] ?? (string) $this->setting('portable_export_default_culture', app()->getLocale());
 
+        // GHSA-fqxh-fv8c-mq23: the worker runs without a tenant, so a
+        // tenant-scoped caller's scope is pinned here to their own records.
+        if (($tenantRepo = \AhgCore\Support\TenantScope::getActiveRepoId()) !== null) {
+            if ($scope === 'all') {
+                [$scope, $data['repository_id']] = ['repository', $tenantRepo];
+            }
+            $outside = array_flip(\AhgCore\Support\TenantScope::outsideIds());
+            $refs = $scope === 'fonds' ? [$data['scope_slug'] ?? ''] : ($scope === 'clipboard' ? (array) ($data['scope_items'] ?? []) : []);
+            $foreign = collect($refs)->contains(function ($ref) use ($outside) {
+                $id = ctype_digit((string) $ref) ? (int) $ref : (int) DB::table('slug')->where('slug', (string) $ref)->value('object_id');
+
+                return ! $id || isset($outside[$id]);
+            });
+            if ($tenantRepo < 0 || $foreign || ($scope === 'repository' && (int) ($data['repository_id'] ?? 0) !== $tenantRepo)) {
+                return response()->json(['success' => false, 'error' => 'That scope includes records outside your organisation.'], 403);
+            }
+        }
+
         $includeMasters = array_key_exists('include_masters', $data) ? ! empty($data['include_masters']) : $this->settingBool('portable_export_include_masters', false);
         $includeThumbnails = array_key_exists('include_thumbnails', $data) ? ! empty($data['include_thumbnails']) : $this->settingBool('portable_export_include_thumbnails', true);
         $includeReferences = array_key_exists('include_references', $data) ? ! empty($data['include_references']) : $this->settingBool('portable_export_include_references', true);
@@ -474,6 +492,7 @@ class PortableExportController extends Controller
             })
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->where('io.parent_id', 1) // top-level fonds/collections
+            ->tap(fn ($w) => \AhgCore\Support\TenantScope::apply($w, 'io.repository_id')) // GHSA-fqxh-fv8c-mq23
             ->where(function ($w) use ($q) {
                 $w->where('ioi.title', 'LIKE', '%'.$q.'%')
                     ->orWhere('io.identifier', 'LIKE', '%'.$q.'%');

@@ -317,7 +317,7 @@ class RightsReportController extends Controller
         $rows = DB::table('relation as rel')
             ->where('rel.type_id', self::RELATION_TYPE_RIGHT)
             ->join('rights as rt', 'rt.id', '=', 'rel.object_id')
-            ->join('information_object as io', 'io.id', '=', 'rel.subject_id')
+            ->join('information_object as io', 'io.id', '=', 'rel.subject_id')->tap(fn ($q) => \AhgCore\Support\TenantScope::apply($q, 'io.repository_id'))
             ->where('io.id', '!=', self::ROOT_ID)
             ->where('io.parent_id', '!=', self::ROOT_ID)
             ->groupBy('rt.copyright_status_id')
@@ -399,7 +399,7 @@ class RightsReportController extends Controller
         // record is not counted as governing a live one.
         $governed = (int) DB::table('research_rights_policy as p')
             ->whereIn('p.target_type', $this->recordTargetTypes())
-            ->join('information_object as io', 'io.id', '=', 'p.target_id')
+            ->join('information_object as io', 'io.id', '=', 'p.target_id')->tap(fn ($q) => \AhgCore\Support\TenantScope::apply($q, 'io.repository_id'))
             ->where('io.id', '!=', self::ROOT_ID)
             ->where('io.parent_id', '!=', self::ROOT_ID)
             ->distinct()
@@ -452,7 +452,7 @@ class RightsReportController extends Controller
     {
         $rows = DB::table('research_rights_policy as p')
             ->whereIn('p.target_type', $this->recordTargetTypes())
-            ->join('information_object as io', 'io.id', '=', 'p.target_id')
+            ->join('information_object as io', 'io.id', '=', 'p.target_id')->tap(fn ($q) => \AhgCore\Support\TenantScope::apply($q, 'io.repository_id'))
             ->where('io.id', '!=', self::ROOT_ID)
             ->where('io.parent_id', '!=', self::ROOT_ID)
             ->groupBy('p.action_type')
@@ -534,7 +534,7 @@ class RightsReportController extends Controller
      */
     private function realBase(): \Illuminate\Database\Query\Builder
     {
-        return DB::table('information_object as io')
+        return DB::table('information_object as io')->tap(fn ($q) => \AhgCore\Support\TenantScope::apply($q, 'io.repository_id'))
             ->where('io.id', '!=', self::ROOT_ID)
             ->where('io.parent_id', '!=', self::ROOT_ID);
     }

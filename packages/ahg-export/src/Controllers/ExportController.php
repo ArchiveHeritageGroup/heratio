@@ -71,7 +71,8 @@ class ExportController extends Controller
     {
         if ($request->isMethod('post')) {
             $objectId = (int) $request->input('object_id');
-            if ($objectId <= 0) {
+            // GHSA-fqxh-fv8c-mq23: another tenant's record cannot be chosen.
+            if ($objectId <= 0 || in_array($objectId, \AhgCore\Support\TenantScope::outsideIds(), true)) {
                 return back()->with('error', __('Please choose a record to export.'));
             }
             $cls = \AhgMetadataExport\Services\Exporters\Ead2002Serializer::class;

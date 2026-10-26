@@ -32,7 +32,7 @@ class ApiAuthenticate
             $scopes = self::sessionScopes($userId);
             $request->attributes->set('api_scopes', $scopes);
 
-            return $this->checkScopes($request, $next, $requiredScopes);
+            return $this->outsideTenant($request) ?? $this->checkScopes($request, $next, $requiredScopes);
         }
 
         // Try API key from headers
@@ -104,7 +104,38 @@ class ApiAuthenticate
         $request->attributes->set('api_user_id', $apiKey->user_id);
         $request->attributes->set('api_scopes', $scopes);
 
-        return $this->checkScopes($request, $next, $requiredScopes);
+        return $this->outsideTenant($request) ?? $this->checkScopes($request, $next, $requiredScopes);
+    }
+
+    /**
+     * GHSA-fqxh-fv8c-mq23: a record of another tenant is "not found" on every
+     * API route - read or write - that names it by slug or id in the path, or
+     * as the parent or object of a new record. List and search endpoints are
+     * scoped by DisclosureGate; this covers the staff paths that bypass it.
+     * ponytail: batch and sync payloads (nested records) are not inspected.
+     */
+    protected function outsideTenant(Request $request): ?\Illuminate\Http\JsonResponse
+    {
+        $outside = \AhgCore\Support\TenantScope::outsideIds();
+        if (empty($outside)) {
+            return null;
+        }
+        $refs = array_filter([
+            $request->route('slug'), $request->route('idOrSlug'),
+            $request->input('parent_id'), $request->input('parent_slug'), $request->input('parent'),
+            $request->input('object_id'), $request->input('information_object_id'),
+        ], fn ($v) => is_scalar($v) && $v !== '');
+        $outside = array_flip($outside);
+        foreach ($refs as $ref) {
+            $id = ctype_digit((string) $ref)
+                ? (int) $ref
+                : (int) DB::table('slug')->where('slug', (string) $ref)->value('object_id');
+            if ($id && isset($outside[$id])) {
+                return response()->json(['success' => false, 'error' => 'Not Found', 'message' => 'Record not found.'], 404);
+            }
+        }
+
+        return null;
     }
 
     protected function checkScopes(Request $request, Closure $next, array $requiredScopes)

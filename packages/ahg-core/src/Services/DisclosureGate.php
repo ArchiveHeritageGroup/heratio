@@ -42,6 +42,8 @@ use Illuminate\Support\Facades\Schema;
  *   - Security class       - an active classification above PUBLIC (level 0),
  *                            plus the subtree when inherit_to_children is set.
  *   - PII redaction (files)- privacy_visual_redaction present ⇒ raw derivative unsafe.
+ *   - Tenant               - another tenant's records, when tenant_enforce_filter is on
+ *                            (AhgCore\Support\TenantScope; admins are not scoped).
  *
  * Everything routes through here so a surface can never silently ship
  * protocol-restricted, gated, unpublished or redacted content. Fail-closed:
@@ -235,7 +237,10 @@ class DisclosureGate
             return $this->restricted;
         }
         $ids = array_flip($this->icipRestrictedIds());
-        foreach ([$this->odrlRestrictedIds(), $this->embargoedIds(), $this->classifiedIds()] as $set) {
+        // GHSA-fqxh-fv8c-mq23: another tenant's records are restricted too, so
+        // every surface behind this gate is tenant-scoped (empty when off).
+        $tenant = \AhgCore\Support\TenantScope::outsideIds();
+        foreach ([$this->odrlRestrictedIds(), $this->embargoedIds(), $this->classifiedIds(), $tenant] as $set) {
             foreach ($set as $id) {
                 $ids[$id] = true;
             }

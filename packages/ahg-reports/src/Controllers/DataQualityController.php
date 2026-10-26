@@ -398,7 +398,7 @@ class DataQualityController extends Controller
      */
     private function publishedBase(): \Illuminate\Database\Query\Builder
     {
-        return DB::table('information_object as io')
+        return DB::table('information_object as io')->tap(fn ($q) => \AhgCore\Support\TenantScope::apply($q, 'io.repository_id'))
             ->where('io.id', '!=', self::ROOT_ID)
             ->where('io.parent_id', '!=', self::ROOT_ID)
             ->whereExists(function ($q) {

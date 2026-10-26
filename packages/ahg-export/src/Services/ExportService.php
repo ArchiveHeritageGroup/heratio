@@ -85,6 +85,7 @@ class ExportService
         if ($repositoryId) {
             $query->where('information_object.repository_id', $repositoryId);
         }
+        \AhgCore\Support\TenantScope::apply($query, 'information_object.repository_id'); // GHSA-fqxh-fv8c-mq23
         return $query->count();
     }
 
@@ -118,6 +119,7 @@ class ExportService
             })
             ->where('io.parent_id', 1)
             ->whereNotNull('i18n.title')
+            ->tap(fn ($q) => \AhgCore\Support\TenantScope::apply($q, 'io.repository_id')) // GHSA-fqxh-fv8c-mq23
             ->select('io.id', 'io.identifier', 'i18n.title')
             ->orderBy('i18n.title')
             ->get()
@@ -201,6 +203,7 @@ class ExportService
      */
     private function applyIoCsvFilters($q, array $filters): void
     {
+        \AhgCore\Support\TenantScope::apply($q, 'io.repository_id'); // GHSA-fqxh-fv8c-mq23: another tenant's records are not exported
         $repositoryId = ! empty($filters['repository_id']) ? (int) $filters['repository_id'] : null;
         $levelIds     = array_filter(array_map('intval', (array) ($filters['level_ids'] ?? [])));
         $parentSlug   = trim((string) ($filters['parent_slug'] ?? ''));

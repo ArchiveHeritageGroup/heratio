@@ -350,7 +350,7 @@ class ReportController extends Controller
         $export = $request->input('export');
 
         // Build query for records with coordinate data
-        $query = DB::table('information_object as io')
+        $query = DB::table('information_object as io')->tap(fn ($q) => \AhgCore\Support\TenantScope::apply($q, 'io.repository_id'))
             ->join('object as o', 'io.id', '=', 'o.id')
             ->join('information_object_i18n as ioi', function ($join) use ($culture) {
                 $join->on('io.id', '=', 'ioi.id')

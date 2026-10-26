@@ -36,7 +36,7 @@ class ReportService
     public function getReportStats(): array
     {
         $stats = [];
-        $stats['descriptions'] = DB::table('information_object')->count();
+        $stats['descriptions'] = DB::table('information_object')->tap(fn ($q) => \AhgCore\Support\TenantScope::apply($q, 'information_object.repository_id'))->count();
         $stats['authorities'] = DB::table('actor')->count();
         $stats['repositories'] = DB::table('repository')->count();
         $stats['accessions'] = DB::table('accession')->count();
@@ -146,7 +146,7 @@ class ReportService
         $limit = min((int) ($params['limit'] ?? 20), 100);
         $page = max((int) ($params['page'] ?? 1), 1);
 
-        $query = DB::table('information_object as io')
+        $query = DB::table('information_object as io')->tap(fn ($q) => \AhgCore\Support\TenantScope::apply($q, 'io.repository_id'))
             ->join('object', 'io.id', '=', 'object.id')
             ->leftJoin('information_object_i18n as io_i18n', function ($join) use ($culture) {
                 $join->on('io.id', '=', 'io_i18n.id')
