@@ -87,10 +87,14 @@ class ApiAuthenticate
         $owner = self::sessionScopes((int) $apiKey->user_id);
         if (! in_array('read', $owner, true)) {
             if (! $this->isPublicCatalogueRoute($request)) {
+                $write = ! in_array($request->method(), ['GET', 'HEAD'], true);
+
                 return response()->json([
                     'success' => false,
                     'error' => 'Forbidden',
-                    'message' => 'This key may read the public catalogue only.',
+                    'message' => $write
+                        ? 'This key reads the public catalogue only. Proposing or changing records needs the key of a catalogue staff account.'
+                        : 'This key may read the public catalogue only.',
                 ], 403);
             }
             $scopes = array_values(array_intersect($scopes, ['read']));
