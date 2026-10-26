@@ -64,11 +64,11 @@
           <h6 class="text-primary"><span class="badge bg-primary me-2">1</span>{{ __('Select File') }}</h6>
           <div class="border rounded p-4 bg-light text-center" id="dropZone" style="cursor:pointer">
             <input type="file" name="file" id="importFile" class="d-none"
-                   accept=".csv,.xls,.xlsx,.xml,.json,.opex,.pax,.zip,.txt">
+                   accept=".csv,.txt,.xls,.xlsx">
             <div id="dropText">
               <p class="mb-2"><i class="fas fa-file-upload" style="font-size: 3rem;"></i></p>
               <p class="mb-2">{{ __('Drag & drop file here or') }} <a href="#" onclick="document.getElementById('importFile').click(); return false;">browse</a></p>
-              <small class="text-muted">{{ __('Supported: CSV, Excel (XLS/XLSX), XML, JSON, OPEX, PAX, ZIP') }}</small>
+              <small class="text-muted">{{ __('Supported: CSV or Excel (XLS/XLSX), with a header row') }}</small>
             </div>
             <div id="fileInfo" class="d-none">
               <p class="mb-1"><strong id="fileName"></strong></p>
@@ -86,18 +86,9 @@
             <div class="col-md-6 d-none" id="sheetSelectGroup">
               <label class="form-label">{{ __('Excel Sheet') }}</label>
               <select name="sheet_index" id="sheetSelect" class="form-select">
-                <option value="0">{{ __('Loading sheets...') }}</option>
+                <option value="0">{{ __('First sheet') }}</option>
               </select>
               <small class="text-muted">{{ __('Select which sheet to import') }}</small>
-            </div>
-
-            {{-- Header Row Option --}}
-            <div class="col-md-6">
-              <label class="form-label">{{ __('First Row Contains') }}</label>
-              <select name="first_row_header" id="firstRowHeader" class="form-select">
-                <option value="1" selected>{{ __('Column Headers (skip first row)') }}</option>
-                <option value="0">{{ __('Data (no headers - use column letters)') }}</option>
-              </select>
             </div>
 
             {{-- CSV Delimiter (only for CSV files) --}}
@@ -125,91 +116,9 @@
           </div>
         </div>
 
-        {{-- Step 2b: Digital Objects Location --}}
-        <div class="mb-4 d-none" id="digitalObjectsSection">
-          <h6 class="text-primary"><span class="badge bg-primary me-2">2b</span>{{ __('Digital Objects Location (Optional)') }}</h6>
-          <div class="alert alert-info small py-2 mb-3">
-            <i class="fas fa-info-circle me-1"></i>
-            <strong>{{ __('Note:') }}</strong> {{ __('Digital objects must be pre-uploaded to the server via FTP/SFTP before import. The browser cannot access files on your local PC for security reasons.') }}
-          </div>
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">{{ __('File Location') }}</label>
-              <select name="digital_object_source" id="digitalObjectSource" class="form-select">
-                <option value="none">{{ __('No digital objects to import') }}</option>
-                <option value="server">{{ __('Files already on server (FTP/SFTP uploaded)') }}</option>
-                <option value="same">{{ __('Same folder as import file') }}</option>
-              </select>
-            </div>
-            <div class="col-md-6 d-none" id="serverPathDiv">
-              <label class="form-label">{{ __('Server Folder Path') }}</label>
-              <select name="digital_object_folder" id="digitalObjectFolder" class="form-select">
-                <option value="{{ config('heratio.uploads_path', storage_path('app/uploads')) }}/migration/">uploads/migration/</option>
-                <option value="{{ config('heratio.uploads_path', storage_path('app/uploads')) }}/imports/">uploads/imports/</option>
-                <option value="{{ config('heratio.uploads_path', storage_path('app/uploads')) }}/digital_objects/">uploads/digital_objects/</option>
-                <option value="custom">{{ __('Custom path...') }}</option>
-              </select>
-            </div>
-          </div>
-          <div class="row g-3 mt-2 d-none" id="customPathRow">
-            <div class="col-md-12">
-              <label class="form-label">{{ __('Custom Server Path') }}</label>
-              <input type="text" name="custom_digital_path" id="customDigitalPath" class="form-control"
-                     placeholder="{{ config('heratio.uploads_path', storage_path('app/uploads')) }}/myfiles/">
-              <small class="text-muted">{{ __('Full server path where digital objects are stored') }}</small>
-            </div>
-          </div>
-          <div class="mt-2">
-            <small class="text-muted">
-              <i class="fab fa-windows me-1"></i><strong>{{ __('Windows users:') }}</strong> {{ __('Use WinSCP, FileZilla, or similar to upload files to the server first.') }}
-            </small>
-          </div>
-        </div>
-
-        {{-- Step 2c: Source Format --}}
-        <div class="mb-4 d-none" id="sourceFormatSection">
-          <h6 class="text-primary"><span class="badge bg-primary me-2">2c</span>{{ __('Source Format') }}</h6>
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">{{ __('Import From') }}</label>
-              <select name="source_format" id="sourceFormat" class="form-select">
-                <option value="auto">{{ __('Auto-detect from file') }}</option>
-                <optgroup label="Industry Standards">
-                  <option value="preservica_opex">{{ __('Preservica OPEX (folder/ZIP)') }}</option>
-                  <option value="preservica_xip">{{ __('Preservica XIP/PAX') }}</option>
-                  <option value="archivesspace">{{ __('ArchivesSpace Export') }}</option>
-                  <option value="vernon">{{ __('Vernon CMS') }}</option>
-                  <option value="emu">{{ __('EMu (Museum)') }}</option>
-                  <option value="pastperfect">{{ __('PastPerfect') }}</option>
-                  <option value="collectiveaccess">{{ __('CollectiveAccess') }}</option>
-                </optgroup>
-                <optgroup label="Standard Formats">
-                  <option value="ead">{{ __('EAD 2002 (Archives)') }}</option>
-                  <option value="ead3">{{ __('EAD3 (Archives)') }}</option>
-                  <option value="dc">{{ __('Dublin Core XML') }}</option>
-                  <option value="mods">{{ __('MODS (Library)') }}</option>
-                  <option value="marc">{{ __('MARC XML (Library)') }}</option>
-                  <option value="lido">{{ __('LIDO (Museum)') }}</option>
-                  <option value="spectrum">{{ __('Museum CSV') }}</option>
-                </optgroup>
-                <optgroup label="Generic">
-                  <option value="generic_csv">{{ __('Generic CSV') }}</option>
-                  <option value="generic_xml">{{ __('Generic XML') }}</option>
-                </optgroup>
-              </select>
-            </div>
-            <div class="col-md-6 d-none" id="folderSourceGroup">
-              <label class="form-label">{{ __('Or Select Server Folder') }}</label>
-              <div class="input-group">
-                <input type="text" name="source_folder" id="sourceFolder" class="form-control"
-                       placeholder="{{ config('heratio.uploads_path', storage_path('app/uploads')) }}/preservica_export/">
-                <button type="button" class="btn btn-outline-secondary" onclick="browseServerFolder()">
-                  <i class="fas fa-folder-open"></i>
-                </button>
-              </div>
-              <small class="text-muted">{{ __('For Preservica: point to extracted export folder') }}</small>
-            </div>
-          </div>
+        <div class="alert alert-info small py-2 mb-4">
+          <i class="fas fa-info-circle me-1"></i>{{ __('This wizard imports the rows of a CSV or Excel file with a header row, mapped column by column, as archival descriptions, accessions, authority records or repositories. To import library, museum, gallery or digital-asset records, or files with digital objects, use the') }}
+          <a href="{{ route('ingest.index') }}">{{ __('Ingest wizard') }}</a>.
         </div>
 
         {{-- Step 3: Import Target & Mapping --}}
@@ -221,10 +130,6 @@
               <select class="form-select @error('target_type') is-invalid @enderror" id="target_type" name="target_type" required>
                 <option value="">-- Select target type --</option>
                 <option value="archives" {{ old('target_type') === 'archives' ? 'selected' : '' }}>{{ __('Archives (ISAD-G)') }}</option>
-                <option value="library" {{ old('target_type') === 'library' ? 'selected' : '' }}>{{ __('Library') }}</option>
-                <option value="museum" {{ old('target_type') === 'museum' ? 'selected' : '' }}>{{ __('Museum') }}</option>
-                <option value="gallery" {{ old('target_type') === 'gallery' ? 'selected' : '' }}>{{ __('Gallery (CCO)') }}</option>
-                <option value="dam" {{ old('target_type') === 'dam' ? 'selected' : '' }}>{{ __('Digital Assets (DAM)') }}</option>
                 <option value="accession" {{ old('target_type') === 'accession' ? 'selected' : '' }}>{{ __('Accession Records') }}</option>
                 <option value="actor" {{ old('target_type') === 'actor' ? 'selected' : '' }}>{{ __('Authority Records (ISAAR)') }}</option>
                 <option value="repository" {{ old('target_type') === 'repository' ? 'selected' : '' }}>{{ __('Repositories (ISDIAH)') }}</option>
@@ -368,13 +273,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Show file options
     document.getElementById('fileOptions').classList.remove('d-none');
-    document.getElementById('digitalObjectsSection').classList.remove('d-none');
-    document.getElementById('sourceFormatSection').classList.remove('d-none');
 
     // Show/hide Excel sheet selector
     if (ext === 'xls' || ext === 'xlsx') {
       document.getElementById('sheetSelectGroup').classList.remove('d-none');
       document.getElementById('delimiterGroup').classList.add('d-none');
+      loadSheets(file);
     } else if (ext === 'csv' || ext === 'txt') {
       document.getElementById('sheetSelectGroup').classList.add('d-none');
       document.getElementById('delimiterGroup').classList.remove('d-none');
@@ -387,12 +291,29 @@ document.addEventListener('DOMContentLoaded', function() {
     submitBtn.disabled = false;
   }
 
-  // Re-generate preview when header option changes
-  document.getElementById('firstRowHeader').addEventListener('change', function() {
-    if (currentFile) {
-      // Preview re-generation would need server-side endpoint
-    }
-  });
+  // List the workbook's sheets so the right one is imported.
+  function loadSheets(file) {
+    var select = document.getElementById('sheetSelect');
+    var data = new FormData();
+    data.append('file', file);
+    fetch('{{ route('data-migration.detect-sheets') }}', {
+      method: 'POST',
+      headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+      body: data
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (res) {
+      if (!res.success || !res.sheets) return;
+      select.innerHTML = '';
+      res.sheets.forEach(function (sh) {
+        var opt = document.createElement('option');
+        opt.value = sh.index;
+        opt.textContent = sh.name + ' (' + sh.rows + ' rows)';
+        select.appendChild(opt);
+      });
+    })
+    .catch(function () {});
+  }
 
   window.clearFile = function() {
     fileInput.value = '';
@@ -400,8 +321,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('dropText').classList.remove('d-none');
     document.getElementById('fileInfo').classList.add('d-none');
     document.getElementById('fileOptions').classList.add('d-none');
-    document.getElementById('digitalObjectsSection').classList.add('d-none');
-    document.getElementById('sourceFormatSection').classList.add('d-none');
     document.getElementById('previewSection').classList.add('d-none');
     submitBtn.disabled = true;
   };
@@ -417,43 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
-  // Digital object source handling
-  document.getElementById('digitalObjectSource').addEventListener('change', function() {
-    var serverPathDiv = document.getElementById('serverPathDiv');
-    var customPathRow = document.getElementById('customPathRow');
-    if (this.value === 'server') {
-      serverPathDiv.classList.remove('d-none');
-    } else {
-      serverPathDiv.classList.add('d-none');
-      customPathRow.classList.add('d-none');
-    }
-  });
-
-  // Show/hide custom path field
-  document.getElementById('digitalObjectFolder').addEventListener('change', function() {
-    var customPathRow = document.getElementById('customPathRow');
-    if (this.value === 'custom') {
-      customPathRow.classList.remove('d-none');
-    } else {
-      customPathRow.classList.add('d-none');
-    }
-  });
-
-  // Source format handling
-  document.getElementById('sourceFormat').addEventListener('change', function() {
-    var format = this.value;
-    var folderGroup = document.getElementById('folderSourceGroup');
-    if (format === 'preservica_opex') {
-      folderGroup.classList.remove('d-none');
-    } else {
-      folderGroup.classList.add('d-none');
-    }
-  });
 });
 
-// Browse server folder (placeholder)
-function browseServerFolder() {
-  alert('Server folder browser not yet implemented.\nPlease type the full path manually.');
-}
 </script>
 @endpush

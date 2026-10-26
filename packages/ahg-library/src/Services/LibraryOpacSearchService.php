@@ -33,6 +33,12 @@ class LibraryOpacSearchService
 
     protected string $index;
 
+    /**
+     * Publication year for the DB path. library_item has no year column; like
+     * ahg:library-reindex, take the first four-digit run of publication_date.
+     */
+    private const YEAR_SQL = "CAST(REGEXP_SUBSTR(li.publication_date, '[0-9]{4}') AS UNSIGNED)";
+
     protected bool $esAvailable;
 
     public function __construct()
@@ -178,6 +184,14 @@ class LibraryOpacSearchService
         if (! empty($must))   { $boolQuery['must']   = $must; }
         if (! empty($filter)) { $boolQuery['filter'] = $filter; }
         if (empty($boolQuery)) { $boolQuery['must'] = [['match_all' => (object) []]]; }
+        // The OPAC is public: leave out items whose description is unpublished
+        // or restricted. The index carries no record id, so exclude by item id.
+        // ponytail: an ids list, capped at max_terms_count (65,536) hidden items;
+        // past that, index the record id and publication state instead.
+        $hidden = $this->hiddenItemIds();
+        if ($hidden) {
+            $boolQuery['must_not'] = [['ids' => ['values' => array_map('strval', $hidden)]]];
+        }
 
         // Sorting
         $sortClause = $this->buildSortClause($sort, $query);
@@ -426,6 +440,7 @@ class LibraryOpacSearchService
             })
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->leftJoin('library_copy as cp', 'li.id', '=', 'cp.library_item_id')
+            ->tap(fn ($q) => $this->publicOnly($q))
             ->select([
                 'li.id',
                 'i18n.title',
@@ -435,7 +450,7 @@ class LibraryOpacSearchService
                 'li.issn',
                 'li.publisher',
                 'li.publication_date',
-                'li.publication_year',
+                DB::raw(self::YEAR_SQL.' as publication_year'),
                 'li.language',
                 'li.material_type',
                 'li.call_number',
@@ -448,7 +463,7 @@ class LibraryOpacSearchService
             ])
             ->groupBy('li.id', 'i18n.title', 'li.subtitle', 'li.responsibility_statement',
                       'li.isbn', 'li.issn', 'li.publisher', 'li.publication_date',
-                      'li.publication_year', 'li.language', 'li.material_type',
+                      'li.language', 'li.material_type',
                       'li.call_number', 'li.pagination', 'li.cover_url', 'slug.slug', 'li.summary');
 
         // Text query
@@ -478,18 +493,18 @@ class LibraryOpacSearchService
             $q->where('li.publisher', 'LIKE', '%' . $filters['publisher'] . '%');
         }
         if (! empty($filters['year_from'])) {
-            $q->where('li.publication_year', '>=', (int) $filters['year_from']);
+            $q->whereRaw(self::YEAR_SQL.' >= ?', [(int) $filters['year_from']]);
         }
         if (! empty($filters['year_to'])) {
-            $q->where('li.publication_year', '<=', (int) $filters['year_to']);
+            $q->whereRaw(self::YEAR_SQL.' <= ?', [(int) $filters['year_to']]);
         }
 
         // Sorting
         switch ($sort) {
             case 'title_asc':  $q->orderBy('i18n.title', 'asc');  break;
             case 'title_desc': $q->orderBy('i18n.title', 'desc'); break;
-            case 'year_desc':  $q->orderBy('li.publication_year', 'desc'); break;
-            case 'year_asc':   $q->orderBy('li.publication_year', 'asc');  break;
+            case 'year_desc':  $q->orderByRaw(self::YEAR_SQL.' desc'); break;
+            case 'year_asc':   $q->orderByRaw(self::YEAR_SQL.' asc');  break;
             case 'popular':
                 $q->orderByRaw('total_copies DESC');
                 break;
@@ -554,7 +569,7 @@ class LibraryOpacSearchService
         $base = DB::table('library_item as li')
             ->leftJoin('information_object as io', 'li.information_object_id', '=', 'io.id')
             ->leftJoin('library_copy as cp', 'li.id', '=', 'cp.library_item_id')
-            ->whereNull('io.deleted_at');
+            ->tap(fn ($q) => $this->publicOnly($q));
 
         // Material types
         $mt = (clone $base)
@@ -618,10 +633,10 @@ class LibraryOpacSearchService
 
         // Publication years
         $years = (clone $base)
-            ->select('li.publication_year as value', DB::raw('COUNT(DISTINCT li.id) as cnt'))
-            ->whereNotNull('li.publication_year')
-            ->groupBy('li.publication_year')
-            ->orderBy('li.publication_year', 'desc')
+            ->select(DB::raw(self::YEAR_SQL.' as value'), DB::raw('COUNT(DISTINCT li.id) as cnt'))
+            ->whereRaw(self::YEAR_SQL.' IS NOT NULL')
+            ->groupBy('value')
+            ->orderBy('value', 'desc')
             ->limit(30)
             ->get()
             ->map(fn ($r) => [
@@ -632,19 +647,19 @@ class LibraryOpacSearchService
             ->toArray();
 
         // Availability
-        $avail = (clone $base)
-            ->select(DB::raw("CASE
+        // Each item's status first (per li.id), then count items per status:
+        // grouping by the aggregate itself is invalid SQL (error 1056).
+        $perItem = (clone $base)
+            ->select('li.id', DB::raw("CASE
                 WHEN SUM(CASE WHEN cp.status = 'available' THEN 1 ELSE 0 END) > 0 THEN 'available'
                 WHEN SUM(CASE WHEN cp.status = 'on_hold' THEN 1 ELSE 0 END) > 0 THEN 'on_hold'
                 WHEN COUNT(cp.id) > 0 THEN 'checked_out'
                 ELSE 'unknown'
-            END as value"), DB::raw('COUNT(DISTINCT li.id) as cnt'))
-            ->groupByRaw("CASE
-                WHEN SUM(CASE WHEN cp.status = 'available' THEN 1 ELSE 0 END) > 0 THEN 'available'
-                WHEN SUM(CASE WHEN cp.status = 'on_hold' THEN 1 ELSE 0 END) > 0 THEN 'on_hold'
-                WHEN COUNT(cp.id) > 0 THEN 'checked_out'
-                ELSE 'unknown'
-            END")
+            END as value"))
+            ->groupBy('li.id');
+        $avail = DB::query()->fromSub($perItem, 'items')
+            ->select('value', DB::raw('COUNT(*) as cnt'))
+            ->groupBy('value')
             ->get()
             ->map(fn ($r) => [
                 'value' => $r->value,
@@ -671,6 +686,34 @@ class LibraryOpacSearchService
     // ─────────────────────────────────────────────────────────────────────
     //  Helpers
     // ─────────────────────────────────────────────────────────────────────
+
+    /**
+     * Published and not restricted (DisclosureGate: ICIP, ODRL, embargo,
+     * classification, tenant), on an `io` alias. information_object has no
+     * deleted_at; a deleted record has no row, so the join drops it.
+     */
+    protected function publicOnly($query)
+    {
+        $gate = app(\AhgCore\Services\DisclosureGate::class);
+        $gate->wherePublished($query, 'io');
+
+        return $gate->excludeRestricted($query, 'io.id');
+    }
+
+    /**
+     * Library item ids the OPAC must not show.
+     *
+     * @return int[]
+     */
+    public function hiddenItemIds(): array
+    {
+        $visible = DB::table('library_item as li')
+            ->join('information_object as io', 'li.information_object_id', '=', 'io.id')
+            ->tap(fn ($q) => $this->publicOnly($q))
+            ->select('li.id');
+
+        return DB::table('library_item')->whereNotIn('id', $visible)->pluck('id')->map('intval')->all();
+    }
 
     protected function checkEsAvailable(): bool
     {

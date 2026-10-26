@@ -62,14 +62,32 @@ class DataMigrationController extends \App\Http\Controllers\Controller
 
             return view('ahg-data-migration::upload', compact('savedMappings', 'repositories'));
         }
+        // heratio#1555: CSV and spreadsheets only - that is what the importer
+        // reads. Sector imports (library, museum, gallery, DAM) go through the
+        // Ingest wizard, which creates the sector records.
         $req->validate([
-            'file' => 'required|file|max:102400',
-            'target_type' => 'required|string',
+            'file' => 'required|file|max:102400|extensions:csv,txt,xls,xlsx',
+            'target_type' => 'required|string|in:archives,informationObject,accession,actor,repository',
+            'import_type' => 'nullable|string|in:create,update,replace',
+            'sheet_index' => 'nullable|integer|min:0',
+            'delimiter' => 'nullable|string|max:4',
+            'encoding' => 'nullable|string|in:auto,UTF-8,ISO-8859-1,Windows-1252',
         ]);
-        $path = $req->file('file')->store('data-migration/uploads');
-        $fileName = $req->file('file')->getClientOriginalName();
-        session(['dm_file' => $path, 'dm_filename' => $fileName,
-            'dm_target' => $req->target_type]);
+        $file = $req->file('file');
+        $fileName = $file->getClientOriginalName();
+        $ext = strtolower($file->getClientOriginalExtension());
+        // store() returns a disk-relative path; every later step checks the
+        // file with file_exists(), so keep the absolute one.
+        $stored = \Illuminate\Support\Facades\Storage::path($file->storeAs('data-migration/uploads', \Illuminate\Support\Str::uuid().'.'.$ext));
+        try {
+            $path = $this->service->normaliseUpload($stored, $ext, (int) $req->input('sheet_index', 0),
+                (string) $req->input('delimiter', 'auto'), (string) $req->input('encoding', 'auto'));
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', 'The file could not be read: '.$e->getMessage());
+        }
+        $target = $req->target_type === 'archives' ? 'informationObject' : $req->target_type;
+        session(['dm_file' => $path, 'dm_filename' => $fileName, 'dm_target' => $target,
+            'dm_import_type' => $req->input('import_type', 'create')]);
 
         return redirect()->route('data-migration.map');
     }
@@ -84,24 +102,30 @@ class DataMigrationController extends \App\Http\Controllers\Controller
             return redirect()->route('data-migration.upload')
                 ->with('error', 'No file uploaded. Please upload a file first.');
         }
-        $sourceColumns = $this->repo->getFileColumns($filePath);
-        $totalRows = $this->repo->getFileRowCount($filePath);
+        $parsed = file_exists($filePath) ? $this->service->parseCSV($filePath, 5) : ['headers' => [], 'rows' => [], 'totalRows' => 0];
+        $sourceColumns = $parsed['headers'];
+        $totalRows = (int) $parsed['totalRows'];
+        $previewRows = $parsed['rows']; // the view always read this; it was never passed (heratio#1555)
         $targetFields = $this->repo->getTargetFields($targetType);
         $savedMappings = $this->repo->getMappings();
 
         return view('ahg-data-migration::map',
-            compact('fileName', 'targetType', 'sourceColumns', 'totalRows', 'targetFields', 'savedMappings'));
+            compact('fileName', 'targetType', 'sourceColumns', 'totalRows', 'previewRows', 'targetFields', 'savedMappings'));
     }
 
     // ── Existing: saveMapping ────────────────────────────────
     public function saveMapping(Request $req)
     {
+        // The map page sends field_mappings as a JSON object; accept the
+        // older `mappings` string too.
         $req->validate(['name' => 'required|string|max:100',
-            'mappings' => 'required|string']);
+            'field_mappings' => 'required_without:mappings',
+            'mappings' => 'required_without:field_mappings']);
+        $fieldMappings = $req->input('field_mappings', $req->input('mappings'));
         $id = $this->repo->saveMapping([
             'name' => $req->name,
             'target_type' => session('dm_target', 'informationObject'),
-            'field_mappings' => $req->mappings,
+            'field_mappings' => is_array($fieldMappings) ? json_encode($fieldMappings) : $fieldMappings,
             'category' => $req->category ?? 'Custom',
         ]);
 
@@ -175,11 +199,19 @@ class DataMigrationController extends \App\Http\Controllers\Controller
     {
         $filePath = session('dm_file');
         $targetType = session('dm_target', 'informationObject');
-        $mappings = json_decode($req->input('mappings', '{}'), true);
-        $jobId = $this->repo->queueImportJob($filePath, $targetType, $mappings);
+        // The map page posts `mapping`; older callers send `mappings`.
+        $mappings = json_decode((string) $req->input('mapping', $req->input('mappings', '{}')), true) ?: [];
+        if (! $filePath || ! file_exists($filePath)) {
+            return redirect()->route('data-migration.upload')->with('error', 'The uploaded file is no longer available. Please upload it again.');
+        }
+        if (! array_filter($mappings)) {
+            return back()->with('error', 'Map at least one column before importing.');
+        }
+        $jobId = $this->repo->queueImportJob($filePath, $targetType, $mappings,
+            ['import_type' => session('dm_import_type', 'create'), 'culture' => app()->getLocale()], $req->input('name'));
 
         return redirect()->route('data-migration.job', $jobId)
-            ->with('success', 'Import job queued. Job ID: '.$jobId);
+            ->with('success', 'Import job queued. It runs in the background; this page shows its progress. Job ID: '.$jobId);
     }
 
     // ── Existing: jobs ───────────────────────────────────────
@@ -231,7 +263,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
 
         $sectors = [
             'archive' => 'Archives (ISAD-G)',
-            'museum' => 'Museum (Spectrum)',
+            'museum' => 'Museum',
             'library' => 'Library (MARC/RDA)',
             'gallery' => 'Gallery (CCO/VRA)',
             'dam' => 'Digital Assets (Dublin Core)',
@@ -294,11 +326,18 @@ class DataMigrationController extends \App\Http\Controllers\Controller
     public function export(Request $req)
     {
         $repositories = $this->repo->getRepositories();
+        // heratio#1555: this queued an export job that nothing ran; the CSV
+        // now streams straight away.
         if ($req->isMethod('post')) {
-            $jobId = $this->repo->queueExportJob($req->all());
+            $req->validate([
+                'export_type' => 'required|in:csv',
+                'target_type' => 'required|in:informationObject,actor,repository,accession',
+                'repository_id' => 'nullable|integer',
+                'date_from' => 'nullable|date',
+                'date_to' => 'nullable|date',
+            ]);
 
-            return redirect()->route('data-migration.job', $jobId)
-                ->with('success', 'Export job queued. Job ID: '.$jobId);
+            return $this->service->batchExportCsv($req->target_type, $req->only(['repository_id', 'date_from', 'date_to']));
         }
 
         return view('ahg-data-migration::export', compact('repositories'));
@@ -311,37 +350,20 @@ class DataMigrationController extends \App\Http\Controllers\Controller
     }
 
     /** GET|POST /admin/data-migration/preservica/import */
+    /**
+     * Preservica OPEX/PAX import and export are not implemented (heratio#1555).
+     * These pages used to queue job rows that nothing ran; now they say so.
+     */
     public function preservicaImport(Request $req)
     {
-        $repositories = $this->repo->getRepositories();
-        if ($req->isMethod('post')) {
-            $jobId = $this->repo->queuePreservicaImportJob($req->all());
-
-            return redirect()->route('data-migration.job', $jobId)
-                ->with('success', 'Preservica import job queued. Job ID: '.$jobId);
-        }
-
-        return view('ahg-data-migration::preservica-import', compact('repositories'));
+        return redirect()->route('data-migration.index')
+            ->with('error', 'Preservica OPEX/PAX import is not available yet. Nothing was queued.');
     }
 
-    /** GET|POST /admin/data-migration/preservica/export
-     *  GET      /admin/data-migration/preservica/export/{id}  */
     public function preservicaExport(Request $req, ?int $id = null)
     {
-        $repositories = $this->repo->getRepositories();
-        if ($id) {
-            $job = $this->repo->getJob($id);
-
-            return view('ahg-data-migration::preservica-export', compact('repositories', 'job'));
-        }
-        if ($req->isMethod('post')) {
-            $jobId = $this->repo->queuePreservicaExportJob($req->all());
-
-            return redirect()->route('data-migration.job', $jobId)
-                ->with('success', 'Preservica export job queued. Job ID: '.$jobId);
-        }
-
-        return view('ahg-data-migration::preservica-export', compact('repositories'));
+        return redirect()->route('data-migration.index')
+            ->with('error', 'Preservica OPEX/PAX export is not available yet. Nothing was queued.');
     }
 
     /** GET /admin/data-migration/download - download a completed export file */
@@ -384,15 +406,6 @@ class DataMigrationController extends \App\Http\Controllers\Controller
             'message' => $job['status_message'] ?? '',
             'errors' => $job['error_count'] ?? 0,
         ]);
-    }
-
-    /** POST /dataMigration/queue - queue a migration job via AJAX */
-    public function queueJob(Request $req)
-    {
-        $req->validate(['type' => 'required|string']);
-        $jobId = $this->repo->queueGenericJob($req->type, $req->all());
-
-        return response()->json(['success' => true, 'job_id' => $jobId]);
     }
 
     /** POST /dataMigration/job/cancel */
@@ -511,10 +524,14 @@ class DataMigrationController extends \App\Http\Controllers\Controller
     {
         $filePath = session('dm_file');
         $targetType = session('dm_target', 'informationObject');
-        $mappings = json_decode($req->input('mappings', '{}'), true);
-        $options = array_merge($req->only(['update_existing', 'skip_errors', 'publish']), [
-            'ahg_import' => true,
-        ]);
+        $mappings = json_decode((string) $req->input('mappings', '{}'), true) ?: [];
+        if (! $filePath || ! file_exists($filePath) || ! array_filter($mappings)) {
+            return response()->json(['success' => false, 'error' => 'Upload a file and map at least one column first.'], 422);
+        }
+        $options = [
+            'import_type' => $req->boolean('update_existing') ? 'update' : session('dm_import_type', 'create'),
+            'culture' => app()->getLocale(),
+        ];
         $jobId = $this->repo->queueImportJob($filePath, $targetType, $mappings, $options);
 
         return response()->json(['success' => true, 'job_id' => $jobId]);
@@ -813,7 +830,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
     {
         $defaults = [
             'archive' => 'Archives (ISAD-G)',
-            'museum' => 'Museum (Spectrum)',
+            'museum' => 'Museum',
             'library' => 'Library (MARC / RDA)',
             'gallery' => 'Gallery (CCO / VRA)',
             'dam' => 'Digital Assets (Dublin Core)',

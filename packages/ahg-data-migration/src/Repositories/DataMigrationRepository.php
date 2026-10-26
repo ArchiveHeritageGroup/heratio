@@ -159,34 +159,23 @@ class DataMigrationRepository
         ];
     }
 
-    public function queueImportJob(string $path, string $targetType, array $mappings): int
+    /**
+     * Record an import job and hand it to the queue worker (heratio#1555).
+     * createJob reads source_file / mapping_snapshot / import_options; the
+     * old keys here (file_path, mappings) were dropped, so a job had neither.
+     */
+    public function queueImportJob(string $path, string $targetType, array $mappings, array $options = [], ?string $name = null): int
     {
-        return $this->service->createJob([
-            'type' => 'import',
+        $jobId = $this->service->createJob([
+            'name' => $name ?: null,
             'target_type' => $targetType,
-            'file_path' => $path,
-            'mappings' => $mappings,
-            'status' => 'queued',
+            'source_file' => $path,
+            'mapping_snapshot' => $mappings,
+            'import_options' => $options,
+            'total_records' => $this->getFileRowCount($path),
         ]);
-    }
+        \AhgDataMigration\Jobs\RunMigrationImport::dispatch($jobId);
 
-    public function queueExportJob(array $data): int
-    {
-        return $this->service->createJob(array_merge(['type' => 'export', 'status' => 'queued'], $data));
-    }
-
-    public function queueGenericJob(array $data): int
-    {
-        return $this->service->createJob(array_merge(['type' => 'generic', 'status' => 'queued'], $data));
-    }
-
-    public function queuePreservicaImportJob(array $data): int
-    {
-        return $this->service->createJob(array_merge(['type' => 'preservica_import', 'status' => 'queued'], $data));
-    }
-
-    public function queuePreservicaExportJob(array $data): int
-    {
-        return $this->service->createJob(array_merge(['type' => 'preservica_export', 'status' => 'queued'], $data));
+        return $jobId;
     }
 }

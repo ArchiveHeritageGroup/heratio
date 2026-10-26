@@ -1145,7 +1145,8 @@ class LibraryController extends Controller
     public function opacView(string $slug)
     {
         $item = $this->service->getBySlug($slug);
-        if (!$item) {
+        // The OPAC is public: unpublished or restricted records are not found (heratio#1554).
+        if (!$item || !app(\AhgCore\Services\DisclosureGate::class)->allows((int) $item->id)) {
             abort(404);
         }
         $availability = \AhgLibrary\Support\LibrarySettings::opacShowAvailability()
@@ -1188,7 +1189,8 @@ class LibraryController extends Controller
             abort(404);
         }
         $item = $this->service->getBySlug($slug);
-        if (!$item) {
+        // The OPAC is public: unpublished or restricted records are not found (heratio#1554).
+        if (!$item || !app(\AhgCore\Services\DisclosureGate::class)->allows((int) $item->id)) {
             abort(404);
         }
         return view('ahg-library::opac.hold', compact('item'));
@@ -1201,7 +1203,8 @@ class LibraryController extends Controller
         }
 
         $item = $this->service->getBySlug($slug);
-        if (!$item) {
+        // The OPAC is public: unpublished or restricted records are not found (heratio#1554).
+        if (!$item || !app(\AhgCore\Services\DisclosureGate::class)->allows((int) $item->id)) {
             abort(404);
         }
 

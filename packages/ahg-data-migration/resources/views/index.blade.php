@@ -39,12 +39,6 @@
     <a href="{{ route('data-migration.export') }}" class="btn btn-outline-secondary">
       <i class="fas fa-file-export"></i> {{ __('Export Records') }}
     </a>
-    <a href="{{ route('data-migration.preservica-import') }}" class="btn btn-outline-secondary">
-      <i class="fas fa-cloud-upload-alt"></i> {{ __('Preservica Import') }}
-    </a>
-    <a href="{{ route('data-migration.preservica-export') }}" class="btn btn-outline-secondary">
-      <i class="fas fa-cloud-download-alt"></i> {{ __('Preservica Export') }}
-    </a>
     <a href="{{ route('data-migration.import-results') }}" class="btn btn-outline-secondary">
       <i class="fas fa-list-alt"></i> {{ __('Import Results') }}
     </a>

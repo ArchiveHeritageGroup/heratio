@@ -27,12 +27,9 @@
             {{ __('Export Format') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span>
           </label>
           <select class="form-select" id="export_type" name="export_type" required>
-            <option value="">-- Select format --</option>
-            <option value="csv">CSV</option>
-            <option value="xml">{{ __('EAD XML') }}</option>
-            <option value="dc">{{ __('Dublin Core XML') }}</option>
-            <option value="mods">{{ __('MODS XML') }}</option>
+            <option value="csv" selected>CSV</option>
           </select>
+          <div class="form-text">{{ __('For EAD, Dublin Core or EAC-CPF XML, use the') }} <a href="{{ route('export.index') }}">{{ __('Export') }}</a> {{ __('pages.') }}</div>
         </div>
         <div class="mb-3">
           <label for="target_type" class="form-label fw-bold">

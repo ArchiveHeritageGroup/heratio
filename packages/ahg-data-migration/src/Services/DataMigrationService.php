@@ -194,6 +194,66 @@ class DataMigrationService
     }
 
     /**
+     * Turn an uploaded file into the one shape the importer reads: a UTF-8,
+     * comma-separated CSV with a header row (heratio#1555). XLS/XLSX take the
+     * chosen sheet; CSV/TXT are re-encoded and re-delimited when needed.
+     * Returns the path of the normalised CSV, written next to the upload.
+     */
+    public function normaliseUpload(string $src, string $ext, int $sheetIndex = 0, string $delimiter = 'auto', string $encoding = 'auto'): string
+    {
+        $out = $src.'.normalised.csv';
+        $ext = strtolower($ext);
+
+        if (in_array($ext, ['xls', 'xlsx'], true)) {
+            $book = \PhpOffice\PhpSpreadsheet\IOFactory::load($src);
+            $sheet = $book->getSheet(max(0, min($sheetIndex, $book->getSheetCount() - 1)));
+            $fh = fopen($out, 'w');
+            foreach ($sheet->toArray(null, true, false, false) as $row) {
+                fputcsv($fh, array_map(fn ($v) => $v === null ? '' : (string) $v, $row));
+            }
+            fclose($fh);
+
+            return $out;
+        }
+
+        $raw = (string) file_get_contents($src);
+        if (str_starts_with($raw, "\xEF\xBB\xBF")) {
+            $raw = substr($raw, 3);
+        }
+        if ($encoding !== 'auto' && strtoupper($encoding) !== 'UTF-8') {
+            $raw = mb_convert_encoding($raw, 'UTF-8', $encoding);
+        } elseif (! mb_check_encoding($raw, 'UTF-8')) {
+            $raw = mb_convert_encoding($raw, 'UTF-8', 'Windows-1252');
+        }
+
+        $delimiter = ['\\t' => "\t", 'tab' => "\t"][$delimiter] ?? $delimiter;
+        if (! in_array($delimiter, [',', ';', "\t", '|'], true)) {
+            $first = strtok($raw, "\n") ?: '';
+            $counts = [];
+            foreach ([',', ';', "\t", '|'] as $d) {
+                $counts[$d] = substr_count($first, $d);
+            }
+            arsort($counts);
+            $delimiter = (string) array_key_first($counts);
+        }
+
+        $in = fopen('php://temp', 'r+');
+        fwrite($in, $raw);
+        rewind($in);
+        $fh = fopen($out, 'w');
+        while (($row = fgetcsv($in, 0, $delimiter)) !== false) {
+            if ($row === [null]) {
+                continue; // blank line
+            }
+            fputcsv($fh, $row);
+        }
+        fclose($in);
+        fclose($fh);
+
+        return $out;
+    }
+
+    /**
      * Parse a CSV file and return headers + preview rows.
      */
     public function parseCSV(string $path, int $previewRows = 10): array
@@ -368,11 +428,12 @@ class DataMigrationService
             return ['success' => false, 'message' => 'Job not found'];
         }
 
-        $this->updateJobProgress($jobId, [
-            'status' => 'processing',
-            'started_at' => now(),
-            'progress_message' => 'Starting import...',
-        ]);
+        // Claim the job atomically: a pending job runs once, never twice.
+        $claimed = DB::table('atom_migration_job')->where('id', $jobId)->where('status', 'pending')
+            ->update(['status' => 'processing', 'started_at' => now(), 'progress_message' => 'Starting import...']);
+        if (! $claimed) {
+            return ['success' => false, 'message' => 'Job is not pending'];
+        }
 
         $sourcePath = $job['source_file'];
         if (! $sourcePath || ! file_exists($sourcePath)) {
@@ -1171,6 +1232,13 @@ class DataMigrationService
                 ),
             default => DB::table('object')->whereRaw('1=0'),
         };
+
+        if ($entityType === 'informationObject') {
+            if (! empty($filters['repository_id'])) {
+                $query->where('information_object.repository_id', (int) $filters['repository_id']);
+            }
+            \AhgCore\Support\TenantScope::apply($query, 'information_object.repository_id'); // GHSA-fqxh-fv8c-mq23
+        }
 
         // Apply date filters
         if (! empty($filters['date_from'])) {

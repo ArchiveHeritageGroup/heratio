@@ -75,8 +75,6 @@ Route::middleware(['auth', 'acl:import'])->group(function () { // heratio#1535
     Route::get('/dataMigration/job/progress',
         [DataMigrationController::class, 'jobProgress'])->name('data-migration.job-progress');
 
-    Route::post('/dataMigration/queue',
-        [DataMigrationController::class, 'queueJob'])->name('data-migration.queue-job');
 
     Route::post('/dataMigration/job/cancel',
         [DataMigrationController::class, 'cancelJob'])->name('data-migration.cancel-job');

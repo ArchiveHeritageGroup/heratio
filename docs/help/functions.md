@@ -716,9 +716,7 @@ Complete listing of the user-facing functionality across the Heratio platform an
 - Export the catalogue to CSV, sector-specific CSV, AHG CSV and EAD XML
 - Run batch exports and per-sector exports, and download generated files
 ### Jobs
-- Queue migration jobs, watch live job progress, cancel jobs, and browse job history/status
-### Preservica Integration
-- Import from and export to Preservica (by job id)
+- Run imports in the background on the queue worker, watch job progress, cancel a job before it starts, and browse job history/status
 
 ## Dublin Core Description Editor (ahg-dc-manage)
 ### Standards-Based Cataloguing

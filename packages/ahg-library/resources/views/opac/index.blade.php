@@ -137,20 +137,9 @@
                         @foreach($activeFacets as $key => $val)
                             <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-1">
                                 <span>
-                                    <strong>{{ match($key) {
-                                        'material_type' => __('Type'),
-                                        'language' => __('Language'),
-                                        'creator' => __('Author'),
-                                        'publisher' => __('Publisher'),
-                                        'year_from' => __('From year'),
-                                        'year_to' => __('To year'),
-                                        default => $key
-                                    } }}:</strong>
-                                    {{ match($key) {
-                                        'material_type' => $materialTypeLabels[$val] ?? $val,
-                                        'year_from', 'year_to' => $val,
-                                        default => $val
-                                    } }}
+                                    {{-- Array lookups, not match(): a match's closing brace ends a Blade echo early (heratio#1554). --}}
+                                    <strong>{{ ['material_type' => __('Type'), 'language' => __('Language'), 'creator' => __('Author'), 'publisher' => __('Publisher'), 'year_from' => __('From year'), 'year_to' => __('To year')][$key] ?? $key }}:</strong>
+                                    {{ $key === 'material_type' ? ($materialTypeLabels[$val] ?? $val) : $val }}
                                 </span>
                                 <a href="{{ clearFacetsUrl($q, $sort) }}"
                                    class="text-danger text-decoration-none"
@@ -293,18 +282,8 @@
                     <ul class="list-group list-group-flush small">
                         @foreach($facets['availability'] as $facet)
                             <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-1">
-                                <span class="{{ match($facet['value']) {
-                                    'available' => 'text-success',
-                                    'checked_out' => 'text-danger',
-                                    'on_hold' => 'text-warning',
-                                    default => 'text-muted'
-                                } }">
-                                    <i class="fas fa-{{ match($facet['value']) {
-                                        'available' => 'check-circle',
-                                        'checked_out' => 'times-circle',
-                                        'on_hold' => 'clock',
-                                        default => 'question-circle'
-                                    } }} me-1"></i>
+                                <span class="{{ ['available' => 'text-success', 'checked_out' => 'text-danger', 'on_hold' => 'text-warning'][$facet['value']] ?? 'text-muted' }}">
+                                    <i class="fas fa-{{ ['available' => 'check-circle', 'checked_out' => 'times-circle', 'on_hold' => 'clock'][$facet['value']] ?? 'question-circle' }} me-1"></i>
                                     {{ $facet['label'] }}
                                 </span>
                                 <span class="badge bg-light text-dark border">{{ $facet['count'] }}</span>
@@ -430,13 +409,7 @@
                                         @endphp
                                         <div class="mb-1">
                                             <span class="badge {{ $availClass }}">
-                                                <i class="fas fa-{{ match($avail) {
-                                                    'available' => 'check',
-                                                    'checked_out' => 'arrow-right',
-                                                    'on_hold'     => 'clock',
-                                                    'lost'        => 'exclamation-triangle',
-                                                    default       => 'question'
-                                                } }} me-1"></i>
+                                                <i class="fas fa-{{ ['available' => 'check', 'checked_out' => 'arrow-right', 'on_hold' => 'clock', 'lost' => 'exclamation-triangle'][$avail] ?? 'question' }} me-1"></i>
                                                 {{ $availLabel }}
                                             </span>
                                         </div>
