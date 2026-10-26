@@ -28,6 +28,9 @@
     @endphp
     <title>{{ $__docTitle }}</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    {{-- heratio#1568: one canonical address per page, on the configured host,
+         without sort / language / view variants (robots.txt disallows those). --}}
+    <link rel="canonical" href="{{ \AhgCore\Support\CanonicalUrl::for(request()) }}">
 
     {{-- Autodiscovery links live NATIVELY in the head (locked-paths rule: edit the
          real file, do not dodge it with an injection middleware). --}}

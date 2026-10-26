@@ -192,7 +192,19 @@ class PublicSitemapController extends Controller
             '/*/print',
             '/*/exportCsv',
             '/*/export/',
+            // heratio#1568: browse queries and sort, language and view variants
+            // duplicate the plain pages (which carry a canonical tag), and
+            // crawling them trips the facet guard's 429s. Plain /glam/browse,
+            // /term/{slug} and ?page=N stay open.
+            '/glam/browse?',
+            '/actor/browse?',
         ];
+        // Each parameter as a whole name, first or later in the query string:
+        // Google's * matches anything, so "/*?*view=" would also catch "preview=".
+        foreach (\AhgCore\Support\CanonicalUrl::VARIANT_PARAMS as $param) {
+            $disallow[] = '/*?'.$param.'=';
+            $disallow[] = '/*&'.$param.'=';
+        }
 
         $lines = [];
         $lines[] = '# Heratio public website robots policy';
