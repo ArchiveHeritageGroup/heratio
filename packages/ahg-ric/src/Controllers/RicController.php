@@ -1221,10 +1221,11 @@ class RicController extends Controller
             ->get();
 
         // Get descendants with their events for a richer timeline
+        // heratio#1541: descendants through the closure tables (a lft/rgt
+        // self-join missed every descendant without nested-set bounds).
         $descendants = DB::table('information_object as child')
-            ->join('information_object as parent', function ($j) use ($id) {
-                $j->whereRaw('child.lft > parent.lft AND child.rgt < parent.rgt AND parent.id = ?', [$id]);
-            })
+            ->tap(fn ($q) => app(\AhgCore\Services\HierarchyQueryService::class)
+                ->scopeDescendants($q, 'information_object', (int) $id, 'child.id', false))
             ->join('information_object_i18n as ci', function ($j) use ($culture) {
                 $j->on('ci.id', '=', 'child.id')->where('ci.culture', $culture);
             })

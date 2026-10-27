@@ -128,10 +128,19 @@ class CrossFondsQueryService
                                 'default_operator' => 'AND',
                             ],
                         ]],
-                        'filter' => [
-                            ['range' => ['lft' => ['gte' => (int) $f->lft]]],
-                            ['range' => ['rgt' => ['lte' => (int) $f->rgt]]],
-                        ],
+                        // heratio#1541: the fonds itself or anything under it,
+                        // from the indexed ancestor list (built from the
+                        // closure tables). A lft/rgt range never matched a
+                        // record without nested-set bounds.
+                        'filter' => [[
+                            'bool' => [
+                                'should' => [
+                                    ['ids' => ['values' => [(string) $f->id]]],
+                                    ['term' => ['ancestors' => (int) $f->id]],
+                                ],
+                                'minimum_should_match' => 1,
+                            ],
+                        ]],
                     ],
                 ],
                 'highlight' => [

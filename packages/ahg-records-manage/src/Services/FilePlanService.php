@@ -191,11 +191,15 @@ class FilePlanService
             return false;
         }
 
-        // Prevent moving a node into its own subtree
-        if ($parent->lft !== null && $node->lft !== null) {
-            if ($parent->lft >= $node->lft && $parent->rgt <= $node->rgt) {
+        // Prevent moving a node into its own subtree. Walk up from the new
+        // parent (heratio#1541): the lft/rgt check this replaces was skipped
+        // when either node had no bounds, and then a node could be moved under
+        // its own child, making a loop.
+        for ($id = (int) $newParentId, $hops = 0; $id > 0 && $hops < 1000; $hops++) {
+            if ($id === (int) $nodeId) {
                 return false;
             }
+            $id = (int) (DB::table('rm_fileplan_node')->where('id', $id)->value('parent_id') ?? 0);
         }
 
         DB::table('rm_fileplan_node')
