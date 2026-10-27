@@ -39,8 +39,8 @@ Route::middleware('web')->group(function () {
     // RIC Semantic Search
     Route::get('/admin/ric/semantic-search', [RicController::class, 'semanticSearch'])->name('ric.semantic-search');
 
-    // RiC-O Community Features: SHACL validation, JSON-LD export, external authority linking (read-only)
-    Route::get('/admin/ric/shacl-validate', [RicController::class, 'shaclValidate'])->name('ric.shacl-validate');
+    // RiC-O Community Features: entity validation, JSON-LD export, external authority linking (read-only).
+    // Records the visitor may not see answer 404 (AhgRic\Support\RicDisclosure).
     Route::get('/admin/ric/validate/{type}/{id}', [RicController::class, 'validateEntity'])
         ->where(['type' => '[a-zA-Z]+', 'id' => '[0-9]+'])
         ->name('ric.validate-entity');
@@ -58,6 +58,9 @@ Route::middleware(['web', 'admin'])->group(function () {
     Route::get('/admin/ric/orphans', [RicController::class, 'orphans'])->name('ric.orphans');
     Route::get('/admin/ric/queue', [RicController::class, 'queue'])->name('ric.queue');
     Route::get('/admin/ric/logs', [RicController::class, 'logs'])->name('ric.logs');
+    // Whole-triplestore SHACL report, raw Turtle included: an operator tool,
+    // and it cannot be filtered per record, so it is not public.
+    Route::get('/admin/ric/shacl-validate', [RicController::class, 'shaclValidate'])->name('ric.shacl-validate');
     Route::match(['get', 'post'], '/admin/ric/config', [RicController::class, 'config'])->name('ric.config');
     Route::post('/admin/ric/create-entity', [RicController::class, 'createEntity'])->middleware('acl:create')->name('ric.create-entity');
 

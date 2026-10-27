@@ -377,6 +377,7 @@ SPARQL;
             })
             ->select(
                 'event.id',
+                'event.object_id',
                 'event.start_date',
                 'event.end_date',
                 'event.type_id',
@@ -391,6 +392,7 @@ SPARQL;
         foreach ($rows as $row) {
             $events[] = [
                 'id' => $row->id,
+                'object_id' => $row->object_id,
                 'start_date' => $row->start_date,
                 'end_date' => $row->end_date,
                 'date_display' => $row->date_display,

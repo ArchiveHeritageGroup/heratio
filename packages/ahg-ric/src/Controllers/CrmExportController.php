@@ -44,6 +44,7 @@ namespace AhgRic\Controllers;
 
 use AhgCore\Services\AclService;
 use AhgRic\Crm\CrmSerializer;
+use AhgRic\Support\RicDisclosure;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -91,6 +92,9 @@ class CrmExportController extends Controller
                 || AclService::hasPermission(Auth::id(), 'read', (int) $objectId),
             403
         );
+        // hasPermission('read') lets anonymous visitors read drafts; refuse
+        // what the public record page refuses (AhgRic\Support\RicDisclosure).
+        RicDisclosure::guard($objectId);
 
         $culture = (string) $request->query('culture', app()->getLocale() ?: 'en');
         $format = $this->resolveFormat($request);

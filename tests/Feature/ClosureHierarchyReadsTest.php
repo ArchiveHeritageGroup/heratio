@@ -76,6 +76,9 @@ class ClosureHierarchyReadsTest extends TestCase
     public function test_the_ric_timeline_includes_a_child_without_bounds(): void
     {
         \AhgCore\Support\EventRow::replaceFor($this->child, [['type' => 'creation', 'start_date' => '1901-02-03', 'end_date' => null, 'date_display' => '1901']], 'en');
+        // Published, since visitors are refused drafts (RicDisclosure).
+        \AhgCore\Support\StatusRow::set($this->parent, 158, 160);
+        \AhgCore\Support\StatusRow::set($this->child, 158, 160);
 
         $items = $this->getJson('/admin/ric/timeline-data?id='.$this->parent)->assertOk()->json('items');
 

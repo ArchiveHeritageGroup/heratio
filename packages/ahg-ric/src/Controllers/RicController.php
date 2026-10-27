@@ -31,6 +31,7 @@ use AhgCore\Services\SecretCrypto;
 use AhgRic\Services\RelationshipService;
 use AhgRic\Services\RicSerializationService;
 use AhgRic\Services\ShaclValidationService;
+use AhgRic\Support\RicDisclosure;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -55,12 +56,23 @@ class RicController extends Controller
      */
     public function getRelations(Request $request, int $id)
     {
+        RicDisclosure::guard($id);
         $service = app(RelationshipService::class);
         $type = $request->input('type');
 
+        $groups = $service->getRelatedEntities($id, $type);
+        $targetId = fn ($r) => isset($r['target_id']) ? (int) $r['target_id'] : RicDisclosure::uriId($r['target_uri'] ?? null);
+        $hidden = RicDisclosure::hidden(array_filter(array_map($targetId, array_merge([], ...array_values($groups)))));
+        if ($hidden) {
+            foreach ($groups as $key => $rels) {
+                $groups[$key] = array_values(array_filter($rels, fn ($r) => ! isset($hidden[$targetId($r)])));
+            }
+            $groups = array_filter($groups);
+        }
+
         return response()->json([
             'success' => true,
-            'relations' => $service->getRelatedEntities($id, $type),
+            'relations' => $groups,
         ]);
     }
 
@@ -69,11 +81,12 @@ class RicController extends Controller
      */
     public function getGraphSummary(int $id)
     {
+        RicDisclosure::guard($id);
         $service = app(RelationshipService::class);
 
         return response()->json([
             'success' => true,
-            'graph' => $service->getGraphSummary($id),
+            'graph' => RicDisclosure::graph($service->getGraphSummary($id)),
         ]);
     }
 
@@ -86,7 +99,19 @@ class RicController extends Controller
     /** heratio#1197 - everything related to an entity, grouped by collection domain. */
     public function connectionsData(int $id)
     {
-        return response()->json(['success' => true] + app(RelationshipService::class)->crossCollectionNeighbours($id));
+        RicDisclosure::guard($id);
+        $result = app(RelationshipService::class)->crossCollectionNeighbours($id);
+        $hidden = RicDisclosure::hidden(array_merge([], ...array_map(fn ($g) => array_column($g['items'], 'id'), $result['groups'])));
+        if ($hidden) {
+            foreach ($result['groups'] as $i => $g) {
+                $g['items'] = array_values(array_filter($g['items'], fn ($it) => ! isset($hidden[$it['id']])));
+                $result['groups'][$i] = ['count' => count($g['items'])] + $g;
+            }
+            $result['groups'] = array_values(array_filter($result['groups'], fn ($g) => $g['count'] > 0));
+            $result['total'] = array_sum(array_column($result['groups'], 'count'));
+        }
+
+        return response()->json(['success' => true] + $result);
     }
 
     /**
@@ -94,11 +119,15 @@ class RicController extends Controller
      */
     public function getTimeline(int $id)
     {
-        $service = app(RelationshipService::class);
+        RicDisclosure::guard($id);
+        $events = app(RelationshipService::class)->getTimelineContext($id);
+        // An agent's events include those on records the viewer may not see.
+        $hidden = RicDisclosure::hidden(array_column($events, 'object_id'));
+        $events = array_values(array_filter($events, fn ($e) => ! isset($hidden[(int) $e['object_id']])));
 
         return response()->json([
             'success' => true,
-            'events' => $service->getTimelineContext($id),
+            'events' => $events,
         ]);
     }
 
@@ -107,6 +136,8 @@ class RicController extends Controller
      */
     public function explainRelation(int $sourceId, int $targetId)
     {
+        RicDisclosure::guard($sourceId);
+        RicDisclosure::guard($targetId);
         $service = app(RelationshipService::class);
 
         return response()->json([
@@ -1106,6 +1137,9 @@ class RicController extends Controller
 
         // Guests must not see draft (unpublished) descriptions.
         \AhgCore\Services\AclService::addFilterDraftsCriteria($query, 'io.id');
+        if (! RicDisclosure::seesAll()) {
+            app(\AhgCore\Services\DisclosureGate::class)->excludeRestricted($query, 'io.id');
+        }
 
         $results = $query
             ->select('io.id', 'ioi.title', 'io.identifier', 'lod.name as level_of_description', 's.slug')
@@ -1145,6 +1179,10 @@ class RicController extends Controller
         $baseUri         = $config['ric_base_uri'] ?? config('ric.base_uri', 'https://ric.theahg.co.za/ric');
         $instanceId      = $config['ric_instance_id'] ?? config('services.ric.instance_id', 'atom-psis');
 
+        if ($recordId !== 'overview') {
+            RicDisclosure::guard((int) $recordId);
+        }
+
         if ($recordId === 'overview') {
             $graphData = $this->buildOverviewGraph($fusekiEndpoint, $fusekiUsername, $fusekiPassword);
 
@@ -1169,7 +1207,7 @@ class RicController extends Controller
 
         return response()->json([
             'success'   => true,
-            'graphData' => $graphData,
+            'graphData' => RicDisclosure::graph($graphData),
         ]);
     }
 
@@ -1182,6 +1220,7 @@ class RicController extends Controller
         if (!$id) {
             return response()->json(['success' => false, 'error' => 'No ID provided']);
         }
+        RicDisclosure::guard($id);
 
         $culture = app()->getLocale();
 
@@ -1246,6 +1285,8 @@ class RicController extends Controller
             ->orderBy('event.start_date')
             ->limit(200)
             ->get();
+        $hidden = RicDisclosure::hidden($descendants->pluck('object_id')->all());
+        $descendants = $descendants->reject(fn ($d) => isset($hidden[(int) $d->object_id]));
 
         $items = [];
 
@@ -2682,6 +2723,7 @@ SPARQL;
         if (!$recordId) {
             return response()->json(['error' => 'Record ID is required'], 400);
         }
+        RicDisclosure::guard((int) $recordId);
 
         $config = $this->getFusekiConfig();
         $fusekiEndpoint = ($config['fuseki_endpoint'] ?? config('services.ric.fuseki_endpoint', 'http://localhost:3030/ric')) . '/query';
@@ -2691,9 +2733,9 @@ SPARQL;
         $instanceId      = $config['ric_instance_id'] ?? config('services.ric.instance_id', 'atom-psis');
 
         // Build graph data
-        $graphData = $this->buildGraphData(
+        $graphData = RicDisclosure::graph($this->buildGraphData(
             $recordId, $fusekiEndpoint, $fusekiUsername, $fusekiPassword, $baseUri, $instanceId
-        );
+        ));
 
         // Convert graph to JSON-LD structure
         $context = [
@@ -2956,6 +2998,7 @@ SPARQL;
      */
     public function validateEntity(string $type, int $id)
     {
+        RicDisclosure::guard($id);
         $serializer = app(RicSerializationService::class);
         $validator  = app(ShaclValidationService::class);
 
