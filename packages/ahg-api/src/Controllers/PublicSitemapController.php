@@ -437,7 +437,10 @@ class PublicSitemapController extends Controller
             })
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
             ->leftJoin('object as o', 'io.id', '=', 'o.id')
-            ->where('io.id', '!=', self::ROOT_ID);
+            ->where('io.id', '!=', self::ROOT_ID)
+            // heratio#1544: restricted records (ICIP, ODRL, embargo,
+            // classification, tenant) are not advertised either, as in OAI-PMH.
+            ->tap(fn ($q) => app(\AhgCore\Services\DisclosureGate::class)->excludeRestricted($q, 'io.id'));
     }
 
     // -----------------------------------------------------------------

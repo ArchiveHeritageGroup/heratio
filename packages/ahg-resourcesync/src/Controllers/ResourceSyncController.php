@@ -374,6 +374,9 @@ class ResourceSyncController extends Controller
             ->where('st.status_id', '=', 160)
             ->whereNotNull('io.parent_id')
             ->where('io.parent_id', '!=', 0)
+            // heratio#1544: restricted records (ICIP, ODRL, embargo,
+            // classification, tenant) are not advertised either, as in OAI-PMH.
+            ->tap(fn ($q) => app(\AhgCore\Services\DisclosureGate::class)->excludeRestricted($q, 'io.id'))
             ->select(
                 'io.id',
                 'io.oai_local_identifier',
