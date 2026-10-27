@@ -18,7 +18,7 @@ Heratio catalogues are meant to be read by people, by search engines, by other c
 
 ## What is not allowed
 
-- **Bulk crawling to train AI models.** GPTBot, ClaudeBot, anthropic-ai, CCBot, Amazonbot, Bytespider and meta-externalagent are refused at the web server. AI search crawlers that send readers back, such as OAI-SearchBot, are allowed.
+- **Bulk crawling to train AI models.** GPTBot, ClaudeBot, anthropic-ai, CCBot, Amazonbot, Bytespider and meta-externalagent are refused at the web server, on the website and on the API and harvesting routes alike. They may read robots.txt. AI search crawlers that send readers back, such as OAI-SearchBot, are allowed.
 - **Crawling the browse filters.** Every combination of filters is a separate address and a separate database query. To collect records in bulk, use OAI-PMH, ResourceSync, the sitemap or the API, which are built for it.
 - **Getting round the limits**, for example by spreading requests over many addresses or user agents.
 - **Reaching content the catalogue withholds.** Drafts, embargoed and classified records, records under an ODRL prohibition and culturally restricted material are not served, and attempts to find them through another door are not permitted.

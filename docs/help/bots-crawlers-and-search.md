@@ -32,7 +32,7 @@ The host's `bot-blocker.conf` answers `444` (the connection is closed without a 
 
 Some are deliberately allowed: search engines, archive.org's Wayback crawler, OAI-SearchBot (ChatGPT search referrals), and Facebook's link-preview fetcher.
 
-**The machine doors are exempt.** The REST API (`/api/v1/`, `/api/v2/`), OAI-PMH (`/oai`), ResourceSync, robots.txt and the sitemap are meant for scripts, and they have their own keys and limits. So on those routes the user-agent rule does not apply, and a harvester or an AI agent with a key gets through whatever library it uses. The exemption is `$ahg_machine_door` in `conf.d/heratio-browse-shed.conf`.
+**The machine doors are exempt.** The REST API (`/api/v1/`, `/api/v2/`), OAI-PMH (`/oai`), ResourceSync, robots.txt and the sitemap are meant for scripts, and they have their own keys and limits. So on those routes the user-agent rule does not apply, and a harvester or an AI agent with a key gets through whatever library it uses. The AI-training crawlers listed above are the exception: they stay refused there too, and may read only robots.txt. The exemption is `$ahg_machine_door` in `conf.d/heratio-browse-shed.conf`.
 
 ### 2. Crawlers are kept out of the facet space
 
