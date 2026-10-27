@@ -71,14 +71,14 @@
     <div class="card-body py-2">
       <form method="GET" action="{{ route('settings.error-log') }}" class="row g-2 align-items-center">
         <div class="col-auto">
-          <select name="status" class="form-select form-select-sm">
+          <select name="status" class="form-select form-select-sm" aria-label="{{ __('Filter by status') }}">
             <option value="open" @selected($filters['status'] === 'open')>{{ __('Open') }}</option>
             <option value="resolved" @selected($filters['status'] === 'resolved')>{{ __('Resolved') }}</option>
             <option value="all" @selected($filters['status'] === 'all')>{{ __('All') }}</option>
           </select>
         </div>
         <div class="col-auto">
-          <select name="level" class="form-select form-select-sm">
+          <select name="level" class="form-select form-select-sm" aria-label="{{ __('Filter by level') }}">
             <option value="">{{ __('All levels') }}</option>
             <option value="fatal" @selected($filters['level'] === 'fatal')>{{ __('Fatal') }}</option>
             <option value="error" @selected($filters['level'] === 'error')>{{ __('Error') }}</option>

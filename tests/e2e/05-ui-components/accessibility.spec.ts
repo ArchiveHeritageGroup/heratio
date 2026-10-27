@@ -1,7 +1,7 @@
 /**
  * Accessibility scans (heratio#1532)
  *
- * axe-core checks the main public pages against WCAG 2.2 AA (axe tags
+ * axe-core checks the main public and staff pages against WCAG 2.2 AA (axe tags
  * wcag2a, wcag2aa, wcag21a, wcag21aa, wcag22aa). The run FAILS on a
  * REGRESSION: a critical or serious rule that a11y-baseline.json does not list
  * for the page, or more failing nodes than it lists. Every violation is
@@ -22,6 +22,19 @@ const BLOCKING = ['critical', 'serious'];
 const BASELINE: Record<string, Record<string, number>> = JSON.parse(
   fs.readFileSync(path.resolve(process.cwd(), 'tests/e2e/05-ui-components/a11y-baseline.json'), 'utf8')
 );
+
+// Staff pages, scanned signed in as the test administrator. They carry the
+// most varied markup (forms, tables, badges, admin cards), which is where the
+// staff-side failures of 27 Oct 2026 were.
+const STAFF_PAGES = [
+  { name: 'staff browse', path: '/glam/browse' },
+  { name: 'staff authority browse', path: '/actor/browse' },
+  { name: 'staff settings', path: '/admin/settings' },
+  { name: 'staff export', path: '/export' },
+  { name: 'staff data migration', path: '/admin/data-migration' },
+  { name: 'staff error log', path: '/admin/errorLog' },
+  { name: 'staff dropdowns', path: '/admin/dropdowns' },
+];
 
 const PAGES = [
   { name: 'home', path: '/' },
@@ -58,4 +71,30 @@ test.describe('Accessibility (WCAG 2.2 AA, automated)', () => {
     await page.goto(href!.startsWith('http') ? href! : `${HERATIO_URL}${href}`, { waitUntil: 'domcontentloaded' });
     expect(await scan(page, 'record')).toEqual([]);
   });
+});
+
+test.describe('Accessibility (WCAG 2.2 AA, automated), staff pages', () => {
+  test.beforeEach(async ({ page }) => {
+    // The test administrator exists on the CI host; anywhere else, skip rather
+    // than report a login failure as an accessibility one. Credentials are read
+    // with fs (as the baseline is): importing the JSON fails under ESM.
+    const roles = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'tests/e2e/fixtures/role-credentials.json'), 'utf8')).roles;
+    const admin = { email: process.env.TEST_ADMIN_EMAIL || roles.admin.email, password: process.env.TEST_ADMIN_PASSWORD || roles.admin.password };
+    await page.goto(`${HERATIO_URL}/login`, { waitUntil: 'domcontentloaded' });
+    await page.locator('input[name="email"], input[type="email"]').first().fill(admin.email);
+    await page.locator('input[name="password"]').first().fill(admin.password);
+    await page.locator('button[type="submit"]').first().click();
+    await page.waitForLoadState('domcontentloaded');
+    // Signed in means a way to sign out, not merely "not on /login": a failed
+    // login that lands elsewhere would scan the public pages instead.
+    const signedIn = await page.locator('a[href*="logout"], form[action*="logout"]').count();
+    test.skip(signedIn === 0, 'test administrator could not sign in on this host');
+  });
+
+  for (const p of STAFF_PAGES) {
+    test(`${p.name} has no new critical or serious violations`, async ({ page }) => {
+      await page.goto(`${HERATIO_URL}${p.path}`, { waitUntil: 'domcontentloaded' });
+      expect(await scan(page, p.name)).toEqual([]);
+    });
+  }
 });

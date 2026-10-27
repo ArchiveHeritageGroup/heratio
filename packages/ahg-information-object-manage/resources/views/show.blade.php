@@ -47,9 +47,9 @@
       <form action="{{ route('informationobject.browse') }}" method="GET">
         <input type="hidden" name="collection" value="{{ $io->id }}">
         <div class="input-group input-group-sm">
-          <input type="text" name="subquery" class="form-control" placeholder="{{ __('Search...') }}">
-          <button class="btn atom-btn-white" type="submit">
-            <i class="fas fa-search"></i>
+          <input type="text" name="subquery" class="form-control" placeholder="{{ __('Search...') }}" aria-label="{{ __('Search within this description') }}">
+          <button class="btn atom-btn-white" type="submit" aria-label="{{ __('Search') }}">
+            <i class="fas fa-search" aria-hidden="true"></i>
           </button>
         </div>
       </form>

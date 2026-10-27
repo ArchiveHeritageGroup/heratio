@@ -1,8 +1,15 @@
 {
-  "_note": "heratio#1532. Known axe violations (critical/serious) per page: rule id -> node count, measured on heratio.theahg.co.za. CI fails on a new rule or a higher count. Lower these as fixes reach prod; never raise them to make a run pass.",
-  "home": { "aria-allowed-attr": 1, "color-contrast": 5, "target-size": 2 },
-  "browse": { "aria-allowed-attr": 1, "color-contrast": 27, "target-size": 2 },
-  "login": { "aria-allowed-attr": 1, "color-contrast": 5, "target-size": 2 },
-  "accessibility statement": { "aria-allowed-attr": 1, "color-contrast": 5, "target-size": 2 },
-  "record": { "aria-allowed-attr": 1, "color-contrast": 27, "target-size": 2 }
+  "_note": "heratio#1532. Known axe violations (critical/serious) per page: rule id -> node count. CI fails on a new rule or a higher count. Every page was clean on 27 Oct 2026 (v1.164.14: theme contrast, list-group active state, badge text, code and warning colours, link underlines, target size, labels). Keep these at zero; never raise them to make a run pass.",
+  "home": {},
+  "browse": {},
+  "login": {},
+  "accessibility statement": {},
+  "record": {},
+  "staff browse": {},
+  "staff authority browse": {},
+  "staff settings": {},
+  "staff export": {},
+  "staff data migration": {},
+  "staff error log": {},
+  "staff dropdowns": {}
 }

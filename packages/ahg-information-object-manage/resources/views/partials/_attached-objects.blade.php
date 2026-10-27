@@ -124,19 +124,19 @@
             @csrf
             <div class="row g-2 align-items-end">
               <div class="col-md-5">
-                <label class="form-label small mb-1">{{ __('Attach more images / files') }}</label>
-                <input type="file" name="attachments[]" class="form-control form-control-sm" multiple required>
+                <label class="form-label small mb-1" for="io-attach-files">{{ __('Attach more images / files') }}</label>
+                <input type="file" id="io-attach-files" name="attachments[]" class="form-control form-control-sm" multiple required>
               </div>
               <div class="col-md-3">
-                <label class="form-label small mb-1">{{ __('Role (optional)') }}</label>
-                <input type="text" name="role" class="form-control form-control-sm" placeholder="{{ __('recto / verso / page...') }}" maxlength="64">
+                <label class="form-label small mb-1" for="io-attach-role">{{ __('Role (optional)') }}</label>
+                <input type="text" id="io-attach-role" name="role" class="form-control form-control-sm" placeholder="{{ __('recto / verso / page...') }}" maxlength="64">
               </div>
               <div class="col-md-3">
-                <label class="form-label small mb-1">{{ __('Caption (optional)') }}</label>
-                <input type="text" name="caption" class="form-control form-control-sm" maxlength="255">
+                <label class="form-label small mb-1" for="io-attach-caption">{{ __('Caption (optional)') }}</label>
+                <input type="text" id="io-attach-caption" name="caption" class="form-control form-control-sm" maxlength="255">
               </div>
               <div class="col-md-1">
-                <button type="submit" class="btn btn-success btn-sm w-100"><i class="fas fa-plus"></i></button>
+                <button type="submit" class="btn btn-success btn-sm w-100" aria-label="{{ __('Attach') }}" title="{{ __('Attach') }}"><i class="fas fa-plus" aria-hidden="true"></i></button>
               </div>
             </div>
             <div class="form-text">{{ __('Attaches to this description directly - no child records are created. Each file keeps its own thumbnail/reference.') }}</div>

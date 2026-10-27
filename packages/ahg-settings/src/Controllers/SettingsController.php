@@ -756,12 +756,7 @@ class SettingsController extends Controller
 
         $css = "/* AHG Theme - Generated CSS */\n/* Do not edit - regenerated when settings saved */\n";
         $css .= ":root {\n";
-        $vars = $this->getThemeVars();
-        foreach ($vars as $key => [$var, $default]) {
-            $value = $rows[$key] ?? $default;
-            if (str_contains($var, '--ahg-font') && is_numeric($value)) {
-                $value .= 'rem';
-            }
+        foreach ($this->themeValues($rows) as $var => $value) {
             $css .= "    {$var}: {$value};\n";
         }
         $css .= "}\n";
@@ -791,9 +786,8 @@ class SettingsController extends Controller
             ->pluck('setting_value', 'setting_key');
 
         $css = "/* AHG Theme - Dynamic CSS */\n:root {\n";
-        $vars = $this->getThemeVars();
-        foreach ($vars as $key => [$var, $default]) {
-            $css .= "    {$var}: ".($rows[$key] ?? $default).";\n";
+        foreach ($this->themeValues($rows) as $var => $value) {
+            $css .= "    {$var}: {$value};\n";
         }
         $css .= "}\n";
         $css .= $this->getThemeRules();
@@ -804,6 +798,46 @@ class SettingsController extends Controller
         }
 
         return response($css, 200)->header('Content-Type', 'text/css');
+    }
+
+    /** Background variable => the text variable drawn on it (heratio#1532). */
+    private const CONTRAST_PAIRS = [
+        '--ahg-header-bg' => '--ahg-header-text',
+        '--ahg-descbar-bg' => '--ahg-descbar-text',
+        '--ahg-footer-bg' => '--ahg-footer-text',
+        '--ahg-card-header-bg' => '--ahg-card-header-text',
+        '--ahg-btn-bg' => '--ahg-btn-text',
+        '--ahg-sidebar-bg' => '--ahg-sidebar-text',
+    ];
+
+    /**
+     * The theme's CSS variables from the saved settings, shared by the
+     * generated file and the dynamic route. Each configurable background is
+     * shaded just enough that its text reaches WCAG 2.2 AA contrast (4.5:1),
+     * keeping the chosen text colour and hue (heratio#1532).
+     *
+     * @return array<string,string> CSS variable => value
+     */
+    private function themeValues($rows): array
+    {
+        $values = [];
+        foreach ($this->getThemeVars() as $key => [$var, $default]) {
+            $value = (string) ($rows[$key] ?? $default);
+            if (str_contains($var, '--ahg-font') && is_numeric($value)) {
+                $value .= 'rem';
+            }
+            $values[$var] = $value;
+        }
+        foreach (self::CONTRAST_PAIRS as $bg => $text) {
+            if (isset($values[$bg], $values[$text])) {
+                $values[$bg] = \AhgCore\Support\ColourContrast::ensure($values[$bg], $values[$text]);
+            }
+        }
+        // The active row of a list (a chosen browse facet) is the primary colour
+        // under white text.
+        $values['--ahg-list-active-bg'] = \AhgCore\Support\ColourContrast::ensure($values['--ahg-primary'] ?? '#005837', '#ffffff');
+
+        return $values;
     }
 
     private function getThemeVars(): array
@@ -846,7 +880,11 @@ class SettingsController extends Controller
 
     private function getThemeRules(): string
     {
-        return ".card-header { background-color: var(--ahg-card-header-bg) !important; color: var(--ahg-card-header-text) !important; }\n"
+        // heratio#1532: Bootstrap redefines the list-group active variables on
+        // .list-group itself, so the :root values below never reached a list and
+        // an active facet showed white text on light grey (1.3:1).
+        return ".list-group { --bs-list-group-active-bg: var(--ahg-list-active-bg); --bs-list-group-active-color: #fff; --bs-list-group-active-border-color: var(--ahg-list-active-bg); }\n"
+            .".card-header { background-color: var(--ahg-card-header-bg) !important; color: var(--ahg-card-header-text) !important; }\n"
             .".card-header * { color: var(--ahg-card-header-text) !important; }\n"
             .".btn-primary { background-color: var(--ahg-btn-bg) !important; border-color: var(--ahg-btn-bg) !important; color: var(--ahg-btn-text) !important; }\n"
             // The base rule above pins background-color with !important, so Bootstrap's
@@ -876,9 +914,9 @@ class SettingsController extends Controller
               // Bootstrap list-group active state: bundle defaults are #dee2e6 light-grey bg
               // with dark text, but blades add `text-white` (looks unreadable). Override so
               // the .list-group-item.active state matches the configured palette.
-              .'--bs-list-group-active-bg: var(--ahg-primary);'
+              .'--bs-list-group-active-bg: var(--ahg-list-active-bg);'
               .'--bs-list-group-active-color: #fff;'
-              .'--bs-list-group-active-border-color: var(--ahg-primary);'
+              .'--bs-list-group-active-border-color: var(--ahg-list-active-bg);'
               // Bootstrap 5 "success" subtle tints - re-derive from the configured success
               // colour (defaults to --ahg-primary). Themes admin's "Success color" field still
               // wins when the operator sets it explicitly.

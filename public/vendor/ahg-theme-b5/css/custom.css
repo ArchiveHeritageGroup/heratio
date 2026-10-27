@@ -441,3 +441,26 @@ a.text-success {
 .bg-success {
   background-color: #1e7e34 !important;
 }
+
+/* --- Accessibility: WCAG 2.2 AA contrast and target size (heratio#1532) -----
+   Found by axe scans of the public and staff pages. Colours were chosen with
+   AhgCore\Support\ColourContrast to clear 4.5:1 for text. */
+
+/* Light badges keep dark text, inside card headers too: `.card-header *` paints
+   everything white, which put white on #f8f9fa (1.05:1) and on Bootstrap's info
+   cyan (1.95:1). */
+.badge.bg-light, .badge.bg-info, .badge.bg-warning,
+.card-header .badge.bg-light, .card-header .badge.bg-info, .card-header .badge.bg-warning { color: #212529 !important; }
+
+/* Inline code: Bootstrap's pink on the grey of striped and light rows was 3.79:1. */
+:root { --bs-code-color: #c12e77; }
+
+/* Warning text: yellow on white was 1.63:1. This passes on white and on warning rows. */
+.text-warning { color: #8c6a04 !important; }
+
+/* Links in running text are underlined, so they are not told apart by colour
+   alone (WCAG 1.4.1; the theme green against body text is 1.8:1). */
+.card-text a:not(.btn):not(.badge), p a:not(.btn):not(.badge):not(.nav-link) { text-decoration: underline; }
+
+/* Title links in result cards get a 24px target (WCAG 2.5.8). */
+.card-title > a { display: inline-block; min-height: 24px; padding-block: 2px; }
