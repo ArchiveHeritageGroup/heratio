@@ -45,8 +45,12 @@ class ApiRateLimit
             return $this->tooMany("Rate limit of {$rateLimit} requests per hour exceeded.", $windowStart->copy()->addHour());
         }
 
-        DB::table('ahg_api_rate_limit')->updateOrInsert(
-            ['api_key_id' => $apiKeyId, 'window_start' => $windowStart],
+        // One atomic INSERT ... ON DUPLICATE KEY UPDATE. updateOrInsert checked
+        // then inserted, so two requests opening a window together both
+        // inserted and the second failed on unique_key_window with a 500.
+        DB::table('ahg_api_rate_limit')->upsert(
+            [['api_key_id' => $apiKeyId, 'window_start' => $windowStart, 'request_count' => 1]],
+            ['api_key_id', 'window_start'],
             ['request_count' => DB::raw('request_count + 1')]
         );
 
