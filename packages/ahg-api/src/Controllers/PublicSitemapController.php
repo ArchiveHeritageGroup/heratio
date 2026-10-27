@@ -220,10 +220,38 @@ class PublicSitemapController extends Controller
         $lines[] = '';
 
         $body = implode("\n", $lines);
+        self::keepRobotsCopy($request->getHost(), $body);
 
         return $this->withCors(
             response($body, 200, ['Content-Type' => 'text/plain; charset=utf-8'])
         );
+    }
+
+    /**
+     * Keep the last robots.txt per host where public/index.php can serve it
+     * while the app is in maintenance mode (heratio#1569): the nightly demo
+     * reset runs `artisan down`, and a 503 on robots.txt makes Google stop
+     * crawling the whole site. Best effort; written only when it changed.
+     */
+    public static function keepRobotsCopy(string $host, string $body): void
+    {
+        $file = self::robotsCopyPath($host);
+        if ($file === null || (is_file($file) && @file_get_contents($file) === $body)) {
+            return;
+        }
+        @mkdir(dirname($file), 0775, true);
+        $tmp = $file.'.'.getmypid().'.tmp';
+        if (@file_put_contents($tmp, $body) !== false) {
+            @rename($tmp, $file);
+        }
+    }
+
+    /** storage/framework/robots/<host>.txt, or null for a host that is not a plain name. */
+    public static function robotsCopyPath(string $host): ?string
+    {
+        $host = strtolower((string) preg_replace('/:\d+$/', '', $host));
+
+        return preg_match('/^[a-z0-9][a-z0-9.-]{0,252}$/', $host) ? storage_path('framework/robots/'.$host.'.txt') : null;
     }
 
     // -----------------------------------------------------------------
