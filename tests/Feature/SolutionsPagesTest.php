@@ -34,7 +34,7 @@ use Tests\TestCase;
 class SolutionsPagesTest extends TestCase
 {
     /** Found unreleased or preview on 2026-10-14; advertise only once H04 badges exist. */
-    private const NOT_YET = ['EAC-CPF', 'LIDO', 'Spectrum', 'GraphQL', 'semantic search', 'OPAC', 'SSO is provided', 'ArchivesSpace', 'Vernon', 'PastPerfect', 'CollectiveAccess'];
+    private const NOT_YET = ['LIDO', 'Spectrum', 'GraphQL', 'semantic search', 'SSO is provided', 'ArchivesSpace', 'Vernon', 'PastPerfect', 'CollectiveAccess'];
 
     public function test_the_index_lists_every_page(): void
     {

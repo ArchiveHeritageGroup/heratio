@@ -77,7 +77,7 @@ class CapabilityMatrix
             [['archives'], 'Archivematica', 'Send material to Archivematica and bring the DIP back.', null, self::RELEASED, $help('archivematica-integration'), 'Needs your Archivematica server.'],
             [['archives'], 'Persistent identifiers', 'Mint DOIs one at a time or in batches and keep them in step with your records.', 'DataCite DOI', self::RELEASED, $help('doi-manage-user-guide'), 'Needs DataCite credentials.'],
             [['archives'], 'OCFL storage', 'Store objects in an OCFL repository layout.', 'OCFL', self::PREVIEW, $help('ocfl-storage'), 'Command line only; not set up by default.'],
-            [['archives'], 'EAC-CPF export', 'Authority records as EAC-CPF XML.', 'EAC-CPF', self::PLANNED, self::ISSUES.'1551', null],
+            [['archives'], 'EAC-CPF export', 'Authority records as EAC-CPF XML.', 'EAC-CPF', self::RELEASED, $help('export-user-guide'), null],
 
             // Museums and galleries
             [['museums'], 'Object cataloguing', 'Catalogue objects on CCO fields, with completeness scoring, a quality dashboard and Getty vocabulary links.', 'CCO, Getty AAT', self::RELEASED, '/museum/browse', null],
@@ -115,7 +115,7 @@ class CapabilityMatrix
             [['libraries'], 'Linked bibliographic data', 'View, import, export and validate BIBFRAME, with a graph editor.', 'BIBFRAME (RDF/XML)', self::RELEASED, '/bibframe', null],
             [['libraries'], 'Work clustering', 'Group manifestations into works, with overrides when the grouping is wrong.', 'FRBR / LRM', self::RELEASED, '/frbr', null],
             [['libraries'], 'Research data', 'A dataset register with deposit, a privacy scan, data management plan links and a landing page per dataset.', null, self::RELEASED, $help('open-data-schema-org-dataset-user-guide'), null],
-            [['libraries'], 'Public catalogue (OPAC)', 'Public search, item pages, holds and renewals for patrons.', null, self::PLANNED, self::ISSUES.'1554', 'In the code, but not reachable on this demo yet.'],
+            [['libraries'], 'Public catalogue (OPAC)', 'Public search, item pages, holds and renewals for patrons.', null, self::RELEASED, '/opac', null],
 
             // Shared across every sector
             [['integrated-glam'], 'One catalogue', 'Archive, library, museum, gallery and digital asset records in one database, with one browse, print and CSV export.', null, self::RELEASED, '/glam/browse', null],
@@ -173,6 +173,7 @@ class CapabilityMatrix
         'Multi-level description' => 'tests/Feature/InformationObjectCrudTest.php',
         'Authority records' => 'tests/Feature/ActorCrudTest.php',
         'Alternative description views' => 'tests/Feature/ModsEditTest.php',
+        'EAC-CPF export' => 'packages/ahg-metadata-export/tests/EacCpf2SerializerTest.php',
         'EAD import and export' => 'packages/ahg-metadata-export/tests/EadXmlImporterTest.php',
         'Accessions and donors' => 'packages/ahg-accession-manage/tests/Feature/CaaisProfileTest.php',
         'Storage locations' => 'packages/ahg-storage-manage/tests/Feature/StorageLocationTest.php',
@@ -183,6 +184,7 @@ class CapabilityMatrix
         'Archaeology' => 'tests/Feature/ArchaeologyMatrixTest.php',
         'Indigenous cultural and intellectual property' => 'packages/ahg-icip/tests/Feature/LocalContextsHubServiceTest.php',
         'MARC21' => 'packages/ahg-library/tests/Unit/Marc21DecoderServiceTest.php',
+        'Public catalogue (OPAC)' => 'packages/ahg-library/tests/Feature/OpacPublicCatalogueTest.php',
         'Circulation' => 'packages/ahg-library/tests/Feature/CirculationDeskTest.php',
         'Patron accounts' => 'packages/ahg-library/tests/Unit/LibraryPatronServiceTest.php',
         'Acquisitions' => 'tests/Feature/Api/LibraryAcquisitionsApiTest.php',

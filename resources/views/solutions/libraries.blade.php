@@ -1,5 +1,6 @@
 @php
   $demoLinks = [
+    ['Public catalogue (OPAC)', route('library.opac')],
     ['Library collection', url('/library/browse')],
     ['BIBFRAME', url('/bibframe')],
     ['Work clustering', url('/frbr')],
