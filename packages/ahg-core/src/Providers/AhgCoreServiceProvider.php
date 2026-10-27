@@ -226,6 +226,7 @@ class AhgCoreServiceProvider extends ServiceProvider
                 \AhgCore\Commands\TranslationCoverageCommand::class,
                 \AhgCore\Commands\TranslationLintCommand::class,
                 \AhgCore\Commands\TermObjectCollisionsCommand::class, // heratio#1556
+                \AhgCore\Commands\SeedDuplicatesCommand::class, // heratio#1556 clean-up
                 \AhgCore\Commands\TranslationMtBatchCommand::class,
                 \AhgCore\Commands\TranslationLlmFillCommand::class, // heratio#1510
                 \AhgCore\Commands\TranslationReviewImportCommand::class, // heratio#1445
