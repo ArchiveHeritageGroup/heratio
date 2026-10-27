@@ -42,6 +42,7 @@ declare(strict_types=1);
 
 namespace AhgApi\Services;
 
+use AhgMetadataExtraction\Xmp\XmpJsonLd;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -154,6 +155,35 @@ class EmbeddedMetadataService
             'iptc' => $iptc,
             'xmp' => $xmp,
         ]);
+    }
+
+    /**
+     * The file's XMP as JSON-LD (heratio#1557), for Accept: application/ld+json.
+     * Read from the file's own XMP packet, so namespaces, array kinds, language
+     * alternatives, structures and qualifiers survive.
+     *
+     * Returns the document, [] when the file has no XMP, or null when ODRL
+     * gates the response. GPS is withheld while a GPS finding is open.
+     */
+    public function xmpJsonLdForDigitalObject(int $digitalObjectId, ?int $researcherId = null): ?array
+    {
+        $do = DB::table('digital_object')->where('id', $digitalObjectId)->first(['id', 'object_id', 'path', 'name']);
+        if (! $do) {
+            return [];
+        }
+        if (! $this->odrlPermits((int) $do->object_id, $researcherId)) {
+            return null;
+        }
+        $base = rtrim((string) config('heratio.uploads_path'), '/');
+        // Same path resolution as FaceDetectionService::resolveOnDiskPath().
+        $rel = ltrim((string) preg_replace('#^/uploads/#', '', (string) $do->path), '/');
+        $packet = $base === '' ? null : XmpJsonLd::packetFromFile($base.'/'.$rel.$do->name);
+        $doc = $packet === null ? null : XmpJsonLd::fromRdfXml($packet, 'urn:heratio:digital-object:'.$digitalObjectId);
+        if ($doc === null) {
+            return [];
+        }
+
+        return $this->hasPendingGps($digitalObjectId) ? (XmpJsonLd::stripGps($doc) ?? []) : $doc;
     }
 
     /**
@@ -392,32 +422,32 @@ class EmbeddedMetadataService
      */
     private function applyPiiRedaction(int $digitalObjectId, array $block): array
     {
+        return $this->hasPendingGps($digitalObjectId) ? $this->redactGpsKeys($block) : $block;
+    }
+
+    /**
+     * Is a GPS finding open for this file? Fails open with a logged warning:
+     * a missing or broken privacy schema must not break the read API.
+     */
+    private function hasPendingGps(int $digitalObjectId): bool
+    {
         try {
             if (! $this->hasTable('ahg_pii_finding_embedded')) {
                 Log::warning('[ahg-api] embedded-metadata PII gate: ahg_pii_finding_embedded missing - proceeding without redaction (issue #751 not yet shipped)');
 
-                return $block;
+                return false;
             }
 
-            $hasPendingGps = DB::table('ahg_pii_finding_embedded')
+            return DB::table('ahg_pii_finding_embedded')
                 ->where('digital_object_id', $digitalObjectId)
                 ->where('pii_type', 'gps_coordinate')
                 ->whereIn('resolution_status', ['pending', 'escalated'])
                 ->exists();
-
-            if (! $hasPendingGps) {
-                return $block;
-            }
         } catch (\Throwable $e) {
-            // Fail open with a logged warning. A PII gate failure must not
-            // break the read API: the alternative (500) is worse for the
-            // operator than degrading to "no extra redaction this call".
             Log::warning('[ahg-api] embedded-metadata PII gate probe failed: ' . $e->getMessage());
 
-            return $block;
+            return false;
         }
-
-        return $this->redactGpsKeys($block);
     }
 
     /**

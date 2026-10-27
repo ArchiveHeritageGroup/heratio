@@ -42,7 +42,7 @@ use DateTimeInterface;
 final class EmbeddedMetadataExtension
 {
     public const NAME    = 'ahg-embedded-metadata';
-    public const VERSION = '0.1';
+    public const VERSION = '0.2'; // 0.2: xmp_jsonld (heratio#1557)
 
     /**
      * Build a deterministic, sortable extension array from raw data.
@@ -64,8 +64,9 @@ final class EmbeddedMetadataExtension
         $exif = self::cleanBlock($raw['exif'] ?? []);
         $iptc = self::cleanBlock($raw['iptc'] ?? []);
         $xmp  = self::cleanBlock($raw['xmp']  ?? []);
+        $xmpJsonLd = self::xmpJsonLd($raw['xmp_packets'] ?? []);
 
-        if ($exif === null && $iptc === null && $xmp === null) {
+        if ($exif === null && $iptc === null && $xmp === null && $xmpJsonLd === null) {
             return null;
         }
 
@@ -79,6 +80,9 @@ final class EmbeddedMetadataExtension
         if ($xmp !== null) {
             $out['xmp'] = $xmp;
         }
+        if ($xmpJsonLd !== null) {
+            $out['xmp_jsonld'] = $xmpJsonLd;
+        }
 
         $out['captured_at'] = ($capturedAt ?? new DateTimeImmutable('now'))
             ->format(DateTimeInterface::RFC3339);
@@ -87,6 +91,26 @@ final class EmbeddedMetadataExtension
 
         ksort($out, SORT_STRING);
         return $out;
+    }
+
+    /**
+     * The XMP packets of the object's files as JSON-LD (heratio#1557), one
+     * document per file, combined into an @graph when there are several. The
+     * flat `xmp` block stays beside it for existing readers.
+     *
+     * @param  array<int,string>  $packets  digital object id => RDF/XML packet
+     */
+    private static function xmpJsonLd(mixed $packets): ?array
+    {
+        if (! is_array($packets) || $packets === [] || ! class_exists(\AhgMetadataExtraction\Xmp\XmpJsonLd::class)) {
+            return null;
+        }
+        $docs = [];
+        foreach ($packets as $doId => $packet) {
+            $docs[] = \AhgMetadataExtraction\Xmp\XmpJsonLd::fromRdfXml((string) $packet, 'urn:heratio:digital-object:'.$doId);
+        }
+
+        return \AhgMetadataExtraction\Xmp\XmpJsonLd::combine($docs);
     }
 
     /**

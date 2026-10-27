@@ -65,6 +65,12 @@ final class DbEmbeddedMetadataSource implements EmbeddedMetadataSource
                 }
             }
 
+            // heratio#1557: the XMP packet itself, for the JSON-LD block.
+            $packets = $this->xmpPackets($ioId);
+            if ($packets !== []) {
+                $byBlock['xmp_packets'] = $packets;
+            }
+
             return array_filter($byBlock, fn ($b) => is_array($b) && $b !== []);
         } catch (\Throwable $e) {
             // Never break OCFL ingest because of metadata-side issues.
@@ -107,6 +113,34 @@ final class DbEmbeddedMetadataSource implements EmbeddedMetadataSource
      *
      * @return array{exif?: array<string,mixed>, iptc?: array<string,mixed>, xmp?: array<string,mixed>}
      */
+    /**
+     * The RDF/XML XMP packet of each master file, keyed by digital object id.
+     * Read from the file because the property table holds only exiftool's
+     * flattened tags.
+     *
+     * @return array<int,string>
+     */
+    private function xmpPackets(int $ioId): array
+    {
+        $base = rtrim((string) config('heratio.uploads_path'), '/');
+        if ($base === '') {
+            return [];
+        }
+        $out = [];
+        $dos = DB::table('digital_object')->where('object_id', $ioId)->whereNull('parent_id')
+            ->orderBy('id')->get(['id', 'path', 'name']);
+        foreach ($dos as $do) {
+            // Same path resolution as FaceDetectionService::resolveOnDiskPath().
+            $rel = ltrim((string) preg_replace('#^/uploads/#', '', (string) $do->path), '/');
+            $packet = \AhgMetadataExtraction\Xmp\XmpJsonLd::packetFromFile($base.'/'.$rel.$do->name);
+            if ($packet !== null) {
+                $out[(int) $do->id] = $packet;
+            }
+        }
+
+        return $out;
+    }
+
     private function fromPropertyTable(int $ioId): array
     {
         // Pull DOs attached to this IO, then their metadata_extraction

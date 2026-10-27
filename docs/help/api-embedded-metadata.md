@@ -79,6 +79,37 @@ v1 anonymous (the hyphenated alias works on every path):
 curl "https://heratio.example.org/api/v1/digital-object/12345?include=embedded_metadata"
 ```
 
+## XMP as JSON-LD
+
+The `xmp` block above is flat: it loses the namespaces, whether a list is ordered, the languages of a title, and any structure. To get the file's XMP whole, ask the standalone endpoint for JSON-LD:
+
+```bash
+curl -H "Authorization: Bearer ahg_live_XXX" -H "Accept: application/ld+json" \
+  "https://heratio.example.org/api/v2/digital-object/12345/embedded-metadata"
+```
+
+The response is the XMP packet read from the file itself, as a JSON-LD document about `urn:heratio:digital-object:12345`:
+
+```json
+{
+  "@context": {"dc": "http://purl.org/dc/elements/1.1/", "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#"},
+  "@id": "urn:heratio:digital-object:12345",
+  "dc:creator": {"@list": ["Aslam Levy"]},
+  "dc:subject": {"@set": ["monument", "heritage", "granite"]},
+  "dc:title": {
+    "@type": "rdf:Alt",
+    "rdf:_1": {"@value": "Voortrekker Monument", "@language": "x-default"},
+    "rdf:_2": {"@value": "Voortrekkermonument", "@language": "af"}
+  }
+}
+```
+
+Ordered lists (`rdf:Seq`) come as `@list`, unordered ones (`rdf:Bag`) as `@set`, and alternatives (`rdf:Alt`, including the languages of a title) as a typed node whose items keep their order. Structures are nested objects; a qualified value carries `rdf:value`. The document expands in any JSON-LD processor, and converts back to the same XMP.
+
+Without the `Accept` header the endpoint answers exactly as before. A file with no XMP returns `404`. While a GPS finding is open, GPS properties are left out of the document altogether, at any depth.
+
+Preservation packages carry the same document: every new OCFL version writes it to `inventory.json` as `xmp_jsonld` in the `ahg-embedded-metadata` extension, next to the flat `xmp` block.
+
 ## Rights protection (ODRL)
 
 When the parent archival description has an active ODRL `odrl:use` prohibition for the calling user / API key, the block is suppressed:

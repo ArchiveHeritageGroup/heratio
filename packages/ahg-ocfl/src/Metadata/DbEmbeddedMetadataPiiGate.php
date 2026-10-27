@@ -91,27 +91,47 @@ final class DbEmbeddedMetadataPiiGate implements EmbeddedMetadataPiiGate
      */
     public static function stripGpsFromBlock(array $block): ?array
     {
-        if (! isset($block['exif']) || ! is_array($block['exif'])) {
-            return $block;
-        }
-        $exif = $block['exif'];
-        foreach (array_keys($exif) as $k) {
-            $lc = strtolower((string) $k);
-            foreach (self::GPS_PREFIXES as $prefix) {
-                if (str_starts_with($lc, $prefix)) {
-                    unset($exif[$k]);
-                    break;
+        if (isset($block['exif']) && is_array($block['exif'])) {
+            $exif = $block['exif'];
+            foreach (array_keys($exif) as $k) {
+                $lc = strtolower((string) $k);
+                foreach (self::GPS_PREFIXES as $prefix) {
+                    if (str_starts_with($lc, $prefix)) {
+                        unset($exif[$k]);
+                        break;
+                    }
                 }
             }
+            if ($exif === []) {
+                unset($block['exif']);
+            } else {
+                $block['exif'] = $exif;
+            }
         }
-        if ($exif === []) {
-            unset($block['exif']);
-        } else {
-            $block['exif'] = $exif;
+
+        // XMP carries GPS too (exif:GPSLatitude ...): the flat block, and the
+        // JSON-LD block at any depth (heratio#1557).
+        if (isset($block['xmp']) && is_array($block['xmp'])) {
+            foreach (array_keys($block['xmp']) as $k) {
+                $local = ($p = strrpos((string) $k, ':')) !== false ? substr((string) $k, $p + 1) : (string) $k;
+                if (stripos($local, 'gps') === 0) {
+                    unset($block['xmp'][$k]);
+                }
+            }
+            if ($block['xmp'] === []) {
+                unset($block['xmp']);
+            }
         }
-        // If we redacted ALL three sub-blocks the caller will drop the
+        if (isset($block['xmp_jsonld'])) {
+            $block['xmp_jsonld'] = \AhgMetadataExtraction\Xmp\XmpJsonLd::stripGps($block['xmp_jsonld']);
+            if ($block['xmp_jsonld'] === null) {
+                unset($block['xmp_jsonld']);
+            }
+        }
+
+        // If we redacted every sub-block the caller will drop the
         // extension; signal by returning null.
-        $hasAny = isset($block['exif']) || isset($block['iptc']) || isset($block['xmp']);
+        $hasAny = isset($block['exif']) || isset($block['iptc']) || isset($block['xmp']) || isset($block['xmp_jsonld']);
         return $hasAny ? $block : null;
     }
 

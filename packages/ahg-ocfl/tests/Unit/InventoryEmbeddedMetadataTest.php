@@ -342,4 +342,55 @@ final class InventoryEmbeddedMetadataTest extends TestCase
         $this->assertSame($inv1->toJson(), $inv2->toJson(),
             'Applying the same block twice must yield byte-identical inventory JSON.');
     }
+
+    private const XMP_PACKET = <<<'XML'
+<x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+ <rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:exif="http://ns.adobe.com/exif/1.0/"
+   xmlns:Iptc4xmpExt="http://iptc.org/std/Iptc4xmpExt/2008-02-29/" exif:GPSLatitude="33,55.2S">
+  <dc:title><rdf:Alt><rdf:li xml:lang="x-default">Wild mushroom</rdf:li><rdf:li xml:lang="af">Wilde sampioen</rdf:li></rdf:Alt></dc:title>
+  <dc:creator><rdf:Seq><rdf:li>First</rdf:li><rdf:li>Second</rdf:li></rdf:Seq></dc:creator>
+  <Iptc4xmpExt:LocationShown><rdf:Bag><rdf:li Iptc4xmpExt:City="Cape Town" exif:GPSLongitude="18,25.4E"/></rdf:Bag></Iptc4xmpExt:LocationShown>
+ </rdf:Description>
+</rdf:RDF></x:xmpmeta>
+XML;
+
+    /** heratio#1557: the packet is kept as JSON-LD next to the flat xmp block. */
+    public function test_xmp_packets_become_a_json_ld_block_that_survives_the_inventory(): void
+    {
+        $block = EmbeddedMetadataExtension::build(
+            ['xmp' => ['dc:title' => 'Wild mushroom'], 'xmp_packets' => [77 => self::XMP_PACKET, 78 => self::XMP_PACKET]],
+            capturedAt: new \DateTimeImmutable('2026-10-27T08:00:00+02:00'),
+        );
+
+        $this->assertSame('Wild mushroom', $block['xmp']['dc:title'], 'the flat block stays for existing readers');
+        $this->assertSame('ahg-metadata-extraction@0.2', $block['extractor_version']);
+        $ld = $block['xmp_jsonld'];
+        $this->assertSame('urn:heratio:digital-object:77', $ld['@graph'][0]['@id'], 'each file is its own node');
+        $this->assertSame('urn:heratio:digital-object:78', $ld['@graph'][1]['@id']);
+        $this->assertSame(['@value' => 'Wilde sampioen', '@language' => 'af'], $ld['@graph'][0]['dc:title']['rdf:_2']);
+        $this->assertSame(['First', 'Second'], $ld['@graph'][0]['dc:creator']['@list']);
+
+        $v1 = new Version(created: '2026-10-27T08:00:00+02:00', state: ['aaa...' => ['photo.jpg']], message: 'initial', userName: 'tester');
+        $inv = Inventory::initial(id: 'urn:heratio:io:42', v1: $v1, manifest: ['aaa...' => ['v1/content/photo.jpg']])
+            ->withExtension(EmbeddedMetadataExtension::NAME, $block);
+        $json = $inv->toJson();
+        $this->assertSame($json, Inventory::fromJson($json)->toJson(), 'byte-stable with the JSON-LD block');
+        $this->assertSame(['First', 'Second'],
+            json_decode($json, true)['extensions']['ahg-embedded-metadata']['xmp_jsonld']['@graph'][0]['dc:creator']['@list'], 'list order survives');
+    }
+
+    /** The gate reaches GPS in both XMP blocks, even with no EXIF block at all. */
+    public function test_pii_gate_strips_gps_from_both_xmp_blocks(): void
+    {
+        $block = EmbeddedMetadataExtension::build([
+            'xmp' => ['exif:GPSLatitude' => '33,55.2S', 'dc:title' => 'Wild mushroom'],
+            'xmp_packets' => [77 => self::XMP_PACKET],
+        ]);
+        $out = DbEmbeddedMetadataPiiGate::stripGpsFromBlock($block);
+
+        $this->assertSame(['dc:title' => 'Wild mushroom'], $out['xmp']);
+        $this->assertArrayNotHasKey('exif:GPSLatitude', $out['xmp_jsonld']);
+        $this->assertArrayNotHasKey('exif:GPSLongitude', $out['xmp_jsonld']['Iptc4xmpExt:LocationShown']['@set'][0], 'GPS inside a structure');
+        $this->assertSame('Cape Town', $out['xmp_jsonld']['Iptc4xmpExt:LocationShown']['@set'][0]['Iptc4xmpExt:City']);
+    }
 }

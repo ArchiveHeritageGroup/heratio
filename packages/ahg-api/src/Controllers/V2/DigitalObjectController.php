@@ -64,6 +64,19 @@ class DigitalObjectController extends BaseApiController
             return $this->error('Not Found', "Digital object #{$id} not found.", 404);
         }
 
+        // heratio#1557: the file's XMP as JSON-LD, on request.
+        if (str_contains(strtolower((string) $request->header('Accept')), \AhgMetadataExtraction\Xmp\XmpJsonLd::MEDIA_TYPE)) {
+            $doc = $this->embedded->xmpJsonLdForDigitalObject((int) $do->id, $this->apiUserId($request));
+            if ($doc === null) {
+                return $this->error('Forbidden', 'Embedded metadata access denied by ODRL policy.', 403);
+            }
+            if ($doc === []) {
+                return $this->error('Not Found', "Digital object #{$id} has no XMP.", 404);
+            }
+
+            return response()->json($doc, 200, ['Content-Type' => \AhgMetadataExtraction\Xmp\XmpJsonLd::MEDIA_TYPE], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        }
+
         $block = $this->embedded->forDigitalObject((int) $do->id, $this->apiUserId($request));
 
         if ($block === null) {
