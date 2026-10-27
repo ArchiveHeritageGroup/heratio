@@ -142,6 +142,16 @@ class DescriptionController extends BaseApiController
             $data['provenance'] = $this->getProvenance($io->id, $this->isStaff($request));
         }
 
+        // Rights and Local Contexts labels in force, on every read (MCP v0.9,
+        // same block as PSIS). If they cannot be read, say so: a client must
+        // not take "unavailable" for "none apply".
+        try {
+            $data['rights'] = app(\AhgApi\Services\RightsBlockService::class)->forObject((int) $io->id, $this->isStaff($request));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('api.rights_failed: '.$e->getMessage());
+            $data['rights'] = \AhgApi\Services\RightsBlockService::UNAVAILABLE;
+        }
+
         // Issue #747 - opt-in embedded EXIF/IPTC/XMP block. Default OFF to
         // keep the description response lean for typical browse traffic.
         if ($this->wantsEmbeddedMetadata($request)) {
