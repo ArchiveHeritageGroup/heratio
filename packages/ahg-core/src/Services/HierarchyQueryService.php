@@ -159,6 +159,16 @@ class HierarchyQueryService
     }
 
     /**
+     * Is $nodeId $ancestorId itself or inside its subtree? The guard for a move
+     * that would put a record under its own descendant (heratio#1541): the
+     * lft/rgt test it replaces was skipped whenever either side had no bounds.
+     */
+    public function isWithin(string $entity, int $nodeId, int $ancestorId): bool
+    {
+        return $nodeId === $ancestorId || in_array($ancestorId, $this->ancestorIds($entity, $nodeId), true);
+    }
+
+    /**
      * Constrain a query to the descendants of $ancestorId via a closure
      * subquery (scales), with an lft/rgt fallback. $keyColumn is the column on
      * the query that holds the entity id (e.g. 'information_object.id').

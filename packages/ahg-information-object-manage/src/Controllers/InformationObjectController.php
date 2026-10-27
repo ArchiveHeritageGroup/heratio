@@ -1012,32 +1012,6 @@ class InformationObjectController extends Controller
             // provenance_entry table may not exist in all installs
         }
 
-        // Previous sibling (only if lft is set - records without nested set values have no siblings)
-        $prevSibling = null;
-        $nextSibling = null;
-        if ($io->lft !== null) {
-            $prevSibling = DB::table('information_object')
-                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
-                ->join('slug', 'information_object.id', '=', 'slug.object_id')
-                ->where('information_object.parent_id', $io->parent_id)
-                ->where('information_object.lft', '<', $io->lft)
-                ->where('information_object_i18n.culture', $culture)
-                ->orderBy('information_object.lft', 'desc')
-                ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
-                ->first();
-
-            // Next sibling
-            $nextSibling = DB::table('information_object')
-                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
-                ->join('slug', 'information_object.id', '=', 'slug.object_id')
-                ->where('information_object.parent_id', $io->parent_id)
-                ->where('information_object.lft', '>', $io->lft)
-                ->where('information_object_i18n.culture', $culture)
-                ->orderBy('information_object.lft', 'asc')
-                ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
-                ->first();
-        }
-
         // Display standard name (for Administration area)
         $displayStandardName = null;
         if ($io->display_standard_id) {
@@ -1248,8 +1222,6 @@ class InformationObjectController extends Controller
             'scriptsOfDescription' => $scriptsOfDescription,
             'materialLanguages' => $materialLanguages,
             'materialScripts' => $materialScripts,
-            'prevSibling' => $prevSibling,
-            'nextSibling' => $nextSibling,
             'findingAid' => $findingAid,
             'relatedMaterialDescriptions' => $relatedMaterialDescriptions,
             'museumMetadata' => $museumMetadata,
@@ -1257,7 +1229,7 @@ class InformationObjectController extends Controller
             'visualRedactions' => $visualRedactions,
             'canBypassRedaction' => $canBypassRedaction,
             'collectionRootId' => $collectionRootId,
-            'hasChildren' => ($io->rgt - $io->lft) > 1,
+            'hasChildren' => DB::table('information_object')->where('parent_id', $io->id)->exists(),
             'displayStandardName' => $displayStandardName,
             'sourceLanguageName' => $sourceLanguageName,
             'keymapEntries' => $keymapEntries,
@@ -1300,10 +1272,10 @@ class InformationObjectController extends Controller
 
         // Optionally update all descendants
         if ($updateDescendants) {
-            DB::table('information_object')
-                ->where('lft', '>', $io->lft)
-                ->where('rgt', '<', $io->rgt)
-                ->update(['display_standard_id' => $displayStandardId ?: null]);
+            foreach (array_chunk(app(\AhgCore\Services\HierarchyQueryService::class)->descendantIds('information_object', (int) $io->id), 1000) as $chunk) {
+                DB::table('information_object')->whereIn('id', $chunk)
+                    ->update(['display_standard_id' => $displayStandardId ?: null]);
+            }
         }
 
         \AhgCore\Support\AuditLog::captureMutation((int) $io->id, 'information_object', 'display_standard_change', [
@@ -2891,7 +2863,7 @@ class InformationObjectController extends Controller
         // ---- Security panel (ahg_io_security sidecar) ----
         // Form posts the full set whenever the panel renders, so we always have
         // an authoritative snapshot. Upsert and (optionally) propagate to all
-        // descendants in this IO's lft/rgt subtree.
+        // descendants in this IO's subtree.
         $secKeys = [
             'security_classification_id',
             'security_reason',
@@ -2922,44 +2894,37 @@ class InformationObjectController extends Controller
                 $secPayload + ['created_at' => now()]
             );
 
-            // Propagate to descendants when explicitly requested. Uses the IO's
-            // lft/rgt subtree (not parent_id) so nested-set descendants in any
-            // hierarchy depth are covered.
+            // Propagate to descendants when explicitly requested, at any depth.
+            // heratio#1541: through the closure tables; the lft/rgt range
+            // left every descendant without bounds unclassified.
             if ($request->boolean('updateDescendants')) {
-                $node = DB::table('information_object')->where('id', $ioId)->select('lft', 'rgt')->first();
-                if ($node && $node->lft !== null && $node->rgt !== null) {
-                    $descendantIds = DB::table('information_object')
-                        ->where('id', '!=', $ioId)
-                        ->where('lft', '>', $node->lft)
-                        ->where('rgt', '<', $node->rgt)
-                        ->pluck('id')->all();
+                $descendantIds = app(\AhgCore\Services\HierarchyQueryService::class)->descendantIds('information_object', (int) $ioId);
 
-                    foreach (array_chunk($descendantIds, 500) as $chunk) {
-                        // Upsert one row per descendant. Same payload but inherit
-                        // is forced ON, so any further descendants down the line
-                        // pick up this value too.
-                        $rows = array_map(fn ($id) => [
-                            'object_id'                      => (int) $id,
-                            'security_classification_id'     => $secPayload['security_classification_id'],
-                            'security_reason'                => $secPayload['security_reason'],
-                            'security_review_date'           => $secPayload['security_review_date'],
-                            'security_declassify_date'       => $secPayload['security_declassify_date'],
-                            'security_handling_instructions' => $secPayload['security_handling_instructions'],
-                            'security_inherit_to_children'   => 1,
-                            'update_descendants_default'     => $secPayload['update_descendants_default'],
-                            'created_at'                     => now(),
-                            'updated_at'                     => now(),
-                        ], $chunk);
+                foreach (array_chunk($descendantIds, 500) as $chunk) {
+                    // Upsert one row per descendant. Same payload but inherit
+                    // is forced ON, so any further descendants down the line
+                    // pick up this value too.
+                    $rows = array_map(fn ($id) => [
+                        'object_id'                      => (int) $id,
+                        'security_classification_id'     => $secPayload['security_classification_id'],
+                        'security_reason'                => $secPayload['security_reason'],
+                        'security_review_date'           => $secPayload['security_review_date'],
+                        'security_declassify_date'       => $secPayload['security_declassify_date'],
+                        'security_handling_instructions' => $secPayload['security_handling_instructions'],
+                        'security_inherit_to_children'   => 1,
+                        'update_descendants_default'     => $secPayload['update_descendants_default'],
+                        'created_at'                     => now(),
+                        'updated_at'                     => now(),
+                    ], $chunk);
 
-                        // upsert lets MySQL handle existing rows
-                        DB::table('ahg_io_security')->upsert(
-                            $rows,
-                            ['object_id'],
-                            ['security_classification_id', 'security_reason', 'security_review_date',
-                             'security_declassify_date', 'security_handling_instructions',
-                             'security_inherit_to_children', 'update_descendants_default', 'updated_at']
-                        );
-                    }
+                    // upsert lets MySQL handle existing rows
+                    DB::table('ahg_io_security')->upsert(
+                        $rows,
+                        ['object_id'],
+                        ['security_classification_id', 'security_reason', 'security_review_date',
+                         'security_declassify_date', 'security_handling_instructions',
+                         'security_inherit_to_children', 'update_descendants_default', 'updated_at']
+                    );
                 }
             }
         }
@@ -3925,10 +3890,9 @@ class InformationObjectController extends Controller
 
         // Update descendants if requested
         if ($request->boolean('updateDescendants')) {
-            $descendantIds = DB::table('information_object')
-                ->where('lft', '>', $io->lft)
-                ->where('rgt', '<', $io->rgt)
-                ->pluck('id');
+            // heratio#1541: closure tables, so a child without lft/rgt is not
+            // left published when its parent is withdrawn.
+            $descendantIds = app(\AhgCore\Services\HierarchyQueryService::class)->descendantIds('information_object', (int) $io->id);
 
             $updatedCount = 0;
             foreach ($descendantIds as $descId) {
@@ -4445,8 +4409,8 @@ class InformationObjectController extends Controller
         $query = DB::table('information_object')
             ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
-            ->where('information_object.lft', '>', $io->lft)
-            ->where('information_object.rgt', '<', $io->rgt)
+            ->tap(fn ($q) => app(\AhgCore\Services\HierarchyQueryService::class)
+                ->scopeDescendants($q, 'information_object', (int) $io->id, 'information_object.id', false))
             ->where('information_object_i18n.culture', $culture);
 
         if (!empty($levelIds)) {
@@ -4568,11 +4532,7 @@ class InformationObjectController extends Controller
         $fingerprintBefore = \AhgInformationObjectManage\Services\InformationObjectService::contentFingerprint((int) $io->id);
 
         // Get all descendant IDs
-        $descendantIds = DB::table('information_object')
-            ->where('lft', '>', $io->lft)
-            ->where('rgt', '<', $io->rgt)
-            ->pluck('id')
-            ->toArray();
+        $descendantIds = app(\AhgCore\Services\HierarchyQueryService::class)->descendantIds('information_object', (int) $io->id);
 
         if (empty($descendantIds)) {
             return redirect()
@@ -4740,10 +4700,10 @@ class InformationObjectController extends Controller
 
         // Tag rows that would be invalid Move-here destinations (descendants
         // of the moving record) so the view can disable click-through.
+        $ancestors = app(\AhgCore\Services\HierarchyQueryService::class)
+            ->batchAncestorIds('information_object', $results->pluck('id')->map(fn ($v) => (int) $v)->all());
         foreach ($results as $r) {
-            $r->is_descendant_of_moving = ($io->lft !== null && $io->rgt !== null
-                && $r->lft !== null && $r->rgt !== null
-                && $r->lft >= $io->lft && $r->rgt <= $io->rgt);
+            $r->is_descendant_of_moving = in_array((int) $io->id, $ancestors[(int) $r->id] ?? [], true);
         }
 
         return view('ahg-io-manage::move', [
@@ -4800,10 +4760,8 @@ class InformationObjectController extends Controller
             return back()->withErrors(['parent' => 'New parent not found.']);
         }
 
-        // Descendant guard via lft/rgt - covers any nesting depth.
-        if ($ioRow->lft !== null && $ioRow->rgt !== null
-            && $newParent->lft !== null && $newParent->rgt !== null
-            && $newParent->lft >= $ioRow->lft && $newParent->rgt <= $ioRow->rgt) {
+        // Descendant guard at any depth, bounds or not (heratio#1541).
+        if (app(\AhgCore\Services\HierarchyQueryService::class)->isWithin('information_object', (int) $newParentId, (int) $ioRow->id)) {
             return back()->withErrors(['parent' => 'Cannot move a record to one of its own descendants.']);
         }
         // Already there?

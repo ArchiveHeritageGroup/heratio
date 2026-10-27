@@ -85,6 +85,47 @@ class ClosureHierarchyReadsTest extends TestCase
         $this->assertContains('desc-'.$this->child.'-1901-02-03', array_column($items ?? [], 'id'));
     }
 
+    /** heratio#1541 batch 3: the treeview finds a bound-less child's parent and flags the parent as having children. */
+    public function test_the_treeview_shows_the_parent_of_a_child_without_bounds(): void
+    {
+        $tree = new \AhgInformationObjectManage\Services\TreeviewService('en');
+
+        $this->assertContains($this->parent, array_column($tree->getAncestors($this->child), 'id'));
+        $this->assertTrue($tree->getTreeViewData($this->parent)['current']['hasChildren']);
+    }
+
+    /** heratio#1541 batch 3: moveUnder refuses a target inside the moved subtree, for every caller. */
+    public function test_a_record_cannot_be_moved_under_its_own_child(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        Io::moveUnder($this->parent, $this->child);
+    }
+
+    /** heratio#1541 batch 3: withdrawing a parent with its descendants also withdraws a child without bounds. */
+    public function test_withdrawing_a_parent_withdraws_a_child_without_bounds(): void
+    {
+        \AhgCore\Support\StatusRow::set($this->parent, 158, 160);
+        \AhgCore\Support\StatusRow::set($this->child, 158, 160);
+        $slug = DB::table('slug')->where('object_id', $this->parent)->value('slug');
+
+        $this->actingAs($this->admin())
+            ->post(route('io.updateStatus', $slug), ['publicationStatus' => 159, 'updateDescendants' => 1])
+            ->assertRedirect();
+
+        $this->assertSame(159, (int) DB::table('status')->where('object_id', $this->child)->where('type_id', 158)->value('status_id'));
+    }
+
+    private function admin(): \AhgCore\Models\User
+    {
+        $id = (int) DB::table('object')->insertGetId(['class_name' => 'QubitUser', 'created_at' => now(), 'updated_at' => now()]);
+        DB::table('actor')->insert(['id' => $id, 'source_culture' => 'en']);
+        DB::table('user')->insert(['id' => $id, 'username' => 'closure-'.$id, 'email' => uniqid('closure-', true).'@example.test', 'password_hash' => \Illuminate\Support\Facades\Hash::make('x'), 'active' => 1]);
+        DB::table('acl_user_group')->insert(['user_id' => $id, 'group_id' => 100]);
+        \Illuminate\Support\Facades\Cache::forget("acl_groups_{$id}");
+
+        return \AhgCore\Models\User::findOrFail($id);
+    }
+
     /** heratio#1541 batch 2: a file-plan node cannot be moved under its own child, bounds or not. */
     public function test_a_file_plan_node_cannot_be_moved_into_its_own_subtree(): void
     {

@@ -34,8 +34,11 @@ use Illuminate\Support\Facades\DB;
  *
  * Migrated from /usr/share/nginx/archive/atom-ahg-plugins/ahgInformationObjectManagePlugin/lib/Services/TreeviewService.php
  *
- * Uses nested set (lft/rgt) on the information_object table to provide
- * hierarchical navigation data for the sidebar treeview.
+ * Hierarchical navigation data for the sidebar treeview. Ancestors come from
+ * the closure table and sibling order from ahg_node_sibling_order, both
+ * through HierarchyQueryService (heratio#1541): records without nested-set
+ * bounds used to vanish from breadcrumbs, sibling navigation and the
+ * has-children flag. moveAfter() still writes lft/rgt (dual-write).
  */
 class TreeviewService
 {
@@ -70,7 +73,7 @@ class TreeviewService
             ->select(
                 'io.id', 'io.identifier', 'io.lft', 'io.rgt',
                 'io.parent_id', 'io.level_of_description_id',
-                'ioi.title', 's.slug'
+                'ioi.title', 's.slug', self::hasChildrenColumn()
             )
             ->first();
 
@@ -150,7 +153,7 @@ class TreeviewService
             ->select(
                 'io.id', 'io.identifier', 'io.lft', 'io.rgt',
                 'io.parent_id', 'io.level_of_description_id',
-                'ioi.title', 's.slug'
+                'ioi.title', 's.slug', self::hasChildrenColumn()
             );
 
         // Publication status filtering for unauthenticated users
@@ -188,7 +191,7 @@ class TreeviewService
             case 'manual':
             case 'lft':
             default:
-                $query->orderBy('io.lft');
+                $this->hierarchy()->applySiblingOrder($query, 'information_object', 'io.id', 'io.lft');
         }
 
         // Get total count for hasMore
@@ -220,46 +223,39 @@ class TreeviewService
      */
     public function getAncestors(int $id): array
     {
-        $node = DB::table('information_object')
-            ->where('id', $id)
-            ->select('lft', 'rgt')
-            ->first();
-
-        // No node, or a node without MPTT positioning (lft/rgt null - e.g. an
-        // IO created mid-import before the nested set is rebuilt) has no
-        // computable ancestors. Bail out rather than feeding null into a
-        // `<`/`>` comparison, which throws "Illegal operator and value
-        // combination" in the query builder.
-        if (!$node || $node->lft === null || $node->rgt === null) {
+        $ids = array_values(array_filter(
+            $this->hierarchy()->ancestorIds('information_object', $id),
+            fn ($a) => $a !== self::ROOT_ID
+        ));
+        if (! $ids) {
             return [];
         }
 
-        $query = DB::table('information_object as io')
+        $rows = DB::table('information_object as io')
             ->leftJoin('information_object_i18n as ioi', function ($j) {
                 $j->on('io.id', '=', 'ioi.id')
                     ->where('ioi.culture', '=', $this->culture);
             })
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
-            ->where('io.lft', '<', $node->lft)
-            ->where('io.rgt', '>', $node->rgt)
-            ->where('io.id', '!=', self::ROOT_ID)
+            ->whereIn('io.id', $ids)
             ->select(
                 'io.id', 'io.identifier', 'io.lft', 'io.rgt',
                 'io.parent_id', 'io.level_of_description_id',
-                'ioi.title', 's.slug'
+                'ioi.title', 's.slug', self::hasChildrenColumn()
             )
-            ->orderBy('io.lft');
+            ->get()
+            ->keyBy('id');
 
-        return $query->get()->map(function ($row) {
-            return $this->formatNode($row);
-        })->all();
+        // ancestorIds() is root-most first; keep that order.
+        return array_values(array_map(fn ($a) => $this->formatNode($rows[$a]), array_filter($ids, fn ($a) => isset($rows[$a]))));
     }
 
     /**
      * Get previous or next siblings of a node.
      *
-     * For 'next': lft > current.rgt AND parent_id = current.parent_id, ordered by lft ASC.
-     * For 'prev': rgt < current.lft AND parent_id = current.parent_id, ordered by lft DESC.
+     * Siblings share the parent and sort by sibling order (lft where a node has
+     * no sibling-order row); 'next' are those after the current node, 'prev'
+     * those before it.
      *
      * @return array ['items' => [...], 'hasMore' => bool]
      */
@@ -271,11 +267,11 @@ class TreeviewService
             ->where('id', $id)
             ->select('id', 'parent_id', 'lft', 'rgt')
             ->first();
+        $position = $node ? $this->siblingPosition($node) : null;
 
-        // No node, the root, or a node without MPTT positioning (null lft/rgt):
-        // siblings are computed from lft/rgt, so guard against where('lft','>',null)
-        // which throws "illegal operator and value combination".
-        if (!$node || $node->parent_id == self::ROOT_ID || $node->lft === null || $node->rgt === null) {
+        // No node, the root, or a node with neither a sibling order nor lft:
+        // it has no position among its siblings.
+        if (!$node || $node->parent_id == self::ROOT_ID || $position === null) {
             return ['items' => [], 'hasMore' => false];
         }
 
@@ -290,7 +286,7 @@ class TreeviewService
             ->select(
                 'io.id', 'io.identifier', 'io.lft', 'io.rgt',
                 'io.parent_id', 'io.level_of_description_id',
-                'ioi.title', 's.slug'
+                'ioi.title', 's.slug', self::hasChildrenColumn()
             );
 
         // Publication status filtering for unauthenticated users
@@ -301,12 +297,20 @@ class TreeviewService
             })->where('st.status_id', 160);
         }
 
+        // Same key as applySiblingOrder(); ties (equal positions) break on id.
+        $key = 'io.lft';
+        if ($this->hasSiblingOrder()) {
+            $key = 'COALESCE(sib.sibling_order, io.lft)';
+            $query->leftJoin('ahg_node_sibling_order as sib', function ($j) {
+                $j->on('sib.node_id', '=', 'io.id')->where('sib.entity', '=', 'information_object');
+            });
+        }
         if ($direction === 'next') {
-            $query->where('io.lft', '>', $node->rgt)
-                ->orderBy('io.lft', 'asc');
+            $query->whereRaw("($key > ? OR ($key = ? AND io.id > ?))", [$position, $position, $node->id])
+                ->orderByRaw("$key asc")->orderBy('io.id', 'asc');
         } else {
-            $query->where('io.rgt', '<', $node->lft)
-                ->orderBy('io.lft', 'desc');
+            $query->whereRaw("($key < ? OR ($key = ? AND io.id < ?))", [$position, $position, $node->id])
+                ->orderByRaw("$key desc")->orderBy('io.id', 'desc');
         }
 
         // Get total count
@@ -424,12 +428,38 @@ class TreeviewService
         }
     }
 
+    private function hierarchy(): \AhgCore\Services\HierarchyQueryService
+    {
+        return app(\AhgCore\Services\HierarchyQueryService::class);
+    }
+
+    /** Whether io has any child; rgt - lft > 1 was false for children without bounds. */
+    private static function hasChildrenColumn(): \Illuminate\Contracts\Database\Query\Expression
+    {
+        return DB::raw('EXISTS (SELECT 1 FROM information_object tv_c WHERE tv_c.parent_id = io.id) AS has_children');
+    }
+
+    /** The node's sort key among its siblings: its sibling order, else its lft. */
+    private function siblingPosition(object $node): ?int
+    {
+        $order = $this->hasSiblingOrder() ? DB::table('ahg_node_sibling_order')
+            ->where('entity', 'information_object')->where('node_id', $node->id)
+            ->value('sibling_order') : null;
+
+        return $order ?? $node->lft;
+    }
+
+    private function hasSiblingOrder(): bool
+    {
+        return \Illuminate\Support\Facades\Schema::hasTable('ahg_node_sibling_order');
+    }
+
     /**
      * Format a database row into a treeview node array.
      */
     private function formatNode(object $row): array
     {
-        $hasChildren = ($row->rgt - $row->lft) > 1;
+        $hasChildren = (bool) $row->has_children;
 
         return [
             'id' => (int) $row->id,

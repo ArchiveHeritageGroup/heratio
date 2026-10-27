@@ -102,14 +102,9 @@ class InformationObjectBrowseService extends BrowseService
         // Collection filter: restrict to descendants of a specific top-level IO
         if (!empty($this->activeFilters['collection_id'])) {
             $collectionId = (int) $this->activeFilters['collection_id'];
-            $query->where(function ($q) use ($collectionId) {
-                // Include the collection itself or any descendant (using nested set lft/rgt)
-                $q->where('information_object.id', $collectionId)
-                  ->orWhere(function ($inner) use ($collectionId) {
-                      $inner->whereRaw('information_object.lft > (SELECT lft FROM information_object WHERE id = ?)', [$collectionId])
-                            ->whereRaw('information_object.rgt < (SELECT rgt FROM information_object WHERE id = ?)', [$collectionId]);
-                  });
-            });
+            // The collection itself and every descendant (heratio#1541: closure tables).
+            app(\AhgCore\Services\HierarchyQueryService::class)
+                ->scopeDescendants($query, 'information_object', $collectionId, 'information_object.id', true);
         }
 
         // Has digital object filter

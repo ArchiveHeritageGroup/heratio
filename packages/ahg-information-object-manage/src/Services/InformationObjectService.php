@@ -668,8 +668,8 @@ class InformationObjectService
      * another (heratio#1533). One implementation for the tree drag-and-drop,
      * the Move page and the dedupe merge: the nested set (signed-shift), the
      * closure tree and sibling order, an audit entry, then one ES ancestor
-     * delta for the subtree. Callers check that the target is not inside the
-     * moved subtree and is not already the parent.
+     * delta for the subtree. A target inside the moved subtree is refused;
+     * callers check that it is not already the parent.
      */
     public static function moveUnder(int $id, int $newParentId): void
     {
@@ -679,6 +679,10 @@ class InformationObjectService
         }
 
         $hierarchy = app(\AhgCore\Services\HierarchyQueryService::class);
+        // heratio#1541: refused here for every caller, not left to each one.
+        if ($hierarchy->isWithin('information_object', $newParentId, $id)) {
+            throw new \InvalidArgumentException("moveUnder: {$newParentId} is inside the subtree of {$id}");
+        }
         $oldAncestors = $hierarchy->ancestorIds('information_object', $id);
 
         DB::transaction(function () use ($node, $id, $newParentId) {

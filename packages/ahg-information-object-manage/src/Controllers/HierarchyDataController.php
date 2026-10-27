@@ -83,7 +83,8 @@ class HierarchyDataController extends Controller
             ->select(
                 'io.id', 'io.identifier', 'io.lft', 'io.rgt',
                 'io.parent_id', 'io.level_of_description_id',
-                'ioi.title', 's.slug'
+                'ioi.title', 's.slug',
+                DB::raw('EXISTS (SELECT 1 FROM information_object c WHERE c.parent_id = io.id) AS has_children')
             )
             ->orderBy('io.lft');
 
@@ -96,7 +97,7 @@ class HierarchyDataController extends Controller
         $rows = $query->limit(500)->get();
 
         $nodes = $rows->map(function ($r) {
-            $hasChildren = ($r->rgt - $r->lft) > 1;
+            $hasChildren = (bool) $r->has_children;
             $title = $r->title ?: ($r->identifier ?: ('#' . $r->id));
 
             return [

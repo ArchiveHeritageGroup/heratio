@@ -110,7 +110,8 @@ class TreeViewPageController extends Controller
             ->select(
                 'io.id', 'io.identifier', 'io.lft', 'io.rgt',
                 'io.parent_id', 'io.level_of_description_id',
-                'ioi.title', 's.slug'
+                'ioi.title', 's.slug',
+                DB::raw('EXISTS (SELECT 1 FROM information_object c WHERE c.parent_id = io.id) AS has_children')
             )
             ->orderBy('io.lft');
 
@@ -123,7 +124,7 @@ class TreeViewPageController extends Controller
         $rows = $query->limit(500)->get();
 
         $nodes = $rows->map(function ($r) {
-            $hasChildren = ($r->rgt - $r->lft) > 1;
+            $hasChildren = (bool) $r->has_children;
             $title = $r->title ?: ($r->identifier ?: ('#' . $r->id));
 
             return [
@@ -205,8 +206,8 @@ class TreeViewPageController extends Controller
             ], 404);
         }
 
-        // Forbid moves into the node's own subtree.
-        if ($newParent->lft >= $node->lft && $newParent->rgt <= $node->rgt) {
+        // Forbid moves into the node's own subtree, bounds or not (heratio#1541).
+        if (app(\AhgCore\Services\HierarchyQueryService::class)->isWithin('information_object', (int) $newParent->id, (int) $node->id)) {
             return response()->json([
                 'ok' => false,
                 'error' => 'Cannot move a node into its own descendant.',
