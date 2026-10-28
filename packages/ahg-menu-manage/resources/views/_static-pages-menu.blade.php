@@ -13,9 +13,9 @@
           ->join('menu_i18n', 'menu.id', '=', 'menu_i18n.id')
           ->where('menu.parent_id', $staticPagesMenu->id)
           ->where('menu_i18n.culture', $culture)
-          ->orderBy('menu.lft')
-          ->select('menu.id', 'menu_i18n.label', 'menu.path')
-          ->get();
+          ->select('menu.id', 'menu_i18n.label', 'menu.path');
+      $menuItems = app(\AhgCore\Services\HierarchyQueryService::class)
+          ->applySiblingOrder($menuItems, 'menu', 'menu.id', 'menu.lft')->get();
   }
 @endphp
 

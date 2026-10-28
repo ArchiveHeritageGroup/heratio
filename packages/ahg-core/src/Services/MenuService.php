@@ -31,7 +31,7 @@ use Illuminate\Support\Facades\DB;
  * Menu service for Heratio layout.
  *
  * Reads the navigation menu from the `menu` + `menu_i18n` tables
- * and builds a nested tree using MPTT lft/rgt columns.
+ * and builds a nested tree from parent_id, in sibling order.
  *
  * Migrated from the framework MenuService - changed DB import
  * from Capsule\Manager to Facade.
@@ -59,8 +59,7 @@ class MenuService
             $query = DB::table('menu')
                 ->leftJoin('menu_i18n as mi_cur', function ($j) use ($culture) {
                     $j->on('menu.id', '=', 'mi_cur.id')->where('mi_cur.culture', '=', $culture);
-                })
-                ->orderBy('menu.lft')->orderBy('menu.id');
+                });
             if ($culture !== $fallback) {
                 $query->leftJoin('menu_i18n as mi_fb', function ($j) use ($fallback) {
                     $j->on('menu.id', '=', 'mi_fb.id')->where('mi_fb.culture', '=', $fallback);
@@ -75,7 +74,9 @@ class MenuService
                     'mi_cur.label', 'mi_cur.description',
                 ]);
             }
-            $rows = $query->get()->toArray();
+            // Sibling order, falling back to lft (heratio#1541).
+            app(HierarchyQueryService::class)->applySiblingOrder($query, 'menu', 'menu.id', 'menu.lft');
+            $rows = $query->orderBy('menu.id')->get()->toArray();
         } catch (\Exception $e) {
             return [];
         }

@@ -84,8 +84,9 @@ class MenuController extends Controller
                 'menu_i18n.label',
                 'menu_i18n.description',
             ])
-            ->orderBy('menu.lft', 'asc')
-            ->get();
+            ->orderBy('menu.id');
+        $children = app(\AhgCore\Services\HierarchyQueryService::class)
+            ->applySiblingOrder($children, 'menu', 'menu.id', 'menu.lft')->get();
 
         return view('ahg-menu-manage::show', [
             'menu' => (object) $menu,
@@ -232,28 +233,8 @@ class MenuController extends Controller
      */
     public function moveUp(int $id)
     {
-        $menu = \Illuminate\Support\Facades\DB::table('menu')->where('id', $id)->first();
-        if (! $menu) {
-            abort(404);
-        }
-
-        // Find previous sibling (same parent, lower lft)
-        $prev = \Illuminate\Support\Facades\DB::table('menu')
-            ->where('parent_id', $menu->parent_id)
-            ->where('lft', '<', $menu->lft)
-            ->orderBy('lft', 'desc')
-            ->first();
-
-        if ($prev) {
-            // Swap lft/rgt values
-            $menuLft = $menu->lft;
-            $menuRgt = $menu->rgt;
-            $prevLft = $prev->lft;
-            $prevRgt = $prev->rgt;
-
-            \Illuminate\Support\Facades\DB::table('menu')->where('id', $id)->update(['lft' => $prevLft, 'rgt' => $prevRgt]);
-            \Illuminate\Support\Facades\DB::table('menu')->where('id', $prev->id)->update(['lft' => $menuLft, 'rgt' => $menuRgt]);
-        }
+        abort_unless(\Illuminate\Support\Facades\DB::table('menu')->where('id', $id)->exists(), 404);
+        $this->service->moveSibling($id, -1);
 
         return redirect()->route('menu.browse');
     }
@@ -263,27 +244,8 @@ class MenuController extends Controller
      */
     public function moveDown(int $id)
     {
-        $menu = \Illuminate\Support\Facades\DB::table('menu')->where('id', $id)->first();
-        if (! $menu) {
-            abort(404);
-        }
-
-        // Find next sibling (same parent, higher lft)
-        $next = \Illuminate\Support\Facades\DB::table('menu')
-            ->where('parent_id', $menu->parent_id)
-            ->where('lft', '>', $menu->lft)
-            ->orderBy('lft', 'asc')
-            ->first();
-
-        if ($next) {
-            $menuLft = $menu->lft;
-            $menuRgt = $menu->rgt;
-            $nextLft = $next->lft;
-            $nextRgt = $next->rgt;
-
-            \Illuminate\Support\Facades\DB::table('menu')->where('id', $id)->update(['lft' => $nextLft, 'rgt' => $nextRgt]);
-            \Illuminate\Support\Facades\DB::table('menu')->where('id', $next->id)->update(['lft' => $menuLft, 'rgt' => $menuRgt]);
-        }
+        abort_unless(\Illuminate\Support\Facades\DB::table('menu')->where('id', $id)->exists(), 404);
+        $this->service->moveSibling($id, 1);
 
         return redirect()->route('menu.browse');
     }

@@ -25,13 +25,15 @@
 
 namespace AhgMenuManage\Services;
 
+use AhgCore\Services\HierarchyQueryService;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Menu CRUD Service
  *
  * Instance-based service for menu operations.
- * Handles MPTT nested set (lft/rgt) for menu hierarchy.
+ * The hierarchy is parent_id, menu_closure and the sibling-order table;
+ * lft/rgt is rebuilt from them after every structural change.
  *
  * Tables: menu (with lft/rgt MPTT), menu_i18n (label, description).
  * ROOT_ID = 1 (the invisible root node).
@@ -64,19 +66,18 @@ class MenuService
     }
 
     /**
-     * Get the full menu tree as a flat array with depth, sorted by lft.
+     * Get the full menu tree as a flat array with depth, in sibling order.
      * Excludes the ROOT node.
      *
      * @return array List of menu items with depth, parent_id, name, label, protected status
      */
     public function getTree(): array
     {
-        $items = DB::table('menu as m')
+        $query = DB::table('menu as m')
             ->leftJoin('menu_i18n as mi', function ($join) {
                 $join->on('m.id', '=', 'mi.id')
                     ->where('mi.culture', '=', $this->culture);
             })
-            ->where('m.id', '!=', self::ROOT_ID)
             ->select(
                 'm.id',
                 'm.parent_id',
@@ -87,24 +88,24 @@ class MenuService
                 'm.source_culture',
                 'mi.label',
                 'mi.description'
-            )
-            ->orderBy('m.lft')
-            ->get()
-            ->map(fn ($row) => (array) $row)
-            ->all();
+            );
+        $hierarchy = app(HierarchyQueryService::class);
+        $hierarchy->applySiblingOrder($query, 'menu', 'm.id', 'm.lft');
+        $query->orderBy('m.id');
 
-        // Calculate depth for each item using the nested set
+        // Depth and children from parent_id and sibling order (heratio#1541):
+        // the stored lft/rgt is null on fresh installs.
+        $depth = [self::ROOT_ID => -1];
         $result = [];
-        foreach ($items as $item) {
-            $depth = 0;
-            foreach ($items as $potentialParent) {
-                if ($potentialParent['lft'] < $item['lft'] && $potentialParent['rgt'] > $item['rgt']) {
-                    $depth++;
-                }
+        foreach ($hierarchy->nestRows($query->get(), self::ROOT_ID) as $row) {
+            if ((int) $row->id === self::ROOT_ID) {
+                continue;
             }
-            $item['depth'] = $depth;
+            $depth[(int) $row->id] = $depth[(int) $row->parent_id] + 1;
+            $item = (array) $row;
+            $item['depth'] = $depth[(int) $row->id];
             $item['isProtected'] = $this->isProtected($item['id']);
-            $item['hasChildren'] = ($item['rgt'] - $item['lft']) > 1;
+            $item['hasChildren'] = ($row->rgt - $row->lft) > 1;
             $result[] = $item;
         }
 
@@ -151,7 +152,7 @@ class MenuService
             'path' => $menu->path ?? '',
             'lft' => (int) $menu->lft,
             'rgt' => (int) $menu->rgt,
-            'hasChildren' => ($menu->rgt - $menu->lft) > 1,
+            'hasChildren' => DB::table('menu')->where('parent_id', $id)->exists(),
             'sourceCulture' => $menu->source_culture,
             'serialNumber' => (int) $menu->serial_number,
             'createdAt' => $menu->created_at,
@@ -213,12 +214,17 @@ class MenuService
      * any nested-set operation (create, reorder) would otherwise fail. A depth-
      * first walk from ROOT_ID assigns contiguous lft/rgt; any node unreachable
      * from the root (dangling parent_id) is appended afterwards so it still gets
-     * a valid, non-overlapping range.
+     * a valid, non-overlapping range. Moves, reorders and deletes call it
+     * after changing parent_id and sibling order, so lft/rgt stays a derived
+     * copy (heratio#1541).
      */
     public function rebuildNestedSet(): void
     {
         DB::transaction(function () {
-            $rows = DB::table('menu')->select('id', 'parent_id')->orderBy('id')->get();
+            // Children in sibling order, so a rebuild keeps the order editors set.
+            $query = DB::table('menu')->select('menu.id', 'menu.parent_id');
+            app(HierarchyQueryService::class)->applySiblingOrder($query, 'menu', 'menu.id', 'menu.lft');
+            $rows = $query->orderBy('menu.id')->get();
 
             $children = [];
             foreach ($rows as $r) {
@@ -419,52 +425,58 @@ class MenuService
         }
 
         DB::transaction(function () use ($id) {
-            $node = DB::table('menu')
-                ->where('id', $id)
-                ->select('id', 'lft', 'rgt')
-                ->first();
-
-            if (! $node) {
+            if (! DB::table('menu')->where('id', $id)->exists()) {
                 throw new \RuntimeException('Menu item not found.');
             }
 
-            $width = $node->rgt - $node->lft + 1;
+            // The subtree from the closure: a lft/rgt range swept in other
+            // items whenever the bounds were stale (heratio#1541).
+            $subtreeIds = app(HierarchyQueryService::class)->descendantIds('menu', $id, true);
 
-            // Get all IDs in the subtree (for i18n cleanup)
-            $subtreeIds = DB::table('menu')
-                ->where('lft', '>=', $node->lft)
-                ->where('rgt', '<=', $node->rgt)
-                ->pluck('id')
-                ->all();
-
-            // Step 1: Delete i18n records for all nodes in subtree
-            if (! empty($subtreeIds)) {
-                DB::table('menu_i18n')->whereIn('id', $subtreeIds)->delete();
-            }
-
-            // Step 2: Delete all nodes in the subtree
-            DB::table('menu')
-                ->where('lft', '>=', $node->lft)
-                ->where('rgt', '<=', $node->rgt)
-                ->delete();
+            DB::table('menu_i18n')->whereIn('id', $subtreeIds)->delete();
+            DB::table('menu')->whereIn('id', $subtreeIds)->delete();
 
             // #1333 dual-write: menu_closure rows cascade via the FK; clear the
             // FK-less sibling sidecar for the deleted subtree.
-            if (! empty($subtreeIds) && \Illuminate\Support\Facades\Schema::hasTable('ahg_node_sibling_order')) {
+            if (\Illuminate\Support\Facades\Schema::hasTable('ahg_node_sibling_order')) {
                 DB::table('ahg_node_sibling_order')
                     ->where('entity', 'menu')
                     ->whereIn('node_id', $subtreeIds)
                     ->delete();
             }
 
-            // Step 3: Close the gap
-            DB::table('menu')
-                ->where('lft', '>', $node->rgt)
-                ->decrement('lft', $width);
+            $this->rebuildNestedSet();
+        });
+    }
 
-            DB::table('menu')
-                ->where('rgt', '>', $node->rgt)
-                ->decrement('rgt', $width);
+    /**
+     * Swap a menu item with its previous ($step = -1) or next ($step = 1)
+     * sibling. Swapping lft/rgt values left each item's children behind, under
+     * the other sibling; this reorders the siblings and rebuilds the bounds.
+     */
+    public function moveSibling(int $id, int $step): void
+    {
+        DB::transaction(function () use ($id, $step) {
+            $parentId = DB::table('menu')->where('id', $id)->value('parent_id');
+            $query = DB::table('menu')->where('menu.parent_id', $parentId)->select('menu.id');
+            app(HierarchyQueryService::class)->applySiblingOrder($query, 'menu', 'menu.id', 'menu.lft');
+            $ids = $query->orderBy('menu.id')->pluck('menu.id')->map(fn ($v) => (int) $v)->all();
+
+            $at = array_search($id, $ids, true);
+            if ($at === false || ! isset($ids[$at + $step])) {
+                return;
+            }
+            [$ids[$at], $ids[$at + $step]] = [$ids[$at + $step], $ids[$at]];
+
+            if (\Illuminate\Support\Facades\Schema::hasTable('ahg_node_sibling_order')) {
+                foreach ($ids as $order => $siblingId) {
+                    DB::table('ahg_node_sibling_order')->updateOrInsert(
+                        ['entity' => 'menu', 'node_id' => $siblingId],
+                        ['parent_id' => $parentId, 'sibling_order' => $order]
+                    );
+                }
+                $this->rebuildNestedSet();
+            }
         });
     }
 
@@ -481,86 +493,28 @@ class MenuService
      */
     private function moveToParent(int $id, int $newParentId): bool
     {
-        $node = DB::table('menu')
-            ->where('id', $id)
-            ->select('id', 'lft', 'rgt', 'parent_id')
-            ->first();
+        $node = DB::table('menu')->where('id', $id)->select('id', 'parent_id')->first();
 
-        if (! $node) {
-            return false;
-        }
-
-        $newParent = DB::table('menu')
-            ->where('id', $newParentId)
-            ->select('id', 'lft', 'rgt')
-            ->first();
-
-        if (! $newParent) {
+        if (! $node || ! DB::table('menu')->where('id', $newParentId)->exists()) {
             return false;
         }
 
         // Cannot move a node to be a descendant of itself
-        if ($newParent->lft >= $node->lft && $newParent->rgt <= $node->rgt) {
+        $hierarchy = app(HierarchyQueryService::class);
+        if ($hierarchy->isWithin('menu', $newParentId, $id)) {
             return false;
         }
 
-        $width = $node->rgt - $node->lft + 1;
-
-        // Step 1: Negate the subtree
-        DB::table('menu')
-            ->where('lft', '>=', $node->lft)
-            ->where('rgt', '<=', $node->rgt)
-            ->update([
-                'lft' => DB::raw('lft * -1'),
-                'rgt' => DB::raw('rgt * -1'),
-            ]);
-
-        // Step 2: Close the gap
-        DB::table('menu')
-            ->where('lft', '>', $node->rgt)
-            ->decrement('lft', $width);
-
-        DB::table('menu')
-            ->where('rgt', '>', $node->rgt)
-            ->decrement('rgt', $width);
-
-        // Re-fetch the new parent (its values may have changed)
-        $newParent = DB::table('menu')
-            ->where('id', $newParentId)
-            ->select('id', 'lft', 'rgt')
-            ->first();
-
-        $insertAt = $newParent->rgt;
-
-        // Step 3: Open gap at new position
-        DB::table('menu')
-            ->where('lft', '>=', $insertAt)
-            ->increment('lft', $width);
-
-        DB::table('menu')
-            ->where('rgt', '>=', $insertAt)
-            ->increment('rgt', $width);
-
-        // Step 4: Restore the subtree at new position
-        $offset = $insertAt - $node->lft;
-        DB::table('menu')
-            ->where('lft', '<', 0)
-            ->update([
-                'lft' => DB::raw('(lft * -1) + '.$offset),
-                'rgt' => DB::raw('(rgt * -1) + '.$offset),
-            ]);
-
-        // Step 5: Update parent_id
         DB::table('menu')
             ->where('id', $id)
             ->update(['parent_id' => $newParentId]);
 
-        // #1333 dual-write: true reparent - move the menu closure subtree and
-        // re-derive sibling order for the old and new parents.
+        // #1333 dual-write: move the menu closure subtree (appended as the new
+        // parent's last child), close the old parent's order, rebuild lft/rgt.
         $closureSvc = app(\AhgCore\Services\ClosureMaintenanceService::class);
         $closureSvc->moveNode('menu', (int) $id, (int) $newParentId);
+        $this->rebuildNestedSet();
         $closureSvc->resyncSiblingOrder('menu', $node->parent_id !== null ? (int) $node->parent_id : null);
-        $closureSvc->resyncSiblingOrder('menu', (int) $newParentId);
 
         return true;
     }
