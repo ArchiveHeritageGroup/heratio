@@ -113,16 +113,10 @@ class DisclosureGate
                 $ids[(int) $id] = true;
             }
 
-            if (Schema::hasTable('information_object')) {
-                $subtreeQ = DB::table('information_object as io')
-                    ->join('icip_access_restriction as r', 'r.applies_to_descendants', '=', DB::raw('1'))
-                    ->join('information_object as anc', 'anc.id', '=', 'r.information_object_id')
-                    ->whereColumn('io.lft', '>=', 'anc.lft')
-                    ->whereColumn('io.lft', '<=', 'anc.rgt');
-                $inWindow($subtreeQ, 'r.');
-                foreach ($subtreeQ->pluck('io.id') as $id) {
-                    $ids[(int) $id] = true;
-                }
+            $roots = DB::table('icip_access_restriction as r')->where('r.applies_to_descendants', 1);
+            $inWindow($roots, 'r.');
+            foreach ($this->subtreeIds($roots->pluck('r.information_object_id')->all()) as $id) {
+                $ids[$id] = true;
             }
         }
 
@@ -208,16 +202,8 @@ class DisclosureGate
                 $ids[(int) $id] = true;
             }
 
-            if (Schema::hasTable('information_object')) {
-                foreach ($classified()
-                    ->where('osc.inherit_to_children', 1)
-                    ->join('information_object as anc', 'anc.id', '=', 'osc.object_id')
-                    ->join('information_object as io', function ($j) {
-                        $j->whereColumn('io.lft', '>=', 'anc.lft')->whereColumn('io.lft', '<=', 'anc.rgt');
-                    })
-                    ->pluck('io.id') as $id) {
-                    $ids[(int) $id] = true;
-                }
+            foreach ($this->subtreeIds($classified()->where('osc.inherit_to_children', 1)->pluck('osc.object_id')->all()) as $id) {
+                $ids[$id] = true;
             }
         }
 
@@ -247,6 +233,39 @@ class DisclosureGate
         }
 
         return $this->restricted = array_keys($ids);
+    }
+
+    /**
+     * The records inside the subtrees of $rootIds (roots included). The
+     * closure covers records without nested-set bounds, which the lft/rgt
+     * range alone let through (heratio#1541); the range is kept as well, so
+     * a record either source places inside stays withheld (fail-closed).
+     *
+     * @param  array<int|string>  $rootIds
+     * @return int[]
+     */
+    private function subtreeIds(array $rootIds): array
+    {
+        $rootIds = array_values(array_unique(array_map('intval', $rootIds)));
+        if ($rootIds === [] || ! Schema::hasTable('information_object')) {
+            return [];
+        }
+        $ids = array_fill_keys($rootIds, true);
+        if (Schema::hasTable('information_object_closure')) {
+            foreach (DB::table('information_object_closure')->whereIn('ancestor', $rootIds)->pluck('descendant') as $id) {
+                $ids[(int) $id] = true;
+            }
+        }
+        foreach (DB::table('information_object as io')
+            ->join('information_object as anc', function ($j) {
+                $j->whereColumn('io.lft', '>=', 'anc.lft')->whereColumn('io.lft', '<=', 'anc.rgt');
+            })
+            ->whereIn('anc.id', $rootIds)
+            ->pluck('io.id') as $id) {
+            $ids[(int) $id] = true;
+        }
+
+        return array_keys($ids);
     }
 
     /**
