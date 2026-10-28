@@ -129,14 +129,16 @@ trait InformationObjectFetcher
 
     protected function fetchDescendants($io, string $culture)
     {
+        // heratio#1541: the subtree from the closure tables in sibling order;
+        // nestRows() below renumbers lft/rgt so the serializers nest by them.
+        $hierarchy = app(\AhgCore\Services\HierarchyQueryService::class);
         $query = DB::table('information_object')
             ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
-            ->where('information_object.lft', '>', $io->lft)
-            ->where('information_object.rgt', '<', $io->rgt)
+            ->tap(fn ($q) => $hierarchy->scopeDescendants($q, 'information_object', (int) $io->id, 'information_object.id', false))
             ->where('information_object_i18n.culture', $culture)
-            ->orderBy('information_object.lft')
+            ->tap(fn ($q) => $hierarchy->applySiblingOrder($q, 'information_object', 'information_object.id', 'information_object.lft'))
             ->select([
-                'information_object.id', 'information_object.identifier',
+                'information_object.id', 'information_object.parent_id', 'information_object.identifier',
                 'information_object.level_of_description_id',
                 'information_object.lft', 'information_object.rgt',
                 'information_object_i18n.title',
@@ -158,7 +160,7 @@ trait InformationObjectFetcher
         // Fail-closed for anonymous web + CLI exports; editors bypass in the gate.
         \AhgCore\Services\TermProtocolGate::excludeRestrictedRecords($query, 'information_object.id');
 
-        return $query->get();
+        return $hierarchy->nestRows($query->get(), (int) $io->id);
     }
 
     protected function escXml(?string $value): string

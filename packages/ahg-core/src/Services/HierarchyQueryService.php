@@ -159,6 +159,50 @@ class HierarchyQueryService
     }
 
     /**
+     * A subtree's rows in document order (depth first, siblings in the order
+     * given), with lft/rgt renumbered over these rows alone (heratio#1541).
+     * The EAD exporters open and close <c> levels from lft/rgt; the stored
+     * bounds are null for records created after the closure switch, which
+     * nested them wrongly. Fed the closure's rows, the same loops nest right.
+     * A row whose parent is not among $rows (a withheld record) is dropped
+     * with its subtree rather than attached to whatever level is open.
+     *
+     * @param  iterable<object>  $rows  each with id and parent_id, siblings already ordered
+     */
+    public function nestRows(iterable $rows, int $rootId): \Illuminate\Support\Collection
+    {
+        $byParent = [];
+        $root = null;
+        foreach ($rows as $r) {
+            if ((int) $r->id === $rootId) {
+                $root = $r;
+            } else {
+                $byParent[(int) $r->parent_id][] = $r;
+            }
+        }
+        $out = [];
+        $n = 0;
+        $walk = function (int $parent) use (&$walk, &$byParent, &$out, &$n) {
+            foreach ($byParent[$parent] ?? [] as $r) {
+                $r->lft = ++$n;
+                $out[] = $r;
+                $walk((int) $r->id);
+                $r->rgt = ++$n;
+            }
+        };
+        if ($root !== null) {
+            $root->lft = ++$n;
+            $out[] = $root;
+        }
+        $walk($rootId);
+        if ($root !== null) {
+            $root->rgt = ++$n;
+        }
+
+        return collect($out);
+    }
+
+    /**
      * Is $nodeId $ancestorId itself or inside its subtree? The guard for a move
      * that would put a record under its own descendant (heratio#1541): the
      * lft/rgt test it replaces was skipped whenever either side had no bounds.

@@ -409,7 +409,7 @@ class ProvenanceController extends Controller
     {
         $culture = app()->getLocale();
 
-        return DB::table('information_object as io')
+        $io = DB::table('information_object as io')
             ->join('information_object_i18n as i18n', function ($j) use ($culture) {
                 $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', $culture);
             })
@@ -417,5 +417,17 @@ class ProvenanceController extends Controller
             ->where('s.slug', $slug)
             ->select('io.id', 'io.identifier', 'i18n.title', 's.slug')
             ->first();
+
+        // hasPermission('read') in the callers is true for anonymous visitors on
+        // drafts; visitors see a record's provenance only where they may see
+        // the record. Staff (administrator, editor, contributor) see all.
+        $u = auth()->user();
+        $staff = $u !== null && (\AhgCore\Services\AclService::isAdministrator($u)
+            || \AhgCore\Services\AclService::isEditor($u) || \AhgCore\Services\AclService::isContributor($u));
+        if ($io && ! $staff && ! app(\AhgCore\Services\DisclosureGate::class)->allows((int) $io->id)) {
+            abort(404);
+        }
+
+        return $io;
     }
 }

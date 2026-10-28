@@ -162,16 +162,18 @@ class EadFindingAidCommand extends Command
                 $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $culture);
             })
             ->whereIn('io.id', $descendantIds)
-            ->orderBy('io.lft')
+            ->tap(fn ($q) => app(\AhgCore\Services\HierarchyQueryService::class)->applySiblingOrder($q, 'information_object', 'io.id', 'io.lft'))
             ->select(
-                'io.id', 'io.identifier', 'io.lft', 'io.rgt', 'io.level_of_description_id',
+                'io.id', 'io.parent_id', 'io.identifier', 'io.lft', 'io.rgt', 'io.level_of_description_id',
                 'i18n.title', 'i18n.scope_and_content', 'i18n.extent_and_medium'
             );
 
         // #1388 - never list a restricted-protocol descendant in the finding aid.
         \AhgCore\Services\TermProtocolGate::excludeRestrictedRecords($query, 'io.id');
 
-        return $query->get();
+        // heratio#1541: lft/rgt renumbered over these rows, so the container
+        // list indents records without stored bounds correctly.
+        return app(\AhgCore\Services\HierarchyQueryService::class)->nestRows($query->get(), (int) $io->id);
     }
 
     private function renderHtml($io, $repository, $events, $creators, $descendants): string
@@ -272,7 +274,7 @@ class EadFindingAidCommand extends Command
         if ($descendants->isNotEmpty()) {
             $html .= '<h2>Container List</h2>';
             $html .= '<div class="container-list">';
-            // Approximate depth by counting open lft/rgt parents already visited.
+            // Depth from the open lft/rgt parents already visited.
             $stack = [];
             foreach ($descendants as $d) {
                 while (! empty($stack) && $d->rgt > $stack[count($stack) - 1]) {

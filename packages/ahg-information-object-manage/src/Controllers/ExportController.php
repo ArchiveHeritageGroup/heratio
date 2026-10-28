@@ -401,7 +401,7 @@ class ExportController extends Controller
             })
             ->join('slug as s', 's.object_id', '=', 'io.id')
             ->whereIn('io.id', $ids)
-            ->orderBy('io.lft')
+            ->tap(fn ($q) => app(HierarchyQueryService::class)->applySiblingOrder($q, 'information_object', 'io.id', 'io.lft'))
             ->select([
                 'io.id', 'io.identifier', 'io.level_of_description_id',
                 'io.repository_id', 'io.parent_id',
@@ -412,8 +412,12 @@ class ExportController extends Controller
                 'i18n.finding_aids', 'i18n.location_of_originals', 'i18n.location_of_copies',
                 'i18n.related_units_of_description', 'i18n.rules', 'i18n.sources',
                 's.slug',
-            ])
-            ->get();
+            ]);
+        // Drafts and restricted descendants stay out of a visitor's export, as
+        // in EAD; rows below a withheld record go with it.
+        \AhgCore\Services\AclService::addFilterDraftsCriteria($rows, 'io.id');
+        $this->gateDescendants($rows, 'io.id');
+        $rows = app(HierarchyQueryService::class)->nestRows($rows->get(), (int) $io->id);
 
         $headers = [
             'identifier', 'title', 'slug', 'level_of_description_id',
@@ -670,9 +674,31 @@ class ExportController extends Controller
                 \AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'read', (int) $io->id),
                 403
             );
+            // hasPermission('read') is true for anonymous visitors on drafts, so
+            // the public export routes served drafts and restricted records in
+            // full. Visitors get what the public record page gives them.
+            abort_unless($this->viewerSeesAll() || app(\AhgCore\Services\DisclosureGate::class)->allows((int) $io->id), 404);
         }
 
         return $io;
+    }
+
+    /** Staff (administrator, editor, contributor) export drafts and restricted records. */
+    private function viewerSeesAll(): bool
+    {
+        $u = auth()->user();
+
+        return $u !== null && (\AhgCore\Services\AclService::isAdministrator($u)
+            || \AhgCore\Services\AclService::isEditor($u) || \AhgCore\Services\AclService::isContributor($u));
+    }
+
+    /** Leave out, for visitors, descendants that are restricted (ICIP, ODRL, embargo, classification, protocol terms). */
+    private function gateDescendants($query, string $idColumn): void
+    {
+        if (! $this->viewerSeesAll()) {
+            app(\AhgCore\Services\DisclosureGate::class)->excludeRestricted($query, $idColumn);
+            \AhgCore\Services\TermProtocolGate::excludeRestrictedRecords($query, $idColumn);
+        }
     }
 
     private function getRepository($io, string $culture)
@@ -746,23 +772,18 @@ class ExportController extends Controller
 
     private function getDescendants($io, string $culture)
     {
-        // A record with no nested-set bounds (null lft/rgt) has no computable
-        // descendants; guard so where('lft', '>', null) cannot throw "illegal
-        // operator and value combination".
-        if ($io->lft === null || $io->rgt === null) {
-            return collect();
-        }
-
-        // Base table aliased as `i` so AclService::addFilterDraftsCriteria()
-        // (which correlates on `i.id`) can layer the publication-status gate.
+        // heratio#1541: the subtree from the closure tables, in sibling order,
+        // and nested by parent_id. Base table aliased as `i` so
+        // AclService::addFilterDraftsCriteria() (which correlates on `i.id`)
+        // can layer the publication-status gate.
+        $hierarchy = app(HierarchyQueryService::class);
         $query = DB::table('information_object as i')
             ->join('information_object_i18n as i18n', 'i.id', '=', 'i18n.id')
-            ->where('i.lft', '>', $io->lft)
-            ->where('i.rgt', '<', $io->rgt)
+            ->tap(fn ($q) => $hierarchy->scopeDescendants($q, 'information_object', (int) $io->id, 'i.id', false))
             ->where('i18n.culture', $culture)
-            ->orderBy('i.lft')
             ->select([
                 'i.id',
+                'i.parent_id',
                 'i.identifier',
                 'i.level_of_description_id',
                 'i.lft',
@@ -772,14 +793,17 @@ class ExportController extends Controller
                 'i18n.extent_and_medium',
                 'i18n.arrangement',
             ]);
+        $hierarchy->applySiblingOrder($query, 'information_object', 'i.id', 'i.lft');
 
-        // Exclude unpublished descendants for non-editors so the exported
-        // subtree never embeds draft children. Administrators/editors (and
+        // Exclude unpublished and restricted descendants for visitors so the
+        // exported subtree never embeds them. Administrators/editors (and
         // owners of their own drafts) are unaffected - same predicate the
         // browse/show ACL uses.
         \AhgCore\Services\AclService::addFilterDraftsCriteria($query);
+        $this->gateDescendants($query, 'i.id');
 
-        return $query->get();
+        // lft/rgt renumbered over the exported rows; the EAD loops nest by them.
+        return $hierarchy->nestRows($query->get(), (int) $io->id);
     }
 
     /**
