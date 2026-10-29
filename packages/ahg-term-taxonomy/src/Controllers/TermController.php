@@ -171,16 +171,19 @@ class TermController extends Controller
                 ->where('other_name.object_id', $termId)
                 ->where('other_name_i18n.culture', $culture)
                 ->pluck('other_name_i18n.name')->toArray();
-            $doc['descendantCount'] = \Illuminate\Support\Facades\DB::table('term')
-                ->where('parent_id', $termId)->count();
-            $doc['ioCount'] = \Illuminate\Support\Facades\DB::table('object_term_relation')
-                ->join('object', 'object_term_relation.object_id', '=', 'object.id')
-                ->where('object_term_relation.term_id', $termId)
-                ->where('object.class_name', 'QubitInformationObject')->count();
-            $doc['actorCount'] = \Illuminate\Support\Facades\DB::table('object_term_relation')
-                ->join('object', 'object_term_relation.object_id', '=', 'object.id')
-                ->where('object_term_relation.term_id', $termId)
-                ->where('object.class_name', 'QubitActor')->count();
+            // Cached per term: a page of large terms recounted 100k+ tagged
+            // records each on every view.
+            $doc += TermService::remember("term_browse_counts:{$termId}", fn () => [
+                'descendantCount' => DB::table('term')->where('parent_id', $termId)->count(),
+                'ioCount' => DB::table('object_term_relation')
+                    ->join('object', 'object_term_relation.object_id', '=', 'object.id')
+                    ->where('object_term_relation.term_id', $termId)
+                    ->where('object.class_name', 'QubitInformationObject')->count(),
+                'actorCount' => DB::table('object_term_relation')
+                    ->join('object', 'object_term_relation.object_id', '=', 'object.id')
+                    ->where('object_term_relation.term_id', $termId)
+                    ->where('object.class_name', 'QubitActor')->count(),
+            ]);
             $doc['isProtected'] = \Illuminate\Support\Facades\DB::table('term')
                 ->where('id', $termId)->value('parent_id') === null;
 
@@ -193,7 +196,10 @@ class TermController extends Controller
         // Sidebar: top-level terms for treeview
         // AtoM terms use a root term (parent_id points to taxonomy root, not NULL)
         // Top-level = terms whose parent is NOT in the same taxonomy
-        $treeTerms = DB::table('term')
+        // Cached per taxonomy and capped: a flat taxonomy (196k places on ANC)
+        // made every term in it "top-level", and the sidebar and parent
+        // dropdown loaded them all.
+        $treeTerms = TermService::remember("term_tree_roots:{$taxonomyId}:{$culture}", fn () => DB::table('term')
             ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
             ->join('slug', 'term.id', '=', 'slug.object_id')
             ->where('term.taxonomy_id', $taxonomyId)
@@ -206,7 +212,8 @@ class TermController extends Controller
             })
             ->select('term.id', 'term_i18n.name', 'slug.slug')
             ->orderBy('term_i18n.name')
-            ->get();
+            ->limit(self::TREE_WIDE)
+            ->get());
 
         return view('ahg-term-taxonomy::browse', [
             'pager' => $pager,
@@ -257,23 +264,23 @@ class TermController extends Controller
 
         $taxonomyName = $this->termService->getTaxonomyName($term->taxonomy_id, $culture);
         $scopeNote = $this->termService->getScopeNote($term->id, $culture);
-        $relatedDescriptionsCount = $this->termService->getRelatedDescriptionCount($term->id);
-
-        // Related actor count (for navigate tabs)
-        $relatedActorCount = DB::table('object_term_relation')
-            ->join('object', 'object_term_relation.object_id', '=', 'object.id')
-            ->where('object_term_relation.term_id', $term->id)
-            ->where('object.class_name', 'QubitActor')->count();
-
-        // Direct-only count (exclude narrower terms)
-        $directCount = $relatedDescriptionsCount; // same if no narrower terms
-        $narrowerIds = DB::table('term')->where('parent_id', $term->id)->pluck('id')->toArray();
-        if (! empty($narrowerIds)) {
-            $directCount = DB::table('object_term_relation')
+        // Cached per term (TermService::remember): sort, page and listPage do
+        // not change these, so paging a large term no longer recounts it.
+        $public = ! $this->viewerSeesAll();
+        $termId = (int) $term->id;
+        $counts = TermService::remember("term_counts:{$termId}:".($public ? 'p' : 's'), fn () => [
+            'related' => $this->termService->getRelatedDescriptionCount($termId),
+            'actors' => DB::table('object_term_relation')
                 ->join('object', 'object_term_relation.object_id', '=', 'object.id')
-                ->where('object_term_relation.term_id', $term->id)
-                ->where('object.class_name', 'QubitInformationObject')->count();
-        }
+                ->where('object_term_relation.term_id', $termId)
+                ->where('object.class_name', 'QubitActor')->count(),
+            'narrower' => DB::table('term')->where('parent_id', $termId)->count(),
+            'all' => $this->relatedDescriptionsQuery($termId, false, $public, $culture)->count(),
+            'direct' => $this->relatedDescriptionsQuery($termId, true, $public, $culture)->count(),
+        ]);
+        $relatedDescriptionsCount = $counts['related'];
+        $relatedActorCount = $counts['actors'];
+        $directCount = $counts['direct'];
         $onlyDirect = $request->has('onlyDirect');
 
         // Use-for labels
@@ -296,33 +303,19 @@ class TermController extends Controller
                 ->first();
         }
 
-        // Narrower terms count
-        $narrowerCount = \Illuminate\Support\Facades\DB::table('term')->where('parent_id', $term->id)->count();
+        $narrowerCount = $counts['narrower'];
 
         // Related descriptions (paginated) - include narrower terms unless onlyDirect
         $page = max(1, (int) $request->get('page', 1));
         $limit = 10;
         $sort = $request->get('sort', 'lastUpdated');
 
-        $termIds = [$term->id];
-        if (! $onlyDirect && ! empty($narrowerIds)) {
-            $termIds = array_merge($termIds, $narrowerIds);
-        }
-
-        $relatedQuery = DB::table('object_term_relation')
-            ->join('information_object', 'object_term_relation.object_id', '=', 'information_object.id')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
-            ->join('object', 'information_object.id', '=', 'object.id')
-            ->join('slug', 'information_object.id', '=', 'slug.object_id')
-            ->whereIn('object_term_relation.term_id', $termIds)
-            ->where('object.class_name', 'QubitInformationObject')
-            ->where('information_object_i18n.culture', $culture);
-
-        $totalRelated = $relatedQuery->count();
+        $totalRelated = $onlyDirect ? $counts['direct'] : $counts['all'];
         $orderCol = $sort === 'alphabetic' ? 'information_object_i18n.title' : 'object.updated_at';
         $orderDir = $sort === 'alphabetic' ? 'asc' : 'desc';
 
-        $relatedDescriptions = $relatedQuery
+        $relatedKey = "term_related:{$termId}:".($public ? 'p' : 's').':'.($onlyDirect ? 1 : 0).":{$orderCol}:{$page}:{$culture}";
+        $relatedDescriptions = TermService::remember($relatedKey, fn () => $this->relatedDescriptionsQuery($termId, $onlyDirect, $public, $culture)
             ->select('information_object.id', 'information_object.identifier',
                 'information_object.level_of_description_id',
                 'information_object_i18n.title',
@@ -389,7 +382,7 @@ class TermController extends Controller
                 }
 
                 return $desc;
-            });
+            }));
 
         // Source notes (type 121)
         $sourceNotes = DB::table('note')->join('note_i18n', 'note.id', '=', 'note_i18n.id')
@@ -428,8 +421,10 @@ class TermController extends Controller
         $siblings = collect();
         $siblingsTotal = 0;
         if ($parentId) {
-            $siblingsTotal = DB::table('term')
-                ->where('parent_id', $parentId)->where('id', '!=', $term->id)->count();
+            // Shared by every sibling, so cached per parent (1.7 s for a parent
+            // with 559k children).
+            $siblingsTotal = TermService::remember("term_children:{$parentId}", fn () => DB::table('term')
+                ->where('parent_id', $parentId)->count()) - 1;
         }
         if ($parentId && $siblingsTotal <= self::TREE_WIDE) {
             $siblings = DB::table('term')
@@ -470,11 +465,14 @@ class TermController extends Controller
         } else {
             $listCount->where('taxonomy_id', $term->taxonomy_id);
         }
-        $listTotal = $listCount->count();
-        $listTerms = $listQuery
+        // The List tab is the same for every term in the taxonomy (3.8 s for
+        // page 1 of a 196k-term taxonomy), so it is cached per scope and page.
+        $listScope = ($narrowerTotal > 0 && $term->taxonomy_id == 30) ? "p{$termId}" : "t{$term->taxonomy_id}";
+        $listTotal = TermService::remember("term_list_total:{$listScope}", fn () => $listCount->count());
+        $listTerms = TermService::remember("term_list:{$listScope}:{$culture}:{$listPage}", fn () => $listQuery
             ->select('term.id', 'term_i18n.name', 'slug.slug')
             ->orderBy('term_i18n.name')
-            ->offset(($listPage - 1) * $listLimit)->limit($listLimit)->get();
+            ->offset(($listPage - 1) * $listLimit)->limit($listLimit)->get());
 
         // Converse term (relation type 177)
         $converseTerm = null;
@@ -564,7 +562,6 @@ class TermController extends Controller
             'referenceCode' => ['information_object.identifier', 'asc'],
             'date' => ['information_object.id', 'asc'], // Start date would need event join
         ];
-        // Re-sort uses the already-built $relatedQuery which respects $termIds and onlyDirect
 
         $iconMap = [42 => 'fa-map-marker-alt', 35 => 'fa-tag', 78 => 'fa-theater-masks', 80 => 'fa-briefcase'];
         $icon = $iconMap[$term->taxonomy_id] ?? 'fa-tag';
@@ -614,6 +611,46 @@ class TermController extends Controller
                     ->value('authorized_form_of_name')
                 : null,
         ]);
+    }
+
+    /**
+     * Descriptions tagged with $termId, or (unless $direct) with one of its
+     * narrower terms. The narrower terms are a subquery: a list of ids broke
+     * on a term with 559k children ("too many placeholders"). Visitors see
+     * published, unrestricted descriptions only; the page listed drafts'
+     * titles and scope notes to anyone.
+     */
+    private function relatedDescriptionsQuery(int $termId, bool $direct, bool $public, string $culture): \Illuminate\Database\Query\Builder
+    {
+        $q = DB::table('object_term_relation')
+            ->join('information_object', 'object_term_relation.object_id', '=', 'information_object.id')
+            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->join('object', 'information_object.id', '=', 'object.id')
+            ->join('slug', 'information_object.id', '=', 'slug.object_id')
+            ->where(function ($w) use ($termId, $direct) {
+                $w->where('object_term_relation.term_id', $termId);
+                if (! $direct) {
+                    $w->orWhereIn('object_term_relation.term_id', fn ($sub) => $sub->select('id')->from('term')->where('parent_id', $termId));
+                }
+            })
+            ->where('object.class_name', 'QubitInformationObject')
+            ->where('information_object_i18n.culture', $culture);
+        if ($public) {
+            $gate = app(\AhgCore\Services\DisclosureGate::class);
+            $gate->wherePublished($q);
+            $gate->excludeRestricted($q, 'information_object.id');
+            \AhgCore\Services\TermProtocolGate::excludeRestrictedRecords($q, 'information_object.id');
+        }
+
+        return $q;
+    }
+
+    private function viewerSeesAll(): bool
+    {
+        $u = auth()->user();
+
+        return $u !== null && (\AhgCore\Services\AclService::isAdministrator($u)
+            || \AhgCore\Services\AclService::isEditor($u) || \AhgCore\Services\AclService::isContributor($u));
     }
 
     /**

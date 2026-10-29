@@ -86,12 +86,24 @@ class TermService
             return $out;
         };
 
+        return self::remember("term_facets:{$termId}:{$culture}", $compute);
+    }
+
+    /**
+     * Cache a term-page aggregate for ahg_display_count_cache_ttl seconds
+     * (0 = compute every time). On a 454k-record install a large term's
+     * related-description count and first page took about 8 s each, the List
+     * tab 3.8 s and the sibling count 1.7 s, on every view; crawlers paging
+     * /term/ kept the ANC host at full CPU (28 Oct 2026).
+     */
+    public static function remember(string $key, \Closure $compute): mixed
+    {
         $ttl = \AhgCore\Services\AhgSettingsService::getInt('ahg_display_count_cache_ttl', 300);
         if ($ttl <= 0) {
             return $compute();
         }
         try {
-            return \Illuminate\Support\Facades\Cache::remember("term_facets:{$termId}:{$culture}", $ttl, $compute);
+            return \Illuminate\Support\Facades\Cache::remember($key, $ttl, $compute);
         } catch (\Throwable $e) {
             return $compute(); // cache store unavailable: correctness before speed
         }
