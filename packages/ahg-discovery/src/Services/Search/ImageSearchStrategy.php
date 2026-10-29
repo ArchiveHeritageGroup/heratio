@@ -116,10 +116,11 @@ class ImageSearchStrategy implements SearchStrategyInterface
         $minScore = (float) $this->setting('ahg_discovery_image_min_score', '0.30');
         $pool = max(1, min(200, $limit));
 
-        $hits = $this->vector->qdrantSearch($collection, $vector, $pool);
+        $hits = $this->vector->qdrantSearch($collection, $vector, $this->vector->fetchSize($pool));
         if ($hits === null) {
             return [];
         }
+        $hits = $this->vector->visibleHits($hits, $pool);
 
         $out = [];
         foreach ($hits as $h) {

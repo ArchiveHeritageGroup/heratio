@@ -32,6 +32,8 @@
 namespace AhgSearch\Services;
 
 use AhgAiServices\Support\AiServicesSettings;
+use AhgCore\Services\AclService;
+use AhgCore\Services\DisclosureGate;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -57,17 +59,18 @@ class VectorSearchService
             return ['ok' => false, 'reason' => 'empty query'];
         }
 
-        $collection = $collection ?: $this->setting('semantic_qdrant_collection', 'anc_records');
+        $collection = $this->collectionFor($collection);
 
         $vector = $this->embedQuery($query);
         if ($vector === null) {
             return ['ok' => false, 'reason' => 'embedding service unavailable'];
         }
 
-        $hits = $this->qdrantSearch($collection, $vector, $limit, $filter);
+        $hits = $this->qdrantSearch($collection, $vector, $this->fetchSize($limit), $filter);
         if ($hits === null) {
             return ['ok' => false, 'reason' => 'qdrant unavailable'];
         }
+        $hits = $this->visibleHits($hits, $limit);
 
         return [
             'ok' => true,
@@ -83,23 +86,21 @@ class VectorSearchService
      */
     public function searchSimilarToPoint(int $pointId, int $limit = 12, ?string $collection = null, ?array $filter = null): array
     {
-        $collection = $collection ?: $this->setting('semantic_qdrant_collection', 'anc_records');
+        $collection = $this->collectionFor($collection);
 
         $vector = $this->fetchPointVector($collection, $pointId);
         if ($vector === null) {
             return ['ok' => false, 'reason' => 'point not in collection'];
         }
 
-        $hits = $this->qdrantSearch($collection, $vector, $limit + 1, $filter);
+        $hits = $this->qdrantSearch($collection, $vector, $this->fetchSize($limit + 1), $filter);
         if ($hits === null) {
             return ['ok' => false, 'reason' => 'qdrant unavailable'];
         }
 
         // Drop the source point itself if it appears in the result set.
         $hits = array_values(array_filter($hits, fn ($h) => (int) $h['id'] !== $pointId));
-        if (count($hits) > $limit) {
-            $hits = array_slice($hits, 0, $limit);
-        }
+        $hits = $this->visibleHits($hits, $limit);
 
         return [
             'ok' => true,
@@ -107,6 +108,50 @@ class VectorSearchService
             'collection' => $collection,
             'hits' => $hits,
         ];
+    }
+
+    /**
+     * The collection holds every record, published or not, and its payload
+     * carries titles. Visitors get only hits that are published and not
+     * restricted; staff see everything.
+     */
+    public function visibleHits(array $hits, int $limit): array
+    {
+        if (! $this->viewerSeesAll()) {
+            $allowed = array_flip((new DisclosureGate)->filterIds(array_map(fn ($h) => (int) $h['id'], $hits)));
+            $hits = array_values(array_filter($hits, fn ($h) => isset($allowed[(int) $h['id']])));
+            $hits = array_map(function ($h) {
+                unset($h['payload']);
+
+                return $h;
+            }, $hits);
+        }
+
+        return array_slice($hits, 0, $limit);
+    }
+
+    /**
+     * Only staff may name a collection: the Qdrant server can hold other
+     * collections (knowledge bases, other instances) that are not records.
+     */
+    protected function collectionFor(?string $requested): string
+    {
+        $configured = (string) $this->setting('semantic_qdrant_collection', 'anc_records');
+
+        return ($requested !== null && $requested !== '' && $this->viewerSeesAll()) ? $requested : $configured;
+    }
+
+    /** Visitors lose withheld hits after the search, so ask Qdrant for more. */
+    public function fetchSize(int $limit): int
+    {
+        return $this->viewerSeesAll() ? $limit : min(300, $limit * 3);
+    }
+
+    protected function viewerSeesAll(): bool
+    {
+        $u = auth()->user();
+
+        return $u !== null && (AclService::isAdministrator($u) || AclService::isEditor($u) || AclService::isContributor($u));
     }
 
     /**
