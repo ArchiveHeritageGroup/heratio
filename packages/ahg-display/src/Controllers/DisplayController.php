@@ -78,6 +78,8 @@ class DisplayController extends Controller
     protected ?string $circulationStatusFilter = null;
     protected ?string $queryFilter = null;
     protected ?array $queryFilterTerms = null;
+    /** Vector-search matches for ?semantic=1, best first; already filtered to what the viewer may see. */
+    protected array $semanticIds = [];
     protected ?string $titleFilter = null;
     protected ?string $identifierFilter = null;
     protected ?string $referenceCodeFilter = null;
@@ -298,6 +300,20 @@ class DisplayController extends Controller
             }
         }
 
+        // Semantic search also matches by meaning: the records nearest the query
+        // in the vector index join the keyword matches and lead the relevance order.
+        $this->semanticIds = [];
+        if ($semanticEnabled && $this->queryFilter && class_exists(\AhgSearch\Services\VectorSearchService::class)) {
+            try {
+                $res = app(\AhgSearch\Services\VectorSearchService::class)->searchSimilar((string) $this->queryFilter, 100);
+                if (! empty($res['ok'])) {
+                    $this->semanticIds = array_values(array_unique(array_map(fn ($h) => (int) $h['id'], $res['hits'])));
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::info('semantic vector search skipped: ' . $e->getMessage());
+            }
+        }
+
         // Advanced text filters
         $this->titleFilter = $request->input('title');
         $this->identifierFilter = $request->input('identifier');
@@ -497,6 +513,10 @@ class DisplayController extends Controller
                             $this->queryFilter,
                             '%' . $this->queryFilter . '%',
                         ]);
+                    }
+                    if ($this->semanticIds) {
+                        $marks = implode(',', array_fill(0, count($this->semanticIds), '?'));
+                        $query->orderByRaw("FIELD(io.id, $marks) = 0, FIELD(io.id, $marks)", array_merge($this->semanticIds, $this->semanticIds));
                     }
                     $query->orderBy('io.id', 'desc');
                 }
@@ -1452,12 +1472,14 @@ class DisplayController extends Controller
 
         // Text search filters - use OR logic for semantic search
         if ($this->queryFilter) {
-            if ($this->queryFilterTerms) {
-                // Semantic search: search for ANY of the expanded terms (OR logic)
-                $this->applyTextSearchFilter($query, $this->queryFilterTerms);
+            $terms = $this->queryFilterTerms ?: $this->queryFilter;
+            if ($this->semanticIds) {
+                $query->where(function ($w) use ($terms) {
+                    $this->applyTextSearchFilter($w, $terms);
+                    $w->orWhereIn('io.id', $this->semanticIds);
+                });
             } else {
-                // Normal search: single term
-                $this->applyTextSearchFilter($query, $this->queryFilter);
+                $this->applyTextSearchFilter($query, $terms);
             }
         }
 
