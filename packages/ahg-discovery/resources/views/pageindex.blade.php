@@ -198,7 +198,7 @@
     </div>
 </div>
 
-@push('scripts')
+@push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('pageindex-search-form');

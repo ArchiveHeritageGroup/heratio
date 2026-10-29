@@ -204,7 +204,7 @@
 </div>
 @endsection
 
-@push('styles')
+@push('css')
 <style>
 /* Discovery Page Styles (migrated from ahgDiscoveryPlugin) */
 .discovery-collection { border: 1px solid #e9ecef; border-radius: 0.5rem; margin-bottom: 1.25rem; overflow: hidden; }
@@ -235,7 +235,7 @@
 </style>
 @endpush
 
-@push('scripts')
+@push('js')
 <script>
 (function() {
   'use strict';

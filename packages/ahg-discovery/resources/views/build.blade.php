@@ -146,7 +146,7 @@
     @endif
 </div>
 
-@push('scripts')
+@push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     var buildBtn = document.getElementById('build-btn');
