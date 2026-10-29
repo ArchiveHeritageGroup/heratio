@@ -627,12 +627,13 @@ class TermController extends Controller
             ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
             ->join('object', 'information_object.id', '=', 'object.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
-            ->where(function ($w) use ($termId, $direct) {
-                $w->where('object_term_relation.term_id', $termId);
-                if (! $direct) {
-                    $w->orWhereIn('object_term_relation.term_id', fn ($sub) => $sub->select('id')->from('term')->where('parent_id', $termId));
-                }
-            })
+            // One IN over the term and its children keeps the term_id index in
+            // play; "term_id = X OR term_id IN (...)" made MySQL scan every
+            // published record instead (30 s timeouts on a 454k-record install).
+            ->when($direct,
+                fn ($w) => $w->where('object_term_relation.term_id', $termId),
+                fn ($w) => $w->whereIn('object_term_relation.term_id', fn ($sub) => $sub->select('id')->from('term')
+                    ->where('id', $termId)->orWhere('parent_id', $termId)))
             ->where('object.class_name', 'QubitInformationObject')
             ->where('information_object_i18n.culture', $culture);
         if ($public) {
