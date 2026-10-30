@@ -115,6 +115,7 @@ Route::prefix('admin/privacy')->middleware(['dp.enabled', 'auth', 'admin'])->gro
     Route::get('/pii-scan', [PrivacyController::class, 'piiScan'])->name('ahgprivacy.pii-scan');
     Route::post('/pii-scan-run', [PrivacyController::class, 'piiScanRun'])->name('ahgprivacy.pii-scan-run');
     Route::post('/pii-entity-action', [PrivacyController::class, 'piiEntityAction'])->name('ahgprivacy.pii-entity-action');
+    Route::post('/file-screening', [PrivacyController::class, 'fileScreening'])->name('ahgprivacy.file-screening');
     Route::get('/report', [PrivacyController::class, 'report'])->name('ahgprivacy.report');
     Route::get('/ropa-add', [PrivacyController::class, 'ropaAdd'])->name('ahgprivacy.ropa-add');
     Route::get('/ropa-edit', [PrivacyController::class, 'ropaEdit'])->name('ahgprivacy.ropa-edit');

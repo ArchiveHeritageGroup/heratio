@@ -1166,7 +1166,36 @@ class PrivacyController extends Controller
         $riskColors = self::RISK_BANDS;
         $typeColors = ['PERSON' => 'primary', 'EMAIL' => 'danger', 'PHONE' => 'warning', 'ID_NUMBER' => 'danger', 'LOCATION' => 'info', 'ORG' => 'secondary'];
 
-        return view('privacy::pii-scan-object', compact('object', 'scanResult', 'riskColors', 'typeColors'));
+        $screening = app(\AhgPrivacy\Services\FileScreeningGate::class);
+        $fileScreening = $screening->requiresScreening((int) $object->id)
+            ? ['withheld' => $screening->withholds((int) $object->id),
+                'grounds' => Schema::hasTable('privacy_jurisdiction')
+                    ? DB::table('privacy_jurisdiction')->where('is_active', 1)->orderBy('sort_order')->pluck('name', 'code')
+                    : collect()]
+            : null;
+
+        return view('privacy::pii-scan-object', compact('object', 'scanResult', 'riskColors', 'typeColors', 'fileScreening'));
+    }
+
+    /** heratio#1574: release or withhold a record's files for visitors, with an audited ground. */
+    public function fileScreening(Request $request)
+    {
+        $data = $request->validate([
+            'id' => 'required|integer|min:2|exists:information_object,id',
+            'decision' => 'required|string|in:release,withhold',
+            'ground' => 'required|string|max:32|exists:privacy_jurisdiction,code',
+            'note' => 'required|string|max:2000',
+        ]);
+
+        try {
+            app(\AhgPrivacy\Services\FileScreeningGate::class)
+                ->decide((int) $data['id'], $data['decision'] === 'release', $data['ground'], $data['note']);
+        } catch (\RuntimeException $e) {
+            return back()->with('error', __($e->getMessage()));
+        }
+
+        return redirect()->route('ahgprivacy.pii-scan-object', ['id' => $data['id']])
+            ->with('success', $data['decision'] === 'release' ? __('Files released to visitors.') : __('Files withheld from visitors.'));
     }
 
     /**

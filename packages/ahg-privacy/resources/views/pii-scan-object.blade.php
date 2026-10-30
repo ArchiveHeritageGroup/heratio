@@ -217,6 +217,45 @@ $risk = $entity['risk_level'] ?? 'low';
             </div>
             @endif
 
+            <!-- Files for visitors (heratio#1574) -->
+            @if($fileScreening)
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-eye-slash me-2"></i>{{ __('Files for visitors') }}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="small mb-2">
+                        @if($fileScreening['withheld'])
+                            <span class="badge bg-danger">{{ __('Withheld') }}</span> {{ __('This collection requires screening. Visitors see the description but not the files.') }}
+                        @else
+                            <span class="badge bg-success">{{ __('Released') }}</span> {{ __('Visitors can see this record\'s files.') }}
+                        @endif
+                    </p>
+                    <form method="post" action="{{ route('ahgprivacy.file-screening') }}">
+                        @csrf
+                        <input type="hidden" name="id" value="{{ $object->id }}">
+                        <div class="mb-2">
+                            <label for="fs-ground" class="form-label small">{{ __('Ground') }}</label>
+                            <select id="fs-ground" name="ground" class="form-select form-select-sm" required>
+                                @foreach($fileScreening['grounds'] as $code => $name)
+                                <option value="{{ $code }}">{{ $name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label for="fs-note" class="form-label small">{{ __('Reason') }}</label>
+                            <textarea id="fs-note" name="note" class="form-control form-control-sm" rows="2" required maxlength="2000"></textarea>
+                        </div>
+                        @if($fileScreening['withheld'])
+                        <button type="submit" name="decision" value="release" class="btn btn-sm btn-outline-success w-100">{{ __('Release files to visitors') }}</button>
+                        @else
+                        <button type="submit" name="decision" value="withhold" class="btn btn-sm btn-outline-danger w-100">{{ __('Withhold files from visitors') }}</button>
+                        @endif
+                    </form>
+                </div>
+            </div>
+            @endif
+
             <!-- Summary by Type -->
             @if(!empty($scanResult['summary']['by_type']))
             <div class="card mb-4">

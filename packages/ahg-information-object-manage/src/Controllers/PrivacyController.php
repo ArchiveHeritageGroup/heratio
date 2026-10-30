@@ -540,8 +540,11 @@ class PrivacyController extends Controller
         if (!$refuse && $path !== '' && !self::canSeeUnpublished()) {
             $ioIds = app(RedactionRenderService::class)->recordIdsForIdentifier($path);
             if ($ioIds) {
+                // heratio#1574: where screening is required, the record must also
+                // have cleared it before its files reach a visitor.
                 $gate = app(\AhgCore\Services\DisclosureGate::class);
-                $refuse = !collect($ioIds)->contains(fn ($id) => $gate->allows((int) $id));
+                $screening = app(\AhgPrivacy\Services\FileScreeningGate::class);
+                $refuse = !collect($ioIds)->contains(fn ($id) => $gate->allows((int) $id) && !$screening->withholds((int) $id));
             }
         }
 
