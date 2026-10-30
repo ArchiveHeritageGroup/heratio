@@ -59,6 +59,9 @@
            placeholder="{{ __('Search the catalogue...') }}" aria-label="{{ __('Search') }}">
     <button class="btn atom-btn-secondary" type="submit">{{ __('Search') }}</button>
   </div>
+  @if(!empty($searchSyntaxHelp))
+    <div class="form-text">{{ __('All words must match. Use "quotes" for a phrase, "word1 word2"~5 for words near each other, | for or, - to exclude, and * at the end of a word for its beginnings.') }}</div>
+  @endif
 </form>
 
 {{-- ========== TITLE SECTION ========== --}}

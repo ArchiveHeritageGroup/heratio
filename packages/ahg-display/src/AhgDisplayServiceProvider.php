@@ -126,6 +126,9 @@ class AhgDisplayServiceProvider extends ServiceProvider
                 // Seconds to memoise the two browse counts. 0 disables the
                 // cache and computes both on every request.
                 'ahg_display_count_cache_ttl' => '300',
+                // 1 = the browse search box asks Elasticsearch (#1575). Turn on
+                // only once the index is complete and current.
+                'ahg_display_search_es' => '0',
             ];
 
             $existingKeys = DB::table('ahg_settings')

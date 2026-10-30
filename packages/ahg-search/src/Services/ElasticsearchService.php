@@ -340,6 +340,64 @@ class ElasticsearchService
     }
 
     /**
+     * Description ids matching a search-box query, best match first (#1575).
+     * simple_query_string gives quoted phrases, proximity ("a b"~5), + | -
+     * and prefix*, with the index's language stemming, and never fails on
+     * stray syntax. All words must match; if none do, all but one of three
+     * or more may be missing, so one word the records spell differently
+     * does not empty the result.
+     *
+     * Only catalogue fields are searched - never `all` or `transcript`,
+     * which hold the text of the digital objects, so a name inside an
+     * unscreened file is not findable here. No visibility filter is applied:
+     * the caller filters the ids with the same gates as the SQL path.
+     *
+     * Returns null when ES cannot answer or matches more than $limit, so the
+     * caller keeps its own path.
+     *
+     * @return array<int,int>|null
+     */
+    public function matchingIoIds(string $query, string $culture = 'en', int $limit = 10000): ?array
+    {
+        $fields = [];
+        foreach (array_unique([$culture, 'en']) as $c) {
+            array_push($fields, "i18n.{$c}.title^3", "i18n.{$c}.scopeAndContent", "creators.i18n.{$c}.authorizedFormOfName^2");
+        }
+        array_push($fields, 'identifier^2', 'referenceCode^2', 'isbn^3', 'callNumber^2', 'seriesTitle', 'summary', 'contentsNote');
+
+        $url = "{$this->host}/{$this->indexPrefix}qubitinformationobject/_search";
+        foreach (['all' => '100%', 'most' => '2<-1'] as $msm) {
+            try {
+                $response = Http::timeout(5)->post($url, [
+                    'size' => $limit,
+                    '_source' => false,
+                    'track_total_hits' => true,
+                    'query' => ['simple_query_string' => [
+                        'query' => $query,
+                        'fields' => $fields,
+                        'default_operator' => 'OR',
+                        'minimum_should_match' => $msm,
+                    ]],
+                ]);
+            } catch (\Throwable $e) {
+                return null;
+            }
+            if (! $response->successful()) {
+                return null;
+            }
+            $total = (int) $response->json('hits.total.value', 0);
+            if ($total > $limit) {
+                return null;
+            }
+            if ($total > 0) {
+                return array_map(fn ($h) => (int) $h['_id'], $response->json('hits.hits', []));
+            }
+        }
+
+        return [];
+    }
+
+    /**
      * Prefix-based autocomplete across all main indices.
      */
     public function autocomplete(string $query, string $culture = 'en', int $size = 10): array

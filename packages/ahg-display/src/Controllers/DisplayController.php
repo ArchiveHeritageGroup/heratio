@@ -117,6 +117,12 @@ class DisplayController extends Controller
      */
     protected const TEXT_MATCH_ID_CAP = 20000;
 
+    /** Most hits taken from Elasticsearch: its default max_result_window. */
+    protected const ES_MATCH_LIMIT = 10000;
+
+    /** Per-request memo of the ahg_display_search_es setting. */
+    protected static ?bool $searchEs = null;
+
     public function __construct()
     {
         $this->service = new DisplayService();
@@ -260,6 +266,7 @@ class DisplayController extends Controller
         $correctedQuery = null;
         $originalQuery = $this->queryFilter;
         $esAssistedSearch = false;
+        $searchSyntaxHelp = $this->searchUsesEs();
 
         // Semantic expansion (P5.a) - when ?semantic=1 is on, ask the thesaurus
         // (ahg-semantic-search) to expand the query into related terms; the search
@@ -508,7 +515,15 @@ class DisplayController extends Controller
                 break;
             case 'relevance':
                 if ($orderedIds === null) {
-                    if ($this->queryFilter) {
+                    // With Elasticsearch on, its 200 best matches lead in its own
+                    // order (#1575); otherwise title matches lead.
+                    $esRanked = $this->queryFilter && $this->searchUsesEs()
+                        ? array_slice($this->resolveTextMatchIds($this->queryFilterTerms ?: $this->queryFilter) ?? [], 0, 200)
+                        : [];
+                    if ($esRanked) {
+                        $marks = implode(',', array_fill(0, count($esRanked), '?'));
+                        $query->orderByRaw("FIELD(io.id, $marks) = 0, FIELD(io.id, $marks)", array_merge($esRanked, $esRanked));
+                    } elseif ($this->queryFilter) {
                         $query->orderByRaw("CASE WHEN i18n.title LIKE ? THEN 0 WHEN i18n.title LIKE ? THEN 1 ELSE 2 END ASC", [
                             $this->queryFilter,
                             '%' . $this->queryFilter . '%',
@@ -744,7 +759,7 @@ class DisplayController extends Controller
             'subjectFilter', 'placeFilter', 'genreFilter', 'levelFilter', 'mediaFilter',
             'repoFilter', 'queryFilter', 'filterParams', 'discoveryMode',
             'discoveryExpanded', 'discoveryMeta', 'correctedQuery', 'didYouMean',
-            'originalQuery', 'esAssistedSearch', 'brokenItems',
+            'originalQuery', 'esAssistedSearch', 'searchSyntaxHelp', 'brokenItems',
             'materialTypes', 'conditionGrades', 'acquisitionMethods', 'circulationStatuses',
             'materialTypeFilter', 'conditionGradeFilter', 'acquisitionMethodFilter', 'circulationStatusFilter'
         ));
@@ -2140,13 +2155,22 @@ class DisplayController extends Controller
         $ttl = $this->isAuthenticated ? 0 : \AhgCore\Services\AhgSettingsService::getInt('ahg_display_count_cache_ttl', 300);
         if ($ttl > 0) {
             try {
-                return self::$textMatchIdCache[$cacheKey] = Cache::remember('ahg_display:textids:'.md5($cacheKey), $ttl, fn () => $this->scanTextMatchIds($terms));
+                return self::$textMatchIdCache[$cacheKey] = Cache::remember('ahg_display:textids:'.md5($cacheKey.'|es'.(int) $this->searchUsesEs()), $ttl, fn () => $this->scanTextMatchIds($terms));
             } catch (\Throwable $e) {
                 // Cache store unavailable - fall through to a fresh scan.
             }
         }
 
         return self::$textMatchIdCache[$cacheKey] = $this->scanTextMatchIds($terms);
+    }
+
+    /**
+     * Does the search box go to Elasticsearch (#1575)? Off by default: the
+     * index must be complete and current first, or the box under-matches.
+     */
+    protected function searchUsesEs(): bool
+    {
+        return self::$searchEs ??= \AhgCore\Services\AhgSettingsService::getBool('ahg_display_search_es', false);
     }
 
     /**
@@ -2183,26 +2207,41 @@ class DisplayController extends Controller
                     return count($ids) > self::TEXT_MATCH_ID_CAP;
                 };
 
-                // Mirrors applyTextSearchFilter()'s own title/scope/identifier pair.
-                if ($collect(DB::table('information_object_i18n')->select('id')
-                    ->where(fn ($w) => $w->where('title', 'like', $like)
-                        ->orWhere('scope_and_content', 'like', $like))->get())) {
-                    return null;
+                // #1575: with ahg_display_search_es on, Elasticsearch answers the
+                // title / description / creator part - whole words, quoted
+                // phrases, proximity, AND/OR/NOT - best match first, so its ids
+                // lead the set. The identifier, sector and authority scans below
+                // still run. ES down, or more than ES_MATCH_LIMIT hits: the
+                // substring scans, as before.
+                $esIds = $this->searchUsesEs()
+                    ? app(\AhgSearch\Services\ElasticsearchService::class)->matchingIoIds((string) $term, app()->getLocale(), self::ES_MATCH_LIMIT)
+                    : null;
+                if ($esIds !== null) {
+                    foreach ($esIds as $esId) {
+                        $ids[$esId] = true;
+                    }
+                } else {
+                    // Mirrors applyTextSearchFilter()'s own title/scope pair.
+                    if ($collect(DB::table('information_object_i18n')->select('id')
+                        ->where(fn ($w) => $w->where('title', 'like', $like)
+                            ->orWhere('scope_and_content', 'like', $like))->get())) {
+                        return null;
+                    }
+                    // Mirrors the FULLTEXT branch: MATCH on either column also counts.
+                    // One query per column, so each can use its own FULLTEXT index.
+                    $ft = self::fulltextTerm($term);
+                    if ($ft !== '' && $this->isFulltextAvailable()) {
+                        foreach (['title', 'scope_and_content'] as $col) {
+                            if ($collect(DB::table('information_object_i18n')->select('id')
+                                ->whereRaw("MATCH($col) AGAINST(? IN NATURAL LANGUAGE MODE)", [$ft])->get())) {
+                                return null;
+                            }
+                        }
+                    }
                 }
                 if ($collect(DB::table('information_object')->select('id')
                     ->where('identifier', 'like', $like)->get())) {
                     return null;
-                }
-                // Mirrors the FULLTEXT branch: MATCH on either column also counts.
-                // One query per column, so each can use its own FULLTEXT index.
-                $ft = self::fulltextTerm($term);
-                if ($ft !== '' && $this->isFulltextAvailable()) {
-                    foreach (['title', 'scope_and_content'] as $col) {
-                        if ($collect(DB::table('information_object_i18n')->select('id')
-                            ->whereRaw("MATCH($col) AGAINST(? IN NATURAL LANGUAGE MODE)", [$ft])->get())) {
-                            return null;
-                        }
-                    }
                 }
 
                 // Mirrors applySectorSearchClauses(), table-for-table and
