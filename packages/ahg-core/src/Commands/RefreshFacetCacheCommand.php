@@ -6,13 +6,26 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Rebuild the GLAM browse facet cache - the scheduled hourly entry point.
+ *
+ * The browse sidebar reads the rows ahg:display-reindex writes: one set per
+ * facet with published-only counts for visitors (subject, place, ...) and one
+ * with all records for staff (subject_all, ...), as the original AtoM task did.
+ * This command used to write its own rows under other names (subjects, places,
+ * genres - about 558,000 rows at ANC that nothing read) and overwrote level and
+ * repository with counts that included unpublished records. It now runs
+ * display-reindex and removes those old rows.
+ */
 class RefreshFacetCacheCommand extends Command
 {
     protected $signature = 'ahg:refresh-facet-cache
-        {--facet= : Only rebuild specified facet_type (subjects, places, level, repository, etc.)}
-        {--connection= : Source DB connection - defaults to this DB discovery_db_connection setting, else atom}';
+        {--facet= : Only rebuild one facet (glam_type, creator, subject, place, genre, level, repository, media_type)}';
 
-    protected $description = 'Rebuild display_facet_cache from this DB own discovery corpus (ahg_settings.discovery_db_connection), or a chosen --connection';
+    protected $description = 'Rebuild the GLAM browse facet cache (runs ahg:display-reindex)';
+
+    /** Row names only the old version of this command wrote. */
+    private const LEGACY_TYPES = ['subjects', 'places', 'genres'];
 
     public function handle(): int
     {
@@ -21,99 +34,14 @@ class RefreshFacetCacheCommand extends Command
 
             return self::FAILURE;
         }
-        $conn = (string) $this->option('connection');
-        if ($conn === '') {
-            // No explicit --connection: honor THIS database's own discovery corpus
-            // (ahg_settings.discovery_db_connection) so every install builds facets
-            // from its own data. Only heratio (the demo) pins this to 'atom' to
-            // showcase the shared ANC corpus; every other app stays self-contained.
-            // Fall back to this app's OWN connection, not 'atom' - the atom
-            // database exists only on an AtoM overlay, and defaulting to it
-            // contradicted the intent stated just above, breaking every
-            // self-contained install with "Access denied ... to database 'atom'".
-            $conn = (string) (DB::table('ahg_settings')
-                ->where('setting_key', 'discovery_db_connection')
-                ->value('setting_value') ?: config('database.default'));
-        }
-        $only = $this->option('facet');
 
-        // Map facet_type → (taxonomy_id, ahg_io_facet_denorm.taxonomy_id) per ADR-0001.
-        $sourceMap = Schema::connection($conn)->hasTable('ahg_io_facet_denorm') ? 'denorm' : 'fallback';
-        $this->info("source: {$sourceMap}");
-
-        $facets = [
-            'subjects' => 35,
-            'places' => 42,
-            'genres' => 78,
-            'level' => 34,
-            'repository' => null,  // distinct repositories
-        ];
-        if ($only) {
-            $facets = array_intersect_key($facets, [$only => true]);
+        $removed = DB::table('display_facet_cache')->whereIn('facet_type', self::LEGACY_TYPES)->delete();
+        if ($removed) {
+            $this->info("removed {$removed} unused rows from the old facet names");
         }
 
-        $totalRows = 0;
-        DB::beginTransaction();
-        try {
-            DB::table('display_facet_cache')->whereIn('facet_type', array_keys($facets))->delete();
-            foreach ($facets as $facetType => $taxId) {
-                if ($facetType === 'repository') {
-                    // Distinct repository_ids from atom IO.
-                    $rows = DB::connection($conn)->table('information_object as io')
-                        ->join('actor_i18n as ai', function ($j) {
-                            $j->on('ai.id', '=', 'io.repository_id')->where('ai.culture', '=', 'en');
-                        })
-                        ->whereNotNull('io.repository_id')
-                        ->groupBy('io.repository_id', 'ai.authorized_form_of_name')
-                        ->selectRaw('io.repository_id AS term_id, ai.authorized_form_of_name AS term_name, COUNT(*) AS cnt')
-                        ->get();
-                } elseif ($sourceMap === 'denorm') {
-                    $rows = DB::connection($conn)->table('ahg_io_facet_denorm as d')
-                        ->join('term_i18n as ti', function ($j) {
-                            $j->on('ti.id', '=', 'd.term_id')->where('ti.culture', '=', 'en');
-                        })
-                        ->where('d.taxonomy_id', $taxId)
-                        ->selectRaw('d.term_id, ti.name AS term_name, COUNT(*) AS cnt')
-                        ->groupBy('d.term_id', 'ti.name')
-                        ->get();
-                } else {
-                    // Fallback: object_term_relation
-                    $rows = DB::connection($conn)->table('object_term_relation as otr')
-                        ->join('term as t', 't.id', '=', 'otr.term_id')
-                        ->join('term_i18n as ti', function ($j) {
-                            $j->on('ti.id', '=', 't.id')->where('ti.culture', '=', 'en');
-                        })
-                        ->where('t.taxonomy_id', $taxId)
-                        ->selectRaw('otr.term_id, ti.name AS term_name, COUNT(*) AS cnt')
-                        ->groupBy('otr.term_id', 'ti.name')
-                        ->get();
-                }
+        $facet = (string) $this->option('facet');
 
-                $batch = [];
-                foreach ($rows as $r) {
-                    $batch[] = [
-                        'facet_type' => $facetType,
-                        'term_id' => (int) $r->term_id,
-                        'term_name' => mb_strimwidth((string) ($r->term_name ?? ''), 0, 255),
-                        'count' => (int) $r->cnt,
-                        'created_at' => now(),
-                    ];
-                }
-                foreach (array_chunk($batch, 1000) as $chunk) {
-                    DB::table('display_facet_cache')->insert($chunk);
-                }
-                $this->info("  {$facetType}: ".count($batch).' rows');
-                $totalRows += count($batch);
-            }
-            DB::commit();
-            $this->info("done; total_rows={$totalRows}");
-
-            return self::SUCCESS;
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            $this->error('refresh failed: '.$e->getMessage());
-
-            return self::FAILURE;
-        }
+        return $this->call('ahg:display-reindex', $facet !== '' ? ['--facet' => rtrim($facet, 's')] : []);
     }
 }
