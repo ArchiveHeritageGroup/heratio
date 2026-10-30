@@ -2109,11 +2109,11 @@ class DisplayController extends Controller
      * Measured on that query: 1,126ms to resolve, yielding 155 ids - after
      * which all eight downstream queries filter on an indexed primary key.
      *
-     * Returns null when the caller should keep the old correlated path: either
-     * the match set is too wide to inline safely (MySQL caps a prepared
-     * statement at 65,535 placeholders, and past a certain width the id list
-     * stops being cheaper than the scan), or FULLTEXT is in play and has its
-     * own semantics. Null means "fall back", NOT "no matches" - an empty array
+     * Returns null when the caller should keep the old correlated path: the
+     * match set is too wide to inline safely (MySQL caps a prepared statement
+     * at 65,535 placeholders, and past a certain width the id list stops being
+     * cheaper than the scan), or a scan failed. With FULLTEXT, the MATCH
+     * clauses are scans of their own. Null means "fall back", NOT "no matches" - an empty array
      * is the real no-matches answer and must still filter everything out.
      *
      * @param  array|string  $searchTerms
@@ -2131,6 +2131,42 @@ class DisplayController extends Controller
             return self::$textMatchIdCache[$cacheKey];
         }
 
+        // Visitors share the resolved ids across requests - paging, facet clicks
+        // and repeat searches - for the count cache's TTL: the scans cost about
+        // 1 s at ANC (454,392 records). Staff always resolve fresh, so a record
+        // they have just edited is found. The ids are taken before the
+        // publication, tenant and protocol filters, which still apply
+        // downstream, so sharing them shows a visitor nothing extra.
+        $ttl = $this->isAuthenticated ? 0 : \AhgCore\Services\AhgSettingsService::getInt('ahg_display_count_cache_ttl', 300);
+        if ($ttl > 0) {
+            try {
+                return self::$textMatchIdCache[$cacheKey] = Cache::remember('ahg_display:textids:'.md5($cacheKey), $ttl, fn () => $this->scanTextMatchIds($terms));
+            } catch (\Throwable $e) {
+                // Cache store unavailable - fall through to a fresh scan.
+            }
+        }
+
+        return self::$textMatchIdCache[$cacheKey] = $this->scanTextMatchIds($terms);
+    }
+
+    /**
+     * A search term made safe for MATCH ... IN NATURAL LANGUAGE MODE: boolean
+     * operators and wildcards the parser rejects (e.g. a bare '*') removed.
+     */
+    protected static function fulltextTerm(string $s): string
+    {
+        return trim(preg_replace('/[\+\-><\(\)~\*"@]+/', ' ', $s));
+    }
+
+    /**
+     * The scans behind resolveTextMatchIds(): int[] of matching ids, or null
+     * to use the correlated path.
+     *
+     * @param  array<int,string>  $terms
+     * @return array<int,int>|null
+     */
+    protected function scanTextMatchIds(array $terms): ?array
+    {
         $sectorTables = $this->getSectorSearchTables();
         $ids = [];
 
@@ -2151,11 +2187,22 @@ class DisplayController extends Controller
                 if ($collect(DB::table('information_object_i18n')->select('id')
                     ->where(fn ($w) => $w->where('title', 'like', $like)
                         ->orWhere('scope_and_content', 'like', $like))->get())) {
-                    return self::$textMatchIdCache[$cacheKey] = null;
+                    return null;
                 }
                 if ($collect(DB::table('information_object')->select('id')
                     ->where('identifier', 'like', $like)->get())) {
-                    return self::$textMatchIdCache[$cacheKey] = null;
+                    return null;
+                }
+                // Mirrors the FULLTEXT branch: MATCH on either column also counts.
+                // One query per column, so each can use its own FULLTEXT index.
+                $ft = self::fulltextTerm($term);
+                if ($ft !== '' && $this->isFulltextAvailable()) {
+                    foreach (['title', 'scope_and_content'] as $col) {
+                        if ($collect(DB::table('information_object_i18n')->select('id')
+                            ->whereRaw("MATCH($col) AGAINST(? IN NATURAL LANGUAGE MODE)", [$ft])->get())) {
+                            return null;
+                        }
+                    }
                 }
 
                 // Mirrors applySectorSearchClauses(), table-for-table and
@@ -2166,7 +2213,7 @@ class DisplayController extends Controller
                             ->orWhere('headline', 'like', $like)
                             ->orWhere('caption', 'like', $like)
                             ->orWhere('keywords', 'like', $like))->get())) {
-                        return self::$textMatchIdCache[$cacheKey] = null;
+                        return null;
                     }
                 }
                 if (in_array('museum_metadata', $sectorTables)) {
@@ -2176,7 +2223,7 @@ class DisplayController extends Controller
                             ->orWhere('techniques', 'like', $like)
                             ->orWhere('classification', 'like', $like)
                             ->orWhere('inscription', 'like', $like))->get())) {
-                        return self::$textMatchIdCache[$cacheKey] = null;
+                        return null;
                     }
                 }
                 if (in_array('gallery_artist', $sectorTables)) {
@@ -2186,7 +2233,7 @@ class DisplayController extends Controller
                         ->where(fn ($w) => $w->where('gallery_artist.display_name', 'like', $like)
                             ->orWhere('gallery_artist.medium_specialty', 'like', $like)
                             ->orWhere('gallery_artist.movement_style', 'like', $like))->get())) {
-                        return self::$textMatchIdCache[$cacheKey] = null;
+                        return null;
                     }
                 }
                 if (in_array('library_item', $sectorTables)) {
@@ -2196,7 +2243,7 @@ class DisplayController extends Controller
                             ->orWhere('series_title', 'like', $like)
                             ->orWhere('summary', 'like', $like)
                             ->orWhere('contents_note', 'like', $like))->get())) {
-                        return self::$textMatchIdCache[$cacheKey] = null;
+                        return null;
                     }
                 }
                 if (in_array('library_item_creator', $sectorTables)) {
@@ -2204,7 +2251,7 @@ class DisplayController extends Controller
                         ->join('library_item', 'library_item.id', '=', 'library_item_creator.library_item_id')
                         ->select('library_item.information_object_id as id')
                         ->where('library_item_creator.name', 'like', $like)->get())) {
-                        return self::$textMatchIdCache[$cacheKey] = null;
+                        return null;
                     }
                 }
                 // Authority records - unconditional, matching the clause builder.
@@ -2212,16 +2259,16 @@ class DisplayController extends Controller
                     ->join('actor_i18n', 'actor_i18n.id', '=', 'event.actor_id')
                     ->select('event.object_id as id')
                     ->where('actor_i18n.authorized_form_of_name', 'like', $like)->get())) {
-                    return self::$textMatchIdCache[$cacheKey] = null;
+                    return null;
                 }
             }
         } catch (\Exception $e) {
             // Any hiccup (missing column on an older schema, transient re-prepare)
             // falls back to the correlated path rather than silently under-matching.
-            return self::$textMatchIdCache[$cacheKey] = null;
+            return null;
         }
 
-        return self::$textMatchIdCache[$cacheKey] = array_map('intval', array_keys($ids));
+        return array_map('intval', array_keys($ids));
     }
 
     /**
@@ -2237,23 +2284,21 @@ class DisplayController extends Controller
         $sectorTables = $this->getSectorSearchTables();
 
         // Pre-resolved id set: same matches, but the ~9 correlated subqueries
-        // run once as flat scans instead of once per row per facet. Only for
-        // the LIKE path - FULLTEXT relevance is left exactly as it was.
-        if (! $useFulltext) {
-            $matchIds = $this->resolveTextMatchIds($searchTerms);
-            if ($matchIds !== null) {
-                // An empty set is a real answer - it must exclude everything.
-                $query->whereIn('io.id', $matchIds);
+        // run once as flat scans instead of once per row per facet. With
+        // FULLTEXT the MATCH clauses join the scans (the clauses below only
+        // filter, they never rank), so FULLTEXT installs get the same speed-up:
+        // a dev search went from about 10 s to about 1 s.
+        $matchIds = $this->resolveTextMatchIds($searchTerms);
+        if ($matchIds !== null) {
+            // An empty set is a real answer - it must exclude everything.
+            $query->whereIn('io.id', $matchIds);
 
-                return;
-            }
+            return;
         }
 
         // Sanitize FULLTEXT-bound terms: strip boolean-mode operators and wildcards
         // that MySQL's NATURAL LANGUAGE parser rejects (e.g. bare '*').
-        $ftSanitize = static function (string $s): string {
-            return trim(preg_replace('/[\+\-><\(\)~\*"@]+/', ' ', $s));
-        };
+        $ftSanitize = static fn (string $s): string => self::fulltextTerm($s);
 
         // #111: escape LIKE wildcards (% _) when escape_queries is on so a
         // pasted value like "100% complete" matches literally instead of
