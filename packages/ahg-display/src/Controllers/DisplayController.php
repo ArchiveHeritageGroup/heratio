@@ -2061,14 +2061,16 @@ class DisplayController extends Controller
                     $sub->select(DB::raw(1))
                         ->from('information_object as io')
                         // applyFilters() filters on doc.object_type for the
-                        // sector/type filter, so the subquery has to carry the
-                        // same join the main and count queries do. Without it
-                        // the filter throws, the catch below swallows it, and
-                        // the page silently reverts to the slow path - which is
-                        // exactly the sort of invisible regression this join
-                        // prevents. Any future alias applyFilters() reaches for
-                        // must be added here too.
-                        ->leftJoin('display_object_config as doc', 'io.id', '=', 'doc.object_id')
+                        // sector/type filter, so with a type filter the subquery
+                        // has to carry the same join the main and count queries
+                        // do. Without it the filter throws, the catch below
+                        // swallows it, and the page silently reverts to the slow
+                        // path. Any future alias applyFilters() reaches for must
+                        // be added here too. With no type filter the join is left
+                        // out, as in the count: it makes MySQL materialise the
+                        // whole subquery - 3,140ms versus 10ms for the first page
+                        // of an unfiltered visitor browse at ANC (454,392 records).
+                        ->when($this->typeFilter, fn ($q) => $q->leftJoin('display_object_config as doc', 'io.id', '=', 'doc.object_id'))
                         ->whereColumn('io.id', 'ts.object_id')
                         ->where('io.id', '>', 1);
                     // Same filters as the main query - including the published
