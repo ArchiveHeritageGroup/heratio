@@ -279,6 +279,7 @@ The installer:
 2. Prompts for admin email + password + DB passwords + host port
 3. Sets `vm.max_map_count` if running as root (Elasticsearch requires it)
 4. `docker compose pull && up -d` - typical install completes in 30-60 s after the image is local
+5. On a first install only, asks whether to send one **opt-in, anonymous** install ping (default No): the Heratio version, the CPU architecture and a random install ID. No hostname, organisation, email or data is sent, and the receiving server does not store your IP address. It is skipped without asking when there is no terminal, when `CI` is set, or with `HERATIO_NO_PING=1`. A failed ping never affects the install. See [docker/README.md](docker/README.md#install-ping).
 
 Image: `ghcr.io/archiveheritagegroup/heratio:{latest,vX.Y.Z,X.Y}` - multi-arch (amd64 + arm64), so it runs on Apple Silicon clients too. Published by `.github/workflows/docker-publish.yml` on every release tag.
 

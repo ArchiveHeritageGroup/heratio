@@ -113,6 +113,29 @@ These stay external on purpose:
   to `/etc/sysctl.conf` for persistence).
 - First boot takes a while - ~3 min for the schema + seed pass.
 
+## Install ping
+
+`install-heratio.sh` can tell AHG that an install happened, so we can count real
+installs (the GHCR download total mostly counts our own build pipeline). It is
+**opt-in**: on a first install the installer asks, and the default is No.
+
+If you answer yes, after the stack has started it sends one POST to
+`https://heratio.org/api/v1/install-ping` with exactly these fields:
+
+| Field | Example | Notes |
+|---|---|---|
+| `install_id` | `feaf92c6-...` | A random UUID, kept in `.env.docker` as `HERATIO_INSTALL_ID` so a reinstall in the same folder is not counted twice |
+| `version` | `1.164.41` | Read from the running image |
+| `arch` | `x86_64` | `uname -m` |
+| `source` | `installer` | |
+
+Nothing else is sent: no hostname, domain, admin email, organisation or data.
+The server stores those four fields and the first and last time seen, and does
+not store your IP address. The question is skipped (no ping) when there is no
+terminal, when `CI` is set, or with `HERATIO_NO_PING=1`. The request gives up
+after 5 seconds and never affects the install. `HERATIO_PING_URL` points it
+elsewhere.
+
 ## AI / model policy (load-bearing - read before changing the build)
 
 Heratio is an **AI client, never a host**. The published image at

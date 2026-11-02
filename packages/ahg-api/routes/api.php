@@ -237,6 +237,12 @@ Route::prefix('api/v1')->middleware(['throttle:120,1', 'api.cors'])->group(funct
     Route::post('endangered/inbound', [\AhgApi\Controllers\EndangeredApiController::class, 'inbound'])
         ->middleware('throttle:30,1')
         ->name('api.v1.endangered.inbound');
+
+    // heratio#1571: the opt-in install ping from docker/install-heratio.sh.
+    // Anonymous (random id, version, arch); no key, no IP stored.
+    Route::post('install-ping', [\AhgApi\Controllers\InstallPingController::class, 'store'])
+        ->middleware('throttle:10,1')
+        ->name('api.v1.install-ping');
 });
 
 /*

@@ -29,6 +29,9 @@ set -euo pipefail
 REPO="ArchiveHeritageGroup/heratio"
 INSTALL_DIR="${INSTALL_DIR:-./heratio}"
 VERSION="${HERATIO_VERSION:-latest}"
+# Opt-in install count (#1571). HERATIO_NO_PING=1 or CI skips the question.
+PING_URL="${HERATIO_PING_URL:-https://heratio.org/api/v1/install-ping}"
+PING=no
 # A pinned install takes its compose file from the same release tag as the image.
 if [ "$VERSION" = "latest" ]; then RAW_REF=main; else RAW_REF="$VERSION"; fi
 RAW_BASE="https://raw.githubusercontent.com/${REPO}/${RAW_REF}/docker"
@@ -97,6 +100,17 @@ if [ ! -f .env.docker ]; then
     else
         echo "  (non-interactive run - edit ${INSTALL_DIR}/.env.docker before 'docker compose up')"
     fi
+
+    # Asked on a first install only, and read from the terminal because
+    # 'curl ... | bash' leaves stdin on the script. No terminal, no question.
+    if [ "${HERATIO_NO_PING:-0}" != 1 ] && [ -z "${CI:-}" ] && { : </dev/tty; } 2>/dev/null; then
+        echo
+        echo "  Help us count Heratio installs? Sends one anonymous message: the Heratio"
+        echo "  version, CPU architecture and a random install ID. No hostname, data or"
+        echo "  personal details are sent, and your IP address is not stored."
+        read -rp "  Send it? [y/N]: " PING_IN </dev/tty || PING_IN=
+        case "$PING_IN" in [yY]|[yY][eE][sS]) PING=yes ;; esac
+    fi
 else
     echo "[2/5] .env.docker already exists - reusing"
 fi
@@ -127,6 +141,27 @@ docker compose --env-file .env.docker pull
 echo
 echo "[5/5] starting stack"
 docker compose --env-file .env.docker up -d
+
+# ── Opt-in install ping (#1571) ──────────────────────────────────────────────
+# Sent only after a successful start, so an install that failed is not counted.
+# The id is kept in .env.docker, so a reinstall in this folder is not counted twice.
+if [ "$PING" = yes ]; then
+    INSTALL_ID=$(grep '^HERATIO_INSTALL_ID=' .env.docker | cut -d= -f2 || true)
+    if [ -z "$INSTALL_ID" ]; then
+        INSTALL_ID=$(cat /proc/sys/kernel/random/uuid 2>/dev/null || uuidgen 2>/dev/null || true)
+        [ -n "$INSTALL_ID" ] && printf '\n# Random id sent with the opt-in install ping (#1571).\nHERATIO_INSTALL_ID=%s\n' "$INSTALL_ID" >> .env.docker
+    fi
+    # The image's own version, so a 'latest' install reports the real release.
+    PING_VERSION=$(docker compose --env-file .env.docker exec -T heratio \
+        sh -c 'grep -o "\"version\": *\"[^\"]*\"" version.json | grep -o "[0-9][^\"]*"' 2>/dev/null || true)
+    PING_VERSION="${PING_VERSION:-$VERSION}"
+    if [ -n "$INSTALL_ID" ]; then
+        curl -fsS --max-time 5 -o /dev/null -H 'Accept: application/json' \
+            --data-urlencode "install_id=${INSTALL_ID}" --data-urlencode "version=${PING_VERSION}" \
+            --data-urlencode "arch=$(uname -m)" --data-urlencode "source=installer" \
+            "$PING_URL" 2>/dev/null && echo "  Install counted - thank you." || true
+    fi
+fi
 
 echo
 echo "─── Heratio is starting ─────────────────────────────────────────────────"
