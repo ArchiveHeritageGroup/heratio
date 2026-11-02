@@ -4,7 +4,7 @@
 
 **Plugin:** ahgLibraryPlugin v2.0.0
 **Framework:** Heratio (atom-framework v2.8.2)
-**Author:** The Archive and Heritage Group (Pty) Ltd
+**Author:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 **Date:** 2026-03-08
 
 ---

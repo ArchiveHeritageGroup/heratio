@@ -145,4 +145,4 @@ These tables are created automatically by the framework installer. If they are m
 
 ---
 
-*The Archive and Heritage Group (Pty) Ltd*
+*The Archive and Heritage Digital Commons Group (Pty) Ltd*

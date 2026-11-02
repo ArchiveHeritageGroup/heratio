@@ -38,7 +38,7 @@ backs:
 
 ## How to subscribe
 
-1. Email **The Archive and Heritage Group** at **johan@theahg.co.za** to
+1. Email **The Archive and Heritage Digital Commons Group** at **johan@theahg.co.za** to
    request an AI subscription. State your institution and which AI features you
    intend to use.
 2. AHG responds with the subscription terms. **Pricing is quoted on enquiry** -

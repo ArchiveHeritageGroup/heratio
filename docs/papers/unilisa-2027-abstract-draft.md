@@ -8,7 +8,7 @@ Sub-theme:  Digital Archives, Records Management, and Data Curation
             (also a fit for: Disruptive technology for digitisation and digital transformation)
 
 Author:     Johannes Jurie Pieterse
-            The Archive and Heritage Group (Pty) Ltd
+            The Archive and Heritage Digital Commons Group (Pty) Ltd
             johan@theahg.co.za
 
 ----

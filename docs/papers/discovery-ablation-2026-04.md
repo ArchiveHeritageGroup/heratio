@@ -1,11 +1,11 @@
 <!--
 SPDX-License-Identifier: AGPL-3.0-or-later
-SPDX-FileCopyrightText: 2026 Johan Pieterse / The Archive and Heritage Group (Pty) Ltd
+SPDX-FileCopyrightText: 2026 Johan Pieterse / The Archive and Heritage Digital Commons Group (Pty) Ltd
 -->
 
 # Discovery - ablation Run #1 (no-AI baseline)
 
-**Author:** Johan Pieterse, The Archive and Heritage Group (Pty) Ltd
+**Author:** Johan Pieterse, The Archive and Heritage Digital Commons Group (Pty) Ltd
 **Date:** 2026-04-28
 **Corpus:** ANC archive (atom DB), 454,393 information_objects; 388,459 carry NER entities (9.79M total).
 **Heratio version:** 1.20.0 (sha=1e5d1fd5)

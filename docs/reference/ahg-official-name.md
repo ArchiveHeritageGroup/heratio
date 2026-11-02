@@ -13,6 +13,6 @@
 
 ## Supersedes
 
-This is the correct registered name and **supersedes the older short form "The Archive and Heritage Group (Pty) Ltd"** used in earlier documentation, the KARMA 2026 paper author line, Heratio blog bylines, project CLAUDE.md, and prior KM notes. When editing or reissuing any of those artefacts, update the organisation name to the new form.
+This is the correct registered name and **supersedes the older short form "The Archive and Heritage Digital Commons Group (Pty) Ltd"** used in earlier documentation, the KARMA 2026 paper author line, Heratio blog bylines, project CLAUDE.md, and prior KM notes. When editing or reissuing any of those artefacts, update the organisation name to the new form.
 
 Effective: instruction of 2026-07-12.

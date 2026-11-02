@@ -110,7 +110,7 @@ Not a product. A contract anyone can implement.
 
 ---
 
-*Johan Pieterse is the editor of OpenRiC. He runs The Archive and Heritage Group and Plain Sailing Information Systems. Reach him at <johan@plainsailingisystems.co.za>.*
+*Johan Pieterse is the editor of OpenRiC. He runs The Archive and Heritage Digital Commons Group and Plain Sailing Information Systems. Reach him at <johan@plainsailingisystems.co.za>.*
 
 ---
 

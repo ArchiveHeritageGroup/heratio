@@ -77,4 +77,4 @@ So I will put the question to the people who do this work, and to anyone who has
 
 ---
 
-*Johan Pieterse is the founder of The Archive and Heritage Group and the creator of Heratio, a platform for galleries, libraries, archives and museums worldwide.*
+*Johan Pieterse is the founder of The Archive and Heritage Digital Commons Group and the creator of Heratio, a platform for galleries, libraries, archives and museums worldwide.*

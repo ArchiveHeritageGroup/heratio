@@ -3,7 +3,7 @@
 **Product:** Heratio Framework v2.8.2
 **Component:** WCAG 2.1 Level AA Accessibility
 **Date:** 16 March 2026
-**Author:** The Archive and Heritage Group (Pty) Ltd
+**Author:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 
 ---
 

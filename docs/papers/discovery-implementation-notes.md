@@ -1,6 +1,6 @@
 <!--
 SPDX-License-Identifier: AGPL-3.0-or-later
-SPDX-FileCopyrightText: 2026 Johan Pieterse / The Archive and Heritage Group (Pty) Ltd
+SPDX-FileCopyrightText: 2026 Johan Pieterse / The Archive and Heritage Digital Commons Group (Pty) Ltd
 
 Heratio is free software: you can redistribute it and/or modify it under the
 terms of the GNU Affero General Public License version 3 or (at your option)
@@ -9,7 +9,7 @@ any later version. See <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 # Discovery - implementation notes
 
-**Author:** Johan Pieterse, The Archive and Heritage Group (Pty) Ltd
+**Author:** Johan Pieterse, The Archive and Heritage Digital Commons Group (Pty) Ltd
 **Date:** 2026-04-28
 **Heratio version:** 1.18.0+ (post-#28)
 **Scope:** Methodology notes that the GenDSs paper's pilot section can cite. Covers the four questions raised in GitHub issue #27.

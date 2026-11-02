@@ -70,7 +70,7 @@
       <div class="card-header bg-light">{{ __('Heratio license & source code') }}</div>
       <div class="card-body mb-0">
         <p>
-          Heratio &copy; The Archive and Heritage Group (Pty) Ltd / Plain Sailing
+          Heratio &copy; The Archive and Heritage Digital Commons Group (Pty) Ltd / Plain Sailing
           Information Systems. Heratio is free software, licensed under the
           <strong>{{ __('GNU Affero General Public License v3.0') }}</strong>. It is distributed
           in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even

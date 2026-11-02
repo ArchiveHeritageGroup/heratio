@@ -322,7 +322,7 @@ XML;
     protected function writeBagInfo(string $path, object $io, string $type, array $options): void
     {
         $lines = [
-            'Source-Organization: ' . ($options['originator'] ?? 'The Archive and Heritage Group'),
+            'Source-Organization: ' . ($options['originator'] ?? 'The Archive and Heritage Digital Commons Group'),
             'Contact-Name: heratio ingest',
             'Bagging-Date: ' . now()->toDateString(),
             'External-Identifier: ' . ($io->identifier ?: ('heratio:io/' . $io->id)),

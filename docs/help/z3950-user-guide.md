@@ -4,7 +4,7 @@
 
 **Version:** 1.0.0
 **Date:** May 2026
-**Author:** The Archive and Heritage Group (Pty) Ltd
+**Author:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 **Issue:** heratio#759
 
 ---

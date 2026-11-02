@@ -7,7 +7,7 @@
 **Component:** ahg3DModelPlugin
 **Version:** 1.3.0
 **Category:** Digital Asset Management / Viewer
-**Author:** The Archive and Heritage Group (Pty) Ltd
+**Author:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 
 ---
 
@@ -160,5 +160,5 @@ All actions are logged to a dedicated audit table:
 
 ---
 
-*The Archive and Heritage Group (Pty) Ltd*
+*The Archive and Heritage Digital Commons Group (Pty) Ltd*
 *https://theahg.co.za*

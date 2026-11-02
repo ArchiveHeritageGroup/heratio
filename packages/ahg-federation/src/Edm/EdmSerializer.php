@@ -99,7 +99,7 @@ class EdmSerializer
         }
         $ricPlaces = $this->fetchRicPlaces((int) $io->id, $culture);
 
-        $dataProvider = $this->setting('europeana_data_provider', 'The Archive and Heritage Group');
+        $dataProvider = $this->setting('europeana_data_provider', 'The Archive and Heritage Digital Commons Group');
         $providerCountry = $this->setting('europeana_country', 'South Africa');
         $providerLanguage = $this->setting('europeana_language', $culture);
 

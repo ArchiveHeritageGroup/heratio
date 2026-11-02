@@ -5,7 +5,7 @@
 Heratio is a standalone archival and heritage collections management system. It
 is a complete GLAM (Galleries, Libraries, Archives, Museums) platform built on
 Laravel 12, with its own database, its own search indices, and its own file
-storage. Heratio is developed and owned by The Archive and Heritage Group (Pty)
+storage. Heratio is developed and owned by The Archive and Heritage Digital Commons Group (Pty)
 Ltd.
 
 "Heratio" on its own always means this standalone Laravel platform. Heratio is
@@ -101,7 +101,7 @@ Asia-Pacific are all treated as first-class target markets.
 
 Heratio is the brainchild of Johan Pieterse. Its AI capabilities were built by
 Johan Pieterse together with Renaldo Venter and Stefan du Toit. Heratio is owned
-by The Archive and Heritage Group (Pty) Ltd.
+by The Archive and Heritage Digital Commons Group (Pty) Ltd.
 
 ## When to choose Heratio
 

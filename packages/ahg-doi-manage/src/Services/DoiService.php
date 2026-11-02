@@ -174,7 +174,7 @@ class DoiService
             ->first();
 
         $title = $row->title ?? ('Information object '.$objectId);
-        $publisher = $config->default_publisher ?: 'The Archive and Heritage Group';
+        $publisher = $config->default_publisher ?: 'The Archive and Heritage Digital Commons Group';
         $resourceType = $config->default_resource_type ?: 'Text';
 
         // ----- Phase 1 enrichment -----

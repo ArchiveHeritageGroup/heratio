@@ -1,10 +1,10 @@
 {
     "_about": "Per-locale provenance for lang/*.json. Maintained by ahg:translation-import-xliff and ahg:translation-save (POST /admin/translation/save). Used by --mode=prefer-source to know which entries are safe to overwrite during a re-import.",
-    "_attribution": "AtoM-sourced locales credit Artefactual Systems + the AtoM community translators (https://www.transifex.com/artefactual/atom/). SA-language locales (af, en, nr, nso, ss, st, tn, ts, ve, xh, zu) are authored by The Archive and Heritage Group. See ACKNOWLEDGMENTS.md.",
+    "_attribution": "AtoM-sourced locales credit Artefactual Systems + the AtoM community translators (https://www.transifex.com/artefactual/atom/). SA-language locales (af, en, nr, nso, ss, st, tn, ts, ve, xh, zu) are authored by The Archive and Heritage Digital Commons Group. See ACKNOWLEDGMENTS.md.",
     "locales": {
         "af": {
             "atom_version_at_import": "unknown",
-            "credit": "The Archive and Heritage Group (Pty) Ltd; AtoM community contributors via Artefactual Weblate",
+            "credit": "The Archive and Heritage Digital Commons Group (Pty) Ltd; AtoM community contributors via Artefactual Weblate",
             "first_seeded_at": "2026-04-30",
             "last_imported_at": "2026-04-30",
             "primary_source": "ahg",
@@ -419,7 +419,7 @@
                 "Catalogue objects on CCO fields, with completeness scoring, a quality dashboard and Getty vocabulary links.": 3,
                 "Describe from fonds down to item, with the hierarchy kept as you arrange and rearrange.": 3,
                 "Heratio catalogues museum and gallery collections to CCO, then carries each object through the work that happens around it: condition checks, loans, provenance research, exhibitions and accounting for the collection as an asset.": 3,
-                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Group to host it for you.": 3,
+                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Digital Commons Group to host it for you.": 3,
                 "Heratio runs on top of the existing AtoM database. The installer works in eight repeatable stages and has a dry run, so you can see every change before it is made.": 3,
                 "If you run AtoM today, you do not have to migrate your data to try Heratio. Heratio can run over the AtoM database you already have, reading the same descriptions, authorities and digital objects, while adding the features the AtoM community has asked for, among them a storage tree, RiC, custom fields, bulk editing, an audit trail and a reading room.": 3,
                 "Install over an existing AtoM database, as a fresh install, from a Docker image, or on a provisioned virtual machine.": 3,
@@ -7339,7 +7339,7 @@
                 "Configure dashboard widgets for this report.": 3,
                 "Run the scheduler via cron to execute due workflows:": 3,
                 "The artist's Twitter/X handle.": 3,
-                "AHG Central is a cloud service from The Archive and Heritage Group that enhances your instance with:": 3,
+                "AHG Central is a cloud service from The Archive and Heritage Digital Commons Group that enhances your instance with:": 3,
                 "Accepts .xml or .marcxml files up to 20 MB.": 3,
                 "Access the IIIF 3D manifest for this model:": 3,
                 "Actual filesystem path on the server where files land. Shown to users for the CSV digitalObjectPath column.": 2,
@@ -7439,7 +7439,7 @@
                 "Catalogue books and other items with authority control.": 1,
                 "Describe from fonds down to item, with the hierarchy kept as you arrange and rearrange.": 3,
                 "Descriptions follow the international standards archivists already work in, and the same record can be exported as EAD, RiC-O, MODS or Dublin Core without re-keying. Country-specific requirements, such as the national archives rules of a particular jurisdiction, are pluggable market modules on top of that core.": 3,
-                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Group to host it for you.": 3,
+                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Digital Commons Group to host it for you.": 3,
                 "It does not configure your web server. Setting up the nginx site is a separate step.": 3,
                 "Staff manage patrons; patrons see their loans, holds and fines and renew online.": 1,
                 "Upload and view glb, gltf, obj, stl, ply and usdz, with hotspots, measuring, cross-sections and embed codes.": 3,
@@ -7447,7 +7447,7 @@
                 "Single sign-on": 3,
                 "Summaries, translation, named-entity extraction with human review, handwriting recognition, condition assessment and a catalogue chatbot.": 3,
                 "A visit counts once a page has been open in a real browser for five seconds, so crawlers are left out. No IP address, cookie or personal detail is stored.": 3,
-                "Hosting by The Archive and Heritage Group": 3,
+                "Hosting by The Archive and Heritage Digital Commons Group": 3,
                 "Sources: github, search, social, referral:<site>, campaign:<name> (from a utm_source tag on the link), direct (no referring site).": 3
             }
         },
@@ -9857,7 +9857,7 @@
                 "Catalogue objects on CCO fields, with completeness scoring, a quality dashboard and Getty vocabulary links.": 3,
                 "Descriptions follow the international standards archivists already work in, and the same record can be exported as EAD, RiC-O, MODS or Dublin Core without re-keying. Country-specific requirements, such as the national archives rules of a particular jurisdiction, are pluggable market modules on top of that core.": 3,
                 "Each sector keeps its own standards and workflows. What is shared is everything underneath: search, digital objects, rights, privacy, preservation, the APIs and the audit trail.": 3,
-                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Group to host it for you.": 3,
+                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Digital Commons Group to host it for you.": 3,
                 "If you run AtoM today, you do not have to migrate your data to try Heratio. Heratio can run over the AtoM database you already have, reading the same descriptions, authorities and digital objects, while adding the features the AtoM community has asked for, among them a storage tree, RiC, custom fields, bulk editing, an audit trail and a reading room.": 3,
                 "Install over an existing AtoM database, as a fresh install, from a Docker image, or on a provisioned virtual machine.": 3,
                 "It does not configure your web server. Setting up the nginx site is a separate step.": 3,
@@ -14280,7 +14280,7 @@
                 "This system has no AI inference provenance store configured, so no automated steps can be shown.": 2,
                 "Upload a 3D scan (.las, .laz or .ply). Heratio converts it to a streaming octree you can explore in the browser. Very large scans are best converted on the server with": 3,
                 "Use this interface to update the authorized form of name, slug (permalink), and/or %1% filename.": 2,
-                "We do not send your question to any third-party AI service. All inferences run on internal infrastructure owned by The Archive and Heritage Group (Pty) Ltd.": 3,
+                "We do not send your question to any third-party AI service. All inferences run on internal infrastructure owned by The Archive and Heritage Digital Commons Group (Pty) Ltd.": 3,
                 "When enabled, an &quot;Upload limit&quot; meter is displayed for authenticated users on the %1% view page, and administrators can limit the disk space each %1% is allowed for %2% uploads": 3,
                 "When set to &quot;no&quot;, the repository name is excluded from certain displays because it will be too repetitive": 3,
                 "When set to &quot;yes&quot;, the reference code string will be built using the information object identifier plus the identifiers of all its ancestors": 3,
@@ -14348,7 +14348,7 @@
                 "No redaction regions yet.": 2,
                 "Run the scheduler via cron to execute due workflows:": 3,
                 "Submission, Archival, and Dissemination Information Packages": 2,
-                "AHG Central is a cloud service from The Archive and Heritage Group that enhances your instance with:": 2,
+                "AHG Central is a cloud service from The Archive and Heritage Digital Commons Group that enhances your instance with:": 2,
                 "Accepts .xml or .marcxml files up to 20 MB.": 3,
                 "At least one identifier required: ISBN, ISSN, eISSN, or proprietary_id": 3,
                 "Automatically generate baseline checksums on first verification if none exist.": 2,
@@ -14403,13 +14403,13 @@
                 "Descriptions follow the international standards archivists already work in, and the same record can be exported as EAD, RiC-O, MODS or Dublin Core without re-keying. Country-specific requirements, such as the national archives rules of a particular jurisdiction, are pluggable market modules on top of that core.": 3,
                 "Generate a finding aid for a collection as EAD or PDF.": 1,
                 "Heratio catalogues museum and gallery collections to CCO, then carries each object through the work that happens around it: condition checks, loans, provenance research, exhibitions and accounting for the collection as an asset.": 1,
-                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Group to host it for you.": 1,
+                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Digital Commons Group to host it for you.": 1,
                 "It does not configure your web server. Setting up the nginx site is a separate step.": 3,
                 "Requests from data subjects, impact assessments, a processing register, scanning for personal data and redaction. The rules for each jurisdiction are pluggable modules.": 3,
                 "The overlay needs MySQL 8, PHP 8.3, and a reference Heratio database on the same MySQL server, which it uses as the source of the schema.": 3,
                 "Upload and view glb, gltf, obj, stl, ply and usdz, with hotspots, measuring, cross-sections and embed codes.": 3,
                 "Needs c2patool on the server.": 3,
-                "Hosting by The Archive and Heritage Group": 1,
+                "Hosting by The Archive and Heritage Digital Commons Group": 1,
                 "Sources: github, search, social, referral:<site>, campaign:<name> (from a utm_source tag on the link), direct (no referring site).": 3
             }
         },
@@ -18515,7 +18515,7 @@
                 "The artist's Facebook page URL.": 3,
                 "A preview table shows extracted fields grouped by MARC section.": 3,
                 "A publicly accessible URL returning a NISO KBART TSV file.": 3,
-                "AHG Central is a cloud service from The Archive and Heritage Group that enhances your instance with:": 3,
+                "AHG Central is a cloud service from The Archive and Heritage Digital Commons Group that enhances your instance with:": 3,
                 "API key for accessing the Local Contexts Hub. Leave blank if not using API integration.": 3,
                 "Accepts .xml or .marcxml files up to 20 MB.": 3,
                 "Actual filesystem path on the server where files land. Shown to users for the CSV digitalObjectPath column.": 3,
@@ -18762,7 +18762,7 @@
                 "Heratio for archives": 3,
                 "Heratio for libraries": 3,
                 "Heratio for museums": 3,
-                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Group to host it for you.": 3,
+                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Digital Commons Group to host it for you.": 3,
                 "Heratio runs a library from the order to the shelf to the patron: acquisitions and serials, MARC21 cataloguing with copy cataloguing over Z39.50, and circulation with holds, fines and patron accounts.": 3,
                 "Heratio runs on top of the existing AtoM database. The installer works in eight repeatable stages and has a dry run, so you can see every change before it is made.": 3,
                 "ISAD(G) CSV with match-and-update, per-sector CSV importers, EAD 2002 and EAD3 import, and a browser ingest wizard.": 3,
@@ -18827,7 +18827,7 @@
                 "By source, since :date": 1,
                 "Deploying Heratio at my institution": 1,
                 "Enquiries by type, since :date": 1,
-                "Hosting by The Archive and Heritage Group": 3,
+                "Hosting by The Archive and Heritage Digital Commons Group": 3,
                 "Moving from AtoM or another system": 1,
                 "Sources: github, search, social, referral:<site>, campaign:<name> (from a utm_source tag on the link), direct (no referring site).": 3,
                 "Heratio is open-source GLAM and archival management software. Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system. Free under the GNU AGPL-3.0 licence.": 3
@@ -19198,7 +19198,7 @@
                 "Main headline displayed in the hero section.": 3,
                 "Add to crontab for scheduled runs:": 3,
                 "Run the scheduler via cron to execute due workflows:": 3,
-                "AHG Central is a cloud service from The Archive and Heritage Group that enhances your instance with:": 3,
+                "AHG Central is a cloud service from The Archive and Heritage Digital Commons Group that enhances your instance with:": 3,
                 "Accepts .xml or .marcxml files up to 20 MB.": 3,
                 "At least one identifier required: ISBN, ISSN, eISSN, or proprietary_id": 3,
                 "Auto-create stubs from NER entities": 3,
@@ -19253,22 +19253,22 @@
                 "Term to keep (name or slug, same taxonomy)": 3,
                 "Use {title} for the current title, {identifier} for the identifier and {n} for the position in the list. Example: Box {n}: {title}": 3,
                 "max:N for a length limit, or regex:/pattern/ for a format.": 3,
-                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Group to host it for you.": 3,
+                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Digital Commons Group to host it for you.": 3,
                 "It does not configure your web server. Setting up the nginx site is a separate step.": 3,
                 "Upload and view glb, gltf, obj, stl, ply and usdz, with hotspots, measuring, cross-sections and embed codes.": 3,
                 "Needs c2patool on the server.": 3,
                 "A visit counts once a page has been open in a real browser for five seconds, so crawlers are left out. No IP address, cookie or personal detail is stored.": 3,
-                "Hosting by The Archive and Heritage Group": 3,
+                "Hosting by The Archive and Heritage Digital Commons Group": 3,
                 "Sources: github, search, social, referral:<site>, campaign:<name> (from a utm_source tag on the link), direct (no referring site).": 3
             }
         },
         "khi": {
-            "credit": "The Archive and Heritage Group (Pty) Ltd. NOTE: khi is a collective language-family code (Khoisan), not a single language. Native-speaker review required before production.",
+            "credit": "The Archive and Heritage Digital Commons Group (Pty) Ltd. NOTE: khi is a collective language-family code (Khoisan), not a single language. Native-speaker review required before production.",
             "first_seeded_at": "2026-04-30",
             "primary_source": "ahg"
         },
         "kj": {
-            "credit": "The Archive and Heritage Group (Pty) Ltd. Aligned to Oshikwanyama / Kuanyama / Kwanyama (ISO kua/kj). Native-speaker review required before production.",
+            "credit": "The Archive and Heritage Digital Commons Group (Pty) Ltd. Aligned to Oshikwanyama / Kuanyama / Kwanyama (ISO kua/kj). Native-speaker review required before production.",
             "first_seeded_at": "2026-04-30",
             "primary_source": "ahg"
         },
@@ -19875,7 +19875,7 @@
                 "Type B": 2,
                 "Type C": 2,
                 "Rule #:id scheduled to run in background.": 3,
-                "AHG Central is a cloud service from The Archive and Heritage Group that enhances your instance with:": 3,
+                "AHG Central is a cloud service from The Archive and Heritage Digital Commons Group that enhances your instance with:": 3,
                 "API key for accessing the Local Contexts Hub. Leave blank if not using API integration.": 3,
                 "Accepts .xml or .marcxml files up to 20 MB.": 3,
                 "After exporting synonyms, you need to restart Elasticsearch for changes to take effect. Add the synonyms filter to your index settings.": 3,
@@ -20016,7 +20016,7 @@
                 "Heratio catalogues museum and gallery collections to CCO, then carries each object through the work that happens around it: condition checks, loans, provenance research, exhibitions and accounting for the collection as an asset.": 3,
                 "Heratio checks AtoM's password scheme itself, so staff sign in with the credentials they already have.": 3,
                 "Heratio covers the archive from accession to public access: arrangement and description, authority control, storage, retention and preservation, then a reading room and a public catalogue that aggregators can harvest.": 3,
-                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Group to host it for you.": 3,
+                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Digital Commons Group to host it for you.": 3,
                 "Heratio runs a library from the order to the shelf to the patron: acquisitions and serials, MARC21 cataloguing with copy cataloguing over Z39.50, and circulation with holds, fines and patron accounts.": 3,
                 "Heratio runs on top of the existing AtoM database. The installer works in eight repeatable stages and has a dry run, so you can see every change before it is made.": 3,
                 "If you prefer a clean start, install Heratio fresh and bring your records across as CSV or EAD.": 3,
@@ -20041,7 +20041,7 @@
                 "What Heratio can do, and how finished each part is.": 3,
                 "Look at an object in 3D": 3,
                 "Try Heratio the way an archivist would, in about fifteen minutes.": 3,
-                "Hosting by The Archive and Heritage Group": 3,
+                "Hosting by The Archive and Heritage Digital Commons Group": 3,
                 "Sources: github, search, social, referral:<site>, campaign:<name> (from a utm_source tag on the link), direct (no referring site).": 3,
                 "Heratio is open-source GLAM and archival management software. Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system. Free under the GNU AGPL-3.0 licence.": 3
             }
@@ -20500,7 +20500,7 @@
                 "Suggested Correction": 3,
                 "Add to crontab for scheduled runs:": 3,
                 "Run the scheduler via cron to execute due workflows:": 3,
-                "AHG Central is a cloud service from The Archive and Heritage Group that enhances your instance with:": 3,
+                "AHG Central is a cloud service from The Archive and Heritage Digital Commons Group that enhances your instance with:": 3,
                 "Accepts .xml or .marcxml files up to 20 MB.": 3,
                 "At least one identifier required: ISBN, ISSN, eISSN, or proprietary_id": 3,
                 "Configure Indigenous Cultural and Intellectual Property management settings.": 3,
@@ -20546,7 +20546,7 @@
                 "Term to keep (name or slug, same taxonomy)": 3,
                 "Use {title} for the current title, {identifier} for the identifier and {n} for the position in the list. Example: Box {n}: {title}": 3,
                 "max:N for a length limit, or regex:/pattern/ for a format.": 3,
-                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Group to host it for you.": 3,
+                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Digital Commons Group to host it for you.": 3,
                 "It does not configure your web server. Setting up the nginx site is a separate step.": 3,
                 "Object and container labels with barcodes, printed in batches.": 1,
                 "Requests from data subjects, impact assessments, a processing register, scanning for personal data and redaction. The rules for each jurisdiction are pluggable modules.": 1,
@@ -20558,7 +20558,7 @@
                 "Off by default; seven procedures have their own screens so far.": 3,
                 "Summaries, translation, named-entity extraction with human review, handwriting recognition, condition assessment and a catalogue chatbot.": 3,
                 "A visit counts once a page has been open in a real browser for five seconds, so crawlers are left out. No IP address, cookie or personal detail is stored.": 1,
-                "Hosting by The Archive and Heritage Group": 3,
+                "Hosting by The Archive and Heritage Digital Commons Group": 3,
                 "Sources: github, search, social, referral:<site>, campaign:<name> (from a utm_source tag on the link), direct (no referring site).": 3
             }
         },
@@ -21332,7 +21332,7 @@
             "review_required": "native-speaker review required before production"
         },
         "nd": {
-            "credit": "The Archive and Heritage Group (Pty) Ltd. Northern Ndebele / Sindebele (Zimbabwe). Native-speaker review required before production.",
+            "credit": "The Archive and Heritage Digital Commons Group (Pty) Ltd. Northern Ndebele / Sindebele (Zimbabwe). Native-speaker review required before production.",
             "first_seeded_at": "2026-04-30",
             "primary_source": "ahg"
         },
@@ -22371,12 +22371,12 @@
             }
         },
         "nr": {
-            "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
+            "credit": "The Archive and Heritage Digital Commons Group (Pty) Ltd. Native-speaker review required before production.",
             "first_seeded_at": "2026-04-30",
             "primary_source": "ahg"
         },
         "nso": {
-            "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
+            "credit": "The Archive and Heritage Digital Commons Group (Pty) Ltd. Native-speaker review required before production.",
             "first_seeded_at": "2026-04-30",
             "primary_source": "ahg",
             "mt_batch_last_run": "2026-10-15",
@@ -26610,7 +26610,7 @@
                 "Digital Object Identifier": 3,
                 "Add to crontab for scheduled runs:": 3,
                 "Run the scheduler via cron to execute due workflows:": 3,
-                "AHG Central is a cloud service from The Archive and Heritage Group that enhances your instance with:": 3,
+                "AHG Central is a cloud service from The Archive and Heritage Digital Commons Group that enhances your instance with:": 3,
                 "Accepts .xml or .marcxml files up to 20 MB.": 3,
                 "At least one identifier required: ISBN, ISSN, eISSN, or proprietary_id": 3,
                 "Descriptive identification (unitid, unittitle, unitdate)": 3,
@@ -26645,12 +26645,12 @@
                 "Use {title} for the current title, {identifier} for the identifier and {n} for the position in the list. Example: Box {n}: {title}": 3,
                 "max:N for a length limit, or regex:/pattern/ for a format.": 3,
                 "A public read API, an authenticated API with full create and update, harvesting and change notification.": 1,
-                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Group to host it for you.": 3,
+                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Digital Commons Group to host it for you.": 3,
                 "It does not configure your web server. Setting up the nginx site is a separate step.": 3,
                 "Upload and view glb, gltf, obj, stl, ply and usdz, with hotspots, measuring, cross-sections and embed codes.": 3,
                 "Needs c2patool on the server.": 3,
                 "A visit counts once a page has been open in a real browser for five seconds, so crawlers are left out. No IP address, cookie or personal detail is stored.": 3,
-                "Hosting by The Archive and Heritage Group": 3,
+                "Hosting by The Archive and Heritage Digital Commons Group": 3,
                 "Sources: github, search, social, referral:<site>, campaign:<name> (from a utm_source tag on the link), direct (no referring site).": 3
             }
         },
@@ -27998,7 +27998,7 @@
             "review_required": "native-speaker review required before production"
         },
         "sn": {
-            "credit": "The Archive and Heritage Group (Pty) Ltd. chiShona (Zimbabwe). Native-speaker review required before production.",
+            "credit": "The Archive and Heritage Digital Commons Group (Pty) Ltd. chiShona (Zimbabwe). Native-speaker review required before production.",
             "first_seeded_at": "2026-04-30",
             "primary_source": "ahg"
         },
@@ -30324,7 +30324,7 @@
                 "Vendors Directory": 1,
                 "Venue": 1,
                 "Venue &amp; Team": 2,
-                "We do not send your question to any third-party AI service. All inferences run on internal infrastructure owned by The Archive and Heritage Group (Pty) Ltd.": 3,
+                "We do not send your question to any third-party AI service. All inferences run on internal infrastructure owned by The Archive and Heritage Digital Commons Group (Pty) Ltd.": 3,
                 "WebAuthn requires HTTPS (except on localhost). Your browser will refuse to enrol a passkey on this URL.": 3,
                 "Webhook Management": 1,
                 "Webhooks": 1,
@@ -30848,7 +30848,7 @@
                 "Run the scheduler via cron to execute due workflows:": 3,
                 "Translation Settings": 1,
                 "A finding aid is a document that describes a collection of records. It helps researchers locate relevant materials by providing hierarchical descriptions, access points, and administrative metadata.": 3,
-                "AHG Central is a cloud service from The Archive and Heritage Group that enhances your instance with:": 3,
+                "AHG Central is a cloud service from The Archive and Heritage Digital Commons Group that enhances your instance with:": 3,
                 "API Timeout (seconds)": 1,
                 "API key for accessing the Local Contexts Hub. Leave blank if not using API integration.": 1,
                 "API keys allow you to access your research data programmatically. Keep your keys secure and never share them publicly.": 1,
@@ -31171,7 +31171,7 @@
                 "Term to keep (name or slug, same taxonomy)": 2,
                 "Use {title} for the current title, {identifier} for the identifier and {n} for the position in the list. Example: Box {n}: {title}": 3,
                 "max:N for a length limit, or regex:/pattern/ for a format.": 3,
-                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Group to host it for you.": 3,
+                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Digital Commons Group to host it for you.": 3,
                 "It does not configure your web server. Setting up the nginx site is a separate step.": 3,
                 "Object cataloguing, collections procedures, condition and loans, 3D and exhibitions.": 3,
                 "Objects can be shown the way visitors meet them, in deep zoom, as 3D models, or hung in a 3D exhibition space that anyone can walk through in a browser. The live demo has two such spaces, one of them a building that no longer exists.": 3,
@@ -31219,13 +31219,13 @@
                 "Single sign-on": 1,
                 "Everything here is sample data. Change, add or delete whatever you like.": 3,
                 "Deploying Heratio at my institution": 2,
-                "Hosting by The Archive and Heritage Group": 3,
+                "Hosting by The Archive and Heritage Digital Commons Group": 3,
                 "Sources: github, search, social, referral:<site>, campaign:<name> (from a utm_source tag on the link), direct (no referring site).": 3,
                 "Heratio is open-source GLAM and archival management software. Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system. Free under the GNU AGPL-3.0 licence.": 1
             }
         },
         "ss": {
-            "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
+            "credit": "The Archive and Heritage Digital Commons Group (Pty) Ltd. Native-speaker review required before production.",
             "first_seeded_at": "2026-04-30",
             "primary_source": "ahg",
             "mt_batch_last_run": "2026-10-17",
@@ -32000,7 +32000,7 @@
             "review_required": "native-speaker review required before production"
         },
         "st": {
-            "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
+            "credit": "The Archive and Heritage Digital Commons Group (Pty) Ltd. Native-speaker review required before production.",
             "first_seeded_at": "2026-04-30",
             "primary_source": "ahg",
             "mt_batch_last_run": "2026-10-17",
@@ -34180,7 +34180,7 @@
                 "Run the scheduler via cron to execute due workflows:": 3,
                 "Select multiple images or PDFs for batch processing.": 3,
                 "A finding aid is a document that describes a collection of records. It helps researchers locate relevant materials by providing hierarchical descriptions, access points, and administrative metadata.": 2,
-                "AHG Central is a cloud service from The Archive and Heritage Group that enhances your instance with:": 3,
+                "AHG Central is a cloud service from The Archive and Heritage Digital Commons Group that enhances your instance with:": 3,
                 "Accepts .xml or .marcxml files up to 20 MB.": 3,
                 "All predicates are mapped.": 1,
                 "Are you sure you want to lift this embargo?": 1,
@@ -34244,7 +34244,7 @@
                 "Describe from fonds down to item, with the hierarchy kept as you arrange and rearrange.": 2,
                 "Edit every dropdown, and add your own fields to any form, carried through to exports.": 2,
                 "Generate a finding aid for a collection as EAD or PDF.": 2,
-                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Group to host it for you.": 3,
+                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Digital Commons Group to host it for you.": 3,
                 "It does not configure your web server. Setting up the nginx site is a separate step.": 3,
                 "Manifests for records, collections, exhibitions and 3D models, shown in Mirador, Universal Viewer or OpenSeadragon. Deep-zoom tiles need a Cantaloupe image server.": 1,
                 "Open APIs": 3,
@@ -34768,7 +34768,7 @@
                 "Add to crontab for scheduled runs:": 3,
                 "All objects have checksums": 3,
                 "Run the scheduler via cron to execute due workflows:": 3,
-                "AHG Central is a cloud service from The Archive and Heritage Group that enhances your instance with:": 3,
+                "AHG Central is a cloud service from The Archive and Heritage Digital Commons Group that enhances your instance with:": 3,
                 "Accepts .xml or .marcxml files up to 20 MB.": 3,
                 "Access the IIIF 3D manifest for this model:": 3,
                 "All predicates are mapped.": 3,
@@ -34837,7 +34837,7 @@
                 "Generate a finding aid for a collection as EAD or PDF.": 3,
                 "Group manifestations into works, with overrides when the grouping is wrong.": 3,
                 "Heratio covers the archive from accession to public access: arrangement and description, authority control, storage, retention and preservation, then a reading room and a public catalogue that aggregators can harvest.": 3,
-                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Group to host it for you.": 3,
+                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Digital Commons Group to host it for you.": 3,
                 "Heratio runs on top of the existing AtoM database. The installer works in eight repeatable stages and has a dry run, so you can see every change before it is made.": 3,
                 "If you run AtoM today, you do not have to migrate your data to try Heratio. Heratio can run over the AtoM database you already have, reading the same descriptions, authorities and digital objects, while adding the features the AtoM community has asked for, among them a storage tree, RiC, custom fields, bulk editing, an audit trail and a reading room.": 3,
                 "It does not configure your web server. Setting up the nginx site is a separate step.": 3,
@@ -34848,12 +34848,12 @@
                 "Single sign-on": 3,
                 "Store objects in an OCFL repository layout.": 2,
                 "Change a field, add a subject or a place, and save. Every change is recorded in the audit trail.": 1,
-                "Hosting by The Archive and Heritage Group": 3,
+                "Hosting by The Archive and Heritage Digital Commons Group": 3,
                 "Sources: github, search, social, referral:<site>, campaign:<name> (from a utm_source tag on the link), direct (no referring site).": 3
             }
         },
         "tn": {
-            "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
+            "credit": "The Archive and Heritage Digital Commons Group (Pty) Ltd. Native-speaker review required before production.",
             "first_seeded_at": "2026-04-30",
             "primary_source": "ahg",
             "mt_batch_last_run": "2026-10-17",
@@ -36467,7 +36467,7 @@
             }
         },
         "ts": {
-            "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
+            "credit": "The Archive and Heritage Digital Commons Group (Pty) Ltd. Native-speaker review required before production.",
             "first_seeded_at": "2026-04-30",
             "primary_source": "ahg",
             "mt_batch_last_run": "2026-10-17",
@@ -38839,7 +38839,7 @@
             "review_required": "native-speaker review required before production"
         },
         "umb": {
-            "credit": "The Archive and Heritage Group (Pty) Ltd. Umbundu (Angola). Native-speaker review required before production.",
+            "credit": "The Archive and Heritage Digital Commons Group (Pty) Ltd. Umbundu (Angola). Native-speaker review required before production.",
             "first_seeded_at": "2026-04-30",
             "primary_source": "ahg"
         },
@@ -39227,7 +39227,7 @@
                 "UUID (AIP/description UUID in METS)": 1,
                 "Venue &amp; Team": 3,
                 "Voice &amp; AI": 3,
-                "We do not send your question to any third-party AI service. All inferences run on internal infrastructure owned by The Archive and Heritage Group (Pty) Ltd.": 1,
+                "We do not send your question to any third-party AI service. All inferences run on internal infrastructure owned by The Archive and Heritage Digital Commons Group (Pty) Ltd.": 1,
                 "When enabled, an &quot;Upload limit&quot; meter is displayed for authenticated users on the %1% view page, and administrators can limit the disk space each %1% is allowed for %2% uploads": 3,
                 "When set to &quot;no&quot;, the repository name is excluded from certain displays because it will be too repetitive": 3,
                 "When set to &quot;yes&quot;, the reference code string will be built using the information object identifier plus the identifiers of all its ancestors": 3,
@@ -39326,7 +39326,7 @@
                 "max:N for a length limit, or regex:/pattern/ for a format.": 3,
                 "A public read API, an authenticated API with full create and update, harvesting and change notification.": 3,
                 "Descriptions follow the international standards archivists already work in, and the same record can be exported as EAD, RiC-O, MODS or Dublin Core without re-keying. Country-specific requirements, such as the national archives rules of a particular jurisdiction, are pluggable market modules on top of that core.": 3,
-                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Group to host it for you.": 3,
+                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Digital Commons Group to host it for you.": 3,
                 "If you run AtoM today, you do not have to migrate your data to try Heratio. Heratio can run over the AtoM database you already have, reading the same descriptions, authorities and digital objects, while adding the features the AtoM community has asked for, among them a storage tree, RiC, custom fields, bulk editing, an audit trail and a reading room.": 3,
                 "Interlibrary loan": 1,
                 "It does not configure your web server. Setting up the nginx site is a separate step.": 3,
@@ -39341,7 +39341,7 @@
                 "Needs DataCite credentials.": 1,
                 "Needs c2patool on the server.": 3,
                 "Public catalogue (OPAC)": 1,
-                "Hosting by The Archive and Heritage Group": 3,
+                "Hosting by The Archive and Heritage Digital Commons Group": 3,
                 "Sources: github, search, social, referral:<site>, campaign:<name> (from a utm_source tag on the link), direct (no referring site).": 3
             }
         },
@@ -40077,7 +40077,7 @@
             }
         },
         "ve": {
-            "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
+            "credit": "The Archive and Heritage Digital Commons Group (Pty) Ltd. Native-speaker review required before production.",
             "first_seeded_at": "2026-04-30",
             "primary_source": "ahg",
             "mt_same_as_source": [
@@ -42290,7 +42290,7 @@
                 "The %open_link%job management page%close_link% will show progress and a download link when complete.",
                 "The 12-month deposit trend always shows the rolling year.",
                 "The AHG",
-                "The Archive and Heritage Group",
+                "The Archive and Heritage Digital Commons Group",
                 "The Crystal Palace",
                 "The maximum number of pixels on the longest edge for derived reference images.",
                 "The maximum size of file uploads is :size.",
@@ -44467,7 +44467,7 @@
                 "Heratio for archives",
                 "Heratio for libraries",
                 "Heratio for museums",
-                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Group to host it for you.",
+                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Digital Commons Group to host it for you.",
                 "Heratio runs a library from the order to the shelf to the patron: acquisitions and serials, MARC21 cataloguing with copy cataloguing over Z39.50, and circulation with holds, fines and patron accounts.",
                 "Heratio runs on top of the existing AtoM database. The installer works in eight repeatable stages and has a dry run, so you can see every change before it is made.",
                 "Heritage asset accounting",
@@ -45212,7 +45212,7 @@
             }
         },
         "xh": {
-            "credit": "The Archive and Heritage Group (Pty) Ltd. Native-speaker review required before production.",
+            "credit": "The Archive and Heritage Digital Commons Group (Pty) Ltd. Native-speaker review required before production.",
             "first_seeded_at": "2026-04-30",
             "primary_source": "ahg",
             "mt_batch_last_run": "2026-10-17",
@@ -46225,7 +46225,7 @@
                 "Supported: TIFF, JPEG, PNG, BMP, GIF": 3,
                 "The artist's Facebook page URL.": 3,
                 "ID:": 3,
-                "AHG Central is a cloud service from The Archive and Heritage Group that enhances your instance with:": 3,
+                "AHG Central is a cloud service from The Archive and Heritage Digital Commons Group that enhances your instance with:": 3,
                 "Accepted: JPG, PNG, TIFF, PDF (max 20MB)": 3,
                 "Accepts .xml or .marcxml files up to 20 MB.": 3,
                 "At least one identifier required: ISBN, ISSN, eISSN, or proprietary_id": 3,
@@ -46329,7 +46329,7 @@
                 "Deep-zoom viewing, IIIF manifests and curated collections, and a compare view. Image tiles need a Cantaloupe image server.": 3,
                 "Descriptions follow the international standards archivists already work in, and the same record can be exported as EAD, RiC-O, MODS or Dublin Core without re-keying. Country-specific requirements, such as the national archives rules of a particular jurisdiction, are pluggable market modules on top of that core.": 3,
                 "Each sector keeps its own standards and workflows. What is shared is everything underneath: search, digital objects, rights, privacy, preservation, the APIs and the audit trail.": 3,
-                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Group to host it for you.": 3,
+                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Digital Commons Group to host it for you.": 3,
                 "ISAD(G) CSV with match-and-update, per-sector CSV importers, EAD 2002 and EAD3 import, and a browser ingest wizard.": 3,
                 "If you run AtoM today, you do not have to migrate your data to try Heratio. Heratio can run over the AtoM database you already have, reading the same descriptions, authorities and digital objects, while adding the features the AtoM community has asked for, among them a storage tree, RiC, custom fields, bulk editing, an audit trail and a reading room.": 3,
                 "It does not configure your web server. Setting up the nginx site is a separate step.": 3,
@@ -46348,13 +46348,13 @@
                 "Needs c2patool on the server.": 3,
                 "Send material to Archivematica and bring the DIP back.": 3,
                 "A visit counts once a page has been open in a real browser for five seconds, so crawlers are left out. No IP address, cookie or personal detail is stored.": 3,
-                "Hosting by The Archive and Heritage Group": 3,
+                "Hosting by The Archive and Heritage Digital Commons Group": 3,
                 "Sources: github, search, social, referral:<site>, campaign:<name> (from a utm_source tag on the link), direct (no referring site).": 3
             }
         },
         "zu": {
             "atom_version_at_import": "unknown",
-            "credit": "The Archive and Heritage Group (Pty) Ltd",
+            "credit": "The Archive and Heritage Digital Commons Group (Pty) Ltd",
             "first_seeded_at": "2026-04-30",
             "last_imported_at": "2026-04-30",
             "primary_source": "ahg",
@@ -47333,7 +47333,7 @@
                 "Original slug:": 3,
                 "Add to crontab for scheduled runs:": 3,
                 "Run the scheduler via cron to execute due workflows:": 3,
-                "AHG Central is a cloud service from The Archive and Heritage Group that enhances your instance with:": 3,
+                "AHG Central is a cloud service from The Archive and Heritage Digital Commons Group that enhances your instance with:": 3,
                 "Accepts .xml or .marcxml files up to 20 MB.": 3,
                 "At least one identifier required: ISBN, ISSN, eISSN, or proprietary_id": 3,
                 "Descriptive identification (unitid, unittitle, unitdate)": 3,
@@ -47378,12 +47378,12 @@
                 "Use {title} for the current title, {identifier} for the identifier and {n} for the position in the list. Example: Box {n}: {title}": 3,
                 "max:N for a length limit, or regex:/pattern/ for a format.": 3,
                 "A public read API, an authenticated API with full create and update, harvesting and change notification.": 1,
-                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Group to host it for you.": 3,
+                "Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Digital Commons Group to host it for you.": 3,
                 "It does not configure your web server. Setting up the nginx site is a separate step.": 3,
                 "Upload and view glb, gltf, obj, stl, ply and usdz, with hotspots, measuring, cross-sections and embed codes.": 3,
                 "Needs c2patool on the server.": 3,
                 "A visit counts once a page has been open in a real browser for five seconds, so crawlers are left out. No IP address, cookie or personal detail is stored.": 3,
-                "Hosting by The Archive and Heritage Group": 3,
+                "Hosting by The Archive and Heritage Digital Commons Group": 3,
                 "Sources: github, search, social, referral:<site>, campaign:<name> (from a utm_source tag on the link), direct (no referring site).": 3
             }
         }

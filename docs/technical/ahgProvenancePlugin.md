@@ -730,7 +730,7 @@ class ahgProvenancePluginConfiguration extends sfPluginConfiguration
     "machine_name": "ahgProvenancePlugin",
     "version": "1.0.3",
     "description": "Chain of custody and provenance tracking for archival records, museum objects, and library materials",
-    "author": "The Archive and Heritage Group",
+    "author": "The Archive and Heritage Digital Commons Group",
     "license": "GPL-3.0",
     "requires": {
         "atom_framework": ">=1.0.0",

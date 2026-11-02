@@ -5,7 +5,7 @@
 The ahgCartPlugin provides shopping cart and e-commerce functionality for AtoM, enabling both free reproduction requests and paid digital sales with PayFast payment integration.
 
 **Version:** 2.0.0  
-**Author:** The Archive and Heritage Group  
+**Author:** The Archive and Heritage Digital Commons Group  
 **Dependencies:** atom-framework (Laravel Query Builder)
 
 ---

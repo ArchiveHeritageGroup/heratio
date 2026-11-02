@@ -4,7 +4,7 @@
 
 **Component:** ahgLibraryPlugin v2.0.0
 **Platform:** Heratio (Access to Memory)
-**Publisher:** The Archive and Heritage Group (Pty) Ltd
+**Publisher:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 **Date:** March 2026
 
 ---
@@ -901,4 +901,4 @@ The Circulation module provides real-time statistics including:
 
 ---
 
-*Heratio Library System User Manual -- The Archive and Heritage Group (Pty) Ltd, 2026.*
+*Heratio Library System User Manual -- The Archive and Heritage Digital Commons Group (Pty) Ltd, 2026.*

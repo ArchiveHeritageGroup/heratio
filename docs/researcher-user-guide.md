@@ -157,12 +157,12 @@ Generate properly formatted citations for archival materials.
 **Example Output:**
 ```
 Chicago (Notes):
-The Archive and Heritage Group, "Letter from Heinrich Mueller 
+The Archive and Heritage Digital Commons Group, "Letter from Heinrich Mueller 
 to Mining Commissioner," 15 March 1952, Mueller Collection, 
 Box 1, Folder 3, Item 12.
 
 APA:
-The Archive and Heritage Group. (1952). Letter from Heinrich 
+The Archive and Heritage Digital Commons Group. (1952). Letter from Heinrich 
 Mueller to Mining Commissioner (Box 1, Folder 3, Item 12). 
 Mueller Collection.
 ```

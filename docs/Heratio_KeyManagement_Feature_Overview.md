@@ -5,7 +5,7 @@
 **Component:** Heratio Key Management (heratio-keygen)
 **Version:** 1.0.0
 **Category:** Security & Administration
-**Publisher:** The Archive and Heritage Group (Pty) Ltd
+**Publisher:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 
 ---
 
@@ -124,4 +124,4 @@ Heratio Key Management is a standalone application for managing client API keys 
 
 ---
 
-*Heratio is developed by The Archive and Heritage Group (Pty) Ltd for GLAM and DAM institutions worldwide.*
+*Heratio is developed by The Archive and Heritage Digital Commons Group (Pty) Ltd for GLAM and DAM institutions worldwide.*

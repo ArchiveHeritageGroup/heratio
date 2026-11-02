@@ -368,4 +368,4 @@ WHERE scope_and_content IS NOT NULL AND scope_and_content != '';
 
 *Document Version: 1.0.0*  
 *Last Updated: January 2026*  
-*© The Archive and Heritage Group*
+*© The Archive and Heritage Digital Commons Group*

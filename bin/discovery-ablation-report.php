@@ -48,11 +48,11 @@ function render(array $runs, array $env): string
 
     $out = "<!--\n";
     $out .= "SPDX-License-Identifier: AGPL-3.0-or-later\n";
-    $out .= "SPDX-FileCopyrightText: 2026 Johan Pieterse / The Archive and Heritage Group (Pty) Ltd\n";
+    $out .= "SPDX-FileCopyrightText: 2026 Johan Pieterse / The Archive and Heritage Digital Commons Group (Pty) Ltd\n";
     $out .= "-->\n\n";
 
     $out .= "# Discovery — ablation Run #1 (no-AI baseline)\n\n";
-    $out .= "**Author:** Johan Pieterse, The Archive and Heritage Group (Pty) Ltd\n";
+    $out .= "**Author:** Johan Pieterse, The Archive and Heritage Digital Commons Group (Pty) Ltd\n";
     $out .= '**Date:** '.gmdate('Y-m-d')."\n";
     $out .= "**Corpus:** ANC archive (atom DB), 454,393 information_objects; 388,459 carry NER entities (9.79M total).\n";
     $out .= '**Heratio version:** '.($env['heratio']['platform_version'] ?? '?').' (sha='.substr($sha, 0, 8).")\n";

@@ -274,10 +274,10 @@ For assistance with Semantic Search:
 
 - **Documentation**: This guide and technical manual
 - **Issues**: Report bugs via your system administrator
-- **Training**: Contact The Archive and Heritage Group
+- **Training**: Contact The Archive and Heritage Digital Commons Group
 
 ---
 
 *Document Version: 1.1*
 *Last Updated: February 2026*
-*Author: The Archive and Heritage Group (Pty) Ltd*
+*Author: The Archive and Heritage Digital Commons Group (Pty) Ltd*

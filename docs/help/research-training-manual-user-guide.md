@@ -4,7 +4,7 @@
 
 **Plugin:** ahgResearchPlugin v3.1.0
 **Platform:** Heratio (Heratio 2.10 + AHG Framework v2.8.2)
-**Author:** The Archive and Heritage Group (Pty) Ltd
+**Author:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 **Last Updated:** February 2026
 
 ---

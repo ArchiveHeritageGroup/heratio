@@ -116,7 +116,7 @@ class RicDatasetService
             'dcterms:description' => 'Records in Contexts (RiC-O 1.0.2) Linked Data published by Heratio: archival records, agents, places, activities and their relations, with a CIDOC-CRM bridge and PROV-O provenance. Exports round-trip (JSON-LD/Turtle) and validate against the published SHACL shapes.',
             'dcterms:publisher'  => [
                 '@type'     => 'foaf:Organization',
-                'foaf:name' => 'The Archive and Heritage Group',
+                'foaf:name' => 'The Archive and Heritage Digital Commons Group',
             ],
             'dcterms:license'    => 'https://www.gnu.org/licenses/agpl-3.0.html',
             'dcterms:modified'   => now()->toIso8601String(),

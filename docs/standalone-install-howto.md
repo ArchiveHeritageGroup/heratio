@@ -373,7 +373,7 @@ Heratio reads these via `config/heratio.php` (`model_tools_bin`, `fbx2gltf_bin`,
 
 ### Managed AI — The AHG hosted service (token-based)
 
-Don't want to run a GPU box? **The Archive and Heritage Group offers Heratio's
+Don't want to run a GPU box? **The Archive and Heritage Digital Commons Group offers Heratio's
 AI as a fully managed, token-based service** — a hosted, OpenAI-compatible
 gateway providing HTR, NER, summarisation, translation, condition assessment and
 chat/LLM, with per-key scopes, quota and metered (token) billing. It's the

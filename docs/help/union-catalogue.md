@@ -4,7 +4,7 @@
 
 **Version:** 1.0
 **Date:** 2026-06-11
-**Author:** The Archive and Heritage Group (Pty) Ltd
+**Author:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 
 ---
 

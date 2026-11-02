@@ -2,7 +2,7 @@
 
 **Version:** 1.0
 **Date:** 2026-02-28
-**Author:** The Archive and Heritage Group (Pty) Ltd
+**Author:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 
 ---
 
@@ -87,7 +87,7 @@ pandoc input.md -o output.docx \
     --from=markdown \
     --to=docx \
     --metadata title="Document Title" \
-    --metadata author="The Archive and Heritage Group (Pty) Ltd"
+    --metadata author="The Archive and Heritage Digital Commons Group (Pty) Ltd"
 ```
 
 ### 4.3 Markdown Standards

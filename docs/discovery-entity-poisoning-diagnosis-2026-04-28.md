@@ -1,11 +1,11 @@
 <!--
 SPDX-License-Identifier: AGPL-3.0-or-later
-SPDX-FileCopyrightText: 2026 Johan Pieterse / The Archive and Heritage Group (Pty) Ltd
+SPDX-FileCopyrightText: 2026 Johan Pieterse / The Archive and Heritage Digital Commons Group (Pty) Ltd
 -->
 
 # Discovery - entity-poisoning diagnosis (Run #1)
 
-**Author:** Johan Pieterse, The Archive and Heritage Group (Pty) Ltd
+**Author:** Johan Pieterse, The Archive and Heritage Digital Commons Group (Pty) Ltd
 **Date:** 2026-04-28
 **Issue:** GitHub #30 (read-only investigation)
 **Inputs:** `storage/discovery-eval/run-1/{baseline,kw_entity}.json`, `tests/discovery/qrels-simulated.csv`, atom DB.

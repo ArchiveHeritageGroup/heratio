@@ -20,7 +20,7 @@ use AhgDiscovery\Concerns\ResolvesDiscoveryConnection;
  *   2. Uploaded PDFs - text extracted via OCR service at 192.168.0.115:5006
  *   3. RiC-O metadata - queried from Fuseki via SPARQL
  *
- * @author The Archive and Heritage Group
+ * @author The Archive and Heritage Digital Commons Group
  */
 class PageIndexService
 {

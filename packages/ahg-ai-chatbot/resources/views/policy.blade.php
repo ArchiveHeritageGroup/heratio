@@ -20,7 +20,7 @@
 
     <h2 class="h4 mt-4">{{ __('What we do NOT do') }}</h2>
     <ul>
-        <li>{{ __('We do not send your question to any third-party AI service. All inferences run on internal infrastructure owned by The Archive and Heritage Group (Pty) Ltd.') }}</li>
+        <li>{{ __('We do not send your question to any third-party AI service. All inferences run on internal infrastructure owned by The Archive and Heritage Digital Commons Group (Pty) Ltd.') }}</li>
         <li>{{ __('We do not train external models on your questions.') }}</li>
         <li>{{ __('We do not share your interaction history with advertisers or analytics vendors.') }}</li>
     </ul>

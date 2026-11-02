@@ -757,4 +757,4 @@ SELECT COUNT(*) FROM ahg_ner_entity WHERE status = 'pending';
 
 ---
 
-*© The Archive and Heritage Group | January 2026*
+*© The Archive and Heritage Digital Commons Group | January 2026*

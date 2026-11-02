@@ -4,7 +4,7 @@
 
 **Version:** 1.0
 **Date:** 2026-05-26
-**Author:** The Archive and Heritage Group (Pty) Ltd
+**Author:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 
 ---
 
@@ -98,7 +98,7 @@ Open the Settings module and look under scope `federation`:
 
 | Setting | Default | Purpose |
 | --- | --- | --- |
-| `europeana_data_provider` | `The Archive and Heritage Group` | The `edm:dataProvider` literal Europeana shows alongside every record. |
+| `europeana_data_provider` | `The Archive and Heritage Digital Commons Group` | The `edm:dataProvider` literal Europeana shows alongside every record. |
 | `europeana_country` | `South Africa` | Provider country. |
 | `europeana_language` | record culture | Provider primary language. |
 | `europeana_default_rights` | `http://rightsstatements.org/vocab/InC/1.0/` | Fallback rights URI. |

@@ -6,7 +6,7 @@
 
 The **IIIF Compliance Hardening** enhancement brings Heratio's IIIF implementation into full alignment with IIIF Presentation API 3.0, which is now the default manifest format (with v2.1 fallback via `?format=2`). It adds manifest validation, quality control dashboards, and integrates IIIF readiness checks into the publish gate system.
 
-This feature is part of the Heratio framework v2.8.2 by The Archive and Heritage Group (Pty) Ltd.
+This feature is part of the Heratio framework v2.8.2 by The Archive and Heritage Digital Commons Group (Pty) Ltd.
 
 ## Key Features
 
@@ -120,5 +120,5 @@ This feature is part of the Heratio framework v2.8.2 by The Archive and Heritage
 
 ---
 
-*The Archive and Heritage Group (Pty) Ltd*
+*The Archive and Heritage Digital Commons Group (Pty) Ltd*
 *https://github.com/ArchiveHeritageGroup*

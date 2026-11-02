@@ -2,7 +2,7 @@
 title: ADR-0001 - AtoM base schema is read-only; performance work uses AHG sidecar tables
 status: Accepted
 date: 2026-04-28
-author: Johan Pieterse / The Archive and Heritage Group (Pty) Ltd
+author: Johan Pieterse / The Archive and Heritage Digital Commons Group (Pty) Ltd
 license: AGPL-3.0-or-later
 ---
 

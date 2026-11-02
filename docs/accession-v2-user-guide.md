@@ -2,7 +2,7 @@
 
 **Version:** 2.0.0
 **Date:** February 2026
-**Author:** The Archive and Heritage Group (Pty) Ltd
+**Author:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 
 ---
 
@@ -388,5 +388,5 @@ php symfony accession:report --export-csv --repository=12345
 
 ---
 
-*The Archive and Heritage Group (Pty) Ltd*
+*The Archive and Heritage Digital Commons Group (Pty) Ltd*
 *https://theahg.co.za*

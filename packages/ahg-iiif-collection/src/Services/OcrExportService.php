@@ -116,7 +116,7 @@ class OcrExportService
         $xml .= "      <ocrProcessingStep>\n";
         $xml .= "        <processingDateTime>{$generated}</processingDateTime>\n";
         $xml .= "        <processingSoftware>\n";
-        $xml .= "          <softwareCreator>The Archive and Heritage Group (Pty) Ltd</softwareCreator>\n";
+        $xml .= "          <softwareCreator>The Archive and Heritage Digital Commons Group (Pty) Ltd</softwareCreator>\n";
         $xml .= "          <softwareName>Heratio OCR Export</softwareName>\n";
         $xml .= "        </processingSoftware>\n";
         $xml .= "      </ocrProcessingStep>\n";

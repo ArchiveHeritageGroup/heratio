@@ -2,7 +2,7 @@
 
 **Product:** Heratio Framework v2.8.2
 **Date:** 16 March 2026
-**Author:** The Archive and Heritage Group (Pty) Ltd
+**Author:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 **Document Type:** Complete System User Manual
 
 ---
@@ -1043,5 +1043,5 @@ php symfony cc
 
 ---
 
-*Document generated 16 March 2026 by The Archive and Heritage Group (Pty) Ltd.*
+*Document generated 16 March 2026 by The Archive and Heritage Digital Commons Group (Pty) Ltd.*
 *Heratio Framework v2.8.2 - 80 plugins, 200+ settings, WCAG 2.1 AA compliant.*

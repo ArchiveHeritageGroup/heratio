@@ -1,7 +1,7 @@
 /**
  * Heratio - Mirador 4 Content Search 2.0 search-service plugin (issue #694).
  *
- * @copyright Copyright (c) 2026, The Archive and Heritage Group (Pty) Ltd
+ * @copyright Copyright (c) 2026, The Archive and Heritage Digital Commons Group (Pty) Ltd
  * @author    Johan Pieterse <johan@plainsailingisystems.co.za>
  * @license   AGPL-3.0-or-later
  *

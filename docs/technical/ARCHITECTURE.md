@@ -1,7 +1,7 @@
 # AtoM AHG Framework - Technical Architecture
 
 ## For Technical Discussion with Artifactual
-**Prepared by:** The Archive and Heritage Group  
+**Prepared by:** The Archive and Heritage Digital Commons Group  
 **Date:** January 2026
 
 ---
@@ -595,4 +595,4 @@ class ProjectConfiguration extends sfProjectConfiguration
 
 **Document Version:** 1.0.0  
 **Last Updated:** January 2026  
-**The Archive and Heritage Group**
+**The Archive and Heritage Digital Commons Group**

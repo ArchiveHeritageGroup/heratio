@@ -805,4 +805,4 @@ For every feature, a smoke test confirming visible parity with Heratio (Laravel)
 
 ---
 
-*Spec drafted 2026-05-16. Owner: Johan Pieterse / Plain Sailing Information Systems / The Archive and Heritage Group.*
+*Spec drafted 2026-05-16. Owner: Johan Pieterse / Plain Sailing Information Systems / The Archive and Heritage Digital Commons Group.*

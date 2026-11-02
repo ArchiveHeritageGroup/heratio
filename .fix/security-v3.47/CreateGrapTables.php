@@ -10,7 +10,7 @@ use Psr\Log\LoggerInterface;
  * Create GRAP 103 Heritage Asset tables
  * 
  * @package AtomFramework\Extensions\Grap
- * @author Johan Pieterse - The Archive and Heritage Group
+ * @author Johan Pieterse - The Archive and Heritage Digital Commons Group
  */
 class CreateGrapTables
 {

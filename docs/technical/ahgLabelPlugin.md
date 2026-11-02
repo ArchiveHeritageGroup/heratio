@@ -367,7 +367,7 @@ Applied to both `<style>` and `<script>` blocks.
     "machine_name": "ahgLabelPlugin",
     "version": "1.0.0",
     "description": "Label generation for archival objects with customizable templates",
-    "author": "The Archive and Heritage Group",
+    "author": "The Archive and Heritage Digital Commons Group",
     "license": "GPL-3.0",
     "requires": {
         "atom_framework": ">=1.0.0",

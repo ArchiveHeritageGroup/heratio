@@ -1,7 +1,7 @@
 # Issue #198 - Implementation Plan
 # Public Portal + Archives-led UX + Hard Multi-Tenancy + Governance/Hardening
 
-**The Archive and Heritage Group (Pty) Ltd**
+**The Archive and Heritage Digital Commons Group (Pty) Ltd**
 **Date:** 2026-02-28
 **Framework:** v2.8.2 | **Plugins:** 79
 **Tracking Issue:** ArchiveHeritageGroup/atom-extensions-catalog#198
@@ -680,5 +680,5 @@ crontab -l | grep backup
 
 ---
 
-*The Archive and Heritage Group (Pty) Ltd*
+*The Archive and Heritage Digital Commons Group (Pty) Ltd*
 *https://github.com/ArchiveHeritageGroup*

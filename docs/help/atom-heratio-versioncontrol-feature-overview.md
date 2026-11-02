@@ -4,7 +4,7 @@
 
 **Plugin:** `ahgVersionControlPlugin` (AtoM) / `ahg-version-control` (Heratio)
 **Version:** 0.1.0 (initial release)
-**Author:** The Archive and Heritage Group (Pty) Ltd
+**Author:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 **Category:** Records management
 
 ## What it does
@@ -73,7 +73,7 @@ The plugin sits on top of open-source AtoM (AGPL-3.0) without modifying base Ato
 
 ## Contact
 
-The Archive and Heritage Group (Pty) Ltd · johan@theahg.co.za
+The Archive and Heritage Digital Commons Group (Pty) Ltd · johan@theahg.co.za
 
 ---
 

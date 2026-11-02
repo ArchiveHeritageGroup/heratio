@@ -3,7 +3,7 @@
 **For:** System Administrators, IT Staff, Compliance Officers
 **Product:** Heratio Framework v2.8.2
 **Date:** 16 March 2026
-**Author:** The Archive and Heritage Group (Pty) Ltd
+**Author:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 
 ---
 
@@ -669,4 +669,4 @@ sudo systemctl restart elasticsearch   # Search
 
 ---
 
-*Heratio Framework v2.8.2 - The Archive and Heritage Group (Pty) Ltd*
+*Heratio Framework v2.8.2 - The Archive and Heritage Digital Commons Group (Pty) Ltd*

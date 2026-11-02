@@ -199,4 +199,4 @@ Add institution-specific codes via **Admin > Dropdown Manager** under the `restr
 
 ---
 
-*The Archive and Heritage Group (Pty) Ltd*
+*The Archive and Heritage Digital Commons Group (Pty) Ltd*

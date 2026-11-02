@@ -2,7 +2,7 @@
 
 **Version:** Framework 2.11.7 / Plugins 3.21.17
 **Date:** 16 March 2026
-**Organization:** The Archive and Heritage Group (Pty) Ltd
+**Organization:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 **Owner:** Johan Pieterse (johan@theahg.co.za)
 
 ---
@@ -421,5 +421,5 @@ GLAM and DAM institutions internationally:
 
 ---
 
-*The Archive and Heritage Group (Pty) Ltd - Johan Pieterse*
+*The Archive and Heritage Digital Commons Group (Pty) Ltd - Johan Pieterse*
 *Heratio Framework v2.11.7 / Plugins v3.21.17*

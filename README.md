@@ -423,7 +423,7 @@ If you use Heratio in your research, please cite:
 
 ## Contact
 
-**The Archive and Heritage Group (Pty) Ltd**
+**The Archive and Heritage Digital Commons Group (Pty) Ltd**
 Johan Pieterse - johan@theahg.co.za
 
 ---

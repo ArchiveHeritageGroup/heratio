@@ -2,7 +2,7 @@
 
 # Heratio - Integrity Assurance User Guide
 
-**Author:** The Archive and Heritage Group (Pty) Ltd
+**Author:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 
 > Integrity Assurance is a built-in Heratio feature, not a separate add-on. There is nothing to install. It is part of the digital-preservation capability and works alongside fixity, format identification, normalization, PREMIS event logging, and the tamper-evident audit trail. For the full architecture, see the *Content Authenticity in Heratio* reference.
 
@@ -382,4 +382,4 @@ Confirm the storage path is mounted and reachable (the Heratio uploads/storage l
 
 ---
 
-*For technical support, contact The Archive and Heritage Group (Pty) Ltd at johan@theahg.co.za*
+*For technical support, contact The Archive and Heritage Digital Commons Group (Pty) Ltd at johan@theahg.co.za*

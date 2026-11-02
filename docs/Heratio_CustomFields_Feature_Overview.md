@@ -4,7 +4,7 @@
 
 **Plugin:** ahgCustomFieldsPlugin v1.0.0
 **Category:** Metadata Management
-**Author:** The Archive and Heritage Group (Pty) Ltd
+**Author:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 
 ---
 
@@ -139,5 +139,5 @@ Institutions can extend this vocabulary with their own codes via **Admin > Dropd
 
 ---
 
-*The Archive and Heritage Group (Pty) Ltd*
+*The Archive and Heritage Digital Commons Group (Pty) Ltd*
 *https://www.theahg.co.za*

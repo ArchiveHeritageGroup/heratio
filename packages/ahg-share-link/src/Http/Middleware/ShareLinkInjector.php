@@ -15,7 +15,7 @@
  *   - URL resolves to an IO by slug (catch-all)
  *   - User is authenticated AND has share_link.create ACL
  *
- * Copyright (C) 2026 The Archive and Heritage Group (Pty) Ltd
+ * Copyright (C) 2026 The Archive and Heritage Digital Commons Group (Pty) Ltd
  * License: AGPL-3.0-or-later
  *
  * @phase E

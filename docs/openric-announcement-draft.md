@@ -62,7 +62,7 @@ Recommend **#1** - boring, accurate, gets the link-click.
 >
 > Thanks,
 > Johan Pieterse
-> The Archive and Heritage Group / Plain Sailing Information Systems
+> The Archive and Heritage Digital Commons Group / Plain Sailing Information Systems
 > johan@theahg.co.za
 
 ---

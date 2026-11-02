@@ -493,4 +493,4 @@ LIMIT 10;
 
 *Document Version: 1.0*
 *Last Updated: January 2026*
-*Author: The Archive and Heritage Group (Pty) Ltd*
+*Author: The Archive and Heritage Digital Commons Group (Pty) Ltd*

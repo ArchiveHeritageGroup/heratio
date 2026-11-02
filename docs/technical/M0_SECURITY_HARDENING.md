@@ -2,7 +2,7 @@
 
 **Version:** 1.0.0
 **Date:** 2026-02-28
-**Author:** The Archive and Heritage Group (Pty) Ltd
+**Author:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 **Framework Version:** 2.8.2
 **Issue:** #198
 

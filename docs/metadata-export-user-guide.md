@@ -527,4 +527,4 @@ View cron job examples:
 
 ---
 
-*For technical support, contact your system administrator or The Archive and Heritage Group.*
+*For technical support, contact your system administrator or The Archive and Heritage Digital Commons Group.*

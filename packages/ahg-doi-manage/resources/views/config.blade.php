@@ -181,7 +181,7 @@
               <div class="col-sm-9">
                 <input type="text" class="form-control" id="default_publisher" name="default_publisher"
                        value="{{ old('default_publisher', $settings['default_publisher'] ?? '') }}"
-                       placeholder="{{ __('e.g. The Archive and Heritage Group') }}">
+                       placeholder="{{ __('e.g. The Archive and Heritage Digital Commons Group') }}">
                 <div class="form-text">{{ __('Used when no repository-specific publisher is set') }}</div>
               </div>
             </div>

@@ -301,4 +301,4 @@ Contact your system administrator if you experience issues.
 
 ---
 
-*Part of the Heratio Framework - The Archive and Heritage Group (Pty) Ltd*
+*Part of the Heratio Framework - The Archive and Heritage Digital Commons Group (Pty) Ltd*

@@ -20,7 +20,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ahgFeedbackPlugin - Database Schema
 -- ============================================================
 -- Version: 1.0.0
--- Author: The Archive and Heritage Group
+-- Author: The Archive and Heritage Digital Commons Group
 -- ============================================================
 
 -- Feedback table (links to object table)

@@ -696,7 +696,7 @@ This is **14 of 14 clauses with evidence** → targets 5 points on Gate 1 criter
 
 ---
 
-*Document prepared by The Archive and Heritage Group (Pty) Ltd. Confidential — for AHG and GCIS evaluation use only.*
+*Document prepared by The Archive and Heritage Digital Commons Group (Pty) Ltd. Confidential — for AHG and GCIS evaluation use only.*
 
 ---
 

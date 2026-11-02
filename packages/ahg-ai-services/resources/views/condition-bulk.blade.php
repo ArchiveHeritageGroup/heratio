@@ -2,7 +2,7 @@
  | Heratio - Bulk Condition Scan
  |
  | @author    Johan Pieterse <johan@theahg.co.za>
- | @copyright (c) Plain Sailing (Pty) Ltd t/a The Archive and Heritage Group
+ | @copyright (c) Plain Sailing (Pty) Ltd t/a The Archive and Heritage Digital Commons Group
  | @license   GNU Affero General Public License v3.0 or later
  --}}
 @extends('theme::layouts.2col')

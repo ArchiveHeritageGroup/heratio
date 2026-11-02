@@ -2,7 +2,7 @@
  | Heratio - Marketplace Admin Reports
  |
  | @author    Johan Pieterse <johan@theahg.co.za>
- | @copyright 2026 Plain Sailing (Pty) Ltd t/a The Archive and Heritage Group
+ | @copyright 2026 Plain Sailing (Pty) Ltd t/a The Archive and Heritage Digital Commons Group
  | @license   AGPL-3.0-or-later
  |
  | Cloned from PSIS ahgMarketplacePlugin adminReportsSuccess.php for full parity.

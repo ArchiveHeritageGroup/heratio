@@ -270,7 +270,7 @@
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">{{ __('Organisation Name') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-            <input type="text" class="form-control" name="ahg_footer_org_name" value="{{ $settings['ahg_footer_org_name'] ?? '' }}" placeholder="{{ __('The Archive and Heritage Group') }}">
+            <input type="text" class="form-control" name="ahg_footer_org_name" value="{{ $settings['ahg_footer_org_name'] ?? '' }}" placeholder="{{ __('The Archive and Heritage Digital Commons Group') }}">
           </div>
           <div class="col-md-4 mb-3">
             <label class="form-label">{{ __('Organisation URL') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>

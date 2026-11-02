@@ -363,4 +363,4 @@ Added to `ahgCorePlugin/database/install.sql` under taxonomy `restriction_code` 
 
 ---
 
-*The Archive and Heritage Group (Pty) Ltd*
+*The Archive and Heritage Digital Commons Group (Pty) Ltd*

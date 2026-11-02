@@ -88,7 +88,7 @@ jobs:
             org.opencontainers.image.description=Operational GLAM, archival, DAM, and records management platform
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.licenses=AGPL-3.0-or-later
-            org.opencontainers.image.vendor=The Archive and Heritage Group (Pty) Ltd
+            org.opencontainers.image.vendor=The Archive and Heritage Digital Commons Group (Pty) Ltd
             io.heratio.ai-bundled=false
             io.heratio.ai-model-policy=remote-only
 

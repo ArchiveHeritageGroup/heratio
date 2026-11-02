@@ -706,7 +706,7 @@ CREATE TABLE IF NOT EXISTS `ahg_ai_training_contribution` (
 
 -- Seed internal API client
 INSERT IGNORE INTO `ahg_ai_service_client` (`id`, `name`, `organization`, `email`, `api_key`, `tier`, `monthly_limit`, `is_active`) VALUES
-    (1, 'AtoM Internal', 'The Archive and Heritage Group', 'johan@theahg.co.za', 'ahg_ai_condition_internal_2026', 'enterprise', 999999, 1);
+    (1, 'AtoM Internal', 'The Archive and Heritage Digital Commons Group', 'johan@theahg.co.za', 'ahg_ai_condition_internal_2026', 'enterprise', 999999, 1);
 
 -- ============================================================================
 -- Settings seed data

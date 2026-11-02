@@ -183,4 +183,4 @@ Talk to your admin about setting `version_control.retain_count` or `version_cont
 
 ---
 
-*The Archive and Heritage Group (Pty) Ltd · johan@theahg.co.za*
+*The Archive and Heritage Digital Commons Group (Pty) Ltd · johan@theahg.co.za*

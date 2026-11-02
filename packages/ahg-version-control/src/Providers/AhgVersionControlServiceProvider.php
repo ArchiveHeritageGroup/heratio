@@ -6,7 +6,7 @@
  * Phase A - schema only. Migrations are loaded; routes, observers and services
  * register in subsequent build phases.
  *
- * Copyright (C) 2026 The Archive and Heritage Group (Pty) Ltd
+ * Copyright (C) 2026 The Archive and Heritage Digital Commons Group (Pty) Ltd
  *
  * This file is part of Heratio. AGPL-3.0.
  */

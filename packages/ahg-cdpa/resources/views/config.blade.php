@@ -146,7 +146,7 @@
                         </p>
                         <p class="small text-muted mb-0">
                             <strong>{{ __('Version:') }}</strong> 1.0.0<br>
-                            <strong>{{ __('Author:') }}</strong> {{ __('The Archive and Heritage Group') }}
+                            <strong>{{ __('Author:') }}</strong> {{ __('The Archive and Heritage Digital Commons Group') }}
                         </p>
                     </div>
                 </div>

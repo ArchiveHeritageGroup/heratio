@@ -7,7 +7,7 @@
 **Component:** IiifAiService (ahgAIPlugin)
 **Version:** 2.8.2
 **Category:** AI & Automation / Digital Preservation
-**Publisher:** The Archive and Heritage Group (Pty) Ltd
+**Publisher:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 
 ---
 
@@ -91,4 +91,4 @@ The IIIF AI Extraction module bridges the IIIF Viewer plugin (ahgIiifPlugin) wit
 
 ---
 
-*Heratio is developed by The Archive and Heritage Group (Pty) Ltd for GLAM and DAM institutions worldwide.*
+*Heratio is developed by The Archive and Heritage Digital Commons Group (Pty) Ltd for GLAM and DAM institutions worldwide.*

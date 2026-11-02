@@ -128,4 +128,4 @@ Everything visitors can do, plus a full authoring, management and analytics tool
 
 ---
 
-*Heratio is a product of Plain Sailing Information Systems / The Archive and Heritage Group.*
+*Heratio is a product of Plain Sailing Information Systems / The Archive and Heritage Digital Commons Group.*

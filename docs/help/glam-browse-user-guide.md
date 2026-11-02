@@ -289,7 +289,7 @@ Users can customize their view settings (if allowed by administrator):
 ## Need Help?
 
 - For technical issues, contact your system administrator
-- For feature requests, contact The Archive and Heritage Group
+- For feature requests, contact The Archive and Heritage Digital Commons Group
 
 ---
 

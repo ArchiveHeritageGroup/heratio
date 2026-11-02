@@ -749,7 +749,7 @@ User                    Browser                   Server
     "machine_name": "ahgIngestPlugin",
     "version": "1.0.0",
     "description": "Multi-format ingestion wizard for GLAM/DAM records with CSV, ZIP, EAD, and directory import support",
-    "author": "The Archive and Heritage Group",
+    "author": "The Archive and Heritage Digital Commons Group",
     "license": "GPL-3.0",
     "requires": {
         "atom_framework": ">=1.0.0",

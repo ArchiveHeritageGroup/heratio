@@ -40,7 +40,7 @@ In `setting` (scope = `federation`, culture = `en`):
 
 | Setting | Default | Purpose |
 | --- | --- | --- |
-| `europeana_data_provider` | `The Archive and Heritage Group` | The `edm:dataProvider` literal. |
+| `europeana_data_provider` | `The Archive and Heritage Digital Commons Group` | The `edm:dataProvider` literal. |
 | `europeana_country` | `South Africa` | Provider country (informational). |
 | `europeana_language` | record culture | Provider primary language. |
 | `europeana_default_rights` | `http://rightsstatements.org/vocab/InC/1.0/` | Fallback rights URI when nothing is linked. |

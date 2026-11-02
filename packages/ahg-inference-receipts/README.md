@@ -163,6 +163,6 @@ Apache-2.0. See `LICENSE` and `NOTICE`.
 
 ## Provenance
 
-Built for [Heratio](https://github.com/ArchiveHeritageGroup/heratio) (a Laravel 12 GLAM platform by The Archive and Heritage Group) to satisfy EU AI Act Article 12 record-keeping. Released standalone because the PHP ecosystem needs a peer to the TypeScript / Python `nobulex` implementation; receipts produced here are byte-compatible with the nobulex format where the shapes overlap.
+Built for [Heratio](https://github.com/ArchiveHeritageGroup/heratio) (a Laravel 12 GLAM platform by The Archive and Heritage Digital Commons Group) to satisfy EU AI Act Article 12 record-keeping. Released standalone because the PHP ecosystem needs a peer to the TypeScript / Python `nobulex` implementation; receipts produced here are byte-compatible with the nobulex format where the shapes overlap.
 
 Tracking the IETF draft `draft-gogani-nobulex-proof-of-behavior` for on-wire format alignment as the spec progresses.

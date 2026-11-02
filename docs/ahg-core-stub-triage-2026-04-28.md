@@ -1,11 +1,11 @@
 <!--
 SPDX-License-Identifier: AGPL-3.0-or-later
-SPDX-FileCopyrightText: 2026 Johan Pieterse / The Archive and Heritage Group (Pty) Ltd
+SPDX-FileCopyrightText: 2026 Johan Pieterse / The Archive and Heritage Digital Commons Group (Pty) Ltd
 -->
 
 # `ahg-core` artisan command stubs - triage
 
-**Author:** Johan Pieterse, The Archive and Heritage Group (Pty) Ltd
+**Author:** Johan Pieterse, The Archive and Heritage Digital Commons Group (Pty) Ltd
 **Date:** 2026-04-28
 **Source:** Heratio packages → `ahg-core/src/Commands/*.php` with `// TODO: Implement` in handle().
 

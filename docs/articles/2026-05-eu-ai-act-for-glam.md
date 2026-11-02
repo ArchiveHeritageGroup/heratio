@@ -1,6 +1,6 @@
 # What the EU AI Act Means for Galleries, Libraries, Archives and Museums
 
-*By Johan Pieterse, The Archive and Heritage Group | May 2026*
+*By Johan Pieterse, The Archive and Heritage Digital Commons Group | May 2026*
 
 Artificial intelligence has quietly become part of everyday collections work. Handwritten letters are transcribed automatically, names and places are tagged as they are catalogued, faded photographs are enhanced, and visitors increasingly ask a chatbot rather than a reference desk. The European Union's Artificial Intelligence Act (Regulation 2024/1689) is the first comprehensive law to put rules around all of this, and a fresh round of negotiations this month has just reshaped the timeline. Here is what it means for the GLAM sector, in plain language.
 
@@ -52,7 +52,7 @@ Breaching the prohibitions can cost up to 35 million euro or 7 percent of global
 
 ## Where we stand
 
-That last point, provenance, is the heart of it. Long before the law required transparency, good stewardship demanded that we be able to say how a record came to look the way it does. At The Archive and Heritage Group we built Heratio on that principle: AI is a tool that assists the archivist, never one that replaces the human judgement behind the catalogue. AI-assisted work is traceable, human review is part of the loop, and compliance is handled as pluggable, per-market modules rather than baked-in assumptions, because an institution in Lisbon, Lusaka or Toronto faces different rules and deserves a platform that respects that.
+That last point, provenance, is the heart of it. Long before the law required transparency, good stewardship demanded that we be able to say how a record came to look the way it does. At The Archive and Heritage Digital Commons Group we built Heratio on that principle: AI is a tool that assists the archivist, never one that replaces the human judgement behind the catalogue. AI-assisted work is traceable, human review is part of the loop, and compliance is handled as pluggable, per-market modules rather than baked-in assumptions, because an institution in Lisbon, Lusaka or Toronto faces different rules and deserves a platform that respects that.
 
 The EU AI Act is not a reason to slow down the responsible use of AI in cultural heritage. It is a reason to do it transparently, to document it well, and to keep a person in the loop. The sector has always cared about provenance. The law is finally catching up to us.
 

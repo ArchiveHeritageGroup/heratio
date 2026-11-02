@@ -507,4 +507,4 @@ All five: Gallery, Museum, Archive, Library, and Digital Asset Management (DAM).
 
 ---
 
-*This marketplace is part of the Heratio platform by The Archive and Heritage Group.*
+*This marketplace is part of the Heratio platform by The Archive and Heritage Digital Commons Group.*

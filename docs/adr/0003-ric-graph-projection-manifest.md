@@ -1,7 +1,7 @@
 # ADR-0003: RiC graph projection manifest (single source→IRI contract)
 
 - **Status:** Accepted (2026-06-19)
-- **Owner:** Johan Pieterse (The Archive and Heritage Group)
+- **Owner:** Johan Pieterse (The Archive and Heritage Digital Commons Group)
 - **Relates to:** #1319 (ontology governance), `docs/reference/ontology-governance-pin.md`, ADR-0001 (sidecar pattern)
 
 ## Context

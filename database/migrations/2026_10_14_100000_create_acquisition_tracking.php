@@ -33,7 +33,7 @@ return new class extends Migration
         if (Schema::hasTable('ahg_dropdown')) {
             $types = [
                 'deployment' => 'Deploying Heratio at my institution',
-                'hosting' => 'Hosting by The Archive and Heritage Group',
+                'hosting' => 'Hosting by The Archive and Heritage Digital Commons Group',
                 'support' => 'Support for an existing installation',
                 'migration' => 'Moving from AtoM or another system',
                 'demo' => 'A demonstration or training',

@@ -1,7 +1,7 @@
 <?php
 /*
  * Heratio
- * Copyright (c) 2024-2026 Johan Pieterse / Plain Sailing Information Systems / The Archive and Heritage Group (Pty) Ltd
+ * Copyright (c) 2024-2026 Johan Pieterse / Plain Sailing Information Systems / The Archive and Heritage Digital Commons Group (Pty) Ltd
  * Licensed under the GNU Affero General Public License v3.0 or later.
  */
 

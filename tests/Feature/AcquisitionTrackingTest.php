@@ -126,6 +126,6 @@ class AcquisitionTrackingTest extends TestCase
 
         $this->get(route('acquisition.dashboard'))->assertRedirect();
         $this->actingAs(User::findOrFail($id))->get(route('acquisition.dashboard'))->assertOk()
-            ->assertSee('By week')->assertSee('search')->assertSee('Hosting by The Archive and Heritage Group');
+            ->assertSee('By week')->assertSee('search')->assertSee('Hosting by The Archive and Heritage Digital Commons Group');
     }
 }

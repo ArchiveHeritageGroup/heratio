@@ -448,5 +448,5 @@ php bin/semantic-search-cron.php export-es    # ES export
 
 ---
 
-*The Archive and Heritage Group (Pty) Ltd*
+*The Archive and Heritage Digital Commons Group (Pty) Ltd*
 *https://theahg.co.za*

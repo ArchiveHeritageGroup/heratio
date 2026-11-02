@@ -274,7 +274,7 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Watermark Text') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="text" class="form-control" name="watermark_text"
-                     value="{{ e(getSetting3d($settings, 'watermark_text', 'The Archive and Heritage Group')) }}">
+                     value="{{ e(getSetting3d($settings, 'watermark_text', 'The Archive and Heritage Digital Commons Group')) }}">
             </div>
           </div>
         </div>

@@ -2,7 +2,7 @@
 
 **Draft working paper / collaboration brief.** Prepared as the basis for a joint
 publication between the Heratio team (J. Pieterse, Plain Sailing Information Systems /
-The Archive and Heritage Group) and the thesis authorship line (Dr Lizette Wessels and
+The Archive and Heritage Digital Commons Group) and the thesis authorship line (Dr Lizette Wessels and
 Prof Lorette Jacobs, University of South Africa). This document maps the thesis blueprint
 onto the as-built Heratio exhibition digital twin, states what is novel, what is shared,
 and what remains for future work, so the three parties can agree scope and authorship.

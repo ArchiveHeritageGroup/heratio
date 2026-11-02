@@ -1,7 +1,7 @@
 # Artificial Intelligence as Collections Steward: Enabling Inclusive, Sustainable Museum Collections Management in the African Context
 
 **Johannes Jurie Pieterse**
-The Archive and Heritage Group (Pty) Ltd
+The Archive and Heritage Digital Commons Group (Pty) Ltd
 johan@theahg.co.za
 
 *Submitted to: South African Museums Association Bulletin, Volume 48 (2026)*
@@ -299,4 +299,4 @@ Three directions merit follow-on research. First, *multilingual AI for South Afr
 
 ## Author Bio Note
 
-The author submitted a PhD thesis on artificial intelligence in records management and archives, currently under examination, and is the founder of The Archive and Heritage Group (Pty) Ltd and lead developer of *Heratio*, an open-source GLAM collections management framework. The author has extensive experience implementing archival and museum information systems in the South African context.
+The author submitted a PhD thesis on artificial intelligence in records management and archives, currently under examination, and is the founder of The Archive and Heritage Digital Commons Group (Pty) Ltd and lead developer of *Heratio*, an open-source GLAM collections management framework. The author has extensive experience implementing archival and museum information systems in the South African context.

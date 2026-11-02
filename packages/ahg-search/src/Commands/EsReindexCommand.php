@@ -6,7 +6,7 @@
  * Populates Heratio's own Elasticsearch indices from MySQL.
  *
  * Copyright (C) 2026 Johan Pieterse
- * The Archive and Heritage Group (Pty) Ltd
+ * The Archive and Heritage Digital Commons Group (Pty) Ltd
  *
  * This file is part of Heratio.
  *

@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\DB;
  * request and response shapes are unchanged - only host+path+auth differ.
  * Model: qwen3:8b (configurable per-install via ahg_settings group='pageindex').
  *
- * @author The Archive and Heritage Group
+ * @author The Archive and Heritage Digital Commons Group
  */
 class OllamaPageIndexClient
 {

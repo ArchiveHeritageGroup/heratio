@@ -13,7 +13,7 @@
             </div>
         @endif
     </div>
-    <p class="text-muted">{{ __('News, regulation and insight from The Archive and Heritage Group.') }}</p>
+    <p class="text-muted">{{ __('News, regulation and insight from The Archive and Heritage Digital Commons Group.') }}</p>
 
     {{-- Group filter pills --}}
     @if(!empty($groups))

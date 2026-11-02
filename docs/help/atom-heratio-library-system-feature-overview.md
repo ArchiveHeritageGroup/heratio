@@ -4,7 +4,7 @@
 
 **Component:** ahgLibraryPlugin v2.0.0
 **Category:** GLAM Sector --- Library
-**Publisher:** The Archive and Heritage Group (Pty) Ltd
+**Publisher:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 **Date:** March 2026
 
 ---
@@ -248,8 +248,8 @@ All status values, types, and categories throughout the library system are manag
 
 ---
 
-## About The Archive and Heritage Group
+## About The Archive and Heritage Digital Commons Group
 
-The Archive and Heritage Group (Pty) Ltd develops Heratio, a comprehensive modernization of the Access to Memory (Heratio) archival platform. Heratio extends Heratio with 80 plugins covering the full GLAM spectrum --- galleries, libraries, archives, museums, and digital asset management --- serving institutions internationally.
+The Archive and Heritage Digital Commons Group (Pty) Ltd develops Heratio, a comprehensive modernization of the Access to Memory (Heratio) archival platform. Heratio extends Heratio with 80 plugins covering the full GLAM spectrum --- galleries, libraries, archives, museums, and digital asset management --- serving institutions internationally.
 
 For more information, contact: **johan@theahg.co.za**

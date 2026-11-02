@@ -1,7 +1,7 @@
 # Heratio -- Library Order System REST API
 
 **Version:** 1.0
-**Author:** The Archive and Heritage Group (Pty) Ltd
+**Author:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 **Plugin:** ahgLibraryPlugin
 **Base URL:** `https://psis.theahg.co.za`
 **Content-Type:** `application/json`

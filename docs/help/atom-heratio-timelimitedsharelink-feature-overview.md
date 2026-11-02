@@ -4,7 +4,7 @@
 
 **Plugin:** `ahgTimeLimitedShareLinkPlugin` (AtoM) / `ahg-share-link` (Heratio)
 **Version:** 0.1.0 (initial release)
-**Author:** The Archive and Heritage Group (Pty) Ltd
+**Author:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 **Category:** Access control / public engagement
 
 ## What it does
@@ -85,4 +85,4 @@ Every operation writes a row to `ahg_audit_log` (module = `share_link`):
 
 ## Licence
 
-AGPL-3.0-or-later. © 2026 The Archive and Heritage Group (Pty) Ltd.
+AGPL-3.0-or-later. © 2026 The Archive and Heritage Digital Commons Group (Pty) Ltd.

@@ -6,7 +6,7 @@
  * Phase A - schema only. Migrations are loaded; routes, middleware and services
  * register in subsequent build phases.
  *
- * Copyright (C) 2026 The Archive and Heritage Group (Pty) Ltd
+ * Copyright (C) 2026 The Archive and Heritage Digital Commons Group (Pty) Ltd
  * AGPL-3.0.
  */
 

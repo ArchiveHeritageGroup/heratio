@@ -1,6 +1,6 @@
 # 3D in Heratio — Metadata, IIIF 3D & Long-Term Preservation
 
-*The Archive and Heritage Group · Heratio platform · June 2026*
+*The Archive and Heritage Digital Commons Group · Heratio platform · June 2026*
 
 This document explains how Heratio handles 3D digital objects across three
 dimensions that matter for galleries, libraries, archives and museums (GLAM):

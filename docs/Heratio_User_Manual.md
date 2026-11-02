@@ -3,7 +3,7 @@
 **For:** Archivists, Librarians, Museum Curators, Gallery Managers, Researchers
 **Product:** Heratio Framework v2.8.2
 **Date:** 16 March 2026
-**Author:** The Archive and Heritage Group (Pty) Ltd
+**Author:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 
 ---
 
@@ -545,4 +545,4 @@ If you handle records containing personal information, be aware of privacy compl
 
 ---
 
-*Heratio Framework v2.8.2 - The Archive and Heritage Group (Pty) Ltd*
+*Heratio Framework v2.8.2 - The Archive and Heritage Digital Commons Group (Pty) Ltd*

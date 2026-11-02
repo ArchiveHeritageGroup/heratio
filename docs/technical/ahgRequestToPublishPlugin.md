@@ -472,7 +472,7 @@ INSERT INTO atom_plugin (
     'ahgRequestToPublishPluginConfiguration',
     '1.0.0',
     'Manage publication requests for archival images and digital objects',
-    'The Archive and Heritage Group',
+    'The Archive and Heritage Digital Commons Group',
     'ahg',
     1, 0, 0, 80
 );

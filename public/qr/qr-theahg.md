@@ -1,4 +1,4 @@
-# The Archive and Heritage Group
+# The Archive and Heritage Digital Commons Group
 
 ![](/usr/share/nginx/heratio/public/qr/qr-theahg.png){width=8cm}
 

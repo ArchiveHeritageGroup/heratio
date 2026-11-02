@@ -1,11 +1,11 @@
 <!--
 SPDX-License-Identifier: AGPL-3.0-or-later
-SPDX-FileCopyrightText: 2026 Johan Pieterse / The Archive and Heritage Group (Pty) Ltd
+SPDX-FileCopyrightText: 2026 Johan Pieterse / The Archive and Heritage Digital Commons Group (Pty) Ltd
 -->
 
 # Discovery - merger-weight sensitivity sweep (Run #1 simulated qrels)
 
-**Author:** Johan Pieterse, The Archive and Heritage Group (Pty) Ltd
+**Author:** Johan Pieterse, The Archive and Heritage Digital Commons Group (Pty) Ltd
 **Date:** 2026-04-28
 **Issue:** GitHub #31 (paired with #30 diagnosis)
 **Inputs:** `tests/discovery/qrels-simulated.csv` (100 queries, seed=42), `bin/discovery-eval.php` v1.

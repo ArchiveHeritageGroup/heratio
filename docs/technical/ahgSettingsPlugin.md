@@ -620,7 +620,7 @@ class NumberingFilter
 
 ### Overview (planned)
 
-AHG Central will be a cloud service provided by The Archive and Heritage Group for shared AI training and future cloud features. Configuration will be managed via the AHG Central settings page once a consumer service is built.
+AHG Central will be a cloud service provided by The Archive and Heritage Digital Commons Group for shared AI training and future cloud features. Configuration will be managed via the AHG Central settings page once a consumer service is built.
 
 ### Future-work checklist
 
@@ -933,7 +933,7 @@ if (!$this->context->user->isAdministrator()) {
     "machine_name": "ahgSettingsPlugin",
     "version": "1.0.1",
     "description": "Extended settings management for AtoM",
-    "author": "The Archive and Heritage Group",
+    "author": "The Archive and Heritage Digital Commons Group",
     "license": "GPL-3.0",
     "requires": {
         "atom_framework": ">=1.0.0",

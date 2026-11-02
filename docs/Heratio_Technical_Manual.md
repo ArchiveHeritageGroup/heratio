@@ -3,7 +3,7 @@
 **For:** Developers, DevOps Engineers, System Integrators
 **Product:** Heratio Framework v2.8.2
 **Date:** 16 March 2026
-**Author:** The Archive and Heritage Group (Pty) Ltd
+**Author:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 
 ---
 
@@ -110,7 +110,7 @@ atom-ahg-plugins/ahgMyPlugin/
   "machine_name": "ahgMyPlugin",
   "version": "1.0.0",
   "description": "What this plugin does",
-  "author": "The Archive and Heritage Group",
+  "author": "The Archive and Heritage Digital Commons Group",
   "license": "GPL-3.0",
   "requires": {
     "atom_framework": ">=1.0.0",
@@ -469,4 +469,4 @@ Security classification enforced at query level - users cannot read records abov
 
 ---
 
-*Heratio Framework v2.8.2 - The Archive and Heritage Group (Pty) Ltd*
+*Heratio Framework v2.8.2 - The Archive and Heritage Digital Commons Group (Pty) Ltd*

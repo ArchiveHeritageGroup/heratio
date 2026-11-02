@@ -1,6 +1,6 @@
 # Ontology Governance Pin (Heratio / AtoM3 RiC stack)
 
-**Status:** v1 governance pin, 2026-06-19. Owner: Johan Pieterse (The Archive and Heritage Group).
+**Status:** v1 governance pin, 2026-06-19. Owner: Johan Pieterse (The Archive and Heritage Digital Commons Group).
 **Purpose:** the single, citable record of *which* ontologies Heratio commits to, at *which versions*, under *what change process*, and with *what conformance gate*. Agents, the KM RAG, downstream consumers and any AtoM3/Foundation alignment read this file as the canonical pin. If an ontology version, namespace, or export format is not listed here, it is not sanctioned.
 
 This is deliberately one page. It governs the meaning layer; it does not re-specify the model (that lives in the OpenRiC spec and `ahg-ric`).

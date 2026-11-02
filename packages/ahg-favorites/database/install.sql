@@ -20,7 +20,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ahgFavoritesPlugin - Database Schema
 -- ============================================================
 -- Version: 2.0.0
--- Author: The Archive and Heritage Group
+-- Author: The Archive and Heritage Digital Commons Group
 -- ============================================================
 
 -- Favorites table (user bookmarks for archival descriptions + custom entities)

@@ -185,7 +185,7 @@
         </div>
         <div class="col">
           <h2 class="display-6 fw-bold mb-1 text-white">{{ __('Articles') }}</h2>
-          <p class="mb-0 fs-5 text-white-50">{{ __('News, regulation and insight from The Archive and Heritage Group.') }}</p>
+          <p class="mb-0 fs-5 text-white-50">{{ __('News, regulation and insight from The Archive and Heritage Digital Commons Group.') }}</p>
         </div>
         <div class="col-md-auto text-md-end">
           <span class="btn btn-light btn-lg fw-semibold px-4">{{ __('Read our articles') }} <i class="fas fa-arrow-right ms-2"></i></span>

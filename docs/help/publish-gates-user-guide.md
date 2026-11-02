@@ -6,7 +6,7 @@
 
 The **Publish Gates** system provides configurable quality control rules that must pass before archival records can be published to public view. Combined with the **Type-Driven Editor** enhancements, it ensures metadata completeness, rights compliance, and security clearance before any record becomes publicly accessible.
 
-This feature is part of the Heratio framework v2.8.2 by The Archive and Heritage Group (Pty) Ltd.
+This feature is part of the Heratio framework v2.8.2 by The Archive and Heritage Digital Commons Group (Pty) Ltd.
 
 ## Key Features
 
@@ -86,5 +86,5 @@ Four new workflow event types: `gate_evaluated`, `gate_passed`, `gate_failed`, `
 
 ---
 
-*The Archive and Heritage Group (Pty) Ltd*
+*The Archive and Heritage Digital Commons Group (Pty) Ltd*
 *https://github.com/ArchiveHeritageGroup*

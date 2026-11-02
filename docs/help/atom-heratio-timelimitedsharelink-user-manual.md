@@ -208,4 +208,4 @@ For unresolved problems, check `ahg_audit_log` (filter `module=share_link`) and 
 
 ---
 
-© 2026 The Archive and Heritage Group (Pty) Ltd. AGPL-3.0-or-later.
+© 2026 The Archive and Heritage Digital Commons Group (Pty) Ltd. AGPL-3.0-or-later.

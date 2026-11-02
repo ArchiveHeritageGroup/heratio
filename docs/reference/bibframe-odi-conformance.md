@@ -115,11 +115,11 @@ The pending items are documented as gaps in heratio#766 (open). Section 7 confor
 
 ## 5. Self-Attested Statement
 
-The Archive and Heritage Group (Pty) Ltd hereby self-attests that the Heratio platform conforms to the requirements set out in NISO RP-19-2020 (Open Discovery Initiative) as marked YES above. Items marked PARTIAL or PENDING are tracked and scheduled. No item is marked NO.
+The Archive and Heritage Digital Commons Group (Pty) Ltd hereby self-attests that the Heratio platform conforms to the requirements set out in NISO RP-19-2020 (Open Discovery Initiative) as marked YES above. Items marked PARTIAL or PENDING are tracked and scheduled. No item is marked NO.
 
 The platform owners welcome independent verification by the NISO ODI Working Group.
 
-**Authorised by:** Johan Pieterse, Owner, The Archive and Heritage Group (Pty) Ltd
+**Authorised by:** Johan Pieterse, Owner, The Archive and Heritage Digital Commons Group (Pty) Ltd
 **Date:** 2026-05-27
 
 ---

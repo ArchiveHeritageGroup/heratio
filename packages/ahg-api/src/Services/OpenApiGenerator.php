@@ -48,7 +48,7 @@ class OpenApiGenerator
                 'description' => $this->description,
                 'version' => $appVersion,
                 'contact' => [
-                    'name' => 'The Archive and Heritage Group',
+                    'name' => 'The Archive and Heritage Digital Commons Group',
                     'email' => 'johan@theahg.co.za',
                 ],
                 'license' => [

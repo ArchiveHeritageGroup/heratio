@@ -3,7 +3,7 @@
 **Version:** 2.8.3
 **Date:** 27 October 2026
 **Standard:** WCAG 2.2 Level AA (self-assessed)
-**Author:** The Archive and Heritage Group (Pty) Ltd
+**Author:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 
 ## Our Commitment
 
@@ -84,7 +84,7 @@ Automated tools find only part of what WCAG covers, so these results support the
 We welcome your feedback on the accessibility of Heratio. If you encounter accessibility barriers, please contact us:
 
 - **Email:** johan@theahg.co.za
-- **Organization:** The Archive and Heritage Group (Pty) Ltd
+- **Organization:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 
 ## Technical Standards
 

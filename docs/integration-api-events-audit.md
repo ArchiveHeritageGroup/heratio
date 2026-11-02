@@ -4,7 +4,7 @@
 
 The **Integration API** extends Heratio's REST API v2 with endpoints for browsing workflow events, querying the audit trail, and managing publication status programmatically. These endpoints enable external systems to integrate with AtoM's workflow and compliance infrastructure.
 
-This feature is part of the Heratio framework v2.8.2 by The Archive and Heritage Group (Pty) Ltd.
+This feature is part of the Heratio framework v2.8.2 by The Archive and Heritage Digital Commons Group (Pty) Ltd.
 
 ## Key Features
 
@@ -127,5 +127,5 @@ All responses follow the standard format:
 
 ---
 
-*The Archive and Heritage Group (Pty) Ltd*
+*The Archive and Heritage Digital Commons Group (Pty) Ltd*
 *https://github.com/ArchiveHeritageGroup*

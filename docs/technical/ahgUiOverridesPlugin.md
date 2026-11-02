@@ -400,7 +400,7 @@ sfContext::getInstance()->getConfiguration()->loadHelpers(['MyHelper']);
     "machine_name": "ahgUiOverridesPlugin",
     "version": "1.0.0",
     "description": "UI action overrides for AtoM modules - centralized location for action customizations",
-    "author": "The Archive and Heritage Group",
+    "author": "The Archive and Heritage Digital Commons Group",
     "license": "GPL-3.0",
     "category": "ahg",
     "requires": {

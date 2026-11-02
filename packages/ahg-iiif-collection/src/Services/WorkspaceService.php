@@ -2,7 +2,7 @@
 /**
  * Heratio - per-user Mirador workspace persistence service (issue #699).
  *
- * @copyright Copyright (c) 2026, The Archive and Heritage Group (Pty) Ltd
+ * @copyright Copyright (c) 2026, The Archive and Heritage Digital Commons Group (Pty) Ltd
  * @author    Johan Pieterse <johan@plainsailingisystems.co.za>
  * @license   AGPL-3.0-or-later
  */

@@ -62,7 +62,7 @@
       <div class="card mb-3">
         <div class="card-body small">
           <h2 class="h6">{{ __('Get started') }}</h2>
-          <p class="mb-2">{{ __('Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Group to host it for you.') }}</p>
+          <p class="mb-2">{{ __('Heratio is free under the AGPL-3.0 licence. Install it yourself, or ask The Archive and Heritage Digital Commons Group to host it for you.') }}</p>
           <a class="btn btn-sm btn-primary mb-1" href="{{ route('solutions.documentation') }}">{{ __('Install') }}</a>
           <a class="btn btn-sm btn-outline-secondary mb-1" href="https://github.com/ArchiveHeritageGroup/heratio" rel="noopener">{{ __('Source on GitHub') }}</a>
         </div>

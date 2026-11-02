@@ -9,7 +9,7 @@
  *   $query - The original search query
  *
  * @package ahgThemeB5Plugin
- * @author Johan Pieterse - The Archive and Heritage Group
+ * @author Johan Pieterse - The Archive and Heritage Digital Commons Group
  */
 
 // Check if semantic search expansion data is available

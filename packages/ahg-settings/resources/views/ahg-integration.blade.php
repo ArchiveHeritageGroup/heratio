@@ -50,7 +50,7 @@
         <h5 class="mb-0"><i class="fas fa-cloud me-2"></i>{{ __('About AHG Central') }}</h5>
       </div>
       <div class="card-body">
-        <p class="mb-2">{{ __('AHG Central is a cloud service from The Archive and Heritage Group that enhances your instance with:') }}</p>
+        <p class="mb-2">{{ __('AHG Central is a cloud service from The Archive and Heritage Digital Commons Group that enhances your instance with:') }}</p>
         <ul class="mb-3">
           <li><strong>{{ __('Fleet Monitoring') }}</strong> - A heartbeat + version + error-log view of every connected instance</li>
           <li><strong>{{ __('Shared NER Training') }}</strong> - Contribute and benefit from a community-trained Named Entity Recognition model</li>

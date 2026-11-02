@@ -1,6 +1,6 @@
 <!--
 SPDX-License-Identifier: AGPL-3.0-or-later
-SPDX-FileCopyrightText: 2026 Johan Pieterse / The Archive and Heritage Group (Pty) Ltd
+SPDX-FileCopyrightText: 2026 Johan Pieterse / The Archive and Heritage Digital Commons Group (Pty) Ltd
 
 This file is part of Heratio.
 Heratio is free software: you can redistribute it and/or modify it under the
@@ -10,7 +10,7 @@ any later version. See <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 # GenDSs 2026 paper - operational status snapshot
 
-**Author:** Johan Pieterse, The Archive and Heritage Group (Pty) Ltd
+**Author:** Johan Pieterse, The Archive and Heritage Digital Commons Group (Pty) Ltd
 **Date:** 2026-04-28
 **Host:** `theahg` (192.168.0.110 / 192.168.0.112), Heratio v1.18.0
 **Scope:** read-only inspection of the four-strategy hybrid retrieval pipeline currently deployed alongside an in-flight ANC pilot.

@@ -62,6 +62,6 @@ Read the full series, and download the framework workbook, here:
 
 ---
 
-*The framework is part of ongoing work by The Archive and Heritage Group. The downloadable
+*The framework is part of ongoing work by The Archive and Heritage Digital Commons Group. The downloadable
 workbook is jurisdiction-neutral; replace the placeholder pilot numbers with your own
 signed pilot outputs before using it as a procurement artefact.*

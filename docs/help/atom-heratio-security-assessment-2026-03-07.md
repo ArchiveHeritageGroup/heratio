@@ -3,7 +3,7 @@
 # Heratio — Security Assessment Report
 
 **Date:** 2026-03-07
-**Assessor:** The Archive and Heritage Group (Pty) Ltd
+**Assessor:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 **Scope:** Public-facing Heratio deployment — PSIS instance (psis.theahg.co.za)
 **Framework Version:** 2.8.2
 

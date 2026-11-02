@@ -69,7 +69,7 @@ isiNdebele, isiXhosa, isiZulu, Sepedi, Sesotho, siSwati, Setswana,
 Tshivenda, Xitsonga) shipped in `lang/af.json`, `lang/en.json`,
 `lang/nr.json`, `lang/xh.json`, `lang/zu.json`, `lang/nso.json`,
 `lang/st.json`, `lang/ss.json`, `lang/tn.json`, `lang/ve.json`,
-`lang/ts.json` are authored by **The Archive and Heritage Group (Pty)
+`lang/ts.json` are authored by **The Archive and Heritage Digital Commons Group (Pty)
 Ltd** as part of Heratio's commitment to multilingual heritage
 preservation in southern Africa.
 

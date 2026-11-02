@@ -20,7 +20,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ahgCartPlugin - E-Commerce Database Schema
 -- ============================================================
 -- Version: 2.0.0
--- Author: The Archive and Heritage Group
+-- Author: The Archive and Heritage Digital Commons Group
 -- Supports: Standard Request Mode + E-Commerce Mode
 -- ============================================================
 

@@ -5,7 +5,7 @@
 
 **Version:** 1.0.0  
 **Last Updated:** January 2026  
-**Author:** The Archive and Heritage Group
+**Author:** The Archive and Heritage Digital Commons Group
 
 ---
 
@@ -697,4 +697,4 @@ php symfony test:unit ahgDataMigrationPlugin
 
 ---
 
-*© 2026 The Archive and Heritage Group. All rights reserved.*
+*© 2026 The Archive and Heritage Digital Commons Group. All rights reserved.*

@@ -4,7 +4,7 @@
 
 **Version:** 2.0.0
 **Date:** May 2026
-**Author:** The Archive and Heritage Group (Pty) Ltd
+**Author:** The Archive and Heritage Digital Commons Group (Pty) Ltd
 
 This is the umbrella guide to Heratio's Library (Integrated Library System) module. Each major area links to its own detailed help article.
 

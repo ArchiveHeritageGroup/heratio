@@ -10,7 +10,7 @@ use Psr\Log\LoggerInterface;
  * Create Spectrum tables - Events, Loans, Labels
  * 
  * @package AtomFramework\Extensions\Spectrum
- * @author Johan Pieterse - The Archive and Heritage Group
+ * @author Johan Pieterse - The Archive and Heritage Digital Commons Group
  */
 class CreateSpectrumTables
 {

@@ -720,7 +720,7 @@ $data            // Profile settings (actions, thumbnail_size, etc.)
   "machine_name": "ahgDisplayPlugin",
   "version": "1.3.0",
   "description": "GLAM browser and display modes for archival content",
-  "author": "The Archive and Heritage Group",
+  "author": "The Archive and Heritage Digital Commons Group",
   "license": "GPL-3.0",
   "category": "display",
   "requires": {

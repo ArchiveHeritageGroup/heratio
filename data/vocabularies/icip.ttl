@@ -32,7 +32,7 @@ icip:Scheme a skos:ConceptScheme ;
     dct:title "Indigenes kulturelles und geistiges Eigentum"@de ;
     dct:title "Propriedade Cultural e Intelectual Indígena"@pt ;
     dct:description "Multilingual SKOS vocabulary for ICIP-aware archival description, sensitivity classification, and permission management."@en ;
-    dct:creator "The Archive and Heritage Group (Pty) Ltd" ;
+    dct:creator "The Archive and Heritage Digital Commons Group (Pty) Ltd" ;
     dct:license <https://www.gnu.org/licenses/agpl-3.0.html> ;
     dct:issued "2026-04-30"^^<http://www.w3.org/2001/XMLSchema#date> .
 

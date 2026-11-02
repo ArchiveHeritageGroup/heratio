@@ -90,7 +90,7 @@ class DacsRoundTripTest extends TestCase
             .'<dacsDescription xmlns="'.DacsSerializer::NAMESPACE_URI.'" version="1.0">'."\n"
             .'  <recordIdentifier>'.$recordIdentifier.'</recordIdentifier>'."\n"
             .'  <referenceCode>AHG-001</referenceCode>'."\n"
-            .'  <nameAndLocation>The Archive and Heritage Group</nameAndLocation>'."\n"
+            .'  <nameAndLocation>The Archive and Heritage Digital Commons Group</nameAndLocation>'."\n"
             .'  <title>Synthetic DACS record</title>'."\n"
             .'  <date>2026</date>'."\n"
             .'  <extent>1 box</extent>'."\n"

@@ -2,7 +2,7 @@
 
 ### Heratio's North Star: corpus-grounded history that answers in your own language
 
-*By Johan Pieterse, The Archive and Heritage Group*
+*By Johan Pieterse, The Archive and Heritage Digital Commons Group*
 
 ---
 
@@ -77,4 +77,4 @@ That is worth building slowly and correctly. Everything in Heratio is measured a
 
 ---
 
-*Heratio is a standalone archival management platform for the international GLAM sector, built by The Archive and Heritage Group. See the companion post: [`north-star-linkedin-post.md`](./north-star-linkedin-post.md).*
+*Heratio is a standalone archival management platform for the international GLAM sector, built by The Archive and Heritage Digital Commons Group. See the companion post: [`north-star-linkedin-post.md`](./north-star-linkedin-post.md).*

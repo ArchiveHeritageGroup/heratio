@@ -13,7 +13,7 @@
       default => ['Not yet released', '#6c757d', 'fa-clock'],
   };
   $isOpen = $access[0] === 'Open access';
-  $publisher = 'The Archive and Heritage Group';
+  $publisher = 'The Archive and Heritage Digital Commons Group';
 @endphp
 
 <div class="card">
