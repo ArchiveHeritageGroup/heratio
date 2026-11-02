@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relationship Explorer</title>
+<!-- Written by ahg:explorer-export (heratio#1524). Runs from a folder or USB drive: no server, no network. -->
+<style>
+:root {
+  --paper: #f5f5f3; --panel: #ffffff; --band: #f2ede6; --ink: #262626; --muted: #6b6b6b; --rule: #d8d4d0;
+  --accent: #653332; --primary: #E1B34F; --head: #10373E; --headtext: #F2EDE6;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--paper); color: var(--ink); font: 15px/1.55 Arial, Helvetica, sans-serif; display: flex; flex-direction: column; }
+header { padding: 12px 20px; border-bottom: 3px solid var(--primary); background: var(--head); color: var(--headtext); }
+header h1 { margin: 0; font-size: 22px; font-weight: normal; color: var(--primary); }
+header .sub { font-size: 13px; opacity: .85; }
+.bar { background: var(--band); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 10px 20px; border-bottom: 1px solid var(--rule); }
+.search { position: relative; flex: 1 1 320px; max-width: 520px; }
+.search input { width: 100%; padding: 8px 12px; font: inherit; border: 1px solid var(--rule); border-radius: 4px; background: #fff; color: var(--ink); }
+.sugg { position: absolute; z-index: 10; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid var(--rule); border-top: 0; max-height: 320px; overflow: auto; display: none; }
+.sugg div { padding: 6px 12px; cursor: pointer; display: flex; gap: 8px; align-items: baseline; }
+.sugg div:hover, .sugg div.on { background: var(--paper); }
+.sugg small { color: var(--muted); }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border: 1px solid var(--rule); border-radius: 999px; font-size: 13px; cursor: pointer; background: #fff; user-select: none; }
+.chip.off { opacity: .4; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
+main { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) 420px; min-height: 0; }
+#graph { min-height: 0; position: relative; }
+#hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--muted); font-style: italic; pointer-events: none; text-align: center; padding: 40px; }
+aside { border-left: 1px solid var(--rule); background: var(--panel); overflow: auto; padding: 16px 20px 30px; }
+aside h2 { font-size: 20px; font-weight: normal; margin: 4px 0 2px; color: var(--accent); }
+aside h3 { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: normal; margin: 18px 0 6px; }
+.meta { color: var(--muted); font-size: 13px; }
+.list a { display: block; padding: 5px 0; border-bottom: 1px dotted var(--rule); color: var(--ink); text-decoration: none; cursor: pointer; }
+.list a:hover { color: var(--accent); }
+.list small { color: var(--muted); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.btn { display: inline-block; margin-top: 10px; padding: 7px 14px; background: var(--head); color: var(--headtext); border-radius: 4px; text-decoration: none; font-size: 14px; }
+#timeline { height: 74px; border-top: 1px solid var(--rule); background: var(--panel); }
+#timeline svg { width: 100%; height: 100%; display: block; }
+footer { padding: 8px 20px; font-size: 12px; color: var(--headtext); background: var(--head); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+@media (max-width: 900px) { main { grid-template-columns: 1fr; grid-template-rows: 55vh auto; } aside { border-left: 0; border-top: 1px solid var(--rule); } }
+</style>
+</head>
+<body>
+<header><h1 id="title"></h1><div class="sub" id="scope"></div></header>
+<div class="bar">
+  <div class="search"><input id="q" placeholder="Search a subject, place, name or record title" autocomplete="off"><div class="sugg" id="sugg"></div></div>
+  <div id="chips"></div>
+</div>
+<main>
+  <div id="graph"><div id="hint">Search for a name, or pick one of the most-used below, to see how it connects across the records.</div></div>
+  <aside id="side"></aside>
+</main>
+<div id="timeline"></div>
+<footer><span id="made"></span><span>Built from the catalogue's subjects, places and names, as catalogued.</span></footer>
+<script src="cytoscape.min.js"></script>
+<script src="data.js"></script>
+<script>
+const D = window.DATA;
+const TYPES = { subject: ['Subjects', '#10373E'], place: ['Places', '#3f6b5a'], name: ['People and bodies', '#9a3f1c'], genre: ['Genres', '#b07d2b'] };
+const REC = new Map(D.records.map(r => [r.id, r]));
+const ENT = new Map(D.entities.map(e => [e.id, e]));
+const on = new Set(Object.keys(TYPES));
+const fmt = n => n.toLocaleString('en-GB');
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+const ref = r => [r.ref !== r.title ? esc(r.ref) : '', esc(r.date)].filter(Boolean).join(' &middot; ');
+document.title = D.site.title;
+document.getElementById('title').textContent = D.site.title;
+document.getElementById('scope').textContent = `${D.site.scope ? D.site.scope + ' - ' : ''}${fmt(D.records.length)} records, ${fmt(D.entities.length)} subjects, places and names`;
+document.getElementById('made').textContent = `Exported ${D.site.generated}`;
+
+const chips = document.getElementById('chips');
+Object.entries(TYPES).forEach(([t, [label, col]]) => {
+  const n = D.entities.filter(e => e.type === t).length; if (!n) return;
+  const el = document.createElement('span'); el.className = 'chip'; el.innerHTML = `<span class="dot" style="background:${col}"></span>${label} <small>${fmt(n)}</small>`;
+  el.onclick = () => { on.has(t) ? on.delete(t) : on.add(t); el.classList.toggle('off', !on.has(t)); if (current) focus(current, false); };
+  chips.appendChild(el);
+});
+
+const cy = cytoscape({ container: document.getElementById('graph'), minZoom: 0.2, maxZoom: 3,
+  style: [
+    { selector: 'node', style: { 'label': 'data(label)', 'font-size': 11, 'color': '#262626', 'text-wrap': 'wrap', 'text-max-width': 130,
+      'text-valign': 'bottom', 'text-margin-y': 4, 'width': 'data(size)', 'height': 'data(size)', 'background-color': 'data(color)' } },
+    { selector: 'node.rec', style: { 'shape': 'round-rectangle', 'background-color': '#ffffff', 'border-width': 1.5, 'border-color': '#9b9182', 'font-size': 9, 'color': '#6b6b6b', 'text-valign': 'center', 'text-margin-y': 0 } },
+    { selector: 'node.hover', style: { 'label': 'data(full)', 'z-index': 99, 'text-background-color': '#ffffff', 'text-background-opacity': 1, 'text-background-padding': 3 } },
+    { selector: 'node.centre', style: { 'font-size': 15, 'font-weight': 'bold', 'border-width': 3, 'border-color': '#E1B34F' } },
+    { selector: 'edge', style: { 'width': 1, 'line-color': '#cfc4ae', 'curve-style': 'haystack', 'opacity': .8 } },
+  ] });
+let current = null;
+cy.on('tap', 'node', ev => focus(ev.target.id()));
+cy.on('mouseover', 'node.rec', ev => ev.target.addClass('hover'));
+cy.on('mouseout', 'node.rec', ev => ev.target.removeClass('hover'));
+
+const entNode = (e, centre) => ({ data: { id: e.id, label: e.name, color: TYPES[e.type][1], size: centre ? 46 : Math.min(36, 14 + 3 * Math.sqrt(e.recs.length)) }, classes: centre ? 'centre' : '' });
+const recNode = (r, centre) => ({ data: { id: r.id, label: r.ref || r.id, full: `${r.ref || ''}\n${(r.title || '').slice(0, 70)}`, color: '#fff', size: centre ? 44 : 34 }, classes: 'rec' + (centre ? ' centre' : '') });
+function focus(id, push = true) {
+  current = id; document.getElementById('hint').style.display = 'none';
+  const els = [], seen = new Set(), add = el => { if (!seen.has(el.data.id)) { seen.add(el.data.id); els.push(el); } };
+  const edge = (a, b) => els.push({ data: { id: `${a}|${b}|${els.length}`, source: a, target: b } });
+  if (ENT.has(id)) {
+    const e = ENT.get(id); add(entNode(e, true));
+    // Ring 1: records carrying it (a busy name shows the 40 best connected; the panel lists all).
+    // Ring 2: the other names those records share, strongest first.
+    const co = new Map();
+    const shown = e.recs.length <= 40 ? e.recs : e.recs.slice().sort((a, b) => REC.get(b).ents.length - REC.get(a).ents.length).slice(0, 40);
+    shown.forEach(rid => { const r = REC.get(rid); add(recNode(r)); edge(id, rid);
+      r.ents.forEach(k => { if (k !== id && on.has(ENT.get(k).type)) co.set(k, (co.get(k) || []).concat(rid)); }); });
+    [...co.entries()].sort((a, b) => b[1].length - a[1].length).slice(0, 30).forEach(([k, rids]) => { add(entNode(ENT.get(k))); rids.forEach(rid => edge(rid, k)); });
+    showEntity(e, co);
+  } else {
+    const r = REC.get(id); add(recNode(r, true));
+    r.ents.forEach(k => { const e = ENT.get(k); if (!on.has(e.type)) return; add(entNode(e)); edge(id, k);
+      e.recs.filter(x => x !== id).slice(0, 6).forEach(x => { add(recNode(REC.get(x))); edge(k, x); }); });
+    showRecord(r);
+  }
+  cy.elements().remove(); cy.add(els);
+  cy.layout({ name: 'concentric', concentric: n => n.hasClass('centre') ? 3 : (n.hasClass('rec') ? 2 : 1), levelWidth: () => 1,
+              minNodeSpacing: 34, spacingFactor: 1.1, animate: true, animationDuration: 350 }).run();
+  if (push) history.replaceState(null, '', '#' + encodeURIComponent(id));
+  drawTimeline();
+}
+
+const side = document.getElementById('side');
+const linkRec = rid => { const r = REC.get(rid); return `<a data-go="${esc(rid)}">${esc(r.title || '(untitled)')}<br><small>${ref(r)}</small></a>`; };
+const chip = k => { const x = ENT.get(k); return `<span class="chip" data-go="${esc(k)}"><span class="dot" style="background:${TYPES[x.type][1]}"></span>${esc(x.name)}`; };
+function showEntity(e, co) {
+  const top = [...co.entries()].sort((a, b) => b[1].length - a[1].length).slice(0, 18);
+  side.innerHTML = `<div class="meta"><span class="dot" style="background:${TYPES[e.type][1]}"></span> ${TYPES[e.type][0]}</div>
+    <h2>${esc(e.name)}</h2>
+    ${e.variants.length > 1 ? `<div class="meta">Catalogued as: ${e.variants.map(esc).join('; ')}</div>` : ''}
+    <h3>On ${fmt(e.recs.length)} record${e.recs.length > 1 ? 's' : ''}${e.recs.length > 40 ? ' (the map shows the 40 best connected)' : ''}</h3>
+    <div class="list">${e.recs.slice(0, 500).map(linkRec).join('')}${e.recs.length > 500 ? `<small>and ${fmt(e.recs.length - 500)} more</small>` : ''}</div>
+    ${top.length ? `<h3>Appears alongside</h3><div class="tags">${top.map(([k, c]) => chip(k) + ` <small>${c.length}</small></span>`).join('')}</div>` : ''}`;
+}
+function showRecord(r) {
+  side.innerHTML = `<div class="meta">${ref(r)}</div><h2>${esc(r.title || '(untitled)')}</h2>
+    ${r.url ? `<a class="btn" href="${esc(r.url)}" target="_blank" rel="noopener">Open the record</a>` : ''}
+    ${r.ents.length ? `<h3>Catalogued with</h3><div class="tags">${r.ents.map(k => chip(k) + '</span>').join('')}</div>` : ''}`;
+}
+side.addEventListener('click', ev => { const t = ev.target.closest('[data-go]'); if (t) focus(t.dataset.go); });
+function welcome() {
+  const top = D.entities.slice().sort((a, b) => b.recs.length - a.recs.length).slice(0, 30);
+  side.innerHTML = `<h2>Where to start</h2><div class="meta">The most-used subjects, places and names in this selection. Click one, or search above.</div>
+    <div class="tags" style="margin-top:12px">${top.map(x => chip(x.id) + ` <small>${fmt(x.recs.length)}</small></span>`).join('')}</div>`;
+}
+
+const q = document.getElementById('q'), sugg = document.getElementById('sugg');
+const index = [...D.entities.map(e => ({ id: e.id, label: e.name, sub: `${TYPES[e.type][0]} - ${fmt(e.recs.length)} records`,
+                                         keys: [e.name, ...e.variants].join(' ').toLowerCase(), color: TYPES[e.type][1], weight: e.recs.length })),
+               ...D.records.map(r => ({ id: r.id, label: r.title || '(untitled)', sub: r.ref, keys: (r.title + ' ' + r.ref).toLowerCase(), color: '#fff', weight: 0 }))];
+let pick = 0, hits = [];
+q.addEventListener('input', () => {
+  const s = q.value.trim().toLowerCase(); pick = 0;
+  if (s.length < 2) { sugg.style.display = 'none'; return; }
+  hits = index.filter(x => x.keys.includes(s)).sort((a, b) => b.weight - a.weight).slice(0, 14);
+  sugg.innerHTML = hits.map((h, i) => `<div data-i="${i}" class="${i === 0 ? 'on' : ''}"><span class="dot" style="background:${h.color};border:1px solid #9b9182"></span>${esc(h.label)} <small>${esc(h.sub)}</small></div>`).join('')
+    || '<div><small>No match in this selection</small></div>';
+  sugg.style.display = 'block';
+});
+q.addEventListener('keydown', ev => {
+  if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') { pick = Math.max(0, Math.min(hits.length - 1, pick + (ev.key === 'ArrowDown' ? 1 : -1)));
+    [...sugg.children].forEach((d, i) => d.classList.toggle('on', i === pick)); ev.preventDefault(); }
+  if (ev.key === 'Enter' && hits[pick]) { focus(hits[pick].id); sugg.style.display = 'none'; q.blur(); }
+  if (ev.key === 'Escape') sugg.style.display = 'none';
+});
+sugg.addEventListener('mousedown', ev => { const d = ev.target.closest('[data-i]'); if (d) { focus(hits[+d.dataset.i].id); sugg.style.display = 'none'; } });
+q.addEventListener('blur', () => setTimeout(() => sugg.style.display = 'none', 150));
+
+// Timeline: every record with a readable date (a bare year sits at 1 January); the ones in view stand out.
+const MONTHS = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+function when(s) {
+  let m = /^(\d{4})(?:-(\d{2})(?:-(\d{2}))?)?/.exec(s || ''); if (m) return Date.UTC(+m[1], (+m[2] || 1) - 1, +m[3] || 1);
+  m = /([a-z]+)\s+(\d{4})$/i.exec(s || ''); if (m && MONTHS.includes(m[1].toLowerCase())) return Date.UTC(+m[2], MONTHS.indexOf(m[1].toLowerCase()), 1);
+  m = /(\d{4})\s*$/.exec(s || ''); return m ? Date.UTC(+m[1], 0, 1) : null;
+}
+const DATED = D.records.map(r => [r, when(r.date)]).filter(([, t]) => t !== null);
+function drawTimeline() {
+  const el = document.getElementById('timeline');
+  if (DATED.length < 2) { el.style.display = 'none'; return; }
+  const ts = DATED.map(([, t]) => t), lo = Math.min(...ts), hi = Math.max(...ts), W = el.clientWidth || 1000, pad = 30;
+  const x = v => pad + (W - 2 * pad) * (v - lo) / Math.max(1, hi - lo);
+  const shown = new Set(cy.nodes('.rec').map(n => n.id()));
+  const years = hi - lo > 3 * 365 * 864e5;
+  const ticks = []; for (let d = new Date(lo); d.getTime() <= hi; years ? d.setUTCFullYear(d.getUTCFullYear() + 1, 0, 1) : d.setUTCMonth(d.getUTCMonth() + 1, 1)) ticks.push(new Date(d));
+  const every = Math.ceil(ticks.length / 16);
+  el.innerHTML = `<svg viewBox="0 0 ${W} 74" preserveAspectRatio="none"><line x1="${pad}" x2="${W - pad}" y1="44" y2="44" stroke="#d9cfbd"/>
+    ${ticks.filter((_, i) => i % every === 0).map(m => `<text x="${x(m.getTime())}" y="66" font-size="11" fill="#6b6b6b" text-anchor="middle">${years ? m.getUTCFullYear() : m.toLocaleString('en-GB', { month: 'short', year: 'numeric', timeZone: 'UTC' })}</text>`).join('')}
+    ${DATED.filter(([r]) => shown.has(r.id)).map(([r, t]) => `<line data-go="${esc(r.id)}" x1="${x(t)}" x2="${x(t)}" y1="10" y2="44" stroke="#653332" stroke-width="3" style="cursor:pointer"><title>${esc(r.date + ' - ' + (r.title || ''))}</title></line>`).join('')}
+  </svg>`;
+}
+document.getElementById('timeline').addEventListener('click', ev => { const t = ev.target.closest('[data-go]'); if (t) focus(t.dataset.go); });
+window.addEventListener('resize', drawTimeline);
+window.addEventListener('hashchange', () => { const h = decodeURIComponent(location.hash.slice(1)); if (h !== current && (ENT.has(h) || REC.has(h))) focus(h, false); });
+
+const start = decodeURIComponent(location.hash.slice(1));
+if (start && (ENT.has(start) || REC.has(start))) focus(start, false); else { welcome(); drawTimeline(); }
+</script>
+</body>
+</html>

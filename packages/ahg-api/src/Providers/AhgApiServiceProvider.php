@@ -2,6 +2,7 @@
 
 namespace AhgApi\Providers;
 
+use AhgApi\Console\ExplorerExportCommand;
 use AhgApi\Console\GenerateOpenApiCommand;
 use AhgApi\Console\PruneIdempotencyCommand;
 use AhgApi\Middleware\ApiAuthenticate;
@@ -47,6 +48,7 @@ class AhgApiServiceProvider extends ServiceProvider
             $this->commands([
                 GenerateOpenApiCommand::class,
                 PruneIdempotencyCommand::class,
+                ExplorerExportCommand::class,
             ]);
 
             // Auto-install Phase 1 schema on first boot (idempotency-key table)
