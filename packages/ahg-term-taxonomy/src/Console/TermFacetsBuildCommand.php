@@ -5,6 +5,7 @@
  * on at least --min descriptions into term_facet_top (heratio#1573). Smaller
  * terms aggregate live in well under a second; big ones took up to 21 s.
  * Scheduled nightly; terms that fall below --min are removed from the table.
+ * It also refreshes the cached totals of the alphabetical term list.
  *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
  * License: AGPL-3.0-or-later
@@ -12,6 +13,7 @@
 
 namespace AhgTermTaxonomy\Console;
 
+use AhgTermTaxonomy\Services\TermBrowseService;
 use AhgTermTaxonomy\Services\TermService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
@@ -21,12 +23,19 @@ use Illuminate\Support\Facades\Schema;
 class TermFacetsBuildCommand extends Command
 {
     protected $signature = 'ahg:term-facets-build
-        {--min=2000 : Precompute terms tagged on at least this many descriptions}';
+        {--min=2000 : Precompute terms tagged on at least this many descriptions}
+        {--totals-only : Only refresh the cached term list totals (quick; run after a deploy)}';
 
     protected $description = 'Precompute term page facet panels for large terms';
 
     public function handle(TermService $terms): int
     {
+        if (Schema::hasColumn('term_i18n', 'name_sort')) {
+            $this->info('term list totals refreshed: '.TermBrowseService::warmAlphabeticTotals());
+        }
+        if ($this->option('totals-only')) {
+            return self::SUCCESS;
+        }
         if (! Schema::hasTable('term_facet_top')) {
             $this->error('term_facet_top missing - run the migrations.');
 

@@ -63,4 +63,14 @@ class TermBrowseAlphabeticTest extends TestCase
         }
         $this->assertSame(6, $indexScans, 'each of the six indexed pages used name_sort');
     }
+
+    public function test_nightly_warm_up_fills_the_visitor_total(): void
+    {
+        TermBrowseService::$idFirstMin = 0;
+        $key = 'term_browse_total:'.md5(serialize([null, null, false, 0]));
+        \Illuminate\Support\Facades\Cache::forget($key);
+
+        $this->assertGreaterThan(0, TermBrowseService::warmAlphabeticTotals());
+        $this->assertSame((new TermBrowseService('fr'))->alphabeticTotal(), \Illuminate\Support\Facades\Cache::get($key), 'every culture reads the one warmed total');
+    }
 }

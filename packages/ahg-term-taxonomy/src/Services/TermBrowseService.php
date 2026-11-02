@@ -28,6 +28,7 @@ namespace AhgTermTaxonomy\Services;
 use AhgCore\Services\BrowseService;
 use AhgCore\Traits\WithCultureFallback;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -135,6 +136,46 @@ class TermBrowseService extends BrowseService
     public static int $idFirstMin = 5000;
 
     /**
+     * Total for the alphabetical list with the current filters, counted off the
+     * name index (named terms in the fallback culture) and kept for a day: the
+     * ordinary count joined four tables per term and took 21 s cold at ANC. It
+     * does not depend on the language, so every culture shares it. The nightly
+     * ahg:term-facets-build fills it for the full list and each large taxonomy.
+     */
+    public function alphabeticTotal(): int
+    {
+        $key = 'term_browse_total:'.md5(serialize([$this->taxonomyId, $this->parentId, $this->scopeNoteOnly,
+            Auth::check() ? Auth::id() : 0]));
+
+        return (int) Cache::remember($key, 86400, function () {
+            $q = DB::table('term_i18n as ns')->join('term', 'term.id', '=', 'ns.id')
+                ->where('ns.culture', config('app.fallback_locale', 'en'))
+                ->where('ns.name_sort', '<>', '');
+            $this->applySearch($q, '');
+            \AhgCore\Services\TermProtocolGate::addTermVisibilityCriteria($q, 'term.id');
+
+            return $q->count();
+        });
+    }
+
+    /** Refresh the visitor totals for the full list and every taxonomy over the index-page threshold. */
+    public static function warmAlphabeticTotals(): int
+    {
+        $taxonomies = DB::table('term')->select('taxonomy_id')->groupBy('taxonomy_id')
+            ->havingRaw('COUNT(*) > ?', [self::$idFirstMin])->pluck('taxonomy_id')->all();
+        $n = 0;
+        foreach (array_merge([null], $taxonomies) as $taxonomyId) {
+            $svc = new self('en');
+            $svc->taxonomyId = $taxonomyId === null ? null : (int) $taxonomyId;
+            Cache::forget('term_browse_total:'.md5(serialize([$svc->taxonomyId, null, false, 0])));
+            $svc->alphabeticTotal();
+            $n++;
+        }
+
+        return $n;
+    }
+
+    /**
      * The alphabetical list, page by page, in index order (heratio#1573).
      * Sorting on the computed name made MySQL sort every term on every page:
      * 6-10 s at ANC's 558,000 terms, plus 10 s for the count. Here the total is
@@ -155,21 +196,7 @@ class TermBrowseService extends BrowseService
         $dir = strtolower((string) ($params['sortDir'] ?? '')) === 'desc' ? 'desc' : 'asc';
 
         try {
-            $key = 'term_browse_total:'.md5(serialize([$this->culture, $this->taxonomyId, $this->parentId, $this->scopeNoteOnly,
-                Auth::check() ? Auth::id() : 0]));
-            // Counted off the same index as the page (named terms in the fallback
-            // culture) with the same filters: the ordinary count joined four
-            // tables per term and took 21 s cold at ANC. A total moves only when
-            // terms are added, so it is kept for a day.
-            $total = (int) \Illuminate\Support\Facades\Cache::remember($key, 86400, function () {
-                $q = DB::table('term_i18n as ns')->join('term', 'term.id', '=', 'ns.id')
-                    ->where('ns.culture', config('app.fallback_locale', 'en'))
-                    ->where('ns.name_sort', '<>', '');
-                $this->applySearch($q, '');
-                \AhgCore\Services\TermProtocolGate::addTermVisibilityCriteria($q, 'term.id');
-
-                return $q->count();
-            });
+            $total = $this->alphabeticTotal();
             if ($total <= self::$idFirstMin) {
                 return null;
             }
