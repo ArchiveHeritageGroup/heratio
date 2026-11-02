@@ -276,7 +276,7 @@ Use a tag from [Releases](https://github.com/ArchiveHeritageGroup/heratio/releas
 
 The installer:
 1. Downloads `docker-compose.client.yml` and `.env.docker.example` into `./heratio/`
-2. Prompts for admin email + password + DB passwords + host port
+2. Prompts for admin email + password + DB passwords + host port (on the terminal, so it works through `curl ... | bash`). Without a terminal it writes `.env.docker` and stops: set the three passwords there and run it again
 3. Sets `vm.max_map_count` if running as root (Elasticsearch requires it)
 4. `docker compose pull && up -d` - typical install completes in 30-60 s after the image is local
 5. On a first install only, asks whether to send one **opt-in, anonymous** install ping (default No): the Heratio version, the CPU architecture and a random install ID. No hostname, organisation, email or data is sent, and the receiving server does not store your IP address. It is skipped without asking when there is no terminal, when `CI` is set, or with `HERATIO_NO_PING=1`. A failed ping never affects the install. See [docker/README.md](docker/README.md#install-ping).

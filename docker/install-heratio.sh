@@ -32,6 +32,21 @@ VERSION="${HERATIO_VERSION:-latest}"
 # Opt-in install count (#1571). HERATIO_NO_PING=1 or CI skips the question.
 PING_URL="${HERATIO_PING_URL:-https://heratio.org/api/v1/install-ping}"
 PING=no
+# Prompts read from the terminal, not stdin: 'curl ... | bash' feeds the script
+# itself on stdin, so [ -t 0 ] is false there and the questions were never asked.
+TTY=no
+if { : </dev/tty; } 2>/dev/null; then TTY=yes; fi
+# Escape a value for the replacement side of sed s|...|...| (| & and backslash).
+sed_value() { printf '%s' "$1" | sed -e 's/[\\|&]/\\&/g'; }
+# Ask for a secret until one is given.
+ask_secret() {
+    local value=""
+    while [ -z "$value" ]; do
+        read -rsp "$1" value </dev/tty; echo >/dev/tty
+        [ -z "$value" ] && echo "    (required)" >/dev/tty
+    done
+    printf '%s' "$value"
+}
 # A pinned install takes its compose file from the same release tag as the image.
 if [ "$VERSION" = "latest" ]; then RAW_REF=main; else RAW_REF="$VERSION"; fi
 RAW_BASE="https://raw.githubusercontent.com/${REPO}/${RAW_REF}/docker"
@@ -75,23 +90,26 @@ if [ ! -f .env.docker ]; then
         printf '\n# Image tag. Change it and re-run pull + up to upgrade (docs/upgrade.md).\nHERATIO_VERSION=%s\n' "$VERSION" >> .env.docker
     fi
 
-    if [ -t 0 ]; then
+    if [ "$TTY" = yes ]; then
         echo
         echo "[2/5] first-run setup - please choose a few values:"
-        read -rp "  Admin email          [admin@heratio.local]: " ADMIN_EMAIL_IN
-        read -rsp "  Admin password       (required)            : " ADMIN_PASSWORD_IN; echo
-        read -rsp "  Database password    (required)            : " DB_PASSWORD_IN; echo
-        read -rsp "  DB root password     (required)            : " DB_ROOT_PASSWORD_IN; echo
-        read -rp "  Host port            [8088]               : " PORT_IN
+        read -rp "  Admin email          [admin@heratio.local]: " ADMIN_EMAIL_IN </dev/tty
+        ADMIN_PASSWORD_IN=$(ask_secret "  Admin password       (required)            : ")
+        DB_PASSWORD_IN=$(ask_secret "  Database password    (required)            : ")
+        DB_ROOT_PASSWORD_IN=$(ask_secret "  DB root password     (required)            : ")
+        PORT_IN=""
+        until [[ "$PORT_IN" =~ ^[0-9]{1,5}$ ]]; do
+            read -rp "  Host port            [8088]               : " PORT_IN </dev/tty
+            PORT_IN="${PORT_IN:-8088}"
+        done
 
         ADMIN_EMAIL_IN="${ADMIN_EMAIL_IN:-admin@heratio.local}"
-        PORT_IN="${PORT_IN:-8088}"
 
         sed -i.bak \
-            -e "s|^ADMIN_EMAIL=.*|ADMIN_EMAIL=${ADMIN_EMAIL_IN}|" \
-            -e "s|^ADMIN_PASSWORD=.*|ADMIN_PASSWORD=${ADMIN_PASSWORD_IN}|" \
-            -e "s|^DB_PASSWORD=.*|DB_PASSWORD=${DB_PASSWORD_IN}|" \
-            -e "s|^DB_ROOT_PASSWORD=.*|DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD_IN}|" \
+            -e "s|^ADMIN_EMAIL=.*|ADMIN_EMAIL=$(sed_value "$ADMIN_EMAIL_IN")|" \
+            -e "s|^ADMIN_PASSWORD=.*|ADMIN_PASSWORD=$(sed_value "$ADMIN_PASSWORD_IN")|" \
+            -e "s|^DB_PASSWORD=.*|DB_PASSWORD=$(sed_value "$DB_PASSWORD_IN")|" \
+            -e "s|^DB_ROOT_PASSWORD=.*|DB_ROOT_PASSWORD=$(sed_value "$DB_ROOT_PASSWORD_IN")|" \
             -e "s|^HERATIO_PORT=.*|HERATIO_PORT=${PORT_IN}|" \
             -e "s|^APP_URL=.*|APP_URL=http://localhost:${PORT_IN}|" \
             .env.docker
@@ -101,9 +119,8 @@ if [ ! -f .env.docker ]; then
         echo "  (non-interactive run - edit ${INSTALL_DIR}/.env.docker before 'docker compose up')"
     fi
 
-    # Asked on a first install only, and read from the terminal because
-    # 'curl ... | bash' leaves stdin on the script. No terminal, no question.
-    if [ "${HERATIO_NO_PING:-0}" != 1 ] && [ -z "${CI:-}" ] && { : </dev/tty; } 2>/dev/null; then
+    # Asked on a first install only. No terminal, no question.
+    if [ "${HERATIO_NO_PING:-0}" != 1 ] && [ -z "${CI:-}" ] && [ "$TTY" = yes ]; then
         echo
         echo "  Help us count Heratio installs? Sends one anonymous message: the Heratio"
         echo "  version, CPU architecture and a random install ID. No hostname, data or"
@@ -113,6 +130,15 @@ if [ ! -f .env.docker ]; then
     fi
 else
     echo "[2/5] .env.docker already exists - reusing"
+fi
+
+# The container refuses to start on a placeholder or empty password (init.sh),
+# so stop here with a clear instruction rather than pull and report success.
+if grep -qE '^(ADMIN_PASSWORD|DB_PASSWORD|DB_ROOT_PASSWORD)=(CHANGEME_.*)?$' .env.docker; then
+    echo
+    echo "  Set ADMIN_PASSWORD, DB_PASSWORD and DB_ROOT_PASSWORD in ${INSTALL_DIR}/.env.docker,"
+    echo "  then run this installer again (it reuses the file)."
+    exit 1
 fi
 
 # ── ES kernel knob ───────────────────────────────────────────────────────────
