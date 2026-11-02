@@ -26,6 +26,7 @@
 namespace AhgTermTaxonomy\Services;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class TermService
@@ -37,56 +38,89 @@ class TermService
      * Top 10 co-occurring terms per facet taxonomy for descriptions tagged with
      * $termId, as [taxonomy id => [{name, slug, cnt}, ...]].
      *
-     * This used to be five uncached self-joins of object_term_relation run in the
-     * Blade view on every page view; a crawler paging /term/{slug}?sort=..&page=..
-     * kept MySQL at 480% CPU on the ANC host (22 Oct 2026). Now: one aggregation
-     * grouped by term id, names joined only for the winners, cached per term for
-     * ahg_display_count_cache_ttl seconds (0 = compute every time) - sort and
-     * paging parameters do not change it, so they no longer re-run it.
+     * The counts do not depend on the language, only the names do, so the counts
+     * are cached per term (a crawler visiting each term once per sf_culture used
+     * to miss on nearly every request) and the names are looked up per culture on
+     * top. For a term on thousands of records even one cold aggregation is too
+     * slow for a page view - 21 s for a 127,000-record term at ANC - so those
+     * come from term_facet_top, built nightly by ahg:term-facets-build (#1573).
      */
     public function relatedFacets(int $termId, string $culture = 'en'): array
     {
-        $compute = function () use ($termId, $culture): array {
-            $ids = array_keys(self::FACET_TAXONOMIES);
-            $counts = DB::table('object_term_relation as tagged')
-                ->join('object_term_relation as otr', 'otr.object_id', '=', 'tagged.object_id')
-                ->join('term as t', 't.id', '=', 'otr.term_id')
-                ->where('tagged.term_id', $termId)
-                ->whereIn('t.taxonomy_id', $ids)
-                ->groupBy('t.taxonomy_id', 'otr.term_id')
-                ->select('t.taxonomy_id', 'otr.term_id', DB::raw('COUNT(*) AS cnt'))
-                ->get();
+        $top = self::remember("term_facet_counts:{$termId}", fn () => $this->facetCounts($termId));
+        $termIds = collect($top)->flatten(1)->pluck('term_id')->all();
+        if ($termIds === []) {
+            return [];
+        }
+        $names = DB::table('term_i18n as ti')
+            ->join('slug as s', 's.object_id', '=', 'ti.id')
+            ->whereIn('ti.id', $termIds)
+            ->whereIn('ti.culture', array_unique([$culture, 'en']))
+            ->orderByRaw('ti.culture = ? desc', [$culture])
+            ->get(['ti.id', 'ti.name', 's.slug'])
+            ->unique('id')
+            ->keyBy('id');
 
-            $top = [];
-            foreach ($counts->groupBy('taxonomy_id') as $taxonomyId => $rows) {
-                $top[(int) $taxonomyId] = $rows->sortByDesc('cnt')->take(10)->values();
-            }
-            $termIds = collect($top)->flatten(1)->pluck('term_id')->all();
-            if ($termIds === []) {
-                return [];
-            }
-            $names = DB::table('term_i18n as ti')
-                ->join('slug as s', 's.object_id', '=', 'ti.id')
-                ->whereIn('ti.id', $termIds)
-                ->whereIn('ti.culture', array_unique([$culture, 'en']))
-                ->orderByRaw('ti.culture = ? desc', [$culture])
-                ->get(['ti.id', 'ti.name', 's.slug'])
-                ->unique('id')
-                ->keyBy('id');
-
-            $out = [];
-            foreach ($ids as $taxonomyId) {
-                foreach ($top[$taxonomyId] ?? [] as $row) {
-                    if ($n = $names->get($row->term_id)) {
-                        $out[$taxonomyId][] = (object) ['name' => $n->name, 'slug' => $n->slug, 'cnt' => (int) $row->cnt];
-                    }
+        $out = [];
+        foreach (array_keys(self::FACET_TAXONOMIES) as $taxonomyId) {
+            foreach ($top[$taxonomyId] ?? [] as $row) {
+                if ($n = $names->get($row['term_id'])) {
+                    $out[$taxonomyId][] = (object) ['name' => $n->name, 'slug' => $n->slug, 'cnt' => (int) $row['cnt']];
                 }
             }
+        }
 
-            return $out;
-        };
+        return $out;
+    }
 
-        return self::remember("term_facets:{$termId}:{$culture}", $compute);
+    /**
+     * Top 10 [term_id, cnt] per facet taxonomy: from term_facet_top when the
+     * nightly build covers the term, otherwise one live aggregation.
+     *
+     * @return array<int, list<array{term_id:int, cnt:int}>>
+     */
+    public function facetCounts(int $termId): array
+    {
+        if (Schema::hasTable('term_facet_top')) {
+            $rows = DB::table('term_facet_top')->where('term_id', $termId)
+                ->orderByDesc('cnt')->get(['taxonomy_id', 'other_term_id', 'cnt']);
+            if ($rows->isNotEmpty()) {
+                $top = [];
+                foreach ($rows as $r) {
+                    $top[(int) $r->taxonomy_id][] = ['term_id' => (int) $r->other_term_id, 'cnt' => (int) $r->cnt];
+                }
+
+                return $top;
+            }
+        }
+
+        return $this->computeFacetCounts($termId);
+    }
+
+    /**
+     * The aggregation itself: every term on the descriptions tagged with
+     * $termId, counted, top 10 kept per facet taxonomy.
+     *
+     * @return array<int, list<array{term_id:int, cnt:int}>>
+     */
+    public function computeFacetCounts(int $termId): array
+    {
+        $counts = DB::table('object_term_relation as tagged')
+            ->join('object_term_relation as otr', 'otr.object_id', '=', 'tagged.object_id')
+            ->join('term as t', 't.id', '=', 'otr.term_id')
+            ->where('tagged.term_id', $termId)
+            ->whereIn('t.taxonomy_id', array_keys(self::FACET_TAXONOMIES))
+            ->groupBy('t.taxonomy_id', 'otr.term_id')
+            ->select('t.taxonomy_id', 'otr.term_id', DB::raw('COUNT(*) AS cnt'))
+            ->get();
+
+        $top = [];
+        foreach ($counts->groupBy('taxonomy_id') as $taxonomyId => $rows) {
+            $top[(int) $taxonomyId] = $rows->sortByDesc('cnt')->take(10)
+                ->map(fn ($r) => ['term_id' => (int) $r->term_id, 'cnt' => (int) $r->cnt])->values()->all();
+        }
+
+        return $top;
     }
 
     /**
@@ -203,9 +237,9 @@ class TermService
      */
     public function getRelatedDescriptionCount(int $termId): int
     {
-        return DB::table('object_term_relation')
+        return (int) self::remember("term_io_count:{$termId}", fn () => DB::table('object_term_relation')
             ->where('term_id', $termId)
-            ->count();
+            ->count());
     }
 
     /**

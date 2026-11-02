@@ -485,6 +485,7 @@ class CronSchedulerService
             ],
             'Cache Management' => [
                 ['slug' => 'refresh-facet-cache', 'name' => 'Refresh Facet Cache', 'description' => 'Rebuild facet counts for browse sidebars (entity type, repository, place, subject).', 'artisan_command' => 'ahg:refresh-facet-cache', 'cron_expression' => '0 * * * *', 'duration_hint' => 'medium', 'log_file' => 'logs/facet-cache.log'],
+                ['slug' => 'term-facets-build', 'name' => 'Term Facets Build', 'description' => 'Precompute the facet panels of term pages for terms on 2,000 or more descriptions, which are too slow to aggregate live (#1573).', 'artisan_command' => 'ahg:term-facets-build', 'cron_expression' => '30 2 * * *', 'duration_hint' => 'long', 'log_file' => 'logs/term-facets-build.log'],
                 ['slug' => 'cache-xml-purge', 'name' => 'XML Cache Purge', 'description' => 'Remove stale cached XML exports (EAD, EAC-CPF, DC) older than the configured threshold.', 'artisan_command' => 'ahg:cache-xml-purge', 'cron_expression' => '0 4 * * 0', 'duration_hint' => 'short', 'log_file' => 'logs/xml-purge.log'],
             ],
             'Saved Search Notifications' => [

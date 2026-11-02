@@ -10,6 +10,7 @@
 namespace AhgTermTaxonomy\Providers;
 
 use AhgTermTaxonomy\Console\SkosValidateCommand;
+use AhgTermTaxonomy\Console\TermFacetsBuildCommand;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -47,6 +48,7 @@ class AhgTermTaxonomyServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 SkosValidateCommand::class,
+                TermFacetsBuildCommand::class,
             ]);
         }
     }

@@ -65,7 +65,7 @@ class TermFacetsCacheTest extends TestCase
     public function test_the_term_page_renders_and_repeat_views_skip_the_facet_query(): void
     {
         [$termId, $slug] = $this->fixture();
-        Cache::forget("term_facets:{$termId}:en");
+        Cache::forget("term_facet_counts:{$termId}");
 
         $this->assertSame('Facet test place', app(TermService::class)->relatedFacets($termId, 'en')[42][0]->name ?? null);
         $this->assertSame(2, app(TermService::class)->relatedFacets($termId, 'en')[42][0]->cnt ?? null);
@@ -81,8 +81,37 @@ class TermFacetsCacheTest extends TestCase
     {
         $this->assertSame([12, 42, 35, 78, 54], array_keys(TermService::FACET_TAXONOMIES));
         $svc = app(TermService::class);
-        Cache::forget('term_facets:0:en');
+        Cache::forget('term_facet_counts:0');
         $this->assertSame([], $svc->relatedFacets(0, 'en'), 'an untagged term has no facets');
-        $this->assertTrue(Cache::has('term_facets:0:en'));
+        $this->assertTrue(Cache::has('term_facet_counts:0'));
+    }
+
+    public function test_counts_are_shared_across_languages_and_the_nightly_table_is_used(): void
+    {
+        [$termId] = $this->fixture();
+        Cache::forget("term_facet_counts:{$termId}");
+        $svc = app(TermService::class);
+        $svc->relatedFacets($termId, 'en');
+
+        DB::enableQueryLog();
+        $fr = $svc->relatedFacets($termId, 'fr');
+        $aggregations = array_filter(DB::getQueryLog(), fn ($q) => str_contains($q['query'], 'object_term_relation` as `tagged`'));
+        $this->assertCount(0, $aggregations, 'another language reuses the cached counts');
+        $this->assertSame('Facet test place', $fr[42][0]->name ?? null, 'names fall back to English');
+
+        $this->artisan('ahg:term-facets-build', ['--min' => 2])->assertSuccessful();
+        $this->assertSame(2, (int) DB::table('term_facet_top')->where('term_id', $termId)->where('taxonomy_id', 42)->value('cnt'));
+        DB::table('term_facet_top')->where('term_id', $termId)->update(['cnt' => 99]);
+        Cache::forget("term_facet_counts:{$termId}");
+        $this->assertSame(99, $svc->relatedFacets($termId, 'en')[42][0]->cnt ?? null, 'a built term reads term_facet_top, not the live aggregation');
+    }
+
+    public function test_related_description_count_is_cached(): void
+    {
+        [$termId] = $this->fixture();
+        Cache::forget("term_io_count:{$termId}");
+        $svc = app(TermService::class);
+        $this->assertSame(2, $svc->getRelatedDescriptionCount($termId));
+        $this->assertTrue(Cache::has("term_io_count:{$termId}"));
     }
 }
