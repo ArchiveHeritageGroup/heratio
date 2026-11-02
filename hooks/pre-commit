@@ -19,7 +19,7 @@
 #      a unified-diff context. The pattern is the smoking gun of a unified
 #      diff pasted as file content. Scoped to source files (*.php, *.js, *.ts,
 #      *.blade.php) so a deliberate .patch / .diff commit isn't blocked, and
-#      heredoc / nowdoc bodies are exempt because a markdown bullet list in a
+#      heredoc / nowdoc and JS template-literal bodies are exempt because a markdown bullet list in a
 #      prompt template has the same line shape as a deletion hunk.
 #
 # Bypass requires --no-verify, which is reserved for the user. CLAUDE.md
@@ -101,13 +101,30 @@ for f in "${STAGED[@]}"; do
             # longer caught. That is the right trade: such a paste sits in a
             # string literal, so it cannot fail to parse or swallow a closing
             # brace, and those are the failures this gate exists to stop.
+            #
+            # JS template literals get the same exemption (#1506): a line with
+            # an odd number of unescaped backticks opens one, and the body
+            # runs to the next line holding a backtick. A backtick nested in
+            # ${...} only ends the exemption early, back to the strict check.
             if awk '
-                BEGIN { run = 0; hd = "" }
+                BEGIN { run = 0; hd = ""; tl = 0 }
                 # Inside a heredoc body: look only for its terminator.
                 hd != "" {
                     if ($0 ~ "^[ \t]*" hd "([^A-Za-z0-9_]|$)") { hd = "" }
                     run = 0
                     next
+                }
+                # Inside a template literal body: look only for a backtick.
+                tl {
+                    t = $0; gsub(/\\`/, "", t)
+                    if (t ~ /`/) { tl = 0 }
+                    run = 0
+                    next
+                }
+                # Opening line: an odd number of unescaped backticks, not a comment.
+                $0 !~ /^[ \t]*(\/\/|\/?\*)/ {
+                    t = $0; gsub(/\\`/, "", t)
+                    if (gsub(/`/, "", t) % 2 == 1) { tl = 1; run = 0; next }
                 }
                 # Opening line: <<<ID, <<<"ID" or <<<\047ID\047 ending the line.
                 /<<<[ \t]*[\047"]?[A-Za-z_][A-Za-z0-9_]*[\047"]?[ \t]*\r?$/ {
