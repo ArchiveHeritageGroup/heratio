@@ -36,6 +36,7 @@ class ExplorerExportCommand extends Command
         {--limit=8000 : Most records to include}
         {--min=2 : Leave out names that occur on fewer records than this}
         {--base-url= : Site address the record links point at (default APP_URL)}
+        {--hide= : Comma-separated general words kept off the starting list and the map (still searchable)}
         {--title= : Heading shown on the page}
         {--out= : Folder to write (default storage/app/explorer/<slug of the title>)}';
 
@@ -81,6 +82,7 @@ class ExplorerExportCommand extends Command
 
         $entities = [];
         $min = max(1, (int) $this->option('min'));
+        $hide = array_flip(array_map(self::groupKey(...), explode(',', (string) $this->option('hide'))));
         foreach ($mentions as $ek => $forms) {
             $recs = array_keys(array_replace(...array_values($forms)));
             if (count($recs) < $min) {
@@ -90,7 +92,8 @@ class ExplorerExportCommand extends Command
             [$type, $key] = explode('|', $ek, 2);
             $id = "$type:$key";
             $entities[] = ['id' => $id, 'type' => $type, 'name' => (string) array_key_first($forms),
-                'variants' => array_map('strval', array_keys($forms)), 'recs' => array_map('strval', $recs)];
+                'variants' => array_map('strval', array_keys($forms)), 'recs' => array_map('strval', $recs)]
+                + (isset($hide[$key]) ? ['hidden' => true] : []);
             foreach ($recs as $rid) {
                 $records[$rid]['ents'][] = $id;
             }
@@ -117,7 +120,7 @@ class ExplorerExportCommand extends Command
     /** Group spellings that differ only in case, punctuation, accents or a leading "The". */
     public static function groupKey(string $name): string
     {
-        $k = Str::lower(Str::ascii($name));
+        $k = Str::lower(Str::ascii(trim($name)));
         $k = preg_replace('/^the\s+/', '', $k);
 
         return preg_replace('/[^a-z0-9]+/', '', $k);

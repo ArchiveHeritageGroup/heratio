@@ -64,6 +64,9 @@ const TYPES = { subject: ['Subjects', '#10373E'], place: ['Places', '#3f6b5a'], 
 const REC = new Map(D.records.map(r => [r.id, r]));
 const ENT = new Map(D.entities.map(e => [e.id, e]));
 const on = new Set(Object.keys(TYPES));
+// General words (World, President...) the export marked hidden: off the map and the starting list until switched on; search still finds them.
+let general = false;
+const vis = e => on.has(e.type) && (general || !e.hidden);
 const fmt = n => n.toLocaleString('en-GB');
 const esc = s => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 const ref = r => [r.ref !== r.title ? esc(r.ref) : '', esc(r.date)].filter(Boolean).join(' &middot; ');
@@ -79,6 +82,13 @@ Object.entries(TYPES).forEach(([t, [label, col]]) => {
   el.onclick = () => { on.has(t) ? on.delete(t) : on.add(t); el.classList.toggle('off', !on.has(t)); if (current) focus(current, false); };
   chips.appendChild(el);
 });
+const nHidden = D.entities.filter(e => e.hidden).length;
+if (nHidden) {
+  const el = document.createElement('span'); el.className = 'chip off'; el.title = 'Common words catalogued as subjects or places';
+  el.innerHTML = `<span class="dot" style="background:#9b9182"></span>General words <small>${fmt(nHidden)}</small>`;
+  el.onclick = () => { general = !general; el.classList.toggle('off', !general); current ? focus(current, false) : welcome(); };
+  chips.appendChild(el);
+}
 
 const cy = cytoscape({ container: document.getElementById('graph'), minZoom: 0.2, maxZoom: 3,
   style: [
@@ -107,12 +117,12 @@ function focus(id, push = true) {
     const co = new Map();
     const shown = e.recs.length <= 40 ? e.recs : e.recs.slice().sort((a, b) => REC.get(b).ents.length - REC.get(a).ents.length).slice(0, 40);
     shown.forEach(rid => { const r = REC.get(rid); add(recNode(r)); edge(id, rid);
-      r.ents.forEach(k => { if (k !== id && on.has(ENT.get(k).type)) co.set(k, (co.get(k) || []).concat(rid)); }); });
+      r.ents.forEach(k => { if (k !== id && vis(ENT.get(k))) co.set(k, (co.get(k) || []).concat(rid)); }); });
     [...co.entries()].sort((a, b) => b[1].length - a[1].length).slice(0, 30).forEach(([k, rids]) => { add(entNode(ENT.get(k))); rids.forEach(rid => edge(rid, k)); });
     showEntity(e, co);
   } else {
     const r = REC.get(id); add(recNode(r, true));
-    r.ents.forEach(k => { const e = ENT.get(k); if (!on.has(e.type)) return; add(entNode(e)); edge(id, k);
+    r.ents.forEach(k => { const e = ENT.get(k); if (!vis(e)) return; add(entNode(e)); edge(id, k);
       e.recs.filter(x => x !== id).slice(0, 6).forEach(x => { add(recNode(REC.get(x))); edge(k, x); }); });
     showRecord(r);
   }
@@ -142,7 +152,7 @@ function showRecord(r) {
 }
 side.addEventListener('click', ev => { const t = ev.target.closest('[data-go]'); if (t) focus(t.dataset.go); });
 function welcome() {
-  const top = D.entities.slice().sort((a, b) => b.recs.length - a.recs.length).slice(0, 30);
+  const top = D.entities.filter(vis).sort((a, b) => b.recs.length - a.recs.length).slice(0, 30);
   side.innerHTML = `<h2>Where to start</h2><div class="meta">The most-used subjects, places and names in this selection. Click one, or search above.</div>
     <div class="tags" style="margin-top:12px">${top.map(x => chip(x.id) + ` <small>${fmt(x.recs.length)}</small></span>`).join('')}</div>`;
 }

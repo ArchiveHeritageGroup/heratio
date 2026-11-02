@@ -65,7 +65,7 @@ class ExplorerExportTest extends TestCase
         $this->tag($a, $this->term(42, 'Onlyonce'));
 
         $out = sys_get_temp_dir().'/explorer-test-'.uniqid();
-        $this->artisan('ahg:explorer-export', ['--ancestor' => $fonds, '--out' => $out, '--base-url' => 'https://example.test'])->assertSuccessful();
+        $this->artisan('ahg:explorer-export', ['--ancestor' => $fonds, '--out' => $out, '--base-url' => 'https://example.test', '--hide' => 'World, THE foo congress'])->assertSuccessful();
 
         $js = file_get_contents("$out/data.js");
         $data = json_decode(substr($js, strpos($js, '{'), strrpos($js, '}') - strpos($js, '{') + 1), true);
@@ -78,6 +78,7 @@ class ExplorerExportTest extends TestCase
         $this->assertSame('subject:foocongress', $e['id']);
         $this->assertEqualsCanonicalizing(['The Foo Congress', 'FOO CONGRESS'], $e['variants']);
         $this->assertEqualsCanonicalizing([(string) $a, (string) $b], $e['recs']);
+        $this->assertTrue($e['hidden'] ?? false, 'a --hide word is marked hidden whatever its case or leading The');
         $this->assertSame("https://example.test/ex-rec-$a", collect($data['records'])->firstWhere('id', (string) $a)['url']);
 
         array_map('unlink', glob("$out/*"));
