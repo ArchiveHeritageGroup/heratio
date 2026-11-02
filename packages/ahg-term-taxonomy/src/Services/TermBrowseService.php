@@ -27,7 +27,9 @@ namespace AhgTermTaxonomy\Services;
 
 use AhgCore\Services\BrowseService;
 use AhgCore\Traits\WithCultureFallback;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class TermBrowseService extends BrowseService
 {
@@ -126,7 +128,74 @@ class TermBrowseService extends BrowseService
             : null;
         $this->scopeNoteOnly = ! empty($params['scopeNoteOnly']);
 
-        return parent::browse($params);
+        return $this->alphabeticPage($params) ?? parent::browse($params);
+    }
+
+    /** Below this many terms the ordinary query sorts them quickly enough. */
+    public static int $idFirstMin = 5000;
+
+    /**
+     * The alphabetical list, page by page, in index order (heratio#1573).
+     * Sorting on the computed name made MySQL sort every term on every page:
+     * 6-10 s at ANC's 558,000 terms, plus 10 s for the count. Here the total is
+     * cached and the page's ids come off term_i18n.name_sort (the fallback
+     * culture's name, indexed) in order; only those rows are then loaded. In
+     * another culture the few translated names are listed at their English
+     * position. Returns null to use the ordinary query: other sorts, a name
+     * search, a small list, or a database without name_sort.
+     */
+    private function alphabeticPage(array $params): ?array
+    {
+        if ((($params['sort'] ?? '') ?: 'lastUpdated') !== 'alphabetic' || trim((string) ($params['subquery'] ?? '')) !== ''
+            || ! Schema::hasColumn('term_i18n', 'name_sort')) {
+            return null;
+        }
+        $page = max(1, (int) ($params['page'] ?? 1));
+        $limit = max(1, min(100, (int) ($params['limit'] ?? \AhgCore\Services\SettingHelper::hitsPerPage())));
+        $dir = strtolower((string) ($params['sortDir'] ?? '')) === 'desc' ? 'desc' : 'asc';
+
+        try {
+            $key = 'term_browse_total:'.md5(serialize([$this->culture, $this->taxonomyId, $this->parentId, $this->scopeNoteOnly,
+                Auth::check() ? Auth::id() : 0]));
+            $total = (int) TermService::remember($key, function () {
+                $q = $this->getBaseJoins(DB::table('term'));
+
+                return $this->applySearch($q, '')->count();
+            });
+            if ($total <= self::$idFirstMin) {
+                return null;
+            }
+
+            // NO_SEMIJOIN: check each name in index order until the page is full,
+            // instead of first building the whole filtered list (the list is big here).
+            $ids = DB::table('term_i18n as ns')
+                ->where('ns.culture', config('app.fallback_locale', 'en'))
+                ->where('ns.name_sort', '<>', '')
+                ->whereExists(function ($q) {
+                    $q->select(DB::raw('/*+ NO_SEMIJOIN() */ 1'))->from('term')
+                        ->join('object', 'term.id', '=', 'object.id')
+                        ->join('slug', 'term.id', '=', 'slug.object_id')
+                        ->whereColumn('term.id', 'ns.id');
+                    $this->applySearch($q, '');
+                    \AhgCore\Services\TermProtocolGate::addTermVisibilityCriteria($q, 'term.id');
+                })
+                ->orderBy('ns.name_sort', $dir)->orderBy('ns.id', $dir)
+                ->offset(($page - 1) * $limit)->limit($limit)
+                ->pluck('ns.id')->map(fn ($v) => (int) $v)->all();
+
+            $rows = [];
+            if ($ids) {
+                $q = $this->getBaseJoins(DB::table('term'))->select($this->getBaseSelect())
+                    ->whereIn('term.id', $ids)->orderByRaw('FIELD(term.id, '.implode(',', $ids).')');
+                $rows = $q->get()->map(fn ($r) => $this->transformRow($r))->all();
+            }
+
+            return ['hits' => $rows, 'total' => $total, 'page' => $page, 'limit' => $limit];
+        } catch (\Throwable $e) {
+            \Log::warning('term browse index page fell back: '.$e->getMessage());
+
+            return null;
+        }
     }
 
     protected ?int $taxonomyId = null;
