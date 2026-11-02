@@ -157,10 +157,18 @@ class TermBrowseService extends BrowseService
         try {
             $key = 'term_browse_total:'.md5(serialize([$this->culture, $this->taxonomyId, $this->parentId, $this->scopeNoteOnly,
                 Auth::check() ? Auth::id() : 0]));
-            $total = (int) TermService::remember($key, function () {
-                $q = $this->getBaseJoins(DB::table('term'));
+            // Counted off the same index as the page (named terms in the fallback
+            // culture) with the same filters: the ordinary count joined four
+            // tables per term and took 21 s cold at ANC. A total moves only when
+            // terms are added, so it is kept for a day.
+            $total = (int) \Illuminate\Support\Facades\Cache::remember($key, 86400, function () {
+                $q = DB::table('term_i18n as ns')->join('term', 'term.id', '=', 'ns.id')
+                    ->where('ns.culture', config('app.fallback_locale', 'en'))
+                    ->where('ns.name_sort', '<>', '');
+                $this->applySearch($q, '');
+                \AhgCore\Services\TermProtocolGate::addTermVisibilityCriteria($q, 'term.id');
 
-                return $this->applySearch($q, '')->count();
+                return $q->count();
             });
             if ($total <= self::$idFirstMin) {
                 return null;

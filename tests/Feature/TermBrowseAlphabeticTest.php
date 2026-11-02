@@ -47,7 +47,7 @@ class TermBrowseAlphabeticTest extends TestCase
 
         $indexScans = 0;
         DB::listen(function ($e) use (&$indexScans) {
-            if (str_contains($e->sql, 'from `term_i18n` as `ns`')) {
+            if (str_contains($e->sql, 'from `term_i18n` as `ns`') && str_contains($e->sql, 'order by')) {
                 $indexScans++;
             }
         });
