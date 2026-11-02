@@ -20,7 +20,17 @@
          where the branch axis exists AND more than one repository is defined:
          a single-outlet service should not be asked to choose between one
          option, and would read the control as an unfinished setting. --}}
-    @if(($branchAware ?? false) && count($branchOptions ?? []) > 1)
+    @if(($branchAware ?? false) && ($branchLocked ?? false))
+        {{-- Locked by an administrator (#1473): shown, not offered. --}}
+        <p class="small text-secondary mb-3">
+            <i class="fas fa-lock me-1"></i>
+            @if(($operatorBranch ?? null) !== null)
+                {{ __('Working at :branch, set by an administrator. Loans below are those made there.', ['branch' => $operatorBranchName]) }}
+            @else
+                {{ __('Working across every branch, set by an administrator.') }}
+            @endif
+        </p>
+    @elseif(($branchAware ?? false) && count($branchOptions ?? []) > 1)
         <form method="post" action="{{ route('library.circulation.branch') }}"
               class="d-flex align-items-center gap-2 mb-3 flex-wrap">
             @csrf
@@ -60,6 +70,11 @@
         <a href="{{ route('library.loan-rules') }}" class="btn btn-sm atom-btn-white">
             <i class="fas fa-cog me-1"></i>{{ __('Loan Rules') }}
         </a>
+        @if(($branchAware ?? false) && auth()->check() && auth()->user()->isAdministrator())
+            <a href="{{ route('library.staff-branches') }}" class="btn btn-sm atom-btn-white">
+                <i class="fas fa-code-branch me-1"></i>{{ __('Staff Branches') }}
+            </a>
+        @endif
         <a href="{{ route('library.patrons') }}" class="btn btn-sm atom-btn-white">
             <i class="fas fa-users me-1"></i>{{ __('Manage Patrons') }}
         </a>

@@ -126,7 +126,16 @@ CREATE TABLE IF NOT EXISTS `library_staff_branch` (
   `user_id` int NOT NULL COMMENT 'user.id',
   `branch_id` int DEFAULT NULL COMMENT 'repository.id - the branch this operator works at',
   `all_branches` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Consortium staff: may see across every branch',
+  `locked` tinyint(1) NOT NULL DEFAULT '0' COMMENT 'Set by an administrator: the operator cannot change branch',
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`),
   KEY `idx_staff_branch` (`branch_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- library_staff_branch.locked (#1473: an administrator holds a staffer to one branch)
+SET @stmt := (SELECT IF(
+    (SELECT COUNT(*) FROM information_schema.COLUMNS
+      WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'library_staff_branch' AND COLUMN_NAME = 'locked') = 0,
+    'ALTER TABLE `library_staff_branch` ADD COLUMN `locked` TINYINT(1) NOT NULL DEFAULT 0 COMMENT ''Set by an administrator: the operator cannot change branch'' AFTER `all_branches`',
+    'DO 0'));
+PREPARE s FROM @stmt; EXECUTE s; DEALLOCATE PREPARE s;

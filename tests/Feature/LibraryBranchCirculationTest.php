@@ -342,4 +342,60 @@ class LibraryBranchCirculationTest extends TestCase
             'the loan took the all-branches 21-day period instead of the branch rule'
         );
     }
+
+    private function signInAsStaff(int $userId): void
+    {
+        if (! Schema::hasTable('library_staff_branch') || ! Schema::hasColumn('library_staff_branch', 'locked')) {
+            $this->markTestSkipped('library_staff_branch.locked not migrated in this install (#1473).');
+        }
+        $this->actingAs(new \Illuminate\Auth\GenericUser(['id' => $userId]));
+        session()->forget(LibraryBranch::SESSION_KEY);
+    }
+
+    public function test_an_unlocked_operator_can_change_branch_at_the_desk(): void
+    {
+        $this->signInAsStaff(990001);
+        LibraryBranch::assignStaff(990001, self::BRANCH_A, false, false);
+
+        $this->assertTrue(LibraryBranch::chooseOperatorBranch(self::BRANCH_B));
+        $this->assertSame(self::BRANCH_B, LibraryBranch::operatorBranchId());
+        $this->assertFalse(LibraryBranch::operatorLocked());
+    }
+
+    public function test_a_locked_operator_stays_at_the_branch_an_administrator_set(): void
+    {
+        $this->signInAsStaff(990002);
+        LibraryBranch::assignStaff(990002, self::BRANCH_A, false, true);
+
+        $this->assertFalse(LibraryBranch::chooseOperatorBranch(self::BRANCH_B), 'a locked operator changed branch');
+        $this->assertFalse(LibraryBranch::chooseOperatorBranch(null), 'a locked operator widened to every branch');
+        $this->assertSame(self::BRANCH_A, LibraryBranch::operatorBranchId());
+        $this->assertFalse(LibraryBranch::operatorSeesAllBranches());
+        $this->assertTrue(LibraryBranch::operatorLocked());
+    }
+
+    public function test_a_lock_overrides_a_choice_made_earlier_in_the_shift(): void
+    {
+        $this->signInAsStaff(990003);
+        LibraryBranch::chooseOperatorBranch(self::BRANCH_B);
+        LibraryBranch::assignStaff(990003, self::BRANCH_A, false, true);
+
+        $this->assertSame(self::BRANCH_A, LibraryBranch::operatorBranchId(), 'the session choice outlived the lock');
+    }
+
+    public function test_the_staff_branches_page_lists_assignments(): void
+    {
+        $html = view('ahg-library::circulation.staff-branches', [
+            'assignments' => [(object) ['user_id' => 990004, 'username' => 'counter-a', 'email' => 'a@example.test',
+                'branch_id' => self::BRANCH_A, 'all_branches' => 0, 'locked' => 1]],
+            'branchOptions' => [self::BRANCH_A => 'Central'],
+            'users' => collect([990004 => 'counter-a']),
+            'branchAware' => true,
+            'errors' => new \Illuminate\Support\ViewErrorBag(),
+        ])->render();
+
+        $this->assertStringContainsString('Central', $html);
+        $this->assertStringContainsString('counter-a', $html);
+        $this->assertStringContainsString('fa-lock', $html);
+    }
 }

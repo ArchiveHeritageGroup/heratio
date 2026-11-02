@@ -199,6 +199,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/library-manage/circulation/loan-rules/{id}/delete', [LibraryController::class, 'deleteLoanRule'])
         ->name('library.loan-rules.delete')->whereNumber('id')->middleware('acl:delete');
     Route::get('/library-manage/circulation/overdue', [LibraryController::class, 'overdue'])->name('library.overdue');
+    // #1473: an administrator sets where staff work and can lock them to it
+    // (consortium outlets that are contractually separate).
+    Route::middleware('admin')->group(function () {
+        Route::get('/library-manage/circulation/staff-branches', [LibraryController::class, 'staffBranches'])->name('library.staff-branches');
+        Route::post('/library-manage/circulation/staff-branches', [LibraryController::class, 'saveStaffBranch'])->name('library.staff-branches.save');
+        Route::post('/library-manage/circulation/staff-branches/{userId}/delete', [LibraryController::class, 'deleteStaffBranch'])
+            ->name('library.staff-branches.delete')->whereNumber('userId');
+    });
     // Standalone index + bare checkout form (no copyId) -- needed by sidebar nav links
     Route::get('/library-manage/circulation', [LibraryController::class, 'circulation'])->name('library.circulation');
     Route::get('/library-manage/circulation/checkout', [LibraryController::class, 'checkoutForm'])->name('library.checkout-form');

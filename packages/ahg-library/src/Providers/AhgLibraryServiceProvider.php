@@ -90,6 +90,7 @@ class AhgLibraryServiceProvider extends ServiceProvider
                 \AhgLibrary\Console\Commands\SerialClaimAlertsCommand::class,     // #1092
                 \AhgLibrary\Console\Commands\SerialExpiryAlertsCommand::class,    // #1092
                 \AhgLibrary\Console\Commands\SendOverdueNoticesCommand::class,    // #1093
+                \AhgLibrary\Console\Commands\BranchUnmatchedCommand::class,       // #1473
             ]);
 
             $this->app->booted(function () {

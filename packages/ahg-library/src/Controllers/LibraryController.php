@@ -757,6 +757,43 @@ class LibraryController extends Controller
         ]);
     }
 
+    /** Where each member of staff works, and whether they may change it - #1473. */
+    public function staffBranches()
+    {
+        return view('ahg-library::circulation.staff-branches', [
+            'assignments' => LibraryBranch::staffAssignments(),
+            'branchOptions' => LibraryBranch::options(),
+            'users' => DB::table('user')->where('active', 1)->orderBy('username')->pluck('username', 'id'),
+            'branchAware' => LibraryBranch::available(),
+        ]);
+    }
+
+    public function saveStaffBranch(Request $request)
+    {
+        $data = $request->validate([
+            'user_id' => 'required|integer|exists:user,id',
+            'branch_id' => 'nullable|integer|min:0',
+            'all_branches' => 'nullable|boolean',
+            'locked' => 'nullable|boolean',
+        ]);
+        $branchId = (int) ($data['branch_id'] ?? 0);
+        $all = (bool) ($data['all_branches'] ?? false);
+        if (! $all && $branchId > 0 && ! array_key_exists($branchId, LibraryBranch::options())) {
+            return back()->withErrors(['branch_id' => __('Choose a branch from the list.')])->withInput();
+        }
+
+        LibraryBranch::assignStaff((int) $data['user_id'], $branchId ?: null, $all, (bool) ($data['locked'] ?? false));
+
+        return redirect()->route('library.staff-branches')->with('success', __('Staff branch saved.'));
+    }
+
+    public function deleteStaffBranch(int $userId)
+    {
+        LibraryBranch::unassignStaff($userId);
+
+        return redirect()->route('library.staff-branches')->with('success', __('Staff branch removed.'));
+    }
+
     public function overdue()
     {
         // Scoped to the operator's branch; null is every branch (#1473).

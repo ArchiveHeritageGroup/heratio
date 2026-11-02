@@ -75,6 +75,7 @@ class CirculationDeskController extends Controller
             'operatorBranch' => $operatorBranch,
             'operatorBranchName' => LibraryBranch::name($operatorBranch),
             'seesAllBranches' => LibraryBranch::operatorSeesAllBranches(),
+            'branchLocked'   => LibraryBranch::operatorLocked(),
         ]);
     }
 
@@ -92,7 +93,10 @@ class CirculationDeskController extends Controller
         // 0 or absent is the deliberate "all branches" choice, not a missing
         // value - the form submits it as a real option.
         $branchId = (int) ($validated['branch_id'] ?? 0);
-        LibraryBranch::chooseOperatorBranch($branchId > 0 ? $branchId : null);
+        if (! LibraryBranch::chooseOperatorBranch($branchId > 0 ? $branchId : null)) {
+            return redirect()->route('library.circulation.index')
+                ->with('error', __('Your branch is set by an administrator.'));
+        }
 
         $name = LibraryBranch::name($branchId > 0 ? $branchId : null);
 

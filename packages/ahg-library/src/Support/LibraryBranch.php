@@ -201,7 +201,9 @@ class LibraryBranch
      * branch. A null here must therefore never be read as "no access".
      *
      * A choice made this shift wins over the stored one, so covering another
-     * counter for an afternoon does not require an administrator.
+     * counter for an afternoon does not require an administrator - unless an
+     * administrator has locked the operator to a branch, which no desk choice
+     * overrides.
      */
     public static function operatorBranchId(): ?int
     {
@@ -209,7 +211,8 @@ class LibraryBranch
             return null;
         }
 
-        $session = self::sessionChoice();
+        $row = self::staffRow();
+        $session = self::locked($row) ? null : self::sessionChoice();
         if ($session === self::SESSION_ALL) {
             return null;
         }
@@ -217,7 +220,6 @@ class LibraryBranch
             return $session;
         }
 
-        $row = self::staffRow();
         if ($row === null || (int) ($row->all_branches ?? 0) === 1) {
             return null;
         }
@@ -238,22 +240,37 @@ class LibraryBranch
             return true;
         }
 
-        if (self::sessionChoice() === self::SESSION_ALL) {
+        $row = self::staffRow();
+        if (! self::locked($row) && self::sessionChoice() === self::SESSION_ALL) {
             return true;
         }
 
-        $row = self::staffRow();
-
         return $row !== null && (int) ($row->all_branches ?? 0) === 1;
+    }
+
+    /** Whether an administrator has held this operator to their branch. */
+    public static function operatorLocked(): bool
+    {
+        return self::available() && self::locked(self::staffRow());
+    }
+
+    private static function locked(?object $row): bool
+    {
+        return $row !== null && (int) ($row->locked ?? 0) === 1;
     }
 
     /**
      * Remember the operator's choice for this shift and, where the table is
      * present, persist it so the next sign-in starts at the same counter.
-     * Passing null selects every branch.
+     * Passing null selects every branch. Returns false, changing nothing, when
+     * an administrator has locked the operator to a branch.
      */
-    public static function chooseOperatorBranch(?int $branchId): void
+    public static function chooseOperatorBranch(?int $branchId): bool
     {
+        if (self::operatorLocked()) {
+            return false;
+        }
+
         $value = $branchId !== null && $branchId > 0 ? $branchId : self::SESSION_ALL;
 
         if (function_exists('session') && app()->bound('session')) {
@@ -262,7 +279,7 @@ class LibraryBranch
 
         $userId = self::currentUserId();
         if ($userId === null || ! self::staffTableExists()) {
-            return;
+            return true;
         }
 
         DB::table('library_staff_branch')->updateOrInsert(
@@ -273,6 +290,45 @@ class LibraryBranch
                 'updated_at' => now(),
             ]
         );
+
+        return true;
+    }
+
+    /**
+     * An administrator sets where a member of staff works and whether they
+     * may change it themselves. A null branch with $allBranches false leaves
+     * the operator unassigned (every branch, as on a single-outlet service).
+     */
+    public static function assignStaff(int $userId, ?int $branchId, bool $allBranches, bool $locked): void
+    {
+        $row = [
+            'branch_id' => $allBranches || ! $branchId ? null : $branchId,
+            'all_branches' => $allBranches ? 1 : 0,
+            'updated_at' => now(),
+        ];
+        if (Schema::hasColumn('library_staff_branch', 'locked')) {
+            $row['locked'] = $locked ? 1 : 0;
+        }
+        DB::table('library_staff_branch')->updateOrInsert(['user_id' => $userId], $row);
+    }
+
+    public static function unassignStaff(int $userId): void
+    {
+        DB::table('library_staff_branch')->where('user_id', $userId)->delete();
+    }
+
+    /** Staff with a branch row, for the administrator's list. */
+    public static function staffAssignments(): array
+    {
+        if (! self::staffTableExists()) {
+            return [];
+        }
+
+        return DB::table('library_staff_branch as sb')
+            ->join('user as u', 'u.id', '=', 'sb.user_id')
+            ->orderBy('u.username')
+            ->get(['sb.*', 'u.username', 'u.email'])
+            ->all();
     }
 
     /** The branch choice held for this shift: an int, SESSION_ALL, or null. */
