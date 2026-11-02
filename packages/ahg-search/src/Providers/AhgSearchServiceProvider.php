@@ -28,6 +28,7 @@ class AhgSearchServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgSearch\Commands\EsReindexCommand::class,
+                \AhgSearch\Commands\EsSearchAnalysisCommand::class,
             ]);
         }
 

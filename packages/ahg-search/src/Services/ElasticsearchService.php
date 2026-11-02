@@ -363,6 +363,9 @@ class ElasticsearchService
         foreach (array_unique([$culture, 'en']) as $c) {
             array_push($fields, "i18n.{$c}.title^3", "i18n.{$c}.scopeAndContent", "creators.i18n.{$c}.authorizedFormOfName^2");
         }
+        // English stemming and country/nationality synonyms, where
+        // ahg:es-search-analysis has added them; an index without them skips these.
+        array_push($fields, 'i18n.en.title.stem^2', 'i18n.en.scopeAndContent.stem');
         array_push($fields, 'identifier^2', 'referenceCode^2', 'isbn^3', 'callNumber^2', 'seriesTitle', 'summary', 'contentsNote');
 
         $url = "{$this->host}/{$this->indexPrefix}qubitinformationobject/_search";
