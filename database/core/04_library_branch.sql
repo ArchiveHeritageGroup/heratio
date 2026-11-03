@@ -36,7 +36,7 @@ PREPARE s FROM @stmt; EXECUTE s; DEALLOCATE PREPARE s;
 SET @stmt := (SELECT IF(
     (SELECT COUNT(*) FROM information_schema.COLUMNS
       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'library_copy' AND COLUMN_NAME = 'branch_id') = 0,
-    'ALTER TABLE `library_copy` ADD COLUMN `branch_id` INT NULL COMMENT ''repository.id - the branch this row belongs to'' AFTER `branch`',
+    'ALTER TABLE `library_copy` ADD COLUMN `branch_id` INT NULL COMMENT ''repository.id - the branch this row belongs to'' AFTER `shelf_location`',
     'DO 0'));
 PREPARE s FROM @stmt; EXECUTE s; DEALLOCATE PREPARE s;
 
@@ -52,7 +52,7 @@ PREPARE s FROM @stmt; EXECUTE s; DEALLOCATE PREPARE s;
 SET @stmt := (SELECT IF(
     (SELECT COUNT(*) FROM information_schema.COLUMNS
       WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'library_hold' AND COLUMN_NAME = 'branch_id') = 0,
-    'ALTER TABLE `library_hold` ADD COLUMN `branch_id` INT NULL COMMENT ''repository.id - the branch this row belongs to'' AFTER `pickup_branch`',
+    'ALTER TABLE `library_hold` ADD COLUMN `branch_id` INT NULL COMMENT ''repository.id - the branch this row belongs to'' AFTER `expiry_date`',
     'DO 0'));
 PREPARE s FROM @stmt; EXECUTE s; DEALLOCATE PREPARE s;
 

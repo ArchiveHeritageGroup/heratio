@@ -81,7 +81,6 @@ CREATE TABLE IF NOT EXISTS library_hold (
     notification_sent        INTEGER DEFAULT 0,
     queue_position           INTEGER DEFAULT 1,
     status                   TEXT    DEFAULT 'pending',
-    pickup_branch            TEXT,
     cancelled_date           TEXT,
     cancel_reason            TEXT,
     created_at               TEXT,

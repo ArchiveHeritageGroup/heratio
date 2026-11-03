@@ -16585,7 +16585,6 @@ CREATE TABLE IF NOT EXISTS `library_copy` (
   `accession_number` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `call_number_suffix` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'e.g. c.2, v.3',
   `shelf_location` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `branch` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Library branch/location',
   `status` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'available',
   `condition_grade` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `condition_notes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
@@ -16602,7 +16601,6 @@ CREATE TABLE IF NOT EXISTS `library_copy` (
   UNIQUE KEY `uk_barcode` (`barcode`),
   KEY `idx_item` (`library_item_id`),
   KEY `idx_status` (`status`),
-  KEY `idx_branch` (`branch`),
   KEY `idx_accession` (`accession_number`),
   CONSTRAINT `library_copy_ibfk_1` FOREIGN KEY (`library_item_id`) REFERENCES `library_item` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -16728,7 +16726,6 @@ CREATE TABLE IF NOT EXISTS `library_hold` (
   `patron_id` bigint unsigned NOT NULL,
   `hold_date` datetime NOT NULL,
   `expiry_date` date DEFAULT NULL COMMENT 'Hold expires if not picked up',
-  `pickup_branch` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `queue_position` smallint unsigned NOT NULL DEFAULT '1',
   `status` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
   `notification_sent` tinyint(1) NOT NULL DEFAULT '0',

@@ -212,7 +212,7 @@ class LibraryPatronService
             ->whereIn('h.status', ['pending', 'ready'])
             ->select(
                 'h.id', 'h.library_item_id', 'h.hold_date', 'h.expiry_date',
-                'h.queue_position', 'h.status', 'h.pickup_branch',
+                'h.queue_position', 'h.status',
                 'li.call_number',
                 'i18n.title',
             )
