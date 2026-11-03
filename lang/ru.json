@@ -16816,7 +16816,7 @@
     "UPN": "УПН",
     "URI (auto-constructed if blank)": "URI (авто-создается, если пусто)",
     "URL (for external links)": "URL (для внешних ссылок)",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL сервиса ИИ (например, http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL сервиса ИИ (например, https://ai.theahg.co.za/ai/v1)",
     "USD over selected window": "USD над выбранным окном",
     "Un-park & re-review": "Выйти из остановки и пересмотреть",
     "UUID (AIP/description UUID in METS)": "UUID (AIP/описание UUID в METS)",

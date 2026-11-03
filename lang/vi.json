@@ -16391,7 +16391,7 @@
     "UPDATE": "CẬP NHẬT",
     "URI (auto-constructed if blank)": "URI (tự xây dựng nếu trống)",
     "URL (for external links)": "URL (cho liên kết ngoài)",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL của dịch vụ AI (ví dụ: http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL của dịch vụ AI (ví dụ: https://ai.theahg.co.za/ai/v1)",
     "USD over selected window": "USD trên cửa sổ đã chọn",
     "UUID (AIP/description UUID in METS)": "UUID (UUID mô tả AIP trong METS)",
     "Unable to upload diacritics mapping yaml file.": "Không thể tải lên tệp yaml ánh xạ ký tự biến âm.",

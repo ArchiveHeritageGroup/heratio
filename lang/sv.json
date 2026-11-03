@@ -16142,7 +16142,7 @@
     "UI strings that appear all over the app - saved into lang/{locale}.json": "UI-strängar som förekommer över hela appen - sparade till lang/{locale}.json",
     "URI (auto-constructed if blank)": "URI (skapas automatiskt om tom)",
     "URL (for external links)": "URL (för externa länkar)",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL till AI-tjänsten (t.ex., http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL till AI-tjänsten (t.ex., https://ai.theahg.co.za/ai/v1)",
     "USD over selected window": "USD över valt fönster",
     "UUID (AIP/description UUID in METS)": "UUID (AIP/description UUID i METS)",
     "Un-park & re-review": "Avparkera & återgranska",

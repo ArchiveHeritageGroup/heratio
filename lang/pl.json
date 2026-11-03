@@ -16504,7 +16504,7 @@
     "UPDATE": "AKTUALIZACJA",
     "URL (for external links)": "URL (dla linków zewnętrznych)",
     "URI (auto-constructed if blank)": "URI (skonstruowany automatycznie, jeśli pusty)",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL usługi AI (np. http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL usługi AI (np. https://ai.theahg.co.za/ai/v1)",
     "USD over selected window": "USD nad wybranym oknem",
     "UUID (AIP/description UUID in METS)": "UUID (UUID opisu AIP w METS)",
     "Un-park & re-review": "Odblokuj & ponownie sprawdź",

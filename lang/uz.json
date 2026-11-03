@@ -15130,7 +15130,7 @@
     "UPDATE": "Yangilash",
     "URI (auto-constructed if blank)": "URI (avtomatik tuziladi, agar bo'sh bo'lsa)",
     "URL (for external links)": "URL (tashqi link uchun)",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "AI xizmatining URL manzili (masalan, http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "AI xizmatining URL manzili (masalan, https://ai.theahg.co.za/ai/v1)",
     "USD over selected window": "USD tanlangan window ustida",
     "UUID (AIP/description UUID in METS)": "UUID (AIP/tavsif UUID METS da)",
     "Unable to upload diacritics mapping yaml file.": "Diacritics mapping yaml faylini yuklab o'lmadi.",

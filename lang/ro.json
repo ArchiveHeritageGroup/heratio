@@ -16045,7 +16045,7 @@
     "UPDATE": "ACTUALIZARE",
     "URL (for external links)": "URL (pentru legături externe)",
     "URI (auto-constructed if blank)": "URI (construit automat dacă este gol)",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL-ul serviciului de AI (ex: http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL-ul serviciului de AI (ex: https://ai.theahg.co.za/ai/v1)",
     "USD over selected window": "USD peste fereastra selectată",
     "Un-park & re-review": "Dezamorsare & reevaluare",
     "UUID (AIP/description UUID in METS)": "UUID (UUID-ul AIP/description din METS)",

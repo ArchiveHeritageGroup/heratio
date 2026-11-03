@@ -16077,7 +16077,7 @@
     "UI-string review queue": "review antrian UI-string",
     "URI (auto-constructed if blank)": "URI (otomatis dibuat jika kosong)",
     "URL (for external links)": "URL (untuk tautan eksternal)",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL layanan AI (misalnya, http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL layanan AI (misalnya, https://ai.theahg.co.za/ai/v1)",
     "USD over selected window": "USD di atas jendela yang dipilih",
     "UUID (AIP/description UUID in METS)": "UUID (UUID deskripsi AIP dalam METS)",
     "Un-park & re-review": "Batalkan & tinjau ulang",

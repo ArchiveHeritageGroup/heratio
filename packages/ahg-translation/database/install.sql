@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS `ahg_translation_log` (
 
 -- Default settings (safe insert)
 INSERT IGNORE INTO `ahg_translation_settings` (`setting_key`, `setting_value`)
-  SELECT 'mt.endpoint', 'http://127.0.0.1:5100/translate'
+  SELECT 'mt.endpoint', 'https://ai.theahg.co.za/ai/v1/translate'
   WHERE NOT EXISTS (SELECT 1 FROM `ahg_translation_settings` WHERE `setting_key`='mt.endpoint');
 
 INSERT IGNORE INTO `ahg_translation_settings` (`setting_key`, `setting_value`)

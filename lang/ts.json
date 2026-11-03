@@ -17765,7 +17765,7 @@
     "Type:": "Tsala:",
     "UI strings that appear all over the app - saved into lang/{locale}.json": "Marikwelo ya UI lama bonakalaka eka app hinkwayo - pfuriwe eka lang\\/{locale}.json",
     "UI strings that appear all over the app — saved into lang/{locale}.json": "Marikwelo ya UI lama bonakalaka eka app hinkwayo - pfuriwe eka lang\\/{locale}.json",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL ya ntirhiso wa AI (e.g., http:\\/\\/localhost:5004\\/ai\\/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL ya ntirhiso wa AI (e.g., https://ai.theahg.co.za/ai/v1)",
     "Un-park this mention? Candidates will be regenerated and the mention returns to the pending queue.": "Ku susa xikombiso le? Vahlangi va ta hlamuseliwa nakambe na xikombiso xi ta vuyela eku languteni.",
     "Unexpected response.": "Nhlamuselo leyi nga konconangiki.",
     "Unique identifier (auto-generated if empty). Lowercase letters, numbers, and hyphens only.": "Xikombiso xa n'wina (xi hlamuseliwa hi xiyimo xa ku tlhela xi va na). Tihlayisi to tala, tinomboro, na swiphemu swin'we.",

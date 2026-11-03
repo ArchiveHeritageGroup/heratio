@@ -15771,7 +15771,7 @@
     "URI (auto-constructed if blank)": "URI (skipt í tilfelli tómt)",
     "URL (for external links)": "URL (fyrir ytri tenglar)",
     "USD over selected window": "USD yfir valið vörðun",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL af AIþjónustu (til dæmis, http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL af AIþjónustu (til dæmis, https://ai.theahg.co.za/ai/v1)",
     "UUID (AIP/description UUID in METS)": "UUID (AIP/description UUID í METS)",
     "Unable to upload diacritics mapping yaml file.": "Ekki er tilgangur á að hæfja yaml skrá fyrir diakritískar skipting.",
     "Unassessed": "Óvært",

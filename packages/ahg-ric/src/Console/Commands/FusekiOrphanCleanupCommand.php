@@ -249,21 +249,35 @@ class FusekiOrphanCleanupCommand extends Command
      * /admin/ric dashboard counts and lists. Idempotent per URI while status is
      * 'detected'. Nothing populated this table before #1421, which is why the
      * dashboard's orphan count was structurally always 0.
+     *
+     * ric_uri is unique whatever the status, so a URI that orphans again after
+     * it was cleaned or resolved reopens its row instead of inserting a second
+     * one (that insert failed the whole sweep). A human 'reviewed' or
+     * 'retained' decision is left alone.
      */
     private function trackOrphan(string $uri, ?string $ricType): void
     {
         if (! \Illuminate\Support\Facades\Schema::hasTable('ric_orphan_tracking')) {
             return;
         }
-        $exists = DB::table('ric_orphan_tracking')
-            ->where('ric_uri', $uri)
-            ->where('status', 'detected')
-            ->exists();
-        if ($exists) {
+        $uri = mb_substr($uri, 0, 500);
+        $row = DB::table('ric_orphan_tracking')->where('ric_uri', $uri)->first(['id', 'status']);
+        if ($row) {
+            if (in_array($row->status, ['cleaned', 'resolved', 'restored'], true)) {
+                DB::table('ric_orphan_tracking')->where('id', $row->id)->update([
+                    'status' => 'detected',
+                    'detected_at' => now(),
+                    'detection_method' => 'fuseki-sweep',
+                    'resolved_at' => null,
+                    'resolved_by' => null,
+                    'cleaned_at' => null,
+                ]);
+            }
+
             return;
         }
         DB::table('ric_orphan_tracking')->insert([
-            'ric_uri' => mb_substr($uri, 0, 500),
+            'ric_uri' => $uri,
             'ric_type' => $ricType ? mb_substr($ricType, 0, 100) : null,
             'detected_at' => now(),
             'detection_method' => 'fuseki-sweep',

@@ -275,8 +275,8 @@ Access settings at `/translation/settings`:
 +-------------------------------------------------------------+
 |                                                             |
 |  MT Endpoint:                                               |
-|  [http://192.168.0.112:5004/ai/v1/translate        ]        |
-|  Example: http://127.0.0.1:5100/translate                   |
+|  [https://ai.theahg.co.za/ai/v1/translate          ]        |
+|  Example: https://ai.theahg.co.za/ai/v1/translate           |
 |                                                             |
 |  Timeout (seconds):                                         |
 |  [60                                               ]        |
@@ -300,7 +300,7 @@ Test the translation service connectivity:
 ```json
 {
   "ok": true,
-  "endpoint": "http://192.168.0.112:5004/ai/v1/translate",
+  "endpoint": "https://ai.theahg.co.za/ai/v1/translate",
   "http_status": 200,
   "curl_error": null
 }

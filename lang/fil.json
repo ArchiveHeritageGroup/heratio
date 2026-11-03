@@ -14503,7 +14503,7 @@
     "URI (auto-constructed if blank)": "URI (nagawa automatikong kung walang laman)",
     "URL (for external links)": "URL (para sa mga panlabas na link)",
     "USD over selected window": "USD sa napiling window",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL ng serbisyo ng AI (hal., http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL ng serbisyo ng AI (hal., https://ai.theahg.co.za/ai/v1)",
     "UUID (AIP/description UUID in METS)": "UUID (UUID ng AIP/description sa METS)",
     "Un-park & re-review": "Un-park at re-review",
     "Unable to upload diacritics mapping yaml file.": "Hindi makapag-upload ng file ng mapping ng diacritics yaml.",

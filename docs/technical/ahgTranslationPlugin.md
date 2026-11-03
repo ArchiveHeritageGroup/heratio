@@ -63,7 +63,7 @@ On-premises translation plugin for AtoM that integrates with NLLB-200 (No Langua
 |                              v                                      |
 |  +---------------------------------------------------------------+  |
 |  |              NLLB-200 MT Service (External)                   |  |
-|  |  - http://192.168.0.112:5004/ai/v1/translate                  |  |
+|  |  - https://ai.theahg.co.za/ai/v1/translate                    |  |
 |  +---------------------------------------------------------------+  |
 |                                                                     |
 +---------------------------------------------------------------------+
@@ -201,14 +201,14 @@ CREATE TABLE IF NOT EXISTS ahg_translation_log (
 ```sql
 -- Inserted on install
 INSERT INTO ahg_translation_settings (setting_key, setting_value) VALUES
-  ('mt.endpoint', 'http://127.0.0.1:5100/translate'),
+  ('mt.endpoint', 'https://ai.theahg.co.za/ai/v1/translate'),
   ('mt.timeout_seconds', '30'),
   ('mt.target_culture', 'en');
 ```
 
 | Setting Key | Default Value | Description |
 |-------------|---------------|-------------|
-| mt.endpoint | http://127.0.0.1:5100/translate | NLLB-200 API endpoint URL |
+| mt.endpoint | https://ai.theahg.co.za/ai/v1/translate | NLLB-200 API endpoint URL |
 | mt.timeout_seconds | 30 | HTTP request timeout |
 | mt.target_culture | en | Default target language |
 | mt.api_key | <your-api-key> | API authentication key |
@@ -238,7 +238,7 @@ Response:
 ```json
 {
   "ok": true,
-  "endpoint": "http://192.168.0.112:5004/ai/v1/translate",
+  "endpoint": "https://ai.theahg.co.za/ai/v1/translate",
   "http_status": 200,
   "curl_error": null
 }

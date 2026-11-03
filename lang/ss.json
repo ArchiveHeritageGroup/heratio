@@ -18370,7 +18370,7 @@
     "Type:": "Uhlobo:",
     "UI strings that appear all over the app - saved into lang/{locale}.json": "Tinhlobonhlobo te-ui letivelela kakhulu etingeni - tihlotshelwe ku lang/{locale}.json",
     "UI strings that appear all over the app — saved into lang/{locale}.json": "Tinhlobonhlobo te-ui letivelela kakhulu etingeni - tihlotshelwe ku lang/{locale}.json",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL yensizakalo ye-AI (isib., http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL yensizakalo ye-AI (isib., https://ai.theahg.co.za/ai/v1)",
     "Un-park this mention? Candidates will be regenerated and the mention returns to the pending queue.": "Kususe lokhu kusho? Tinkhethiwe tizobuyiselwa futsi lokhu kusho kubuya emgwaqweni wekukhatsa.",
     "Undated": "Akunalanga",
     "Unexpected response.": "Impendulo engalindelekile.",

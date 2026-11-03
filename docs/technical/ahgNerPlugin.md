@@ -206,7 +206,7 @@ CREATE TABLE ahg_ner_settings (
 
 | Key | Value | Description |
 |-----|-------|-------------|
-| api_url | http://localhost:5004/ai/v1 | AI service endpoint |
+| api_url | https://ai.theahg.co.za/ai/v1 | AI service endpoint |
 | api_key | | API authentication |
 | api_timeout | 60 | Timeout seconds |
 | ner_enabled | 1 | NER active |

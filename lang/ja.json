@@ -17954,7 +17954,7 @@
     "UI string review queue": "UI文字列のレビューキュー",
     "UI-string review queue": "UIストリングレビューキュー",
     "UNISA Harvard": "UNISA ハーバード",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "AIサービスのURL（例: http://localhost:5004/ai/v1）",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "AIサービスのURL（例: https://ai.theahg.co.za/ai/v1）",
     "Un-park & re-review": "アンパーキング＆再レビュー",
     "Unable to upload diacritics mapping yaml file.": "アップロードできません。ディアクリティクスマッピングYAMLファイル",
     "Un-park this mention? Candidates will be regenerated and the mention returns to the pending queue.": "このメンションをアンパーキングしますか？候補者は再生成され、メンションは待機キューに戻ります。",

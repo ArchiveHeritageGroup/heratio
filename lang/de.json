@@ -16091,7 +16091,7 @@
     "UI-string review queue": "UI-string-Überprüfungswarteschlange",
     "URI (auto-constructed if blank)": "URI (automatisch erstellt, wenn leer)",
     "URL (for external links)": "URL (für externe Links)",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL des AI-Dienstes (z. B., http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL des AI-Dienstes (z. B., https://ai.theahg.co.za/ai/v1)",
     "USD over selected window": "USD über ausgewähltes Fenster",
     "UUID (AIP/description UUID in METS)": "UUID (AIP/Beschreibung UUID in METS)",
     "Unable to upload diacritics mapping yaml file.": "Fehler beim Hochladen der YAML-Datei für die Diakritikzuordnung.",

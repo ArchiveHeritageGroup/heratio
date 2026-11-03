@@ -56,7 +56,7 @@
         <div class="col-sm-6">
           <input type="text" class="form-control" name="api_url"
             value="{{ $settings['api_url'] ?? '' }}">
-          <small class="text-muted">{{ __('URL of the AI service (e.g., http://localhost:5004/ai/v1)') }}</small>
+          <small class="text-muted">{{ __('URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)') }}</small>
         </div>
         <div class="col-sm-3">
           <button type="button" class="btn btn-outline-info" id="btn-test-connection">
@@ -281,7 +281,7 @@
         <label class="col-sm-3 col-form-label">{{ __('OPUS-MT Endpoint') }}</label>
         <div class="col-sm-6">
           <input type="text" class="form-control" name="mt_endpoint"
-            value="{{ $settings['mt_endpoint'] ?? 'http://127.0.0.1:5100/translate' }}">
+            value="{{ $settings['mt_endpoint'] ?? 'https://ai.theahg.co.za/ai/v1/translate' }}">
           <small class="text-muted">{{ __('OPUS-MT translation server URL') }}</small>
         </div>
         <div class="col-sm-3">

@@ -14931,7 +14931,7 @@
     "UI string translations": "Diphetolelo tsa UI string",
     "UI strings that appear all over the app - saved into lang/{locale}.json": "UI strings that appear all over the app - saved into lang\\/{locale}.json",
     "UI strings that appear all over the app — saved into lang/{locale}.json": "UI strings that appear all over the app - saved into lang\\/{locale}.json",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL of the AI service (e.g., http:\\/\\/localhost:5004\\/ai\\/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)",
     "USmarc / MARC21": "USmarc \\/ MARC21",
     "UUID (AIP/description UUID in METS)": "UUID (AIP\\/description UUID in METS)",
     "Under virtual return": "Nga vutumbiwa bya virtual",

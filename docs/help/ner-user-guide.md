@@ -47,7 +47,7 @@ The AI Services module provides intelligent automation for archival description:
 
 | Setting | Description | Default |
 |---------|-------------|---------|
-| **API URL** | AI service endpoint | `http://localhost:5004/ai/v1` |
+| **API URL** | AI service endpoint | `https://ai.theahg.co.za/ai/v1` |
 | **API Key** | Authentication key | - |
 | **Timeout** | Request timeout (seconds) | 60 |
 | **Processing Mode** | `Hybrid` (direct) or `Job` (Gearman) | Job |

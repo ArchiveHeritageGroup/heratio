@@ -18539,7 +18539,7 @@
     "Type:": "Uhlobo:",
     "UI strings that appear all over the app - saved into lang/{locale}.json": "Amagama e-UI abonakala kuyo yonke i-app - agcinwe ku-lang/{locale}.json",
     "UI strings that appear all over the app — saved into lang/{locale}.json": "Amagama e-UI abonakala kuyo yonke i-app - agcinwe ku-lang/{locale}.json",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "I-URL yenkonzo ye-AI (isib., http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "I-URL yenkonzo ye-AI (isib., https://ai.theahg.co.za/ai/v1)",
     "URL:": "I-URL:",
     "Un-park this mention? Candidates will be regenerated and the mention returns to the pending queue.": "Ukukhipha lokhu kusho? Izinketho zizobuyiselwa futhi lokhu kusho kubuyela kuqiniso elilindele.",
     "Unexpected response.": "Impendulo engalindelekile.",

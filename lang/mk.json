@@ -16901,7 +16901,7 @@
     "UPDATE": "Ажурирајте",
     "URL (for external links)": "URL (за внатрешни врски)",
     "URI (auto-constructed if blank)": "URI (се конструира автоматски ако е празен)",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL на AI сервиз (нпр., http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL на AI сервиз (нпр., https://ai.theahg.co.za/ai/v1)",
     "USD over selected window": "USD над избраниот прозорец",
     "UUID (AIP/description UUID in METS)": "UUID (UUID за AIP/описание во METS)",
     "Un-park & re-review": "Де-паркирај & повторно прегледај",

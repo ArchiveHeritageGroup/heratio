@@ -64,7 +64,7 @@ Navigate to: **Admin** → **AHG Settings** → **AI Services**
 
 | Setting          | Description                             | Default                       |
 |-----------------|------------------------------------------|-------------------------------|
-| API URL         | URL of the AI service endpoint           | `http://localhost:5004/ai/v1` |
+| API URL         | URL of the AI service endpoint           | `https://ai.theahg.co.za/ai/v1` |
 | API Key         | Authentication key for API access        | *(empty)*                     |
 | Timeout         | Request timeout in seconds               | `60`                          |
 | Processing Mode | `Hybrid` (direct) or `Job` (background)  | `Job`                         |

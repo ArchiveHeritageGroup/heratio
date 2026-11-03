@@ -18574,7 +18574,7 @@
     "UI strings that appear all over the app - saved into lang/{locale}.json": "Amagama eUI afumaneka kuyo yonke i-app - agcinwe ku lang/{locale}.json",
     "UI strings that appear all over the app — saved into lang/{locale}.json": "Amagama eUI afumaneka kuyo yonke i-app - agcinwe ku lang/{locale}.json",
     "UPDATE": "HLAZIYA",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL yesikhokelo seAI (umzekelo, http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL yesikhokelo seAI (umzekelo, https://ai.theahg.co.za/ai/v1)",
     "Un-park this mention? Candidates will be regenerated and the mention returns to the pending queue.": "Ukucima ukugcinwa kwale nkcazo? Abanikazi baya kubuyiselwa kwaye inkcazo ibuyele kwiqela elilindele.",
     "Unexpected response.": "Impendulo engalindelekanga.",
     "Unique identifier (auto-generated if empty). Lowercase letters, numbers, and hyphens only.": "Isazisi esikhethekileyo (senziwa ngokuzenzekelayo ukuba singagcwali). Amagama aphansi, amanani, kunye neehafeni kuphela.",

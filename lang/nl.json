@@ -15480,7 +15480,7 @@
     "UI strings that appear all over the app — saved into lang/{locale}.json": "UI strings die over de hele app verspreid voorkomen - opgeslagen in lang/{locale}.json",
     "URL (for external links)": "URL (voor externe links)",
     "URI (auto-constructed if blank)": "URI (automatisch opgebouwd indien leeg)",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL van de AI-service (bijv., http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL van de AI-service (bijv., https://ai.theahg.co.za/ai/v1)",
     "USD over selected window": "USD over geselecteerd venster",
     "Un-park & re-review": "On-park & herbeoordelen",
     "UUID (AIP/description UUID in METS)": "UUID (AIP/omschrijving UUID in METS)",

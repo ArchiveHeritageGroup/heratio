@@ -16286,7 +16286,7 @@
     "UPDATE": "Uuendus",
     "URL (for external links)": "URL (välistelepingute jaoks)",
     "URI (auto-constructed if blank)": "URI (konstrueeritakse automaatselt, kui on tühjade)",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "AI teenuse URL (nt http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "AI teenuse URL (nt https://ai.theahg.co.za/ai/v1)",
     "USD over selected window": "USA valdus valitud vaatluskeskkonnas",
     "Un-park & re-review": "Vabastuta ja ülevalvata",
     "UUID (AIP/description UUID in METS)": "UUID (AIP/kirjelduse UUID METS-s)",

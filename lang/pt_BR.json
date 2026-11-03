@@ -16609,7 +16609,7 @@
     "URI (auto-constructed if blank)": "URI (construído automaticamente se em branco)",
     "URL (for external links)": "URL (para links externos)",
     "USD over selected window": "USD sobre a janela selecionada",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL do serviço de IA (ex.: http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL do serviço de IA (ex.: https://ai.theahg.co.za/ai/v1)",
     "Un-park & re-review": "Desempacote e revise novamente",
     "UUID (AIP/description UUID in METS)": "UUID (UUID da descrição AIP em METS)",
     "Unable to upload diacritis mapping yaml file.": "Impossível carregar arquivo yaml de mapeamento de diacríticos.",

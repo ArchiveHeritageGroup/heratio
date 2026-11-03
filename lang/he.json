@@ -13490,7 +13490,7 @@
     "UPDATE": "עדכון",
     "URI (auto-constructed if blank)": "URI (נוצר אוטומטית אם ריק)",
     "URL (for external links)": "כתובת URL (לinks חיצוניים)",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "כתובת URL של שירות האי (למשל, http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "כתובת URL של שירות האי (למשל, https://ai.theahg.co.za/ai/v1)",
     "USD over selected window": "USD מעל חלון בחירה",
     "USmarc": "אימארק אוסטראלי",
     "UUID (AIP/description UUID in METS)": "UUID (UUID של AIP/תיאור ב-METS)",

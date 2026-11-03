@@ -15986,7 +15986,7 @@
     "UI-string review queue": "Rriqe e përgjegjësimit të UI-stringut",
     "URI (auto-constructed if blank)": "URI (konstruktuar me automatikë nëse është bosh)",
     "URL (for external links)": "URL ( për lidhje të jashtme)",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL e shërbimit AI (shembull: http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL e shërbimit AI (shembull: https://ai.theahg.co.za/ai/v1)",
     "USD over selected window": "USD mbi vendin e zgjedhur",
     "UUID (AIP/description UUID in METS)": "UUID (UUID përshkrim AIP në METS)",
     "Unable to upload diacritis mapping yaml file.": "Në pyetësi të ngarkimit të failit yaml me mapim diakritisë.",

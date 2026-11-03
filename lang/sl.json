@@ -16444,7 +16444,7 @@
     "URL (for external links)": "URL (za zunanje povezave)",
     "URI (auto-constructed if blank)": "URI (samo sestavljen, če je prazno)",
     "USD over selected window": "USD nad izbranim oknom",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "Naslov URL storitve AI (npr. http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "Naslov URL storitve AI (npr. https://ai.theahg.co.za/ai/v1)",
     "UUID (AIP/description UUID in METS)": "UUID (UUID opisnega AIP v METS)",
     "Un-park & re-review": "Odpovej parkiranje & ponovno pregledaj",
     "Unable to upload diacritics mapping yaml file.": "Ni mogoče naliti datoteke za preslikavo diakritikov yaml.",

@@ -671,7 +671,7 @@ curl https://your-site.com/ai/llm/health
 | AI SETTINGS |  |  |
 |---|---|---|
 | Feature | Setting Key | Default Value |
-| general | api_url | http://192.168.0.112:5004/ai/v1 |
+| general | api_url | https://ai.theahg.co.za/ai/v1   |
 | general | api_key | <your-api-key> |
 | general | api_timeout | 60 |
 | ner | enabled | 1 |

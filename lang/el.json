@@ -16672,7 +16672,7 @@
     "UPDATE": "ΕΝΗΜΕΡΩΣΗ",
     "URI (auto-constructed if blank)": "URI (αυτόματα κατασκευασμένο αν είναι κενό)",
     "URL (for external links)": "URL (για εξωτερικούς συνδέσμους)",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL του υπηρεσίας AI (π.χ., http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL του υπηρεσίας AI (π.χ., https://ai.theahg.co.za/ai/v1)",
     "USD over selected window": "USD πάνω στο επιλεγμένο παράθυρο",
     "USmarc / MARC21": "Ελληνικά: ΥΣΜΑΡΚ / ΜΑΡΚ21",
     "UUID (AIP/description UUID in METS)": "UUID (AIP/περιγραφή UUID στο METS)",

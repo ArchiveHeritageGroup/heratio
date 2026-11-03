@@ -16385,7 +16385,7 @@
     "URI (auto-constructed if blank)": "URI (construït automàticament si està buit)",
     "URL (for external links)": "URL (per a enllaços externs)",
     "USD over selected window": "USD sobre la finestra seleccionada",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL de servei d'IA (p. ex., http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL de servei d'IA (p. ex., https://ai.theahg.co.za/ai/v1)",
     "Un-park & re-review": "Desaparcar i revisar de nou",
     "UUID (AIP/description UUID in METS)": "UUID (UUID de descripció AIP a METS)",
     "Unable to upload diacritics mapping yaml file.": "No es pot pujar el fitxer yaml de mapeig de diacrètics.",

@@ -15512,7 +15512,7 @@
     "URL (for external links)": "URL (donnchúlaintí uathúla)",
     "URI (auto-constructed if blank)": "URI (déanfá é agus is é seo a bhuailtear os cónaí)",
     "USD over selected window": "USD ar an t-imeáin chosnachta",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL de an t-aiséirí AI (e.g., http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL de an t-aiséirí AI (e.g., https://ai.theahg.co.za/ai/v1)",
     "Un-park & re-review": "Deisniú agus re-ábharáil",
     "UUID (AIP/description UUID in METS)": "UUID (UUID AIP/scríobháilteacháin i METS)",
     "Unable to upload diacritics mapping yaml file.": "Ní féidir an file YAML a chur leis an t-ábhar ábharaithe a chur leis.",

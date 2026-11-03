@@ -23,7 +23,7 @@ The IIIF AI Extraction module bridges the IIIF Viewer plugin (ahgIiifPlugin) wit
 - **Face Detection** - Detects human faces in photographic material for potential authority record matching
 
 ### Architecture
-- **External AI Server**: All AI processing is performed by a dedicated server (`http://<host>:5004/ai/v1`), keeping AtoM's web server lightweight
+- **External AI Server**: All AI processing is performed by a dedicated server (reached through the AI gateway, `https://ai.theahg.co.za/ai/v1`), keeping AtoM's web server lightweight
 - **Bridge Pattern**: IiifAiService composes existing services (NerService, IIIF annotation services) rather than duplicating functionality
 - **Configurable Pipeline**: Each extraction step can be enabled/disabled independently per request
 - **Batch Processing**: Supports processing all digital objects for an information object in a single call
@@ -63,7 +63,7 @@ The IIIF AI Extraction module bridges the IIIF Viewer plugin (ahgIiifPlugin) wit
 | Heratio | v2.8.2+ with atom-framework |
 | Plugins Required | ahgAIPlugin, ahgIiifPlugin |
 | External AI Server | Python server with spaCy, Argos Translate, Tesseract |
-| AI Server Endpoint | `http://<host>:5004/ai/v1` |
+| AI Server Endpoint | `https://ai.theahg.co.za/ai/v1` (the gateway) |
 | PHP | 8.3+ |
 | MySQL | 8.0+ |
 

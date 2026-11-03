@@ -16347,7 +16347,7 @@
     "UPDATE": "به‌روزرسانی",
     "URL (for external links)": "URL (برای لینک‌های خارجی)",
     "URI (auto-constructed if blank)": "URI (تکمیل شده اتوماتیک اگر خالی باشد)",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL سرویس AI (مثلاً http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL سرویس AI (مثلاً https://ai.theahg.co.za/ai/v1)",
     "USD over selected window": "USD بر روی پنجره انتخاب شده",
     "UUID (AIP/description UUID in METS)": "UUID (UUID ایپی دسکریپشن در METS)",
     "Un-park & re-review": "بی‌پارک و بازبینی مجدد",

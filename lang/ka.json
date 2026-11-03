@@ -16319,7 +16319,7 @@
     "URL (for external links)": "URL (გარე ბმულების მისამართი)",
     "URI (auto-constructed if blank)": "URI (ავტომატურად შეიქმნება თუ ცარიელია)",
     "USmarc": "უსმარკ",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "AI სერვისის URL (მაგალითად, http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "AI სერვისის URL (მაგალითად, https://ai.theahg.co.za/ai/v1)",
     "USD over selected window": "დოლარი შერჩეული ფანჯრის მატარებელზე",
     "UUID (AIP/description UUID in METS)": "UUID (AIP/მეტს შესახებ UUID)",
     "Un-park & re-review": "გაუქმება და ხედვა ხელახლა",

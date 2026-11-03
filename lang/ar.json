@@ -17172,7 +17172,7 @@
     "UI strings that appear all over the app - saved into lang/{locale}.json": "نصوص واجهة المستخدم التي تظهر في جميع أنحاء التطبيق - محفوظة في lang/{locale}.json",
     "UI strings that appear all over the app — saved into lang/{locale}.json": "النصوص الخاصة بالواجهة التي تظهر في جميع أنحاء التطبيق - محفوظة في lang/{locale}.json",
     "UNISA Harvard": "UNISA هارفارد",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "رابط خدمة الذكاء الاصطناعي (مثلاً، http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "رابط خدمة الذكاء الاصطناعي (مثلاً، https://ai.theahg.co.za/ai/v1)",
     "Up to 50 MB. Must conform to http://www.loc.gov/MARC21/slim.": "حتى 50 ميغا بايت. يجب أن يتوافق مع http://www.loc.gov/MARC21/slim.",
     "Update Profile": "تحديث الملف الشخصي",
     "Update Rate": "معدل التحديث",

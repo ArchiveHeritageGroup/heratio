@@ -16723,7 +16723,7 @@
     "UPDATE": "ОНОВИТИ",
     "URI (auto-constructed if blank)": "URI (створюється автоматично, якщо порожній)",
     "URL (for external links)": "URL (для зовнішніх посилань)",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL сервісу AI (наприклад, http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL сервісу AI (наприклад, https://ai.theahg.co.za/ai/v1)",
     "USD over selected window": "USD над вибраним вікном",
     "Un-park & re-review": "Відп'яний & перегляд",
     "UUID (AIP/description UUID in METS)": "UUID (AIP/опис UUID у METS)",

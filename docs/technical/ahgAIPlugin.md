@@ -435,7 +435,7 @@ CREATE TABLE IF NOT EXISTS ahg_description_suggestion (
 
 | Feature | Setting Key | Default Value | Description |
 |---------|-------------|---------------|-------------|
-| general | api_url | http://192.168.0.112:5004/ai/v1 | AI API base URL |
+| general | api_url | https://ai.theahg.co.za/ai/v1   | AI API base URL |
 | general | api_key | <your-api-key> | API authentication key |
 | general | api_timeout | 60 | Request timeout (seconds) |
 | ner | enabled | 1 | Enable NER feature |

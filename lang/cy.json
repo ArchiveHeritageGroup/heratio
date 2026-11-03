@@ -15466,7 +15466,7 @@
     "UPDATE": "GYFLWRU",
     "URI (auto-constructed if blank)": "URI (auto-constructuogi os yw'n hwb)",
     "URL (for external links)": "URL (am gyllidau allanol)",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL y gwasg AI (e.g., http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL y gwasg AI (e.g., https://ai.theahg.co.za/ai/v1)",
     "USD over selected window": "USD ym mhrofiad gosodol cyhoeddiadol",
     "UUID (AIP/description UUID in METS)": "UUID (UUID AIP / description yn METS)",
     "Unable to upload diacritis mapping yaml file.": "Nid oes ychydig yn gallu cyflwr ymlaen ymlaen y ffeil yaml diacritic mapping.",

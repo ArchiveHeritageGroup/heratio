@@ -16402,7 +16402,7 @@
     "UPDATE": "ACTUALIZAR",
     "URI (auto-constructed if blank)": "URI (construído automaticamente se baleiro)",
     "URL (for external links)": "URL (para ligazóns externas)",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL da servizo de IA (p.ex., http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL da servizo de IA (p.ex., https://ai.theahg.co.za/ai/v1)",
     "USD over selected window": "USD sobre a finestra seleccionada",
     "Un-park & re-review": "Desemparchar e revisar novamente",
     "UUID (AIP/description UUID in METS)": "UUID (UUID da descripción AIP en METS)",

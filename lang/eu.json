@@ -15872,7 +15872,7 @@
     "URI (auto-constructed if blank)": "URI (autogaratzen den eragilea hutsa denean)",
     "URL (for external links)": "URL (loterri externetarako)",
     "USD over selected window": "USD hautatutako bintsoan gaineko",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "AI zerbitzuaren URLa (adibidez, http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "AI zerbitzuaren URLa (adibidez, https://ai.theahg.co.za/ai/v1)",
     "UUID (AIP/description UUID in METS)": "UUID (AIP/description UUID METS-en)",
     "Un-park & re-review": "Desparkatu eta berriz irakurri",
     "Unable to upload diacritics mapping yaml file.": "Diacritikoen mapatzearen yaml fitxategia igo ezinezkoa.",

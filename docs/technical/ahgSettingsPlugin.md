@@ -710,7 +710,7 @@ The `isEnabled()` method should check `ahg_central_enabled = '1'` AND a non-empt
 | spellcheck_enabled | 0 | Enable spell checking |
 | translation_enabled | 1 | Enable translation |
 | processing_mode | job | 'job' or 'realtime' |
-| api_url | http://192.168.0.112:5004/ai/v1 | AI service endpoint |
+| api_url | https://ai.theahg.co.za/ai/v1   | AI service endpoint |
 | api_key | <your-api-key> | API authentication |
 | api_timeout | 60 | Request timeout seconds |
 | ner_entity_types | ["PERSON","ORG","GPE","DATE"] | Entities to extract |

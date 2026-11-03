@@ -16704,7 +16704,7 @@
     "URI (auto-constructed if blank)": "URI (자동 구성됨(공백일 경우))",
     "URL Slug": "URL 슬러그",
     "URL (for external links)": "URL (외부 링크용)",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "AI 서비스의 URL (예: http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "AI 서비스의 URL (예: https://ai.theahg.co.za/ai/v1)",
     "USD over selected window": "USD 선택된 창 위에",
     "Un-park & re-review": "언파킹 & 재검토",
     "UUID (AIP/description UUID in METS)": "UUID (AIP/설명 UUID는 METS에 있습니다)",

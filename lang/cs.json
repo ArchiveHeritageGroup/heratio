@@ -16214,7 +16214,7 @@
     "URI (auto-constructed if blank)": "URI (automaticky sestavený, pokud je prázdný)",
     "URL (for external links)": "URL (pro externí odkazy)",
     "USD over selected window": "USD nad vybraným oknem",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL služby AI (např. http://localhost:5004/ai/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL služby AI (např. https://ai.theahg.co.za/ai/v1)",
     "Un-park & re-review": "Odpoutat & znovu hodnotit",
     "UUID (AIP/description UUID in METS)": "UUID (UUID popisu AIP v METS)",
     "Unable to upload diacritics mapping yaml file.": "Nepodařilo se nahrát soubor yaml pro mapování diakritiky.",

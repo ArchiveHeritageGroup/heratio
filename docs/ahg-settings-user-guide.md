@@ -383,7 +383,7 @@ Configure AI-powered features for your archive:
 |                                                              |
 |  API Configuration                                           |
 |  +--------------------------------------------------------+ |
-|  | API URL:     [http://192.168.0.112:5004/ai/v1        ] | |
+|  | API URL:     [https://ai.theahg.co.za/ai/v1          ] | |
 |  | API Key:     [<your-api-key>              ] | |
 |  | Timeout:     [60] seconds                              | |
 |  +--------------------------------------------------------+ |

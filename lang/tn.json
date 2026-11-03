@@ -18271,7 +18271,7 @@
     "Type:": "Mofuta:",
     "UI strings that appear all over the app - saved into lang/{locale}.json": "Mafoko a UI a a bonalang mo appngotlhe - a bolokilwe mo lang\\/{locale}.json",
     "UI strings that appear all over the app — saved into lang/{locale}.json": "Mafoko a UI a a bonalang mo appngotlhe - a bolokilwe mo lang\\/{locale}.json",
-    "URL of the AI service (e.g., http://localhost:5004/ai/v1)": "URL ya tirisano ya AI (sekai, http:\\/\\/localhost:5004\\/ai\\/v1)",
+    "URL of the AI service (e.g., https://ai.theahg.co.za/ai/v1)": "URL ya tirisano ya AI (sekai, https://ai.theahg.co.za/ai/v1)",
     "USmarc / MARC21": "USmarc \\/ MARC21",
     "Un-park this mention? Candidates will be regenerated and the mention returns to the pending queue.": "Go tlosa se se buiwang? Ba ba ka nnang ba a balwa gape mme se se buiwang se boa mo molokong o o emeng.",
     "Unexpected response.": "Karabo e e sa letelesegeng.",
