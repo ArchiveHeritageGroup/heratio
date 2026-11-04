@@ -59,6 +59,13 @@ class FusekiIntegrityCheckCommand extends Command
     public function handle(): int
     {
         $sync = app(FusekiSyncService::class);
+        // No triple store on this install (fuseki_sync_enabled = 0): nothing to
+        // compare, so the nightly run succeeds instead of failing every night.
+        if (! $sync->enabled()) {
+            $this->info('[fuseki-integrity-check] RiC triple store sync is off (fuseki_sync_enabled = 0); nothing to do.');
+
+            return self::SUCCESS;
+        }
 
         // The schedule itself is read in AhgRicServiceProvider::boot to drive
         // the cron registration. Within the command we only check the master

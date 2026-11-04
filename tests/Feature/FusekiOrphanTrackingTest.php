@@ -4,7 +4,8 @@
  * FusekiOrphanTrackingTest - a RiC URI that orphans again after its tracking
  * row was cleaned reopens that row instead of inserting a duplicate, which
  * failed the unique key and the whole nightly ahg:fuseki-orphan-cleanup run.
- * A human 'retained' decision is not overwritten.
+ * A human 'retained' decision is not overwritten. With the triple store
+ * switched off (fuseki_sync_enabled = 0) both nightly jobs succeed.
  *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
  * License: AGPL-3.0-or-later
@@ -61,5 +62,13 @@ class FusekiOrphanTrackingTest extends TestCase
         $this->track($uri);
 
         $this->assertSame('retained', DB::table('ric_orphan_tracking')->where('ric_uri', $uri)->value('status'));
+    }
+
+    public function test_both_nightly_jobs_succeed_when_sync_is_off(): void
+    {
+        DB::table('ahg_settings')->updateOrInsert(['setting_key' => 'fuseki_sync_enabled'], ['setting_value' => '0', 'setting_group' => 'fuseki']);
+
+        $this->assertSame(0, \Illuminate\Support\Facades\Artisan::call('ahg:fuseki-integrity-check', ['--quiet-success' => true]));
+        $this->assertSame(0, \Illuminate\Support\Facades\Artisan::call('ahg:fuseki-orphan-cleanup'));
     }
 }

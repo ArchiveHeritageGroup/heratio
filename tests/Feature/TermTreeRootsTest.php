@@ -3,6 +3,7 @@
 /**
  * TermTreeRootsTest - the browse sidebar's top-level terms come off the name
  * index for a large taxonomy and match the ordinary query (heratio#1573).
+ * The SKOS export refuses a vocabulary too large to build in one request.
  *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
  * License: AGPL-3.0-or-later
@@ -24,6 +25,7 @@ class TermTreeRootsTest extends TestCase
     protected function tearDown(): void
     {
         TermBrowseService::$idFirstMin = 5000;
+        TermController::$skosMax = 20000;
         parent::tearDown();
     }
 
@@ -62,5 +64,13 @@ class TermTreeRootsTest extends TestCase
         $this->assertSame(['alpha', 'bravo', 'Charlie', 'Delta', 'Echo'], $ordinary);
         $this->assertSame($ordinary, $indexed);
         $this->assertCount(1, array_filter($sql, fn ($s) => str_contains($s, 'FORCE INDEX (idx_term_i18n_name_sort)')), 'only the large-taxonomy call walks the index');
+    }
+
+    public function test_skos_export_refuses_a_vocabulary_too_big_for_a_request(): void
+    {
+        TermController::$skosMax = -1;
+        $this->get('/term/export/skos?taxonomy=35&format=turtle')->assertStatus(413)->assertSee('too many to export');
+        TermController::$skosMax = PHP_INT_MAX;
+        $this->get('/term/export/skos?taxonomy=35&format=turtle')->assertOk();
     }
 }

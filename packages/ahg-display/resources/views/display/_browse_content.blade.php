@@ -270,12 +270,12 @@
 <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
 
   {{-- Print --}}
-  <a href="{{ route('glam.print', array_filter($fp)) }}" target="_blank" class="btn atom-btn-outline-success btn-sm">
+  <a href="{{ route('glam.print', request()->except(['page'])) }}" target="_blank" class="btn atom-btn-outline-success btn-sm">
     <i class="fas fa-print"></i> {{ __('Print') }}
   </a>
 
   {{-- CSV Export --}}
-  <a href="{{ route('glam.export.csv', array_filter($fp)) }}" class="btn atom-btn-outline-success btn-sm">
+  <a href="{{ route('glam.export.csv', request()->except(['page'])) }}" class="btn atom-btn-outline-success btn-sm">
     <i class="fas fa-download"></i> CSV
   </a>
 

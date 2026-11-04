@@ -3,7 +3,8 @@
 /**
  * GlamVisualGraphTest - "Visual graph" on a GLAM search serves the
  * relationship explorer for the first 100 results, with the live controls,
- * and leaves out what the list would hide from a guest.
+ * and leaves out what the list would hide from a guest. Print and CSV export
+ * of a search keep its filters (they used to export the whole catalogue).
  *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
  * License: AGPL-3.0-or-later
@@ -51,6 +52,21 @@ class GlamVisualGraphTest extends TestCase
         $this->assertNotContains((string) $draft, $ids);
         $this->assertSame($word, $live['query']);
         $this->assertStringNotContainsString('view=graph', $live['list']);
+    }
+
+    public function test_print_and_csv_keep_the_search(): void
+    {
+        $word = 'Zqvprint'.random_int(1000, 9999);
+        $this->record("$word letter", 160);
+        $this->record("$word draft", 159);
+
+        $print = $this->get(route('glam.print', ['query' => $word, 'topLevel' => '0', 'sort' => 'startdate']))->assertOk()->getContent();
+        $this->assertStringContainsString("$word letter", $print);
+        $this->assertStringNotContainsString("$word draft", $print);
+
+        $csv = $this->get(route('glam.export.csv', ['query' => $word, 'topLevel' => '0', 'sort' => 'alphabetic']))->assertOk()->streamedContent();
+        $this->assertSame(2, substr_count($csv, "\n"), 'header plus the one matching published record');
+        $this->assertStringContainsString("$word letter", $csv);
     }
 
     public function test_the_graph_starts_at_100_records_and_loads_more(): void

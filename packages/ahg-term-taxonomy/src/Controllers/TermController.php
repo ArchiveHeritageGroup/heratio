@@ -75,6 +75,9 @@ class TermController extends Controller
      */
     public const NAV_MAX = 20000;
 
+    /** Largest vocabulary the SKOS export builds in a browser request. */
+    public static int $skosMax = 20000;
+
     protected TermService $termService;
 
     protected CrossMatchService $crossMatchService;
@@ -725,6 +728,16 @@ class TermController extends Controller
 
         // #661 Phase 3: opt-in SKOS-XL emission alongside the plain literals.
         $skosXl = (bool) $request->input('skos_xl', false);
+
+        // A request builds the whole scheme in memory: ANC's 196k places and
+        // 362k subjects ran past the 300 s limit and failed every time
+        // (ponytail: refused above $skosMax; the upgrade path is a queued
+        // export written to a file).
+        $count = DB::table('term')->where('taxonomy_id', $taxonomyId)->count();
+        if ($count > self::$skosMax) {
+            return response(__('This vocabulary has :n terms, too many to export from the browser (the limit is :max). Ask an administrator for a full export.',
+                ['n' => number_format($count), 'max' => number_format(self::$skosMax)]), 413)->header('Content-Type', 'text/plain; charset=utf-8');
+        }
 
         $culture = app()->getLocale();
         $taxonomyName = $this->termService->getTaxonomyName($taxonomyId, $culture);

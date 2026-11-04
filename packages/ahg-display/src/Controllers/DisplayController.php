@@ -183,20 +183,6 @@ class DisplayController extends Controller
         $culture = app()->getLocale();
         $this->isAuthenticated = auth()->check();
 
-        // Get all filter parameters
-        $this->typeFilter = $request->input('type');
-        // When the user lands on /glam/browse without an explicit type filter
-        // and no other narrowing parameter, fall back to the operator's
-        // default_sector (issue #93). Lets a museum-only deployment skip the
-        // archive default. Empty string in the setting means "no default".
-        if ($this->typeFilter === null && !$request->hasAny(['parent', 'collection', 'ancestor', 'creator', 'subject', 'place', 'genre', 'level', 'media', 'repo', 'query', 'topLevel', 'topLod', 'hasDigital', 'onlyMedia', 'materialType', 'conditionGrade', 'acquisitionMethod', 'circulationStatus'])) {
-            $defaultSector = trim((string) \AhgCore\Services\AhgSettingsService::get('default_sector', ''));
-            if ($defaultSector !== '') {
-                $this->typeFilter = $defaultSector;
-            }
-        }
-        $this->parentId = $request->input('parent');
-        $this->topLevelOnly = $request->input('topLevel', self::defaultTopLevel());
         $page = max(1, (int) $request->input('page', 1));
 
         // Read limit: display browse has its own 10-100 range control
@@ -218,48 +204,8 @@ class DisplayController extends Controller
             : \AhgCore\Support\GlobalSettings::sortBrowserDirectionAnonymous();
         $sortDir = $request->input('sortDir', $request->input('dir', $defaultSortDir));
         $viewMode = $request->input('view', 'card');
-        $this->hasDigital = $request->input('hasDigital');
 
-        // Map standard AtoM parameters to display plugin native names
-        if (!$this->hasDigital && $request->input('onlyMedia')) {
-            $this->hasDigital = '1';
-        }
-        if ($request->input('topLod') !== null) {
-            $this->topLevelOnly = filter_var($request->input('topLod'), FILTER_VALIDATE_BOOLEAN) ? '1' : '0';
-        }
-        if (!$this->parentId && $request->input('ancestor')) {
-            $this->parentId = $request->input('ancestor');
-        }
-        // AtoM compat: collection=X means filter to descendants of collection root X
-        if (!$this->parentId && $request->input('collection')) {
-            $this->parentId = $request->input('collection');
-        }
-
-        // Facet filters
-        $this->creatorFilter = $request->input('creator');
-        $this->subjectFilter = $request->input('subject');
-        $this->placeFilter = $request->input('place');
-        $this->genreFilter = $request->input('genre');
-        $this->levelFilter = $request->input('level');
-        $this->mediaFilter = $request->input('media');
-        $this->materialTypeFilter = $request->input('materialType') ?: null;
-        $this->conditionGradeFilter = $request->input('conditionGrade') ?: null;
-        $this->acquisitionMethodFilter = $request->input('acquisitionMethod') ?: null;
-        $this->circulationStatusFilter = $request->input('circulationStatus') ?: null;
-
-        // Text search filters
-        $this->queryFilter = $request->input('query');
-        if ($this->queryFilter !== null) {
-            // Strip wildcard-only input: MySQL FULLTEXT rejects bare '*' with
-            // "unexpected $end, expecting FTS_TERM". Treat '*', '***', etc. as "no filter".
-            $trimmed = trim($this->queryFilter);
-            if ($trimmed === '' || preg_match('/^[\*\s]+$/', $trimmed)) {
-                $this->queryFilter = null;
-            } else {
-                $this->queryFilter = $trimmed;
-            }
-        }
-        $semanticEnabled = $request->input('semantic') == '1';
+        $semanticEnabled = $this->loadFilters($request);
 
         // Fuzzy search correction - skipped (FuzzySearchService not yet migrated)
         $didYouMean = null;
@@ -267,89 +213,6 @@ class DisplayController extends Controller
         $originalQuery = $this->queryFilter;
         $esAssistedSearch = false;
         $searchSyntaxHelp = $this->searchUsesEs();
-
-        // Semantic expansion (P5.a) - when ?semantic=1 is on, ask the thesaurus
-        // (ahg-semantic-search) to expand the query into related terms; the search
-        // builder then runs them as an OR-match in the FULLTEXT branch and as
-        // additional should-match clauses in the ES branch.
-        $this->queryFilterTerms = null;
-        if ($semanticEnabled
-            && $this->queryFilter
-            && class_exists(\AhgSemanticSearch\Services\SemanticSearchService::class)
-        ) {
-            try {
-                $svc = app(\AhgSemanticSearch\Services\SemanticSearchService::class);
-                $expansion = $svc->expandQuery((string) $this->queryFilter, app()->getLocale());
-                if (! empty($expansion['expanded_terms'])) {
-                    $bag = [(string) $this->queryFilter];
-                    foreach ($expansion['expanded_terms'] as $orig => $syns) {
-                        foreach ((array) $syns as $s) {
-                            $bag[] = (string) $s;
-                        }
-                    }
-                    // Deduplicate case-insensitively while preserving order.
-                    $seen = [];
-                    $uniq = [];
-                    foreach ($bag as $t) {
-                        $k = mb_strtolower(trim($t));
-                        if ($k === '' || isset($seen[$k])) {
-                            continue;
-                        }
-                        $seen[$k] = true;
-                        $uniq[] = $t;
-                    }
-                    if (count($uniq) > 1) {
-                        $this->queryFilterTerms = $uniq;
-                    }
-                }
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::info('semantic expansion skipped: ' . $e->getMessage());
-            }
-        }
-
-        // Semantic search also matches by meaning: the records nearest the query
-        // in the vector index join the keyword matches and lead the relevance order.
-        $this->semanticIds = [];
-        if ($semanticEnabled && $this->queryFilter && class_exists(\AhgSearch\Services\VectorSearchService::class)) {
-            try {
-                $res = app(\AhgSearch\Services\VectorSearchService::class)->searchSimilar((string) $this->queryFilter, 100);
-                if (! empty($res['ok'])) {
-                    $this->semanticIds = array_values(array_unique(array_map(fn ($h) => (int) $h['id'], $res['hits'])));
-                }
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::info('semantic vector search skipped: ' . $e->getMessage());
-            }
-        }
-
-        // Advanced text filters
-        $this->titleFilter = $request->input('title');
-        $this->identifierFilter = $request->input('identifier');
-        $this->referenceCodeFilter = $request->input('referenceCode');
-        $this->scopeAndContentFilter = $request->input('scopeAndContent');
-        $this->extentAndMediumFilter = $request->input('extentAndMedium');
-        $this->archivalHistoryFilter = $request->input('archivalHistory');
-        $this->acquisitionFilter = $request->input('acquisition');
-        $this->creatorSearchFilter = $request->input('creatorSearch');
-        $this->subjectSearchFilter = $request->input('subjectSearch');
-        $this->placeSearchFilter = $request->input('placeSearch');
-        $this->genreSearchFilter = $request->input('genreSearch');
-        $this->repoFilter = $request->input('repo');
-
-        // #114 multi_repository: when off, force the repo filter to the
-        // operator-pinned single_repo_id regardless of any user-supplied
-        // ?repo= override. This makes the entire browse surface behave as
-        // a single-institution catalogue (the alternate UX the audit was
-        // describing) without needing per-route hide-or-show plumbing.
-        if (!\AhgCore\Support\GlobalSettings::multiRepository()) {
-            $forced = \AhgCore\Support\GlobalSettings::singleRepoId();
-            if ($forced) {
-                $this->repoFilter = (string) $forced;
-            }
-        }
-
-        $this->startDateFilter = $request->input('startDate');
-        $this->endDateFilter = $request->input('endDate');
-        $this->rangeTypeFilter = $request->input('rangeType', 'inclusive');
 
         if ($viewMode === 'graph' && class_exists(\AhgApi\Services\ExplorerDataService::class)) {
             return $this->graphView($request);
@@ -795,9 +658,6 @@ class DisplayController extends Controller
         $culture = app()->getLocale();
         $fallback = config('app.fallback_locale', 'en');
 
-        $typeFilter = $request->input('type');
-        $parentId = $request->input('parent');
-        $topLevelOnly = $request->input('topLevel', self::defaultTopLevel());
         // settings.sort_browser_anonymous / sort_browser_user (#80): defaults
         // for browse sort when ?sort= isn't in the request. Anonymous + auth'd
         // users get separate defaults. Unrecognised tokens fall through the
@@ -836,68 +696,24 @@ class DisplayController extends Controller
                 'doc.object_type', 'slug.slug'
             );
 
-        // Guests see only published records (status_id 160) - same gate as
-        // browse()/applyFilters() so this public print view can't leak drafts (#1353).
-        if (! auth()->check()) {
-            $query->whereExists(function ($sub) {
-                $sub->select(DB::raw(1))
-                    ->from('status as pub_st')
-                    ->whereRaw('pub_st.object_id = io.id')
-                    ->where('pub_st.type_id', '=', 158)
-                    ->where('pub_st.status_id', '=', 160);
-            });
-        }
-        \AhgCore\Services\TermProtocolGate::excludeRestrictedRecords($query, 'io.id'); // #1388 export gate
-
-        if ($parentId) {
-            $query->where('io.parent_id', $parentId);
-            $parent = DB::table('information_object as io')
-                ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                    $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-                })
-                ->where('io.id', $parentId)
-                ->select('io.id', 'i18n.title')
-                ->first();
-        } elseif ($topLevelOnly === '1') {
-            $query->where('io.parent_id', 1);
-            $parent = null;
-        } else {
-            $parent = null;
-        }
-
-        if ($typeFilter) {
-            $query->where('doc.object_type', $typeFilter);
-        }
-
-        // Handle sorting
-        $safeSortDir = $sortDir === 'desc' ? 'desc' : 'asc';
-        switch ($sort) {
-            case 'identifier':
-            case 'refcode':
-                $query->orderBy('io.identifier', $safeSortDir);
-                break;
-            case 'date':
-            case 'lastUpdated':          // settings vocabulary: "Most recent"
-                $query->orderBy('io.id', $safeSortDir);
-                break;
-            case 'startdate':
-                $query->leftJoin('event as evt_sort', 'io.id', '=', 'evt_sort.object_id');
-                $query->orderByRaw("MIN(evt_sort.start_date) $safeSortDir");
-                $query->groupBy('io.id', 'io.identifier', 'io.parent_id', 'i18n.title', 'i18n.scope_and_content', 'i18n_fb.title', 'i18n_fb.scope_and_content', 'level.name', 'level_fb.name', 'doc.object_type', 'slug.slug');
-                break;
-            case 'enddate':
-                $query->leftJoin('event as evt_sort', 'io.id', '=', 'evt_sort.object_id');
-                $query->orderByRaw("MAX(evt_sort.end_date) $safeSortDir");
-                $query->groupBy('io.id', 'io.identifier', 'io.parent_id', 'i18n.title', 'i18n.scope_and_content', 'i18n_fb.title', 'i18n_fb.scope_and_content', 'level.name', 'level_fb.name', 'doc.object_type', 'slug.slug');
-                break;
-            case 'alphabetic':           // settings vocabulary: "Alphabetic"
-            default:
-                $this->applyAlphabeticSort($query, $safeSortDir, $culture);
-        }
+        // The same filters as the list being printed (they were ignored here, so
+        // printing a filtered search printed the whole catalogue - and timed
+        // out on ANC), with the page of ids taken off the sort sidecar.
+        $this->loadFilters($request);
+        $typeFilter = $this->typeFilter;
+        $parentId = $this->parentId;
+        $topLevelOnly = $this->topLevelOnly;
+        $parent = $parentId ? DB::table('information_object as io')
+            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
+                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
+            })
+            ->where('io.id', $parentId)
+            ->select('io.id', 'i18n.title')
+            ->first() : null;
 
         $printCap = 500;
-        $total    = (clone $query)->count('io.id');
-        $objects  = $query->limit($printCap)->get()->toArray();
+        [$ids, $total] = $this->filteredIdPage($sort, (string) $sortDir, $printCap);
+        $objects  = $ids ? $query->whereIn('io.id', $ids)->orderByRaw('FIELD(io.id, '.implode(',', $ids).')')->get()->toArray() : [];
         $shown    = count($objects);
 
         return view('ahg-display::display.print', compact(
@@ -913,9 +729,6 @@ class DisplayController extends Controller
     {
         $culture = app()->getLocale();
 
-        $typeFilter = $request->input('type');
-        $parentId = $request->input('parent');
-        $topLevelOnly = $request->input('topLevel', self::defaultTopLevel());
         // settings.sort_browser_anonymous / sort_browser_user (#80): defaults
         // for browse sort when ?sort= isn't in the request. Anonymous + auth'd
         // users get separate defaults. Unrecognised tokens fall through the
@@ -954,42 +767,12 @@ class DisplayController extends Controller
                 'repo_name.authorized_form_of_name as repository'
             );
 
-        // Guests see only published records (status_id 160) - same gate as
-        // browse()/applyFilters() so this public export can't leak drafts (#1353).
-        if (! auth()->check()) {
-            $query->whereExists(function ($sub) {
-                $sub->select(DB::raw(1))
-                    ->from('status as pub_st')
-                    ->whereRaw('pub_st.object_id = io.id')
-                    ->where('pub_st.type_id', '=', 158)
-                    ->where('pub_st.status_id', '=', 160);
-            });
-        }
-        \AhgCore\Services\TermProtocolGate::excludeRestrictedRecords($query, 'io.id'); // #1388 export gate
-
-        if ($parentId) {
-            $query->where('io.parent_id', $parentId);
-        } elseif ($topLevelOnly === '1') {
-            $query->where('io.parent_id', 1);
-        }
-
-        if ($typeFilter) {
-            $query->where('doc.object_type', $typeFilter);
-        }
-
-        $sortColumn = match ($sort) {
-            'identifier' => 'io.identifier',
-            'refcode' => 'io.identifier',
-            'date' => 'io.id',
-            'lastUpdated' => 'io.id',       // settings vocabulary: "Most recent"
-            'startdate' => 'io.id',
-            'enddate' => 'io.id',
-            'alphabetic' => 'i18n.title',   // settings vocabulary: "Alphabetic"
-            default => 'i18n.title'
-        };
-        $query->orderBy($sortColumn, $sortDir === 'desc' ? 'desc' : 'asc');
-
-        $objects = $query->limit(5000)->get()->toArray();
+        // The same filters and order as the list being exported (they were
+        // ignored, so a filtered export sorted the whole catalogue and timed
+        // out on ANC), with the ids taken off the sort sidecar.
+        $this->loadFilters($request);
+        [$ids] = $this->filteredIdPage($sort, (string) $sortDir, 5000);
+        $objects = $ids ? $query->whereIn('io.id', $ids)->orderByRaw('FIELD(io.id, '.implode(',', $ids).')')->get()->toArray() : [];
         $filename = 'glam_export_' . date('Y-m-d_His') . '.csv';
 
         $callback = function () use ($objects) {
@@ -1374,6 +1157,179 @@ class DisplayController extends Controller
             'across' => route('glam.browse', ['view' => 'graph'])];
 
         return response(\AhgApi\Services\ExplorerDataService::page($data, $live));
+    }
+
+    /**
+     * The first $limit ids of the filtered list in its sort order, and the
+     * filtered total, for print and export. The order comes off the sort
+     * sidecar like the list's own pages; without the sidecar the ids are in
+     * record order (ponytail: no sort fallback - every install builds it).
+     *
+     * @return array{0: list<int>, 1: int}
+     */
+    protected function filteredIdPage(string $sort, string $sortDir, int $limit): array
+    {
+        $dir = $sort === 'relevance' ? 'desc' : ($sortDir === 'desc' ? 'desc' : 'asc');
+        $query = DB::table('information_object as io')->where('io.id', '>', 1);
+        if ($this->typeFilter) {
+            $query->leftJoin('display_object_config as doc', 'io.id', '=', 'doc.object_id');
+        }
+        $this->applyFilters($query);
+        $total = $this->cachedCount($query);
+        $column = $this->sidecarSortColumn($sort);
+        $ids = $column ? $this->alphabeticIdPage(app()->getLocale(), $dir, 1, $limit, $column) : null;
+
+        return [$ids ?? $query->orderBy('io.id', $dir)->limit($limit)->pluck('io.id')->map(fn ($i) => (int) $i)->all(), $total];
+    }
+
+    /**
+     * Read the browse filters from the request into this controller, as the
+     * list, print, CSV export and visual graph all apply them through
+     * applyFilters(). Returns whether semantic search is on.
+     */
+    protected function loadFilters(Request $request): bool
+    {
+        $this->isAuthenticated = auth()->check();
+        // Get all filter parameters
+        $this->typeFilter = $request->input('type');
+        // When the user lands on /glam/browse without an explicit type filter
+        // and no other narrowing parameter, fall back to the operator's
+        // default_sector (issue #93). Lets a museum-only deployment skip the
+        // archive default. Empty string in the setting means "no default".
+        if ($this->typeFilter === null && !$request->hasAny(['parent', 'collection', 'ancestor', 'creator', 'subject', 'place', 'genre', 'level', 'media', 'repo', 'query', 'topLevel', 'topLod', 'hasDigital', 'onlyMedia', 'materialType', 'conditionGrade', 'acquisitionMethod', 'circulationStatus'])) {
+            $defaultSector = trim((string) \AhgCore\Services\AhgSettingsService::get('default_sector', ''));
+            if ($defaultSector !== '') {
+                $this->typeFilter = $defaultSector;
+            }
+        }
+        $this->parentId = $request->input('parent');
+        $this->topLevelOnly = $request->input('topLevel', self::defaultTopLevel());
+        $this->hasDigital = $request->input('hasDigital');
+
+        // Map standard AtoM parameters to display plugin native names
+        if (!$this->hasDigital && $request->input('onlyMedia')) {
+            $this->hasDigital = '1';
+        }
+        if ($request->input('topLod') !== null) {
+            $this->topLevelOnly = filter_var($request->input('topLod'), FILTER_VALIDATE_BOOLEAN) ? '1' : '0';
+        }
+        if (!$this->parentId && $request->input('ancestor')) {
+            $this->parentId = $request->input('ancestor');
+        }
+        // AtoM compat: collection=X means filter to descendants of collection root X
+        if (!$this->parentId && $request->input('collection')) {
+            $this->parentId = $request->input('collection');
+        }
+
+        // Facet filters
+        $this->creatorFilter = $request->input('creator');
+        $this->subjectFilter = $request->input('subject');
+        $this->placeFilter = $request->input('place');
+        $this->genreFilter = $request->input('genre');
+        $this->levelFilter = $request->input('level');
+        $this->mediaFilter = $request->input('media');
+        $this->materialTypeFilter = $request->input('materialType') ?: null;
+        $this->conditionGradeFilter = $request->input('conditionGrade') ?: null;
+        $this->acquisitionMethodFilter = $request->input('acquisitionMethod') ?: null;
+        $this->circulationStatusFilter = $request->input('circulationStatus') ?: null;
+
+        // Text search filters
+        $this->queryFilter = $request->input('query');
+        if ($this->queryFilter !== null) {
+            // Strip wildcard-only input: MySQL FULLTEXT rejects bare '*' with
+            // "unexpected $end, expecting FTS_TERM". Treat '*', '***', etc. as "no filter".
+            $trimmed = trim($this->queryFilter);
+            if ($trimmed === '' || preg_match('/^[\*\s]+$/', $trimmed)) {
+                $this->queryFilter = null;
+            } else {
+                $this->queryFilter = $trimmed;
+            }
+        }
+        $semanticEnabled = $request->input('semantic') == '1';
+        // Semantic expansion (P5.a) - when ?semantic=1 is on, ask the thesaurus
+        // (ahg-semantic-search) to expand the query into related terms; the search
+        // builder then runs them as an OR-match in the FULLTEXT branch and as
+        // additional should-match clauses in the ES branch.
+        $this->queryFilterTerms = null;
+        if ($semanticEnabled
+            && $this->queryFilter
+            && class_exists(\AhgSemanticSearch\Services\SemanticSearchService::class)
+        ) {
+            try {
+                $svc = app(\AhgSemanticSearch\Services\SemanticSearchService::class);
+                $expansion = $svc->expandQuery((string) $this->queryFilter, app()->getLocale());
+                if (! empty($expansion['expanded_terms'])) {
+                    $bag = [(string) $this->queryFilter];
+                    foreach ($expansion['expanded_terms'] as $orig => $syns) {
+                        foreach ((array) $syns as $s) {
+                            $bag[] = (string) $s;
+                        }
+                    }
+                    // Deduplicate case-insensitively while preserving order.
+                    $seen = [];
+                    $uniq = [];
+                    foreach ($bag as $t) {
+                        $k = mb_strtolower(trim($t));
+                        if ($k === '' || isset($seen[$k])) {
+                            continue;
+                        }
+                        $seen[$k] = true;
+                        $uniq[] = $t;
+                    }
+                    if (count($uniq) > 1) {
+                        $this->queryFilterTerms = $uniq;
+                    }
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::info('semantic expansion skipped: ' . $e->getMessage());
+            }
+        }
+
+        // Semantic search also matches by meaning: the records nearest the query
+        // in the vector index join the keyword matches and lead the relevance order.
+        $this->semanticIds = [];
+        if ($semanticEnabled && $this->queryFilter && class_exists(\AhgSearch\Services\VectorSearchService::class)) {
+            try {
+                $res = app(\AhgSearch\Services\VectorSearchService::class)->searchSimilar((string) $this->queryFilter, 100);
+                if (! empty($res['ok'])) {
+                    $this->semanticIds = array_values(array_unique(array_map(fn ($h) => (int) $h['id'], $res['hits'])));
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::info('semantic vector search skipped: ' . $e->getMessage());
+            }
+        }
+
+        // Advanced text filters
+        $this->titleFilter = $request->input('title');
+        $this->identifierFilter = $request->input('identifier');
+        $this->referenceCodeFilter = $request->input('referenceCode');
+        $this->scopeAndContentFilter = $request->input('scopeAndContent');
+        $this->extentAndMediumFilter = $request->input('extentAndMedium');
+        $this->archivalHistoryFilter = $request->input('archivalHistory');
+        $this->acquisitionFilter = $request->input('acquisition');
+        $this->creatorSearchFilter = $request->input('creatorSearch');
+        $this->subjectSearchFilter = $request->input('subjectSearch');
+        $this->placeSearchFilter = $request->input('placeSearch');
+        $this->genreSearchFilter = $request->input('genreSearch');
+        $this->repoFilter = $request->input('repo');
+
+        // #114 multi_repository: when off, force the repo filter to the
+        // operator-pinned single_repo_id regardless of any user-supplied
+        // ?repo= override. This makes the entire browse surface behave as
+        // a single-institution catalogue (the alternate UX the audit was
+        // describing) without needing per-route hide-or-show plumbing.
+        if (!\AhgCore\Support\GlobalSettings::multiRepository()) {
+            $forced = \AhgCore\Support\GlobalSettings::singleRepoId();
+            if ($forced) {
+                $this->repoFilter = (string) $forced;
+            }
+        }
+
+        $this->startDateFilter = $request->input('startDate');
+        $this->endDateFilter = $request->input('endDate');
+        $this->rangeTypeFilter = $request->input('rangeType', 'inclusive');
+
+        return $semanticEnabled;
     }
 
     protected function applyFilters($query): void

@@ -34,7 +34,8 @@ class FusekiSyncService
         }
     }
 
-    private function enabled(): bool
+    /** Master switch: off on an install with no triple store. */
+    public function enabled(): bool
     {
         // default: preserve existing behavior (attempt writes)
         $v = $this->setting('fuseki_sync_enabled', '1');

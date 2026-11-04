@@ -65,6 +65,13 @@ class FusekiOrphanCleanupCommand extends Command
     public function handle(): int
     {
         $sync = app(FusekiSyncService::class);
+        // No triple store on this install (fuseki_sync_enabled = 0): nothing to
+        // compare, so the nightly run succeeds instead of failing every night.
+        if (! $sync->enabled()) {
+            $this->info('[fuseki-orphan-cleanup] RiC triple store sync is off (fuseki_sync_enabled = 0); nothing to do.');
+
+            return self::SUCCESS;
+        }
         $retentionDays = $sync->orphanRetentionDays();
 
         $this->ensureLogTable();
