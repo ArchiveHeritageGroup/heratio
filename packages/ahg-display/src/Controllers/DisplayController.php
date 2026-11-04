@@ -351,6 +351,10 @@ class DisplayController extends Controller
         $this->endDateFilter = $request->input('endDate');
         $this->rangeTypeFilter = $request->input('rangeType', 'inclusive');
 
+        if ($viewMode === 'graph' && class_exists(\AhgApi\Services\ExplorerDataService::class)) {
+            return $this->graphView($request);
+        }
+
         // Load facets: live counts scoped to current filters when filters active,
         // otherwise use cached counts for performance
         $hasFilters = $this->typeFilter || $this->parentId || $this->creatorFilter
@@ -1339,6 +1343,39 @@ class DisplayController extends Controller
      * Apply all active filters to a query builder instance.
      * Used by both browse count query and main result query.
      */
+    /**
+     * The "Visual graph" of the current search: the first records of the
+     * results (100, raised by "Load more" up to 1000) on the relationship
+     * explorer, linked by their subjects, places and names. The page's own
+     * search box searches within them; its catalogue box runs a new search.
+     */
+    protected function graphView(Request $request): Response
+    {
+        $limit = max(100, min(1000, (int) $request->input('graphLimit', 100)));
+        $query = DB::table('information_object as io')->where('io.id', '>', 1);
+        if ($this->typeFilter) {
+            $query->leftJoin('display_object_config as doc', 'io.id', '=', 'doc.object_id');
+        }
+        $this->applyFilters($query);
+        $total = $this->cachedCount($query);
+        if ($this->semanticIds) {
+            $marks = implode(',', array_fill(0, count($this->semanticIds), '?'));
+            $query->orderByRaw("FIELD(io.id, $marks) = 0, FIELD(io.id, $marks)", array_merge($this->semanticIds, $this->semanticIds));
+        }
+        $ids = $query->orderBy('io.id', 'desc')->limit($limit)->pluck('io.id')->map(fn ($i) => (int) $i)->all();
+
+        $data = \AhgApi\Services\ExplorerDataService::build($ids, url('/'));
+        $data['site'] = ['title' => __('Visual graph'), 'generated' => now()->toDateString(),
+            'scope' => $this->queryFilter ? __('Search: :q', ['q' => $this->queryFilter]) : __('Filtered results')];
+        $params = $request->except(['view', 'graphLimit', 'page']);
+        $live = ['shown' => count($ids), 'total' => $total, 'query' => (string) $this->queryFilter,
+            'list' => route('glam.browse', $params),
+            'more' => $total > count($ids) && $limit < 1000 ? route('glam.browse', $params + ['view' => 'graph', 'graphLimit' => min(1000, $limit + 100)]) : null,
+            'across' => route('glam.browse', ['view' => 'graph'])];
+
+        return response(\AhgApi\Services\ExplorerDataService::page($data, $live));
+    }
+
     protected function applyFilters($query): void
     {
         // Filter by publication status - only show Published items (status_id = 160) for guests

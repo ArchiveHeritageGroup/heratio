@@ -12,7 +12,7 @@
 
 namespace Tests\Feature;
 
-use AhgApi\Console\ExplorerExportCommand;
+use AhgApi\Services\ExplorerDataService;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -87,9 +87,9 @@ class ExplorerExportTest extends TestCase
 
     public function test_group_key_merges_only_case_punctuation_and_a_leading_the(): void
     {
-        $this->assertSame(ExplorerExportCommand::groupKey('The A.N.C.'), ExplorerExportCommand::groupKey('anc'));
-        $this->assertNotSame(ExplorerExportCommand::groupKey('ANC'), ExplorerExportCommand::groupKey('African National Congress'));
-        $this->assertNotSame(ExplorerExportCommand::groupKey('A. Joubert'), ExplorerExportCommand::groupKey('General Joubert'));
+        $this->assertSame(ExplorerDataService::groupKey('The A.N.C.'), ExplorerDataService::groupKey('anc'));
+        $this->assertNotSame(ExplorerDataService::groupKey('ANC'), ExplorerDataService::groupKey('African National Congress'));
+        $this->assertNotSame(ExplorerDataService::groupKey('A. Joubert'), ExplorerDataService::groupKey('General Joubert'));
     }
 
     public function test_refuses_the_whole_catalogue(): void

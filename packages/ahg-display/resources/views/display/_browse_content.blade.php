@@ -301,6 +301,13 @@
     <i class="fas fa-shopping-bag"></i>
   </a>
 
+  {{-- Visual graph of these results (relationship explorer) --}}
+  @if(class_exists(\AhgApi\Services\ExplorerDataService::class))
+    <a href="{{ route('glam.browse', array_merge(request()->except(['page', 'view']), ['view' => 'graph'])) }}" target="_blank" rel="noopener" class="btn atom-btn-outline-success btn-sm" title="{{ __('Show these results as a graph of their subjects, places and names') }}">
+      <i class="fas fa-project-diagram"></i> {{ __('Visual graph') }}
+    </a>
+  @endif
+
   {{-- Limit dropdown --}}
   <div class="dropdown">
     <button class="btn atom-btn-outline-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">{{ $limit ?? 30 }}/page</button>

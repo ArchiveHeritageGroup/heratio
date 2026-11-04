@@ -40,6 +40,10 @@ aside h3 { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; col
 .btn { display: inline-block; margin-top: 10px; padding: 7px 14px; background: var(--head); color: var(--headtext); border-radius: 4px; text-decoration: none; font-size: 14px; }
 #timeline { height: 74px; border-top: 1px solid var(--rule); background: var(--panel); }
 #timeline svg { width: 100%; height: 100%; display: block; }
+.live { display: flex; gap: 6px; }
+.live input { padding: 7px 10px; font: inherit; border: 1px solid var(--rule); border-radius: 4px; width: 220px; }
+.live button, .live a { padding: 7px 12px; border: 0; border-radius: 4px; background: var(--head); color: var(--headtext); font: inherit; font-size: 14px; text-decoration: none; cursor: pointer; }
+header a { color: var(--primary); }
 footer { padding: 8px 20px; font-size: 12px; color: var(--headtext); background: var(--head); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
 @media (max-width: 900px) { main { grid-template-columns: 1fr; grid-template-rows: 55vh auto; } aside { border-left: 0; border-top: 1px solid var(--rule); } }
 </style>
@@ -74,6 +78,22 @@ document.title = D.site.title;
 document.getElementById('title').textContent = D.site.title;
 document.getElementById('scope').textContent = `${D.site.scope ? D.site.scope + ' - ' : ''}${fmt(D.records.length)} records, ${fmt(D.entities.length)} subjects, places and names`;
 document.getElementById('made').textContent = `Exported ${D.site.generated}`;
+
+// Served live from a catalogue search (window.LIVE): the box above searches within these results,
+// this one runs a new search across the whole catalogue, and "Load more" widens the selection.
+const L = window.LIVE || null;
+const across = s => { location.href = L.across + '&query=' + encodeURIComponent(s); };
+if (L) {
+  document.getElementById('q').placeholder = 'Search within these results';
+  document.getElementById('scope').innerHTML = `${esc(D.site.scope)} - showing ${fmt(L.shown)} of ${fmt(L.total)} results, ${fmt(D.entities.length)} subjects, places and names`
+    + (L.more ? ` &middot; <a href="#" id="more">Load 100 more</a>` : '') + ` &middot; <a href="${esc(L.list)}">Back to the list</a>`;
+  if (L.more) document.getElementById('more').onclick = ev => { ev.preventDefault(); location.href = L.more + location.hash; };
+  const f = document.createElement('form'); f.className = 'live';
+  f.innerHTML = `<input name="c" placeholder="Search the whole catalogue" value="${esc(L.query)}"><button>Search</button>`;
+  f.onsubmit = ev => { ev.preventDefault(); const v = f.c.value.trim(); if (v) across(v); };
+  document.querySelector('.bar').appendChild(f);
+  document.getElementById('made').textContent = `Built from the catalogue on ${D.site.generated}`;
+}
 
 const chips = document.getElementById('chips');
 Object.entries(TYPES).forEach(([t, [label, col]]) => {
@@ -143,14 +163,16 @@ function showEntity(e, co) {
     ${e.variants.length > 1 ? `<div class="meta">Catalogued as: ${e.variants.map(esc).join('; ')}</div>` : ''}
     <h3>On ${fmt(e.recs.length)} record${e.recs.length > 1 ? 's' : ''}${e.recs.length > 40 ? ' (the map shows the 40 best connected)' : ''}</h3>
     <div class="list">${e.recs.slice(0, 500).map(linkRec).join('')}${e.recs.length > 500 ? `<small>and ${fmt(e.recs.length - 500)} more</small>` : ''}</div>
-    ${top.length ? `<h3>Appears alongside</h3><div class="tags">${top.map(([k, c]) => chip(k) + ` <small>${c.length}</small></span>`).join('')}</div>` : ''}`;
+    ${top.length ? `<h3>Appears alongside</h3><div class="tags">${top.map(([k, c]) => chip(k) + ` <small>${c.length}</small></span>`).join('')}</div>` : ''}
+    ${L ? `<a class="btn" data-across="${esc(e.name)}">Search the whole catalogue for this</a>` : ''}`;
 }
 function showRecord(r) {
   side.innerHTML = `<div class="meta">${ref(r)}</div><h2>${esc(r.title || '(untitled)')}</h2>
     ${r.url ? `<a class="btn" href="${esc(r.url)}" target="_blank" rel="noopener">Open the record</a>` : ''}
     ${r.ents.length ? `<h3>Catalogued with</h3><div class="tags">${r.ents.map(k => chip(k) + '</span>').join('')}</div>` : ''}`;
 }
-side.addEventListener('click', ev => { const t = ev.target.closest('[data-go]'); if (t) focus(t.dataset.go); });
+side.addEventListener('click', ev => { const t = ev.target.closest('[data-go]'); if (t) focus(t.dataset.go);
+  const a = ev.target.closest('[data-across]'); if (a) across(a.dataset.across); });
 function welcome() {
   const top = D.entities.filter(vis).sort((a, b) => b.recs.length - a.recs.length).slice(0, 30);
   side.innerHTML = `<h2>Where to start</h2><div class="meta">The most-used subjects, places and names in this selection. Click one, or search above.</div>
