@@ -121,6 +121,22 @@ class TermFacetsCacheTest extends TestCase
         }
     }
 
+    public function test_a_big_terms_page_counts_are_kept_for_a_day(): void
+    {
+        [$termId] = $this->fixture();
+        Cache::forget("term_is_big:{$termId}");
+        $this->assertNull(TermService::pageTtl($termId), 'a small term keeps the short window');
+
+        Cache::forget("term_is_big:{$termId}");
+        TermService::$facetLiveMax = 2;
+        try {
+            $this->assertSame(86400, TermService::pageTtl($termId));
+        } finally {
+            TermService::$facetLiveMax = 2000;
+            Cache::forget("term_is_big:{$termId}");
+        }
+    }
+
     public function test_related_description_count_is_cached(): void
     {
         [$termId] = $this->fixture();

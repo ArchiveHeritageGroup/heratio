@@ -98,7 +98,7 @@ class TermService
             // A big term the nightly build has not reached yet: the live count
             // cannot finish inside a web request's statement limit (30 s at
             // ANC), so the page shows no facet panel until the build covers it.
-            if (DB::table('object_term_relation')->where('term_id', $termId)->count() >= self::$facetLiveMax) {
+            if (self::isBig($termId)) {
                 return [];
             }
         }
@@ -139,17 +139,35 @@ class TermService
      * tab 3.8 s and the sibling count 1.7 s, on every view; crawlers paging
      * /term/ kept the ANC host at full CPU (28 Oct 2026).
      */
-    public static function remember(string $key, \Closure $compute): mixed
+    public static function remember(string $key, \Closure $compute, ?int $ttl = null): mixed
     {
-        $ttl = \AhgCore\Services\AhgSettingsService::getInt('ahg_display_count_cache_ttl', 300);
-        if ($ttl <= 0) {
+        $base = \AhgCore\Services\AhgSettingsService::getInt('ahg_display_count_cache_ttl', 300);
+        if ($base <= 0) {
             return $compute();
         }
+        $ttl = max($base, (int) $ttl);
         try {
             return \Illuminate\Support\Facades\Cache::remember($key, $ttl, $compute);
         } catch (\Throwable $e) {
             return $compute(); // cache store unavailable: correctness before speed
         }
+    }
+
+    /** Tagged on $facetLiveMax or more descriptions (checked once a day). */
+    public static function isBig(int $termId): bool
+    {
+        return (bool) self::remember("term_is_big:{$termId}",
+            fn () => DB::table('object_term_relation')->where('term_id', $termId)->count() >= self::$facetLiveMax, 86400);
+    }
+
+    /**
+     * Cache lifetime for a term page's counts and record pages: a day for a
+     * big term, whose counts cost 7-12 s at ANC and barely move, otherwise
+     * the usual short window (null).
+     */
+    public static function pageTtl(int $termId): ?int
+    {
+        return self::isBig($termId) ? 86400 : null;
     }
 
     /**

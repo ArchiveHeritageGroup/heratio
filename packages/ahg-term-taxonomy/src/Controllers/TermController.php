@@ -288,6 +288,7 @@ class TermController extends Controller
         // not change these, so paging a large term no longer recounts it.
         $public = ! $this->viewerSeesAll();
         $termId = (int) $term->id;
+        $pageTtl = TermService::pageTtl($termId);
         $counts = TermService::remember("term_counts:{$termId}:".($public ? 'p' : 's'), fn () => [
             'related' => $this->termService->getRelatedDescriptionCount($termId),
             'actors' => DB::table('object_term_relation')
@@ -297,7 +298,7 @@ class TermController extends Controller
             'narrower' => DB::table('term')->where('parent_id', $termId)->count(),
             'all' => $this->relatedDescriptionsQuery($termId, false, $public, $culture)->count(),
             'direct' => $this->relatedDescriptionsQuery($termId, true, $public, $culture)->count(),
-        ]);
+        ], $pageTtl);
         $relatedDescriptionsCount = $counts['related'];
         $relatedActorCount = $counts['actors'];
         $directCount = $counts['direct'];
@@ -402,7 +403,7 @@ class TermController extends Controller
                 }
 
                 return $desc;
-            }));
+            }), $pageTtl);
 
         // Source notes (type 121)
         $sourceNotes = DB::table('note')->join('note_i18n', 'note.id', '=', 'note_i18n.id')
