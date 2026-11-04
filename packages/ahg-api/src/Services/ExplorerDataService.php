@@ -85,9 +85,19 @@ class ExplorerDataService
     {
         $json = fn ($v) => json_encode($v, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP);
 
+        // Live on a site, the page takes the site's theme colours (header,
+        // header text, links) in place of the export's fixed palette.
+        $theme = $live !== null && \Illuminate\Support\Facades\Route::has('settings.dynamic-css')
+            ? '<link rel="stylesheet" href="'.e(route('settings.dynamic-css').'?v='.(@filemtime(public_path('css/ahg-theme-dynamic.css')) ?: 0)).'">'
+                .'<style>:root { --head: var(--ahg-header-bg, #10373E); --headtext: var(--ahg-header-text, #F2EDE6);'
+                .' --primary: var(--ahg-header-text, #E1B34F); --accent: var(--ahg-link-color, #653332); }'
+                // the site's link colour is for light backgrounds; header links take the header text colour
+                .' header a { color: var(--headtext) !important; }</style>'."\n"
+            : '';
+
         return str_replace(
-            ['<script src="cytoscape.min.js"></script>', '<script src="data.js"></script>'],
-            ['<script src="'.e(asset('vendor/cytoscape/cytoscape.min.js')).'"></script>',
+            ['</head>', '<script src="cytoscape.min.js"></script>', '<script src="data.js"></script>'],
+            [$theme.'</head>', '<script src="'.e(asset('vendor/cytoscape/cytoscape.min.js')).'"></script>',
                 '<script>window.DATA = '.$json($data).'; window.LIVE = '.$json($live).';</script>'],
             file_get_contents(self::template()));
     }

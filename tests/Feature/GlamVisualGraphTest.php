@@ -35,6 +35,7 @@ class GlamVisualGraphTest extends TestCase
     {
         $html = $this->get(route('glam.browse', $params + ['view' => 'graph']))->assertOk()->getContent();
         $this->assertTrue((bool) preg_match('/window\.DATA = (.*?); window\.LIVE = (.*?);<\/script>/s', $html, $m), 'data and live controls inlined');
+        $this->assertStringContainsString('ahg-theme-dynamic.css', $html, 'the site theme colours apply');
 
         return [json_decode($m[1], true), json_decode($m[2], true)];
     }
