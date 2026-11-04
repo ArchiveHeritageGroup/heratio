@@ -49,6 +49,7 @@
 
 namespace AhgApi\Services;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -768,22 +769,34 @@ class GraphExplorerService
                 return [];
             }
 
-            $rows = DB::table('information_object as io')
-                ->join('slug as s', 's.object_id', '=', 'io.id')
-                ->join('information_object_i18n as i18n', function ($j) {
-                    $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $this->culture);
-                })
-                ->join('status as st', function ($j) {
-                    $j->on('io.id', '=', 'st.object_id')
-                        ->where('st.type_id', '=', self::STATUS_TYPE_PUBLICATION)
-                        ->where('st.status_id', '=', self::STATUS_PUBLISHED);
-                })
-                ->leftJoin('object_term_relation as otr', 'otr.object_id', '=', 'io.id')
-                ->where('io.id', '!=', self::ROOT_ID)
-                ->groupBy('io.id', 's.slug', 'i18n.title')
-                ->orderByRaw('COUNT(otr.id) DESC')
-                ->limit(max(1, $limit))
-                ->get(['io.id', 's.slug', 'i18n.title as label', DB::raw('COUNT(otr.id) as degree')]);
+            // Counting the links of every published record on every visit took
+            // 49.6 s on ANC (454k records, 5M links). Rank the link table alone
+            // (its object_id index, 4.6 s there), keep the best-linked
+            // published records among the top candidates, and cache for a day.
+            $rows = Cache::remember("graph_explorer_start:{$this->culture}:{$limit}", 86400, function () use ($limit) {
+                $degree = DB::table('object_term_relation')->groupBy('object_id')
+                    ->orderByRaw('COUNT(*) DESC')->limit(max(1, $limit) * 20)
+                    ->pluck(DB::raw('COUNT(*)'), 'object_id')->all();
+                if (! $degree) {
+                    return [];
+                }
+
+                return DB::table('information_object as io')
+                    ->join('slug as s', 's.object_id', '=', 'io.id')
+                    ->join('information_object_i18n as i18n', function ($j) {
+                        $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $this->culture);
+                    })
+                    ->join('status as st', function ($j) {
+                        $j->on('io.id', '=', 'st.object_id')
+                            ->where('st.type_id', '=', self::STATUS_TYPE_PUBLICATION)
+                            ->where('st.status_id', '=', self::STATUS_PUBLISHED);
+                    })
+                    ->whereIn('io.id', array_keys($degree))
+                    ->where('io.id', '!=', self::ROOT_ID)
+                    ->get(['io.id', 's.slug', 'i18n.title as label'])
+                    ->map(fn ($r) => (object) ['slug' => $r->slug, 'label' => $r->label, 'degree' => (int) $degree[$r->id]])
+                    ->sortByDesc('degree')->take(max(1, $limit))->values()->all();
+            });
         } catch (\Throwable $e) {
             return [];
         }
