@@ -42,15 +42,30 @@ class TermFacetsBuildCommand extends Command
             return self::FAILURE;
         }
         $min = max(1, (int) $this->option('min'));
+        // A server-wide statement cap (30 s at ANC) killed the build on the first
+        // term that took longer, every night; this run is meant to be slow.
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('SET SESSION max_execution_time = 0');
+        }
         $big = DB::table('object_term_relation')->select('term_id')
             ->groupBy('term_id')->havingRaw('COUNT(*) >= ?', [$min])->pluck('term_id')->map(fn ($v) => (int) $v)->all();
 
         DB::table('term_facet_top')->whereNotIn('term_id', $big ?: [0])->delete();
         $start = microtime(true);
+        $failed = 0;
         foreach ($big as $termId) {
             $rows = [];
             $now = now();
-            foreach ($terms->computeFacetCounts($termId) as $taxonomyId => $top) {
+            try {
+                $top = $terms->computeFacetCounts($termId);
+            } catch (\Throwable $e) {
+                // One bad term must not leave the rest unbuilt.
+                $failed++;
+                $this->warn("term {$termId}: ".$e->getMessage());
+
+                continue;
+            }
+            foreach ($top as $taxonomyId => $top) {
                 foreach ($top as $r) {
                     $rows[] = ['term_id' => $termId, 'taxonomy_id' => $taxonomyId, 'other_term_id' => $r['term_id'], 'cnt' => $r['cnt'], 'built_at' => $now];
                 }
@@ -63,8 +78,8 @@ class TermFacetsBuildCommand extends Command
             });
             Cache::forget("term_facet_counts:{$termId}");
         }
-        $this->info(sprintf('built %d terms (min %d descriptions) in %.0f s', count($big), $min, microtime(true) - $start));
+        $this->info(sprintf('built %d terms (min %d descriptions) in %.0f s', count($big) - $failed, $min, microtime(true) - $start));
 
-        return self::SUCCESS;
+        return $failed ? self::FAILURE : self::SUCCESS;
     }
 }

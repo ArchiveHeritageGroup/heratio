@@ -34,6 +34,9 @@ class TermService
     /** Facet panels on the term page: taxonomy id => label, in display order. */
     public const FACET_TAXONOMIES = [12 => 'Languages', 42 => 'Places', 35 => 'Subjects', 78 => 'Genres', 54 => 'Occupations'];
 
+    /** Terms on this many descriptions are left to ahg:term-facets-build (its --min default). */
+    public static int $facetLiveMax = 2000;
+
     /**
      * Top 10 co-occurring terms per facet taxonomy for descriptions tagged with
      * $termId, as [taxonomy id => [{name, slug, cnt}, ...]].
@@ -91,6 +94,12 @@ class TermService
                 }
 
                 return $top;
+            }
+            // A big term the nightly build has not reached yet: the live count
+            // cannot finish inside a web request's statement limit (30 s at
+            // ANC), so the page shows no facet panel until the build covers it.
+            if (DB::table('object_term_relation')->where('term_id', $termId)->count() >= self::$facetLiveMax) {
+                return [];
             }
         }
 

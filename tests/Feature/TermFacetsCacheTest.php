@@ -106,6 +106,21 @@ class TermFacetsCacheTest extends TestCase
         $this->assertSame(99, $svc->relatedFacets($termId, 'en')[42][0]->cnt ?? null, 'a built term reads term_facet_top, not the live aggregation');
     }
 
+    public function test_a_big_term_not_yet_built_shows_no_panel_instead_of_a_live_count(): void
+    {
+        [$termId] = $this->fixture();
+        DB::table('term_facet_top')->where('term_id', $termId)->delete();
+        TermService::$facetLiveMax = 2;
+        try {
+            DB::enableQueryLog();
+            $this->assertSame([], app(TermService::class)->facetCounts($termId));
+            $aggregations = array_filter(DB::getQueryLog(), fn ($q) => str_contains($q['query'], 'object_term_relation` as `tagged`'));
+            $this->assertCount(0, $aggregations, 'no live aggregation for a term the nightly build owns');
+        } finally {
+            TermService::$facetLiveMax = 2000;
+        }
+    }
+
     public function test_related_description_count_is_cached(): void
     {
         [$termId] = $this->fixture();
