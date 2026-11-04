@@ -199,21 +199,7 @@ class TermController extends Controller
         // Cached per taxonomy and capped: a flat taxonomy (196k places on ANC)
         // made every term in it "top-level", and the sidebar and parent
         // dropdown loaded them all.
-        $treeTerms = TermService::remember("term_tree_roots:{$taxonomyId}:{$culture}", fn () => DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
-            ->join('slug', 'term.id', '=', 'slug.object_id')
-            ->where('term.taxonomy_id', $taxonomyId)
-            ->where('term_i18n.culture', $culture)
-            ->whereNotExists(function ($q) use ($taxonomyId) {
-                $q->select(DB::raw(1))
-                    ->from('term as parent')
-                    ->whereColumn('parent.id', 'term.parent_id')
-                    ->where('parent.taxonomy_id', $taxonomyId);
-            })
-            ->select('term.id', 'term_i18n.name', 'slug.slug')
-            ->orderBy('term_i18n.name')
-            ->limit(self::TREE_WIDE)
-            ->get());
+        $treeTerms = TermService::remember("term_tree_roots:{$taxonomyId}:{$culture}", fn () => self::treeRoots((int) $taxonomyId, $culture));
 
         return view('ahg-term-taxonomy::browse', [
             'pager' => $pager,
@@ -230,6 +216,37 @@ class TermController extends Controller
                 'lastUpdated' => 'Date modified',
             ],
         ]);
+    }
+
+    /**
+     * Top-level terms of a taxonomy for the browse sidebar, by name, capped at
+     * TREE_WIDE. The cache holds them only ahg_display_count_cache_ttl (5 min),
+     * and sorting every top-level term by name took 12-17 s on ANC's flat
+     * taxonomies (196k places, 362k subjects), so a large taxonomy walks the
+     * name index instead and stops at the cap: 0.07 s, same terms, same order
+     * (heratio#1573). A small taxonomy keeps the ordinary query, since the walk
+     * would read every name in the language to find its few terms.
+     */
+    public static function treeRoots(int $taxonomyId, string $culture)
+    {
+        $indexed = DB::table('term')->where('taxonomy_id', $taxonomyId)->count() > TermBrowseService::$idFirstMin
+            && Schema::hasIndex('term_i18n', 'idx_term_i18n_name_sort');
+
+        return DB::table($indexed ? DB::raw('term_i18n FORCE INDEX (idx_term_i18n_name_sort)') : 'term_i18n')
+            ->join('term', 'term.id', '=', 'term_i18n.id')
+            ->join('slug', 'term.id', '=', 'slug.object_id')
+            ->where('term.taxonomy_id', $taxonomyId)
+            ->where('term_i18n.culture', $culture)
+            ->whereNotExists(function ($q) use ($taxonomyId) {
+                $q->select(DB::raw(1))
+                    ->from('term as parent')
+                    ->whereColumn('parent.id', 'term.parent_id')
+                    ->where('parent.taxonomy_id', $taxonomyId);
+            })
+            ->select('term.id', 'term_i18n.name', 'slug.slug')
+            ->when($indexed, fn ($q) => $q->orderBy('term_i18n.name_sort')->orderBy('term_i18n.id'), fn ($q) => $q->orderBy('term_i18n.name'))
+            ->limit(self::TREE_WIDE)
+            ->get();
     }
 
     /**
