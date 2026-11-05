@@ -1735,7 +1735,38 @@ class DisplayController extends Controller
      * Compute live facet counts scoped to the current browse filters.
      * Returns array of stdClass with id, name, count (matching getCachedFacet format).
      */
+    /** Longest one sidebar count may run, in ms (MySQL); over that the facet is left out. */
+    public static int $liveFacetMaxMs = 3000;
+
+    /**
+     * Live facet counts, cached like the result count and capped in time: a
+     * search page runs eight of these over the whole catalogue, and on a large
+     * one (ANC, 5 Nov 2026) they took 4-5 s each and held every PHP worker.
+     */
     protected function getLiveFacet(string $dimension): array
+    {
+        $ttl = \AhgCore\Services\AhgSettingsService::getInt('ahg_display_count_cache_ttl', 300);
+        $key = 'ahg_display:facet:'.md5(serialize([$dimension, app()->getLocale(), $this->isAuthenticated, $this->typeFilter,
+            \Illuminate\Support\Arr::except(request()->query(), ['page', 'sort', 'sortDir', 'dir', 'view', 'limit'])]));
+        $mysql = DB::connection()->getDriverName() === 'mysql';
+        $compute = function () use ($dimension, $mysql) {
+            $mysql && DB::statement('SET SESSION max_execution_time = '.max(0, self::$liveFacetMaxMs));
+            try {
+                return $this->computeLiveFacet($dimension);
+            } finally {
+                $mysql && DB::statement('SET SESSION max_execution_time = DEFAULT');
+            }
+        };
+        // A count over the cap comes back empty and is cached empty too, so a
+        // slow facet is not retried by every visitor.
+        try {
+            return $ttl > 0 ? Cache::remember($key, $ttl, $compute) : $compute();
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    protected function computeLiveFacet(string $dimension): array
     {
         // #errorlog - a facet is a sidebar convenience; a DB hiccup (transient
         // 're-prepare' / table-cache eviction during nightly maintenance) must

@@ -161,22 +161,35 @@ class AhgLibraryServiceProvider extends ServiceProvider
             ],
         ];
 
+        // Runs on every boot, so it only adds missing options and remembers when
+        // they are all there: it used to rewrite every option on every request,
+        // which overwrote edits made in the Dropdown Manager and queued writes
+        // behind slow pages on a busy site.
+        $done = 'ahg_library:acq_dropdowns:'.md5(serialize($taxonomies));
+        if (\Illuminate\Support\Facades\Cache::has($done)) {
+            return;
+        }
+        $have = DB::table('ahg_dropdown')->whereIn('taxonomy', array_keys($taxonomies))
+            ->get(['taxonomy', 'code'])->map(fn ($r) => $r->taxonomy.'|'.$r->code)->flip();
         foreach ($taxonomies as $taxonomy => $def) {
             foreach ($def['options'] as $idx => $opt) {
-                $isDefault = $opt['default'] ? 1 : 0;
-                DB::table('ahg_dropdown')->updateOrInsert(
-                    ['taxonomy' => $taxonomy, 'code' => $opt['code']],
-                    [
-                        'taxonomy_label'   => $def['label'],
-                        'taxonomy_section' => $def['section'],
-                        'label'            => $opt['label'],
-                        'sort_order'       => ($idx + 1) * 10,
-                        'is_default'       => $isDefault,
-                        'is_active'        => 1,
-                        'updated_at'       => now(),
-                    ]
-                );
+                if (isset($have[$taxonomy.'|'.$opt['code']])) {
+                    continue;
+                }
+                DB::table('ahg_dropdown')->insert([
+                    'taxonomy'         => $taxonomy,
+                    'code'             => $opt['code'],
+                    'taxonomy_label'   => $def['label'],
+                    'taxonomy_section' => $def['section'],
+                    'label'            => $opt['label'],
+                    'sort_order'       => ($idx + 1) * 10,
+                    'is_default'       => $opt['default'] ? 1 : 0,
+                    'is_active'        => 1,
+                    'created_at'       => now(),
+                    'updated_at'       => now(),
+                ]);
             }
         }
+        \Illuminate\Support\Facades\Cache::forever($done, true);
     }
 }
