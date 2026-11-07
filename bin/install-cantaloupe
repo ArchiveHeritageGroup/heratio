@@ -3,8 +3,9 @@
 # install-cantaloupe — install Cantaloupe IIIF Image Server for Heratio
 # =============================================================================
 # Idempotent. Safe to re-run. Detects already-installed state and skips done
-# stages. Required by Heratio's deep-zoom viewers (OpenSeadragon, Mirador) for
-# TIFF / JP2 masters; not required for plain JPEG/PNG which serve via nginx.
+# stages. Required by Heratio's OpenSeadragon and Mirador viewers for all
+# supported raster formats, including JPEG and PNG. The browser-native Image
+# viewer can display those formats without Cantaloupe.
 #
 # Usage:
 #   sudo bin/install-cantaloupe
@@ -261,7 +262,7 @@ cat <<EOF
   Next:
     1. Add 'include snippets/heratio-iiif.conf;' to your Heratio nginx vhost.
     2. sudo nginx -t && sudo systemctl reload nginx
-    3. Test with a real TIFF identifier:
+    3. Test with a real supported raster identifier (for example JPEG or TIFF):
          curl -I "https://${DOMAIN}/iiif/3/<id>/info.json"
 ═══════════════════════════════════════════════════════════════════════════════
 EOF

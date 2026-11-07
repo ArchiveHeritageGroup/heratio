@@ -653,7 +653,7 @@ cat <<REPORT
   Elasticsearch: ${ES_HOST}  (prefix: ${ES_PREFIX})
 
   Optional sub-installers (run when ready):
-    sudo bin/install-cantaloupe   IIIF deep-zoom for TIFF/JP2 masters
+    sudo bin/install-cantaloupe   IIIF service for OpenSeadragon/Mirador (supported raster formats)
     sudo bin/install-qdrant        Semantic / image-similarity search
 
   Install logs in /tmp/heratio-install-*.err
