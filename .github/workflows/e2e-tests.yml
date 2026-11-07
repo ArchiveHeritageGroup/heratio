@@ -167,7 +167,7 @@ jobs:
   # ===========================================================================
   playwright-setup:
     name: Playwright Setup
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     
@@ -216,7 +216,7 @@ jobs:
   # ===========================================================================
   e2e-discovery:
     name: E2E Discovery Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: playwright-setup
     
     steps:
@@ -269,7 +269,7 @@ jobs:
   # ===========================================================================
   e2e-workflows:
     name: E2E Workflow Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: playwright-setup
     # CRUD tests run against the live HERATIO_URL as admin — they create,
     # update and delete real records. Restrict to nightly schedule + manual
