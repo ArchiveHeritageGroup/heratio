@@ -629,7 +629,7 @@ jobs:
 
   playwright-setup:
     name: Playwright Setup
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -646,7 +646,7 @@ jobs:
 
   e2e-discovery:
     name: E2E Discovery
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: playwright-setup
     steps:
       - uses: actions/checkout@v4
@@ -682,7 +682,7 @@ jobs:
 
   e2e-workflows:
     name: E2E Workflows
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: playwright-setup
     # CRUD spec hits the live HERATIO_URL as admin and creates/updates/deletes
     # real records. Restrict to nightly cron + manual dispatch so a push to
@@ -729,11 +729,11 @@ jobs:
         id: new-packages
         run: |
           git fetch origin ${{ github.event.pull_request.base.ref }}
-          BASE_PACKAGES=$(git ls-tree -r --name-only origin/${{ github.event.pull_request.base.ref }} | grep 'packages/[^/]*/composer.json$' | sed 's|/composer.json||' || echo "")
-          CURRENT_PACKAGES=$(git ls-tree -r --name-only HEAD | grep 'packages/[^/]*/composer.json$' | sed 's|/composer.json||' || echo "")
+          BASE_PACKAGES=$(git ls-tree -r --name-only origin/${{ github.event.pull_request.base.ref }} | grep 'packages/[^/]*/composer.json$' | sed 's|^packages/||;s|/composer.json||' || echo "")
+          CURRENT_PACKAGES=$(git ls-tree -r --name-only HEAD | grep 'packages/[^/]*/composer.json$' | sed 's|^packages/||;s|/composer.json||' || echo "")
           NEW_PACKAGES=""
           for pkg in $CURRENT_PACKAGES; do
-            if ! echo "$BASE_PACKAGES" | grep -q "^packages/$pkg$"; then
+            if ! printf '%s\n' "$BASE_PACKAGES" | grep -Fxq "$pkg"; then
               NEW_PACKAGES="$NEW_PACKAGES $pkg"
             fi
           done
