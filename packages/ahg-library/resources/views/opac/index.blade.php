@@ -16,7 +16,7 @@
     ])->filter()->mapWithKeys(fn($v, $k) => [$k => $v]);
 
     // Preserve all existing query params for facet links, removing the one being toggled
-    function facetUrl($key, $value, $currentFacets, $q, $sort) {
+    $facetUrl = static function ($key, $value, $currentFacets, $q, $sort) {
         $params = array_merge(request()->query(), ['q' => $q, 'sort' => $sort, 'page' => 1]);
         unset($params['material_type'], $params['language'], $params['creator'],
               $params['publisher'], $params['year_from'], $params['year_to']);
@@ -32,12 +32,12 @@
         }
 
         return route('library.opac', array_filter($params, fn($v) => $v !== null && $v !== ''));
-    }
+    };
 
-    function clearFacetsUrl($q, $sort) {
+    $clearFacetsUrl = static function ($q, $sort) {
         $params = ['q' => $q, 'sort' => $sort, 'page' => 1];
         return route('library.opac', array_filter($params, fn($v) => $v !== null && $v !== ''));
-    }
+    };
 
     $sortOptions = [
         'relevance'   => __('Relevance'),
@@ -128,7 +128,7 @@
                     <div class="card-header bg-primary text-white py-2">
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="fw-semibold"><i class="fas fa-filter me-1"></i>{{ __('Active filters') }}</span>
-                            <a href="{{ clearFacetsUrl($q, $sort) }}" class="text-white text-decoration-none small">
+                            <a href="{{ $clearFacetsUrl($q, $sort) }}" class="text-white text-decoration-none small">
                                 {{ __('Clear all') }}
                             </a>
                         </div>
@@ -141,7 +141,7 @@
                                     <strong>{{ ['material_type' => __('Type'), 'language' => __('Language'), 'creator' => __('Author'), 'publisher' => __('Publisher'), 'year_from' => __('From year'), 'year_to' => __('To year')][$key] ?? $key }}:</strong>
                                     {{ $key === 'material_type' ? ($materialTypeLabels[$val] ?? $val) : $val }}
                                 </span>
-                                <a href="{{ clearFacetsUrl($q, $sort) }}"
+                                <a href="{{ $clearFacetsUrl($q, $sort) }}"
                                    class="text-danger text-decoration-none"
                                    title="{{ __('Remove filter') }}">
                                     <i class="fas fa-times"></i>
@@ -163,7 +163,7 @@
                             @php $isActive = request()->query('material_type') == $facet['value']; @endphp
                             <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-1
                                 {{ $isActive ? 'list-group-item-primary' : '' }}">
-                                <a href="{{ facetUrl('material_type', $facet['value'], $activeFacets, $q, $sort) }}"
+                                <a href="{{ $facetUrl('material_type', $facet['value'], $activeFacets, $q, $sort) }}"
                                    class="{{ $isActive ? 'fw-bold text-primary' : 'text-secondary' }} text-decoration-none flex-grow-1">
                                     {{ $materialTypeLabels[$facet['value']] ?? ucfirst($facet['value']) }}
                                 </a>
@@ -185,7 +185,7 @@
                             @php $isActive = request()->query('language') == $facet['value']; @endphp
                             <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-1
                                 {{ $isActive ? 'list-group-item-primary' : '' }}">
-                                <a href="{{ facetUrl('language', $facet['value'], $activeFacets, $q, $sort) }}"
+                                <a href="{{ $facetUrl('language', $facet['value'], $activeFacets, $q, $sort) }}"
                                    class="{{ $isActive ? 'fw-bold text-primary' : 'text-secondary' }} text-decoration-none flex-grow-1">
                                     {{ $facet['label'] }}
                                 </a>
@@ -221,7 +221,7 @@
                         </div>
                         <div class="mt-2 small text-muted">
                             @foreach(collect($facets['publication_years'])->take(5) as $facet)
-                                <a href="{{ facetUrl('year_from', $facet['value'], $activeFacets, $q, $sort) }}"
+                                <a href="{{ $facetUrl('year_from', $facet['value'], $activeFacets, $q, $sort) }}"
                                    class="text-decoration-none me-2 {{ request()->query('year_from') == $facet['value'] ? 'fw-bold text-primary' : 'text-secondary' }}">
                                     {{ $facet['label'] }} ({{ $facet['count'] }})
                                 </a>
@@ -240,7 +240,7 @@
                     <ul class="list-group list-group-flush small" style="max-height:200px;overflow-y:auto">
                         @foreach($facets['creators'] as $facet)
                             <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-1">
-                                <a href="{{ facetUrl('creator', $facet['value'], $activeFacets, $q, $sort) }}"
+                                <a href="{{ $facetUrl('creator', $facet['value'], $activeFacets, $q, $sort) }}"
                                    class="text-secondary text-decoration-none flex-grow-1 text-truncate"
                                    title="{{ $facet['value'] }}">
                                     {{ Str::limit($facet['value'], 30) }}
@@ -261,7 +261,7 @@
                     <ul class="list-group list-group-flush small" style="max-height:200px;overflow-y:auto">
                         @foreach($facets['publishers'] as $facet)
                             <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-1">
-                                <a href="{{ facetUrl('publisher', $facet['value'], $activeFacets, $q, $sort) }}"
+                                <a href="{{ $facetUrl('publisher', $facet['value'], $activeFacets, $q, $sort) }}"
                                    class="text-secondary text-decoration-none flex-grow-1 text-truncate"
                                    title="{{ $facet['value'] }}">
                                     {{ Str::limit($facet['value'], 30) }}
