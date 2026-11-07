@@ -119,12 +119,17 @@ jobs:
               '_To fix: wrap user-visible strings in `{{ __(\'…\') }}` (Blade) or `__(\'…\')` (PHP)._',
               '_To bump threshold: edit `.github/workflows/translation-lint.yml` `TOTAL_THRESHOLD`._'
             ].join('\n');
-            github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: body
-            });
+            try {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            } catch (error) {
+              core.warning(`Could not post the translation-lint PR comment: ${error.message}`);
+              await core.summary.addHeading('Translation lint').addRaw(body).write();
+            }
         env:
           TOTAL_THRESHOLD: ${{ env.TOTAL_THRESHOLD }}
 
