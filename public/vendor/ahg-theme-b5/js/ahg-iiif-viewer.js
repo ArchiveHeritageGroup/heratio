@@ -63,6 +63,24 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode, viewerObjects) {
         } catch (e) { return null; }
     }
 
+    // heratio#1577: Mirador fetches an image service's info.json itself and
+    // shows a JSON parse modal when it gets an HTML error page instead (Cantaloupe
+    // stopped, /iiif/ proxy missing, identifier not resolved). Check the primary
+    // image's info.json once per page - it must be 2xx AND JSON - and build
+    // Mirador without image services when it is not, so it shows the plain image.
+    // ponytail: one check stands for every canvas; a multi-object record whose
+    // primary resolves but an attachment does not can still hit the modal.
+    var iiifCheck = null;
+    function iiifAvailable() {
+        if (!iiifTileSource) { return Promise.resolve(false); }
+        if (!iiifCheck) {
+            iiifCheck = fetch(iiifTileSource, { method: 'GET' })
+                .then(function (r) { return r.ok && /json/i.test(r.headers.get('content-type') || ''); })
+                .catch(function () { return false; });
+        }
+        return iiifCheck;
+    }
+
     function hideAllPanels() {
         osdEl.style.display = 'none';
         mirEl.style.display = 'none';
@@ -330,6 +348,11 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode, viewerObjects) {
 
         // Always recreate Mirador to avoid stale state
         mirEl.innerHTML = '';
+        iiifAvailable().then(buildMirador);
+    }
+
+    // iiifOk = the IIIF image service answered with JSON (heratio#1577).
+    function buildMirador(iiifOk) {
 
         // #1457: when the record has more than one digital object, show ALL of
         // them (primary + attached recto/verso/...) in ONE Mirador window, each a
@@ -361,7 +384,7 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode, viewerObjects) {
                     // A redacted image never gets one (heratio#1503): its url is
                     // the burnt-in derivative, and Cantaloupe tiles the ORIGINAL,
                     // so a service would deep-zoom straight past the redaction.
-                    var svcId = it.redacted ? null : cantaloupeServiceId(it.url);
+                    var svcId = (it.redacted || !iiifOk) ? null : cantaloupeServiceId(it.url);
                     var resource = svcId
                         ? {
                             '@id': svcId + '/full/max/0/default.jpg', '@type': 'dctypes:Image',
@@ -413,7 +436,7 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode, viewerObjects) {
         // For IIIF-served images (TIFF etc.), use the IIIF image service in the manifest
         var miradorImageUrl = imageUrl;
         var miradorService = null;
-        if (iiifTileSource) {
+        if (iiifTileSource && iiifOk) {
             var serviceId = iiifTileSource.replace('/info.json', '');
             miradorImageUrl = serviceId + '/full/max/0/default.jpg';
             miradorService = {
