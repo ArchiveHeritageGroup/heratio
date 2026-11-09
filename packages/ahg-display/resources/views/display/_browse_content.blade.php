@@ -31,12 +31,12 @@
       'dam'     => ['icon' => 'fa-images',   'color' => 'danger',  'label' => 'Photo/DAM'],
   ];
   $sortLabels = $sortLabels ?? [
-      'lastUpdated' => 'Date created',
-      'alphabetic'  => 'Title',
-      'identifier'  => 'Identifier',
-      'refcode'     => 'Reference code',
-      'startdate'   => 'Start date',
-      'enddate'     => 'End date',
+      'lastUpdated' => __('Date created'),
+      'alphabetic'  => __('Title'),
+      'identifier'  => __('Identifier'),
+      'refcode'     => __('Reference code'),
+      'startdate'   => __('Start date'),
+      'enddate'     => __('End date'),
   ];
   $fp   = $filterParams ?? [];
   $from = (($page ?? 1) - 1) * ($limit ?? 30) + 1;
@@ -70,9 +70,9 @@
   <div class="flex-grow-1">
     <h1 class="mb-0 text-success">
       @if(($total ?? 0) > 0)
-        Showing {{ number_format($total) }} results
+        {{ __('Showing :count results', ['count' => number_format($total)]) }}
       @else
-        No results found
+        {{ __('No results found') }}
       @endif
     </h1>
     <span class="small text-muted">{{ __('GLAM Browser') }}</span>
@@ -313,7 +313,7 @@
 
   {{-- Limit dropdown --}}
   <div class="dropdown">
-    <button class="btn atom-btn-outline-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">{{ $limit ?? 30 }}/page</button>
+    <button class="btn atom-btn-outline-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">{{ __(':count/page', ['count' => $limit ?? 30]) }}</button>
     <ul class="dropdown-menu">
       @foreach([10, 30, 50, 100] as $lim)
         <li><a class="dropdown-item {{ ($limit ?? 30) == $lim ? 'active' : '' }}" href="{{ glamBrowseUrl($fp, ['limit' => $lim]) }}">{{ $lim }}</a></li>
@@ -323,7 +323,7 @@
 
   {{-- Sort dropdown --}}
   <div class="dropdown ms-auto">
-    <button class="btn atom-btn-outline-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">Sort: {{ $sortLabels[$sort ?? 'lastUpdated'] ?? 'Date created' }}</button>
+    <button class="btn atom-btn-outline-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">{{ __('Sort') }}: {{ $sortLabels[$sort ?? 'lastUpdated'] ?? __('Date created') }}</button>
     <ul class="dropdown-menu dropdown-menu-end">
       @foreach($sortLabels as $sKey => $sLabel)
         <li>
@@ -338,7 +338,7 @@
 
   {{-- Sort direction dropdown --}}
   <div class="dropdown">
-    <button class="btn atom-btn-outline-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">{{ ($sortDir ?? 'asc') === 'asc' ? 'Asc' : 'Desc' }}</button>
+    <button class="btn atom-btn-outline-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">{{ ($sortDir ?? 'asc') === 'asc' ? __('Ascending') : __('Descending') }}</button>
     <ul class="dropdown-menu dropdown-menu-end">
       <li>
         <a class="dropdown-item {{ ($sortDir ?? 'asc') === 'asc' ? 'active' : '' }}"
@@ -360,7 +360,7 @@
 @if(($digitalObjectCount ?? 0) > 0)
   <div class="d-flex align-items-center gap-2 mb-2">
     <span class="small text-muted">
-      <i class="fas fa-image me-1"></i> {{ number_format($digitalObjectCount) }} with digital objects
+      <i class="fas fa-image me-1"></i> {{ __(':count with digital objects', ['count' => number_format($digitalObjectCount)]) }}
     </span>
     @if(empty($hasDigital))
       <a href="{{ glamBrowseUrl($fp, ['hasDigital' => 1]) }}" class="btn atom-btn-outline-success btn-sm">
@@ -393,7 +393,7 @@
 {{-- ========== RESULTS INFO ========== --}}
 @if(($total ?? 0) > 0)
   <div class="small text-muted mb-2">
-    Results {{ number_format($from) }} to {{ number_format($to) }} of {{ number_format($total) }}
+    {{ __('Results :from to :to of :total', ['from' => number_format($from), 'to' => number_format($to), 'total' => number_format($total)]) }}
   </div>
 @endif
 
