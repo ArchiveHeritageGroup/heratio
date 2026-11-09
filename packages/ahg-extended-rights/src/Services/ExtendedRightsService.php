@@ -270,11 +270,14 @@ class ExtendedRightsService
             'created_at' => now(),
         ]);
 
-        if (!empty($data['restriction_note'])) {
+        // The rights form posts the reason as restriction_reason; both names are accepted
+        // so the reason a person types is kept (it is the note the API publishes with the grant).
+        $note = $data['restriction_note'] ?? $data['restriction_reason'] ?? null;
+        if (!empty($note)) {
             DB::table('rights_grant_i18n')->insert([
                 'id' => $id,
                 'culture' => $this->culture,
-                'restriction_note' => $data['restriction_note'],
+                'restriction_note' => $note,
             ]);
         }
 

@@ -7,14 +7,21 @@
  * both catalogues the same way:
  *
  *   ['rules' => [['statement' => {iri, code, label}|null, 'licence' => ...|null,
- *                 'holder' => {name, iri}|null, 'starts_on', 'ends_on', 'grants' => {}]],
+ *                 'holder' => {name, iri}|null, 'starts_on', 'ends_on',
+ *                 'grants' => {act: {restriction, note}}]],
  *    'labels' => [['iri', 'code', 'label', 'source_code']]]
  *
  * Heratio's tables: object_rights_statement (statements set on the record),
  * rights_record (extended rights: statement, licence, holder, dates) and
  * icip_tk_label (TK/BC labels; #1464 moved label assignments there), plus
- * object_rights_holder (donors). Each is read only when present. Only rights
+ * object_rights_holder (donors), and the PREMIS rights / granted_right tables
+ * (linked by a RIGHT relation). Each is read only when present. Only rights
  * in force today. Holders go to staff only: a holder is often a donor.
+ *
+ * grants (#1558) carry the PREMIS acts in OpenRiC Workspace's codes (render,
+ * disseminate, use, ...; allow / disallow / conditional), from rights_grant
+ * and granted_right. PSIS still sends {}. The MCP withholds a file when
+ * render, disseminate or use is disallowed.
  *
  * Label codes are Local Contexts codes, worked out from the label's address,
  * then its English name, never from the stored code; the stored code is kept
@@ -42,6 +49,12 @@ class RightsBlockService
         'bc-consent-non-verified' => 'bc_cnv', 'bc-research-use' => 'bc_r', 'bc-outreach' => 'bc_o', 'bc-non-commercial' => 'bc_cnc',
         'bc-open-to-collaboration' => 'bc_cb',
     ];
+
+    /** relation.type_id linking a description to a PREMIS right (the AtoM term RIGHT). */
+    public const RIGHT_RELATION = 168;
+
+    /** granted_right.restriction => the code OpenRiC and rights_grant use. */
+    private const PREMIS_RESTRICTION = [0 => 'disallow', 1 => 'allow', 2 => 'conditional'];
 
     /** What to send when the rights cannot be read: never an empty block. */
     public const UNAVAILABLE = ['rules' => [], 'labels' => [], 'unavailable' => true];
@@ -74,8 +87,26 @@ class RightsBlockService
                     $r->cc_license_id ? $this->licence((int) $r->cc_license_id) : null,
                     $staff ? $this->holder($r, $culture) : null,
                     $r->start_date,
-                    $r->end_date
+                    $r->end_date,
+                    $this->recordGrants((int) $r->id, $today, $culture)
                 );
+            }
+        }
+
+        // PREMIS rights (the rights / granted_right tables), linked to the
+        // description by a relation of type RIGHT. Holder for staff only.
+        if ($has('rights') && $has('granted_right') && $has('relation')) {
+            $rows = DB::table('relation as rel')->join('rights as x', 'x.id', '=', 'rel.object_id')
+                ->where('rel.subject_id', $objectId)->where('rel.type_id', self::RIGHT_RELATION)
+                ->where(fn ($q) => $q->whereNull('x.start_date')->orWhere('x.start_date', '<=', $today))
+                ->where(fn ($q) => $q->whereNull('x.end_date')->orWhere('x.end_date', '>=', $today))
+                ->orderBy('x.id')->get(['x.id', 'x.start_date', 'x.end_date', 'x.rights_holder_id']);
+            foreach ($rows as $r) {
+                $holder = $staff && $r->rights_holder_id
+                    ? DB::table('actor_i18n')->where('id', $r->rights_holder_id)->where('culture', $culture)->value('authorized_form_of_name')
+                    : null;
+                $rules[] = $this->rule(null, null, $holder ? ['name' => $holder, 'iri' => null] : null,
+                    $r->start_date, $r->end_date, $this->premisGrants((int) $r->id, $today));
             }
         }
 
@@ -158,12 +189,62 @@ class RightsBlockService
         ];
     }
 
-    private function rule(?array $statement, ?array $licence, ?array $holder, $starts, $ends): array
+    /** @param array<string, array{restriction: string, note: ?string}> $grants  PREMIS act => restriction */
+    private function rule(?array $statement, ?array $licence, ?array $holder, $starts, $ends, array $grants = []): array
     {
-        // ponytail: grants stay {} as in PSIS; rights_grant (act, restriction)
-        // could fill them once the MCP reads grants.
+        // grants is a JSON object keyed by act, as OpenRiC Workspace sends it; {} when none.
         return ['statement' => $statement, 'licence' => $licence, 'holder' => $holder,
-            'starts_on' => $starts ?: null, 'ends_on' => $ends ?: null, 'grants' => (object) []];
+            'starts_on' => $starts ?: null, 'ends_on' => $ends ?: null, 'grants' => $grants ?: (object) []];
+    }
+
+    /**
+     * An extended-rights record's grants in force today. rights_grant already
+     * stores the OpenRiC codes (act render/disseminate/use/..., restriction
+     * allow/disallow/conditional), so they pass through.
+     */
+    private function recordGrants(int $recordId, string $today, string $culture): array
+    {
+        if (! Schema::hasTable('rights_grant')) {
+            return [];
+        }
+        $out = [];
+        $rows = DB::table('rights_grant as g')
+            ->leftJoin('rights_grant_i18n as gi', fn ($j) => $j->on('gi.id', '=', 'g.id')->where('gi.culture', '=', $culture))
+            ->where('g.rights_record_id', $recordId)
+            ->where(fn ($q) => $q->whereNull('g.start_date')->orWhere('g.start_date', '<=', $today))
+            ->where(fn ($q) => $q->whereNull('g.end_date')->orWhere('g.end_date', '>=', $today))
+            ->orderBy('g.id')->get(['g.act', 'g.restriction', 'gi.restriction_note']);
+        foreach ($rows as $g) {
+            if ($g->act) {
+                $out[strtolower($g->act)] = ['restriction' => strtolower((string) $g->restriction ?: 'allow'), 'note' => $g->restriction_note ?: null];
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * A PREMIS right's granted acts in force today. The act is a term (Display,
+     * Disseminate, ...); Display is the act OpenRiC and rights_grant call render.
+     */
+    private function premisGrants(int $rightsId, string $today): array
+    {
+        $out = [];
+        $rows = DB::table('granted_right as g')
+            ->leftJoin('term_i18n as t', fn ($j) => $j->on('t.id', '=', 'g.act_id')->where('t.culture', '=', 'en'))
+            ->where('g.rights_id', $rightsId)
+            ->where(fn ($q) => $q->whereNull('g.start_date')->orWhere('g.start_date', '<=', $today))
+            ->where(fn ($q) => $q->whereNull('g.end_date')->orWhere('g.end_date', '>=', $today))
+            ->orderBy('g.id')->get(['t.name', 'g.restriction', 'g.notes']);
+        foreach ($rows as $g) {
+            $act = strtolower(trim((string) $g->name));
+            if ($act === '' || ! isset(self::PREMIS_RESTRICTION[(int) $g->restriction])) {
+                continue;
+            }
+            $out[$act === 'display' ? 'render' : $act] = ['restriction' => self::PREMIS_RESTRICTION[(int) $g->restriction], 'note' => $g->notes ?: null];
+        }
+
+        return $out;
     }
 
     private function holder(object $r, string $culture): ?array

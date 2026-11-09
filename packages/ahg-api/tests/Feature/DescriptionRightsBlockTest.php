@@ -129,6 +129,45 @@ class DescriptionRightsBlockTest extends TestCase
         $this->assertSame(['rules' => [], 'labels' => [], 'unavailable' => true], $this->rights($this->key(null)));
     }
 
+    public function test_grants_carry_the_premis_acts_from_both_rights_stores(): void
+    {
+        if (! \Illuminate\Support\Facades\Schema::hasTable('rights_grant') || ! \Illuminate\Support\Facades\Schema::hasTable('granted_right')) {
+            $this->markTestSkipped('rights_grant / granted_right not installed.');
+        }
+        $io = (int) DB::table('slug')->where('slug', $this->slug)->value('object_id');
+
+        // Extended rights: a grant saved the way the rights form posts it (the reason as restriction_reason).
+        $record = (int) DB::table('rights_record')->where('object_id', $io)->whereNull('end_date')->value('id');
+        app(\AhgExtendedRights\Services\ExtendedRightsService::class)
+            ->createGrant($record, ['act' => 'use', 'restriction' => 'conditional', 'restriction_reason' => 'Ask the holder first.']);
+
+        // A PREMIS right linked by a RIGHT relation: Display disallowed, Disseminate conditional, and an expired Delete.
+        $act = fn (string $name) => (int) DB::table('term as t')->join('term_i18n as i', 'i.id', '=', 't.id')
+            ->where('t.taxonomy_id', 67)->where('i.culture', 'en')->where('i.name', $name)->value('t.id');
+        if (! $act('Display') || ! $act('Disseminate') || ! $act('Delete')) {
+            $this->markTestSkipped('The rights act terms are not seeded.');
+        }
+        $now = now();
+        $rights = DB::table('object')->insertGetId(['class_name' => 'QubitRights', 'created_at' => $now, 'updated_at' => $now]);
+        DB::table('rights')->insert(['id' => $rights, 'source_culture' => 'en']);
+        $rel = DB::table('object')->insertGetId(['class_name' => 'QubitRelation', 'created_at' => $now, 'updated_at' => $now]);
+        DB::table('relation')->insert(['id' => $rel, 'subject_id' => $io, 'object_id' => $rights, 'type_id' => RightsBlockService::RIGHT_RELATION, 'source_culture' => 'en']);
+        DB::table('granted_right')->insert([
+            ['rights_id' => $rights, 'act_id' => $act('Display'), 'restriction' => 0, 'notes' => '', 'end_date' => null],
+            ['rights_id' => $rights, 'act_id' => $act('Disseminate'), 'restriction' => 2, 'notes' => 'Credit the archive.', 'end_date' => null],
+            ['rights_id' => $rights, 'act_id' => $act('Delete'), 'restriction' => 1, 'notes' => '', 'end_date' => now()->subDay()->toDateString()],
+        ]);
+
+        $rules = $this->rights($this->key(null))['rules'];
+        $this->assertCount(2, $rules);
+
+        $this->assertSame(['use' => ['restriction' => 'conditional', 'note' => 'Ask the holder first.']], $rules[0]['grants']);
+        $this->assertSame([
+            'render' => ['restriction' => 'disallow', 'note' => null],
+            'disseminate' => ['restriction' => 'conditional', 'note' => 'Credit the archive.'],
+        ], $rules[1]['grants'], 'Display is published as render; the expired grant is left out');
+    }
+
     public function test_label_and_licence_codes_follow_the_shared_rules(): void
     {
         // Address first, then the English name, never the stored code.
