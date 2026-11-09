@@ -88,7 +88,10 @@ class GridEntryTest extends TestCase
         $this->assertSame([$parent, 'commit'], [(int) $session->parent_id, $session->status]);
         $this->assertSame(2, DB::table('ingest_row')->where('session_id', $sessionId)->count());
 
-        app(IngestCommitRunner::class)->run($sessionId);
+        // Typed rows have no files: nothing to package or process, so no errors.
+        $this->assertSame([0, 0, 0, 0, 0], [(int) $session->output_generate_sip, (int) $session->output_generate_aip,
+            (int) $session->output_generate_dip, (int) $session->process_ner, (int) $session->process_summarize]);
+        $this->assertSame(0, app(IngestCommitRunner::class)->run($sessionId)['errors']);
 
         $kids = DB::table('information_object as io')->join('information_object_i18n as i', fn ($j) => $j->on('i.id', '=', 'io.id')->where('i.culture', '=', 'en'))
             ->where('io.parent_id', $parent)->pluck('i.title', 'io.identifier')->all();

@@ -181,9 +181,23 @@ class GridEntryService
             'parent_id' => $parentId,
             'parent_placement' => 'existing',
             'output_create_records' => 1,
+            // Typed rows carry no files: no packages, derivatives or file
+            // processing, whatever the site defaults say. Left on, SIP/AIP/DIP
+            // packaging failed for every row and the commit reported 3 errors
+            // per row (9 Nov 2026); the AI steps would also call the GPU.
+            'output_generate_sip' => 0,
+            'output_generate_aip' => 0,
+            'output_generate_dip' => 0,
             'derivative_thumbnails' => 0,
             'derivative_reference' => 0,
             'process_virus_scan' => 0,
+            'process_ocr' => 0,
+            'process_ner' => 0,
+            'process_summarize' => 0,
+            'process_spellcheck' => 0,
+            'process_translate' => 0,
+            'process_format_id' => 0,
+            'process_face_detect' => 0,
             'source' => 'grid',
         ]);
 

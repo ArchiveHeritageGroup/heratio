@@ -24,7 +24,7 @@
 </nav>
 
 <style nonce="{{ csp_nonce() }}">
-#grid-table { table-layout: fixed; min-width: 1100px; }
+#grid-table { table-layout: fixed; width: max-content; min-width: 100%; }
 #grid-table td { padding: 0; vertical-align: top; }
 #grid-table td.grid-rownum { padding: .35rem .4rem; text-align: right; color: #6c757d; width: 3.2rem; font-size: .85rem; }
 #grid-table td.grid-actions { width: 11.5rem; white-space: nowrap; padding: .25rem .4rem; }
@@ -34,6 +34,10 @@
 #grid-table textarea.grid-cell { resize: vertical; min-height: 2rem; }
 #grid-table .grid-cell.is-invalid { background: #f8d7da; }
 #grid-table th { font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* table-layout: fixed sizes columns from the <col>s alone: without these two the
+   number and action columns collapsed and the headings slipped one column. */
+#grid-table col.c-rownum { width: 3.2rem; }
+#grid-table col.c-actions { width: 13rem; }
 #grid-table col.c-identifier { width: 9rem; }
 #grid-table col.c-title { width: 18rem; }
 #grid-table col.c-levelOfDescription { width: 9rem; }
@@ -120,7 +124,7 @@
     <div id="grid-scroll" class="border rounded">
       <table class="table table-bordered mb-0" id="grid-table">
         <colgroup>
-          <col><col>
+          <col class="c-rownum"><col class="c-actions">
           @foreach($columns as $field => $label)<col class="c-{{ $field }}">@endforeach
         </colgroup>
         <thead class="table-light">
