@@ -13,7 +13,7 @@
   $__pageLocale = app()->getLocale() ?: ($themeData['culture'] ?? 'en');
   $__pageDir = in_array($__pageLocale, ['ar', 'he', 'fa', 'ur'], true) ? 'rtl' : 'ltr';
 @endphp
-<html lang="{{ $__pageLocale }}" dir="{{ $__pageDir }}">
+<html lang="{{ ahg_html_lang($__pageLocale) }}" dir="{{ $__pageDir }}">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">

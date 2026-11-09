@@ -15,7 +15,7 @@
   Licensed under the GNU Affero General Public License v3.0 or later.
 --}}
 <!doctype html>
-<html lang="{{ app()->getLocale() }}">
+<html lang="{{ ahg_html_lang() }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
