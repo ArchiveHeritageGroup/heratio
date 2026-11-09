@@ -310,7 +310,7 @@
       <div class="d-flex align-items-center justify-content-between mb-3">
         <h4 class="mb-0 text-success">
           <i class="fas fa-folder-open me-2"></i>
-          Showing {{ number_format($total) }} results
+          {{ __('Showing :count results', ['count' => number_format($total)]) }}
         </h4>
         <a href="{{ route('glam.browse') }}" class="btn atom-btn-outline-success btn-sm">
           <i class="fas fa-search me-1"></i> {{ __('Advanced Search') }}

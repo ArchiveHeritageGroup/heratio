@@ -15,9 +15,9 @@
       <div class="d-flex flex-column flex-grow-1">
         <h1 class="mb-0">
           @if($pager->getNbResults())
-            Showing {{ number_format($pager->getNbResults()) }} results
+            {{ __('Showing :count results', ['count' => number_format($pager->getNbResults())]) }}
           @else
-            No queue items
+            {{ __('No queue items') }}
           @endif
         </h1>
         <span class="small text-muted">{{ __('DOI Queue') }}</span>

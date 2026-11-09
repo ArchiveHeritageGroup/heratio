@@ -9,13 +9,13 @@
     <div class="d-flex flex-column">
       <h1 class="mb-0">
         @if($query && $pager->getNbResults())
-          Showing {{ number_format($pager->getNbResults()) }} results
-          @if($query) for &ldquo;{{ $query }}&rdquo;@endif
-        @elseif($query || !empty($activeFilters))
-          No results found
-          @if($query) for &ldquo;{{ $query }}&rdquo;@endif
+          {{ __(':count results for ":q"', ['count' => number_format($pager->getNbResults()), 'q' => $query]) }}
+        @elseif($query)
+          {{ __('No results found for') }} &ldquo;{{ $query }}&rdquo;
+        @elseif(!empty($activeFilters))
+          {{ __('No results found') }}
         @else
-          Search
+          {{ __('Search') }}
         @endif
       </h1>
       <span class="small text-muted">{{ __('Search archival descriptions') }}</span>
