@@ -373,7 +373,7 @@ The review screen loads Leaflet from `unpkg.com` for the PLACE-card map preview.
 The same engine ships in two places:
 
 - **Heratio (Laravel 12)** - this package.
-- **AtoM Heratio (Symfony 1.4)** - `/usr/share/nginx/archive/atom-ahg-plugins/ahgAuthorityResolutionPlugin/`.
+- **AHG Extensions for AtoM (Symfony 1.4)** - `/usr/share/nginx/archive/atom-ahg-plugins/ahgAuthorityResolutionPlugin/`.
 
 Both share the same six tables (plus `ahg_ner_feedback`), the same five decision outcomes, the same ten evaluators, the same RDF-Star provenance shape, and the same seven external adapters. Both UI layers are Bootstrap 5; the data layer and the service contracts converge.
 

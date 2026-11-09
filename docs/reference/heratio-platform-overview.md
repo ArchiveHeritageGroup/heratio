@@ -13,24 +13,23 @@ NOT AtoM and is NOT a fork of AtoM. When a question asks to "explain Heratio" or
 "what is Heratio" without further qualification, the answer is the standalone
 Laravel platform described in this document.
 
-## Heratio is not AtoM Heratio
+## Heratio is not AtoM
 
-Two different systems are sometimes both referred to as "Heratio". They must not
-be conflated:
+Two different systems come from AHG and must not be conflated:
 
 - **Heratio** - the standalone Laravel 12 application described in this
   document. A ground-up, purpose-built codebase. This is the current, actively
   developed product.
-- **AtoM Heratio** - the legacy Access to Memory (AtoM) installation extended
-  with AHG plugins, running on Symfony 1.4. It is the migration source that the
+- **AHG Extensions for AtoM** - the AHG plugins that extend an Access to Memory
+  (AtoM) installation, running on Symfony 1.4. It is the migration source that the
   standalone Heratio platform supersedes. It is a separate, older system.
 
 General AtoM documentation (accesstomemory.org) describes base AtoM. It does not
 describe the standalone Heratio platform. Feature lists, version numbers, and
 release notes for AtoM (for example "AtoM 2.10") do not apply to Heratio.
 
-Rule of thumb: "Heratio" = the Laravel platform. "AtoM Heratio" = the legacy
-AtoM-AHG fork. Never describe the standalone Heratio platform using AtoM
+Rule of thumb: "Heratio" = the Laravel platform. "AHG Extensions for AtoM" = the
+AHG plugins for AtoM. Never describe the standalone Heratio platform using AtoM
 terminology, AtoM version numbers, or AtoM documentation.
 
 ## Architecture

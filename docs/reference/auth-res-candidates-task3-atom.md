@@ -1,6 +1,6 @@
 # Authority Resolution Engine - Task 3: Candidate Generation (AtoM side)
 
-Mirror of `auth-res-candidates-task3.md` for the **AtoM Heratio** (Symfony 1.4) side of the engine. Same algorithm, same schema, same ranks as the Laravel-side service so any mention/value pair scores identically on both platforms.
+Mirror of `auth-res-candidates-task3.md` for the **AHG Extensions for AtoM** (Symfony 1.4) side of the engine. Same algorithm, same schema, same ranks as the Laravel-side service so any mention/value pair scores identically on both platforms.
 
 Status: implemented 2026-05-19 in `atom-ahg-plugins/ahgAuthorityResolutionPlugin/`. Tasks 0, 1, 2, 8 already shipped on the AtoM side; Tasks 4-7 still outstanding.
 

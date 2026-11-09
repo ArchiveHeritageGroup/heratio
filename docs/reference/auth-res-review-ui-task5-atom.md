@@ -1,6 +1,6 @@
 # AHG Authority Resolution - Review UI (Task 5, AtoM side)
 
-Built 2026-05-19 under `/usr/share/nginx/archive/atom-ahg-plugins/ahgAuthorityResolutionPlugin/`. This is the AtoM Heratio (Symfony 1.4 + AHG plugins) sibling of the Laravel `ahg-authority-resolution` Task 5 review UI. The two screens are functionally equivalent; this doc captures AtoM-specific implementation choices so the next agent can extend either side without rediscovering them.
+Built 2026-05-19 under `/usr/share/nginx/archive/atom-ahg-plugins/ahgAuthorityResolutionPlugin/`. This is the AHG Extensions for AtoM (Symfony 1.4) sibling of the Laravel `ahg-authority-resolution` Task 5 review UI. The two screens are functionally equivalent; this doc captures AtoM-specific implementation choices so the next agent can extend either side without rediscovering them.
 
 ## Summary
 

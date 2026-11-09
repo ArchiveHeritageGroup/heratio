@@ -1,7 +1,7 @@
 site_name: AHG Authority Resolution Engine
 site_description: >-
   Evidence-based, archivist-driven authority resolution for Heratio (Laravel)
-  and AtoM Heratio (Symfony 1.4). Six tables, eleven CLI commands, ten
+  and AHG Extensions for AtoM (Symfony 1.4). Six tables, eleven CLI commands, ten
   evidence evaluators, seven external sources, RDF-Star provenance in Fuseki.
 site_author: Plain Sailing Information Systems
 copyright: Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems

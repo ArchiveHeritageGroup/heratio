@@ -1,6 +1,6 @@
-# Authority Resolution - Assign / Workflow (AtoM Heratio side)
+# Authority Resolution - Assign / Workflow (AtoM side)
 
-Task 12 of the AHG Authority Resolution Engine on the AtoM Heratio side.
+Task 12 of the AHG Authority Resolution Engine on the AtoM side.
 Archivists can assign an authority-resolution mention - from the review screen
 or the queue - to another archivist. Assignment routes the mention through the
 existing Workflow plugin (`ahgWorkflowPlugin`). The queue also supports batch

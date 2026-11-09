@@ -1,6 +1,6 @@
 # Authority Resolution Task 6 - Create-new sub-workflow (AtoM-side)
 
-Task 6 of the AHG Authority Resolution Engine, on the AtoM Heratio side.
+Task 6 of the AHG Authority Resolution Engine, on the AtoM side.
 This document captures the AtoM-specific implementation: Qubit class-table
 inheritance, Symfony 1.4 action wiring, BS5 templates, the seven external
 lookup adapters, and the per-field provenance graph in Fuseki.

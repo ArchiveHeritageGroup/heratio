@@ -1,6 +1,6 @@
 # CLI tasks (AtoM)
 
-The AtoM Heratio side ships the same engine as Symfony 1.4 tasks. They
+The AtoM side ships the same engine as Symfony 1.4 tasks. They
 live in `ahgAuthorityResolutionPlugin/lib/task/`. Run with:
 
 ```bash
@@ -83,7 +83,7 @@ $ php symfony auth-res:cache-clear --source=viaf --force
 
 Both codebases write to the same `ahg_*` tables (when both deployments
 are pointed at the same database). If you're running side-by-side
-(Heratio Laravel for the live ingest, AtoM Heratio for legacy review),
+(Heratio Laravel for the live ingest, AHG Extensions for AtoM for legacy review),
 **only schedule the periodic tasks on ONE codebase** to avoid double
 processing.
 
@@ -93,7 +93,7 @@ Recommended: schedule on the Laravel side (which has cron under
 ## Why two implementations?
 
 Per the project's `feedback_wdb_atom_heratio.md` memory: WDB and other
-legacy deployments still run AtoM Heratio (Symfony 1.4 + AHG plugins).
+legacy deployments still run AtoM with AHG Extensions for AtoM (Symfony 1.4).
 The Laravel rewrite is the forward path, but the engine has to work
 identically on both during the transition. Convergence means: same
 tables, same provenance graph URIs (scoped by codebase prefix), same

@@ -64,8 +64,8 @@ DOC_SOURCES = [
 
 # Specific root files to include
 ROOT_FILES = [
-    # archive/CLAUDE.md intentionally excluded - describes the legacy "AtoM Heratio =
-    # AtoM 2.10 + AHG Framework" framing; heratio repo README is current source of truth.
+    # archive/CLAUDE.md intentionally excluded - describes the legacy "AtoM 2.10 +
+    # AHG Framework" framing; heratio repo README is current source of truth.
     (f"{BASE}/atom-framework/CLAUDE.md", "framework", "Framework Architecture"),
     (f"{BASE}/atom-framework/README.md", "framework", "Framework README"),
     (f"{BASE}/atom-ahg-plugins/README.md", "plugin", "Plugin System Overview"),
@@ -102,7 +102,7 @@ SKIP_PATTERNS = [
     "node_modules", "vendor", "venv", ".git", "cache",
     "DATABASE_ERD.md",  # 500KB, not useful for Q&A
     "FUNCTIONS.md",     # 82KB raw function list
-    # Legacy "AtoM Heratio = AtoM 2.10 + AHG Framework" framing - contradicts the
+    # Legacy "AtoM 2.10 + AHG Framework" framing - contradicts the
     # current heratio repo (Laravel 12 rewrite). heratio repo docs are source of truth.
     "AtoM_Heratio_",
     # Other legacy plugin-framing user guides

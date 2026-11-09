@@ -1,6 +1,6 @@
 # SharePoint Integration
 
-Microsoft 365 SharePoint integration for AtoM Heratio and Heratio standalone. One-way ingest from SharePoint into the archive, with eventual records-handoff via Graph webhooks and federated search across both surfaces.
+Microsoft 365 SharePoint integration for Heratio and AHG Extensions for AtoM. One-way ingest from SharePoint into the archive, with eventual records-handoff via Graph webhooks and federated search across both surfaces.
 
 This guide covers what the integration does, how to set it up against an Azure AD tenant, and how to use it day-to-day.
 
@@ -43,7 +43,7 @@ Both modes share:
 
 In your Azure AD admin portal:
 
-1. **Create an app registration**. Name it something like `AtoM Heratio SharePoint Integration`. Single-tenant is fine for AHG-internal use.
+1. **Create an app registration**. Name it something like `AHG SharePoint Integration`. Single-tenant is fine for AHG-internal use.
 2. **Note the values** you will plug into the archive admin UI:
    - **Directory (tenant) ID**
    - **Application (client) ID**

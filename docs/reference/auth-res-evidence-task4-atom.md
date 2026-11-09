@@ -2,7 +2,7 @@
 
 ## Summary
 
-Task 4 of the AHG Authority Resolution Engine on the **AtoM Heratio** side (the
+Task 4 of the AHG Authority Resolution Engine on the **AtoM** side (the
 Symfony 1.4 / `atom-ahg-plugins` fork at `/usr/share/nginx/archive`). Implements
 the evidence-assembly + composite-scoring layer that sits between candidate
 generation (Task 3) and the archivist review UI (Task 5). Mirror of the

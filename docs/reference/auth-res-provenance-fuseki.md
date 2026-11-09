@@ -2,7 +2,7 @@
 
 ## Summary
 
-Every authority-resolution decision (link / link_different / create_new / park / reject) is written as an **RDF-Star reified assertion** to Apache Jena Fuseki. The same shape is used on both AtoM Heratio (`/usr/share/nginx/archive`) and Laravel Heratio (`/usr/share/nginx/heratio`); the two codebases write to **different named graphs inside the same Fuseki dataset** so federation queries can `UNION` across both with one SPARQL call.
+Every authority-resolution decision (link / link_different / create_new / park / reject) is written as an **RDF-Star reified assertion** to Apache Jena Fuseki. The same shape is used on both AHG Extensions for AtoM (`/usr/share/nginx/archive`) and Laravel Heratio (`/usr/share/nginx/heratio`); the two codebases write to **different named graphs inside the same Fuseki dataset** so federation queries can `UNION` across both with one SPARQL call.
 
 This is Task 8 of the Authority Resolution Engine build. Built 2026-05-19.
 
@@ -18,7 +18,7 @@ This is Task 8 of the Authority Resolution Engine build. Built 2026-05-19.
 | Codebase | Graph URI | Setting key |
 |---|---|---|
 | Laravel Heratio | `urn:heratio:auth-res:graph:decisions` | `authority_resolution.decisions_graph_uri` in `heratio.ahg_settings` |
-| AtoM Heratio | `urn:atom:auth-res:graph:decisions` | `authority_resolution.decisions_graph_uri` in `archive.ahg_settings` |
+| AHG Extensions for AtoM | `urn:atom:auth-res:graph:decisions` | `authority_resolution.decisions_graph_uri` in `archive.ahg_settings` |
 
 Default constants live at:
 - Laravel: `AhgAuthorityResolution\Services\DecisionProvenanceWriter::DEFAULT_GRAPH_URI`

@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Evidence-based, archivist-driven authority resolution for Heratio (Laravel) and AtoM Heratio (Symfony 1.4). Six tables, eleven CLI commands, ten evidence evaluators, seven external sources, RDF-Star provenance in Fuseki.">
+        <meta name="description" content="Evidence-based, archivist-driven authority resolution for Heratio (Laravel) and AHG Extensions for AtoM (Symfony 1.4). Six tables, eleven CLI commands, ten evidence evaluators, seven external sources, RDF-Star provenance in Fuseki.">
       
       
         <meta name="author" content="Plain Sailing Information Systems">
@@ -1352,14 +1352,14 @@ five outcomes. The engine never auto-links.</p>
 <p>A single resolution engine implemented twice, once per codebase:</p>
 <ul>
 <li><strong>Heratio (Laravel 12)</strong> - <code>packages/ahg-authority-resolution/</code></li>
-<li><strong>AtoM Heratio (Symfony 1.4)</strong> - <code>atom-ahg-plugins/ahgAuthorityResolutionPlugin/</code></li>
+<li><strong>AHG Extensions for AtoM (Symfony 1.4)</strong> - <code>atom-ahg-plugins/ahgAuthorityResolutionPlugin/</code></li>
 </ul>
 <p>Both implementations share:</p>
 <ul>
 <li>The same six MySQL tables (plus <code>ahg_ner_feedback</code>).</li>
 <li>The same five decision outcomes.</li>
 <li>The same ten evidence evaluators.</li>
-<li>The same RDF-Star provenance shape, written to the same Fuseki dataset
+<li>The same reified provenance shape, written to the same Fuseki dataset
   (<code>/openric-model</code>), isolated by named-graph URI.</li>
 <li>The same seven external authority adapters (VIAF, Wikidata, GeoNames,
   TGN, GND, ISNI, SAGNC).</li>
@@ -1411,7 +1411,7 @@ AtoM:    <code>/;authorityResolution/review?id=24</code></p>
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>                                                     +-&gt; ahg_mention_candidate (ranked)
 <a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>                                                     |
 <a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>                                                     +-&gt; ahg_mention_decision (audit)
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>                                                     |    \--&gt; RDF-Star to Fuseki
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>                                                     |    \--&gt; provenance to Fuseki
 <a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>                                                     |
 <a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>                                                     +-&gt; ahg_mention_park (optional)
 <a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>                                                     |

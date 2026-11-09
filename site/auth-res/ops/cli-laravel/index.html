@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Evidence-based, archivist-driven authority resolution for Heratio (Laravel) and AtoM Heratio (Symfony 1.4). Six tables, eleven CLI commands, ten evidence evaluators, seven external sources, RDF-Star provenance in Fuseki.">
+        <meta name="description" content="Evidence-based, archivist-driven authority resolution for Heratio (Laravel) and AHG Extensions for AtoM (Symfony 1.4). Six tables, eleven CLI commands, ten evidence evaluators, seven external sources, RDF-Star provenance in Fuseki.">
       
       
         <meta name="author" content="Plain Sailing Information Systems">
@@ -1430,7 +1430,7 @@ Tasks 2-9, five from Task 10 (CLI consolidation).</p>
 <tr>
 <td><code>auth-res:write-provenance</code></td>
 <td>8</td>
-<td>Backfill RDF-Star provenance for a decision</td>
+<td>Backfill reified provenance for a decision</td>
 </tr>
 <tr>
 <td><code>auth-res:export-ner-feedback</code></td>
@@ -1587,7 +1587,7 @@ fingerprint has changed since parking. Cheap; safe to cron.</p>
 <h3 id="auth-reswrite-provenance">auth-res:write-provenance<a class="headerlink" href="#auth-reswrite-provenance" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>auth-res:write-provenance {decision_id}
 </code></pre></div>
-<p>Backfill RDF-Star to Fuseki for a single decision row. Normally written
+<p>Backfill reified provenance to Fuseki for a single decision row. Normally written
 synchronously by <code>DecisionRecorder</code> on decide; this command is for
 backfilling rows where the Fuseki call failed.</p>
 <h3 id="auth-resexport-ner-feedback">auth-res:export-ner-feedback<a class="headerlink" href="#auth-resexport-ner-feedback" title="Permanent link">&para;</a></h3>

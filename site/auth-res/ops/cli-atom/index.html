@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Evidence-based, archivist-driven authority resolution for Heratio (Laravel) and AtoM Heratio (Symfony 1.4). Six tables, eleven CLI commands, ten evidence evaluators, seven external sources, RDF-Star provenance in Fuseki.">
+        <meta name="description" content="Evidence-based, archivist-driven authority resolution for Heratio (Laravel) and AHG Extensions for AtoM (Symfony 1.4). Six tables, eleven CLI commands, ten evidence evaluators, seven external sources, RDF-Star provenance in Fuseki.">
       
       
         <meta name="author" content="Plain Sailing Information Systems">
@@ -1321,7 +1321,7 @@
 
 
 <h1 id="cli-tasks-atom">CLI tasks (AtoM)<a class="headerlink" href="#cli-tasks-atom" title="Permanent link">&para;</a></h1>
-<p>The AtoM Heratio side ships the same engine as Symfony 1.4 tasks. They
+<p>The AtoM side ships the same engine as Symfony 1.4 tasks. They
 live in <code>ahgAuthorityResolutionPlugin/lib/task/</code>. Run with:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>sudo<span class="w"> </span>-u<span class="w"> </span>www-data<span class="w"> </span>php<span class="w"> </span>symfony<span class="w"> </span>auth-res:&lt;task&gt;<span class="w"> </span><span class="o">[</span>arg1<span class="o">]</span><span class="w"> </span><span class="o">[</span>--option<span class="o">=</span>value<span class="o">]</span>
 </code></pre></div>
@@ -1431,14 +1431,14 @@ provenance write is always synchronous in the AtoM <code>DecisionRecorder</code>
 <h2 id="shared-schema-separate-cron">Shared schema, separate cron<a class="headerlink" href="#shared-schema-separate-cron" title="Permanent link">&para;</a></h2>
 <p>Both codebases write to the same <code>ahg_*</code> tables (when both deployments
 are pointed at the same database). If you're running side-by-side
-(Heratio Laravel for the live ingest, AtoM Heratio for legacy review),
+(Heratio Laravel for the live ingest, AHG Extensions for AtoM for legacy review),
 <strong>only schedule the periodic tasks on ONE codebase</strong> to avoid double
 processing.</p>
 <p>Recommended: schedule on the Laravel side (which has cron under
 <code>/etc/cron.d/heratio</code> already), keep the AtoM tasks for ad-hoc runs.</p>
 <h2 id="why-two-implementations">Why two implementations?<a class="headerlink" href="#why-two-implementations" title="Permanent link">&para;</a></h2>
 <p>Per the project's <code>feedback_wdb_atom_heratio.md</code> memory: WDB and other
-legacy deployments still run AtoM Heratio (Symfony 1.4 + AHG plugins).
+legacy deployments still run AtoM with AHG Extensions for AtoM (Symfony 1.4).
 The Laravel rewrite is the forward path, but the engine has to work
 identically on both during the transition. Convergence means: same
 tables, same provenance graph URIs (scoped by codebase prefix), same

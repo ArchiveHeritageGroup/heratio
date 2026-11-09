@@ -21,11 +21,11 @@ spans two runtimes (Laravel and Symfony 1.4) and two error stores.
 | Platform | Client | Commands | Version reported | Error source |
 |---|---|---|---|---|
 | Heratio (Laravel) | `packages/ahg-core` — `AhgCentralService` | `artisan ahg:central-*` | `version.json` (1.x) | `ahg_error_log` table |
-| AtoM Heratio (Symfony + atom-framework) | `ahgCorePlugin` — `AhgCore\Services\AhgCentralService` | `php symfony central:*` | `atom-ahg-plugins/version.json` (3.x) | `ahg_error_log` table |
-| Vanilla AtoM **or** AtoM Heratio | `ahgCentralPlugin` (standalone, universal, v1.1.0) | `php symfony ahg:central-*` | auto: 2.x vanilla / 3.x AtoM Heratio | auto: `qubit_prod.log` / `ahg_error_log` |
+| AHG Extensions for AtoM (Symfony + atom-framework) | `ahgCorePlugin` — `AhgCore\Services\AhgCentralService` | `php symfony central:*` | `atom-ahg-plugins/version.json` (3.x) | `ahg_error_log` table |
+| Vanilla AtoM **or** AHG Extensions for AtoM | `ahgCentralPlugin` (standalone, universal, v1.1.0) | `php symfony ahg:central-*` | auto: 2.x vanilla / 3.x AHG Extensions for AtoM | auto: `qubit_prod.log` / `ahg_error_log` |
 
 Versions are grouped by major component for drift detection: Heratio 1.x,
-vanilla AtoM 2.x, AtoM Heratio 3.x.
+vanilla AtoM 2.x, AHG Extensions for AtoM 3.x.
 
 ## What each client does
 
@@ -68,7 +68,7 @@ already-enabled install.
   (`ahg:central-heartbeat` daily 05:00, `ahg:central-sync-errors` hourly); the
   `heratio-schedule` cron runs `schedule:run` every minute and drives it.
   Auto-wired — nothing to set up per install beyond the one cron.
-- **AtoM Heratio (`ahgCorePlugin`)** — ships the `central:*` Symfony tasks but
+- **AHG Extensions for AtoM (`ahgCorePlugin`)** — ships the `central:*` Symfony tasks but
   wires **no scheduler**. Each install needs an explicit cron line, e.g.
   `php symfony central:heartbeat`. With no cron, nothing reports even when the
   master switch is on.
@@ -79,7 +79,7 @@ already-enabled install.
 ## ahgCentralPlugin — the universal Symfony reporter
 
 A standalone Symfony 1.4 AtoM plugin (v1.1.0). One plugin for the whole
-Symfony side of the fleet — vanilla AtoM **and** AtoM Heratio — auto-detecting
+Symfony side of the fleet — vanilla AtoM **and** AHG Extensions for AtoM — auto-detecting
 the environment at runtime. Modifies no base AtoM file; depends on no other
 plugin and no atom-framework.
 
@@ -87,10 +87,10 @@ plugin and no atom-framework.
 
 - *Vanilla AtoM* — version from `qubitConfiguration::VERSION` (2.x); errors
   tailed from `log/qubit_prod.log`.
-- *AtoM Heratio* — detected by `atom-ahg-plugins/version.json`; version from
+- *AHG Extensions for AtoM* — detected by `atom-ahg-plugins/version.json`; version from
   that file (3.x); errors read from the `ahg_error_log` table via `QubitPdo`.
 
-On an AtoM Heratio box it is a clean drop-in replacement for `ahgCorePlugin`'s
+On an AtoM box with AHG Extensions for AtoM it is a clean drop-in replacement for `ahgCorePlugin`'s
 built-in reporter — same error source, same version tier. Schedule only **one**
 heartbeat cron there (this plugin's `ahg:central-heartbeat`, not
 `ahgCorePlugin`'s `central:heartbeat`).
@@ -119,7 +119,7 @@ Storage differs by platform: Heratio Laravel uses the `ahg_settings` table;
 the Symfony clients use AtoM's `setting` table. Both Symfony clients share the
 same keys, so configuration carries over between them. Deploy defaults come
 from `.env` / `config/app.yml`. Configured via the **AHG Integration**
-settings page (Heratio / AtoM Heratio) or the `ahgCentralPlugin` admin page.
+settings page (Heratio / AHG Extensions for AtoM) or the `ahgCentralPlugin` admin page.
 
 The shared fleet enrolment key is `CENTRAL_ENROLMENT_KEY` on the server
 (`/etc/default/ahg-central`); every install carries the same value as its

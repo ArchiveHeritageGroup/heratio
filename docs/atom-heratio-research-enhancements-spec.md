@@ -1,12 +1,12 @@
-# AtoM Heratio - Research Enhancements Specification
+# AHG Extensions for AtoM - Research Enhancements Specification
 
-> **Target:** AtoM Heratio fork at `/usr/share/nginx/archive/atom-ahg-plugins/` (Symfony 1.4, PHP 8.x, MySQL 8, ProQubit + AHG plugins).
+> **Target:** AHG Extensions for AtoM at `/usr/share/nginx/archive/atom-ahg-plugins/` (Symfony 1.4, PHP 8.x, MySQL 8, ProQubit + AHG plugins).
 >
 > **Source-of-truth implementation:** the Laravel Heratio side at `/usr/share/nginx/heratio/`, shipped 2026-05-16 as part of `docs/research-enhancements-roadmap.md`. This document is the port spec - same 13 features, AtoM idioms.
 >
 > **Status:** draft v1.0, 2026-05-16. To be implemented as a new release of `ahgResearchPlugin` (or split out as new plugins where the surface is large enough - see per-feature notes).
 >
-> **Owner:** AtoM Heratio team. Heratio (Laravel) is the reference implementation; bug-for-bug parity is not required, but the user-visible surface should match so cross-instance researchers experience the same workflow.
+> **Owner:** AHG Extensions for AtoM team. Heratio (Laravel) is the reference implementation; bug-for-bug parity is not required, but the user-visible surface should match so cross-instance researchers experience the same workflow.
 
 ---
 
@@ -17,24 +17,24 @@
 - **§1 NotebookLM-Studio additions** (6 items) - grounded AI artefact generator on every research project, citation popovers, private notebooks, cross-fonds queries.
 - **§2 Audit gaps** (7 items) - per-record citation manager export, analytics dashboard, real-time collaboration, ORCID integration (extend existing stub), GraphQL for researchers, mobile/PWA, offline mode.
 
-Each section below maps the Laravel-side implementation onto AtoM Heratio's plugin structure, listing:
+Each section below maps the Laravel-side implementation onto the AHG Extensions for AtoM plugin structure, listing:
 
 1. **AtoM paths** - where the new code lives.
 2. **Existing service to extend** - many of these already have stubs in `ahgResearchPlugin/lib/Services/`. Extend rather than re-create.
 3. **DB tables** - new tables to add (use migrations under `ahgResearchPlugin/database/migrations/`). All AtoM tables use the `ahg_*` prefix or `qubit_*` for ProQubit-shipped tables. Stick with `ahg_*` for new ones to keep the AHG-fork sidecar pattern clear.
 4. **Routes / actions / templates** - Symfony 1.4 routing (defined in `ahgResearchPluginConfiguration.class.php`), action class + per-action template.
 5. **JS / CSS** - dropped under `ahgResearchPlugin/web/`.
-6. **Integration touchpoints** - where the new feature shows up in existing AtoM Heratio menus, sidebars, and per-record action bars.
+6. **Integration touchpoints** - where the new feature shows up in existing AHG Extensions for AtoM menus, sidebars, and per-record action bars.
 
 ---
 
 ## Conventions
 
-- **All AI calls go through the existing AHG AI gateway** at `https://ai.theahg.co.za/ai/v1/*`. No provider keys live in AtoM Heratio. Reuse `ahgAIPlugin/lib/Services/LlmService.php` (or whichever wrapper the AHG AI plugin exposes) - do NOT introduce a separate workbench-gateway driver. The gateway is already the central abstraction.
+- **All AI calls go through the existing AHG AI gateway** at `https://ai.theahg.co.za/ai/v1/*`. No provider keys live in AHG Extensions for AtoM. Reuse `ahgAIPlugin/lib/Services/LlmService.php` (or whichever wrapper the AHG AI plugin exposes) - do NOT introduce a separate workbench-gateway driver. The gateway is already the central abstraction.
 - **All new tables use `IF NOT EXISTS`** in their migration up() and `IF EXISTS` in down() so re-runs are idempotent.
 - **Symfony slot scheme** - add new sidebar entries via the existing AHG sidebar slots, not by re-templating the layout. See `ahgResearchPlugin/modules/research/templates/_sidebar.php` for the pattern.
 - **Permissions** - use the existing `ResearcherPermissionHelper` from `ahgResearchPlugin/lib/Helpers/`. Routes that mutate require a logged-in researcher; reads can be public where the existing patterns allow.
-- **Heratio (Laravel) calls the gateway through `LlmService::completeFull()` with a system+user prompt and `temperature` / `max_tokens` options.** AtoM Heratio's `LlmService` should expose the same shape so prompt templates can be copy-pasted between the two sides.
+- **Heratio (Laravel) calls the gateway through `LlmService::completeFull()` with a system+user prompt and `temperature` / `max_tokens` options.** The AHG Extensions for AtoM `LlmService` should expose the same shape so prompt templates can be copy-pasted between the two sides.
 
 ---
 
@@ -261,7 +261,7 @@ public function promoteToProject(int $notebookId, int $researcherId): ?int;
 
 ## §1.6 Cross-fonds reasoning queries
 
-**What:** single user query fans out across N selected fonds in parallel; per-fonds top-K hits are merged and reranked by Elasticsearch score; single ranked list returned with `[N]` citation markers. Optional thesaurus expansion via `ahgSemanticSearchPlugin` (already present in AtoM Heratio).
+**What:** single user query fans out across N selected fonds in parallel; per-fonds top-K hits are merged and reranked by Elasticsearch score; single ranked list returned with `[N]` citation markers. Optional thesaurus expansion via `ahgSemanticSearchPlugin` (already present in AHG Extensions for AtoM).
 
 **AtoM paths:**
 
@@ -395,7 +395,7 @@ public function dashboard(?string $from = null, ?string $to = null): array;
 
 **Lists rendered:** top researchers (10), popular descriptions (10), popular collections (10), top search terms (15), weekly volume bar.
 
-**Charting:** the Laravel side uses inline `<div>` bars (no Chart.js). AtoM Heratio can do the same; if you'd rather use the existing `arChart` helper from `ahgDisplayPlugin`, that's fine.
+**Charting:** the Laravel side uses inline `<div>` bars (no Chart.js). AHG Extensions for AtoM can do the same; if you'd rather use the existing `arChart` helper from `ahgDisplayPlugin`, that's fine.
 
 **Sidebar entry** - "Analytics" under "Research".
 
@@ -494,7 +494,7 @@ setInterval(function () {
 }, 3000);
 ```
 
-**Shared annotation layers (IIIF):** the existing `qubit_iiif_annotation` table (assuming AtoM Heratio runs ProQubit's IIIF annotations or the AHG WebAnnotationService schema - check `lib/Services/WebAnnotationService.php`) needs two new columns:
+**Shared annotation layers (IIIF):** the existing `qubit_iiif_annotation` table (assuming AHG Extensions for AtoM run ProQubit's IIIF annotations or the AHG WebAnnotationService schema - check `lib/Services/WebAnnotationService.php`) needs two new columns:
 
 ```sql
 ALTER TABLE qubit_iiif_annotation
@@ -512,7 +512,7 @@ ALTER TABLE qubit_iiif_annotation
 
 ## §2.4 ORCID OAuth + Works push/pull (EXTEND existing)
 
-**Important:** `ahgResearchPlugin/lib/Services/OrcidService.php` **already exists** on the AtoM Heratio side. Audit it first; this spec describes the full target shape - extend the existing service rather than replace it.
+**Important:** `ahgResearchPlugin/lib/Services/OrcidService.php` **already exists** on the AtoM side. Audit it first; this spec describes the full target shape - extend the existing service rather than replace it.
 
 **Target service shape:**
 
@@ -591,7 +591,7 @@ all:
 
 **What:** five new queries on top of the existing `/admin/graphql` endpoint, enabling Zotero / Tropy / LMS to compose a single round-trip.
 
-**AtoM paths:** if AtoM Heratio has an existing `ahgGraphqlPlugin` (or similar), extend it; otherwise create a new plugin shell. Per the Laravel-side controller this is a hand-rolled regex matcher, not a full GraphQL framework - keep it simple.
+**AtoM paths:** if AHG Extensions for AtoM have an existing `ahgGraphqlPlugin` (or similar), extend it; otherwise create a new plugin shell. Per the Laravel-side controller this is a hand-rolled regex matcher, not a full GraphQL framework - keep it simple.
 
 **New queries:**
 
@@ -631,8 +631,8 @@ ahgResearchPlugin/
 
 ```json
 {
-    "name": "AtoM Heratio",
-    "short_name": "AtoM Heratio",
+    "name": "AHG Extensions for AtoM",
+    "short_name": "AtoM",
     "description": "Archival management portal - research",
     "start_url": "/research/mobile",
     "scope": "/",
@@ -665,7 +665,7 @@ Serve at root via nginx (no rewrite). The standard AtoM nginx config already ser
 <meta name="theme-color" content="#0d6efd">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="AtoM Heratio">
+<meta name="apple-mobile-web-app-title" content="AtoM">
 ```
 
 ---
@@ -761,7 +761,7 @@ Phases 2-6 can ship in any order after Phase 1 lands.
 
 For every feature, a smoke test confirming visible parity with Heratio (Laravel):
 
-| Feature | Heratio URL | AtoM Heratio URL | Pass criterion |
+| Feature | Heratio URL | AtoM URL | Pass criterion |
 |---|---|---|---|
 | Studio list | `/research/studio/{id}` | `/research/studio/{id}` | renders form + Recent artefacts list |
 | Studio generate | (POST) | (POST) | inserts row into studio_artefact, status='ready' |
@@ -780,14 +780,14 @@ For every feature, a smoke test confirming visible parity with Heratio (Laravel)
 
 ---
 
-## Open questions for the AtoM Heratio team
+## Open questions for the AHG Extensions for AtoM team
 
 1. **WebAnnotationService schema** - does the AHG-side annotation table already have `project_id` / `visibility` columns, or are these new? Need a quick `DESCRIBE` to confirm before the migration is written.
 2. **Existing OrcidService coverage** - what's already implemented vs. what's a stub? Extend, don't replace.
 3. **Existing CommentService coverage** - same question. The `research_evidence_comment` table in this spec might overlap with whatever the existing CommentService already persists.
 4. **Symfony 1.4 JSON action returns** - confirm the helper for `$this->setLayout(false); return json_encode(...)` is the convention; alternatively use `sfWebResponse::setContentType('application/json')`.
-5. **PWA scope** - this spec puts the manifest at root scope (`/`). If AtoM Heratio runs behind a sub-path, the manifest scope and `start_url` need adjusting.
-6. **GraphQL endpoint** - if AtoM Heratio doesn't have one yet, decide whether to bundle a minimal one or skip §2.5 for now.
+5. **PWA scope** - this spec puts the manifest at root scope (`/`). If the AtoM site runs behind a sub-path, the manifest scope and `start_url` need adjusting.
+6. **GraphQL endpoint** - if AHG Extensions for AtoM don't have one yet, decide whether to bundle a minimal one or skip §2.5 for now.
 
 ---
 

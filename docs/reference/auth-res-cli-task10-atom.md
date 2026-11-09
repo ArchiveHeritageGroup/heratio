@@ -1,7 +1,7 @@
 # Authority Resolution Engine - CLI Consolidation (Task 10, AtoM side)
 
 Task 10 of the AHG Authority Resolution Engine, as shipped in
-`atom-ahg-plugins/ahgAuthorityResolutionPlugin/` on the AtoM Heratio side
+`atom-ahg-plugins/ahgAuthorityResolutionPlugin/` on the AtoM side
 (Symfony 1.4 plugin, `archive` database, GPL-3.0-or-later). Adds 5 new
 Symfony 1.4 tasks under the existing `auth-res:` namespace and is the last
 build step on the AtoM mirror.

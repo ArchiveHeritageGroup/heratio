@@ -10,7 +10,7 @@ five outcomes. The engine never auto-links.
 A single resolution engine implemented twice, once per codebase:
 
 - **Heratio (Laravel 12)** - `packages/ahg-authority-resolution/`
-- **AtoM Heratio (Symfony 1.4)** - `atom-ahg-plugins/ahgAuthorityResolutionPlugin/`
+- **AHG Extensions for AtoM (Symfony 1.4)** - `atom-ahg-plugins/ahgAuthorityResolutionPlugin/`
 
 Both implementations share:
 

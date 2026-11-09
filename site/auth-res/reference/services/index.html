@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Evidence-based, archivist-driven authority resolution for Heratio (Laravel) and AtoM Heratio (Symfony 1.4). Six tables, eleven CLI commands, ten evidence evaluators, seven external sources, RDF-Star provenance in Fuseki.">
+        <meta name="description" content="Evidence-based, archivist-driven authority resolution for Heratio (Laravel) and AHG Extensions for AtoM (Symfony 1.4). Six tables, eleven CLI commands, ten evidence evaluators, seven external sources, RDF-Star provenance in Fuseki.">
       
       
         <meta name="author" content="Plain Sailing Information Systems">
@@ -1556,7 +1556,7 @@ the constructor.</p>
 <h3 id="promotetomentionservice">PromoteToMentionService<a class="headerlink" href="#promotetomentionservice" title="Permanent link">&para;</a></h3>
 <p>Copies selected <code>ahg_ner_entity</code> rows into <code>ahg_mention</code> and computes
 <code>ahg_mention_context</code>. The promotion is the workflow's entry point.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="x">public function promoteForObject(int $objectId, array $entityTypes = [&#39;PERSON&#39;,&#39;ORG&#39;,&#39;GPE&#39;,&#39;LOC&#39;,&#39;PLACE&#39;]): int;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="x">public function promoteForObject(int $objectId, array $entityTypes = ['PERSON','ORG','GPE','LOC','PLACE']): int;</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="x">public function fetchSourceText(int $objectId): string;</span>
 </code></pre></div>
 <p><code>fetchSourceText()</code> is also used by <code>NerFeedbackService</code> to snapshot the
@@ -1700,7 +1700,7 @@ a try/catch.</p>
 </code></pre></div>
 <p>Each returns the new <code>ahg_mention_decision.id</code>.</p>
 <h3 id="decisionprovenancewriter">DecisionProvenanceWriter<a class="headerlink" href="#decisionprovenancewriter" title="Permanent link">&para;</a></h3>
-<p>Emits RDF-Star to the decisions named graph. Reads
+<p>Emits reified provenance to the decisions named graph. Reads
 <code>authority_resolution.decisions_graph_uri</code>. Has a default constant
 <code>DEFAULT_GRAPH_URI</code> for the seeded value.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="x">public function write(int $decisionId): bool;</span>
@@ -1708,7 +1708,7 @@ a try/catch.</p>
 <p>Synchronous on decide. Backfillable via
 <code>php artisan auth-res:write-provenance {decision_id}</code>.</p>
 <h3 id="fieldprovenancewriter">FieldProvenanceWriter<a class="headerlink" href="#fieldprovenancewriter" title="Permanent link">&para;</a></h3>
-<p>Emits per-field RDF-Star for <code>create_new</code> decisions to the
+<p>Emits per-field reified provenance for <code>create_new</code> decisions to the
 field-provenance named graph. Called by <code>AuthorityCreator</code>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="x">public function writeForNewAuthority(int $decisionId, int $authorityId, array $fieldDecisions): int;</span>
 </code></pre></div>

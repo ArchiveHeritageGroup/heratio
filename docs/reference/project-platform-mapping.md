@@ -2,17 +2,17 @@
 
 Two product lines, often confused under the AHG umbrella:
 
-- **AtoM Heratio** is the legacy AHG fork of AtoM 2.x. Engine is Symfony 1.4, PHP 8.x, Propel ORM, AtoM-style templates with `decorate_with()`. The AHG plugin suite lives in `atom-ahg-plugins/` (e.g. `ahgLibraryPlugin`, `ahgThemeB5Plugin`, etc.). ES indices use the `atom_qubit*` prefix. Sometimes shortened to "AtoM-AHG" in path/code references and "Heratio" in customer-facing labels, but the engine is Symfony, not Laravel.
+- **AHG Extensions for AtoM** are the AHG plugins for AtoM 2.x. Engine is Symfony 1.4, PHP 8.x, Propel ORM, AtoM-style templates with `decorate_with()`. The AHG plugin suite lives in `atom-ahg-plugins/` (e.g. `ahgLibraryPlugin`, `ahgThemeB5Plugin`, etc.). ES indices use the `atom_qubit*` prefix. Sometimes shortened to "AtoM-AHG" in path/code references in path and code references, but the engine is Symfony, not Laravel.
 
 - **Heratio** is the standalone Laravel 12 rewrite. Canonical source at `/usr/share/nginx/heratio/`. Pure Laravel + Blade + Eloquent. Own DB (`heratio`), own ES indices (`heratio_*`), own storage roots. No Symfony, no Propel. Bumped through `bin/release` with `version.json` as the source of truth.
 
-When the label "Heratio" appears by itself, it means the Laravel product. When prefixed "AtoM Heratio" or "AtoM-AHG", it means the legacy Symfony product.
+When the label "Heratio" appears by itself, it means the Laravel product. "AHG Extensions for AtoM" (or "AtoM-AHG" in paths) means the Symfony plugins.
 
 ## Per-project mapping (2026-05-13)
 
 | Project | Platform | Notes |
 |---|---|---|
-| **WDB** (Women Developing Businesses Trust) | AtoM Heratio (Symfony 1.4 + AHG plugins) | Client production. Confirmed staying on AtoM-AHG; no platform migration to Laravel Heratio planned. |
+| **WDB** (Women Developing Businesses Trust) | AtoM with AHG Extensions for AtoM (Symfony 1.4) | Client production. Confirmed staying on AtoM-AHG; no platform migration to Laravel Heratio planned. |
 | **ANC** (ANC archive) | Heratio (Laravel 12) | |
 | **DAM** (digital asset management) | Heratio (Laravel 12) | |
 

@@ -2,7 +2,7 @@
 -- AHG Authority Resolution Engine - schema install
 -- Package: ahg/authority-resolution
 -- Identical to atom-ahg-plugins/ahgAuthorityResolutionPlugin/database/install.sql
--- on the AtoM Heratio side. Schemas converge here.
+-- on the AtoM side. Schemas converge here.
 --
 -- Design: coexist + project. ahg_ner_entity remains the canonical extraction
 -- pool used by ahg-discovery / ahg-actor-manage / ahg-information-object-manage.
