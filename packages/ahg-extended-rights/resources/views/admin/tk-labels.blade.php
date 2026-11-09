@@ -86,10 +86,11 @@
               <span class="badge text-white" style="background-color: {{ $assign->color ?? '#6c757d' }};">
                 {{ $assign->code ?? '' }}
               </span>
-              {{ $assign->label_name ?? '' }}
+              {{ $assign->name ?? '' }}
             </td>
             <td>
-              <a href="{{ $assign->slug ? url($assign->slug) : '#' }}">
+              {{-- getTkLabelAssignments() returns object_slug and name (heratio#1587) --}}
+              <a href="{{ ($assign->object_slug ?? null) ? url($assign->object_slug) : '#' }}">
                 {{ $assign->object_title ?: 'ID: ' . $assign->object_id }}
               </a>
             </td>
