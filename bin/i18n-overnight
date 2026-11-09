@@ -29,7 +29,9 @@ LOCALES="$LOCALES,kj,umb,khi,am"
 # filled by the gateway's opus-mt route instead (sampled first, native review
 # to follow); ss, tn, st, nso, ve, nr and nd wait for a model that handles them
 # (opus-mt has none, or returns nonsense for them).
-MT_LOCALES="zu xh ts sn"
+# I18N_MT_LOCALES overrides the list; empty turns the step off (9 Nov 2026:
+# off until the native review of zu, xh and ts is back).
+MT_LOCALES=${I18N_MT_LOCALES-zu xh ts sn}
 
 LOG="storage/logs/i18n-overnight-$(date +%Y-%m-%d).log"
 echo "$(date '+%F %T') start" >> "$LOG"
