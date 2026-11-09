@@ -297,11 +297,11 @@ test.describe('PSIS Discovery Crawler', () => {
     await emailInput.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
     await emailInput.fill(credentials.roles.admin.email);
     await passwordInput.fill(credentials.roles.admin.password);
-    // Scope to the LOGIN form (the one with the password field); a bare
-    // button[type=submit] matched 3 elements (header search + others) and
-    // timed out on a non-visible one.
-    await page.locator('form', { has: page.locator('input[name="password"]') })
-      .locator('button[type="submit"], input[type="submit"]').first().click({ force: true });
+    // Scope to the visible LOGIN form. PSIS has two: the header dropdown
+    // (hidden until opened) and the page form. Matching on any password field
+    // picked the hidden dropdown first and the click failed as not visible.
+    await page.locator('form', { has: page.locator('input:visible[name="password"]') })
+      .locator('button[type="submit"], input[type="submit"]').first().click();
     await page.waitForURL(/\/(dashboard|home|admin|search)/, { timeout: 15000 }).catch(() => {});
     
     const urls = seedUrls.psis.urls.map(u => PSIS_BASE + u);

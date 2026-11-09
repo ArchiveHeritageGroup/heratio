@@ -244,17 +244,20 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
+      # Discovery is a page inventory, not a browser-compatibility test: one
+      # browser is enough. Across all five, WebKit closed the page mid-crawl
+      # and failed the job on every run.
       - name: Run PSIS Discovery
         # PSIS is an external reference host; tolerate failures so a PSIS
         # outage doesn't block our release. Only Heratio's own crawler gates;
         # the parity scanner also depends on PSIS, so it is advisory too.
-        run: npx playwright test tests/e2e/00-discovery/psis-crawler.spec.ts --reporter=list || echo "PSIS crawler advisory failure (external host)"
+        run: npx playwright test tests/e2e/00-discovery/psis-crawler.spec.ts --project=chromium --reporter=list || echo "PSIS crawler advisory failure (external host)"
 
       - name: Run Heratio Discovery
-        run: npx playwright test tests/e2e/00-discovery/heratio-crawler.spec.ts --reporter=list
+        run: npx playwright test tests/e2e/00-discovery/heratio-crawler.spec.ts --project=chromium --reporter=list
 
       - name: Run Parity Scanner
-        run: npx playwright test tests/e2e/00-discovery/parity-scanner.spec.ts --reporter=list || echo "Parity scanner advisory failure (external PSIS host)"
+        run: npx playwright test tests/e2e/00-discovery/parity-scanner.spec.ts --project=chromium --reporter=list || echo "Parity scanner advisory failure (external PSIS host)"
 
       - name: Upload discovery reports
         if: always()
