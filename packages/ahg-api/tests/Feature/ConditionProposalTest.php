@@ -39,12 +39,18 @@ class ConditionProposalTest extends TestCase
         if (! Schema::hasColumn('ahg_ai_condition_assessment', 'review_status')) {
             $this->markTestSkipped('ahg_ai_condition_assessment.review_status missing: run the migration.');
         }
-        $code = fn (string $group) => DB::table('ahg_dropdown')->where('taxonomy', $group)->where('is_active', 1)->orderBy('sort_order')->value('code');
+        // A fresh install (CI) may not have the condition dropdowns seeded:
+        // add one value where a group is empty, inside the test transaction.
+        $code = function (string $group): string {
+            $found = DB::table('ahg_dropdown')->where('taxonomy', $group)->where('is_active', 1)->orderBy('sort_order')->value('code');
+            if ($found) {
+                return $found;
+            }
+            DB::table('ahg_dropdown')->insert(['taxonomy' => $group, 'taxonomy_label' => $group, 'code' => 'test_'.$group, 'label' => 'Test '.$group, 'is_active' => 1]);
+
+            return 'test_'.$group;
+        };
         [$this->grade, $this->type, $this->severity] = [$code('condition_grade'), $code('damage_type'), $code('damage_severity')];
-        // Severity is optional, and its dropdown may not be seeded.
-        if (! $this->grade || ! $this->type) {
-            $this->markTestSkipped('Condition dropdowns are not seeded.');
-        }
 
         $now = now();
         $this->io = DB::table('object')->insertGetId(['class_name' => 'QubitInformationObject', 'created_at' => $now, 'updated_at' => $now]);

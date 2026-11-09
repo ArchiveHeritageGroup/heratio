@@ -45,7 +45,7 @@ class DescriptionRightsBlockTest extends TestCase
         DB::table('status')->insert(['id' => \AhgCore\Support\StatusRow::allocateId(), 'object_id' => $io,
             'type_id' => DisclosureGate::STATUS_TYPE_PUBLICATION, 'status_id' => DisclosureGate::STATUS_PUBLISHED]);
 
-        $statement = $this->idOrInsert('rights_statement', ['code' => 'InC'], ['uri' => 'http://rightsstatements.org/vocab/InC/1.0/', 'is_active' => 1]);
+        $statement = $this->idOrInsert('rights_statement', ['code' => 'InC'], ['uri' => 'http://rightsstatements.org/vocab/InC/1.0/', 'category' => 'in-copyright', 'is_active' => 1]);
         $licence = $this->idOrInsert('rights_cc_license', ['code' => 'CC-BY-4.0'], ['version' => '4.0', 'uri' => 'https://creativecommons.org/licenses/by/4.0/']);
 
         // In force, with a holder; and one that ended yesterday.
