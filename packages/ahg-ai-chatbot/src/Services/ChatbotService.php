@@ -66,8 +66,9 @@ class ChatbotService
         ?string $model = null,
         ?int $tokensIn = null,
         ?int $tokensOut = null,
+        ?\AhgInferenceReceipts\Receipt $receipt = null,
     ): int {
-        return (int) DB::table('ahg_ai_chatbot_message')->insertGetId([
+        $row = [
             'session_id'      => $sessionId,
             'role'            => $role,
             'content'         => $content,
@@ -77,7 +78,29 @@ class ChatbotService
             'tokens_in'       => $tokensIn,
             'tokens_out'      => $tokensOut,
             'created_at'      => now(),
-        ]);
+        ];
+        // heratio#1585: the inference receipt behind the answer, so a citation can name it.
+        if ($receipt !== null && self::hasReceiptColumns()) {
+            $row['receipt_seq'] = $receipt->seq;
+            $row['receipt_hash'] = $receipt->entryHash;
+        }
+
+        return (int) DB::table('ahg_ai_chatbot_message')->insertGetId($row);
+    }
+
+    /** The record slug at the end of a catalogue URL, or null. */
+    public static function slugFromUrl(?string $url): ?string
+    {
+        $path = trim((string) parse_url((string) $url, PHP_URL_PATH), '/');
+
+        return $path === '' ? null : basename($path);
+    }
+
+    private static ?bool $receiptColumns = null;
+
+    private static function hasReceiptColumns(): bool
+    {
+        return self::$receiptColumns ??= \Illuminate\Support\Facades\Schema::hasColumn('ahg_ai_chatbot_message', 'receipt_seq');
     }
 
     /**
@@ -496,6 +519,9 @@ PROMPT;
 
         // LLM dispatch
         $llm = app(\AhgAiServices\Services\LlmService::class);
+        // heratio#1585: the receipt the LLM call writes (null when no new one was written).
+        $logger = class_exists(\AhgAiCompliance\Services\InferenceLogger::class) ? app(\AhgAiCompliance\Services\InferenceLogger::class) : null;
+        $receiptBefore = $logger?->last();
         $result = $llm->completeFull(
             $prompts['system'],
             $prompts['user'],
@@ -526,6 +552,7 @@ PROMPT;
             // answer is suppressed as ungrounded below, $sources is cleared again.
             $sources = array_map(function ($rec, int $i) {
                 return [
+                    'slug'       => self::slugFromUrl($rec['url'] ?? null),
                     'title'      => $rec['title'],
                     'identifier' => $rec['identifier'],
                     'url'        => $rec['url'],
@@ -600,8 +627,10 @@ PROMPT;
         $this->saveMessage($sessionId, 'user', $userMessage, null, null, null, null, null);
 
         // Persist assistant reply
+        $messageId = null;
         if ($success) {
-            $this->saveMessage(
+            $receipt = $logger?->last();
+            $messageId = $this->saveMessage(
                 $sessionId,
                 'assistant',
                 $reply,
@@ -609,11 +638,13 @@ PROMPT;
                 $groundingScore,
                 $result['model'] ?? null,
                 $tokensIn,
-                $tokensOut
+                $tokensOut,
+                $receipt !== $receiptBefore ? $receipt : null
             );
         }
 
         return [
+            'message_id'      => $messageId,
             'success'         => $success,
             'reply'           => $reply,
             'sources'         => $sources,

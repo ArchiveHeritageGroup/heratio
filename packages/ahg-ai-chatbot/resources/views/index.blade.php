@@ -261,6 +261,19 @@
         scrollBottom();
     }
 
+    // heratio#1585: cite an answer - a stable link with model, receipt and records.
+    document.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-cite-message]');
+        if (!b) return;
+        b.disabled = true;
+        fetch(@json(url('/glam/cite/chatbot')) + '/' + b.getAttribute('data-cite-message'), {
+            method: 'POST',
+            headers: {'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content}
+        }).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+            if (d && d.url) { window.open(d.url, '_blank'); } else { b.disabled = false; }
+        }).catch(function () { b.disabled = false; });
+    });
+
     function addAssistantMessage(data) {
         var sourcesHtml = '';
         if (data.sources && data.sources.length) {
@@ -288,6 +301,7 @@
             '<div class="small text-muted mb-1"><i class="fas fa-robot me-1"></i> Assistant ' + gsBadge + '</div>' +
             '<div class="message-text mb-2">' + escapeHtml(data.reply || '') + '</div>' +
             sourcesHtml +
+            (data.message_id ? '<div class="mt-2"><button type="button" class="btn btn-sm atom-btn-white" data-cite-message="' + data.message_id + '"><i class="fas fa-quote-right me-1" aria-hidden="true"></i>' + @json(__('Cite this answer')) + '</button></div>' : '') +
             '</div>';
         chatMessages.insertBefore(div, typingIndicator);
         scrollBottom();

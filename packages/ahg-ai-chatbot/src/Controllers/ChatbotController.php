@@ -131,6 +131,7 @@ class ChatbotController extends Controller
 
         return response()->json([
             'success'         => true,
+            'message_id'      => $result['message_id'] ?? null,
             'reply'           => $result['reply'],
             'sources'         => $result['sources'] ?? [],
             'grounding_score' => $result['grounding_score'],

@@ -279,6 +279,9 @@
     <i class="fas fa-download"></i> CSV
   </a>
 
+  {{-- Cite these results (heratio#1585) --}}
+  @if(Route::has('results.cite.browse'))@include('ahg-search::cite._button')@endif
+
   {{-- View mode buttons --}}
   <a href="{{ glamBrowseUrl($fp, ['view' => 'card']) }}"
      class="btn btn-sm {{ ($viewMode ?? 'card') === 'card' ? 'atom-btn-secondary' : 'atom-btn-white' }}" title="{{ __('Card view') }}" aria-label="{{ __('Card view') }}">

@@ -19,6 +19,14 @@ use Throwable;
 
 final class InferenceLogger
 {
+    /** The receipt this process wrote last, so a caller can keep it with its result (heratio#1585). */
+    private ?Receipt $last = null;
+
+    public function last(): ?Receipt
+    {
+        return $this->last;
+    }
+
     public function __construct(private ReceiptChain $chain)
     {
     }
@@ -54,7 +62,7 @@ final class InferenceLogger
                 'tenant_id'          => $this->tenantId(),
             ], $extra);
 
-            return $this->chain->append($payload);
+            return $this->last = $this->chain->append($payload);
         } catch (Throwable $e) {
             Log::warning('ai-compliance: inference logger append failed', [
                 'service' => $service,

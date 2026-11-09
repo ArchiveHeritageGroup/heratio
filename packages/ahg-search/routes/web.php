@@ -53,3 +53,9 @@ Route::middleware('auth')->group(function () {
         return view('ahg-search::save-search');
     })->name('searchEnhancement.saveSearch');
 });
+
+// heratio#1585 - "Cite these results": citable links for browse views and assistant answers.
+Route::post('/glam/cite', [\AhgSearch\Controllers\CiteController::class, 'browse'])->middleware('throttle:30,1')->name('results.cite.browse');
+Route::post('/glam/cite/chatbot/{message}', [\AhgSearch\Controllers\CiteController::class, 'chatbot'])->middleware(['auth', 'throttle:30,1'])->whereNumber('message')->name('results.cite.chatbot');
+Route::get('/glam/cite/{code}', [\AhgSearch\Controllers\CiteController::class, 'show'])->name('results.cite.show');
+Route::get('/glam/cite/{code}/{format}', [\AhgSearch\Controllers\CiteController::class, 'format'])->name('results.cite.format');
