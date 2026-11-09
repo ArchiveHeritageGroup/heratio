@@ -192,9 +192,20 @@ class TranslationMtBatchCommand extends Command
         $fail = 0;
         $bar = $this->output->createProgressBar(count($todo));
         $bar->start();
+        $check = new TranslationLlmFillCommand();
         foreach ($todo as $key => $text) {
+            // URLs, codes and acronyms stay as they are: opus-mt mangles them
+            // (9 Nov 2026: "CLI" -> "CLIN", a sushi URL rewritten).
+            if (self::untranslatable($text)) {
+                $bar->advance();
+
+                continue;
+            }
             $translated = $this->mtCall($endpoint, $sourceLocale, $locale, $text, $timeout);
-            if ($translated !== null && $translated !== '' && $translated !== $text) {
+            $translated = $translated === null ? null : TranslationLlmFillCommand::plainDashes($translated);
+            // The LLM fill's acceptance rules (heratio#1510): placeholders kept,
+            // sane length, not just the English back.
+            if ($translated !== null && $translated !== '' && $translated !== $text && $check->acceptable($text, $translated, $locale)) {
                 $merged[$key] = $translated;
                 $ok++;
             } else {
@@ -209,8 +220,8 @@ class TranslationMtBatchCommand extends Command
         $bar->finish();
         $this->newLine();
 
-        // Write JSON
-        ksort($merged);
+        // Write JSON in the file's own key order (new keys at the end), so a
+        // run's diff shows only what it filled.
         file_put_contents(
             $jsonPath,
             json_encode($merged, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)."\n"
@@ -234,6 +245,16 @@ class TranslationMtBatchCommand extends Command
         $this->info("  ✓ {$ok} translated, {$fail} failed → lang/{$locale}.json");
 
         return [$ok, $fail];
+    }
+
+    /** A URL, an e-mail address, a code or an acronym: nothing to translate. */
+    public static function untranslatable(string $text): bool
+    {
+        $t = trim($text);
+
+        return str_contains($t, '://') || str_contains($t, '@')
+            || ! preg_match('/[a-z]{2}/', $t)                      // CLI, DPIA:, ISO 8601
+            || (! str_contains($t, ' ') && preg_match('/[a-z][A-Z]/', $t)); // originInfo, camelCase
     }
 
     private function mtCall(string $endpoint, string $source, string $target, string $text, int $timeout): ?string
