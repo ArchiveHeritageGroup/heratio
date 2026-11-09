@@ -6,7 +6,7 @@
   $byType = collect($relationships)->groupBy('relationship_type');
 @endphp
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ ahg_html_lang() }}">
 <head>
 <meta charset="utf-8">
 <style>

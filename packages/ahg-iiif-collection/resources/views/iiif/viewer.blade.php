@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ ahg_html_lang() }}">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>IIIF Viewer - {{ $objectTitle ?? '' }}</title>
 <style>html, body { margin: 0; padding: 0; height: 100%; } #mirador-mount, #uv { position: relative; width: 100%; height: calc(100vh - 120px); background: #1a1a1a; }</style>
 @if(($viewer ?? 'mirador') === 'uv')
