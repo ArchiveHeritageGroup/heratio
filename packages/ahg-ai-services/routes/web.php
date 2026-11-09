@@ -57,6 +57,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin/ai')->group(function () {
     Route::post('/condition/api/submit', [AiController::class, 'conditionApiSubmit'])->name('admin.ai.condition.api.submit');
     Route::post('/condition/api/confirm', [AiController::class, 'conditionApiConfirm'])->name('admin.ai.condition.api.confirm');
     Route::get('/condition/{id}', [AiController::class, 'conditionView'])->name('admin.ai.condition.view')->whereNumber('id');
+    Route::post('/condition/{id}/decision', [AiController::class, 'conditionDecision'])->name('admin.ai.condition.decision')->whereNumber('id');
 
     // ─── NER Entity Management ─────────────────────────────────────
     Route::match(['get', 'post'], '/ner/extract/{id}', [AiController::class, 'nerExtract'])->name('admin.ai.ner.extract')->whereNumber('id');

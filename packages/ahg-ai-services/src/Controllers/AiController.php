@@ -2797,22 +2797,48 @@ class AiController extends Controller
             return response()->json(['success' => false, 'error' => 'Assessment not found']);
         }
 
-        DB::table('ahg_ai_condition_assessment')->where('id', $id)->update([
-            'is_confirmed' => 1,
-            'confirmed_by' => auth()->id(),
-            'confirmed_at' => now(),
-            'updated_at'   => now(),
-        ]);
+        $this->decideCondition($id, 'confirmed');
 
         return response()->json(['success' => true]);
     }
 
+    /**
+     * A reviewer's decision on an assessment (heratio#1558): confirm or dismiss.
+     * Dismiss is for a flag the reviewer does not accept; it stays on record.
+     */
+    public function conditionDecision(Request $request, int $id)
+    {
+        $decision = (string) $request->input('decision');
+        abort_unless(in_array($decision, ['confirmed', 'dismissed'], true), 422);
+        abort_unless(DB::table('ahg_ai_condition_assessment')->where('id', $id)->exists(), 404);
+        $this->decideCondition($id, $decision);
+
+        return redirect()->route('admin.ai.condition.view', $id)
+            ->with('success', $decision === 'confirmed' ? __('Condition assessment confirmed.') : __('Condition assessment dismissed.'));
+    }
+
+    /** One place that records a decision, so is_confirmed and review_status never disagree. */
+    private function decideCondition(int $id, string $decision): void
+    {
+        DB::table('ahg_ai_condition_assessment')->where('id', $id)->update(array_merge([
+            'is_confirmed' => $decision === 'confirmed' ? 1 : 0,
+            'confirmed_by' => auth()->id(),
+            'confirmed_at' => now(),
+            'updated_at'   => now(),
+        ], \Illuminate\Support\Facades\Schema::hasColumn('ahg_ai_condition_assessment', 'review_status') ? ['review_status' => $decision] : []));
+    }
+
     public function conditionBrowse(Request $request)
     {
+        // heratio#1558: review_status (pending / confirmed / dismissed); the old
+        // ?confirmed=1|0 links still work.
+        $hasReview = \Illuminate\Support\Facades\Schema::hasColumn('ahg_ai_condition_assessment', 'review_status');
+        $legacy = ['1' => 'confirmed', '0' => 'pending'][(string) $request->get('confirmed', '')] ?? '';
         $filters = [
             'search'          => trim((string) $request->get('q', '')),
             'condition_grade' => (string) $request->get('grade', ''),
             'is_confirmed'    => $request->get('confirmed', null),
+            'status'          => in_array($s = (string) $request->get('status', $legacy), ['pending', 'confirmed', 'dismissed'], true) ? $s : '',
         ];
 
         $page    = max(1, (int) $request->get('page', 1));
@@ -2828,6 +2854,9 @@ class AiController extends Controller
                 'a.condition_grade', 'a.damage_count', 'a.source',
                 'a.is_confirmed', 'a.created_at', 'io.title as object_title'
             );
+        if ($hasReview) {
+            $q->addSelect('a.review_status');
+        }
 
         if ($filters['search'] !== '') {
             $q->where('io.title', 'like', '%' . $filters['search'] . '%');
@@ -2835,7 +2864,9 @@ class AiController extends Controller
         if ($filters['condition_grade'] !== '') {
             $q->where('a.condition_grade', $filters['condition_grade']);
         }
-        if ($filters['is_confirmed'] === '1' || $filters['is_confirmed'] === '0') {
+        if ($hasReview && $filters['status'] !== '') {
+            $q->where('a.review_status', $filters['status']);
+        } elseif ($filters['is_confirmed'] === '1' || $filters['is_confirmed'] === '0') {
             $q->where('a.is_confirmed', (int) $filters['is_confirmed']);
         }
 
@@ -2851,12 +2882,14 @@ class AiController extends Controller
         $stats = [
             'total'     => (int) DB::table('ahg_ai_condition_assessment')->count(),
             'confirmed' => (int) DB::table('ahg_ai_condition_assessment')->where('is_confirmed', 1)->count(),
-            'pending'   => (int) DB::table('ahg_ai_condition_assessment')->where('is_confirmed', 0)->count(),
+            'pending'   => (int) DB::table('ahg_ai_condition_assessment')->when($hasReview, fn ($q) => $q->where('review_status', 'pending'), fn ($q) => $q->where('is_confirmed', 0))->count(),
+            'dismissed' => $hasReview ? (int) DB::table('ahg_ai_condition_assessment')->where('review_status', 'dismissed')->count() : null,
             'avg_score' => round((float) DB::table('ahg_ai_condition_assessment')->avg('overall_score'), 1),
         ];
 
         return view('ahg-ai-services::condition-browse', [
             'assessments' => $assessments,
+            'grades'      => DB::table('ahg_dropdown')->where('taxonomy', 'condition_grade')->where('is_active', 1)->orderBy('sort_order')->pluck('label', 'code')->all(),
             'filters'     => $filters,
             'stats'       => $stats,
             'page'        => $page,
@@ -2959,7 +2992,26 @@ class AiController extends Controller
 
     public function conditionTraining(Request $request) { return view('ahg-ai-services::condition-training'); }
 
-    public function conditionView(int $id) { return view('ahg-ai-services::condition-view', ['record' => (object)['id'=>$id]]); }
+    /** One assessment with its damages, the record it is about and who sent it, for review (heratio#1558). */
+    public function conditionView(int $id)
+    {
+        $a = DB::table('ahg_ai_condition_assessment as a')
+            ->leftJoin('information_object_i18n as io', fn ($j) => $j->on('io.id', '=', 'a.information_object_id')->where('io.culture', '=', app()->getLocale()))
+            ->leftJoin('slug as s', 's.object_id', '=', 'a.information_object_id')
+            ->leftJoin('user as u', 'u.id', '=', 'a.created_by')
+            ->leftJoin('user as r', 'r.id', '=', 'a.confirmed_by')
+            ->where('a.id', $id)
+            ->first(['a.*', 'io.title as object_title', 's.slug as object_slug', 'u.username as proposed_by', 'r.username as decided_by']);
+        abort_unless($a, 404);
+        $status = $a->review_status ?? ($a->is_confirmed ? 'confirmed' : 'pending');
+        $damages = DB::table('ahg_ai_condition_damage')->where('assessment_id', $id)->orderBy('id')->get();
+        $labels = fn (string $group) => DB::table('ahg_dropdown')->where('taxonomy', $group)->pluck('label', 'code')->all();
+
+        return view('ahg-ai-services::condition-view', [
+            'a' => $a, 'status' => $status, 'damages' => $damages,
+            'gradeLabels' => $labels('condition_grade'), 'typeLabels' => $labels('damage_type'), 'severityLabels' => $labels('damage_severity'),
+        ]);
+    }
 
     /* ------------------------------------------------------------------ */
     /*  HTR - Vital Records Handwritten Text Recognition                  */

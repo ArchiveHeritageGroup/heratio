@@ -42,6 +42,12 @@
                 <span>{{ __('Pending Review') }}</span>
                 <strong class="text-warning">{{ $stats['pending'] ?? 0 }}</strong>
             </div>
+            @if(($stats['dismissed'] ?? null) !== null)
+            <div class="d-flex justify-content-between mb-1">
+                <span>{{ __('Dismissed') }}</span>
+                <strong class="text-secondary">{{ $stats['dismissed'] }}</strong>
+            </div>
+            @endif
             <div class="d-flex justify-content-between">
                 <span>{{ __('Avg Score') }}</span>
                 <strong>{{ $stats['avg_score'] ?? '--' }}</strong>
@@ -64,14 +70,15 @@
                placeholder="{{ __('Search...') }}" value="{{ $filters['search'] ?? '' }}">
         <select name="grade" class="form-select form-select-sm" style="width:150px">
             <option value="">{{ __('All grades') }}</option>
-            @foreach(['excellent','good','fair','poor','critical'] as $g)
-            <option value="{{ $g }}" @selected(($filters['condition_grade'] ?? '') === $g)>{{ ucfirst($g) }}</option>
+            @foreach(($grades ?? []) as $g => $gLabel)
+            <option value="{{ $g }}" @selected(($filters['condition_grade'] ?? '') === $g)>{{ __($gLabel) }}</option>
             @endforeach
         </select>
-        <select name="confirmed" class="form-select form-select-sm" style="width:150px">
+        <select name="status" class="form-select form-select-sm" style="width:150px">
             <option value="">{{ __('All status') }}</option>
-            <option value="1" @selected(($filters['is_confirmed'] ?? '') === '1')>{{ __('Confirmed') }}</option>
-            <option value="0" @selected(($filters['is_confirmed'] ?? '') === '0')>{{ __('Pending') }}</option>
+            <option value="pending" @selected(($filters['status'] ?? '') === 'pending')>{{ __('Pending') }}</option>
+            <option value="confirmed" @selected(($filters['status'] ?? '') === 'confirmed')>{{ __('Confirmed') }}</option>
+            <option value="dismissed" @selected(($filters['status'] ?? '') === 'dismissed')>{{ __('Dismissed') }}</option>
         </select>
         <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-filter"></i></button>
     </form>
@@ -139,8 +146,11 @@
                 <td class="text-center"><span class="badge bg-secondary">{{ $a->damage_count ?? 0 }}</span></td>
                 <td class="text-center"><span class="badge bg-light text-dark">{{ ucfirst((string) ($a->source ?? '')) }}</span></td>
                 <td class="text-center">
-                    @if($a->is_confirmed)
+                    @php $st = $a->review_status ?? ($a->is_confirmed ? 'confirmed' : 'pending'); @endphp
+                    @if($st === 'confirmed')
                     <span class="badge bg-success"><i class="fas fa-check me-1"></i>{{ __('Confirmed') }}</span>
+                    @elseif($st === 'dismissed')
+                    <span class="badge bg-secondary">{{ __('Dismissed') }}</span>
                     @else
                     <span class="badge bg-warning text-dark">{{ __('Pending') }}</span>
                     @endif

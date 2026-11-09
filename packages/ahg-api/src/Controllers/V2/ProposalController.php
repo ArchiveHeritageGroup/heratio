@@ -63,6 +63,8 @@ class ProposalController extends BaseApiController
     private const RELATION_TYPE_TAXONOMY_ID = 55;
     private const RELATION_TYPE_ROOT_ID = 110;
     private const MAX_RELATIONSHIPS = 20;
+    private const MAX_CONDITIONS = 5;
+    private const MAX_DAMAGES = 30;
     /** information_object_i18n fields a proposal may target. */
     private const FIELDS = ['title', 'scope_and_content', 'archival_history', 'extent_and_medium', 'arrangement', 'access_conditions', 'reproduction_conditions'];
 
@@ -84,8 +86,13 @@ class ProposalController extends BaseApiController
         $fields = is_array($request->input('fields')) ? $request->input('fields') : [];
         $transcripts = is_array($request->input('transcripts')) ? $request->input('transcripts') : [];
         $relationships = is_array($request->input('relationships')) ? $request->input('relationships') : [];
-        if (! $entities && ! $fields && ! $transcripts && ! $relationships) {
-            return $this->error('Bad Request', 'entities (a list of {type, value}), fields (a list of {field, text}), transcripts or relationships is required', 400);
+        $conditions = is_array($request->input('conditions')) ? $request->input('conditions') : [];
+        if (! $entities && ! $fields && ! $transcripts && ! $relationships && ! $conditions) {
+            return $this->error('Bad Request', 'entities (a list of {type, value}), fields (a list of {field, text}), transcripts, relationships or conditions is required', 400);
+        }
+        [$condRows, $condError] = $this->cleanConditions($objectId, $conditions);
+        if ($condError) {
+            return $this->error($condError[0], $condError[1], $condError[0] === 'Not Implemented' ? 501 : 400);
         }
         if (count($relationships) > self::MAX_RELATIONSHIPS) {
             return $this->error('Bad Request', 'At most '.self::MAX_RELATIONSHIPS.' relationships per request', 400);
@@ -161,7 +168,7 @@ class ProposalController extends BaseApiController
             $fieldRows[] = ['field' => 'transcript', 'text' => $text, 'culture' => null, 'digital_object_id' => (int) $doId,
                 'evidence' => mb_substr(trim((string) ($t['evidence'] ?? '')), 0, 4000), 'sources' => self::sources($t['sources'] ?? [])];
         }
-        if (! Schema::hasTable('ahg_ner_entity') || ($fieldRows && ! Schema::hasTable('ahg_description_suggestion'))) {
+        if ((($entities || $fieldRows || $relRows) && ! Schema::hasTable('ahg_ner_entity')) || ($fieldRows && ! Schema::hasTable('ahg_description_suggestion'))) {
             return $this->error('Not Implemented', 'Proposals need the AI services package, whose review screens they go to', 501);
         }
         if (count($entities) > self::MAX) {
@@ -256,6 +263,7 @@ class ProposalController extends BaseApiController
         $promoted = $newIds ? $this->promote($objectId, $newIds) : 0;
         [$fieldsQueued, $fieldsSkipped] = $fieldRows ? $this->queueFields($objectId, $fieldRows, $userId, $label) : [[], 0];
         [$relQueued, $relSkipped] = $relRows ? $this->queueRelationships($objectId, $relRows, $userId, $label) : [[], 0];
+        [$condQueued, $condSkipped] = $condRows ? $this->queueConditions($objectId, $condRows, $userId) : [[], 0];
 
         return $this->success([
             'slug' => $slug,
@@ -267,9 +275,131 @@ class ProposalController extends BaseApiController
             'relationships' => $relQueued,
             'relationships_skipped_existing' => $relSkipped,
             'relationship_review_url' => url('/ai/relationship/review'),
+            'conditions' => $condQueued,
+            'conditions_skipped_existing' => $condSkipped,
+            'condition_review_url' => url('/admin/ai/condition/browse?status=pending'),
             'review_url' => url('/ai/ner/review'),
             'description_review_url' => url('/ai/suggest/review'),
-        ], ($queued || $fieldsQueued || array_filter(array_column($relQueued, 'queued'))) ? 201 : 200);
+        ], ($queued || $fieldsQueued || array_filter(array_column($relQueued, 'queued')) || $condQueued) ? 201 : 200);
+    }
+
+    /**
+     * Condition flags (#1558 flag_condition): what an agent saw on the record's
+     * file, for a conservator to confirm or dismiss. Values come from the
+     * Dropdown Manager (condition_grade, damage_type, damage_severity) and the
+     * condition vocabulary (location_zone), so nothing new is invented here.
+     *
+     * @return array{0: list<array<string, mixed>>, 1: ?array{0: string, 1: string}}
+     */
+    protected function cleanConditions(int $objectId, array $conditions): array
+    {
+        if (! $conditions) {
+            return [[], null];
+        }
+        if (! Schema::hasTable('ahg_ai_condition_assessment') || ! Schema::hasColumn('ahg_ai_condition_assessment', 'review_status')) {
+            return [[], ['Not Implemented', 'Condition flags need the condition package and its review_status column (php artisan migrate)']];
+        }
+        if (count($conditions) > self::MAX_CONDITIONS) {
+            return [[], ['Bad Request', 'At most '.self::MAX_CONDITIONS.' condition flags per request']];
+        }
+        $codes = fn (string $group) => DB::table('ahg_dropdown')->where('taxonomy', $group)->where('is_active', 1)->pluck('code')->all();
+        $grades = $codes('condition_grade');
+        $types = $codes('damage_type');
+        $severities = $codes('damage_severity');
+        $zones = Schema::hasTable('condition_vocabulary')
+            ? DB::table('condition_vocabulary')->where('vocabulary_type', 'location_zone')->pluck('code')->all() : [];
+
+        $rows = [];
+        foreach (array_values($conditions) as $i => $c) {
+            $c = is_array($c) ? $c : [];
+            $note = trim((string) ($c['note'] ?? ''));
+            if ($note === '' || mb_strlen($note) > 4000) {
+                return [[], ['Bad Request', "Condition {$i}: note (1-4000 characters) is required: say what you saw and where"]];
+            }
+            $grade = strtolower(trim((string) ($c['grade'] ?? '')));
+            if ($grade !== '' && ! in_array($grade, $grades, true)) {
+                return [[], ['Bad Request', "Condition {$i}: grade must be one of ".implode(', ', $grades)]];
+            }
+            $damages = is_array($c['damages'] ?? null) ? array_values($c['damages']) : [];
+            if (count($damages) > self::MAX_DAMAGES) {
+                return [[], ['Bad Request', "Condition {$i}: at most ".self::MAX_DAMAGES.' damages']];
+            }
+            $cleanDamages = [];
+            foreach ($damages as $j => $d) {
+                $d = is_array($d) ? $d : [];
+                $type = strtolower(trim((string) ($d['type'] ?? '')));
+                $severity = strtolower(trim((string) ($d['severity'] ?? '')));
+                $zone = strtolower(trim((string) ($d['location'] ?? '')));
+                if (! in_array($type, $types, true)) {
+                    return [[], ['Bad Request', "Condition {$i}, damage {$j}: type must be one of ".implode(', ', $types)]];
+                }
+                if ($severity !== '' && ! in_array($severity, $severities, true)) {
+                    return [[], ['Bad Request', "Condition {$i}, damage {$j}: severity must be one of ".implode(', ', $severities)]];
+                }
+                // ponytail: with no location_zone vocabulary installed, a short free-text location is kept as given.
+                if ($zone !== '' && (($zones && ! in_array($zone, $zones, true)) || mb_strlen($zone) > 50)) {
+                    return [[], ['Bad Request', "Condition {$i}, damage {$j}: location must be one of ".implode(', ', $zones)]];
+                }
+                $cleanDamages[] = ['damage_type' => $type, 'severity' => $severity ?: null, 'location_zone' => $zone ?: null,
+                    'confidence' => isset($d['confidence']) ? max(0.0, min(1.0, (float) $d['confidence'])) : 1.0,
+                    'description' => mb_substr(trim((string) ($d['description'] ?? '')), 0, 2000) ?: null];
+            }
+            if ($grade === '' && ! $cleanDamages) {
+                return [[], ['Bad Request', "Condition {$i}: give a grade, damages, or both"]];
+            }
+            $doId = null;
+            if (! empty($c['digital_object_id'])) {
+                $doId = DB::table('digital_object')->where('object_id', $objectId)->where('id', (int) $c['digital_object_id'])->value('id');
+                if (! $doId) {
+                    return [[], ['Bad Request', "Condition {$i}: digital_object_id is not a file of this record"]];
+                }
+            }
+            $sources = self::sources($c['sources'] ?? []);
+            $evidence = mb_substr(trim((string) ($c['evidence'] ?? '')), 0, 4000);
+            $rows[] = ['grade' => $grade ?: null, 'damages' => $cleanDamages, 'digital_object_id' => $doId ? (int) $doId : null,
+                'model' => mb_substr(trim((string) ($c['model'] ?? '')), 0, 50) ?: null,
+                'note' => $note."\n".($evidence !== '' ? "\nEvidence: ".$evidence : '').($sources ? "\nSources: ".implode(', ', array_map(fn ($s) => is_array($s) ? ($s['url'] ?? json_encode($s)) : (string) $s, $sources)) : '')];
+        }
+
+        return [$rows, null];
+    }
+
+    /**
+     * Each flag becomes an unconfirmed AI condition assessment (source api),
+     * reviewed under AI > Condition. The same note already pending for the
+     * record is skipped.
+     */
+    protected function queueConditions(int $objectId, array $rows, int $userId): array
+    {
+        $queued = [];
+        $skipped = 0;
+        foreach ($rows as $row) {
+            $note = rtrim($row['note']);
+            $dup = DB::table('ahg_ai_condition_assessment')->where('information_object_id', $objectId)
+                ->where('source', 'api')->where('review_status', 'pending')->where('recommendations', $note)->exists();
+            if ($dup) {
+                $skipped++;
+
+                continue;
+            }
+            $id = DB::transaction(function () use ($row, $note, $objectId, $userId) {
+                $id = DB::table('ahg_ai_condition_assessment')->insertGetId([
+                    'information_object_id' => $objectId, 'digital_object_id' => $row['digital_object_id'],
+                    'condition_grade' => $row['grade'], 'damage_count' => count($row['damages']),
+                    'recommendations' => $note, 'model_version' => $row['model'],
+                    'source' => 'api', 'is_confirmed' => 0, 'review_status' => 'pending',
+                    'created_by' => $userId ?: null, 'created_at' => now(),
+                ]);
+                foreach ($row['damages'] as $d) {
+                    DB::table('ahg_ai_condition_damage')->insert($d + ['assessment_id' => $id, 'created_at' => now()]);
+                }
+
+                return $id;
+            });
+            $queued[] = ['id' => (int) $id, 'grade' => $row['grade'], 'damages' => count($row['damages'])];
+        }
+
+        return [$queued, $skipped];
     }
 
     /**
@@ -497,6 +627,26 @@ class ProposalController extends BaseApiController
                     'status' => (string) $r->status, 'review_notes' => $r->review_notes,
                     'proposed_by' => $r->created_by ? (int) $r->created_by : null,
                     'reviewed_by' => $r->reviewed_by, 'reviewed_at' => $r->reviewed_at, 'proposed_at' => (string) $r->created_at,
+                ];
+            }
+        }
+
+        // Condition flags (#1558): unconfirmed AI condition assessments sent through this API.
+        if (Schema::hasTable('ahg_ai_condition_assessment') && Schema::hasColumn('ahg_ai_condition_assessment', 'review_status')) {
+            $q = DB::table('ahg_ai_condition_assessment')->where('source', 'api');
+            if ($mine) {
+                $q->where('created_by', $userId);
+            }
+            foreach ($q->orderByDesc('id')->limit(self::LIST_MAX * 5)->get(['id', 'information_object_id', 'condition_grade', 'damage_count',
+                'recommendations', 'review_status', 'created_by', 'confirmed_by', 'confirmed_at', 'created_at']) as $c) {
+                $items[] = [
+                    'kind' => 'condition', 'id' => (int) $c->id, 'object_id' => (int) $c->information_object_id,
+                    'value' => trim(($c->condition_grade ? 'grade '.$c->condition_grade.'; ' : '').(int) $c->damage_count.' damage(s): '
+                        .mb_substr((string) $c->recommendations, 0, 240)),
+                    'status' => (string) $c->review_status, 'review_notes' => null,
+                    'proposed_by' => $c->created_by ? (int) $c->created_by : null,
+                    'reviewed_by' => $c->review_status !== 'pending' ? $c->confirmed_by : null,
+                    'reviewed_at' => $c->review_status !== 'pending' ? $c->confirmed_at : null, 'proposed_at' => (string) $c->created_at,
                 ];
             }
         }
