@@ -28,5 +28,7 @@ LOCALES="$LOCALES,ve,nr,nd,sn,kj,umb,khi,am"
 
 LOG="storage/logs/i18n-overnight-$(date +%Y-%m-%d).log"
 echo "$(date '+%F %T') start" >> "$LOG"
-php artisan ahg:translation-llm-fill "$LOCALES" --until="${I18N_UNTIL:-06:00}" --pause=10 --yield-to=qwen2.5vl:7b >> "$LOG" 2>&1
+# I18N_MODEL picks the gateway model, and with it the node: the gateway routes
+# by model (9 Nov 2026: qwen3:8b lives on .115; the default 27B needs .76).
+php artisan ahg:translation-llm-fill "$LOCALES" --model="${I18N_MODEL:-qwen3.6:27b}" --until="${I18N_UNTIL:-06:00}" --pause=10 --yield-to=qwen2.5vl:7b >> "$LOG" 2>&1
 echo "$(date '+%F %T') end rc=$?" >> "$LOG"

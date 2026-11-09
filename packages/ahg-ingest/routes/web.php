@@ -14,6 +14,10 @@ Route::middleware(['auth', 'acl:import'])->prefix('ingest')->group(function () {
     Route::match(['get', 'post'], '/{id}/commit', [IngestController::class, 'commit'])->name('ingest.commit');
     Route::get('/template/{sector?}', [IngestController::class, 'downloadTemplate'])->name('ingest.template');
 
+    // heratio#1581 grid entry: type or paste descriptions under one parent; staged as an ingest session.
+    Route::get('/grid', [\AhgIngest\Controllers\GridEntryController::class, 'index'])->name('ingest.grid');
+    Route::post('/grid/save', [\AhgIngest\Controllers\GridEntryController::class, 'save'])->name('ingest.grid.save');
+
     // SharePoint manual-path picker (v2 ingest plan, step D)
     Route::get('/{id}/sharepoint/browse', [IngestController::class, 'browseSharePoint'])->name('ingest.sharepoint.browse');
     Route::post('/{id}/sharepoint/import', [IngestController::class, 'importFromSharePoint'])->name('ingest.sharepoint.import');

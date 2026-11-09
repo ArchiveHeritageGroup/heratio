@@ -229,6 +229,7 @@ class IngestCommitRunner
             // step right after IO+DO creation. Steps log + best-effort
             // fail-soft - a DOWN GPU pool / missing model must not break
             // the surrounding ingest commit (the row is already saved).
+            $this->createCreationEvents((int) $result['io_id'], $fields);
             $this->runAiSteps($session, (int) $result['io_id'], (int) ($result['do_id'] ?? 0), $digitalObjectPath);
             // Archivematica-style preservation baseline (fixity + PRONOM +
             // PREMIS) on every ingested digital object, regardless of toggles.
@@ -240,12 +241,52 @@ class IngestCommitRunner
 
         // No digital object - create the IO only.
         $ioId = \AhgInformationObjectManage\Services\InformationObjectService::create($meta, 'en');
+        $this->createCreationEvents((int) $ioId, $fields);
         // #109: text-only AI steps still run when there's no DO (NER /
         // summarize / spellcheck / translate operate on the IO's text
         // fields, not on a binary file).
         $this->runAiSteps($session, $ioId, 0, null);
         $this->recordCustodialProvenance($ioId, $fields);
         return ['io_id' => $ioId, 'do_id' => null];
+    }
+
+    /**
+     * Creation dates as creation events (heratio#1581), as the AHG Extensions
+     * for AtoM ingest does: creationDates is the display text kept as entered,
+     * creationDatesStart / creationDatesEnd become a full date range (a year or
+     * year-month becomes its first or last day), and "|" separates several
+     * events. Before this the commit dropped every date a CSV, Excel or grid
+     * ingest carried. Fail-soft: a bad date never breaks the row.
+     * ponytail: creators (named events) are not created here yet.
+     */
+    protected function createCreationEvents(int $ioId, array $fields): void
+    {
+        if ($ioId <= 0) {
+            return;
+        }
+        $split = fn ($k1, $k2) => array_map('trim', explode('|', (string) ($fields[$k1] ?? $fields[$k2] ?? '')));
+        $dates = $split('creationDates', 'creation_dates');
+        $starts = $split('creationDatesStart', 'creation_dates_start');
+        $ends = $split('creationDatesEnd', 'creation_dates_end');
+        $n = max(count($dates), count($starts), count($ends));
+        for ($i = 0; $i < $n; $i++) {
+            $display = $dates[$i] ?? '';
+            $start = \AhgIngest\Services\GridEntryService::fullDate($starts[$i] ?? '', false);
+            $end = \AhgIngest\Services\GridEntryService::fullDate($ends[$i] ?? '', true);
+            if ($display === '' && ! $start && ! $end) {
+                continue;
+            }
+            try {
+                $eventId = \Illuminate\Support\Facades\DB::table('object')->insertGetId(['class_name' => 'QubitEvent', 'created_at' => now(), 'updated_at' => now()]);
+                \Illuminate\Support\Facades\DB::table('event')->insert([
+                    'id' => $eventId, 'type_id' => \AhgCore\Constants\TermId::EVENT_TYPE_CREATION, 'object_id' => $ioId,
+                    'start_date' => $start, 'end_date' => $end, 'source_culture' => 'en',
+                ]);
+                \Illuminate\Support\Facades\DB::table('event_i18n')->insert(['id' => $eventId, 'culture' => 'en', 'date' => $display !== '' ? $display : null]);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('[ingest] creation event skipped for io '.$ioId.': '.$e->getMessage());
+            }
+        }
     }
 
     /**

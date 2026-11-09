@@ -29,6 +29,9 @@
                 <i class="fas fa-download me-1"></i>{{ __('CSV Template') }}
             </a>
         </div>
+        <a href="{{ route('ingest.grid') }}" class="btn btn btn-outline-secondary me-2" title="{{ __('Type or paste descriptions under one parent') }}">
+            <i class="fas fa-table me-1" aria-hidden="true"></i>{{ __('Grid entry') }}
+        </a>
         <a href="{{ route('ingest.configure') }}" class="btn btn btn-outline-secondary">
             <i class="fas fa-plus me-1"></i>{{ __('New Ingest') }}
         </a>
