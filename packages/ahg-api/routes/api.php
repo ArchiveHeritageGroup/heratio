@@ -1219,6 +1219,8 @@ Route::prefix('api/v2')->middleware(['api.cors', 'api.auth:read', 'api.ratelimit
     Route::get('descriptions', [DescriptionController::class, 'index']);
     Route::get('descriptions/{slug}', [DescriptionController::class, 'show'])->middleware('privacy.redact');
     Route::get('descriptions/{slug}/text', [DescriptionController::class, 'text'])->middleware('privacy.redact');
+    // The record in RiC-O JSON-LD, through the same gate (#1558 ric_query; refuses records with redacted fields).
+    Route::get('descriptions/{slug}/ric', [DescriptionController::class, 'ric']);
     // Proposals for review (#1559, #1565) - the AHG Archives MCP's write path.
     Route::post('descriptions/{slug}/proposals', [ProposalController::class, 'store'])->middleware('api.auth:write');
     Route::get('proposals', [ProposalController::class, 'index']);

@@ -102,7 +102,9 @@ Route::prefix('api/ric/v1')->middleware([
     Route::get('/changelog', [DatasetController::class, 'changelog'])->name('ric.changelog');
 
     // SPARQL & Graph
-    Route::get('/sparql', [LinkedDataApiController::class, 'sparql']);
+    // Staff only: the triple store is not filtered by publication, embargo,
+    // classification or ICIP, so raw SPARQL is not a public surface (#1558).
+    Route::get('/sparql', [LinkedDataApiController::class, 'sparql'])->middleware(['api.auth:read', 'api.staff']);
     Route::get('/graph', [LinkedDataApiController::class, 'graph']);
 
     // Thumbnails - derivative of /uploads/. Generates + caches on first call.

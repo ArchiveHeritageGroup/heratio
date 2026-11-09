@@ -116,7 +116,7 @@ class OpenDataController extends Controller
             [
                 'icon'  => 'fas fa-share-alt',
                 'title' => __('Knowledge graph (RiC)'),
-                'desc'  => __('Query the Records in Contexts (RiC) knowledge graph directly. A read-only SPARQL endpoint (SELECT / ASK / CONSTRUCT / DESCRIBE) lets federated linked-data clients ask their own questions across the catalogue\'s entities and relationships.'),
+                'desc'  => __('Query the Records in Contexts (RiC) knowledge graph directly. The read-only SPARQL endpoint (SELECT / ASK / CONSTRUCT / DESCRIBE) is for the catalogue\'s administrators and editors, signed in or with their API key. Everyone else reads each record\'s RiC data through the per-record API.'),
                 'format' => __('SPARQL 1.1 over RiC-O / RDF'),
                 'endpoints' => [
                     ['label' => __('SPARQL endpoint'), 'route' => 'ric.sparql-proxy'],

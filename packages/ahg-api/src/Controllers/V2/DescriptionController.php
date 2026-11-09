@@ -100,21 +100,12 @@ class DescriptionController extends BaseApiController
             return $this->error('Not Found', "Description '{$slug}' not found.", 404);
         }
 
-        $io = DB::table('information_object as io')
+        $io = $this->visibleQuery()
             ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
             ->join('object', 'io.id', '=', 'object.id')
             ->join('slug', 'io.id', '=', 'slug.object_id')
             ->where('slug.slug', $slug)
             ->where('ioi.culture', $this->culture)
-            // #1384/#1389 - never resolve an ICIP/TK- or ODRL-restricted record
-            ->whereNotIn('io.id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds())
-            // #1391 - published only (v2 show previously had NO publication gate)
-            ->whereExists(function ($q) {
-                $q->select(DB::raw(1))->from('status')
-                    ->whereColumn('status.object_id', 'io.id')
-                    ->where('status.type_id', TermId::STATUS_TYPE_PUBLICATION)
-                    ->where('status.status_id', TermId::PUBLICATION_STATUS_PUBLISHED);
-            })
             ->select('io.*', 'ioi.*', 'object.created_at', 'object.updated_at', 'slug.slug')
             ->first();
 
@@ -174,6 +165,98 @@ class DescriptionController extends BaseApiController
      * redaction regions gives no text, since OCR can carry what the image hides.
      * A "transcript" privacy field rule redacts it for everyone but admins.
      */
+    /**
+     * Descriptions the v2 reads may show: published, and not restricted by
+     * ICIP/TK protocol, ODRL, classification or embargo (DisclosureGate).
+     * One gate for show() and ric(), so they cannot drift apart.
+     */
+    protected function visibleQuery()
+    {
+        return DB::table('information_object as io')
+            // #1384/#1389 - never resolve an ICIP/TK- or ODRL-restricted record
+            ->whereNotIn('io.id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds())
+            // #1391 - published only (v2 show previously had NO publication gate)
+            ->whereExists(function ($q) {
+                $q->select(DB::raw(1))->from('status')
+                    ->whereColumn('status.object_id', 'io.id')
+                    ->where('status.type_id', TermId::STATUS_TYPE_PUBLICATION)
+                    ->where('status.status_id', TermId::PUBLICATION_STATUS_PUBLISHED);
+            });
+    }
+
+    /**
+     * GET /api/v2/descriptions/{slug}/ric - the record in Records in Contexts
+     * (RiC-O 1.1 JSON-LD) with its parent and parts, for the AHG Archives MCP's
+     * RiC read (heratio#1558 ric_query). Built from the database through the
+     * same gate as the description read, never from the triple store, which is
+     * not filtered for visibility (GHSA-8mvw-pgwp-74vw).
+     *
+     * Parent and parts are listed only when they pass the gate themselves.
+     * For callers who are not staff, files (rico:hasInstantiation) are left out,
+     * since get_record_image / get_record_text give them under their own rules,
+     * and the name of whoever confirmed an AI result is removed. A record with
+     * redacted fields is refused to callers who may not see it unredacted:
+     * field-level redaction knows the description's field names, not RiC's.
+     */
+    public function ric(string $slug, Request $request): JsonResponse
+    {
+        $io = $this->visibleQuery()->join('slug', 'io.id', '=', 'slug.object_id')
+            ->where('slug.slug', $slug)->select('io.id', 'io.parent_id')->first();
+        if (! $io) {
+            return $this->error('Not Found', "Description '{$slug}' not found.", 404);
+        }
+        if (! class_exists(\AhgRic\Services\RicSerializationService::class)) {
+            return $this->error('Not Implemented', 'RiC needs the ahg-ric package', 501);
+        }
+        $userId = $this->apiUserId($request);
+        if (class_exists(\AhgPrivacy\Services\PrivacyRedactionService::class)) {
+            $privacy = app(\AhgPrivacy\Services\PrivacyRedactionService::class);
+            $profile = $privacy->getPrivacyProfile((int) $io->id);
+            if ($profile && ! $profile->fields->isEmpty() && ! $privacy->canViewUnredacted($userId ? (int) $userId : null)) {
+                return $this->error('Forbidden', "This record has redacted fields; read it with GET /api/v2/descriptions/{$slug}, which applies them.", 403);
+            }
+        }
+        $staff = $this->isStaff($request);
+
+        $ric = app(\AhgRic\Services\RicSerializationService::class)->serializeRecord((int) $io->id, ['include_children' => false]);
+        $ric['url'] = url('/'.$slug);
+
+        $link = fn ($r) => ['@id' => url('/'.$r->slug), 'rico:title' => $r->title, 'rico:identifier' => $r->identifier];
+        $listed = fn ($q) => $q->join('slug', 'io.id', '=', 'slug.object_id')
+            ->leftJoin('information_object_i18n as ioi', fn ($j) => $j->on('ioi.id', '=', 'io.id')->where('ioi.culture', '=', $this->culture))
+            ->select('io.id', 'slug.slug', 'ioi.title', 'io.identifier');
+        if ($io->parent_id && ($parent = $listed($this->visibleQuery()->where('io.id', $io->parent_id))->first())) {
+            $ric['rico:isOrWasIncludedIn'] = $link($parent);
+        }
+        $parts = $listed($this->visibleQuery()->where('io.parent_id', $io->id))->orderBy('io.lft')->limit(self::RIC_PARTS_MAX + 1)->get();
+        if ($parts->isNotEmpty()) {
+            $ric['rico:hasOrHadPart'] = $parts->take(self::RIC_PARTS_MAX)->map($link)->values()->all();
+            $ric['parts_truncated'] = $parts->count() > self::RIC_PARTS_MAX;
+        }
+
+        if (! $staff) {
+            unset($ric['rico:hasInstantiation']);
+            $ric = self::withoutKey($ric, 'ahg:humanConfirmedBy');
+        }
+
+        return $this->success($ric);
+    }
+
+    private const RIC_PARTS_MAX = 100;
+
+    /** $data with every $key removed at any depth. */
+    private static function withoutKey(array $data, string $key): array
+    {
+        unset($data[$key]);
+        foreach ($data as $k => $v) {
+            if (is_array($v)) {
+                $data[$k] = self::withoutKey($v, $key);
+            }
+        }
+
+        return $data;
+    }
+
     public function text(string $slug, Request $request): JsonResponse
     {
         $id = (int) $this->slugToId($slug);

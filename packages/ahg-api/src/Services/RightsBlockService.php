@@ -216,7 +216,7 @@ class RightsBlockService
             ->orderBy('g.id')->get(['g.act', 'g.restriction', 'gi.restriction_note']);
         foreach ($rows as $g) {
             if ($g->act) {
-                $out[strtolower($g->act)] = ['restriction' => strtolower((string) $g->restriction ?: 'allow'), 'note' => $g->restriction_note ?: null];
+                self::grant($out, strtolower($g->act), strtolower((string) $g->restriction ?: 'allow'), $g->restriction_note);
             }
         }
 
@@ -241,10 +241,25 @@ class RightsBlockService
             if ($act === '' || ! isset(self::PREMIS_RESTRICTION[(int) $g->restriction])) {
                 continue;
             }
-            $out[$act === 'display' ? 'render' : $act] = ['restriction' => self::PREMIS_RESTRICTION[(int) $g->restriction], 'note' => $g->notes ?: null];
+            self::grant($out, $act === 'display' ? 'render' : $act, self::PREMIS_RESTRICTION[(int) $g->restriction], $g->notes);
         }
 
         return $out;
+    }
+
+    /**
+     * Add one act to a rule's grants. When the same act is granted twice, the
+     * stricter restriction wins (disallow, then conditional, then allow), so a
+     * client that withholds on "disallow" is never told less than the record says.
+     * PSIS's ApiRights does the same.
+     */
+    private static function grant(array &$out, string $act, string $restriction, ?string $note): void
+    {
+        $rank = ['allow' => 0, 'conditional' => 1, 'disallow' => 2];
+        if (isset($out[$act]) && ($rank[$out[$act]['restriction']] ?? 0) >= ($rank[$restriction] ?? 0)) {
+            return;
+        }
+        $out[$act] = ['restriction' => $restriction, 'note' => $note ?: null];
     }
 
     private function holder(object $r, string $culture): ?array

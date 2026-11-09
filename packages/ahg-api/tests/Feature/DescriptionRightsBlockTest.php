@@ -156,6 +156,8 @@ class DescriptionRightsBlockTest extends TestCase
             ['rights_id' => $rights, 'act_id' => $act('Display'), 'restriction' => 0, 'notes' => '', 'end_date' => null],
             ['rights_id' => $rights, 'act_id' => $act('Disseminate'), 'restriction' => 2, 'notes' => 'Credit the archive.', 'end_date' => null],
             ['rights_id' => $rights, 'act_id' => $act('Delete'), 'restriction' => 1, 'notes' => '', 'end_date' => now()->subDay()->toDateString()],
+            // Display granted again, later, as allowed: the stricter disallow must still win.
+            ['rights_id' => $rights, 'act_id' => $act('Display'), 'restriction' => 1, 'notes' => 'Later grant', 'end_date' => null],
         ]);
 
         $rules = $this->rights($this->key(null))['rules'];

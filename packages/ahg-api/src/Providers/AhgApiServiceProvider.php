@@ -43,6 +43,7 @@ class AhgApiServiceProvider extends ServiceProvider
         $router->aliasMiddleware('api.cors', ApiCors::class);
         $router->aliasMiddleware('api.idempotency', IdempotencyKeyMiddleware::class);
         $router->aliasMiddleware('api.etag', ETagMiddleware::class);
+        $router->aliasMiddleware('api.staff', \AhgApi\Middleware\ApiStaffOnly::class);
 
         if ($this->app->runningInConsole()) {
             $this->commands([

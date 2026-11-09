@@ -202,7 +202,7 @@ class ApiAuthenticate
         }
 
         return $path === 'api/v2'
-            || (bool) preg_match('#^api/v2/(descriptions(/[^/]+(/text)?)?|authorities(/[^/]+)?|repositories|taxonomies(/\d+/terms)?|exhibitions(/[^/]+)?|search|proposals)$#', $path);
+            || (bool) preg_match('#^api/v2/(descriptions(/[^/]+(/text|/ric)?)?|authorities(/[^/]+)?|repositories|taxonomies(/\d+/terms)?|exhibitions(/[^/]+)?|search|proposals)$#', $path);
     }
 
     protected function bearerToken(Request $request): ?string

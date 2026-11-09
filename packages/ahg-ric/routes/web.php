@@ -96,8 +96,10 @@ Route::get('/ricExplorer/getData', [RicController::class, 'getData'])->name('ric
 Route::get('/ricExplorer/autocomplete', [RicController::class, 'autocomplete'])->name('ric.autocomplete-legacy');
 
 // Read-only SPARQL proxy → Fuseki (SELECT / ASK / CONSTRUCT / DESCRIBE only).
-// Federated linked-data clients can query Heratio's RiC graph here.
-Route::match(['get', 'post'], '/api/sparql', [RdfImportController::class, 'sparqlProxy'])->name('ric.sparql-proxy');
+// Administrators and editors only (session or API key): the triple store is not
+// filtered by publication, embargo, classification or ICIP, so it is not public.
+Route::match(['get', 'post'], '/api/sparql', [RdfImportController::class, 'sparqlProxy'])->name('ric.sparql-proxy')
+    ->middleware(['api.auth:read', 'api.staff']);
 
 // CIDOC-CRM v7.1.3 per-record export (issue #659 Phase 1).
 // Sits under /admin/* to stay outside the locked /{slug} catch-all in
