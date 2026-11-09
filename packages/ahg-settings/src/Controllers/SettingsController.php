@@ -540,8 +540,16 @@ class SettingsController extends Controller
             ->get();
 
         if ($request->isMethod('post') && $request->input('action') === 'add') {
-            $code = strtolower(trim($request->input('languageCode', '')));
-            if (preg_match('/^[a-z]{2,3}$/', $code)) {
+            // A language code, optionally with a region and/or variant, matching
+            // the lang/*.json locale names: fr, pt_BR, de_CH, ca@valencia.
+            // Case and separator are normalised, so pt-br is stored as pt_BR.
+            $code = '';
+            if (preg_match('/^([a-z]{2,3})(?:[_-]([a-z]{2}))?(?:@([a-z]{4,8}))?$/i', trim((string) $request->input('languageCode', '')), $m)) {
+                $code = strtolower($m[1])
+                    .(! empty($m[2]) ? '_'.strtoupper($m[2]) : '')
+                    .(! empty($m[3]) ? '@'.strtolower($m[3]) : '');
+            }
+            if ($code !== '') {
                 $exists = DB::table('setting')
                     ->where('scope', 'i18n_languages')
                     ->where('name', $code)
@@ -567,7 +575,7 @@ class SettingsController extends Controller
                 return redirect()->route('settings.languages')->with('error', "Language '{$code}' already exists.");
             }
 
-            return redirect()->route('settings.languages')->with('error', 'Invalid language code. Use 2-3 lowercase letters (e.g. en, fr, af).');
+            return redirect()->route('settings.languages')->with('error', __('Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).'));
         }
 
         if ($request->isMethod('post') && $request->input('action') === 'delete') {
