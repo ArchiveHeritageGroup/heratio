@@ -29,6 +29,11 @@ LOCALES="$LOCALES,ve,nr,nd,sn,kj,umb,khi,am"
 LOG="storage/logs/i18n-overnight-$(date +%Y-%m-%d).log"
 echo "$(date '+%F %T') start" >> "$LOG"
 # I18N_MODEL picks the gateway model, and with it the node: the gateway routes
-# by model (9 Nov 2026: qwen3:8b lives on .115; the default 27B needs .76).
-php artisan ahg:translation-llm-fill "$LOCALES" --model="${I18N_MODEL:-qwen3.6:27b}" --until="${I18N_UNTIL:-06:00}" --pause=10 --yield-to=qwen2.5vl:7b >> "$LOG" 2>&1
+# by model (OLLAMA_MODEL_AFFINITY; since 9 Nov 2026 qwen3:8b goes to .115, the
+# default 27B to .76). I18N_YIELD names the models that have the GPU first;
+# set it empty when the fill runs on another node than eDerma's qwen2.5vl.
+# I18N_BATCH sets the strings per model call (default 40); 20 keeps the slow
+# scripts (Georgian, Tamil, Welsh, Irish) under the gateway's 600 s limit.
+YIELD=${I18N_YIELD-qwen2.5vl:7b}
+php artisan ahg:translation-llm-fill "$LOCALES" --model="${I18N_MODEL:-qwen3.6:27b}" --until="${I18N_UNTIL:-06:00}" --batch="${I18N_BATCH:-40}" --pause=10 ${YIELD:+--yield-to="$YIELD"} >> "$LOG" 2>&1
 echo "$(date '+%F %T') end rc=$?" >> "$LOG"
