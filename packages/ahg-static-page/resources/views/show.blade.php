@@ -6,6 +6,9 @@
 
 @section('title', $page->title ?: __('Page'))
 @section('body-class', 'show static-page')
+@if(request()->route('slug') === 'about')
+  @section('meta-description', __('Heratio is a standalone open-source GLAM application on Laravel. It is not AtoM or AtoM plugins; it uses the AtoM database structure so AtoM sites can switch in place.'))
+@endif
 
 @if($hasMenu)
   @section('sidebar')

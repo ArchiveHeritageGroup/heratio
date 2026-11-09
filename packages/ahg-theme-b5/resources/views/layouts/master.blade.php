@@ -27,6 +27,9 @@
       $__docTitle = $__rawTitle !== '' ? trim(preg_replace('/\s+/', ' ', strip_tags($__rawTitle))) : $__siteTitle;
     @endphp
     <title>{{ $__docTitle }}</title>
+    @hasSection('meta-description')
+    <meta name="description" content="@yield('meta-description')">
+    @endif
     <meta name="csrf-token" content="{{ csrf_token() }}">
     {{-- heratio#1568: one canonical address per page, on the configured host,
          without sort / language / view variants (robots.txt disallows those). --}}

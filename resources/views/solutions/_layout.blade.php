@@ -5,6 +5,7 @@
 @extends('theme::layouts.1col')
 
 @section('title', __($meta[0]).' - Heratio')
+@section('meta-description', __($meta[1]))
 
 @section('title-block')
   <h1>{{ __($meta[0]) }}</h1>

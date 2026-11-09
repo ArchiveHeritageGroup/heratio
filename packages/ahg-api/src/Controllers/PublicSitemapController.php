@@ -339,6 +339,13 @@ class PublicSitemapController extends Controller
             'explore.index' => ['weekly', '0.8'],
             'open-data.index' => ['weekly', '0.6'],
             'exhibition-space.reconstructions' => ['weekly', '0.6'],
+            // Marketing pages: Google had never found /solutions/migrating-from-atom
+            // and knew /about only through facet links (Search Console, 9 Nov 2026).
+            'staticpage.about' => ['weekly', '0.7'],
+            'solutions.index' => ['weekly', '0.7'],
+            'solutions.tour' => ['weekly', '0.6'],
+            'solutions.capabilities' => ['weekly', '0.6'],
+            'solutions.documentation' => ['weekly', '0.6'],
             'c2pa.authenticity' => ['weekly', '0.5'],
         ];
 
@@ -372,6 +379,22 @@ class PublicSitemapController extends Controller
                 ];
             } catch (\Throwable $e) {
                 // skip
+            }
+        }
+
+        // One entry per solutions page, read from the controller so a new page
+        // lands in the sitemap without touching this list.
+        if (Route::has('solutions.show') && class_exists(\App\Http\Controllers\SolutionsController::class)) {
+            foreach (array_keys(\App\Http\Controllers\SolutionsController::PAGES) as $slug) {
+                try {
+                    $urls[] = [
+                        'loc' => route('solutions.show', $slug),
+                        'changefreq' => 'weekly',
+                        'priority' => '0.6',
+                    ];
+                } catch (\Throwable $e) {
+                    // skip
+                }
             }
         }
 
