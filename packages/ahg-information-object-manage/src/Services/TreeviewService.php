@@ -352,6 +352,21 @@ class TreeviewService
      */
     public function moveAfter(int $id, int $targetId): bool
     {
+        return $this->moveSibling($id, $targetId, false);
+    }
+
+    /** Move a node before a sibling - the only way to make a node the first child. */
+    public function moveBefore(int $id, int $targetId): bool
+    {
+        return $this->moveSibling($id, $targetId, true);
+    }
+
+    private function moveSibling(int $id, int $targetId, bool $before): bool
+    {
+        if ($id === $targetId) {
+            return false;
+        }
+
         $node = DB::table('information_object')
             ->where('id', $id)
             ->select('id', 'lft', 'rgt', 'parent_id')
@@ -367,7 +382,7 @@ class TreeviewService
         }
 
         $width = $node->rgt - $node->lft + 1;
-        $newPos = $after->rgt + 1;
+        $newPos = $before ? $after->lft : $after->rgt + 1;
 
         DB::beginTransaction();
 

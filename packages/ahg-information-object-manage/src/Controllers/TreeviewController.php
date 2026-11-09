@@ -117,15 +117,25 @@ class TreeviewController extends Controller
     {
         $id = (int) $request->get('id');
         $target = (int) $request->get('target');
+        $position = (string) $request->get('position', 'after');
 
-        if (!$id || !$target) {
-            return response()->json(['error' => 'Missing required parameters: id, target'], 400);
+        if (!$id || !$target || !in_array($position, ['after', 'before'], true)) {
+            return response()->json(['error' => 'Missing or invalid parameters: id, target, position'], 400);
+        }
+
+        // The route's acl:update is a global permission; reordering rewrites this
+        // record's place in the hierarchy, so check update on the record itself too.
+        $node = \Illuminate\Support\Facades\DB::table('information_object')->where('id', $id)->first();
+        if (!$node || !\AhgCore\Services\AclService::check($node, 'update')) {
+            return response()->json(['error' => 'Insufficient permissions'], 403);
         }
 
         $culture = app()->getLocale();
         $service = new TreeviewService($culture);
 
-        $success = $service->moveAfter($id, $target);
+        $success = $position === 'before'
+            ? $service->moveBefore($id, $target)
+            : $service->moveAfter($id, $target);
 
         if ($success) {
             return response()->json(['success' => true]);

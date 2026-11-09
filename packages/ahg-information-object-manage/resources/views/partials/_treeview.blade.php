@@ -22,6 +22,13 @@
 --}}
 @php
   $__treeviewType = \AhgCore\Support\GlobalSettings::treeviewType();
+  // heratio#1582: editors may reorder siblings by drag-and-drop or the up/down
+  // buttons, but only while the tree shows the manual order (a title or
+  // identifier sort would hide the result). The endpoint re-checks the record.
+  $__canReorder = auth()->check()
+      // Same rule as TreeviewService::getChildren: these three sort; anything else is the manual order.
+      && ! in_array(\AhgCore\Support\GlobalSettings::sortTreeviewInformationObject(), ['alphabetic', 'title', 'identifier'], true)
+      && \AhgCore\Services\AclService::check($io, 'update');
 @endphp
 
 @switch($__treeviewType)
@@ -134,6 +141,19 @@
   }
   #treeview-tree .tv-load-more { cursor: pointer; color: #6c757d; font-style: italic; padding-left: 6px; }
   #treeview-tree .tv-load-more:hover { color: #0d6efd; }
+  /* heratio#1582 reorder: the node becomes a flex row so the move buttons stay
+     visible however long the title is. */
+  #treeview-tree.tv-reorderable .tv-node { display: flex; align-items: center; }
+  #treeview-tree.tv-reorderable .tv-node > a { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  #treeview-tree .tv-move {
+    border: 0; background: none; padding: 0 3px; line-height: 1; color: #6c757d; opacity: .35;
+  }
+  #treeview-tree .tv-node:hover .tv-move, #treeview-tree .tv-move:focus-visible { opacity: 1; }
+  #treeview-tree .tv-move:hover { color: var(--bs-primary, #0d6efd); }
+  #treeview-tree .tv-move:disabled { visibility: hidden; }
+  #treeview-tree .tv-dragging { opacity: .5; }
+  #treeview-tree .tv-drop-before { box-shadow: inset 0 2px 0 var(--bs-primary, #0d6efd); }
+  #treeview-tree .tv-drop-after { box-shadow: inset 0 -2px 0 var(--bs-primary, #0d6efd); }
 </style>
 
 <script nonce="{{ csp_nonce() }}">
@@ -144,6 +164,27 @@ document.addEventListener('DOMContentLoaded', function() {
   var showUrl = '{{ url("/") }}/';
   var tree = document.getElementById('treeview-tree');
   var loading = document.getElementById('treeview-loading');
+
+  // heratio#1582: sibling reorder for editors (drag-and-drop, plus up/down
+  // buttons as the non-drag way required by WCAG 2.2 SC 2.5.7).
+  var canReorder = {{ $__canReorder ? 'true' : 'false' }};
+  var sortUrl = '{{ route("io.treeviewSort") }}';
+  var tvText = {!! json_encode([
+      'up' => __('Move up'),
+      'down' => __('Move down'),
+      'moved' => __('Moved.'),
+      'failed' => __('Could not move this description.'),
+  ]) !!};
+  var status = null;
+  var dragged = null;
+  if (canReorder) {
+    tree.classList.add('tv-reorderable');
+    status = document.createElement('div');
+    status.className = 'small text-muted mt-1';
+    status.setAttribute('role', 'status');
+    status.setAttribute('aria-live', 'polite');
+    tree.parentNode.insertBefore(status, tree.nextSibling);
+  }
 
   function loadTreeview() {
     loading.style.display = 'block';
@@ -268,6 +309,10 @@ document.addEventListener('DOMContentLoaded', function() {
       ' <a href="' + showUrl + node.slug + '" class="text-decoration-none">' +
       escapeHtml(titleText) + '</a></span>';
 
+    if (canReorder) {
+      makeReorderable(li, titleText);
+    }
+
     // Toggle click handler for expanding/collapsing
     var toggle = li.querySelector('.tv-toggle');
     if (hasChildren && toggle) {
@@ -384,6 +429,133 @@ document.addEventListener('DOMContentLoaded', function() {
         // Remove the "load more" link
         ul.removeChild(li);
       });
+  }
+
+  // ── heratio#1582 sibling reorder ──────────────────────────────────────
+  // Siblings are the <li> nodes of one <ul> (the tree renders each level in
+  // its own list); "Load more" rows have no .tv-node and are skipped.
+  function siblingNodes(li) {
+    return Array.prototype.filter.call(li.parentElement.children, function (el) {
+      return el.querySelector(':scope > .tv-node');
+    });
+  }
+
+  function makeReorderable(li, titleText) {
+    var span = li.querySelector('.tv-node');
+    var link = span.querySelector('a');
+    link.draggable = false;        // the row drags, not the link's URL
+    span.draggable = true;
+    li.dataset.id = span.dataset.id;
+
+    ['up', 'down'].forEach(function (dir) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'tv-move';
+      b.dataset.dir = dir;
+      b.title = tvText[dir];
+      b.setAttribute('aria-label', tvText[dir] + ': ' + titleText);
+      b.innerHTML = '<i class="fas fa-arrow-' + dir + '" aria-hidden="true"></i>';
+      b.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var sibs = siblingNodes(li), i = sibs.indexOf(li);
+        if (dir === 'up' && i > 0) { moveNode(li, sibs[i - 1], 'before', b); }
+        if (dir === 'down' && i < sibs.length - 1) { moveNode(li, sibs[i + 1], 'after', b); }
+      });
+      span.appendChild(b);
+    });
+
+    span.addEventListener('dragstart', function (e) {
+      e.stopPropagation();
+      dragged = li;
+      li.classList.add('tv-dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', li.dataset.id);
+    });
+    span.addEventListener('dragend', function () {
+      li.classList.remove('tv-dragging');
+      dragged = null;
+      clearDropMarks();
+    });
+    span.addEventListener('dragover', function (e) {
+      if (!dragged || dragged === li || dragged.parentElement !== li.parentElement) { return; }
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      var r = span.getBoundingClientRect();
+      var before = e.clientY < r.top + r.height / 2;
+      clearDropMarks();
+      span.classList.add(before ? 'tv-drop-before' : 'tv-drop-after');
+    });
+    span.addEventListener('dragleave', function () {
+      span.classList.remove('tv-drop-before', 'tv-drop-after');
+    });
+    span.addEventListener('drop', function (e) {
+      if (!dragged || dragged === li || dragged.parentElement !== li.parentElement) { return; }
+      e.preventDefault();
+      var before = span.classList.contains('tv-drop-before');
+      clearDropMarks();
+      moveNode(dragged, li, before ? 'before' : 'after', null);
+    });
+  }
+
+  function clearDropMarks() {
+    tree.querySelectorAll('.tv-drop-before, .tv-drop-after').forEach(function (el) {
+      el.classList.remove('tv-drop-before', 'tv-drop-after');
+    });
+  }
+
+  // The first sibling cannot move up and the last cannot move down.
+  function refreshMoveButtons(ul) {
+    siblingNodes({ parentElement: ul }).forEach(function (li, i, all) {
+      var up = li.querySelector(':scope > .tv-node > .tv-move[data-dir="up"]');
+      var down = li.querySelector(':scope > .tv-node > .tv-move[data-dir="down"]');
+      if (up) { up.disabled = i === 0; }
+      if (down) { down.disabled = i === all.length - 1; }
+    });
+  }
+
+  // Server first, then the DOM, so the tree never shows an order that was not saved.
+  function moveNode(li, targetLi, position, focusBtn) {
+    if (li === targetLi) { return; }
+    var body = new URLSearchParams({ id: li.dataset.id, target: targetLi.dataset.id, position: position });
+    fetch(sortUrl, {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+        'Accept': 'application/json'
+      },
+      body: body
+    })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        if (!res.ok || !res.d.success) {
+          status.className = 'small text-danger mt-1';
+          status.textContent = tvText.failed + (res.d.error ? ' ' + res.d.error : '');
+          return;
+        }
+        var ul = li.parentElement;
+        ul.insertBefore(li, position === 'before' ? targetLi : targetLi.nextSibling);
+        refreshMoveButtons(ul);
+        status.className = 'small text-muted mt-1';
+        status.textContent = tvText.moved;
+        if (focusBtn && !focusBtn.disabled) { focusBtn.focus(); }
+      })
+      .catch(function () {
+        status.className = 'small text-danger mt-1';
+        status.textContent = tvText.failed;
+      });
+  }
+
+  // Lists are filled by several loaders (initial render, expand, load more,
+  // load siblings); one observer keeps every list's buttons right.
+  if (canReorder && window.MutationObserver) {
+    new MutationObserver(function (muts) {
+      var seen = [];
+      muts.forEach(function (m) {
+        var ul = m.target;
+        if (ul.tagName === 'UL' && seen.indexOf(ul) < 0) { seen.push(ul); refreshMoveButtons(ul); }
+      });
+    }).observe(tree, { childList: true, subtree: true });
   }
 
   function escapeHtml(text) {
