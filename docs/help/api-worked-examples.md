@@ -150,7 +150,7 @@ curl "https://heratio.example.org/oai?verb=ListRecords&metadataPrefix=oai_dc"
 The formats on offer are `oai_dc`, `oai_ead`, `oai_ead3`, `mods`, `marcxml` and `rico`. A long list comes in pages: each page ends with a `<resumptionToken>`, and you ask for the next page with that token alone.
 
 ```bash
-curl "https://heratio.example.org/oai?verb=ListRecords&resumptionToken=eyJwaGFzZSI6..."
+curl "https://heratio.example.org/oai?verb=ListRecords&resumptionToken=TOKEN-FROM-THE-LAST-PAGE"
 ```
 
 A full harvest in a few lines of Python:
