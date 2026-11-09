@@ -705,9 +705,11 @@ jobs:
         # outage or slowness cannot red the gate. Only the Heratio crawler (our own
         # app) gates the release: its failure must fail the workflow.
         run: |
-          npx playwright test tests/e2e/00-discovery/psis-crawler.spec.ts --reporter=list || echo "PSIS crawler advisory failure (external host)"
-          npx playwright test tests/e2e/00-discovery/heratio-crawler.spec.ts --reporter=list
-          npx playwright test tests/e2e/00-discovery/parity-scanner.spec.ts --reporter=list || echo "Parity scanner advisory failure (external PSIS host)"
+          # Discovery is a page inventory: one browser (WebKit closed the page
+          # mid-crawl on every run), as in e2e-tests.yml.
+          npx playwright test tests/e2e/00-discovery/psis-crawler.spec.ts --project=chromium --reporter=list || echo "PSIS crawler advisory failure (external host)"
+          npx playwright test tests/e2e/00-discovery/heratio-crawler.spec.ts --project=chromium --reporter=list
+          npx playwright test tests/e2e/00-discovery/parity-scanner.spec.ts --project=chromium --reporter=list || echo "Parity scanner advisory failure (external PSIS host)"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
