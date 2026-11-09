@@ -33,6 +33,9 @@ class BrowseEsSearchTest extends TestCase
     {
         parent::setUp();
         DB::table('ahg_settings')->updateOrInsert(['setting_key' => 'ahg_display_search_es'], ['setting_value' => '1']);
+        // Settings are cached per process; an earlier test in the suite may
+        // have loaded them before this one switched ES search on.
+        \AhgCore\Services\AhgSettingsService::clearCache();
         $this->term = 'zzes'.uniqid();
         $this->byTitle = $this->record(['title' => "A {$this->term} title"]);
         $this->byIdentifier = $this->record([], "ID-{$this->term}");

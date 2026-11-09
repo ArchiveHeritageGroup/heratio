@@ -41,6 +41,10 @@ class ApiScopeGatesTest extends TestCase
         $id = (int) DB::table('object')->insertGetId(['class_name' => 'QubitUser', 'created_at' => now(), 'updated_at' => now()]);
         DB::table('actor')->insert(['id' => $id, 'source_culture' => 'en']);
         DB::table('user')->insert(['id' => $id, 'username' => 'scope-'.$id, 'email' => uniqid('scope-', true).'@example.test', 'password_hash' => Hash::make('x'), 'active' => 1]);
+        // A staff account: keys of accounts with no staff group read the public
+        // catalogue only (ApiAuthenticate), which is not what this test is about.
+        DB::table('acl_user_group')->insert(['user_id' => $id, 'group_id' => \AhgCore\Models\AclGroup::EDITOR_ID]);
+        \Illuminate\Support\Facades\Cache::forget("acl_groups_{$id}");
         $raw = 'scope-test-key-'.$id.'-'.implode('-', $scopes);
         DB::table('ahg_api_key')->insert(['user_id' => $id, 'name' => 't', 'api_key' => hash('sha256', $raw), 'api_key_prefix' => substr($raw, 0, 8), 'scopes' => json_encode($scopes), 'is_active' => 1]);
 

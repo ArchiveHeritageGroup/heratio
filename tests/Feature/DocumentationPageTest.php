@@ -31,6 +31,15 @@ use Tests\TestCase;
 
 class DocumentationPageTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // A client host: CI's APP_URL is a demo host, and a demo host turns the
+        // marketing site on whatever homepage_mode says (MarketingSite::is).
+        config(['app.url' => 'http://client.example.test']);
+        \Illuminate\Support\Facades\URL::forceRootUrl('http://client.example.test');
+    }
+
     public function test_every_guide_is_pinned_to_the_running_release_and_exists(): void
     {
         $version = json_decode((string) file_get_contents(base_path('version.json')), true)['version'];

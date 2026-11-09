@@ -211,6 +211,10 @@ jobs:
             echo "Loading $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
+          # Package install.sql files (tables plus their seed rows, such as the
+          # ICIP label catalogue), as bin/install Stage 7 does before the seeds.
+          DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
+            php artisan heratio:install-bootstrap --pass=2 --no-interaction --env=testing
           for f in database/seeds/0[0-6]_*.sql; do
             echo "Seeding $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
@@ -225,6 +229,9 @@ jobs:
           # schema above was loaded as root; --env=testing supplies APP_KEY.
           DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
             php artisan migrate --force --env=testing
+          # heratio#1547: closure tables, as bin/install does after migrations.
+          DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
+            php artisan ahg:build-closure --all --env=testing
       - name: Run Unit Tests
         run: |
           php -d pcov.enabled=1 ./vendor/bin/phpunit --testsuite=Unit --colors=always --testdox
@@ -284,6 +291,10 @@ jobs:
             echo "Loading $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
+          # Package install.sql files (tables plus their seed rows, such as the
+          # ICIP label catalogue), as bin/install Stage 7 does before the seeds.
+          DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
+            php artisan heratio:install-bootstrap --pass=2 --no-interaction --env=testing
           for f in database/seeds/0[0-6]_*.sql; do
             echo "Seeding $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
@@ -298,6 +309,9 @@ jobs:
           # schema above was loaded as root; --env=testing supplies APP_KEY.
           DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
             php artisan migrate --force --env=testing
+          # heratio#1547: closure tables, as bin/install does after migrations.
+          DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
+            php artisan ahg:build-closure --all --env=testing
       - name: Run Feature Tests
         run: |
           php -d pcov.enabled=1 ./vendor/bin/phpunit --testsuite=Feature --colors=always --testdox
@@ -358,6 +372,10 @@ jobs:
             echo "Loading $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
+          # Package install.sql files (tables plus their seed rows, such as the
+          # ICIP label catalogue), as bin/install Stage 7 does before the seeds.
+          DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
+            php artisan heratio:install-bootstrap --pass=2 --no-interaction --env=testing
           for f in database/seeds/0[0-6]_*.sql; do
             echo "Seeding $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
@@ -372,6 +390,9 @@ jobs:
           # schema above was loaded as root; --env=testing supplies APP_KEY.
           DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
             php artisan migrate --force --env=testing
+          # heratio#1547: closure tables, as bin/install does after migrations.
+          DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
+            php artisan ahg:build-closure --all --env=testing
       - name: Run Tests with Coverage
         run: |
           php -d pcov.enabled=1 ./vendor/bin/phpunit \
@@ -485,6 +506,10 @@ jobs:
             echo "Loading $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
+          # Package install.sql files (tables plus their seed rows, such as the
+          # ICIP label catalogue), as bin/install Stage 7 does before the seeds.
+          DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
+            php artisan heratio:install-bootstrap --pass=2 --no-interaction --env=testing
           for f in database/seeds/0[0-6]_*.sql; do
             echo "Seeding $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
@@ -499,6 +524,9 @@ jobs:
           # schema above was loaded as root; --env=testing supplies APP_KEY.
           DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
             php artisan migrate --force --env=testing
+          # heratio#1547: closure tables, as bin/install does after migrations.
+          DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
+            php artisan ahg:build-closure --all --env=testing
       - name: Check CriticalPath Tests
         run: |
           if [ -d tests/CriticalPath ] && [ "$(ls -A tests/CriticalPath/*.php 2>/dev/null)" ]; then
@@ -563,6 +591,10 @@ jobs:
             echo "Loading $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
           done
+          # Package install.sql files (tables plus their seed rows, such as the
+          # ICIP label catalogue), as bin/install Stage 7 does before the seeds.
+          DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
+            php artisan heratio:install-bootstrap --pass=2 --no-interaction --env=testing
           for f in database/seeds/0[0-6]_*.sql; do
             echo "Seeding $f"
             mysql -h 127.0.0.1 -u root -proot heratio_test < "$f"
@@ -577,6 +609,9 @@ jobs:
           # schema above was loaded as root; --env=testing supplies APP_KEY.
           DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
             php artisan migrate --force --env=testing
+          # heratio#1547: closure tables, as bin/install does after migrations.
+          DB_HOST=127.0.0.1 DB_DATABASE=heratio_test DB_USERNAME=root DB_PASSWORD=root \
+            php artisan ahg:build-closure --all --env=testing
       - name: Discover Package Tests
         run: |
           for dir in packages/*/tests; do

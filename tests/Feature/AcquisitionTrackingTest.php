@@ -48,6 +48,10 @@ class AcquisitionTrackingTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        // A client host: CI's APP_URL is a demo host, and a demo host turns the
+        // marketing site on whatever homepage_mode says (MarketingSite::is).
+        config(['app.url' => 'http://client.example.test']);
+        \Illuminate\Support\Facades\URL::forceRootUrl('http://client.example.test');
         if (! Schema::hasTable('ahg_acquisition_event')) {
             $this->markTestSkipped('ahg_acquisition_event not present; run the migrations.');
         }

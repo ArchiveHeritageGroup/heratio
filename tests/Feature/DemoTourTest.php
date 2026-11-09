@@ -32,6 +32,15 @@ use Tests\TestCase;
 
 class DemoTourTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // A client host: CI's APP_URL is a demo host, and a demo host turns the
+        // marketing site on whatever homepage_mode says (MarketingSite::is).
+        config(['app.url' => 'http://client.example.test']);
+        \Illuminate\Support\Facades\URL::forceRootUrl('http://client.example.test');
+    }
+
     public function test_a_client_install_has_no_tour_and_no_card(): void
     {
         config(['heratio.homepage_mode' => 'institutional']);
