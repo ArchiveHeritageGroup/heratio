@@ -320,7 +320,10 @@ class ExtendedRightsService
                 's.slug',
             ]);
 
-        if ($status !== 'all') {
+        // 'active' means in force today, by the shared rule (heratio#1588).
+        if ($status === 'active') {
+            \AhgCore\Support\EmbargoScope::current($query, 'e');
+        } elseif ($status !== 'all') {
             $query->where('e.status', $status);
         }
 
@@ -339,7 +342,7 @@ class ExtendedRightsService
                     ->where('ioi.culture', '=', $this->culture);
             })
             ->leftJoin('slug as s', 's.object_id', '=', 'e.object_id')
-            ->where('e.status', 'active')
+            ->where(fn ($q) => \AhgCore\Support\EmbargoScope::current($q, 'e'))
             ->whereNotNull('e.end_date')
             ->whereRaw('e.end_date <= DATE_ADD(NOW(), INTERVAL ? DAY)', [$days])
             ->where('e.end_date', '>=', now()->toDateString())
@@ -460,6 +463,7 @@ class ExtendedRightsService
 
         DB::table('embargo')->where('id', $id)->update([
             'status' => 'lifted',
+            'is_active' => 0,
             'lifted_at' => now(),
             'lifted_by' => $userId ?? auth()->id(),
             'lift_reason' => $reason,

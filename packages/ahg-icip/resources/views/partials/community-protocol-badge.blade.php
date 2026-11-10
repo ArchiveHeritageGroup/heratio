@@ -71,7 +71,7 @@
       <span class="badge {{ $__cpClass($__p->access_condition ?? null) }} me-1"
             data-bs-toggle="tooltip"
             title="{{ $__tip }}">
-        <i class="fas fa-hands-holding-circle me-1"></i>{{ $__fam ? $__fam . ' ' : '' }}{{ $__name }}@if($__isNote) <span class="opacity-75">· {{ __('Notice') }}</span>@endif
+        <i class="fas fa-hands-holding-circle me-1"></i>{{-- the family only when the name lacks it ("BC Clan", not "BC BC Clan"; heratio#1588) --}}{{ ($__fam && ! str_starts_with(strtoupper((string) $__name), $__fam.' ')) ? $__fam . ' ' : '' }}{{ $__name }}@if($__isNote) <span class="opacity-75">· {{ __('Notice') }}</span>@endif
       </span>
     @endforeach
   </div>

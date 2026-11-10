@@ -84,6 +84,24 @@ final class PiiScanService
             'pattern'    => '/\b(?:(?:19[0-9]{2}|20[0-2][0-9])[-\/](?:0?[1-9]|1[0-2])[-\/](?:0?[1-9]|[12][0-9]|3[01])|(?:0?[1-9]|[12][0-9]|3[01])[-\/](?:0?[1-9]|1[0-2])[-\/](?:19[0-9]{2}|20[0-2][0-9]))\b/',
             'confidence' => 0.55,
         ],
+        // A written-out date, "12 April 1978" / "12 Apr 1978" / "12 April 1978"
+        // in Afrikaans month names (heratio Eskom samples, 10 Nov 2026).
+        'date_of_birth_written' => [
+            'pattern'    => '/\b(?:0?[1-9]|[12][0-9]|3[01])\s+(?:Jan(?:uary|uarie)?|Feb(?:ruary|ruarie)?|Mar(?:ch)?|Maart|Apr(?:il)?|May|Mei|Jun(?:e|ie)?|Jul(?:y|ie)?|Aug(?:ust|ustus)?|Sep(?:t|tember)?|Oct(?:ober)?|Okt(?:ober)?|Nov(?:ember)?|Dec(?:ember)?|Des(?:ember)?)\.?\s+(?:19[0-9]{2}|20[0-2][0-9])\b/iu',
+            'confidence' => 0.55,
+        ],
+        // A bank account number, only where a label says so: on its own a digit
+        // run is anything. Group 1 is the number.
+        'bank_account' => [
+            'pattern'    => '/\b(?:account|acc|a\/c|rekening)\s*(?:no|nr|num|number|nommer)?\.?\s*[:\-]?\s*((?:\d[ \-]?){5,17}\d)\b/iu',
+            'confidence' => 0.85,
+        ],
+        // A street address: number, name, street type, and optionally a town
+        // and a 4-digit postal code. English and Afrikaans street types.
+        'address' => [
+            'pattern'    => '/\b\d{1,5}[A-Za-z]?\s+(?:[A-Z][A-Za-z\'\-]+\s+){1,3}(?:Street|St|Road|Rd|Avenue|Ave|Drive|Dr|Lane|Ln|Crescent|Cres|Close|Way|Boulevard|Blvd|Place|Pl|Straat|Str|Weg|Laan|Rylaan|Singel)\b\.?(?:,\s*[A-Z][A-Za-z\-]+(?:\s+[A-Z][A-Za-z\-]+)?)?(?:,\s*\d{4})?/u',
+            'confidence' => 0.70,
+        ],
         // Credit-card candidate (Luhn validation done after match).
         'credit_card' => [
             'pattern'    => '/\b(?:\d[ -]?){12,18}\d\b/',
@@ -234,6 +252,8 @@ final class PiiScanService
         $this->collectNationalIds($text, $findings);
         $this->collectCreditCards($text, $findings);
         $this->collectDatesOfBirth($text, $findings);
+        $this->collectBankAccounts($text, $findings);
+        $this->collectByPattern($text, $findings, 'address', self::BASE_PATTERNS['address']['pattern'], self::BASE_PATTERNS['address']['confidence']);
         $this->collectCustomTerms($text, $findings);
 
         // Stable ordering: by offset_start ascending, then confidence descending.
@@ -582,6 +602,39 @@ final class PiiScanService
                 $this->collectByPattern($text, $findings, 'phone', $variant['pattern'], $variant['confidence']);
             }
         }
+        // A number labelled as a VAT, tax or company registration number is not
+        // a phone, whatever its digits look like ("VAT no. 4999000222").
+        $findings = array_values(array_filter($findings, function (array $f) use ($text): bool {
+            if ($f['type'] !== 'phone') {
+                return true;
+            }
+            $lineStart = strrpos(substr($text, 0, $f['offset_start']), "\n");
+            $before = substr($text, $lineStart === false ? 0 : $lineStart + 1, $f['offset_start'] - ($lineStart === false ? 0 : $lineStart + 1));
+            // OCR puts a label and its value on separate lines: read the line above too.
+            if (trim($before) === '' && $lineStart !== false) {
+                $prevStart = strrpos(substr($text, 0, $lineStart), "\n");
+                $before = substr($text, $prevStart === false ? 0 : $prevStart + 1, $lineStart - ($prevStart === false ? 0 : $prevStart + 1));
+            }
+
+            return ! preg_match('/\b(?:vat|tax|btw|reg(?:istration)?|company|maatskappy|income tax|cipc)\b/i', $before);
+        }));
+    }
+
+    /** @param array<int,array> $findings */
+    private function collectBankAccounts(string $text, array &$findings): void
+    {
+        if (! $this->matchAll(self::BASE_PATTERNS['bank_account']['pattern'], $text, $matches, 'bank_account')) {
+            return;
+        }
+        foreach ($matches[1] as $m) {
+            $findings[] = [
+                'type'         => 'bank_account',
+                'value'        => (string) $m[0],
+                'offset_start' => (int) $m[1],
+                'offset_end'   => (int) $m[1] + strlen((string) $m[0]),
+                'confidence'   => self::BASE_PATTERNS['bank_account']['confidence'],
+            ];
+        }
     }
 
     /** @param array<int,array> $findings */
@@ -739,9 +792,12 @@ final class PiiScanService
 
     private function collectDatesOfBirth(string $text, array &$findings): void
     {
-        if (! $this->matchAll(self::BASE_PATTERNS['date_of_birth']['pattern'], $text, $matches, 'date_of_birth')) {
+        $numeric = $this->matchAll(self::BASE_PATTERNS['date_of_birth']['pattern'], $text, $matches, 'date_of_birth');
+        $written = $this->matchAll(self::BASE_PATTERNS['date_of_birth_written']['pattern'], $text, $writtenMatches, 'date_of_birth');
+        if (! $numeric && ! $written) {
             return;
         }
+        $matches = [array_merge($numeric ? $matches[0] : [], $written ? $writtenMatches[0] : [])];
         $currentYear = (int) date('Y');
         foreach ($matches[0] as $match) {
             $value = (string) $match[0];
@@ -1058,6 +1114,8 @@ final class PiiScanService
         // Type priority (high -> low). Higher index wins overlap arbitration.
         $priority = [
             'phone'         => 1,
+            'address'       => 1,
+            'bank_account'  => 2,
             'credit_card'   => 2,
             'national_id'   => 3,
             'email'         => 4,

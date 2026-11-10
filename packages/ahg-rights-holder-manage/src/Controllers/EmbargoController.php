@@ -38,17 +38,12 @@ class EmbargoController extends Controller
         $expiringEmbargoes = collect();
 
         if (Schema::hasTable('embargo')) {
-            $activeEmbargoes = DB::table('embargo')
-                ->where('is_active', true)
-                ->where(function ($q) {
-                    $q->whereNull('end_date')->orWhere('end_date', '>=', now());
-                })
+            $activeEmbargoes = \AhgCore\Support\EmbargoScope::current(DB::table('embargo'))
                 ->orderBy('created_at', 'desc')
                 ->limit(100)
                 ->get();
 
-            $expiringEmbargoes = DB::table('embargo')
-                ->where('is_active', true)
+            $expiringEmbargoes = \AhgCore\Support\EmbargoScope::current(DB::table('embargo'))
                 ->whereNotNull('end_date')
                 ->where('end_date', '>=', now())
                 ->where('end_date', '<=', now()->addDays(30))
@@ -100,6 +95,8 @@ class EmbargoController extends Controller
                 'end_date' => $request->input('end_date'),
                 'is_perpetual' => $request->boolean('is_perpetual'),
                 'is_active' => true,
+                // heratio#1588: the gate reads status; a future start waits as pending.
+                'status' => strtotime((string) $request->input('start_date')) <= time() ? 'active' : 'pending',
                 'reason' => $request->input('reason'),
                 'public_message' => $request->input('public_message'),
                 'notes' => $request->input('notes'),
@@ -119,7 +116,7 @@ class EmbargoController extends Controller
             $row = DB::table('embargo')->where('id', $id)->first();
             if ($row) {
                 $embargo = (array) $row;
-                $embargo['status'] = $row->is_active ? 'active' : 'lifted';
+                $embargo['status'] = $row->is_active && ! in_array($row->status, ['lifted', 'expired'], true) ? ($row->status ?: 'active') : 'lifted';
                 $embargo['exceptions'] = [];
                 $embargo['audit_log'] = [];
             }
@@ -159,6 +156,7 @@ class EmbargoController extends Controller
         if (Schema::hasTable('embargo')) {
             DB::table('embargo')->where('id', $id)->update([
                 'is_active' => false,
+                'status' => 'lifted',
                 'lift_reason' => $request->input('lift_reason'),
                 'lifted_at' => now(),
                 'lifted_by' => auth()->id(),

@@ -183,6 +183,12 @@
 <div class="container py-4">
 
   {{-- Flash Messages --}}
+  @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="fas fa-check-circle me-1"></i> {{ session('success') }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
+    </div>
+  @endif
   @if(session('error'))
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
       <i class="fas fa-exclamation-circle me-1"></i> {{ session('error') }}
@@ -207,6 +213,14 @@
       </nav>
     </div>
     <div class="btn-group">
+      @if(isset($io->slug) && Route::has('privacy.redaction.suggest-pii'))
+        <form method="POST" action="{{ route('privacy.redaction.suggest-pii', $io->slug) }}" class="d-inline me-2">
+          @csrf
+          <button type="submit" class="btn atom-btn-outline-success btn-sm" title="{{ __('Scan the document (OCR for scans) and black out the personal information found') }}">
+            <i class="fas fa-user-shield me-1" aria-hidden="true"></i> {{ __('Find personal information') }}
+          </button>
+        </form>
+      @endif
       <a href="{{ isset($io->slug) ? route('informationobject.show', $io->slug) : '#' }}" class="btn atom-btn-outline-light btn-sm">
         <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
       </a>

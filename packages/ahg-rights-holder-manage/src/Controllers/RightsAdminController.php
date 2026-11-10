@@ -36,7 +36,7 @@ class RightsAdminController extends Controller
     {
         $stats = [
             'total_rights' => DB::table('rights')->count(),
-            'active_embargoes' => Schema::hasTable('embargo') ? DB::table('embargo')->where('is_active', true)->count() : 0,
+            'active_embargoes' => Schema::hasTable('embargo') ? \AhgCore\Support\EmbargoScope::current(DB::table('embargo'))->count() : 0,
             'orphan_works' => Schema::hasTable('rights_orphan_work') ? DB::table('rights_orphan_work')->count() : 0,
         ];
 

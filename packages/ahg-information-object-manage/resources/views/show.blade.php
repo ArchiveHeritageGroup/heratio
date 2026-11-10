@@ -245,7 +245,7 @@
       $hasExtRights = \Illuminate\Support\Facades\Schema::hasTable('rights_record')
           && \Illuminate\Support\Facades\DB::table('rights_record')->where('object_id', $io->id)->exists();
       $activeEmbargoSidebar = \Illuminate\Support\Facades\Schema::hasTable('embargo')
-          ? \Illuminate\Support\Facades\DB::table('embargo')->where('object_id', $io->id)->where('is_active', 1)->first()
+          ? \AhgCore\Support\EmbargoScope::current(\Illuminate\Support\Facades\DB::table('embargo')->where('object_id', $io->id))->first()
           : null;
     @endphp
     <div class="card mb-3">
@@ -754,7 +754,7 @@
         ? \Illuminate\Support\Facades\DB::table('icip_tk_label as il')->join('icip_tk_label_type as t','t.id','=','il.label_type_id')->where('il.information_object_id', $io->id)->select('t.*')->get()
         : collect();
     $embargoData = \Illuminate\Support\Facades\Schema::hasTable('embargo')
-        ? \Illuminate\Support\Facades\DB::table('embargo')->where('object_id', $io->id)->where('is_active', 1)->first()
+        ? \AhgCore\Support\EmbargoScope::current(\Illuminate\Support\Facades\DB::table('embargo')->where('object_id', $io->id))->first()
         : null;
     $primaryHolder = $premisRights->pluck('rights_holder_name')->filter()->first();
     $holderDisplay = $primaryHolder ?? ($extRightsData->rights_holder ?? null);
@@ -819,7 +819,7 @@
 
         @if($tkLabels->isNotEmpty())
           <div class="mt-2"><strong class="small text-muted">{{ __('Traditional Knowledge Labels') }}</strong>
-            <div class="d-flex flex-wrap gap-1 mt-1">@foreach($tkLabels as $tk)<span class="badge bg-dark">{{ $tk->label_name ?? $tk->label_code ?? '' }}</span>@endforeach</div>
+            <div class="d-flex flex-wrap gap-1 mt-1">@foreach($tkLabels as $tk)<span class="badge bg-dark">{{ $tk->name ?? $tk->code ?? '' }}</span>@endforeach</div>
           </div>
         @endif
 

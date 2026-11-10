@@ -164,13 +164,9 @@ class DisclosureGate
         }
         $ids = [];
         if (Schema::hasTable('embargo')) {
-            $today = now()->toDateString();
-            foreach (DB::table('embargo')
-                ->where('status', 'active')
-                ->whereDate('start_date', '<=', $today)
-                ->where(function ($q) use ($today) {
-                    $q->whereNull('end_date')->orWhereDate('end_date', '>=', $today);
-                })
+            // heratio#1588: the one "in force today" rule; status alone missed
+            // embargoes saved from /embargo and future-dated ones.
+            foreach (\AhgCore\Support\EmbargoScope::current(DB::table('embargo'))
                 ->pluck('object_id') as $id) {
                 $ids[(int) $id] = true;
             }

@@ -167,7 +167,7 @@ class ExtendedRightsController extends Controller
         $objectId = $request->input('object_id');
         $embargo = null;
         if ($objectId && Schema::hasTable('embargo')) {
-            $embargo = DB::table('embargo')->where('object_id', $objectId)->where('is_active', true)->first();
+            $embargo = \AhgCore\Support\EmbargoScope::current(DB::table('embargo')->where('object_id', $objectId))->first();
         }
 
         return view('ahg-rights-holder-manage::extendedRights.embargo-status', compact('objectId', 'embargo'));
@@ -268,9 +268,31 @@ class ExtendedRightsController extends Controller
             $stats->with_rights_statement = DB::table('rights_record')->whereNotNull('rights_statement_id')->distinct('object_id')->count('object_id');
             $stats->with_creative_commons = DB::table('rights_record')->whereNotNull('cc_license_id')->distinct('object_id')->count('object_id');
         }
+        // heratio#1588: records carrying a TK/BC label in any of the three label
+        // stores (ICIP, rights, extended rights). It was never computed and
+        // always read 0.
+        $tkIds = [];
+        foreach ([
+            ['icip_tk_label', 'information_object_id', null],
+            ['rights_object_tk_label', 'object_id', null],
+            ['extended_rights_tk_label', 'er.object_id', 'extended_rights'],
+        ] as [$table, $col, $join]) {
+            if (! Schema::hasTable($table) || ($join && ! Schema::hasTable($join))) {
+                continue;
+            }
+            $q = DB::table($table.($join ? ' as t' : ''));
+            if ($join) {
+                $q->join($join.' as er', 'er.id', '=', 't.extended_rights_id');
+            }
+            foreach ($q->distinct()->pluck($col) as $id) {
+                $tkIds[(int) $id] = true;
+            }
+        }
+        $stats->with_tk_labels = count($tkIds);
+
         if (Schema::hasTable('embargo')) {
-            $stats->active_embargoes = DB::table('embargo')->where('is_active', true)->count();
-            $stats->expiring_soon = DB::table('embargo')->where('is_active', true)->whereNotNull('end_date')
+            $stats->active_embargoes = \AhgCore\Support\EmbargoScope::current(DB::table('embargo'))->count();
+            $stats->expiring_soon = \AhgCore\Support\EmbargoScope::current(DB::table('embargo'))->whereNotNull('end_date')
                 ->where('end_date', '<=', now()->addDays(30))->where('end_date', '>=', now())->count();
         }
 

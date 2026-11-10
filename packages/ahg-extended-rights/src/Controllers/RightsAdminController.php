@@ -404,7 +404,14 @@ class RightsAdminController extends Controller
                 $j->on('o.id', '=', 'oi.id')->where('oi.culture', '=', 'en');
             })
             ->leftJoin('slug as s', 'o.id', '=', 's.object_id')
-            ->select('r.*', 'oi.title', 's.slug', 'o.repository_id');
+            ->leftJoin('rights_statement as rs', 'rs.id', '=', 'r.rights_statement_id')
+            ->leftJoin('rights_cc_license as cc', 'cc.id', '=', 'r.cc_license_id')
+            // The view shows type / value / date; rights_record has no such
+            // columns, so the three were always empty (heratio#1588).
+            ->select('r.*', 'oi.title', 's.slug', 'o.repository_id',
+                'r.basis as rights_type',
+                DB::raw('COALESCE(rs.code, cc.code, r.license_identifier, r.copyright_holder, r.statute_citation, r.donor_name, r.policy_identifier) as rights_value'),
+                DB::raw("CONCAT_WS(' - ', r.start_date, r.end_date) as rights_date"));
 
         if ($type) {
             $query->where('r.basis', $type);

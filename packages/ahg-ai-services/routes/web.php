@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
+
 use AhgAiServices\Controllers\AiController;
 use AhgAiServices\Controllers\FsIndexerController;
 use AhgAiServices\Controllers\PhaseOneController;
@@ -16,6 +18,29 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware(['auth', 'admin'])->prefix('admin/ai')->group(function () {
+    // Invoice / purchase-order fields from a record's PDF, grounded in the
+    // document, with the PO match (DocumentFieldExtractor).
+    Route::get('/document-fields/{slug}', function (string $slug) {
+        $io = DB::table('slug')->join('information_object_i18n as i', 'i.id', '=', 'slug.object_id')
+            ->where('slug.slug', $slug)->first(['slug.object_id as id', 'slug.slug', 'i.title']);
+        abort_if(! $io, 404);
+        $x = app(\AhgAiServices\Services\DocumentFieldExtractor::class);
+        $fields = $x->fieldsOf((int) $io->id);
+        $match = isset($fields['po_number']) ? $x->match((int) $io->id) : null;
+        $poSlug = isset($match['po_io']) ? DB::table('slug')->where('object_id', $match['po_io'])->value('slug') : null;
+
+        return view('ahg-ai-services::document-fields', compact('io', 'fields', 'match', 'poSlug'));
+    })->name('admin.ai.document-fields');
+    Route::post('/document-fields/{slug}', function (string $slug) {
+        $id = (int) DB::table('slug')->where('slug', $slug)->value('object_id');
+        abort_if($id <= 0, 404);
+        $r = app(\AhgAiServices\Services\DocumentFieldExtractor::class)->extract($id, auth()->id());
+
+        return redirect()->route('admin.ai.document-fields', $slug)->with($r['error'] ?? false ? 'error' : 'success',
+            $r['error'] ?? __(':n field(s) read from the document and kept; :d not found in its text and dropped.', ['n' => $r['saved'], 'd' => count($r['dropped'])]))
+            ->with('dropped', $r['dropped'] ?? []);
+    })->name('admin.ai.document-fields.extract');
+
 
     // Dashboard
     Route::get('/', [AiController::class, 'index'])->name('admin.ai.index');

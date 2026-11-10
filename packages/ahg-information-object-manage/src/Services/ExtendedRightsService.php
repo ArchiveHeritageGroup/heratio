@@ -319,14 +319,7 @@ class ExtendedRightsService
     public function getActiveEmbargo(int $objectId): ?object
     {
         try {
-            return DB::table('embargo')
-                ->where('object_id', $objectId)
-                ->where('is_active', 1)
-                ->where('start_date', '<=', date('Y-m-d'))
-                ->where(function ($q) {
-                    $q->whereNull('end_date')
-                        ->orWhere('end_date', '>=', date('Y-m-d'));
-                })
+            return \AhgCore\Support\EmbargoScope::current(DB::table('embargo')->where('object_id', $objectId))
                 ->orderByDesc('created_at')
                 ->first();
         } catch (\Illuminate\Database\QueryException $e) {

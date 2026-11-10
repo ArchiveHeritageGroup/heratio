@@ -108,12 +108,7 @@ class EmbargoService
 
         return DB::table('embargo as e')
             ->where('e.object_id', $objectId)
-            ->where('e.status', 'active')
-            ->where('e.start_date', '<=', $now)
-            ->where(function ($q) use ($now) {
-                $q->whereNull('e.end_date')
-                    ->orWhere('e.end_date', '>=', $now);
-            })
+            ->where(fn ($q) => \AhgCore\Support\EmbargoScope::current($q, 'e'))
             ->select(['e.*'])
             ->first();
     }
@@ -136,12 +131,7 @@ class EmbargoService
                     ->where('ioi.culture', '=', $this->culture);
             })
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
-            ->where('e.status', 'active')
-            ->where('e.start_date', '<=', $now)
-            ->where(function ($q) use ($now) {
-                $q->whereNull('e.end_date')
-                    ->orWhere('e.end_date', '>=', $now);
-            });
+            ->where(fn ($q) => \AhgCore\Support\EmbargoScope::current($q, 'e'));
 
         // Apply optional filter on embargo type
         if ($filter && in_array($filter, [self::TYPE_FULL, self::TYPE_METADATA_ONLY, self::TYPE_DIGITAL_ONLY, self::TYPE_PARTIAL])) {
@@ -177,7 +167,7 @@ class EmbargoService
                     ->where('ioi.culture', '=', $this->culture);
             })
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
-            ->where('e.status', 'active')
+            ->where(fn ($q) => \AhgCore\Support\EmbargoScope::current($q, 'e'))
             ->where('e.auto_release', true)
             ->whereNotNull('e.end_date')
             ->whereBetween('e.end_date', [$now, $future])
@@ -405,13 +395,8 @@ class EmbargoService
         // Get IDs under full embargo
         $embargoedIds = DB::table('embargo')
             ->whereIn('object_id', $objectIds)
-            ->where('status', 'active')
             ->where('embargo_type', self::TYPE_FULL)
-            ->where('start_date', '<=', $now)
-            ->where(function ($q) use ($now) {
-                $q->whereNull('end_date')
-                    ->orWhere('end_date', '>=', $now);
-            })
+            ->where(fn ($q) => \AhgCore\Support\EmbargoScope::current($q))
             ->pluck('object_id')
             ->toArray();
 

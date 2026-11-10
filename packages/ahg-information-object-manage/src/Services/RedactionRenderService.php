@@ -347,7 +347,7 @@ class RedactionRenderService
             ->pluck('id')->map('intval')->values()->all();
     }
 
-    private function resolveAbsolutePath(object $master): ?string
+    public function resolveAbsolutePath(object $master): ?string
     {
         // Heratio stores files under config('heratio.uploads_path') and the
         // web-facing path field starts with /uploads/r/ - strip that prefix

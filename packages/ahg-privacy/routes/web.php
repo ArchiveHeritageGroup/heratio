@@ -147,3 +147,18 @@ Route::prefix('admin/privacy')->middleware(['dp.enabled', 'auth'])->group(functi
     Route::get('/complaint', [PrivacyController::class, 'complaint'])->name('ahgprivacy.complaint');
     Route::get('/complaint-confirmation', [PrivacyController::class, 'complaintConfirmation'])->name('ahgprivacy.complaint-confirmation');
 });
+
+// Suggest redaction regions for the personal information in a record's PDF
+// (PiiRedactionSuggester). Same permission as saving regions in the editor.
+Route::post('/privacy/redaction/{slug}/suggest-pii', function (string $slug) {
+    $id = (int) \Illuminate\Support\Facades\DB::table('slug')->where('slug', $slug)->value('object_id');
+    abort_if($id <= 0, 404);
+    $r = app(\AhgPrivacy\Services\PiiRedactionSuggester::class)->suggest($id, auth()->id());
+    if (isset($r['error'])) {
+        return back()->with('error', __($r['error']));
+    }
+
+    return back()->with('success', __(':found item(s) of personal information found:pdf; :added new redaction region(s) added. They are blacked out for visitors now; review them below.', [
+        'found' => $r['findings'], 'added' => $r['added'], 'pdf' => $r['ocr'] ? ' '.__('(read by OCR)') : '',
+    ]));
+})->middleware(['auth', 'acl:update'])->name('privacy.redaction.suggest-pii');
