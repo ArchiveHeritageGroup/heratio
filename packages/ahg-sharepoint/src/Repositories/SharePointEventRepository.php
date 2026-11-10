@@ -35,7 +35,7 @@ class SharePointEventRepository
         if ($error !== null) {
             $update['last_error'] = $error;
         }
-        if (in_array($status, ['completed', 'skipped_duplicate', 'failed', 'skipped_not_allowlisted'], true)) {
+        if (in_array($status, ['completed', 'skipped_duplicate', 'failed', 'skipped_unlabelled'], true)) {
             $update['processed_at'] = now();
         }
         DB::table('sharepoint_event')->where('id', $id)->update($update);

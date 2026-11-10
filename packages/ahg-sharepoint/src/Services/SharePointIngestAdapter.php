@@ -20,7 +20,7 @@ class SharePointIngestAdapter
 
     public const STATUS_SKIPPED_DUPLICATE = 'skipped_duplicate';
 
-    public const STATUS_SKIPPED_NOT_ALLOWLISTED = 'skipped_not_allowlisted';
+    public const STATUS_SKIPPED_NOT_ALLOWLISTED = 'skipped_unlabelled';
 
     public function __construct(
         private GraphClientService $graph,

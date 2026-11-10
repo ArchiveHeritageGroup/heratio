@@ -7,7 +7,7 @@
     <label for="status" class="me-2">{{ __('Filter') }}:</label>
     <select name="status" id="status" class="form-select form-select-sm d-inline-block w-auto" onchange="this.form.submit()">
         <option value="">{{ __('All') }}</option>
-        @foreach (['received','queued','processing','completed','failed','skipped_duplicate','skipped_not_allowlisted'] as $s)
+        @foreach (['received','queued','processing','completed','failed','skipped_duplicate','skipped_unlabelled'] as $s)
             <option value="{{ $s }}" @selected($statusFilter === $s)>{{ $s }}</option>
         @endforeach
     </select>
@@ -17,7 +17,7 @@
 $map = [
     'received' => 'secondary', 'queued' => 'info', 'processing' => 'primary',
     'completed' => 'success', 'failed' => 'danger',
-    'skipped_duplicate' => 'warning', 'skipped_not_allowlisted' => 'warning',
+    'skipped_duplicate' => 'warning', 'skipped_unlabelled' => 'warning',
 ];
 @endphp
 <table class="table table-sm table-striped">
