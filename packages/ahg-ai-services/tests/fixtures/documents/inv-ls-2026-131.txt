@@ -1,0 +1,60 @@
+    SAMPLE DOCUMENT - FICTITIOUS COMPANIES, PEOPLE AND NUMBERS - FOR DEMONSTRATION ONLY
+
+
+                                                                                INVOICE NO.
+TAX INVOICE                                                                     INV-LS-2026-131
+                                                                                INVOICE DATE
+Lowveld Safety and PPE (Pty) Ltd                                                9 November 2026
+3 Mopani Avenue, Nelspruit, 1200                                                DUE DATE
+VAT 4999000444 | Reg. 2016/000789/07                                            9 December 2026
+                                                                                YOUR ORDER NO.
+                                                                                PO-77999
+
+  BILL TO                                                         SUPPLIER CONTACT
+  Vaal Ridge Power Station (fictitious)                           Mr Johannes Sithole
+  Private Bag X9001, Vaalridge, 1999                              Accounts, tel 000 000 0000
+  VAT 4999000111                                                  accounts@lowveldsafety.example
+
+ Code             Description                                  Qty        Unit price (R)              Amount (R)
+ GLV-AR           Arc-rated gloves, class 0                          25                    1,240.00            31,000.00
+
+
+
+
+                                                                 E
+ VIS-SH           Face shield, arc-rated                             12                    2,150.00            25,800.00
+                                                                                           Subtotal            56,800.00
+
+
+
+
+                                                                L
+                                                                                           VAT 15%                 8,520.00
+
+
+
+
+                                                              P
+                                                                                       Total due             R 65,320.00
+
+
+
+
+                                 M
+  BANKING DETAILS
+  Lowveld Safety and PPE (Pty) Ltd
+  Bank: Example Bank, branch 250655
+
+
+
+
+                               A
+  Account no. 62 0009 8812 4
+  Reference: INV-LS-2026-131
+
+
+
+
+                 S
+Payment terms: 30 days from invoice date. Queries to accounts@lowveldsafety.example.
+

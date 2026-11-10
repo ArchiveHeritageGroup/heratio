@@ -100,6 +100,12 @@ TXT;
                 $dropped[$f] = $v;
             }
         }
+        // Rules before the model (10 Nov 2026: mistral:7b dropped the PO number
+        // on invoices and called a delivery note an invoice). The page heading
+        // decides the type, and an order number printed in the document is
+        // taken by pattern when the model gave none.
+        $fields = self::applyRules($fields, $text);
+
         $lines = [];
         foreach ((array) ($data['line_items'] ?? []) as $li) {
             if (is_array($li) && isset($li['description']) && self::grounded((string) $li['description'], $text, false)
@@ -183,6 +189,40 @@ TXT;
         }
 
         return $value !== '' && str_contains($squash($text), $squash($value));
+    }
+
+    /**
+     * Deterministic corrections from the document text.
+     *
+     * @param array<string,string> $fields
+     * @return array<string,string>
+     */
+    public static function applyRules(array $fields, string $text): array
+    {
+        $head = mb_strtoupper(mb_substr($text, 0, 600));
+        if (str_contains($head, 'DELIVERY NOTE')) {
+            $fields['document_type'] = 'delivery_note';
+        } elseif (str_contains($head, 'PURCHASE ORDER')) {
+            $fields['document_type'] = 'purchase_order';
+        } elseif (preg_match('/\b(TAX\s+)?INVOICE\b/', $head)) {
+            $fields['document_type'] = 'invoice';
+        }
+
+        if (($fields['document_type'] ?? 'invoice') !== 'purchase_order' && empty($fields['po_number'])) {
+            // An order number under (or beside) its label, else a PO-style token.
+            $own = (string) ($fields['number'] ?? '');
+            $found = null;
+            if (preg_match('/(?:your\s+order\s+no|order\s+no|order\s+number|p\.?o\.?\s+no|purchase\s+order)\.?\s*[:#]?\s*(?:\R\s*)?(?:[^\n]*\R\s*)?([A-Z]{1,5}-?\d{3,}[A-Z0-9-]*)/iu', $text, $m)) {
+                $found = $m[1];
+            } elseif (preg_match_all('/\bPO-?\d{3,}\b/u', $text, $mm)) {
+                $found = collect($mm[0])->first(fn ($v) => $v !== $own);
+            }
+            if ($found && $found !== $own && ! preg_match('/^VAT/i', $found)) {
+                $fields['po_number'] = $found;
+            }
+        }
+
+        return $fields;
     }
 
     /** "R 153,617.00" -> "153617.00" */

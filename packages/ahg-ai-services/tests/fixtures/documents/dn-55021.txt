@@ -1,0 +1,39 @@
+     SAMPLE DOCUMENT - FICTITIOUS COMPANIES, PEOPLE AND NUMBERS - FOR DEMONSTRATION ONLY
+
+
+                                                                             DELIVERY NOTE NO.
+DELIVERY NOTE                                                                DN-55021
+                                                                             DATE
+Highveld Cable and Fittings CC                                               4 November 2026
+Unit 7, Steel Park, Witbank, 1035                                            YOUR ORDER NO.
+VAT 4999000333                                                               PO-77826
+
+  DELIVER TO                                                    DRIVER
+  Main substation                                               Mr Bongani Zulu
+  Vaal Ridge Power Station (fictitious)                         SA ID 0000000000000
+  Attention: Electrical workshop                                Cell 000 000 0000 | Vehicle reg. KZT 418 MP
+
+ Code             Description                                         Ordered       Delivered        Outstanding
+ XLPE-95          XLPE cable 3-core 95 mm2, per metre                         420            420                   0
+ TRM-95           Cable termination kit 95 mm2                                  8                8                 0
+
+
+
+
+                                                                   E
+Delivered by: B. Zulu (driver)                                  Received in good order: L. Khumalo, E-207731
+
+
+
+
+                                                                  L
+                                                                Gate 2, 4 November 2026, 10:42
+
+Goods remain the property of the supplier until paid in full.
+
+
+
+
+                                    M                           P
+                   S              A
+

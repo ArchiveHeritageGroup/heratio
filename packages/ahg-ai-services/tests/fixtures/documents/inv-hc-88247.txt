@@ -1,0 +1,62 @@
+    SAMPLE DOCUMENT - FICTITIOUS COMPANIES, PEOPLE AND NUMBERS - FOR DEMONSTRATION ONLY
+
+
+                                                                                  INVOICE NO.
+TAX INVOICE                                                                       INV-HC-88247
+                                                                                  INVOICE DATE
+Highveld Cable and Fittings CC                                                    9 November 2026
+Unit 7, Steel Park, Witbank, 1035                                                 DUE DATE
+VAT 4999000333 | Reg. 2004/000456/23                                              9 December 2026
+                                                                                  YOUR ORDER NO.
+                                                                                  PO-77826
+
+  BILL TO                                                        SUPPLIER CONTACT
+  Vaal Ridge Power Station (fictitious)                          Ms Nomvula Dlamini
+  Private Bag X9001, Vaalridge, 1999                             Accounts receivable, cell 000 000 0000
+  VAT 4999000111                                                 accounts@highveldcable.example
+
+ Code           Description                                             Qty       Unit price (R)         Amount (R)
+ XLPE-95        XLPE cable 3-core 95 mm2, per metre                       460                   512.00        235,520.00
+
+
+
+
+                                                                E
+ TRM-95         Cable termination kit 95 mm2                                  8              2,210.00           17,680.00
+ DLV            Delivery to site                                              1              1,800.00            1,800.00
+
+
+
+
+                                                               L
+                                                                                             Subtotal         255,000.00
+
+
+
+
+                                                             P
+                                                                                             VAT 15%            38,250.00
+                                                                                             Total due       R 293,250.00
+
+
+
+
+                                 M
+  BANKING DETAILS
+  Highveld Cable and Fittings CC
+
+
+
+
+                               A
+  Bank: Sample Bank, branch 198765
+  Account no. 1049 887 2210
+
+
+
+
+                 S
+  Reference: INV-HC-88247
+
+Payment terms: 30 days from invoice date. Queries to accounts@highveldcable.example.
+

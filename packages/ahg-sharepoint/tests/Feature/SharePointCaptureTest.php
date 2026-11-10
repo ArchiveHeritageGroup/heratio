@@ -64,5 +64,8 @@ class SharePointCaptureTest extends TestCase
         $this->assertSame($parent, (int) DB::table('information_object')->where('id', $ev->information_object_id)->value('parent_id'), 'under the drive parent');
         $this->assertSame('ITEM9', app(SharePointWriteBackService::class)->locate((int) $ev->information_object_id)['item']);
         $this->assertTrue(DB::table('digital_object')->where('object_id', $ev->information_object_id)->exists(), 'the PDF is attached');
+        if (\Illuminate\Support\Facades\Schema::hasTable('information_object_title_sort')) {
+            $this->assertTrue(DB::table('information_object_title_sort')->where('object_id', $ev->information_object_id)->exists(), 'listed in sorted browse at once');
+        }
     }
 }

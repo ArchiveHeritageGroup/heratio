@@ -105,6 +105,15 @@ class SharePointIngestAdapter
             $jobId = $this->dispatchCommit($sessionId);
 
             $informationObjectId = $this->resolveInformationObjectId($jobId, $sessionId);
+            // Into the browse sort table now, so the new record is listed
+            // straight away rather than after the hourly rebuild.
+            if ($informationObjectId && class_exists(\AhgDisplay\Services\TitleSortService::class)) {
+                try {
+                    (new \AhgDisplay\Services\TitleSortService())->refreshFor($informationObjectId);
+                } catch (\Throwable) {
+                    // A sort row is a convenience; never fail a capture over it.
+                }
+            }
 
             $this->events->update($eventId, [
                 'ingest_job_id' => $jobId,

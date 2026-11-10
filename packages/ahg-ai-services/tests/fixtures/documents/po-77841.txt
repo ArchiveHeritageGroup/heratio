@@ -1,0 +1,61 @@
+     SAMPLE DOCUMENT - FICTITIOUS COMPANIES, PEOPLE AND NUMBERS - FOR DEMONSTRATION ONLY
+
+
+                                                                                     ORDER NO.
+PURCHASE ORDER                                                                       PO-77841
+                                                                                     ORDER DATE
+Vaal Ridge Power Station (fictitious)                                                29 October 2026
+Private Bag X9001, Vaalridge, 1999                                                   COST CENTRE
+VAT 4999000111                                                                       CC-4410 Maintenance
+                                                                                     CONTRACT
+                                                                                     SC-2026-118
+
+  SUPPLIER                                                            DELIVER TO
+  Lowveld Safety and PPE (Pty) Ltd                                    Main stores
+  3 Mopani Avenue, Nelspruit, 1200                                    Vaal Ridge Power Station (fictitious)
+  VAT 4999000444                                                      Attention: Stores, Gate 2
+
+ Code           Description                                                 Qty      Unit price (R)          Amount (R)
+ HLM-W          Safety helmet, white, SANS 1397                                 60                 185.00                11,100.00
+
+
+
+
+                                                                     E
+ GLV-AR         Arc-rated gloves, class 0                                       40               1,240.00                49,600.00
+ BOOT-9         Safety boots, steel toe, assorted sizes                         60                 865.00                51,900.00
+
+
+
+
+                                                                    L
+ CVR-FR         Flame-resistant overall, 2-piece                                60               1,490.00                89,400.00
+
+
+
+
+                                                                  P
+                                                                                                Subtotal               202,000.00
+                                                                                                VAT 15%                  30,300.00
+
+
+
+
+                                   M
+                                                                                               Total due              R 232,300.00
+
+
+
+
+                                 A
+Requested by: Sipho Ndlovu                                           Approved by: Dr Sarah Naidoo
+Employee no. E-209914 |                                              Employee no. E-100382 | Delegation level 3
+
+
+
+
+                   S
+sipho.ndlovu@vaalridge.example
+
+Quote this order number on every invoice and delivery note. Invoices without a valid order number will be returned.
+

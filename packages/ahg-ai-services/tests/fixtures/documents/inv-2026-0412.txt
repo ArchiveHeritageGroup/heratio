@@ -1,0 +1,62 @@
+    SAMPLE DOCUMENT - FICTITIOUS COMPANIES, PEOPLE AND NUMBERS - FOR DEMONSTRATION ONLY
+
+
+                                                                                  INVOICE NO.
+TAX INVOICE                                                                       INV-2026-0412
+                                                                                  INVOICE DATE
+Karoo Valve Supplies (Pty) Ltd                                                    3 November 2026
+14 Smelter Road, Middelburg, 1050                                                 DUE DATE
+VAT 4999000222 | Reg. 2011/000123/07                                              3 December 2026
+                                                                                  YOUR ORDER NO.
+                                                                                  PO-77810
+
+  BILL TO                                                         SUPPLIER CONTACT
+  Vaal Ridge Power Station (fictitious)                           Mr Pieter van der Merwe
+  Private Bag X9001, Vaalridge, 1999                              Sales and accounts
+  VAT 4999000111                                                  pieter.vdm@karoovalve.example
+
+ Code          Description                                              Qty       Unit price (R)         Amount (R)
+ GV-150         Gate valve DN150 PN40, cast steel                             6            18,450.00           110,700.00
+
+
+
+
+                                                                 E
+ GK-150         Spiral-wound gasket kit DN150                              12                   640.00           7,680.00
+ SRV-ON         On-site fitting, two technicians (hours)                   16                   950.00          15,200.00
+
+
+
+
+                                                                L
+                                                                                             Subtotal          133,580.00
+
+
+
+
+                                                              P
+                                                                                             VAT 15%            20,037.00
+                                                                                           Total due         R 153,617.00
+
+
+
+
+                                 M
+  BANKING DETAILS
+  Karoo Valve Supplies (Pty) Ltd
+
+
+
+
+                               A
+  Bank: Example Bank, branch 250655
+  Account no. 62 0001 2345 6
+
+
+
+
+                 S
+  Reference: INV-2026-0412
+
+Payment terms: 30 days from invoice date. Queries to pieter.vdm@karoovalve.example.
+
