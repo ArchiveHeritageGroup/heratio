@@ -76,12 +76,12 @@ class SharePointWriteBackService
         $list = $this->graph->get($at['tenant'], "{$base}/list?\$select=id")['id'];
         $internal = [];
         foreach ($this->graph->get($at['tenant'], "/sites/{$at['site']}/lists/{$list}/columns")['value'] ?? [] as $c) {
-            $internal[mb_strtolower((string) ($c['displayName'] ?? ''))] = ['name' => $c['name'], 'currency' => isset($c['currency']) || isset($c['number'])];
+            $internal[self::norm((string) ($c['displayName'] ?? ''))] = ['name' => $c['name'], 'currency' => isset($c['currency']) || isset($c['number'])];
         }
         $fields['_match'] = $matchText;
         $patch = $written = [];
         foreach (self::COLUMNS as $display => $field) {
-            $col = $internal[mb_strtolower($display)] ?? null;
+            $col = $internal[self::norm($display)] ?? null;
             $v = $fields[$field] ?? null;
             if ($col === null || $v === null || $v === '') {
                 continue;
@@ -96,6 +96,12 @@ class SharePointWriteBackService
         }
 
         return $written;
+    }
+
+    /** "Invoice  Date " and "invoice date" are the same column. */
+    private static function norm(string $name): string
+    {
+        return mb_strtolower(trim((string) preg_replace('/\s+/u', ' ', $name)));
     }
 
     /** Upload the redacted copy beside the original, in the Redacted copies folder. Returns its web URL. */
