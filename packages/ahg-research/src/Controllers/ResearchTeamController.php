@@ -127,13 +127,13 @@ class ResearchTeamController extends Controller
 
         if (! $id) {
             return redirect()->route('research.team.index', $projectId)
-                ->with('error', 'Could not add the team member. Please try again.');
+                ->with('error', __('Could not add the team member. Please try again.'));
         }
 
         $this->logResearchActivity('create', 'team', (int) $id, $data['person_name'] ?? null, ['method' => 'ResearchTeamController@store'], $projectId);
 
         return redirect()->route('research.team.show', [$projectId, $id])
-            ->with('success', 'Team member saved.');
+            ->with('success', __('Team member saved.'));
     }
 
     /** Edit-member form. */
@@ -147,7 +147,7 @@ class ResearchTeamController extends Controller
         $member = $this->team->getMember($memberId, $projectId);
         if (! $member) {
             return redirect()->route('research.team.index', $projectId)
-                ->with('error', 'Team member not found.');
+                ->with('error', __('Team member not found.'));
         }
 
         $roleOptions   = $this->team->roleOptions();
@@ -170,7 +170,7 @@ class ResearchTeamController extends Controller
         $existing = $this->team->getMember($memberId, $projectId);
         if (! $existing) {
             return redirect()->route('research.team.index', $projectId)
-                ->with('error', 'Team member not found.');
+                ->with('error', __('Team member not found.'));
         }
 
         $data = $this->validateMember($request);
@@ -179,13 +179,13 @@ class ResearchTeamController extends Controller
 
         if (! $ok) {
             return redirect()->route('research.team.index', $projectId)
-                ->with('error', 'Could not save the team member.');
+                ->with('error', __('Could not save the team member.'));
         }
 
         $this->logResearchActivity('update', 'team', $memberId, $data['person_name'] ?? null, ['method' => 'ResearchTeamController@update'], $projectId);
 
         return redirect()->route('research.team.show', [$projectId, $memberId])
-            ->with('success', 'Team member saved.');
+            ->with('success', __('Team member saved.'));
     }
 
     /** Read-only member detail. */
@@ -199,7 +199,7 @@ class ResearchTeamController extends Controller
         $member = $this->team->getMember($memberId, $projectId);
         if (! $member) {
             return redirect()->route('research.team.index', $projectId)
-                ->with('error', 'Team member not found.');
+                ->with('error', __('Team member not found.'));
         }
 
         $roleOptions   = $this->team->roleOptions();

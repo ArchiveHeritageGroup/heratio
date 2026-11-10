@@ -123,7 +123,7 @@ class MethodStudioController extends Controller
 
         if (! $this->studio->getTemplate($data['template_code'])) {
             return redirect()->route('research.method.index', $projectId)
-                ->with('error', 'That method template is not available.');
+                ->with('error', __('That method template is not available.'));
         }
 
         $researcherId = $researcher ? (int) $researcher->id : null;
@@ -133,7 +133,7 @@ class MethodStudioController extends Controller
 
         if (! $id) {
             return redirect()->route('research.method.index', $projectId)
-                ->with('error', 'Could not start the method protocol. Please try again.');
+                ->with('error', __('Could not start the method protocol. Please try again.'));
         }
 
         $this->logResearchActivity(
@@ -146,7 +146,7 @@ class MethodStudioController extends Controller
         );
 
         return redirect()->route('research.method.edit', [$projectId, $id])
-            ->with('success', 'Method protocol started from the template. Fill in each area below.');
+            ->with('success', __('Method protocol started from the template. Fill in each area below.'));
     }
 
     /** Protocol editor - guidance area by area. */
@@ -160,7 +160,7 @@ class MethodStudioController extends Controller
         $protocol = $this->studio->getProtocol($protocolId, $projectId);
         if (! $protocol) {
             return redirect()->route('research.method.index', $projectId)
-                ->with('error', 'Method protocol not found.');
+                ->with('error', __('Method protocol not found.'));
         }
 
         $template = $this->studio->getTemplate($protocol['template_code']);
@@ -197,7 +197,7 @@ class MethodStudioController extends Controller
 
         if (! $ok) {
             return redirect()->route('research.method.index', $projectId)
-                ->with('error', 'Could not save the method protocol.');
+                ->with('error', __('Could not save the method protocol.'));
         }
 
         $this->logResearchActivity(
@@ -210,7 +210,7 @@ class MethodStudioController extends Controller
         );
 
         return redirect()->route('research.method.edit', [$projectId, $protocolId])
-            ->with('success', 'Method protocol saved.');
+            ->with('success', __('Method protocol saved.'));
     }
 
     /** Read-only summary / print view. */
@@ -224,7 +224,7 @@ class MethodStudioController extends Controller
         $reuse = $this->studio->getProtocolForReuse($protocolId, $projectId);
         if (! $reuse) {
             return redirect()->route('research.method.index', $projectId)
-                ->with('error', 'Method protocol not found.');
+                ->with('error', __('Method protocol not found.'));
         }
 
         return view('research::method.show', array_merge(

@@ -76,7 +76,7 @@ class ResearchEntityResolutionController extends Controller
                 'notes' => $request->input('notes'),
                 'proposer_id' => $researcher->id,
             ]);
-            return redirect('/research/entityResolution')->with('success', 'Match proposed.');
+            return redirect('/research/entityResolution')->with('success', __('Match proposed.'));
         }
 
         $filters = [

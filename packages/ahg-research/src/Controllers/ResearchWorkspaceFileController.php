@@ -182,7 +182,7 @@ class ResearchWorkspaceFileController extends Controller
         $this->logResearchActivity('create', 'workspace_file', (int) $id, $fileName, ['workspace_id' => $workspaceId], null);
 
         $redirect = redirect()->route('research.workspace.files', $workspaceId)
-            ->with('success', 'File uploaded.');
+            ->with('success', __('File uploaded.'));
         if (! empty($check['warn']) && ! empty($check['message'])) {
             $redirect->with('warning', $check['message']);
         }
@@ -229,7 +229,7 @@ class ResearchWorkspaceFileController extends Controller
             app(\AhgCore\Services\SsrfGuard::class)->assertSafeUrl($url);
         } catch (\Throwable $e) {
             return redirect()->route('research.workspace.files', $workspaceId)
-                ->with('error', 'That URL cannot be fetched: ' . $e->getMessage());
+                ->with('error', __('That URL cannot be fetched: :error', ['error' => $e->getMessage()]));
         }
 
         // Queued: a 100 MB ceiling and a 30s HTTP timeout meant a slow source
@@ -237,7 +237,7 @@ class ResearchWorkspaceFileController extends Controller
         \AhgResearch\Jobs\ResearchSourceFetchJob::dispatch($url, $workspaceId, (int) $researcher->id);
 
         return redirect()->route('research.workspace.files', $workspaceId)
-            ->with('success', 'Fetching that document now. It will appear here shortly, and you will be notified when it is done.');
+            ->with('success', __('Fetching that document now. It will appear here shortly, and you will be notified when it is done.'));
     }
 
     public function download(int $workspaceId, int $fileId)
@@ -261,7 +261,7 @@ class ResearchWorkspaceFileController extends Controller
 
         if (! is_string($file->file_path) || ! file_exists($file->file_path)) {
             return redirect()->route('research.workspace.files', $workspaceId)
-                ->with('error', 'File is missing from storage.');
+                ->with('error', __('File is missing from storage.'));
         }
 
         $check = $this->quota->checkDownload((int) $researcher->id);
@@ -309,7 +309,7 @@ class ResearchWorkspaceFileController extends Controller
         $this->logResearchActivity('delete', 'workspace_file', $fileId, $file->file_name, ['workspace_id' => $workspaceId], null);
 
         return redirect()->route('research.workspace.files', $workspaceId)
-            ->with('success', 'File deleted.');
+            ->with('success', __('File deleted.'));
     }
 
     // --- internals --------------------------------------------------------

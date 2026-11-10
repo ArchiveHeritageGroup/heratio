@@ -87,7 +87,7 @@ class ResearchNotificationsController extends Controller
                         ]
                     );
                 }
-                return redirect()->route('research.notifications', ['tab' => 'preferences'])->with('success', 'Preferences saved.');
+                return redirect()->route('research.notifications', ['tab' => 'preferences'])->with('success', __('Preferences saved.'));
             }
             return redirect()->route('research.notifications');
         }

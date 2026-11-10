@@ -108,7 +108,7 @@ class ClaimLedgerController extends Controller
         $claim = $this->ledger->getClaim($projectId, $claimId);
         if (! $claim) {
             return redirect()->route('research.claims.index', $projectId)
-                ->with('error', 'Claim not found.');
+                ->with('error', __('Claim not found.'));
         }
 
         $evidence  = $this->ledger->getEvidence($claimId);
@@ -155,11 +155,11 @@ class ClaimLedgerController extends Controller
         $id = $this->ledger->createClaim($projectId, (int) $researcher->id, $validated);
         if (! $id) {
             return redirect()->route('research.claims.index', $projectId)
-                ->with('error', 'Could not create the claim.');
+                ->with('error', __('Could not create the claim.'));
         }
         $this->logResearchActivity('create', 'claim_ledger', (int) $id, $validated['text'] ?? null, ['method' => 'ClaimLedgerController@store'], $projectId);
         return redirect()->route('research.claims.show', [$projectId, $id])
-            ->with('success', 'Claim added to the ledger.');
+            ->with('success', __('Claim added to the ledger.'));
     }
 
     /** Update an existing claim (POST). */

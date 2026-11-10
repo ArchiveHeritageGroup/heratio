@@ -111,7 +111,7 @@ class ArgumentBuilderController extends Controller
         $argument = $this->builder->getOrCreateArgument($projectId, (int) Auth::id());
         if (! $argument) {
             return redirect()->route('research.argument.show', $projectId)
-                ->with('error', 'Could not save the argument.');
+                ->with('error', __('Could not save the argument.'));
         }
         $ok = $this->builder->updateArgument($projectId, (int) $argument->id, $validated);
         if ($ok) {
@@ -138,7 +138,7 @@ class ArgumentBuilderController extends Controller
         $argument = $this->builder->getOrCreateArgument($projectId, (int) Auth::id());
         if (! $argument) {
             return redirect()->route('research.argument.show', $projectId)
-                ->with('error', 'Could not add the step.');
+                ->with('error', __('Could not add the step.'));
         }
 
         $id = $this->builder->addStep(
@@ -171,7 +171,7 @@ class ArgumentBuilderController extends Controller
         $argument = $this->builder->getArgument($projectId);
         if (! $argument) {
             return redirect()->route('research.argument.show', $projectId)
-                ->with('error', 'No argument to update.');
+                ->with('error', __('No argument to update.'));
         }
 
         $assertionId = (isset($validated['assertion_id']) && (int) $validated['assertion_id'] > 0)
@@ -200,7 +200,7 @@ class ArgumentBuilderController extends Controller
         $argument = $this->builder->getArgument($projectId);
         if (! $argument) {
             return redirect()->route('research.argument.show', $projectId)
-                ->with('error', 'No argument to update.');
+                ->with('error', __('No argument to update.'));
         }
 
         $ok = $this->builder->updateStepNote($projectId, (int) $argument->id, $stepId, $validated['note'] ?? null);
@@ -222,7 +222,7 @@ class ArgumentBuilderController extends Controller
         $argument = $this->builder->getArgument($projectId);
         if (! $argument) {
             return redirect()->route('research.argument.show', $projectId)
-                ->with('error', 'No argument to update.');
+                ->with('error', __('No argument to update.'));
         }
 
         $ok = $this->builder->removeStep($projectId, (int) $argument->id, $stepId);
@@ -250,7 +250,7 @@ class ArgumentBuilderController extends Controller
         $argument = $this->builder->getArgument($projectId);
         if (! $argument) {
             return redirect()->route('research.argument.show', $projectId)
-                ->with('error', 'No argument to reorder.');
+                ->with('error', __('No argument to reorder.'));
         }
 
         $ok = $this->builder->reorderSteps($projectId, (int) $argument->id, $order);

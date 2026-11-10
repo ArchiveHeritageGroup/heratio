@@ -91,7 +91,7 @@ class ResearchWalkInsController extends Controller
                     'checked_in_by' => Auth::id(),
                 ]);
                 return redirect()->route('research.walkIn', ['room_id' => $roomId])
-                    ->with('success', 'Walk-in visitor registered');
+                    ->with('success', __('Walk-in visitor registered'));
             }
             if ($action === 'checkout') {
                 DB::table('research_walk_in_visitor')
@@ -101,7 +101,7 @@ class ResearchWalkInsController extends Controller
                         'checked_out_by' => Auth::id(),
                     ]);
                 return redirect()->route('research.walkIn', ['room_id' => $roomId])
-                    ->with('success', 'Visitor checked out');
+                    ->with('success', __('Visitor checked out'));
             }
         }
 

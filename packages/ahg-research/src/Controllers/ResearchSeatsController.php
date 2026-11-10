@@ -86,7 +86,7 @@ class ResearchSeatsController extends Controller
                     'sort_order' => $maxSort + 1,
                     'created_at' => now(),
                 ]);
-                return $redir->with('success', 'Seat added.');
+                return $redir->with('success', __('Seat added.'));
             }
 
             if ($action === 'update') {
@@ -102,25 +102,25 @@ class ResearchSeatsController extends Controller
                     'notes' => $request->input('notes') ?: null,
                     'updated_at' => now(),
                 ]);
-                return $redir->with('success', 'Seat updated.');
+                return $redir->with('success', __('Seat updated.'));
             }
 
             if ($action === 'delete') {
                 DB::table('research_reading_room_seat')->where('id', (int) $request->input('seat_id'))
                     ->update(['is_active' => 0, 'updated_at' => now()]);
-                return $redir->with('success', 'Seat deactivated.');
+                return $redir->with('success', __('Seat deactivated.'));
             }
 
             if ($action === 'release') {
                 DB::table('research_reading_room_seat')->where('id', (int) $request->input('seat_id'))
                     ->update(['status' => 'available', 'researcher_id' => null, 'updated_at' => now()]);
-                return $redir->with('success', 'Seat released.');
+                return $redir->with('success', __('Seat released.'));
             }
 
             if ($action === 'assign') {
                 DB::table('research_reading_room_seat')->where('id', (int) $request->input('seat_id'))
                     ->update(['status' => 'occupied', 'researcher_id' => (int) $request->input('researcher_id'), 'updated_at' => now()]);
-                return $redir->with('success', 'Seat assigned.');
+                return $redir->with('success', __('Seat assigned.'));
             }
 
             if ($action === 'bulk_create') {
@@ -149,7 +149,7 @@ class ResearchSeatsController extends Controller
                         }
                     }
                 }
-                return $redir->with('success', "{$created} seats created.");
+                return $redir->with('success', trans_choice('{1} :count seat created.|[2,*] :count seats created.', $created, ['count' => $created]));
             }
         }
 

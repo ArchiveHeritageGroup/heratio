@@ -60,7 +60,7 @@ class ResearchApiKeysController extends Controller
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
         if (!$researcher || $researcher->status !== 'approved') {
-            return redirect()->route('research.dashboard')->with('error', 'Must be an approved researcher');
+            return redirect()->route('research.dashboard')->with('error', __('Must be an approved researcher'));
         }
 
         $apiKeys = $this->service->getApiKeys($researcher->id);
@@ -75,11 +75,11 @@ class ResearchApiKeysController extends Controller
                     $request->input('expires_at') ?: null
                 );
                 return redirect()->route('research.apiKeys')
-                    ->with('success', 'API key generated successfully. <br><code id="apiKeyValue" class="user-select-all fs-6">' . e($result['key']) . '</code><br><small class="text-muted">Copy this key now - it will not be shown again.</small>');
+                    ->with('success', __('API key generated successfully.') . '<br><code id="apiKeyValue" class="user-select-all fs-6">' . e($result['key']) . '</code><br><small class="text-muted">' . __('Copy this key now - it will not be shown again.') . '</small>');
             }
             if ($action === 'revoke') {
                 $this->service->revokeApiKey((int) $request->input('key_id'), $researcher->id);
-                return redirect()->route('research.apiKeys')->with('success', 'API key revoked');
+                return redirect()->route('research.apiKeys')->with('success', __('API key revoked'));
             }
         }
 

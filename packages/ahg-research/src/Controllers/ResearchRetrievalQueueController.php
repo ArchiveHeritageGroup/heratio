@@ -71,7 +71,7 @@ class ResearchRetrievalQueueController extends Controller
                 DB::table('research_material_request')
                     ->where('id', (int) $request->input('request_id'))
                     ->update(['status' => $newStatus, 'updated_at' => now()]);
-                return redirect()->route('research.retrievalQueue', ['status' => $request->input('current_status')])->with('success', 'Status updated.');
+                return redirect()->route('research.retrievalQueue', ['status' => $request->input('current_status')])->with('success', __('Status updated.'));
             }
 
             if ($action === 'batch_update' && $request->input('new_status')) {

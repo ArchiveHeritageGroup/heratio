@@ -188,7 +188,7 @@ class InboxController extends Controller
             return response()->json(['ok' => true, 'id' => $id]);
         }
 
-        return redirect()->route('research.inbox.index')->with('success', 'Captured to your inbox.');
+        return redirect()->route('research.inbox.index')->with('success', __('Captured to your inbox.'));
     }
 
     // =========================================================================
@@ -244,8 +244,8 @@ class InboxController extends Controller
 
         if (! $ok) {
             return redirect()->route('research.inbox.index')
-                ->with('error', 'Could not move item - check the project is one of yours.');
+                ->with('error', __('Could not move item - check the project is one of yours.'));
         }
-        return redirect()->route('research.inbox.index')->with('success', 'Moved to project.');
+        return redirect()->route('research.inbox.index')->with('success', __('Moved to project.'));
     }
 }

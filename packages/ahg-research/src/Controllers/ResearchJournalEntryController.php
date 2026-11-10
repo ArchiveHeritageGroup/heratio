@@ -111,7 +111,7 @@ class ResearchJournalEntryController extends Controller
                     'created_at' => date('Y-m-d H:i:s'),
                 ]);
                 $this->logResearchActivity('create', 'journal_entry', null, $request->input('title'), ['method' => 'ResearchJournalEntryController@journal'], $request->input('project_id') ?: null);
-                return redirect()->route('research.journal')->with('success', 'Journal entry created');
+                return redirect()->route('research.journal')->with('success', __('Journal entry created'));
             }
         }
 
@@ -147,7 +147,7 @@ class ResearchJournalEntryController extends Controller
                     ->where('researcher_id', $researcher->id)
                     ->delete();
                 $this->logResearchActivity('delete', 'journal_entry', $id, $entry->title ?? null, ['method' => 'ResearchJournalEntryController@journalEntry']);
-                return redirect()->route('research.journal')->with('success', 'Entry deleted');
+                return redirect()->route('research.journal')->with('success', __('Entry deleted'));
             }
             $content = $this->service->sanitizeHtml($request->input('content', ''));
             DB::table('research_journal_entry')->where('id', $id)->where('researcher_id', $researcher->id)->update([
@@ -163,7 +163,7 @@ class ResearchJournalEntryController extends Controller
                 'updated_at' => date('Y-m-d H:i:s'),
             ]);
             $this->logResearchActivity('update', 'journal_entry', $id, $request->input('title', $entry->title ?? null), ['method' => 'ResearchJournalEntryController@journalEntry'], $request->input('project_id') ?: null);
-            return redirect()->route('research.journalEntry', $id)->with('success', 'Entry updated');
+            return redirect()->route('research.journalEntry', $id)->with('success', __('Entry updated'));
         }
 
         return view('research::research.journal-entry', array_merge(

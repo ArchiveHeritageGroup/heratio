@@ -120,13 +120,13 @@ class ResearchMilestoneController extends Controller
 
         if (! $id) {
             return redirect()->route('research.milestones.index', $projectId)
-                ->with('error', 'Could not add the milestone. Please try again.');
+                ->with('error', __('Could not add the milestone. Please try again.'));
         }
 
         $this->logResearchActivity('create', 'milestone', (int) $id, $data['title'] ?? null, ['method' => 'ResearchMilestoneController@store'], $projectId);
 
         return redirect()->route('research.milestones.show', [$projectId, $id])
-            ->with('success', 'Milestone saved.');
+            ->with('success', __('Milestone saved.'));
     }
 
     /** Edit-milestone form. */
@@ -140,7 +140,7 @@ class ResearchMilestoneController extends Controller
         $milestone = $this->milestones->getMilestone($milestoneId, $projectId);
         if (! $milestone) {
             return redirect()->route('research.milestones.index', $projectId)
-                ->with('error', 'Milestone not found.');
+                ->with('error', __('Milestone not found.'));
         }
 
         $typeOptions   = $this->milestones->typeOptions();
@@ -163,7 +163,7 @@ class ResearchMilestoneController extends Controller
         $existing = $this->milestones->getMilestone($milestoneId, $projectId);
         if (! $existing) {
             return redirect()->route('research.milestones.index', $projectId)
-                ->with('error', 'Milestone not found.');
+                ->with('error', __('Milestone not found.'));
         }
 
         $data = $this->validateMilestone($request);
@@ -172,13 +172,13 @@ class ResearchMilestoneController extends Controller
 
         if (! $ok) {
             return redirect()->route('research.milestones.index', $projectId)
-                ->with('error', 'Could not save the milestone.');
+                ->with('error', __('Could not save the milestone.'));
         }
 
         $this->logResearchActivity('update', 'milestone', $milestoneId, $data['title'] ?? null, ['method' => 'ResearchMilestoneController@update'], $projectId);
 
         return redirect()->route('research.milestones.show', [$projectId, $milestoneId])
-            ->with('success', 'Milestone saved.');
+            ->with('success', __('Milestone saved.'));
     }
 
     /** Read-only milestone detail. */
@@ -192,7 +192,7 @@ class ResearchMilestoneController extends Controller
         $milestone = $this->milestones->getMilestone($milestoneId, $projectId);
         if (! $milestone) {
             return redirect()->route('research.milestones.index', $projectId)
-                ->with('error', 'Milestone not found.');
+                ->with('error', __('Milestone not found.'));
         }
 
         $typeOptions   = $this->milestones->typeOptions();

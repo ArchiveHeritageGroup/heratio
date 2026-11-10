@@ -86,7 +86,7 @@ class ResearchReproductionsController extends Controller
                 ]);
             }
 
-            return redirect()->route('research.viewReproduction', $reqId)->with('success', 'Request created.' . ($objectId ? ' Item added.' : ' Add items to continue.'));
+            return redirect()->route('research.viewReproduction', $reqId)->with('success', $objectId ? __('Request created. Item added.') : __('Request created. Add items to continue.'));
         }
 
         $query = DB::table('research_reproduction_request as r')
@@ -133,7 +133,7 @@ class ResearchReproductionsController extends Controller
                         'status' => 'pending',
                         'created_at' => now(),
                     ]);
-                    return redirect()->route('research.viewReproduction', $id)->with('success', 'Item added.');
+                    return redirect()->route('research.viewReproduction', $id)->with('success', __('Item added.'));
                 }
             }
 
@@ -141,19 +141,19 @@ class ResearchReproductionsController extends Controller
                 DB::table('research_reproduction_item')
                     ->where('id', (int) $request->input('item_id'))
                     ->where('request_id', $id)->delete();
-                return redirect()->route('research.viewReproduction', $id)->with('success', 'Item removed.');
+                return redirect()->route('research.viewReproduction', $id)->with('success', __('Item removed.'));
             }
 
             if ($action === 'submit') {
                 DB::table('research_reproduction_request')->where('id', $id)
                     ->update(['status' => 'submitted', 'updated_at' => now()]);
-                return redirect()->route('research.viewReproduction', $id)->with('success', 'Request submitted for processing.');
+                return redirect()->route('research.viewReproduction', $id)->with('success', __('Request submitted for processing.'));
             }
 
             if ($action === 'cancel') {
                 DB::table('research_reproduction_request')->where('id', $id)
                     ->update(['status' => 'cancelled', 'closed_at' => now(), 'updated_at' => now()]);
-                return redirect()->route('research.reproductions')->with('success', 'Request cancelled.');
+                return redirect()->route('research.reproductions')->with('success', __('Request cancelled.'));
             }
         }
 

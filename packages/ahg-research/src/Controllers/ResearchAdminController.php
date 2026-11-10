@@ -160,7 +160,7 @@ class ResearchAdminController extends Controller
         $s = DB::table('research_metadata_suggestion')->where('id', $id)->first();
         if (! $s || $s->status !== 'open') {
             return redirect()->route('research.admin.metadataSuggestions')
-                ->with('error', 'Suggestion not found or already reviewed.');
+                ->with('error', __('Suggestion not found or already reviewed.'));
         }
 
         $key = preg_replace('/[^a-z]/', '', strtolower((string) $s->field));
@@ -218,7 +218,7 @@ class ResearchAdminController extends Controller
                     trim(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) ?: null,
                     ['method' => 'ResearchAdminController@viewResearcher', 'action' => 'approve']
                 );
-                return redirect()->route('research.viewResearcher', $id)->with('success', 'Approved');
+                return redirect()->route('research.viewResearcher', $id)->with('success', __('Approved'));
             } elseif ($action === 'suspend') {
                 DB::table('research_researcher')->where('id', $id)->update(['status' => 'suspended']);
                 // Also deactivate the linked account, consistent with suspendResearcher().
@@ -230,7 +230,7 @@ class ResearchAdminController extends Controller
                     trim(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) ?: null,
                     ['method' => 'ResearchAdminController@viewResearcher', 'action' => 'suspend']
                 );
-                return redirect()->route('research.viewResearcher', $id)->with('success', 'Suspended');
+                return redirect()->route('research.viewResearcher', $id)->with('success', __('Suspended'));
             }
         }
 
@@ -284,7 +284,7 @@ class ResearchAdminController extends Controller
         );
 
         return redirect()->route('research.viewResearcher', $id)
-            ->with('success', 'Researcher approved and account activated');
+            ->with('success', __('Researcher approved and account activated'));
     }
 
     /**
@@ -368,7 +368,7 @@ class ResearchAdminController extends Controller
         );
 
         return redirect()->route('research.researchers')
-            ->with('success', 'Researcher registration rejected and archived');
+            ->with('success', __('Researcher registration rejected and archived'));
     }
 
     public function resetPassword(int $id)
@@ -417,6 +417,6 @@ class ResearchAdminController extends Controller
         );
 
         return redirect()->route('research.viewResearcher', $id)
-            ->with('success', 'Researcher suspended');
+            ->with('success', __('Researcher suspended'));
     }
 }

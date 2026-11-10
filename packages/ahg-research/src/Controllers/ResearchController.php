@@ -163,7 +163,7 @@ class ResearchController extends Controller
             }
 
             $this->service->updateResearcher($researcher->id, $data);
-            return redirect()->route('research.profile')->with('success', 'Profile updated');
+            return redirect()->route('research.profile')->with('success', __('Profile updated'));
         }
 
         $recentBookings = $this->service->getResearcherBookings($researcher->id);

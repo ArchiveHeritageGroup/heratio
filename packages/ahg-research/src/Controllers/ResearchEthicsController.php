@@ -133,13 +133,13 @@ class ResearchEthicsController extends Controller
 
         if (! $id) {
             return redirect()->route('research.ethics.index', $projectId)
-                ->with('error', 'Could not create the ethics record. Please try again.');
+                ->with('error', __('Could not create the ethics record. Please try again.'));
         }
 
         $this->logResearchActivity('create', 'ethics', (int) $id, $data['title'] ?? null, ['method' => 'ResearchEthicsController@store'], $projectId);
 
         return redirect()->route('research.ethics.show', [$projectId, $id])
-            ->with('success', 'Ethics record saved.');
+            ->with('success', __('Ethics record saved.'));
     }
 
     /** Edit-record form. */
@@ -153,7 +153,7 @@ class ResearchEthicsController extends Controller
         $record = $this->ethics->getRecord($ethicsId, $projectId);
         if (! $record) {
             return redirect()->route('research.ethics.index', $projectId)
-                ->with('error', 'Ethics record not found.');
+                ->with('error', __('Ethics record not found.'));
         }
 
         $typeOptions    = $this->ethics->approvalTypeOptions();
@@ -179,7 +179,7 @@ class ResearchEthicsController extends Controller
         $existing = $this->ethics->getRecord($ethicsId, $projectId);
         if (! $existing) {
             return redirect()->route('research.ethics.index', $projectId)
-                ->with('error', 'Ethics record not found.');
+                ->with('error', __('Ethics record not found.'));
         }
 
         $data = $this->validateRecord($request);
@@ -188,13 +188,13 @@ class ResearchEthicsController extends Controller
 
         if (! $ok) {
             return redirect()->route('research.ethics.index', $projectId)
-                ->with('error', 'Could not save the ethics record.');
+                ->with('error', __('Could not save the ethics record.'));
         }
 
         $this->logResearchActivity('update', 'ethics', (int) $ethicsId, $data['title'] ?? null, ['method' => 'ResearchEthicsController@update'], $projectId);
 
         return redirect()->route('research.ethics.show', [$projectId, $ethicsId])
-            ->with('success', 'Ethics record saved.');
+            ->with('success', __('Ethics record saved.'));
     }
 
     /** Read-only record detail. */
@@ -208,7 +208,7 @@ class ResearchEthicsController extends Controller
         $record = $this->ethics->getRecord($ethicsId, $projectId);
         if (! $record) {
             return redirect()->route('research.ethics.index', $projectId)
-                ->with('error', 'Ethics record not found.');
+                ->with('error', __('Ethics record not found.'));
         }
 
         $typeOptions    = $this->ethics->approvalTypeOptions();

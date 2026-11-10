@@ -85,7 +85,7 @@ class ResearchEquipmentController extends Controller
                     'condition_status' => 'good',
                     'created_at' => now(),
                 ]);
-                return $redir->with('success', 'Equipment added.');
+                return $redir->with('success', __('Equipment added.'));
             }
 
             if ($action === 'update') {
@@ -102,7 +102,7 @@ class ResearchEquipmentController extends Controller
                     'requires_training' => $request->has('requires_training') ? 1 : 0,
                     'updated_at' => now(),
                 ]);
-                return $redir->with('success', 'Equipment updated.');
+                return $redir->with('success', __('Equipment updated.'));
             }
 
             if ($action === 'maintenance') {
@@ -127,7 +127,7 @@ class ResearchEquipmentController extends Controller
                     'next_maintenance_date' => $request->input('next_maintenance_date') ?: null,
                     'updated_at' => now(),
                 ]);
-                return $redir->with('success', 'Maintenance logged.');
+                return $redir->with('success', __('Maintenance logged.'));
             }
         }
 
