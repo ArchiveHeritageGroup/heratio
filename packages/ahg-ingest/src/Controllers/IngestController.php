@@ -555,6 +555,14 @@ class IngestController extends Controller
 
                 return redirect()->route('ingest.preview', $id);
             }
+            // The validation page's "Commit (N rows)" button: straight to the
+            // commit step. It posted form_action=commit here and fell through to
+            // a re-validation, so the button did nothing (10 Nov 2026).
+            if ($action === 'commit') {
+                $this->service->updateSessionStatus($id, 'commit');
+
+                return redirect()->route('ingest.commit', $id);
+            }
         }
 
         $stats = $this->service->validateSession($id);
