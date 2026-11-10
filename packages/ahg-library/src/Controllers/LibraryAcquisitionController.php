@@ -80,7 +80,7 @@ class LibraryAcquisitionController extends Controller
         $orderId = $this->acq->createOrder($data);
 
         if ($orderId === 0) {
-            return back()->withInput()->with('error', 'Failed to create order.');
+            return back()->withInput()->with('error', __('Failed to create order.'));
         }
 
         // Persist lines in order
@@ -90,7 +90,7 @@ class LibraryAcquisitionController extends Controller
 
         return redirect()
             ->route('library.acquisition-order', $orderId)
-            ->with('success', 'Order created.');
+            ->with('success', __('Order created.'));
     }
 
     // ── Show ────────────────────────────────────────────────────────────────
@@ -148,7 +148,7 @@ class LibraryAcquisitionController extends Controller
 
         return redirect()
             ->route('library.acquisition-order', $id)
-            ->with('success', 'Order updated.');
+            ->with('success', __('Order updated.'));
     }
 
     // ── AJAX line management ────────────────────────────────────────────────
@@ -271,7 +271,7 @@ class LibraryAcquisitionController extends Controller
         $this->acq->removeLine($lineId);
         $this->acq->recalculateOrderTotals($id);
 
-        return back()->with('success', 'Line removed.');
+        return back()->with('success', __('Line removed.'));
     }
 
     /**
@@ -442,12 +442,12 @@ class LibraryAcquisitionController extends Controller
 
         $id = $this->acq->createBudget($validated);
         if ($id === 0) {
-            return back()->withInput()->with('error', 'Failed to create budget.');
+            return back()->withInput()->with('error', __('Failed to create budget.'));
         }
 
         return redirect()
             ->route('library.acquisition-budget', $id)
-            ->with('success', 'Budget created.');
+            ->with('success', __('Budget created.'));
     }
 
     public function budgetShow(int $id): View
@@ -498,7 +498,7 @@ class LibraryAcquisitionController extends Controller
 
         return redirect()
             ->route('library.acquisition-budget', $id)
-            ->with('success', 'Budget updated.');
+            ->with('success', __('Budget updated.'));
     }
 
     public function budgetDestroy(int $id): \Illuminate\Http\RedirectResponse
@@ -509,14 +509,14 @@ class LibraryAcquisitionController extends Controller
         }
 
         if (($budget->spent_amount ?? 0) > 0) {
-            return back()->with('error', 'Cannot delete a budget with recorded expenditure.');
+            return back()->with('error', __('Cannot delete a budget with recorded expenditure.'));
         }
 
         $this->acq->deleteBudget($id);
 
         return redirect()
             ->route('library.acquisition-budgets')
-            ->with('success', 'Budget deleted.');
+            ->with('success', __('Budget deleted.'));
     }
 
     // ── Status transitions ───────────────────────────────────────────────────
@@ -535,12 +535,12 @@ class LibraryAcquisitionController extends Controller
 
         $valid = ['draft', 'submitted', 'approved', 'ordered', 'partial', 'received', 'cancelled'];
         if (!in_array($newStatus, $valid)) {
-            return back()->with('error', "Invalid status '{$newStatus}'.");
+            return back()->with('error', __("Invalid status ':status'.", ['status' => $newStatus]));
         }
 
         $this->acq->transitionOrder($id, $newStatus);
 
-        return back()->with('success', "Order status updated to '{$newStatus}'.");
+        return back()->with('success', __("Order status updated to ':status'.", ['status' => $newStatus]));
     }
 
     public function transitionAjax(Request $request, int $id): JsonResponse
@@ -595,7 +595,7 @@ class LibraryAcquisitionController extends Controller
             $validated['note'] ?? null
         );
 
-        return back()->with('success', "Order written off ({$validated['reason']}).");
+        return back()->with('success', __('Order written off (:reason).', ['reason' => $validated['reason']]));
     }
 
     // ── Acquisitions dashboard ─────────────────────────────────────────────────

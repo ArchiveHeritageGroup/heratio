@@ -3,7 +3,7 @@
 
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="h4">{{ __('ILL Requests') }}</h2>
-    <a href="{{ route('library.ill-requests.create') }}" class="btn btn-primary btn-sm">+ New ILL Request</a>
+    <a href="{{ route('library.ill-requests.create') }}" class="btn btn-primary btn-sm">{{ __('+ New ILL Request') }}</a>
   </div>
 
   {{-- Status badges --}}

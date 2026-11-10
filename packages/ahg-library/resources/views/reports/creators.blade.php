@@ -18,7 +18,7 @@
 @endsection
 @section('title-block')<h1><i class="fas fa-user-edit me-2"></i>{{ __('Creators/Authors') }}</h1>@endsection
 @section('content')
-<div class="alert alert-info"><strong>{{ count($creators) }}</strong> creators found</div>
+<div class="alert alert-info">{!! __(':count creators found', ['count' => '<strong>'.count($creators).'</strong>']) !!}</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
     <thead class="table-dark"><tr><th>{{ __('Name') }}</th><th class="text-end">{{ __('Items') }}</th></tr></thead>

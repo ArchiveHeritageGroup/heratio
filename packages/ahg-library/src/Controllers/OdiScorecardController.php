@@ -45,6 +45,6 @@ class OdiScorecardController extends Controller
 
         return redirect()
             ->route('library.odi-scorecard')
-            ->with('status', "ODI scorecards refreshed for {$written} collection(s).");
+            ->with('status', __('ODI scorecards refreshed for :count collection(s).', ['count' => $written]));
     }
 }

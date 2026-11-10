@@ -9,7 +9,7 @@
         </a>
         <div>
             <h2 class="mb-0">{{ __('MARC Editor') }}</h2>
-            <span class="badge bg-secondary mt-1">Library Item #{{ $formData['library_item_id'] ?? '' }}</span>
+            <span class="badge bg-secondary mt-1">{{ __('Library Item #:id', ['id' => $formData['library_item_id'] ?? '']) }}</span>
         </div>
     </div>
 
@@ -171,7 +171,7 @@
                                        placeholder="978-0-123-45678-9">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label small">\$020\$c Price</label>
+                                <label class="form-label small">\$020\$c {{ __('Price') }}</label>
                                 <input type="text" class="form-control"
                                        name="identifier_fields[020][c]"
                                        value="{{ $f020['c'] ?? '' }}"
@@ -185,35 +185,35 @@
                                        placeholder="1234-5678">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label small">\$022\$z Invalid ISBN</label>
+                                <label class="form-label small">\$022\$z {{ __('Invalid ISBN') }}</label>
                                 <input type="text" class="form-control"
                                        name="identifier_fields[022][z]"
                                        value="{{ $f022['z'] ?? '' }}"
                                        placeholder="{{ __('Invalid ISBN note') }}">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label small">\$024\$a Other Std Number</label>
+                                <label class="form-label small">\$024\$a {{ __('Other Std Number') }}</label>
                                 <input type="text" class="form-control"
                                        name="identifier_fields[024][a]"
                                        value="{{ $f024['a'] ?? '' }}"
                                        placeholder="">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label small">\$024\$2 Source</label>
+                                <label class="form-label small">\$024\$2 {{ __('Source') }}</label>
                                 <input type="text" class="form-control"
                                        name="identifier_fields[024][2]"
                                        value="{{ $f024['2'] ?? '' }}"
                                        placeholder="{{ __('urn') }}">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label small">\$028\$a Publisher Number Label</label>
+                                <label class="form-label small">\$028\$a {{ __('Publisher Number Label') }}</label>
                                 <input type="text" class="form-control"
                                        name="identifier_fields[028][a]"
                                        value="{{ $f028['a'] ?? '' }}"
                                        placeholder="{{ __('publisher label') }}">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label small">\$028\$b Publisher Number</label>
+                                <label class="form-label small">\$028\$b {{ __('Publisher Number') }}</label>
                                 <input type="text" class="form-control"
                                        name="identifier_fields[028][b]"
                                        value="{{ $f028['b'] ?? '' }}"
@@ -233,10 +233,10 @@
                             @if(isset($formData['publication_info']['264']))
                                 @php $pub = $formData['publication_info']['264']; @endphp
                                 <div class="row g-2 mb-2">
-                                    <div class="col-md-2"><label class="form-label small">\$a (place)</label>
+                                    <div class="col-md-2"><label class="form-label small">\$a ({{ __('place') }})</label>
                                         <input type="text" class="form-control" name="publication_info[264][a]"
                                                value="{{ $pub['a'] ?? '' }}"></div>
-                                    <div class="col-md-6"><label class="form-label small">\$b (name)</label>
+                                    <div class="col-md-6"><label class="form-label small">\$b ({{ __('name') }})</label>
                                         <input type="text" class="form-control" name="publication_info[264][b]"
                                                value="{{ $pub['b'] ?? '' }}"></div>
                                     <div class="col-md-4"><label class="form-label small">{{ __('Date') }}</label>
@@ -245,9 +245,9 @@
                                 </div>
                             @else
                                 <div class="row g-2 mb-2">
-                                    <div class="col-md-2"><label class="form-label small">\$a (place)</label>
+                                    <div class="col-md-2"><label class="form-label small">\$a ({{ __('place') }})</label>
                                         <input type="text" class="form-control" name="publication_info[264][a]" value=""></div>
-                                    <div class="col-md-6"><label class="form-label small">\$b (name)</label>
+                                    <div class="col-md-6"><label class="form-label small">\$b ({{ __('name') }})</label>
                                         <input type="text" class="form-control" name="publication_info[264][b]" value=""></div>
                                     <div class="col-md-4"><label class="form-label small">{{ __('Date') }}</label>
                                         <input type="text" class="form-control" name="publication_info[date_1]" value=""></div>
@@ -271,27 +271,27 @@
                         @endphp
                         <div class="row g-3">
                             <div class="col-md-4">
-                                <label class="form-label small">\$336\$a Content Type</label>
+                                <label class="form-label small">\$336\$a {{ __('Content Type') }}</label>
                                 <select class="form-select" name="rda_fields[336][a]">
-                                    <option value="">-- select --</option>
+                                    <option value="">{{ __('-- select --') }}</option>
                                     @foreach(['text','cartographic image','notated movement','performed music','computer dataset','program','still image','moving image','three-dimensional form','tactile text','tactile notated','tactile image','tactile moving image','tactile three-dimensional form'] as $ct)
                                         <option value="{{ $ct }}" {{ ($f336['a'] ?? '') === $ct ? 'selected' : '' }}>{{ $ct }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label small">\$337\$a Carrier Type</label>
+                                <label class="form-label small">\$337\$a {{ __('Carrier Type') }}</label>
                                 <select class="form-select" name="rda_fields[337][a]">
-                                    <option value="">-- select --</option>
+                                    <option value="">{{ __('-- select --') }}</option>
                                     @foreach(['audio cylinder','audio disc','audio roll','audio tape cassette','audio tape reel','computer chip cartridge','computer disc','computer tape cartridge','computer tape cassette','computer tape reel','online resource','microfilm cartridge','microfilm cassette','microfilm reel','microfiche','micro opaque cassette','remote online resource','tape cassette','tape reel','video cassette','video disc','video reel'] as $cr)
                                         <option value="{{ $cr }}" {{ ($f337['a'] ?? '') === $cr ? 'selected' : '' }}>{{ $cr }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label small">\$338\$a Instance Type</label>
+                                <label class="form-label small">\$338\$a {{ __('Instance Type') }}</label>
                                 <select class="form-select" name="rda_fields[338][a]">
-                                    <option value="">-- select --</option>
+                                    <option value="">{{ __('-- select --') }}</option>
                                     @foreach(['volume','issue','article','part','collection','sub-unit','single unit','serial'] as $it)
                                         <option value="{{ $it }}" {{ ($f338['a'] ?? '') === $it ? 'selected' : '' }}>{{ $it }}</option>
                                     @endforeach

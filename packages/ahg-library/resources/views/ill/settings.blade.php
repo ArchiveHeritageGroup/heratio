@@ -40,7 +40,7 @@
                 <input type="number" name="auto_escalate_days"
                        value="{{ old('auto_escalate_days', $settings['ill_auto_escalate_days'] ?? 0) }}"
                        class="form-control" min="0" max="90">
-                <div class="form-text">0 disables auto-escalation. Cron job runs nightly.</div>
+                <div class="form-text">{{ __('0 disables auto-escalation. Cron job runs nightly.') }}</div>
               </div>
             </div>
           </div>
@@ -55,16 +55,14 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Default Partner') }}</label>
               <select name="tipasa_partner" class="form-select">
-                <option value="">- none -</option>
+                <option value="">{{ __('- none -') }}</option>
                 <option value="naz"      {{ (old('tipasa_partner', $settings['ill_tipasa_partner'] ?? '') === 'naz')      ? 'selected' : '' }}>{{ __('National Archives of Zimbabwe (NAZ)') }}</option>
                 <option value="sabinet"  {{ (old('tipasa_partner', $settings['ill_tipasa_partner'] ?? '') === 'sabinet')  ? 'selected' : '' }}>{{ __('SABINET (National Library of SA)') }}</option>
                 <option value="dals"     {{ (old('tipasa_partner', $settings['ill_tipasa_partner'] ?? '') === 'dals')     ? 'selected' : '' }}>{{ __('DALS (Digital Access to Library Services)') }}</option>
               </select>
             </div>
             <p class="text-muted small">
-              Tipasa (SA ISSN agency / national library network) interlibrary loan partner.
-              Configure your institution's Tipasa credentials in the <code>NAZ_INI</code> config
-              or via environment variables.
+              {!! __('Tipasa (SA ISSN agency / national library network) interlibrary loan partner. Configure your institution\'s Tipasa credentials in the :config config or via environment variables.', ['config' => '<code>NAZ_INI</code>']) !!}
             </p>
           </div>
         </div>
@@ -76,8 +74,7 @@
           </div>
           <div class="card-body">
             <p class="text-muted small mb-3">
-              Connect to OCLC WorldShare or any ISO 10161-1 compliant ILL system via REST.
-              See <code>docs/ill-oclc-protocol.md</code> for field mapping details.
+              {!! __('Connect to OCLC WorldShare or any ISO 10161-1 compliant ILL system via REST. See :doc for field mapping details.', ['doc' => '<code>docs/ill-oclc-protocol.md</code>']) !!}
             </p>
             <div class="row">
               <div class="col-md-6 mb-3">
@@ -120,14 +117,14 @@
             <ol class="ps-3">
               <li>{{ __('Register with the National Library of Zimbabwe or SABINET.') }}</li>
               <li>{{ __('Obtain your institution\'s TIPASA client credentials.') }}</li>
-              <li>Configure <code>NAZ_INI</code> path in your environment.</li>
+              <li>{!! __('Configure :code path in your environment.', ['code' => '<code>NAZ_INI</code>']) !!}</li>
               <li>{{ __('Set the default partner here.') }}</li>
             </ol>
             <hr>
             <p>{{ __('For OCLC WorldShare ILL:') }}</p>
             <ol class="ps-3">
               <li>{{ __('Apply for an OCLC API key at oclc.org.') }}</li>
-              <li>Enter your <code>Principal ID</code> (provided by OCLC).</li>
+              <li>{!! __('Enter your :id (provided by OCLC).', ['id' => '<code>Principal ID</code>']) !!}</li>
               <li>{{ __('Set the base URL for your region.') }}</li>
             </ol>
           </div>

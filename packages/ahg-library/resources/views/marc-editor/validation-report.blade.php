@@ -35,9 +35,7 @@
             <i class="fas {{ $isValid ? 'fa-check-circle' : 'fa-exclamation-triangle' }} me-3 fa-lg"></i>
             <div>
                 <strong>{{ $isValid ? 'Valid' : 'Invalid' }}.</strong>
-                {{ (int) ($report['error_count'] ?? 0) }} error(s),
-                {{ (int) ($report['warning_count'] ?? 0) }} warning(s)
-                across {{ count($report['records'] ?? []) }} record(s).
+                {{ __(':errors error(s), :warnings warning(s) across :records record(s).', ['errors' => (int) ($report['error_count'] ?? 0), 'warnings' => (int) ($report['warning_count'] ?? 0), 'records' => count($report['records'] ?? [])]) }}
             </div>
         </div>
 
@@ -50,7 +48,7 @@
             <div class="card mb-3 shadow-sm">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span>
-                        <strong>Record #{{ (int) ($rec['index'] ?? 0) + 1 }}</strong>
+                        <strong>{{ __('Record #:id', ['id' => (int) ($rec['index'] ?? 0) + 1]) }}</strong>
                         @if (! empty($rec['title']))
                             - {{ $rec['title'] }}
                         @endif

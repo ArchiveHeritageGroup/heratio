@@ -14,7 +14,7 @@
                 {{ $reportType === 'PR' ? 'Platform Usage Report' : "{$reportType} Report" }}
             </h1>
             <p class="text-muted small mb-0">
-                COUNTER 5 aggregated statistics
+                {{ __('COUNTER 5 aggregated statistics') }}
                 @if($fromDate && $toDate)
                     - {{ \Carbon\Carbon::parse($fromDate)->format('M Y') }}
                     to {{ \Carbon\Carbon::parse($toDate)->format('M Y') }}
@@ -102,7 +102,7 @@
                     <i class="fas fa-info-circle me-2"></i>
                     {{ __('No usage statistics recorded yet.') }}
                     <a href="{{ route('library.usage-harvest') }}">{{ __('Run a SUSHI harvest') }}</a>
-                    to collect data from your content providers.
+                    {{ __('to collect data from your content providers.') }}
                 </div>
             @else
                 {{-- Totals cards --}}

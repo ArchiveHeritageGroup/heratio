@@ -47,13 +47,13 @@
                                 <td>{{ e($ser->frequency ?? '') }}</td>
                                 <td>{{ $claim['predicted_date'] ? \Carbon\Carbon::parse($claim['predicted_date'])->format('d M Y') : '-' }}</td>
                                 <td>
-                                    <span class="badge bg-danger">{{ $daysLate }}d late</span>
+                                    <span class="badge bg-danger">{{ __(':countd late', ['count' => $daysLate]) }}</span>
                                 </td>
                                 <td>
                                     @if($claim['subscription_end'])
                                         {{ \Carbon\Carbon::parse($claim['subscription_end'])->format('d M Y') }}
                                     @else
-                                        <span class="text-muted">no subscription</span>
+                                        <span class="text-muted">{{ __('no subscription') }}</span>
                                     @endif
                                 </td>
                                 <td>

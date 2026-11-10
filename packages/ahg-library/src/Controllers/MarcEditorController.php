@@ -83,7 +83,7 @@ class MarcEditorController extends Controller
 
             if (empty($parsed['data']) && empty($parsed['control'])) {
                 return redirect()->back()
-                    ->with('error', 'No MARC records found in the uploaded file.');
+                    ->with('error', __('No MARC records found in the uploaded file.'));
             }
 
             $previewData = $this->groupParsedFields($parsed);
@@ -96,7 +96,7 @@ class MarcEditorController extends Controller
         } catch (Throwable $e) {
             Log::error('MarcEditor formImportPreview error: ' . $e->getMessage());
             return redirect()->back()
-                ->with('error', 'Failed to parse MARCXML: ' . $e->getMessage());
+                ->with('error', __('Failed to parse MARCXML: :error', ['error' => $e->getMessage()]));
         }
     }
 
@@ -143,7 +143,7 @@ class MarcEditorController extends Controller
         } catch (Throwable $e) {
             Log::error('MarcEditor formImportCommit error: ' . $e->getMessage());
             return redirect()->back()
-                ->with('error', 'Import failed: ' . $e->getMessage());
+                ->with('error', __('Import failed: :error', ['error' => $e->getMessage()]));
         }
     }
 
@@ -204,7 +204,7 @@ class MarcEditorController extends Controller
             $syntax = $this->decoder->detectSyntax($raw);
             if ($syntax === 'unknown') {
                 return redirect()->back()
-                    ->with('error', 'Unrecognised syntax. Provide a MARCXML or MARC21 binary file.');
+                    ->with('error', __('Unrecognised syntax. Provide a MARCXML or MARC21 binary file.'));
             }
 
             if ($syntax === 'marcxml') {
@@ -222,7 +222,7 @@ class MarcEditorController extends Controller
         } catch (Throwable $e) {
             Log::error('MarcEditor formBinaryPreview error: ' . $e->getMessage());
             return redirect()->back()
-                ->with('error', 'Failed to decode MARC binary: ' . $e->getMessage());
+                ->with('error', __('Failed to decode MARC binary: :error', ['error' => $e->getMessage()]));
         }
     }
 
@@ -235,22 +235,22 @@ class MarcEditorController extends Controller
         try {
             $raw = base64_decode($request->input('marc_file'), true);
             if ($raw === false) {
-                return redirect()->back()->with('error', 'Invalid base64-encoded MARC file.');
+                return redirect()->back()->with('error', __('Invalid base64-encoded MARC file.'));
             }
 
             $ioId = $this->decoder->decodeToLibraryItem($raw);
             if (! $ioId) {
-                return redirect()->back()->with('error', 'Failed to create library item from MARC record.');
+                return redirect()->back()->with('error', __('Failed to create library item from MARC record.'));
             }
 
             $slug = DB::table('slug')->where('object_id', $ioId)->value('slug');
 
             return redirect()->route('library.show', $slug)
-                ->with('success', 'MARC record created successfully.');
+                ->with('success', __('MARC record created successfully.'));
         } catch (Throwable $e) {
             Log::error('MarcEditor formBinaryCommit error: ' . $e->getMessage());
             return redirect()->back()
-                ->with('error', 'Import failed: ' . $e->getMessage());
+                ->with('error', __('Import failed: :error', ['error' => $e->getMessage()]));
         }
     }
 
@@ -284,14 +284,14 @@ class MarcEditorController extends Controller
         $ok = $this->marcEdit->applyEdits($libraryItemId, $formData);
 
         if (! $ok) {
-            return redirect()->back()->with('error', 'Failed to save MARC edits.');
+            return redirect()->back()->with('error', __('Failed to save MARC edits.'));
         }
 
         $ioId = DB::table('library_item')->where('id', $libraryItemId)->value('information_object_id');
         $slug = DB::table('slug')->where('object_id', $ioId)->value('slug');
 
         return redirect()->route('library.show', $slug)
-            ->with('success', 'MARC record updated successfully.');
+            ->with('success', __('MARC record updated successfully.'));
     }
 
     public function download(int $libraryItemId)

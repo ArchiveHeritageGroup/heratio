@@ -37,11 +37,11 @@
     @if(session('connection_test'))
         @php $test = session('connection_test'); @endphp
         <div class="alert alert-{{ $test['ok'] ? 'success' : 'danger' }} alert-dismissible fade show">
-            <strong>Connection test for {{ $test['partner_code'] }}:</strong>
+            <strong>{{ __('Connection test for :code:', ['code' => $test['partner_code']]) }}</strong>
             @if($test['ok'])
                 <span class="badge bg-success ms-2">OK</span>
                 - {{ $test['partner_label'] }}
-                - Services: {{ implode(', ', $test['services']) ?: 'none detected' }}
+                - {{ __('Services: :services', ['services' => implode(', ', $test['services']) ?: __('none detected')]) }}
             @else
                 <span class="badge bg-danger ms-2">FAILED</span>
                 - {{ $test['error'] }}
@@ -145,7 +145,7 @@
                                    class="form-control form-control-sm @error('base_url') is-invalid @endif"
                                    value="{{ old('base_url') }}"
                                    placeholder="{{ __('https://sushi.provider.co.za/sushi/v5') }}">
-                            <small class="text-muted">Root URL - path <code>/sushi/v5/reports/*</code> is appended automatically.</small>
+                            <small class="text-muted">{!! __('Root URL - path :path is appended automatically.', ['path' => '<code>/sushi/v5/reports/*</code>']) !!}</small>
                             @error('base_url')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -188,16 +188,16 @@
                 </div>
                 <ul class="list-group list-group-flush small">
                     <li class="list-group-item">
-                        <strong>ISO 18626</strong> - Standardised Usage Statistics Harvesting Initiative
+                        <strong>ISO 18626</strong> - {{ __('Standardised Usage Statistics Harvesting Initiative') }}
                     </li>
                     <li class="list-group-item">
-                        <strong>COUNTER 5</strong> - Code of Practice Release 5 (2019)
+                        <strong>COUNTER 5</strong> - {{ __('Code of Practice Release 5 (2019)') }}
                     </li>
                     <li class="list-group-item">
-                        <strong>SUSHI</strong> - REST-based automated protocol; eliminates manual counter reports
+                        <strong>SUSHI</strong> - {{ __('REST-based automated protocol; eliminates manual counter reports') }}
                     </li>
                     <li class="list-group-item">
-                        <strong>NAZ</strong>, SABINET, DALS - built-in South African library consortia presets
+                        <strong>NAZ</strong>, SABINET, DALS - {{ __('built-in South African library consortia presets') }}
                     </li>
                 </ul>
             </div>

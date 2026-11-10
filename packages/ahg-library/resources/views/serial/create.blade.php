@@ -45,7 +45,7 @@
                     <div class="col-md-4 mb-3">
                         <label for="frequency" class="form-label">{{ __('Frequency') }}</label>
                         <select name="frequency" id="frequency" class="form-select @error('frequency') is-invalid @enderror">
-                            <option value="">-- Select --</option>
+                            <option value="">{{ __('-- Select --') }}</option>
                             @foreach($frequencies as $value => $label)
                                 <option value="{{ $value }}" @selected(old('frequency') === $value)>{{ $label }}</option>
                             @endforeach

@@ -52,9 +52,7 @@
                 <i class="fas fa-clipboard-list fa-3x mb-3 opacity-25"></i>
                 <p class="mb-2">{{ __('No scorecards computed yet.') }}</p>
                 <p class="small mb-3">
-                    Run <code>php artisan ahg:library-odi-refresh</code> or use the
-                    Recompute scores button above to generate the scorecard from the
-                    current library catalogue.
+                    {!! __('Run :command or use the Recompute scores button above to generate the scorecard from the current library catalogue.', ['command' => '<code>php artisan ahg:library-odi-refresh</code>']) !!}
                 </p>
             </div>
         </div>

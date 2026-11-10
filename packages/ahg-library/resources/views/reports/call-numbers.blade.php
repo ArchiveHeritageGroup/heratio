@@ -27,7 +27,7 @@
 @endsection
 
 @section('content')
-<div class="alert alert-info"><strong>{{ count($items) }}</strong> items with call numbers</div>
+<div class="alert alert-info">{!! __(':count items with call numbers', ['count' => '<strong>'.count($items).'</strong>']) !!}</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
     <thead class="table-dark">

@@ -344,7 +344,7 @@ class LibraryController extends Controller
 
         return redirect()
             ->route('library.show', $slug)
-            ->with('success', 'Library item created successfully.');
+            ->with('success', __('Library item created successfully.'));
     }
 
     public function update(Request $request, string $slug)
@@ -443,7 +443,7 @@ class LibraryController extends Controller
 
         return redirect()
             ->route('library.show', $slug)
-            ->with('success', 'Library item updated successfully.');
+            ->with('success', __('Library item updated successfully.'));
     }
 
     /**
@@ -495,7 +495,7 @@ class LibraryController extends Controller
 
         return redirect()
             ->route('library.browse')
-            ->with('success', 'Library item deleted successfully.');
+            ->with('success', __('Library item deleted successfully.'));
     }
 
     // ── Library Management ─────────────────────────────────────────
@@ -574,7 +574,7 @@ class LibraryController extends Controller
             }
         }
 
-        return redirect()->route('library.show', $newSlug)->with('success', 'Item renamed successfully.');
+        return redirect()->route('library.show', $newSlug)->with('success', __('Item renamed successfully.'));
     }
 
     public function isbnProviders()
@@ -602,7 +602,7 @@ class LibraryController extends Controller
         ]);
         $validated['active'] = $request->boolean('active');
         $this->isbnProvider->save($id, $validated);
-        return redirect()->route('library.isbn-providers')->with('success', 'Provider saved.');
+        return redirect()->route('library.isbn-providers')->with('success', __('Provider saved.'));
     }
 
     // ── Acquisition ────────────────────────────────────────────────
@@ -703,8 +703,8 @@ class LibraryController extends Controller
         }
 
         return $id > 0
-            ? redirect()->route('library.acquisition-order', $id)->with('success', 'Order saved.')
-            : redirect()->route('library.acquisitions')->with('success', 'Order saved.');
+            ? redirect()->route('library.acquisition-order', $id)->with('success', __('Order saved.'))
+            : redirect()->route('library.acquisitions')->with('success', __('Order saved.'));
     }
 
     // ── Circulation ────────────────────────────────────────────────

@@ -82,9 +82,7 @@
                                     <div class="card-body py-2 px-3 mb-0">
                                         <small class="text-muted">
                                             {{ __('The file must include a header row with NISO KBART column names.') }}
-                                            <br>Required columns: <code>publication_title</code> (always required);
-                                            at least one identifier: <code>isbn</code>, <code>print_issn</code>,
-                                            <code>eissn</code>, or <code>proprietary_id</code>.
+                                            <br>{!! __('Required columns: :title (always required); at least one identifier: :isbn, :issn, :eissn, or :pid.', ['title' => '<code>publication_title</code>', 'isbn' => '<code>isbn</code>', 'issn' => '<code>print_issn</code>', 'eissn' => '<code>eissn</code>', 'pid' => '<code>proprietary_id</code>']) !!}
                                         </small>
                                     </div>
                                 </div>
@@ -120,10 +118,10 @@
                         <ul class="small mb-0 text-muted" style="padding-left: 1.2em;">
                             <li>{{ __('File must be tab-separated (.tsv)') }}</li>
                             <li>{{ __('First row must be the NISO KBART header') }}</li>
-                            <li><code>publication_title</code> is required per row</li>
+                            <li>{!! __(':field is required per row', ['field' => '<code>publication_title</code>']) !!}</li>
                             <li>{{ __('At least one identifier required: ISBN, ISSN, eISSN, or proprietary_id') }}</li>
                             <li>{{ __('Duplicates (same ISBN) are skipped automatically') }}</li>
-                            <li>Serials detected by ISSN or <code>publication_type</code></li>
+                            <li>{!! __('Serials detected by ISSN or :field', ['field' => '<code>publication_type</code>']) !!}</li>
                             <li>{{ __('Preview shows up to 20 rows before you commit') }}</li>
                         </ul>
                     </div>
@@ -136,8 +134,7 @@
     @if($preview_data && !empty($preview_data))
         <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
             <i class="fas fa-info-circle me-2"></i>
-            {{ __('Previewing') }} <strong>{{ $record_count }}</strong> row(s).
-            Review carefully before committing. Rows with errors will not be imported.
+            {!! __('Previewing :count row(s). Review carefully before committing. Rows with errors will not be imported.', ['count' => '<strong>'.e($record_count).'</strong>']) !!}
         </div>
 
         <div class="row">
@@ -146,7 +143,7 @@
                     <div class="card-header" style="background: var(--ahg-primary); color: #fff;">
                         <div class="d-flex justify-content-between align-items-center">
                             <h6 class="mb-0"><i class="fas fa-list-check me-2"></i>{{ __('Preview') }}</h6>
-                            <span class="badge bg-light text-dark">{{ $record_count }} rows</span>
+                            <span class="badge bg-light text-dark">{{ __(':count rows', ['count' => $record_count]) }}</span>
                         </div>
                     </div>
                     <div class="card-body p-0">

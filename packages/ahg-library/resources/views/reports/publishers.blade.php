@@ -18,7 +18,7 @@
 @endsection
 @section('title-block')<h1><i class="fas fa-building me-2"></i>{{ __('Publishers') }}</h1>@endsection
 @section('content')
-<div class="alert alert-info"><strong>{{ count($publishers) }}</strong> publishers found</div>
+<div class="alert alert-info">{!! __(':count publishers found', ['count' => '<strong>'.count($publishers).'</strong>']) !!}</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
     <thead class="table-dark"><tr><th>{{ __('Publisher') }}</th><th>{{ __('Place') }}</th><th class="text-end">{{ __('Titles') }}</th></tr></thead>

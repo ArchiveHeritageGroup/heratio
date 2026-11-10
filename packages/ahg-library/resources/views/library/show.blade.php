@@ -71,7 +71,7 @@
 
   <section class="card mb-3">
     <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
-      <i class="fas fa-book me-1"></i> Holdings
+      <i class="fas fa-book me-1"></i> {{ __('Holdings') }}
       @if($totalChildren > 0)
         <span class="badge bg-light text-dark float-end">{{ $totalChildren }}</span>
       @endif
@@ -119,7 +119,7 @@
         </div>
         @if($hasMany)
           <div class="text-center text-muted small mt-2 mb-2">
-            <i class="fas fa-arrows-alt-v me-1"></i>Scroll to see all {{ $totalChildren }} items
+            <i class="fas fa-arrows-alt-v me-1"></i>{{ __('Scroll to see all :count items', ['count' => $totalChildren]) }}
           </div>
         @endif
       @endif
@@ -258,7 +258,7 @@
     <div class="list-group list-group-flush">
       @if(\Illuminate\Support\Facades\Route::has('io.rights.manage'))
         <a href="{{ route('io.rights.manage', $item->slug) }}" class="list-group-item list-group-item-action small">
-          <i class="fas fa-copyright me-1"></i> {{ ($hasExtRights || $activeEmbargo) ? 'Edit' : 'Add' }} rights
+          <i class="fas fa-copyright me-1"></i> {{ ($hasExtRights || $activeEmbargo) ? __('Edit rights') : __('Add rights') }}
         </a>
       @endif
       @if(\Illuminate\Support\Facades\Route::has('io.rights.export'))
@@ -392,7 +392,7 @@
         <div class="py-3">
           <i class="fas fa-file fa-3x text-muted mb-2 d-block"></i>
           {{-- settings.stripExtensions (#117): drops .ext from displayed filename when on. --}}
-          <p class="text-muted mb-1">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj?->name) ?? 'Digital object' }}</p>
+          <p class="text-muted mb-1">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj?->name) ?? __('Digital object') }}</p>
           @auth <a href="{{ $masterUrl }}" download class="btn btn-sm atom-btn-white"><i class="fas fa-download me-1"></i>{{ __('Download') }}</a> @endauth
         </div>
       @endif
@@ -463,7 +463,7 @@
           @foreach($creators as $creator)
             <li class="mb-2">
               <strong>{{ $creator->name ?? '[Unknown]' }}</strong>
-              <span class="badge bg-secondary ms-2">{{ ucfirst($creator->role ?? 'Author') }}</span>
+              <span class="badge bg-secondary ms-2">{{ ucfirst($creator->role ?? __('Author')) }}</span>
               @if(!empty($creator->authority_uri))
                 <a href="{{ $creator->authority_uri }}" target="_blank" class="ms-2" title="{{ __('View authority record') }}">
                   <i class="fas fa-external-link-alt"></i>
@@ -895,8 +895,8 @@
         <div class="alert alert-danger d-flex align-items-center mb-3">
           <i class="fas fa-ban me-2 fa-lg"></i>
           <div>
-            <strong>{{ __('Under Embargo') }}</strong> - {{ ucfirst($embargo->embargo_type ?? 'full') }} embargo since {{ $embargo->start_date }}
-            @if($embargo->end_date) until {{ $embargo->end_date }} @else (no end date) @endif
+            <strong>{{ __('Under Embargo') }}</strong> - {{ __(':type embargo since :start', ['type' => ucfirst($embargo->embargo_type ?? 'full'), 'start' => $embargo->start_date]) }}
+            @if($embargo->end_date) {{ __('until :date', ['date' => $embargo->end_date]) }} @else ({{ __('no end date') }}) @endif
           </div>
         </div>
       @endif
@@ -1024,7 +1024,7 @@
       {{-- Action links --}}
       @auth
         <div class="mt-3 d-flex flex-wrap gap-2">
-          <a href="{{ route('io.rights.manage', $item->slug) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-copyright me-1"></i>{{ ($premisRights->isNotEmpty() || $extRights || $embargo) ? 'Edit' : 'Add' }} rights</a>
+          <a href="{{ route('io.rights.manage', $item->slug) }}" class="btn btn-sm btn-outline-primary"><i class="fas fa-copyright me-1"></i>{{ ($premisRights->isNotEmpty() || $extRights || $embargo) ? __('Edit rights') : __('Add rights') }}</a>
           <a href="{{ route('io.rights.export', $item->slug) }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-download me-1"></i>{{ __('Export (JSON-LD)') }}</a>
         </div>
       @endauth
@@ -1171,7 +1171,7 @@
           <div class="digitalObject3D">
             <div class="d-flex flex-column align-items-center">
               <div class="mb-2">
-                <span class="badge bg-primary"><i class="fas fa-cube me-1"></i>3D Model</span>
+                <span class="badge bg-primary"><i class="fas fa-cube me-1"></i>{{ __('3D Model') }}</span>
                 <span class="badge bg-secondary">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? '3D Model' }}</span>
               </div>
               <div id="{{ $modelViewerId }}-container" style="width:100%;height:400px;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);border-radius:8px;position:relative;">
@@ -1187,7 +1187,7 @@
                 </model-viewer>
               </div>
               <small class="text-muted mt-2">
-                <i class="fas fa-mouse me-1"></i>Drag to rotate | <i class="fas fa-search-plus me-1"></i>{{ __('Scroll to zoom') }}
+                <i class="fas fa-mouse me-1"></i>{{ __('Drag to rotate') }} | <i class="fas fa-search-plus me-1"></i>{{ __('Scroll to zoom') }}
               </small>
               <div class="mt-2 d-flex gap-2">
                 <a href="{{ $masterUrl }}" download class="btn btn-sm btn-outline-secondary">
@@ -1249,7 +1249,7 @@
           {{-- Other file: show info and download --}}
           <div class="py-4">
             <i class="fas fa-file fa-3x text-muted mb-3 d-block"></i>
-            <p class="text-muted">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj?->name) ?? 'Digital object' }}</p>
+            <p class="text-muted">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj?->name) ?? __('Digital object') }}</p>
             @auth
               <a href="{{ $masterUrl }}" download class="btn atom-btn-white">
                 <i class="fas fa-download me-1"></i>{{ __('Download file') }}
@@ -1405,7 +1405,7 @@
   @if($activeLoans->isNotEmpty())
     <section class="card mb-3 border-warning">
       <div class="card-header bg-warning text-dark">
-        <h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Active Loans ({{ $activeLoans->count() }})</h5>
+        <h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>{{ __('Active Loans (:count)', ['count' => $activeLoans->count()]) }}</h5>
       </div>
       <div class="list-group list-group-flush">
         @foreach($activeLoans as $loan)
@@ -1419,7 +1419,7 @@
             <div class="mt-1">
               <span class="badge bg-{{ $isOverdue ? 'danger' : 'success' }} me-1">{{ ucwords(str_replace('_', ' ', $loan->status)) }}</span>
               @if($isOverdue)<span class="badge bg-danger"><i class="fas fa-exclamation-triangle me-1"></i>{{ __('Overdue') }}</span>@endif
-              @if($loan->end_date)<small class="text-muted ms-1">Due: {{ $loan->end_date }}</small>@endif
+              @if($loan->end_date)<small class="text-muted ms-1">{{ __('Due: :date', ['date' => $loan->end_date]) }}</small>@endif
             </div>
           </a>
         @endforeach
@@ -1440,7 +1440,7 @@
       @endif
       @if(($childCount ?? 0) > 0)
         <a href="{{ route('informationobject.browse', ['collection' => $item->id, 'topLod' => 0]) }}" class="btn btn-outline-secondary w-100">
-          <i class="fas fa-sitemap me-2"></i>{{ $childCount }} child records
+          <i class="fas fa-sitemap me-2"></i>{{ __(':count child records', ['count' => $childCount]) }}
         </a>
       @endif
       @if(!($parentItem ?? null) && ($childCount ?? 0) === 0)
@@ -1534,7 +1534,7 @@
                     $barClass = $percent >= 90 ? 'bg-danger' : ($percent >= 70 ? 'bg-warning' : 'bg-success');
                   @endphp
                   <div class="mt-1">
-                    <small class="text-muted">Capacity: {{ $used }}/{{ $total }} {{ $extData['capacity_unit'] ?? 'items' }}</small>
+                    <small class="text-muted">{{ __('Capacity: :used/:total :unit', ['used' => $used, 'total' => $total, 'unit' => $extData['capacity_unit'] ?? __('items')]) }}</small>
                     <div class="progress" style="height: 8px;">
                       <div class="progress-bar {{ $barClass }}" style="width: {{ $percent }}%;"></div>
                     </div>
@@ -1652,7 +1652,7 @@
         @auth
           <div class="mt-2">
             <a href="{{ route('io.provenance', $item->slug) }}" class="btn btn-sm btn-outline-primary">
-              <i class="fas fa-edit me-1"></i>{{ $provRecord ? 'Edit' : 'Add' }} Provenance
+              <i class="fas fa-edit me-1"></i>{{ $provRecord ? __('Edit Provenance') : __('Add Provenance') }}
             </a>
             @if($provRecord)
               <a href="{{ route('io.provenance', $item->slug) }}" class="btn btn-sm btn-outline-secondary">

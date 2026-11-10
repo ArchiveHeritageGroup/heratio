@@ -26,10 +26,10 @@
             <div class="card text-center">
                 <div class="card-body">
                     <h3 class="mb-1 {{ ($days_until_next ?? 0) < 0 ? 'text-danger' : 'text-success' }}">
-                        {{ abs($days_until_next ?? 0) }} day(s)
+                        {{ __(':count day(s)', ['count' => abs($days_until_next ?? 0)]) }}
                     </h3>
                     @if(($days_until_next ?? 0) < 0)
-                        <p class="text-danger mb-0 small">Already overdue by {{ abs($days_until_next ?? 0) }} day(s)</p>
+                        <p class="text-danger mb-0 small">{{ __('Already overdue by :count day(s)', ['count' => abs($days_until_next ?? 0)]) }}</p>
                     @else
                         <p class="text-muted mb-0 small">{{ __('Days until next issue') }}</p>
                     @endif
@@ -69,7 +69,7 @@
                             <td>{{ \Carbon\Carbon::parse($pred['expected_date'])->format('d M Y') }}</td>
                             <td>
                                 @if(($pred['days_until'] ?? 0) < 0)
-                                    <span class="badge bg-danger">{{ abs($pred['days_until']) }}d overdue</span>
+                                    <span class="badge bg-danger">{{ __(':countd overdue', ['count' => abs($pred['days_until'])]) }}</span>
                                 @elseif(($pred['days_until'] ?? 0) <= 7)
                                     <span class="badge bg-warning text-dark">{{ $pred['days_until'] }}d</span>
                                 @else
@@ -77,7 +77,7 @@
                                 @endif
                             </td>
                             <td>
-                                <span class="badge bg-light text-dark border">predicted</span>
+                                <span class="badge bg-light text-dark border">{{ __('predicted') }}</span>
                             </td>
                         </tr>
                     @empty

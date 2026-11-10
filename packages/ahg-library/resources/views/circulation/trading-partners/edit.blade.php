@@ -2,7 +2,7 @@
   @section('title', 'Edit Trading Partner')
 
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="h4">Edit: {{ $partner->edi_partner_code }}</h2>
+    <h2 class="h4">{{ __('Edit: :name', ['name' => $partner->edi_partner_code]) }}</h2>
     <a href="{{ route('library.trading-partners.index') }}" class="btn btn-outline-secondary btn-sm">{{ __('Back') }}</a>
   </div>
 
@@ -18,7 +18,7 @@
       <div class="col-md-6">
         <label class="form-label">{{ __('Linked Vendor') }}</label>
         <select name="vendor_id" class="form-select">
-          <option value="">- none -</option>
+          <option value="">{{ __('- none -') }}</option>
           @foreach($vendors as $v)
             <option value="{{ $v->id }}" {{ old('vendor_id', $partner->vendor_id)==$v->id ? 'selected' : '' }}>
               {{ $v->name }} ({{ $v->code }})
