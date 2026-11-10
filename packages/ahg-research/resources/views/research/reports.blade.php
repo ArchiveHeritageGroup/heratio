@@ -126,7 +126,7 @@
                             <p class="card-text small text-muted mb-0">{{ e(\Illuminate\Support\Str::limit($tpl->description ?? '', 80)) }}</p>
                             @php $sCount = count(json_decode($tpl->sections_config ?? '[]', true) ?: []); @endphp
                             @if($sCount > 0)
-                                <small class="text-muted">{{ $sCount }} sections</small>
+                                <small class="text-muted">{{ __(':count sections', ['count' => $sCount]) }}</small>
                             @endif
                         </div>
                     </div>

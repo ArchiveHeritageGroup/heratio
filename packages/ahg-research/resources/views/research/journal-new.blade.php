@@ -12,7 +12,7 @@
             <div class="col-md-8"><label class="form-label">{{ __('Title') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><input type="text" name="title" class="form-control" placeholder="{{ __('Entry title...') }}" required autocomplete="off"></div>
             <div class="col-md-4"><label class="form-label">{{ __('Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" name="entry_date" class="form-control" value="{{ date('Y-m-d') }}"></div>
         </div>
-        <div class="mb-3"><label class="form-label">{{ __('Project') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="project_id" class="form-select"><option value="">-- No project --</option>
+        <div class="mb-3"><label class="form-label">{{ __('Project') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="project_id" class="form-select"><option value="">{{ __('-- No project --') }}</option>
             @foreach($projects ?? [] as $p)<option value="{{ $p->id }}">{{ e($p->title ?? '') }}</option>@endforeach
         </select></div>
         <div class="mb-3"><label class="form-label">{{ __('Entry Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="entry_type" class="form-select"><option value="note">{{ __('Note') }}</option><option value="observation">{{ __('Observation') }}</option><option value="analysis">{{ __('Analysis') }}</option><option value="methodology">{{ __('Methodology') }}</option><option value="finding">{{ __('Finding') }}</option><option value="question">{{ __('Question') }}</option></select></div>

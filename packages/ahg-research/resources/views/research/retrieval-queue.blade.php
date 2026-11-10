@@ -46,9 +46,9 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">
             @if(request('status'))
-                {{ ucfirst(str_replace('_', ' ', request('status'))) }} Requests ({{ $filtered->count() }})
+                {{ __(':status Requests (:count)', ['status' => ucfirst(str_replace('_', ' ', request('status'))), 'count' => $filtered->count()]) }}
             @else
-                All Requests ({{ $filtered->count() }})
+                {{ __('All Requests (:count)', ['count' => $filtered->count()]) }}
             @endif
         </h5>
         <div>
@@ -84,14 +84,14 @@
                             <td><input type="checkbox" name="request_ids[]" value="{{ $req->id }}" class="form-check-input request-cb"></td>
                             <td><strong>#{{ $req->id }}</strong></td>
                             <td>
-                                <div class="fw-medium">{{ e($req->object_title ?? 'Untitled') }}</div>
+                                <div class="fw-medium">{{ e($req->object_title ?? __('Untitled')) }}</div>
                                 @if($req->call_number ?? null)<small class="text-muted">{{ e($req->call_number) }}</small>@endif
                             </td>
                             <td>
                                 @if($req->shelf_location ?? null)
                                     <small>{{ e($req->shelf_location) }}
-                                    @if($req->box_number ?? null)<br>Box: {{ e($req->box_number) }}@endif
-                                    @if($req->folder_number ?? null) / Folder: {{ e($req->folder_number) }}@endif
+                                    @if($req->box_number ?? null)<br>{{ __('Box: :box', ['box' => $req->box_number]) }}@endif
+                                    @if($req->folder_number ?? null) / {{ __('Folder: :folder', ['folder' => $req->folder_number]) }}@endif
                                     </small>
                                 @else
                                     <span class="text-muted">-</span>
@@ -152,7 +152,7 @@
                         <div class="col-md-3">
                             <label class="form-label small">{{ __('Update Status') }}</label>
                             <select name="new_status" class="form-select form-select-sm">
-                                <option value="">-- Select --</option>
+                                <option value="">{{ __('-- Select --') }}</option>
                                 <option value="requested">{{ __('Requested') }}</option>
                                 <option value="in_transit">{{ __('In Transit') }}</option>
                                 <option value="delivered">{{ __('Delivered') }}</option>
@@ -180,7 +180,7 @@
         @else
         <div class="card-body text-center text-muted py-5">
             <i class="fas fa-dolly fa-3x mb-3"></i>
-            <p>No requests {{ request('status') ? 'with status "' . ucfirst(str_replace('_', ' ', request('status'))) . '"' : 'in the queue' }}.</p>
+            <p>{{ request('status') ? __('No requests with status ":status".', ['status' => ucfirst(str_replace('_', ' ', request('status')))]) : __('No requests in the queue.') }}</p>
         </div>
         @endif
     </div>

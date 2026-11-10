@@ -1933,25 +1933,6 @@ packages/ahg-request-publish/resources/views/edit.blade.php	text	Submitted: {{�
 packages/ahg-request-publish/src/Controllers/PublishRequestController.php	flash	Decision recorded.
 packages/ahg-request-publish/src/Controllers/PublishRequestController.php	flash	Your request has been submitted.
 packages/ahg-request-publish/src/Controllers/RequestPublishController.php	flash	Publication request updated successfully.
-packages/ahg-research/resources/views/audit/index.blade.php	text	{{…}} entries
-packages/ahg-research/resources/views/audit/record.blade.php	text	History: {{…}} #{{…}}
-packages/ahg-research/resources/views/audit/user.blade.php	text	Recent Activity ({{…}} total)
-packages/ahg-research/resources/views/audit/user.blade.php	text	User Activity: {{…}}
-packages/ahg-research/resources/views/audit/view.blade.php	text	Audit Entry #{{…}}
-packages/ahg-research/resources/views/emails/booking-cancelled.blade.php	text	Hello {{…}},
-packages/ahg-research/resources/views/emails/booking-cancelled.blade.php	text	Sent by {{…}}.
-packages/ahg-research/resources/views/emails/booking-confirmed.blade.php	text	Hello {{…}},
-packages/ahg-research/resources/views/emails/booking-confirmed.blade.php	text	Sent by {{…}}.
-packages/ahg-research/resources/views/emails/booking-created.blade.php	text	; you will receive a follow-up email once a member of our team has reviewed it.
-packages/ahg-research/resources/views/emails/booking-created.blade.php	text	Hello {{…}},
-packages/ahg-research/resources/views/emails/booking-created.blade.php	text	Sent by {{…}}.
-packages/ahg-research/resources/views/emails/booking-created.blade.php	text	pending confirmation
-packages/ahg-research/resources/views/research/admin-types.blade.php	text	{{…}} days
-packages/ahg-research/resources/views/research/admin-types.blade.php	text	{{…}} hrs
-packages/ahg-research/resources/views/research/annotation-studio.blade.php	text	3D Model
-packages/ahg-research/resources/views/research/annotation-studio.blade.php	text	Annotation Studio: {{…}}
-packages/ahg-research/resources/views/research/annotation-studio.blade.php	text	Annotations ({{…}})
-packages/ahg-research/resources/views/research/annotations.blade.php	text	e.g. genealogy, 19th century, photographs
 packages/ahg-research/resources/views/research/api-keys.blade.php	text	/annotations
 packages/ahg-research/resources/views/research/api-keys.blade.php	text	/bibliographies
 packages/ahg-research/resources/views/research/api-keys.blade.php	text	/bookings
@@ -1963,127 +1944,11 @@ packages/ahg-research/resources/views/research/api-keys.blade.php	text	/projects
 packages/ahg-research/resources/views/research/api-keys.blade.php	text	/projects
 packages/ahg-research/resources/views/research/api-keys.blade.php	text	/searches
 packages/ahg-research/resources/views/research/api-keys.blade.php	text	/stats
-packages/ahg-research/resources/views/research/api-keys.blade.php	text	Include your API key in the header or as an query parameter.
-packages/ahg-research/resources/views/research/assertion-batch-review.blade.php	text	{{…}} proposed
-packages/ahg-research/resources/views/research/assign-seat.blade.php	text	-- Choose a seat --
-packages/ahg-research/resources/views/research/bibliographies.blade.php	text	{{…}} entries
-packages/ahg-research/resources/views/research/bibliographies.blade.php	text	{{…}} style
-packages/ahg-research/resources/views/research/book-equipment.blade.php	text	-- Select equipment --
-packages/ahg-research/resources/views/research/book.blade.php	text	{{…}} seats
-packages/ahg-research/resources/views/research/collections.blade.php	text	{{…}} items
-packages/ahg-research/resources/views/research/compare-snapshots.blade.php	text	Added ({{…}})
-packages/ahg-research/resources/views/research/compare-snapshots.blade.php	text	Items: {{…}} | Hash:
-packages/ahg-research/resources/views/research/compare-snapshots.blade.php	text	Items: {{…}} | Hash:
-packages/ahg-research/resources/views/research/compare-snapshots.blade.php	text	Modified ({{…}})
-packages/ahg-research/resources/views/research/compare-snapshots.blade.php	text	Removed ({{…}})
-packages/ahg-research/resources/views/research/dashboard.blade.php	text	Reason: {{…}}
-packages/ahg-research/resources/views/research/dashboard.blade.php	text	Welcome back, {{…}}!
-packages/ahg-research/resources/views/research/dashboard.blade.php	text	Your registration was not approved.
-packages/ahg-research/resources/views/research/dashboard.blade.php	text	{{…}} new
-packages/ahg-research/resources/views/research/edit-document-template.blade.php	text	Use placeholders: {researcher_name}, {date}, {institution}, {reference_number}
-packages/ahg-research/resources/views/research/edit-project.blade.php	text	-- None --
 packages/ahg-research/resources/views/research/entity-resolution.blade.php	text	memberOf
-packages/ahg-research/resources/views/research/entity-resolution.blade.php	text	memberOf (group membership)
 packages/ahg-research/resources/views/research/entity-resolution.blade.php	text	partOf
-packages/ahg-research/resources/views/research/entity-resolution.blade.php	text	partOf (hierarchical)
 packages/ahg-research/resources/views/research/entity-resolution.blade.php	text	relatedTo
-packages/ahg-research/resources/views/research/entity-resolution.blade.php	text	relatedTo (associated entities)
 packages/ahg-research/resources/views/research/entity-resolution.blade.php	text	sameAs
-packages/ahg-research/resources/views/research/entity-resolution.blade.php	text	sameAs (identical entities)
-packages/ahg-research/resources/views/research/equipment.blade.php	text	-- Select Room --
-packages/ahg-research/resources/views/research/equipment.blade.php	text	Equipment in {{…}}
-packages/ahg-research/resources/views/research/export-notes-pdf.blade.php	text	&larr; Back to Notes
-packages/ahg-research/resources/views/research/export-notes-pdf.blade.php	text	Author: {{…}}
-packages/ahg-research/resources/views/research/export-notes-pdf.blade.php	text	Exported: {{…}} &middot; {{…}} note(s)
-packages/ahg-research/resources/views/research/export-notes-pdf.blade.php	text	Generated by Heratio - {{…}}
-packages/ahg-research/resources/views/research/external-access.blade.php	text	-- Select --
-packages/ahg-research/resources/views/research/finding-aid.blade.php	text	&larr; Back to Evidence Set
-packages/ahg-research/resources/views/research/finding-aid.blade.php	text	Date: {{…}}
-packages/ahg-research/resources/views/research/finding-aid.blade.php	text	Finding Aid: {{…}}
-packages/ahg-research/resources/views/research/finding-aid.blade.php	text	Generated by Heratio - {{…}}
-packages/ahg-research/resources/views/research/finding-aid.blade.php	text	Items: {{…}}
-packages/ahg-research/resources/views/research/finding-aid.blade.php	text	Prepared by: {{…}}
-packages/ahg-research/resources/views/research/generate-finding-aid.blade.php	text	-- Select --
-packages/ahg-research/resources/views/research/hypotheses.blade.php	text	Created: {{…}}
-packages/ahg-research/resources/views/research/hypotheses.blade.php	text	Tags: {{…}}
-packages/ahg-research/resources/views/research/journal-entry.blade.php	text	Related: {{…}} #{{…}}
-packages/ahg-research/resources/views/research/journal-new.blade.php	text	-- No project --
-packages/ahg-research/resources/views/research/map-builder.blade.php	text	Points ({{…}})
-packages/ahg-research/resources/views/research/mint-doi.blade.php	text	Minted on: {{…}}
-packages/ahg-research/resources/views/research/mobile-home.blade.php	text	online
-packages/ahg-research/resources/views/research/new-report.blade.php	text	-- No project --
-packages/ahg-research/resources/views/research/notifications.blade.php	text	Unread
-packages/ahg-research/resources/views/research/orcid-link.blade.php	text	orcid.org/developer-tools
-packages/ahg-research/resources/views/research/orcid-link.blade.php	text	{{…}} works
-packages/ahg-research/resources/views/research/profile.blade.php	text	-- Select --
-packages/ahg-research/resources/views/research/profile.blade.php	text	-- Select --
-packages/ahg-research/resources/views/research/profile.blade.php	text	-- Select --
-packages/ahg-research/resources/views/research/public-register.blade.php	text	-- Select --
-packages/ahg-research/resources/views/research/public-register.blade.php	text	-- Select --
-packages/ahg-research/resources/views/research/public-register.blade.php	text	-- Select --
-packages/ahg-research/resources/views/research/register.blade.php	text	-- Select --
-packages/ahg-research/resources/views/research/register.blade.php	text	-- Select --
-packages/ahg-research/resources/views/research/register.blade.php	text	-- Select --
-packages/ahg-research/resources/views/research/renewal.blade.php	text	{{…}} (Expired)
-packages/ahg-research/resources/views/research/report-pdf.blade.php	text	&larr; Back to Report
-packages/ahg-research/resources/views/research/report-pdf.blade.php	text	Author: {{…}}
-packages/ahg-research/resources/views/research/report-pdf.blade.php	text	Date: {{…}}
-packages/ahg-research/resources/views/research/report-pdf.blade.php	text	Generated by Heratio - {{…}}
-packages/ahg-research/resources/views/research/report-templates.blade.php	text	Code:
-packages/ahg-research/resources/views/research/report-templates.blade.php	text	Format:
-packages/ahg-research/resources/views/research/report-templates.blade.php	text	Format: - Types: text, heading, title_page, toc, bibliography, collection_list, annotation_list
-packages/ahg-research/resources/views/research/reports.blade.php	text	{{…}} sections
-packages/ahg-research/resources/views/research/reproducibility-pack.blade.php	text	Assertions ({{…}})
-packages/ahg-research/resources/views/research/reproducibility-pack.blade.php	text	Extraction Jobs ({{…}})
-packages/ahg-research/resources/views/research/reproducibility-pack.blade.php	text	Hypotheses ({{…}})
-packages/ahg-research/resources/views/research/reproducibility-pack.blade.php	text	Milestones ({{…}})
-packages/ahg-research/resources/views/research/reproducibility-pack.blade.php	text	Resources ({{…}})
-packages/ahg-research/resources/views/research/reproducibility-pack.blade.php	text	Search Queries ({{…}})
-packages/ahg-research/resources/views/research/reproducibility-pack.blade.php	text	Snapshots ({{…}})
-packages/ahg-research/resources/views/research/researchers.blade.php	text	{{…}} researchers
-packages/ahg-research/resources/views/research/retrieval-queue.blade.php	text	-- Select --
-packages/ahg-research/resources/views/research/retrieval-queue.blade.php	text	/ Folder: {{…}}
-packages/ahg-research/resources/views/research/retrieval-queue.blade.php	text	All Requests ({{…}})
-packages/ahg-research/resources/views/research/retrieval-queue.blade.php	text	Box: {{…}}
-packages/ahg-research/resources/views/research/retrieval-queue.blade.php	text	No requests {{…}}.
-packages/ahg-research/resources/views/research/retrieval-queue.blade.php	text	{{…}} Requests ({{…}})
-packages/ahg-research/resources/views/research/rooms.blade.php	text	Capacity: {{…}}
-packages/ahg-research/resources/views/research/rooms.blade.php	text	{{…}} reading room(s)
-packages/ahg-research/resources/views/research/saved-searches.blade.php	text	{{…}} results
-packages/ahg-research/resources/views/research/seats.blade.php	text	-- Select Room --
-packages/ahg-research/resources/views/research/seats.blade.php	text	Seats in {{…}}
-packages/ahg-research/resources/views/research/seats.blade.php	text	{{…}} (Capacity: {{…}})
 packages/ahg-research/resources/views/research/share-project.blade.php	text	Copied'; setTimeout(function(){ document.querySelector('#shareUrl + button').innerHTML='
-packages/ahg-research/resources/views/research/source-assessment.blade.php	text	-- None --
-packages/ahg-research/resources/views/research/source-assessment.blade.php	text	-- Select --
-packages/ahg-research/resources/views/research/source-assessment.blade.php	text	-- Select --
-packages/ahg-research/resources/views/research/studio-show.blade.php	text	{{…}} duration
-packages/ahg-research/resources/views/research/timeline-builder.blade.php	text	Events ({{…}})
-packages/ahg-research/resources/views/research/validation-queue.blade.php	text	Object #{{…}}
-packages/ahg-research/resources/views/research/validation-queue.blade.php	text	{{…}} pending
-packages/ahg-research/resources/views/research/view-assertion.blade.php	text	Confidence: {{…}}%
-packages/ahg-research/resources/views/research/view-bibliography.blade.php	text	BibTeX (.bib) &middot; {{…}}
-packages/ahg-research/resources/views/research/view-bibliography.blade.php	text	CSL-JSON (.json) &middot; {{…}}
-packages/ahg-research/resources/views/research/view-bibliography.blade.php	text	RIS (.ris) &middot; {{…}}
-packages/ahg-research/resources/views/research/view-bibliography.blade.php	text	{{…}} entries
-packages/ahg-research/resources/views/research/view-bibliography.blade.php	text	{{…}} style
-packages/ahg-research/resources/views/research/view-collection.blade.php	text	Created: {{…}}
-packages/ahg-research/resources/views/research/view-collection.blade.php	text	Evidence Set Items ({{…}})
-packages/ahg-research/resources/views/research/view-collection.blade.php	text	{{…}} items
-packages/ahg-research/resources/views/research/view-extraction-job.blade.php	text	Results ({{…}})
-packages/ahg-research/resources/views/research/view-project.blade.php	text	New Report for {{…}}
-packages/ahg-research/resources/views/research/view-project.blade.php	text	Not specified
-packages/ahg-research/resources/views/research/view-project.blade.php	text	Reports ({{…}})
-packages/ahg-research/resources/views/research/view-reproduction.blade.php	text	Items ({{…}})
-packages/ahg-research/resources/views/research/view-room.blade.php	text	Seats ({{…}})
-packages/ahg-research/resources/views/research/view-workspace.blade.php	text	{{…}} replies
-packages/ahg-research/resources/views/research/walk-in.blade.php	text	-- Select --
-packages/ahg-research/resources/views/research/walk-in.blade.php	text	-- Select Room --
-packages/ahg-research/resources/views/research/walk-in.blade.php	text	Current Visitors - {{…}}
-packages/ahg-research/resources/views/research/walk-in.blade.php	text	{{…}} visitor(s)
-packages/ahg-research/resources/views/research/workspace.blade.php	text	Reason: {{…}}
-packages/ahg-research/resources/views/research/workspace.blade.php	text	Your registration expires on {{…}}
-packages/ahg-research/resources/views/research/workspaces.blade.php	text	{{…}} members
 packages/ahg-research/src/Controllers/AnalysisBridgeController.php	flash	Artifact not available.
 packages/ahg-research/src/Controllers/AnalysisBridgeController.php	flash	Could not register the result.
 packages/ahg-research/src/Controllers/AnalysisBridgeController.php	flash	Result not found.

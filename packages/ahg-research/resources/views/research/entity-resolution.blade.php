@@ -175,10 +175,10 @@
                     <div class="mb-3">
                         <label class="form-label form-label-sm">{{ __('Relationship Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <select name="relationship_type" class="form-select form-select-sm">
-                            <option value="sameAs">sameAs (identical entities)</option>
-                            <option value="relatedTo">relatedTo (associated entities)</option>
-                            <option value="partOf">partOf (hierarchical)</option>
-                            <option value="memberOf">memberOf (group membership)</option>
+                            <option value="sameAs">{{ __('sameAs (identical entities)') }}</option>
+                            <option value="relatedTo">{{ __('relatedTo (associated entities)') }}</option>
+                            <option value="partOf">{{ __('partOf (hierarchical)') }}</option>
+                            <option value="memberOf">{{ __('memberOf (group membership)') }}</option>
                         </select>
                     </div>
                     <div class="row mb-3">

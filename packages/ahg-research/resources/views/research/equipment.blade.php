@@ -20,7 +20,7 @@
     <div class="col-md-4">
         <label class="form-label">{{ __('Select Reading Room') }}</label>
         <select class="form-select" data-csp-go-prefix="?room_id=">
-            <option value="">-- Select Room --</option>
+            <option value="">{{ __('-- Select Room --') }}</option>
             @foreach($rooms as $r)
                 <option value="{{ $r->id }}" {{ ($roomId ?? '') == $r->id ? 'selected' : '' }}>{{ e($r->name) }}</option>
             @endforeach
@@ -45,7 +45,7 @@
     <div class="col-md-8">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Equipment in {{ e($currentRoom->name) }}</h5>
+                <h5 class="mb-0">{{ __('Equipment in :room', ['room' => $currentRoom->name]) }}</h5>
                 <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addEquipmentModal"><i class="fas fa-plus me-1"></i>{{ __('Add Equipment') }}</button>
             </div>
             <div class="card-body p-0">

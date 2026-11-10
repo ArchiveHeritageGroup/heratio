@@ -12,7 +12,7 @@
 
     <div class="d-flex align-items-center justify-content-between mb-3">
         <h1 class="h3 mb-0"><i class="fas fa-laptop me-2"></i>{{ __('Work Offline') }}</h1>
-        <span class="badge bg-secondary" id="net-status">online</span>
+        <span class="badge bg-secondary" id="net-status">{{ __('online') }}</span>
     </div>
 
     @if(session('success'))

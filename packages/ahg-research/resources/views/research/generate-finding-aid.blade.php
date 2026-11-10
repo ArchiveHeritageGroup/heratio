@@ -12,7 +12,7 @@
             <div class="card-body">
                 <form method="POST">@csrf
                     <div class="mb-3"><label class="form-label">{{ __('Collection / Fonds') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-                        <select name="collection_id" class="form-select" required><option value="">-- Select --</option>@foreach($collections ?? [] as $c)<option value="{{ $c->id }}">{{ e($c->title ?? '') }}</option>@endforeach</select>
+                        <select name="collection_id" class="form-select" required><option value="">{{ __('-- Select --') }}</option>@foreach($collections ?? [] as $c)<option value="{{ $c->id }}">{{ e($c->title ?? '') }}</option>@endforeach</select>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6"><label class="form-label">{{ __('Format') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="format" class="form-select"><option value="ead">{{ __('EAD (XML)') }}</option><option value="pdf">PDF</option><option value="html">HTML</option></select></div>

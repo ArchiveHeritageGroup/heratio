@@ -39,7 +39,7 @@
         <div class="card-body">
             <audio controls preload="metadata" src="{{ e($artefact->audio_url) }}" class="w-100"></audio>
             @if($artefact->audio_duration_seconds)
-                <small class="text-muted">{{ gmdate('i:s', (int) $artefact->audio_duration_seconds) }} duration</small>
+                <small class="text-muted">{{ __(':duration duration', ['duration' => gmdate('i:s', (int) $artefact->audio_duration_seconds)]) }}</small>
             @endif
         </div>
     </div>
@@ -65,7 +65,7 @@
             @foreach($citations as $c)
                 <li class="list-group-item" data-citation-n="{{ (int) ($c['n'] ?? 0) }}">
                     <strong>[{{ (int) ($c['n'] ?? 0) }}]</strong>
-                    <a href="{{ e($c['url'] ?? '#') }}" target="_blank">{{ e($c['title'] ?? 'Untitled') }}</a>
+                    <a href="{{ e($c['url'] ?? '#') }}" target="_blank">{{ e($c['title'] ?? __('Untitled')) }}</a>
                     @if(!empty($c['identifier']))<span class="badge bg-secondary ms-1">{{ e($c['identifier']) }}</span>@endif
                     <div class="small text-muted mt-1">{{ e(mb_substr((string) ($c['snippet'] ?? ''), 0, 240)) }}@if(mb_strlen((string) ($c['snippet'] ?? '')) > 240)...@endif</div>
                 </li>

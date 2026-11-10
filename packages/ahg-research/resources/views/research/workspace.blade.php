@@ -37,7 +37,7 @@
 <div class="alert alert-warning d-flex justify-content-between align-items-center mb-4">
   <div>
     <i class="fas fa-clock me-2"></i>
-    <strong>Your registration expires on {{ date('M j, Y', strtotime($expiresAt)) }}</strong>
+    <strong>{{ __('Your registration expires on :date', ['date' => date('M j, Y', strtotime($expiresAt))]) }}</strong>
   </div>
   <a href="{{ route('research.renewal') }}" class="btn btn-warning"><i class="fas fa-sync-alt me-1"></i>{{ __('Request Renewal') }}</a>
 </div>
@@ -47,7 +47,7 @@
     <i class="fas fa-times-circle me-2"></i>
     <strong>{{ __('Your registration was rejected.') }}</strong>
     @if($researcher->rejection_reason ?? false)
-      <br><small>Reason: {{ e($researcher->rejection_reason) }}</small>
+      <br><small>{{ __('Reason: :reason', ['reason' => $researcher->rejection_reason]) }}</small>
     @endif
   </div>
   <a href="{{ route('research.renewal') }}" class="btn btn-primary"><i class="fas fa-redo me-1"></i>{{ __('Re-apply') }}</a>
@@ -263,7 +263,7 @@
             <li class="list-group-item py-2">
               <small>
                 <strong>{{ e($annotation->title ?: \Illuminate\Support\Str::limit($annotation->content ?? '', 30) . '...') }}</strong>
-                <br><span class="text-muted">on: {{ e($annotation->object_title ?? 'Unknown item') }}</span>
+                <br><span class="text-muted">on: {{ e($annotation->object_title ?? __('Unknown item')) }}</span>
               </small>
             </li>
           @endforeach

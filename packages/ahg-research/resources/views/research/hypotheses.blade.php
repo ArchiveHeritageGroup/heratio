@@ -60,17 +60,17 @@
     <div class="col-md-6 mb-4">
         <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <strong>{{ e(Str::limit($h->statement ?? 'Untitled', 80)) }}</strong>
+                <strong>{{ e(Str::limit($h->statement ?? __('Untitled'), 80)) }}</strong>
                 <span class="badge bg-{{ match($h->status ?? '') { 'supported' => 'success', 'refuted' => 'danger', 'testing' => 'info', default => 'warning' } }}">{{ ucfirst($h->status ?? 'proposed') }}</span>
             </div>
             <div class="card-body">
                 <p class="mb-0">{{ e($h->statement ?? '') }}</p>
                 @if($h->tags ?? null)
-                <p class="text-muted small mt-1">Tags: {{ e($h->tags) }}</p>
+                <p class="text-muted small mt-1">{{ __('Tags: :tags', ['tags' => $h->tags]) }}</p>
                 @endif
             </div>
             <div class="card-footer text-muted small">
-                Created: {{ $h->created_at ?? '' }}
+                {{ __('Created: :date', ['date' => $h->created_at ?? '']) }}
             </div>
         </div>
     </div>

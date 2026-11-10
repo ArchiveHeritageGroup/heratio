@@ -30,8 +30,8 @@
                             <p class="card-text text-muted small">{{ \Illuminate\Support\Str::limit($bib->description, 100) }}</p>
                         @endif
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="badge bg-secondary">{{ $bib->entry_count ?? 0 }} entries</span>
-                            <small class="text-muted">{{ ucfirst($bib->citation_style ?? 'chicago') }} style</small>
+                            <span class="badge bg-secondary">{{ __(':count entries', ['count' => $bib->entry_count ?? 0]) }}</span>
+                            <small class="text-muted">{{ __(':style style', ['style' => ucfirst($bib->citation_style ?? 'chicago')]) }}</small>
                         </div>
                     </div>
                     <div class="card-footer bg-transparent">

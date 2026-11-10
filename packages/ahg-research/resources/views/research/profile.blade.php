@@ -79,7 +79,7 @@
           <div class="col-md-2 mb-3">
             <label for="title" class="form-label">{{ __('Title') }}</label>
             <select name="title" id="title" class="form-select">
-              <option value="">-- Select --</option>
+              <option value="">{{ __('-- Select --') }}</option>
               @foreach(['Mr', 'Mrs', 'Ms', 'Dr', 'Prof'] as $t)
                 <option value="{{ $t }}" {{ old('title', $researcher->title ?? '') === $t ? 'selected' : '' }}>{{ $t }}</option>
               @endforeach
@@ -118,7 +118,7 @@
             <label class="form-label">{{ __('ID Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             @if(($themeData['isAdmin'] ?? false) || empty($researcher->id_type))
               <select name="id_type" class="form-select">
-                <option value="">-- Select --</option>
+                <option value="">{{ __('-- Select --') }}</option>
                 {{-- Issue #59 Tier 2 - culture-aware dropdown via the COALESCE helper. --}}
                 @foreach(\AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('id_type') as $idt)
                   <option value="{{ $idt->code }}" {{ ($researcher->id_type ?? '') === $idt->code ? 'selected' : '' }}>{{ $idt->label }}</option>
@@ -155,7 +155,7 @@
           <div class="col-md-4 mb-3">
             <label for="affiliation_type" class="form-label">{{ __('Affiliation Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="affiliation_type" id="affiliation_type" class="form-select">
-              <option value="">-- Select --</option>
+              <option value="">{{ __('-- Select --') }}</option>
               @foreach(['academic', 'government', 'independent', 'corporate', 'student', 'other'] as $type)
                 <option value="{{ $type }}" {{ old('affiliation_type', $researcher->affiliation_type ?? '') === $type ? 'selected' : '' }}>{{ ucfirst($type) }}</option>
               @endforeach

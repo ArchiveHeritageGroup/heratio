@@ -36,7 +36,7 @@
             <div class="alert alert-success mb-0">
                 <strong>{{ __('DOI:') }}</strong> <a href="https://doi.org/{{ e($currentDoi) }}" target="_blank" rel="noopener">{{ e($currentDoi) }}</a>
                 @if(!empty($doiMintedAt))
-                    <br><small class="text-muted">Minted on: {{ e($doiMintedAt) }}</small>
+                    <br><small class="text-muted">{{ __('Minted on: :date', ['date' => $doiMintedAt]) }}</small>
                 @endif
             </div>
         @else

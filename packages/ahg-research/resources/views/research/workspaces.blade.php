@@ -47,7 +47,7 @@
                     </div>
                     <div class="card-footer bg-transparent d-flex justify-content-between">
                         <small class="text-muted">
-                            <i class="fas fa-users me-1"></i>{{ $ws->member_count ?? 1 }} members
+                            <i class="fas fa-users me-1"></i>{{ __(':count members', ['count' => $ws->member_count ?? 1]) }}
                         </small>
                         <small class="text-muted">
                             {{ \Carbon\Carbon::parse($ws->created_at)->format('M j, Y') }}

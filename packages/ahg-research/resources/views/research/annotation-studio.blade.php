@@ -19,7 +19,7 @@
 </nav>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Annotation Studio: {{ e($objectTitle ?? '') }}</h1>
+    <h1 class="h3 mb-0">{{ __('Annotation Studio: :title', ['title' => $objectTitle ?? '']) }}</h1>
     <div class="d-flex gap-2">
         <a href="{{ route('research.annotations', ['export_iiif' => 1, 'object_id' => $objectId ?? 0]) }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-download me-1"></i>{{ __('Export IIIF') }}</a>
         <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#importIiifModal"><i class="fas fa-file-import me-1"></i>{{ __('Import IIIF') }}</button>
@@ -38,7 +38,7 @@
 @if($has3D && $hasImage)
 <ul class="nav nav-tabs mb-3" role="tablist">
     <li class="nav-item"><a class="nav-link {{ $defaultMode === 'image' ? 'active' : '' }}" data-bs-toggle="tab" href="#imageTab">{{ __('Image') }}</a></li>
-    <li class="nav-item"><a class="nav-link {{ $defaultMode === '3d' ? 'active' : '' }}" data-bs-toggle="tab" href="#threeDTab">3D Model</a></li>
+    <li class="nav-item"><a class="nav-link {{ $defaultMode === '3d' ? 'active' : '' }}" data-bs-toggle="tab" href="#threeDTab">{{ __('3D Model') }}</a></li>
 </ul>
 @endif
 
@@ -61,7 +61,7 @@
         {{-- Annotations List --}}
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-sticky-note me-2"></i>Annotations ({{ count($annotations ?? []) }})</span>
+                <span><i class="fas fa-sticky-note me-2"></i>{{ __('Annotations (:count)', ['count' => count($annotations ?? [])]) }}</span>
                 <button class="btn btn-sm atom-btn-white" id="addAnnotationBtn"><i class="fas fa-plus me-1"></i>{{ __('Add Annotation') }}</button>
             </div>
             <div class="card-body p-0">
@@ -71,7 +71,7 @@
                     <div class="list-group-item">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <strong>{{ e($ann->title ?? 'Untitled') }}</strong>
+                                <strong>{{ e($ann->title ?? __('Untitled')) }}</strong>
                                 @if($ann->annotation_type ?? false)
                                     <span class="badge bg-secondary ms-1">{{ ucfirst($ann->annotation_type) }}</span>
                                 @endif

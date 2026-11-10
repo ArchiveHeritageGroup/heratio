@@ -14,7 +14,7 @@
             </select></div>
         </div>
         <div class="mb-3"><label class="form-label">{{ __('Description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea name="description" class="form-control" rows="3"></textarea></div>
-        <div class="mb-3"><label class="form-label">{{ __('Project') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="project_id" class="form-select"><option value="">-- No project --</option>
+        <div class="mb-3"><label class="form-label">{{ __('Project') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="project_id" class="form-select"><option value="">{{ __('-- No project --') }}</option>
             @foreach($projects ?? [] as $p)<option value="{{ $p->id }}">{{ e($p->title ?? '') }}</option>@endforeach
         </select></div>
         <button type="submit" class="btn atom-btn-white"><i class="fas fa-plus me-1"></i>{{ __('Create Report') }}</button>

@@ -89,7 +89,7 @@
             <tbody>
                 @foreach($docList as $d)
                     <tr>
-                        <td><a href="{{ route('research.writing.edit', [$project->id, $d->id]) }}" class="fw-semibold text-decoration-none">{{ e($d->title ?? 'Untitled') }}</a></td>
+                        <td><a href="{{ route('research.writing.edit', [$project->id, $d->id]) }}" class="fw-semibold text-decoration-none">{{ e($d->title ?? __('Untitled')) }}</a></td>
                         <td><span class="text-muted small">{{ __(($docTypes[$d->doc_type] ?? $d->doc_type ?? '')) }}</span></td>
                         <td><span class="badge bg-{{ $badges[$d->status] ?? 'secondary' }}">{{ __(($statuses[$d->status] ?? $d->status ?? '')) }}</span></td>
                         <td class="text-center">{{ (int) ($d->section_count ?? 0) }}</td>

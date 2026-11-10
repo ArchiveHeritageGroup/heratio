@@ -32,7 +32,7 @@
               <p class="card-text small text-muted">{{ e(\Illuminate\Support\Str::limit($collection->description, 100)) }}</p>
             @endif
             <div class="d-flex justify-content-between align-items-center mt-2">
-              <span class="badge bg-primary rounded-pill">{{ $collection->items_count ?? 0 }} items</span>
+              <span class="badge bg-primary rounded-pill">{{ __(':count items', ['count' => $collection->items_count ?? 0]) }}</span>
               <small class="text-muted">{{ $collection->created_at ? \Carbon\Carbon::parse($collection->created_at)->format('Y-m-d') : '' }}</small>
             </div>
           </div>

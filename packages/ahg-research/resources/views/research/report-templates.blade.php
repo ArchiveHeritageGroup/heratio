@@ -78,7 +78,7 @@
                 @endif
             </div>
             <div class="card-footer small text-muted">
-                Code: <code>{{ $tpl->code }}</code>
+                {{ __('Code:') }} <code>{{ $tpl->code }}</code>
             </div>
         </div>
     </div>
@@ -100,7 +100,7 @@ text:Methodology
 heading:Findings
 text:Discussion
 bibliography') }}"></textarea>
-            <small class="text-muted">Format: <code>type:Title</code> - Types: text, heading, title_page, toc, bibliography, collection_list, annotation_list</small>
+            <small class="text-muted">{!! __('Format: :format - Types: :types', ['format' => '<code>type:Title</code>', 'types' => 'text, heading, title_page, toc, bibliography, collection_list, annotation_list']) !!}</small>
         </div>
     </div>
     <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-plus me-1"></i>{{ __('Create') }}</button></div>
@@ -117,7 +117,7 @@ bibliography') }}"></textarea>
         <div class="mb-3">
             <label class="form-label">{{ __('Sections (one per line)') }}</label>
             <textarea name="sections_raw" id="editTplSections" class="form-control" rows="8"></textarea>
-            <small class="text-muted">Format: <code>type:Title</code></small>
+            <small class="text-muted">{{ __('Format:') }} <code>type:Title</code></small>
         </div>
     </div>
     <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ __('Save') }}</button></div>

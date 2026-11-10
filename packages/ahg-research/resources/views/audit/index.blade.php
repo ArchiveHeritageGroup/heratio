@@ -74,7 +74,7 @@
 <div class="card">
   <div class="card-header d-flex justify-content-between align-items-center">
     <span><i class="fas fa-list me-2"></i>{{ __('Audit Log') }}</span>
-    <span class="badge bg-secondary">{{ number_format($totalCount ?? 0) }} entries</span>
+    <span class="badge bg-secondary">{{ __(':count entries', ['count' => number_format($totalCount ?? 0)]) }}</span>
   </div>
   <div class="card-body p-0">
     @if(empty($logs))
@@ -98,7 +98,7 @@
               @endphp
               <tr>
                 <td class="small">{{ date('Y-m-d H:i:s', strtotime($log->created_at)) }}</td>
-                <td>{{ e($log->user_name ?? 'System') }}</td>
+                <td>{{ e($log->user_name ?? __('System')) }}</td>
                 <td><span class="badge bg-{{ $class }}">{{ ucfirst($log->action) }}</span></td>
                 <td><code>{{ $log->table_name }}</code></td>
                 <td><code>#{{ $log->record_id }}</code></td>

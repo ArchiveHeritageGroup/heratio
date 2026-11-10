@@ -4,7 +4,7 @@
 @section('title', 'History: ' . ($tableName ?? '') . ' #' . ($recordId ?? ''))
 
 @section('content')
-<h1><i class="fas fa-history text-primary me-2"></i>History: {{ $tableName ?? '' }} #{{ $recordId ?? '' }}</h1>
+<h1><i class="fas fa-history text-primary me-2"></i>{{ __('History: :table #:id', ['table' => $tableName ?? '', 'id' => $recordId ?? '']) }}</h1>
 
 @if(empty($timeline))
   <div class="alert alert-info">{{ __('No history found for this record.') }}</div>
@@ -20,7 +20,7 @@
             @endphp
             <span class="badge bg-{{ $bc }}">{{ ucfirst($entry->action) }}</span>
             <small class="text-muted ms-2">{{ date('H:i:s', strtotime($entry->created_at)) }}</small>
-            <span class="ms-2">by <strong>{{ e($entry->user_name ?? 'System') }}</strong></span>
+            <span class="ms-2">by <strong>{{ e($entry->user_name ?? __('System')) }}</strong></span>
             @if($entry->field_name)
               <br><small><code>{{ $entry->field_name }}</code>: <span class="text-danger">{{ e(Str::limit($entry->old_value ?? '', 30)) }}</span> &rarr; <span class="text-success">{{ e(Str::limit($entry->new_value ?? '', 30)) }}</span></small>
             @endif

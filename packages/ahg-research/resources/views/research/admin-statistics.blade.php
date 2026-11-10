@@ -109,7 +109,7 @@
                     <tbody>
                     @foreach($mostViewed as $item)
                         <tr>
-                            <td>{{ \Illuminate\Support\Str::limit($item->title ?? 'Untitled', 40) }}</td>
+                            <td>{{ \Illuminate\Support\Str::limit($item->title ?? __('Untitled'), 40) }}</td>
                             <td class="text-end"><span class="badge bg-primary">{{ number_format($item->view_count) }}</span></td>
                         </tr>
                     @endforeach
@@ -131,7 +131,7 @@
                     <tbody>
                     @foreach($mostCited as $item)
                         <tr>
-                            <td>{{ \Illuminate\Support\Str::limit($item->title ?? 'Untitled', 40) }}</td>
+                            <td>{{ \Illuminate\Support\Str::limit($item->title ?? __('Untitled'), 40) }}</td>
                             <td class="text-end"><span class="badge bg-warning text-dark">{{ number_format($item->citation_count) }}</span></td>
                         </tr>
                     @endforeach
@@ -178,7 +178,7 @@
             <div class="card-header"><h6 class="mb-0">{{ __('Researcher Types') }}</h6></div>
             <ul class="list-group list-group-flush">
                 @forelse($stats['by_type'] ?? [] as $type)
-                    <li class="list-group-item d-flex justify-content-between">{{ e($type->name ?? 'Unspecified') }}<span class="badge bg-secondary">{{ $type->count }}</span></li>
+                    <li class="list-group-item d-flex justify-content-between">{{ e($type->name ?? __('Unspecified')) }}<span class="badge bg-secondary">{{ $type->count }}</span></li>
                 @empty
                     <li class="list-group-item text-muted">{{ __('No data') }}</li>
                 @endforelse

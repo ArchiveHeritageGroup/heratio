@@ -16,7 +16,7 @@
 @endif
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2">{{ __('Assertion Batch Review') }} <span class="badge bg-warning">{{ count($assertions) }} proposed</span></h1>
+    <h1 class="h2">{{ __('Assertion Batch Review') }} <span class="badge bg-warning">{{ __(':count proposed', ['count' => count($assertions)]) }}</span></h1>
 </div>
 
 <form method="post" action="{{ route('research.assertionBatchReview', $project->id) }}">

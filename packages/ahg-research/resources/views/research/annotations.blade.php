@@ -179,7 +179,7 @@
                         </select>
                     </div>
                     <div class="mb-3"><label class="form-label">{{ __('Note Content *') }}</label><textarea name="content" id="annContent" class="form-control" rows="6" required></textarea></div>
-                    <div class="mb-3"><label class="form-label">{{ __('Tags') }}</label><input type="text" name="tags" id="annTags" class="form-control" placeholder="{{ __('Comma-separated tags...') }}"><small class="text-muted">e.g. genealogy, 19th century, photographs</small></div>
+                    <div class="mb-3"><label class="form-label">{{ __('Tags') }}</label><input type="text" name="tags" id="annTags" class="form-control" placeholder="{{ __('Comma-separated tags...') }}"><small class="text-muted">{{ __('e.g. genealogy, 19th century, photographs') }}</small></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>

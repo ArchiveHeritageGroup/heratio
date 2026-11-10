@@ -13,11 +13,11 @@
         <dt class="col-sm-3">{{ __('Source') }}</dt><dd class="col-sm-9">{{ e($job->source_name ?? '-') }}</dd>
         <dt class="col-sm-3">{{ __('Progress') }}</dt><dd class="col-sm-9"><div class="progress" style="height:8px;"><div class="progress-bar" style="width:{{ $job->progress ?? 0 }}%"></div></div><small>{{ $job->progress ?? 0 }}%</small></dd>
         <dt class="col-sm-3">{{ __('Created') }}</dt><dd class="col-sm-9">{{ $job->created_at ?? '' }}</dd>
-        <dt class="col-sm-3">{{ __('Completed') }}</dt><dd class="col-sm-9">{{ $job->completed_at ?? 'In progress' }}</dd>
+        <dt class="col-sm-3">{{ __('Completed') }}</dt><dd class="col-sm-9">{{ $job->completed_at ?? __('In progress') }}</dd>
     </dl>
 </div></div>
 @if(!empty($results))
-<div class="card mb-4"><div class="card-header">Results ({{ count($results) }})</div><div class="card-body p-0">
+<div class="card mb-4"><div class="card-header">{{ __('Results (:count)', ['count' => count($results)]) }}</div><div class="card-body p-0">
     <table class="table table-sm mb-0"><thead class="table-light"><tr><th>{{ __('Entity') }}</th><th>{{ __('Type') }}</th><th>{{ __('Confidence') }}</th><th>{{ __('Source') }}</th></tr></thead><tbody>
         @foreach($results as $r)<tr><td>{{ e($r->entity ?? '') }}</td><td><span class="badge bg-secondary">{{ $r->entity_type ?? '' }}</span></td><td>{{ number_format(($r->confidence ?? 0) * 100) }}%</td><td class="small">{{ e(Str::limit($r->source_text ?? '', 40)) }}</td></tr>@endforeach
     </tbody></table>

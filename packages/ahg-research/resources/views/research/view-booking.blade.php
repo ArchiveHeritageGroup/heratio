@@ -77,7 +77,7 @@
   <div class="card mb-4">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-clipboard me-2"></i>{{ __('Purpose') }}</div>
     <div class="card-body">
-      <p>{{ e($booking->purpose ?? 'Not specified') }}</p>
+      <p>{{ e($booking->purpose ?? __('Not specified')) }}</p>
       @if($booking->notes ?? false)
         <hr>
         <h6>{{ __('Notes') }}</h6>
@@ -106,7 +106,7 @@
                   <td>{{ $i + 1 }}</td>
                   <td>
                     @if($material->slug ?? null)
-                      <a href="{{ url('/' . $material->slug) }}">{{ e($material->description ?? 'Untitled') }}</a>
+                      <a href="{{ url('/' . $material->slug) }}">{{ e($material->description ?? __('Untitled')) }}</a>
                     @else
                       {{ e($material->description ?? 'Object #' . ($material->object_id ?? '')) }}
                     @endif

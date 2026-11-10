@@ -15,7 +15,7 @@
 </nav>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h2">{{ __('Validation Queue') }} <span class="badge bg-warning">{{ (int) $pendingCount }} pending</span></h1>
+    <h1 class="h2">{{ __('Validation Queue') }} <span class="badge bg-warning">{{ __(':count pending', ['count' => (int) $pendingCount]) }}</span></h1>
 </div>
 
 <!-- Stats bar -->
@@ -93,7 +93,7 @@
                     @if(!empty($item->object_title))
                         <strong>{{ Str::limit($item->object_title, 50) }}</strong>
                     @else
-                        Object #{{ (int) ($item->object_id ?? 0) }}
+                        {{ __('Object #:id', ['id' => (int) ($item->object_id ?? 0)]) }}
                     @endif
                 </td>
                 <td><span class="badge bg-secondary">{{ str_replace('_', ' ', $item->extraction_type ?? '') }}</span></td>

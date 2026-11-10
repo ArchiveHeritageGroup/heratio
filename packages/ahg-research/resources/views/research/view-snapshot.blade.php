@@ -29,7 +29,7 @@
             <dt class="col-sm-3">{{ __('Items') }}</dt>
             <dd class="col-sm-9">{{ (int)($snapshot->item_count ?? 0) }}</dd>
             <dt class="col-sm-3">{{ __('SHA256 Hash') }}</dt>
-            <dd class="col-sm-9"><code>{{ $snapshot->hash_sha256 ?? 'Not computed' }}</code></dd>
+            <dd class="col-sm-9"><code>{{ $snapshot->hash_sha256 ?? __('Not computed') }}</code></dd>
             <dt class="col-sm-3">{{ __('Created') }}</dt>
             <dd class="col-sm-9">{{ $snapshot->created_at ?? '' }}</dd>
             @if($snapshot->frozen_at ?? null)
@@ -62,7 +62,7 @@
                     <td>{{ $i + 1 }}</td>
                     <td>
                         @if($item->slug ?? null)
-                            <a href="{{ url('/' . $item->slug) }}">{{ e($item->object_title ?? 'Untitled') }}</a>
+                            <a href="{{ url('/' . $item->slug) }}">{{ e($item->object_title ?? __('Untitled')) }}</a>
                         @else
                             {{ e($item->object_title ?? 'Object #' . $item->object_id) }}
                         @endif

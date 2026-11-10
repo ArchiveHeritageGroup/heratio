@@ -29,7 +29,7 @@
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Equipment') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                             <select name="equipment_id" class="form-select" required>
-                                <option value="">-- Select equipment --</option>
+                                <option value="">{{ __('-- Select equipment --') }}</option>
                                 @foreach($equipment ?? [] as $eq)
                                     <option value="{{ $eq->id }}">{{ e($eq->name) }} ({{ e($eq->equipment_type ?? '') }})</option>
                                 @endforeach
