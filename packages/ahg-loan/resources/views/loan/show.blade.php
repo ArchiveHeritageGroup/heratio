@@ -21,8 +21,10 @@
   @php
     $backSlug = null;
     $backTitle = null;
-    if (isset($loan->objects) && $loan->objects->isNotEmpty()) {
-      $firstObj = $loan->objects->first();
+    // LoanService::getObjects() returns an array (->get()->all()), so wrap it:
+    // calling ->isNotEmpty() on the array was a 500 on every loan (10 Nov 2026).
+    if (collect($loan->objects ?? [])->isNotEmpty()) {
+      $firstObj = collect($loan->objects)->first();
       if ($firstObj->information_object_id) {
         $backSlug = \Illuminate\Support\Facades\DB::table('slug')->where('object_id', $firstObj->information_object_id)->value('slug');
         $backTitle = $firstObj->io_title ?? $firstObj->object_title ?? null;
