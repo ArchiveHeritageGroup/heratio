@@ -1,7 +1,7 @@
 @if(!empty($brokenItems))
   <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
-    <h6 class="alert-heading mb-2"><i class="fas fa-exclamation-triangle me-1"></i> Data integrity issues detected ({{ count($brokenItems) }} record{{ count($brokenItems) > 1 ? 's' : '' }}) <small class="text-muted fw-normal">(Administrator view only)</small></h6>
-    <p class="small mb-2">The following records have no slug and cannot be linked. They are excluded from browse results. Run <code>php artisan ahg:generate-slugs</code> to fix, or delete if they are test data.</p>
+    <h6 class="alert-heading mb-2"><i class="fas fa-exclamation-triangle me-1"></i> {{ trans_choice('{1} Data integrity issues detected (:count record)|[2,*] Data integrity issues detected (:count records)', count($brokenItems), ['count' => count($brokenItems)]) }} <small class="text-muted fw-normal">{{ __('(Administrator view only)') }}</small></h6>
+    <p class="small mb-2">{!! __('The following records have no slug and cannot be linked. They are excluded from browse results. Run :command to fix, or delete if they are test data.', ['command' => '<code>php artisan ahg:generate-slugs</code>']) !!}</p>
     <table class="table table-sm table-bordered mb-0 small bg-white">
       <thead><tr><th>{{ __('ID') }}</th><th>{{ __('Title') }}</th><th>{{ __('Identifier') }}</th><th>{{ __('Level') }}</th><th>{{ __('Type') }}</th><th>{{ __('Issue') }}</th><th>{{ __('Action') }}</th></tr></thead>
       <tbody>

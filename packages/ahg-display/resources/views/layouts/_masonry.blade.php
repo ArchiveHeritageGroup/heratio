@@ -10,7 +10,7 @@
         </a>
         @endif
         <div class="card-body p-2">
-            <h6 class="card-title mb-1 small">{{ $object->title ?? 'Untitled' }}</h6>
+            <h6 class="card-title mb-1 small">{{ $object->title ?? __('Untitled') }}</h6>
             <div class="btn-group btn-group-sm w-100">
                 @if(in_array('select', $data['actions'] ?? []))
                 <button type="button" class="btn btn-outline-success select-toggle" data-id="{{ $object->id }}">

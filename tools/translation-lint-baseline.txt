@@ -650,56 +650,6 @@ packages/ahg-discovery/resources/views/pageindex.blade.php	text	indexed record(s
 packages/ahg-discovery/resources/views/pageindex.blade.php	text	matching node(s) across
 packages/ahg-discovery/resources/views/pageindex.blade.php	text	{{…}} match(es)
 packages/ahg-discovery/src/Controllers/DiscoveryController.php	flash	Object ID is required.
-packages/ahg-display/resources/views/_display-settings-form.blade.php	text	/page
-packages/ahg-display/resources/views/browse-embedded.blade.php	text	Level: {{…}}
-packages/ahg-display/resources/views/browse-embedded.blade.php	text	Repository: {{…}}
-packages/ahg-display/resources/views/browse-embedded.blade.php	text	Results {{…}} to {{…}} of {{…}}
-packages/ahg-display/resources/views/browse-embedded.blade.php	text	Sort: {{…}}
-packages/ahg-display/resources/views/browse-embedded.blade.php	text	{{…}}/page
-packages/ahg-display/resources/views/display/_advanced-search.blade.php	text	-- Select field --
-packages/ahg-display/resources/views/display/_advanced-search.blade.php	text	Saved Searches ({{…}})
-packages/ahg-display/resources/views/display/_broken-items.blade.php	text	(Administrator view only)
-packages/ahg-display/resources/views/display/_broken-items.blade.php	text	Data integrity issues detected ({{…}} record{{…}})
-packages/ahg-display/resources/views/display/_broken-items.blade.php	text	The following records have no slug and cannot be linked. They are excluded from browse results. Run to fix, or delete if they are test data.
-packages/ahg-display/resources/views/display/_browse_content.blade.php	text	Scope &amp; content
-packages/ahg-display/resources/views/display/_browse_content.blade.php	text	Search instead for "{{…}}"
-packages/ahg-display/resources/views/display/_browse_content.blade.php	text	clear all filters
-packages/ahg-display/resources/views/display/_browse_content.blade.php	text	did not match any records.
-packages/ahg-display/resources/views/display/_browse_content.blade.php	text	to start over.
-packages/ahg-display/resources/views/display/fields.blade.php	text	{{…}} fields
-packages/ahg-display/resources/views/display/levels.blade.php	text	Levels
-packages/ahg-display/resources/views/display/print.blade.php	text	(print capped at {{…}} - refine the filter to print all)
-packages/ahg-display/resources/views/display/print.blade.php	text	GLAM Browse Results
-packages/ahg-display/resources/views/display/print.blade.php	text	first {{…}} of {{…}} records
-packages/ahg-display/resources/views/display/print.blade.php	text	{{…}} - Contents
-packages/ahg-display/resources/views/display/print.blade.php	text	{{…}} records
-packages/ahg-display/resources/views/layouts/_hierarchy.blade.php	text	Contents ({{…}})
-packages/ahg-display/resources/views/reindex.blade.php	text	&bull; After bulk setting object types
-packages/ahg-display/resources/views/reindex.blade.php	text	&bull; After changing display profiles
-packages/ahg-display/resources/views/reindex.blade.php	text	&bull; After initial plugin installation
-packages/ahg-display/resources/views/reindex.blade.php	text	- Default display profile
-packages/ahg-display/resources/views/reindex.blade.php	text	- Extended level code
-packages/ahg-display/resources/views/reindex.blade.php	text	- Nested display-specific fields
-packages/ahg-display/resources/views/reindex.blade.php	text	- archive, museum, gallery, etc.
-packages/ahg-display/resources/views/reindex.blade.php	text	- it won't re-index all data, just add/update display fields. For a full re-index, use the standard search:populate task.
-packages/ahg-display/resources/views/reindex.blade.php	text	100 (recommended)
-packages/ahg-display/resources/views/reindex.blade.php	text	200 (faster)
-packages/ahg-display/resources/views/reindex.blade.php	text	50 (slower, less memory)
-packages/ahg-display/resources/views/reindex.blade.php	text	500 (fastest, high memory)
-packages/ahg-display/resources/views/reindex.blade.php	text	partial update
-packages/ahg-display/resources/views/search.blade.php	text	Browse All
-packages/ahg-display/resources/views/search.blade.php	text	Search: "{{…}}"
-packages/ahg-display/resources/views/search.blade.php	text	{{…}} results
-packages/ahg-display/src/Controllers/DisplayController.php	flash	Browse settings saved
-packages/ahg-display/src/Controllers/DisplayController.php	flash	Failed to save settings
-packages/ahg-display/src/Controllers/DisplayController.php	flash	Invalid type
-packages/ahg-display/src/Controllers/DisplayController.php	flash	Object ID and profile ID are required to assign a profile.
-packages/ahg-display/src/Controllers/DisplayController.php	flash	Object ID and type are required to set the object type.
-packages/ahg-display/src/Controllers/DisplayController.php	flash	Object type set
-packages/ahg-display/src/Controllers/DisplayController.php	flash	Profile assigned
-packages/ahg-display/src/Controllers/DisplayController.php	flash	Set type for
-packages/ahg-display/src/Controllers/DisplayController.php	flash	Type changed to '$newType' for $count object(s)
-packages/ahg-display/src/Controllers/DisplayController.php	flash	Updated
 packages/ahg-doi-manage/resources/views/batch-mint.blade.php	text	Findable = publicly discoverable, Registered = resolvable but not indexed, Draft = not yet active
 packages/ahg-doi-manage/resources/views/batch-mint.blade.php	text	Showing up to 100 records. Use CLI for larger batches:
 packages/ahg-doi-manage/resources/views/config.blade.php	text	Available placeholders: {repository_code}, {year}, {month}, {object_id}, {slug}, {identifier}

@@ -62,7 +62,7 @@ $moduleLabels = [
                                 @php echo $modeInfo['name']; @endphp
                             </span>
                             <span class="text-muted small ms-2">
-                                @php echo $setting['items_per_page'] ?? 30; @endphp/page
+                                {{ __(':count/page', ['count' => (int) ($setting['items_per_page'] ?? 30)]) }}
                             </span>
                         </div>
                         

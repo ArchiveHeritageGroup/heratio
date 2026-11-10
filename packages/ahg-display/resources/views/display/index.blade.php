@@ -124,7 +124,7 @@
                   <div class="list-group-item d-flex justify-content-between align-items-center">
                     <div>
                       <i class="fas {{ getLayoutIcon($profile->layout ?? 'list') }} me-2 text-muted"></i>
-                      <strong>{{ $profile->name ?? $profile->code ?? 'Unnamed' }}</strong>
+                      <strong>{{ $profile->name ?? $profile->code ?? __('Unnamed') }}</strong>
                       <span class="badge bg-{{ getTypeColor($domain) }} ms-2">{{ ucfirst($domain) }}</span>
                     </div>
                     <div>
@@ -156,7 +156,7 @@
                   <div class="d-flex align-items-center">
                     <i class="fas {{ getTypeIcon($type->code ?? $type->name ?? '') }} fa-lg me-3 text-{{ getTypeColor($type->code ?? $type->name ?? '') }}"></i>
                     <div>
-                      <strong>{{ $type->name ?? $type->code ?? 'Unknown' }}</strong>
+                      <strong>{{ $type->name ?? $type->code ?? __('Unknown') }}</strong>
                       @if(!empty($type->description))
                         <p class="mb-0 text-muted small">{{ $type->description }}</p>
                       @endif
@@ -210,7 +210,7 @@
               <div class="list-group-item d-flex justify-content-between align-items-center">
                 <span>
                   <i class="fas {{ getTypeIcon($type->code ?? $type->name ?? '') }} me-2 text-{{ getTypeColor($type->code ?? $type->name ?? '') }}"></i>
-                  {{ $type->name ?? $type->code ?? 'Unknown' }}
+                  {{ $type->name ?? $type->code ?? __('Unknown') }}
                 </span>
                 <span class="badge bg-{{ getTypeColor($type->code ?? $type->name ?? '') }} rounded-pill">
                   {{ number_format($type->count ?? 0) }}

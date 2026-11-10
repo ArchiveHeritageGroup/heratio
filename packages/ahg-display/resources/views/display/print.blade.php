@@ -41,9 +41,9 @@
 
   <h1>
     @if(isset($parent) && $parent)
-      {{ e($parent->title ?? '') }} - Contents
+      {{ __(':title - Contents', ['title' => $parent->title ?? '']) }}
     @else
-      GLAM Browse Results
+      {{ __('GLAM Browse Results') }}
     @endif
   </h1>
 
@@ -55,10 +55,10 @@
       $__capped   = $__total > $__printCap;
     @endphp
     @if($__capped)
-      <strong>{{ __('Showing:') }}</strong> first {{ number_format($__shown) }} of {{ number_format($__total) }} records
-      <span style="color:#a00;">(print capped at {{ number_format($__printCap) }} - refine the filter to print all)</span>
+      <strong>{{ __('Showing:') }}</strong> {{ __('first :shown of :total records', ['shown' => number_format($__shown), 'total' => number_format($__total)]) }}
+      <span style="color:#a00;">{{ __('(print capped at :cap - refine the filter to print all)', ['cap' => number_format($__printCap)]) }}</span>
     @else
-      <strong>{{ __('Total:') }}</strong> {{ number_format($__total) }} records
+      <strong>{{ __('Total:') }}</strong> {{ __(':count records', ['count' => number_format($__total)]) }}
     @endif
     | <strong>{{ __('Generated:') }}</strong> {{ now()->format('Y-m-d H:i:s') }}
     @if(!empty($typeFilter))

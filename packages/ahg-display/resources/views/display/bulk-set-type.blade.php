@@ -74,7 +74,7 @@
                 @if(!empty($collections))
                   @foreach($collections as $collection)
                     <option value="{{ $collection->id }}" {{ old('collection_id') == $collection->id ? 'selected' : '' }}>
-                      {{ !empty($collection->identifier) ? $collection->identifier . ' - ' : '' }}{{ $collection->title ?? $collection->name ?? 'Untitled' }}
+                      {{ !empty($collection->identifier) ? $collection->identifier . ' - ' : '' }}{{ $collection->title ?? $collection->name ?? __('Untitled') }}
                     </option>
                   @endforeach
                 @endif

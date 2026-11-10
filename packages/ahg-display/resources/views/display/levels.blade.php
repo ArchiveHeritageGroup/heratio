@@ -68,7 +68,7 @@
     <div class="card-header" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0">
         <i class="fas fa-list me-2"></i>
-        Levels
+        {{ __('Levels') }}
         @if(!empty($currentDomain))
           <span class="badge bg-secondary ms-2">{{ ucfirst($currentDomain) }}</span>
         @endif

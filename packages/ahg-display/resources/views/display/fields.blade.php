@@ -61,7 +61,7 @@
           <h5 class="mb-0">
             <i class="fas {{ $icon }} me-2"></i>
             {{ ucfirst($groupName) }}
-            <span class="badge bg-secondary ms-2">{{ count($groupFields) }} fields</span>
+            <span class="badge bg-secondary ms-2">{{ __(':count fields', ['count' => count($groupFields)]) }}</span>
           </h5>
         </div>
         <div class="card-body p-0">
