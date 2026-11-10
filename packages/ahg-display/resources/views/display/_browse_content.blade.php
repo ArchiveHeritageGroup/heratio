@@ -120,7 +120,7 @@
 
     @if(!empty($typeFilter))
       @php $tcActive = $typeConfig[$typeFilter] ?? ['icon' => 'fa-question', 'color' => 'secondary', 'label' => ucfirst($typeFilter)]; @endphp
-      <a href="{{ glamBrowseUrl($fp, [], ['type']) }}" class="badge bg-{{ $tcActive['color'] }} text-decoration-none">
+      <a href="{{ glamBrowseUrl($fp, ['type' => 'all']) }}" class="badge bg-{{ $tcActive['color'] }} text-decoration-none">
         <i class="fas {{ $tcActive['icon'] }} me-1"></i> {{ $tcActive['label'] }} <i class="fas fa-times ms-1"></i>
       </a>
     @endif
@@ -179,7 +179,7 @@
       </a>
     @endif
 
-    <a href="{{ route('glam.browse') }}" class="badge bg-outline-secondary border text-dark text-decoration-none ms-1" title="{{ __('Clear all filters') }}">
+    <a href="{{ route('glam.browse', ['type' => 'all']) }}" class="badge bg-outline-secondary border text-dark text-decoration-none ms-1" title="{{ __('Clear all filters') }}">
       <i class="fas fa-times-circle me-1"></i> {{ __('Clear all') }}
     </a>
   </div>

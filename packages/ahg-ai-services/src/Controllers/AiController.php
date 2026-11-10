@@ -2919,7 +2919,13 @@ class AiController extends Controller
     {
         // Aggregate stats
         $total = (int) DB::table('ahg_ai_condition_assessment')->count();
-        $confirmed = (int) DB::table('ahg_ai_condition_assessment')->where('is_confirmed', 1)->count();
+        // heratio#1590: count by review_status like the Browse page, so a dismissed
+        // flag stops counting as pending (it never set is_confirmed).
+        $byStatus = \Illuminate\Support\Facades\Schema::hasColumn('ahg_ai_condition_assessment', 'review_status')
+            ? DB::table('ahg_ai_condition_assessment')->select('review_status', DB::raw('COUNT(*) as n'))->groupBy('review_status')->pluck('n', 'review_status')->all()
+            : ['confirmed' => DB::table('ahg_ai_condition_assessment')->where('is_confirmed', 1)->count()];
+        $confirmed = (int) ($byStatus['confirmed'] ?? 0);
+        $dismissed = (int) ($byStatus['dismissed'] ?? 0);
         $avgScore = (float) DB::table('ahg_ai_condition_assessment')->avg('overall_score');
         $byGrade = DB::table('ahg_ai_condition_assessment')
             ->select('condition_grade', DB::raw('COUNT(*) as count'))
@@ -2930,7 +2936,8 @@ class AiController extends Controller
         $stats = [
             'total'     => $total,
             'confirmed' => $confirmed,
-            'pending'   => $total - $confirmed,
+            'dismissed' => $dismissed,
+            'pending'   => $total - $confirmed - $dismissed,
             'avg_score' => round($avgScore ?? 0, 1),
             'by_grade'  => $byGrade,
         ];

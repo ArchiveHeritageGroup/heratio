@@ -42,7 +42,10 @@ class IngestService
     {
         $query = DB::table('ingest_session')
             ->leftJoin('user', 'ingest_session.user_id', '=', 'user.id')
-            ->leftJoin('actor_i18n', 'user.id', '=', 'actor_i18n.id')
+            // One name per user: actor_i18n has a row per language, and joining
+            // them all listed every session once per language (heratio#1590).
+            ->leftJoin('actor', 'actor.id', '=', 'user.id')
+            ->leftJoin('actor_i18n', fn ($j) => $j->on('actor_i18n.id', '=', 'actor.id')->on('actor_i18n.culture', '=', 'actor.source_culture'))
             ->select('ingest_session.*', 'actor_i18n.authorized_form_of_name as user_name');
 
         if ($userId) {

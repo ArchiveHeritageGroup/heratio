@@ -43,7 +43,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin/ai')->group(function () {
     Route::get('/relationship-review', [AiController::class, 'relationshipReview'])->name('admin.ai.relationship-review');
     Route::post('/relationship-review/{id}', [AiController::class, 'relationshipReviewDecision'])->name('admin.ai.relationship-review.decision')->whereNumber('id');
 
-    // Condition assessment
+    // Condition assessment (the bare path goes to the review list, heratio#1590)
+    Route::get('/condition', fn () => redirect()->route('admin.ai.condition.browse'));
     Route::get('/condition/assess', [AiController::class, 'conditionAssess'])->name('admin.ai.condition.assess');
     Route::get('/condition/browse', [AiController::class, 'conditionBrowse'])->name('admin.ai.condition.browse');
     Route::match(['get','post'], '/condition/bulk', [AiController::class, 'conditionBulk'])->name('admin.ai.condition.bulk');

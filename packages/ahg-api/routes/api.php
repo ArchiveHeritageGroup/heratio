@@ -71,7 +71,9 @@ use Illuminate\Support\Facades\Route;
 | Both endpoints honour ahg_settings.openapi_public; admins always allowed.
 */
 
-Route::middleware(['api.cors', 'api.etag'])->group(function () {
+// 'web' gives these two a session: the admin-always rule needs to see who is
+// signed in, and without it a signed-in admin got 403 (heratio#1590).
+Route::middleware(['web', 'api.cors', 'api.etag'])->group(function () {
     Route::get('api/openapi.json', [OpenApiController::class, 'spec'])->name('api.openapi.spec');
     Route::get('api/docs', [OpenApiController::class, 'docs'])->name('api.openapi.docs');
 });

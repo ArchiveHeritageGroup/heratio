@@ -45,6 +45,11 @@ class IngestHelpArticleCommand extends Command
 
     protected $description = 'Ingest a markdown file from docs/ into the help_article table, rendering HTML and extracting sections.';
 
+    public static function stripFrontMatter(string $markdown): string
+    {
+        return (string) preg_replace('/\A\x{FEFF}?---\R.*?\R---[ \t]*(\R|\z)/su', '', $markdown, 1);
+    }
+
     public function handle(): int
     {
         $pathOpt = (string) $this->option('path');
@@ -72,6 +77,10 @@ class IngestHelpArticleCommand extends Command
 
             return self::FAILURE;
         }
+
+        // A YAML front-matter block (--- title: ... ---) is metadata, not text:
+        // left in, it rendered as a heading at the top of the article (heratio#1590).
+        $markdown = self::stripFrontMatter($markdown);
 
         $title = (string) $this->option('title');
         if ($title === '') {

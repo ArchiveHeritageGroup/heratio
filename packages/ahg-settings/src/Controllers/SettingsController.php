@@ -964,6 +964,9 @@ class SettingsController extends Controller
               .'--bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ahg-success); --bs-btn-hover-border-color: var(--ahg-success);'
               .'--bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ahg-success); --bs-btn-active-border-color: var(--ahg-success);'
               .'color: var(--ahg-success) !important; border-color: var(--ahg-success) !important;'
+              // An outline button is an outline: the theme's .btn gradient left
+              // green text on dark green (heratio#1589).
+              .'background: transparent !important;'
             ."}\n"
             .'.btn-outline-success:hover, .btn-outline-success:focus, .atom-btn-outline-success:hover, .atom-btn-outline-success:focus {'
               .'background-color: var(--ahg-success) !important; color: #fff !important; border-color: var(--ahg-success) !important;'

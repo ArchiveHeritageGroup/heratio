@@ -341,15 +341,20 @@ class DisplayController extends Controller
             $breadcrumb = [];
         }
 
-        // Global and filter-independent - the same number on every browse page
-        // load, recomputed from scratch each time at ~2,089ms.
-        $digitalObjectCount = $this->cachedCount(
-            DB::table('information_object as io')
-                ->join('digital_object as dobj', function ($j) {
-                    $j->on('io.id', '=', 'dobj.object_id')->whereNull('dobj.parent_id');
-                })
-                ->where('io.id', '>', 1)
-        );
+        // How many of THESE results have a digital object (heratio#1589: it was
+        // the site-wide figure, so a collection of 11 said "378"). Same filters
+        // as the result count and the same count cache; with no filter it is
+        // the query it always was.
+        $doQuery = DB::table('information_object as io')
+            ->join('digital_object as dobj', function ($j) {
+                $j->on('io.id', '=', 'dobj.object_id')->whereNull('dobj.parent_id');
+            })
+            ->where('io.id', '>', 1);
+        if ($this->typeFilter) {
+            $doQuery->leftJoin('display_object_config as doc', 'io.id', '=', 'doc.object_id');
+        }
+        $this->applyFilters($doQuery);
+        $digitalObjectCount = $this->cachedCount($doQuery);
 
         // Sort
         $safeSortDir = $sortDir === 'desc' ? 'desc' : 'asc';
@@ -1196,7 +1201,12 @@ class DisplayController extends Controller
         // and no other narrowing parameter, fall back to the operator's
         // default_sector (issue #93). Lets a museum-only deployment skip the
         // archive default. Empty string in the setting means "no default".
-        if ($this->typeFilter === null && !$request->hasAny(['parent', 'collection', 'ancestor', 'creator', 'subject', 'place', 'genre', 'level', 'media', 'repo', 'query', 'topLevel', 'topLod', 'hasDigital', 'onlyMedia', 'materialType', 'conditionGrade', 'acquisitionMethod', 'circulationStatus'])) {
+        // type=all: the visitor removed the default sector's filter; without it
+        // the chip's x led back to the default and could never be cleared
+        // (heratio#1589).
+        if ($this->typeFilter === 'all') {
+            $this->typeFilter = null;
+        } elseif ($this->typeFilter === null && !$request->hasAny(['parent', 'collection', 'ancestor', 'creator', 'subject', 'place', 'genre', 'level', 'media', 'repo', 'query', 'topLevel', 'topLod', 'hasDigital', 'onlyMedia', 'materialType', 'conditionGrade', 'acquisitionMethod', 'circulationStatus'])) {
             $defaultSector = trim((string) \AhgCore\Services\AhgSettingsService::get('default_sector', ''));
             if ($defaultSector !== '') {
                 $this->typeFilter = $defaultSector;
