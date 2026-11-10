@@ -56,8 +56,7 @@
 
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle me-2"></i>
-                    {{ __('This is a') }} <strong>partial update</strong> - it won't re-index all data, just add/update display fields.
-                    For a full re-index, use the standard search:populate task.
+                    {!! __('This is a :partial - it won\'t re-index all data, just add/update display fields. For a full re-index, use the standard search:populate task.', ['partial' => '<strong>'.e(__('partial update')).'</strong>']) !!}
                 </div>
 
                 <form method="post" action="{{ route('displaySearch.reindex') }}">
@@ -65,10 +64,10 @@
                     <div class="mb-3">
                         <label class="form-label">{{ __('Batch Size') }}</label>
                         <select name="batch_size" class="form-select" style="width: auto;">
-                            <option value="50">50 (slower, less memory)</option>
-                            <option value="100" selected>100 (recommended)</option>
-                            <option value="200">200 (faster)</option>
-                            <option value="500">500 (fastest, high memory)</option>
+                            <option value="50">{{ __('50 (slower, less memory)') }}</option>
+                            <option value="100" selected>{{ __('100 (recommended)') }}</option>
+                            <option value="200">{{ __('200 (faster)') }}</option>
+                            <option value="500">{{ __('500 (fastest, high memory)') }}</option>
                         </select>
                     </div>
 
@@ -92,19 +91,19 @@
             <div class="card-body">
                 <p>{{ __('The Display plugin adds these fields to Elasticsearch:') }}</p>
                 <ul class="small">
-                    <li><code>display_object_type</code> - archive, museum, gallery, etc.</li>
-                    <li><code>display_profile</code> - Default display profile</li>
-                    <li><code>display_level_code</code> - Extended level code</li>
-                    <li><code>display.*</code> - Nested display-specific fields</li>
+                    <li><code>display_object_type</code> - {{ __('archive, museum, gallery, etc.') }}</li>
+                    <li><code>display_profile</code> - {{ __('Default display profile') }}</li>
+                    <li><code>display_level_code</code> - {{ __('Extended level code') }}</li>
+                    <li><code>display.*</code> - {{ __('Nested display-specific fields') }}</li>
                 </ul>
 
                 <hr>
 
                 <p class="small text-muted mb-0">
                     <strong>{{ __('When to reindex:') }}</strong><br>
-                    &bull; After bulk setting object types<br>
-                    &bull; After changing display profiles<br>
-                    &bull; After initial plugin installation
+                    &bull; {{ __('After bulk setting object types') }}<br>
+                    &bull; {{ __('After changing display profiles') }}<br>
+                    &bull; {{ __('After initial plugin installation') }}
                 </p>
             </div>
         </div>

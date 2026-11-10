@@ -34,7 +34,7 @@
 
                 <h6 class="card-title mb-1">
                     <a href="{{ route('informationobject.show', ['slug' => $object->slug]) }}" class="text-decoration-none">
-                        {{ $object->title ?? 'Untitled' }}
+                        {{ $object->title ?? __('Untitled') }}
                     </a>
                 </h6>
 

@@ -826,7 +826,7 @@ class DisplayController extends Controller
 
         $validTypes = ['archive', 'museum', 'gallery', 'library', 'dam', 'universal'];
         if (!in_array($newType, $validTypes)) {
-            session()->flash('error', 'Invalid type');
+            session()->flash('error', __('Invalid type'));
             return redirect($request->headers->get('referer', route('glam.browse')));
         }
 
@@ -840,7 +840,7 @@ class DisplayController extends Controller
             $count += $this->applyTypeRecursive($objectId, $newType);
         }
 
-        session()->flash('success', "Type changed to '$newType' for $count object(s)");
+        session()->flash('success', trans_choice("[0,1] Type changed to ':type' for :count object|[2,*] Type changed to ':type' for :count objects", $count, ['type' => $newType, 'count' => $count]));
         return redirect($request->headers->get('referer', route('glam.browse')));
     }
 
@@ -861,7 +861,7 @@ class DisplayController extends Controller
         // This is an action endpoint; a bare GET (or missing params) should not
         // crash. Redirect back with a notice instead of passing null/0 downstream.
         if ($objectId <= 0 || $type === null || $type === '') {
-            session()->flash('error', 'Object ID and type are required to set the object type.');
+            session()->flash('error', __('Object ID and type are required to set the object type.'));
 
             return redirect($request->headers->get('referer', route('glam.index')));
         }
@@ -870,9 +870,9 @@ class DisplayController extends Controller
 
         if ($recursive) {
             $count = $this->service->setObjectTypeRecursive($objectId, $type);
-            session()->flash('success', 'Set type for ' . ($count + 1) . ' objects');
+            session()->flash('success', trans_choice('{1} Set type for :count object|[2,*] Set type for :count objects', $count + 1, ['count' => $count + 1]));
         } else {
-            session()->flash('success', 'Object type set');
+            session()->flash('success', __('Object type set'));
         }
 
         return redirect($request->headers->get('referer', route('glam.index')));
@@ -896,14 +896,14 @@ class DisplayController extends Controller
         // Action endpoint: a bare GET (or missing params) must not hit the DB with
         // zero ids and trigger a foreign-key violation. Redirect back gracefully.
         if ($objectId <= 0 || $profileId <= 0) {
-            session()->flash('error', 'Object ID and profile ID are required to assign a profile.');
+            session()->flash('error', __('Object ID and profile ID are required to assign a profile.'));
 
             return redirect($request->headers->get('referer', route('glam.index')));
         }
 
         $this->service->assignProfile($objectId, $profileId, $context, $primary);
 
-        session()->flash('success', 'Profile assigned');
+        session()->flash('success', __('Profile assigned'));
         return redirect($request->headers->get('referer', route('glam.index')));
     }
 
@@ -997,7 +997,7 @@ class DisplayController extends Controller
             $type = $request->input('type');
             $this->service->setObjectType($parentId, $type);
             $count = $this->service->setObjectTypeRecursive($parentId, $type);
-            session()->flash('success', 'Updated ' . ($count + 1) . ' objects to type: ' . $type);
+            session()->flash('success', trans_choice('{1} Updated :count object to type: :type|[2,*] Updated :count objects to type: :type', $count + 1, ['count' => $count + 1, 'type' => $type]));
             return redirect(route('glam.index'));
         }
 
@@ -1040,9 +1040,9 @@ class DisplayController extends Controller
             ];
 
             if ($this->settingsRepo->saveSettings($userId, $data)) {
-                session()->flash('success', 'Browse settings saved');
+                session()->flash('success', __('Browse settings saved'));
             } else {
-                session()->flash('error', 'Failed to save settings');
+                session()->flash('error', __('Failed to save settings'));
             }
 
             return redirect(route('glam.get.settings'));

@@ -49,7 +49,7 @@ $siblings = $data['siblings'] ?? [];
 
                 {{-- Title & Date --}}
                 <h2 class="artwork-title mb-3">
-                    <em>{{ $object->title ?? 'Untitled' }}</em>
+                    <em>{{ $object->title ?? __('Untitled') }}</em>
                     @if(!empty($fields['identity']['date']))
                     <span class="text-muted">, {{ $fields['identity']['date']['value'] }}</span>
                     @endif

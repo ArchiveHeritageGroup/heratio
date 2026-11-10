@@ -167,7 +167,7 @@
                 <div id="field-search-rows">
                   <div class="input-group mb-2 field-search-row">
                     <select class="form-select field-select" style="max-width: 200px;" onchange="this.nextElementSibling.name = this.value">
-                      <option value="" selected>-- Select field --</option>
+                      <option value="" selected>{{ __('-- Select field --') }}</option>
                       @foreach($activeFields as $fKey => $fLabel)
                         <option value="{{ $fKey }}">{{ $fLabel }}</option>
                       @endforeach
@@ -257,11 +257,11 @@
   @if($savedSearches->isNotEmpty())
     <div class="dropdown">
       <button class="btn btn-sm atom-btn-outline-success dropdown-toggle py-0 px-2" type="button" data-bs-toggle="dropdown">
-        <i class="fas fa-bookmark me-1"></i>Saved Searches ({{ $savedSearches->count() }})
+        <i class="fas fa-bookmark me-1"></i>{{ __('Saved Searches (:count)', ['count' => $savedSearches->count()]) }}
       </button>
       <ul class="dropdown-menu">
         @foreach($savedSearches as $ss)
-          <li><a class="dropdown-item" href="{{ url('/glam/browse?' . ($ss->query_string ?? '')) }}"><i class="fas fa-search me-2 text-muted"></i>{{ $ss->name ?? 'Saved search' }}</a></li>
+          <li><a class="dropdown-item" href="{{ url('/glam/browse?' . ($ss->query_string ?? '')) }}"><i class="fas fa-search me-2 text-muted"></i>{{ $ss->name ?? __('Saved search') }}</a></li>
         @endforeach
       </ul>
     </div>

@@ -30,7 +30,7 @@ $children = $data['children'] ?? [];
             <div class="flex-grow-1">
                 <h4 class="mb-1">
                     <span class="badge bg-secondary me-2">{{ $object->level_name }}</span>
-                    {{ $object->title ?? 'Untitled' }}
+                    {{ $object->title ?? __('Untitled') }}
                 </h4>
                 @if($object->identifier)
                 <p class="text-muted mb-2">{{ $object->identifier }}</p>
@@ -48,7 +48,7 @@ $children = $data['children'] ?? [];
 <div class="hierarchy-children">
     <h5 class="mb-3">
         <i class="fas fa-folder-open me-2 text-muted"></i>
-        Contents ({{ count($children) }})
+        {{ __('Contents (:count)', ['count' => count($children)]) }}
     </h5>
     <div class="list-group">
         @foreach($children as $child)
@@ -62,7 +62,7 @@ $children = $data['children'] ?? [];
             </div>
             @endif
             <div class="flex-grow-1">
-                <strong>{{ $child->title ?? 'Untitled' }}</strong>
+                <strong>{{ $child->title ?? __('Untitled') }}</strong>
                 @if($child->identifier)
                 <br><small class="text-muted">{{ $child->identifier }}</small>
                 @endif

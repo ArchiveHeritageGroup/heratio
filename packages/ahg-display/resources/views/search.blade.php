@@ -53,12 +53,12 @@ $layout = $params['layout'] ?? 'card';
                 <div>
                     <h4 class="mb-0">
                         @if($params['query'] !== '*')
-                        Search: "{{ e($params['query']) }}"
+                        {{ __('Search: ":query"', ['query' => $params['query']]) }}
                         @else
-                        Browse All
+                        {{ __('Browse All') }}
                         @endif
                     </h4>
-                    <small class="text-muted">{{ number_format($results['total'] ?? 0) }} results</small>
+                    <small class="text-muted">{{ __(':count results', ['count' => number_format($results['total'] ?? 0)]) }}</small>
                 </div>
 
                 <div class="d-flex gap-2">
