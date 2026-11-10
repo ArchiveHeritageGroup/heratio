@@ -78,7 +78,7 @@
     <div class="d-flex justify-content-between">
         <a href="{{ route('records.fileplan.import') }}" class="btn btn-secondary">{{ __('Back') }}</a>
         <button type="submit" class="btn btn-success" onclick="return confirm('Proceed with import? This will create {{ $totalRows }} nodes.');">
-            Import {{ $totalRows }} Node(s)
+            {{ __('Import :count node(s)', ['count' => $totalRows]) }}
         </button>
     </div>
 </form>

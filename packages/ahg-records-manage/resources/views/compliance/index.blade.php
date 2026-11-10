@@ -63,14 +63,14 @@
             <span class="badge bg-{{ $bandClass }}">{{ $pct }}%</span>
             <small class="text-muted">{{ rtrim(rtrim((string) $a->score_total, '0'), '.') }}/{{ rtrim(rtrim((string) $a->score_max, '0'), '.') }}</small>
           @else
-            <span class="text-muted small">not run</span>
+            <span class="text-muted small">{{ __('not run') }}</span>
           @endif
         </td>
         <td><span class="badge bg-{{ $a->status === 'finalised' ? 'success' : 'warning text-dark' }}">{{ $a->status }}</span></td>
         <td class="text-end"><a href="{{ route('records.compliance.show', $a->id) }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-arrow-right"></i></a></td>
       </tr>
     @empty
-      <tr><td colspan="7" class="text-center text-muted py-4">{{ __('No assessments yet. Click') }} <strong>{{ __('New assessment') }}</strong> to run the first one.</td></tr>
+      <tr><td colspan="7" class="text-center text-muted py-4">{{ __('No assessments yet. Click :action to run the first one.', ['action' => __('New assessment')]) }}</td></tr>
     @endforelse
     </tbody>
   </table>

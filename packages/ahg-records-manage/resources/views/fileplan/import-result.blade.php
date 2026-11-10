@@ -3,7 +3,7 @@
 @section('body-class', 'admin records')
 
 @section('title-block')
-<h1>Import Result - Session #{{ $session->id }}</h1>
+<h1>{{ __('Import Result - Session #:id', ['id' => $session->id]) }}</h1>
 @endsection
 
 @section('content')
@@ -82,7 +82,7 @@
 
 @if(!empty($errors))
 <div class="card mb-3">
-    <div class="card-header bg-danger text-white">Errors ({{ count($errors) }})</div>
+    <div class="card-header bg-danger text-white">{{ __('Errors (:count)', ['count' => count($errors)]) }}</div>
     <div class="card-body">
         <ul class="mb-0">
             @foreach($errors as $err)

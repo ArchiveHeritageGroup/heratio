@@ -102,12 +102,12 @@
         </tr>
       @empty
         <tr><td colspan="7" class="text-center text-muted py-4">
-          {{ __('No reviews scheduled. Reviews are auto-spawned when a record is assigned to a disposal class with') }} <em>review_required = 1</em>.
+          {!! __('No reviews are scheduled. Reviews are created automatically when a record is assigned to a disposal class with :setting.', ['setting' => '<em>review_required = 1</em>']) !!}
         </td></tr>
       @endforelse
     </tbody>
   </table>
 </div>
 
-<div class="text-muted small mt-2">{{ $total }} review(s) total. Showing {{ count($rows) }}.</div>
+<div class="text-muted small mt-2">{{ __(':total review(s) total. Showing :shown.', ['total' => $total, 'shown' => count($rows)]) }}</div>
 @endsection

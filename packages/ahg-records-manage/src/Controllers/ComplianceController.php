@@ -60,7 +60,7 @@ class ComplianceController extends Controller
         $this->compliance->runChecks($id);
 
         return redirect()->route('records.compliance.show', $id)
-            ->with('success', 'Assessment created and checks run.');
+            ->with('success', __('Assessment created and checks run.'));
     }
 
     /** GET /admin/records/compliance/{id} */
@@ -87,7 +87,7 @@ class ComplianceController extends Controller
         $ok = $this->compliance->runChecks($id);
 
         return redirect()->route('records.compliance.show', $id)
-            ->with($ok ? 'success' : 'error', $ok ? 'Checks re-run.' : 'Could not run checks.');
+            ->with($ok ? 'success' : 'error', $ok ? __('Checks re-run.') : __('Could not run checks.'));
     }
 
     /** POST /admin/records/compliance/{id}/finalize */
@@ -98,6 +98,6 @@ class ComplianceController extends Controller
         ]);
         $this->compliance->finalize($id, $data['signed_off_by'], auth()->id() ?? 0);
 
-        return redirect()->route('records.compliance.show', $id)->with('success', 'Assessment finalised.');
+        return redirect()->route('records.compliance.show', $id)->with('success', __('Assessment finalised.'));
     }
 }

@@ -25,7 +25,7 @@
             <span class="badge {{ $badgeClass }} ms-2">{{ str_replace('_', ' ', $node['node_type']) }}</span>
 
             @if(($node['record_count'] ?? 0) > 0)
-                <span class="badge bg-outline-secondary border ms-2">{{ $node['record_count'] }} record(s)</span>
+                <span class="badge bg-outline-secondary border ms-2">{{ __(':count record(s)', ['count' => $node['record_count']]) }}</span>
             @endif
         </a>
     </div>

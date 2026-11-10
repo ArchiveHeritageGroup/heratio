@@ -20,7 +20,7 @@
 </div>
 
 <p class="text-muted">
-  {{ __('Records lifecycle: retention schedules → file plan classification → review triggers → disposal workflow → certificate of destruction or transfer to archives. See') }} <a href="{{ url('/help') }}">{{ __('Help') }}</a> for the full workflow.
+  {!! __('Records lifecycle: retention schedules → file plan classification → review triggers → disposal workflow → certificate of destruction or transfer to archives. See :link for the full workflow.', ['link' => '<a href="'.e(url('/help')).'">'.e(__('Help')).'</a>']) !!}
 </p>
 
 <div class="row g-3">
@@ -31,7 +31,7 @@
         <div class="card-body">
           <h5 class="card-title text-primary"><i class="fas fa-clock me-1"></i> {{ __('Retention Schedules') }}</h5>
           <p class="card-text text-muted small">{{ __('Authority + period + jurisdiction. Versioned, approval-gated, citable.') }}</p>
-          <div class="mt-2"><span class="badge bg-primary">{{ $stats['retention_schedules'] }}</span> schedule(s)</div>
+          <div class="mt-2"><span class="badge bg-primary">{{ $stats['retention_schedules'] }}</span> {{ __('schedule(s)') }}</div>
         </div>
       </div>
     </a>
@@ -44,7 +44,7 @@
         <div class="card-body">
           <h5 class="card-title text-info"><i class="fas fa-tags me-1"></i> {{ __('Disposal Classes') }}</h5>
           <p class="card-text text-muted small">{{ __('Per-schedule classes that pin retention period + trigger + final action.') }}</p>
-          <div class="mt-2"><span class="badge bg-info text-dark">{{ $stats['disposal_classes'] }}</span> active class(es)</div>
+          <div class="mt-2"><span class="badge bg-info text-dark">{{ __(':count active class(es)', ['count' => $stats['disposal_classes']]) }}</span></div>
         </div>
       </div>
     </a>
@@ -57,7 +57,7 @@
         <div class="card-body">
           <h5 class="card-title text-success"><i class="fas fa-sitemap me-1"></i> {{ __('File Plan') }}</h5>
           <p class="card-text text-muted small">{{ __('Hierarchical functional classification. CSV / spreadsheet import supported.') }}</p>
-          <div class="mt-2"><span class="badge bg-success">{{ $stats['fileplan_nodes'] }}</span> node(s)</div>
+          <div class="mt-2"><span class="badge bg-success">{{ $stats['fileplan_nodes'] }}</span> {{ __('node(s)') }}</div>
         </div>
       </div>
     </a>
@@ -70,7 +70,7 @@
         <div class="card-body">
           <h5 class="card-title text-danger"><i class="fas fa-exclamation-triangle me-1"></i> {{ __('Disposal Queue') }}</h5>
           <p class="card-text text-muted small">{{ __('Records awaiting a disposal decision: recommend → approve → execute.') }}</p>
-          <div class="mt-2"><span class="badge bg-danger">{{ $stats['pending_disposal'] }}</span> pending action(s)</div>
+          <div class="mt-2"><span class="badge bg-danger">{{ $stats['pending_disposal'] }}</span> {{ __('pending action(s)') }}</div>
         </div>
       </div>
     </a>
@@ -83,7 +83,7 @@
         <div class="card-body">
           <h5 class="card-title text-warning"><i class="fas fa-eye me-1"></i> {{ __('Reviews') }}</h5>
           <p class="card-text text-muted small">{{ __('Periodic review queue - when retention asks "look again before disposing".') }}</p>
-          <div class="mt-2"><span class="badge bg-warning text-dark">{{ $stats['overdue_reviews'] }}</span> overdue</div>
+          <div class="mt-2"><span class="badge bg-warning text-dark">{{ $stats['overdue_reviews'] }}</span> {{ __('overdue') }}</div>
         </div>
       </div>
     </a>
@@ -96,7 +96,7 @@
         <div class="card-body">
           <h5 class="card-title text-secondary"><i class="fas fa-envelope me-1"></i> {{ __('Email Capture') }}</h5>
           <p class="card-text text-muted small">{{ __('Capture and classify business email as records of activity.') }}</p>
-          <div class="mt-2"><span class="badge bg-secondary">{{ $stats['captured_emails'] }}</span> captured</div>
+          <div class="mt-2"><span class="badge bg-secondary">{{ $stats['captured_emails'] }}</span> {{ __('captured') }}</div>
         </div>
       </div>
     </a>
@@ -109,7 +109,7 @@
         <div class="card-body">
           <h5 class="card-title text-primary"><i class="fas fa-magic me-1"></i> {{ __('Classification Rules') }}</h5>
           <p class="card-text text-muted small">{{ __('Auto-assign records to file plan + disposal class on declare.') }}</p>
-          <div class="mt-2"><span class="badge bg-primary">{{ $stats['classified_records'] }}</span> classified record(s)</div>
+          <div class="mt-2"><span class="badge bg-primary">{{ $stats['classified_records'] }}</span> {{ __('classified record(s)') }}</div>
         </div>
       </div>
     </a>
@@ -122,7 +122,7 @@
         <div class="card-body">
           <h5 class="card-title text-dark"><i class="fas fa-clipboard-check me-1"></i> {{ __('Compliance') }}</h5>
           <p class="card-text text-muted small">{{ __('ISO 15489 / MoReq2010 / DoD 5015.2 self-assessment + reporting.') }}</p>
-          <div class="mt-2"><span class="badge bg-dark">{{ $stats['compliance_assessments'] }}</span> assessment(s)</div>
+          <div class="mt-2"><span class="badge bg-dark">{{ $stats['compliance_assessments'] }}</span> {{ __('assessment(s)') }}</div>
         </div>
       </div>
     </a>
@@ -152,7 +152,6 @@
 </div>
 
 <div class="mt-4 small text-muted">
-  {{ __('Status badges marked') }} <em>(P2.4)</em>, <em>(P2.6)</em>, <em>(P2.8)</em>, <em>(P4.2)</em> mark roadmap phases.
-  Database tables exist; UI/services pending. See README roadmap for full status.
+  {!! __('Status badges marked :phases indicate roadmap phases. Database tables exist; UI and services are pending. See the README roadmap for full status.', ['phases' => '<em>(P2.4)</em>, <em>(P2.6)</em>, <em>(P2.8)</em>, <em>(P4.2)</em>']) !!}
 </div>
 @endsection

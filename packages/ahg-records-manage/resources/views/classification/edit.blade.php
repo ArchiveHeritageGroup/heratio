@@ -29,7 +29,7 @@
   <div class="col-md-4">
     <label class="form-label">{{ __('Priority') }}</label>
     <input type="number" name="priority" class="form-control" value="{{ old('priority', $rule->priority ?? 0) }}">
-    <div class="form-text small">Higher number = evaluated first.</div>
+    <div class="form-text small">{{ __('Higher number = evaluated first.') }}</div>
   </div>
 
   <div class="col-12">
@@ -40,7 +40,7 @@
   <div class="col-md-4">
     <label class="form-label">{{ __('Rule type') }}</label>
     <select name="rule_type" class="form-select" required>
-      <option value="">- pick type -</option>
+      <option value="">{{ __('- pick type -') }}</option>
       @foreach($ruleTypes as $rt)
         <option value="{{ $rt->code }}" @selected(old('rule_type', $rule->rule_type ?? '')===$rt->code)>{{ $rt->label }}</option>
       @endforeach
@@ -50,17 +50,24 @@
     <label class="form-label">{{ __('Match pattern') }}</label>
     <input type="text" name="match_pattern" class="form-control" value="{{ old('match_pattern', $rule->match_pattern ?? '') }}" required>
     <div class="form-text small">
-      <strong>folder_path / mime_type:</strong> regex (e.g. <code>^/Projects/</code>, <code>^application/pdf</code>).<br>
-      <strong>workspace / department:</strong> exact (case-insensitive) match.<br>
-      <strong>tag:</strong> comma-separated tag list - any one tag match fires.<br>
-      <strong>metadata:</strong> <code>key=value</code> against the document's custom metadata.
+      {!! __(':fields use regular expressions (for example, :path or :mime).', [
+        'fields' => '<strong>'.e('folder_path / mime_type').'</strong>',
+        'path' => '<code>'.e('^/Projects/').'</code>',
+        'mime' => '<code>'.e('^application/pdf').'</code>',
+      ]) !!}<br>
+      {!! __(':fields must match exactly (case-insensitive).', ['fields' => '<strong>'.e('workspace / department').'</strong>']) !!}<br>
+      {!! __(':field accepts a comma-separated list; any matching tag triggers the rule.', ['field' => '<strong>'.e('tag').'</strong>']) !!}<br>
+      {!! __(':field must use :format pairs to match metadata on the document.', [
+        'field' => '<strong>'.e('metadata').'</strong>',
+        'format' => '<code>'.e('key=value').'</code>',
+      ]) !!}
     </div>
   </div>
 
   <div class="col-md-6">
     <label class="form-label">{{ __('Target file plan node') }}</label>
     <select name="fileplan_node_id" class="form-select" required>
-      <option value="">- pick a node -</option>
+      <option value="">{{ __('- pick a node -') }}</option>
       @foreach($fileplanNodes as $n)
         <option value="{{ $n->id }}" @selected(old('fileplan_node_id', $rule->fileplan_node_id ?? '')==$n->id)>
           {{ str_repeat('- ', $n->depth) }}{{ $n->code }} - {{ $n->title }}
@@ -71,7 +78,7 @@
   <div class="col-md-6">
     <label class="form-label">{{ __('Disposal class (optional override)') }}</label>
     <select name="disposal_class_id" class="form-select">
-      <option value="">- inherit from node -</option>
+      <option value="">{{ __('- inherit from node -') }}</option>
       @foreach($disposalClasses as $dc)
         <option value="{{ $dc->id }}" @selected(old('disposal_class_id', $rule->disposal_class_id ?? '')==$dc->id)>{{ $dc->class_ref }} - {{ $dc->title }}</option>
       @endforeach
@@ -81,9 +88,9 @@
   <div class="col-md-6">
     <label class="form-label">{{ __('Apply on') }}</label>
     <select name="apply_on" class="form-select">
-      <option value="declare" @selected(old('apply_on', $rule->apply_on ?? 'declare')==='declare')>declare (run when record is declared)</option>
-      <option value="upload"  @selected(old('apply_on', $rule->apply_on ?? '')==='upload')>upload (run on document upload - needs DM)</option>
-      <option value="both"    @selected(old('apply_on', $rule->apply_on ?? '')==='both')>both</option>
+      <option value="declare" @selected(old('apply_on', $rule->apply_on ?? 'declare')==='declare')>{{ __('declare (run when record is declared)') }}</option>
+      <option value="upload"  @selected(old('apply_on', $rule->apply_on ?? '')==='upload')>{{ __('upload (run on document upload - needs DM)') }}</option>
+      <option value="both"    @selected(old('apply_on', $rule->apply_on ?? '')==='both')>{{ __('both') }}</option>
     </select>
   </div>
   <div class="col-md-6">

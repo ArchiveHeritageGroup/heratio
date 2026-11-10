@@ -125,7 +125,7 @@ class DisposalController extends Controller
             }
 
             return redirect()->route('records.disposal.show', $actionId)
-                ->with('success', 'Disposal action initiated successfully.');
+                ->with('success', __('Disposal action initiated successfully.'));
         } catch (\RuntimeException $e) {
             return redirect()->back()->withInput()
                 ->with('error', $e->getMessage());
@@ -163,11 +163,11 @@ class DisposalController extends Controller
 
         if ($result) {
             return redirect()->route('records.disposal.show', $id)
-                ->with('success', 'Disposal action recommended.');
+                ->with('success', __('Disposal action recommended.'));
         }
 
         return redirect()->route('records.disposal.show', $id)
-            ->with('error', 'Cannot recommend this disposal action in its current status.');
+            ->with('error', __('Cannot recommend this disposal action in its current status.'));
     }
 
     /**
@@ -183,11 +183,11 @@ class DisposalController extends Controller
 
         if ($result) {
             return redirect()->route('records.disposal.show', $id)
-                ->with('success', 'Disposal action approved.');
+                ->with('success', __('Disposal action approved.'));
         }
 
         return redirect()->route('records.disposal.show', $id)
-            ->with('error', 'Cannot approve this disposal action in its current status.');
+            ->with('error', __('Cannot approve this disposal action in its current status.'));
     }
 
     /**
@@ -199,11 +199,11 @@ class DisposalController extends Controller
 
         if ($result) {
             return redirect()->route('records.disposal.show', $id)
-                ->with('success', 'Legal clearance granted.');
+                ->with('success', __('Legal clearance granted.'));
         }
 
         return redirect()->route('records.disposal.show', $id)
-            ->with('error', 'Cannot clear legal: either the action is not approved, or an active legal hold exists.');
+            ->with('error', __('Cannot clear legal: either the action is not approved, or an active legal hold exists.'));
     }
 
     /**
@@ -219,11 +219,11 @@ class DisposalController extends Controller
 
         if ($result) {
             return redirect()->route('records.disposal.show', $id)
-                ->with('success', 'Disposal action rejected.');
+                ->with('success', __('Disposal action rejected.'));
         }
 
         return redirect()->route('records.disposal.show', $id)
-            ->with('error', 'Cannot reject this disposal action in its current status.');
+            ->with('error', __('Cannot reject this disposal action in its current status.'));
     }
 
     /**
@@ -251,16 +251,16 @@ class DisposalController extends Controller
             $result = $this->executionService->executeRetain($id, $userId, $reason);
         } else {
             return redirect()->route('records.disposal.show', $id)
-                ->with('error', 'Unknown action type: '.$action->action_type);
+                ->with('error', __('Unknown action type: :type', ['type' => $action->action_type]));
         }
 
         if ($result['success'] ?? false) {
             return redirect()->route('records.disposal.show', $id)
-                ->with('success', 'Disposal action executed successfully.');
+                ->with('success', __('Disposal action executed successfully.'));
         }
 
         return redirect()->route('records.disposal.show', $id)
-            ->with('error', $result['error'] ?? 'Execution failed.');
+            ->with('error', $result['error'] ?? __('Execution failed.'));
     }
 
     /**

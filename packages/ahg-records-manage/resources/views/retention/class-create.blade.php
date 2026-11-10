@@ -4,7 +4,7 @@
 @section('title-block')
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-layer-group me-3" aria-hidden="true"></i>
-    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Create Disposal Class') }}</h1><span class="small text-muted">Schedule: {{ $schedule->schedule_ref }} - {{ $schedule->title }}</span></div>
+    <div class="d-flex flex-column"><h1 class="mb-0">{{ __('Create Disposal Class') }}</h1><span class="small text-muted">{{ __('Schedule: :reference - :title', ['reference' => $schedule->schedule_ref, 'title' => $schedule->title]) }}</span></div>
   </div>
 @endsection
 @section('content')
@@ -48,7 +48,7 @@
       <div class="col-md-3 mb-3">
         <label for="disposal_action" class="form-label">{{ __('Disposal Action') }} <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
         <select name="disposal_action" id="disposal_action" class="form-select" required>
-          <option value="">-- Select --</option>
+          <option value="">{{ __('-- Select --') }}</option>
           <option value="destroy" {{ old('disposal_action') === 'destroy' ? 'selected' : '' }}>{{ __('Destroy') }}</option>
           <option value="transfer" {{ old('disposal_action') === 'transfer' ? 'selected' : '' }}>{{ __('Transfer') }}</option>
           <option value="review" {{ old('disposal_action') === 'review' ? 'selected' : '' }}>{{ __('Review') }}</option>

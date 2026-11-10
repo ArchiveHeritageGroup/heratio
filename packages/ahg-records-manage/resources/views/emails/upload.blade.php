@@ -24,7 +24,7 @@
           <div class="mb-3">
             <label class="form-label">{{ __('EML file') }}</label>
             <input type="file" name="eml_file" class="form-control" accept=".eml,message/rfc822" required>
-            <div class="form-text small">Up to 50 MB. The original file is preserved verbatim under <code>{{ rtrim(config('heratio.storage_path', '/storage'), '/') }}/rm/email-capture/</code>.</div>
+            <div class="form-text small">{!! __('Up to 50 MB. The original file is preserved verbatim under :path.', ['path' => '<code>'.e(rtrim(config('heratio.storage_path', '/storage'), '/').'/rm/email-capture/').'</code>']) !!}</div>
           </div>
           <button type="submit" class="btn btn-primary"><i class="fas fa-upload me-1"></i>{{ __('Capture') }}</button>
         </form>
@@ -38,8 +38,8 @@
         <ol class="mb-0 ps-3">
           <li>{{ __('EML is parsed (headers + body, multipart text/html, attachment counts).') }}</li>
           <li>{{ __('Original file is saved under the configured storage path for forensic preservation.') }}</li>
-          <li>A row is written to <code>rm_email_capture</code> with the parsed values.</li>
-          <li>Duplicate detection by <code>Message-ID</code> - re-uploading is idempotent.</li>
+          <li>{!! __('A row is written to :table with the parsed values.', ['table' => '<code>rm_email_capture</code>']) !!}</li>
+          <li>{!! __('Duplicate detection by :header makes re-uploading idempotent.', ['header' => '<code>Message-ID</code>']) !!}</li>
           <li>{{ __('You then classify the email to a file plan node and optionally declare it as a record.') }}</li>
         </ol>
       </div>

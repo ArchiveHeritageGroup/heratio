@@ -73,7 +73,7 @@ class FilePlanController extends Controller
         // Check for duplicate code
         $existing = $this->filePlanService->getNodeByCode($validated['code']);
         if ($existing) {
-            return redirect()->back()->withInput()->with('error', 'A node with code "'.$validated['code'].'" already exists.');
+            return redirect()->back()->withInput()->with('error', __('A node with code ":code" already exists.', ['code' => $validated['code']]));
         }
 
         $validated['created_by'] = Auth::id() ?? 1;
@@ -86,7 +86,7 @@ class FilePlanController extends Controller
 
         $id = $this->filePlanService->createNode($validated);
 
-        return redirect()->route('records.fileplan.show', $id)->with('success', 'File plan node created.');
+        return redirect()->route('records.fileplan.show', $id)->with('success', __('File plan node created.'));
     }
 
     /**
@@ -147,12 +147,12 @@ class FilePlanController extends Controller
         // Check for duplicate code (exclude self)
         $existing = $this->filePlanService->getNodeByCode($validated['code']);
         if ($existing && $existing->id !== $id) {
-            return redirect()->back()->withInput()->with('error', 'A node with code "'.$validated['code'].'" already exists.');
+            return redirect()->back()->withInput()->with('error', __('A node with code ":code" already exists.', ['code' => $validated['code']]));
         }
 
         $this->filePlanService->updateNode($id, $validated);
 
-        return redirect()->route('records.fileplan.show', $id)->with('success', 'File plan node updated.');
+        return redirect()->route('records.fileplan.show', $id)->with('success', __('File plan node updated.'));
     }
 
     /**
@@ -168,10 +168,10 @@ class FilePlanController extends Controller
         $deleted = $this->filePlanService->deleteNode($id);
         if (! $deleted) {
             return redirect()->route('records.fileplan.show', $id)
-                ->with('error', 'Cannot delete node: it has child nodes or linked records.');
+                ->with('error', __('Cannot delete node: it has child nodes or linked records.'));
         }
 
-        return redirect()->route('records.fileplan.index')->with('success', 'File plan node deleted.');
+        return redirect()->route('records.fileplan.index')->with('success', __('File plan node deleted.'));
     }
 
     /**
@@ -186,10 +186,10 @@ class FilePlanController extends Controller
         $moved = $this->filePlanService->moveNode($id, $request->input('new_parent_id'));
         if (! $moved) {
             return redirect()->route('records.fileplan.show', $id)
-                ->with('error', 'Cannot move node to the specified parent.');
+                ->with('error', __('Cannot move node to the specified parent.'));
         }
 
-        return redirect()->route('records.fileplan.show', $id)->with('success', 'Node moved successfully.');
+        return redirect()->route('records.fileplan.show', $id)->with('success', __('Node moved successfully.'));
     }
 
     /**
@@ -253,14 +253,14 @@ class FilePlanController extends Controller
 
             $dirPath = $request->input('directory_path');
             if (! is_dir($dirPath)) {
-                return redirect()->back()->withInput()->with('error', 'Directory not found: '.$dirPath);
+                return redirect()->back()->withInput()->with('error', __('Directory not found: :path', ['path' => $dirPath]));
             }
 
             $userId = Auth::id() ?? 1;
             $result = $this->importService->importFromDirectory($dirPath, $department, $agencyCode, $userId);
 
             return redirect()->route('records.fileplan.import.status', $result['session_id'])
-                ->with('success', 'Directory import completed.');
+                ->with('success', __('Directory import completed.'));
         }
 
         if ($sourceType === 'xml') {
@@ -278,10 +278,10 @@ class FilePlanController extends Controller
             $result = $this->importService->importFromXml($fullPath, $format, $department, $agencyCode, $userId);
 
             return redirect()->route('records.fileplan.import.status', $result['session_id'])
-                ->with('success', 'XML import completed.');
+                ->with('success', __('XML import completed.'));
         }
 
-        return redirect()->back()->with('error', 'Unsupported source type.');
+        return redirect()->back()->with('error', __('Unsupported source type.'));
     }
 
     /**
@@ -385,11 +385,11 @@ class FilePlanController extends Controller
 
         if (! empty($result['errors'])) {
             return redirect()->route('records.fileplan.import.status', $result['session_id'])
-                ->with('warning', 'Import completed with '.count($result['errors']).' warning(s).');
+                ->with('warning', __('Import completed with :count warning(s).', ['count' => count($result['errors'])]));
         }
 
         return redirect()->route('records.fileplan.import.status', $result['session_id'])
-            ->with('success', 'Import completed: '.$result['imported'].' nodes imported.');
+            ->with('success', __('Import completed: :count nodes imported.', ['count' => $result['imported']]));
     }
 
     /**
@@ -420,6 +420,6 @@ class FilePlanController extends Controller
         $linked = $this->importService->linkRecordsToFilePlan($sessionId);
 
         return redirect()->route('records.fileplan.import.status', $sessionId)
-            ->with('success', "Linked {$linked} record(s) to file plan nodes.");
+            ->with('success', __('Linked :count record(s) to file plan nodes.', ['count' => $linked]));
     }
 }

@@ -64,10 +64,10 @@
                     <div class="mb-3">
                         <label for="disposal_class_id" class="form-label fw-bold">{{ __('Retention Policy (Disposal Class)') }}</label>
                         <select name="disposal_class_id" id="disposal_class_id" class="form-select">
-                            <option value="">-- None --</option>
+                            <option value="">{{ __('-- None --') }}</option>
                             @foreach ($disposalClasses as $class)
                                 <option value="{{ $class->id }}" {{ old('disposal_class_id') == $class->id ? 'selected' : '' }}>
-                                    {{ $class->name }} ({{ $class->retention_period_days }} days)
+                                    {{ __(':class (:days days)', ['class' => $class->name, 'days' => $class->retention_period_days]) }}
                                 </option>
                             @endforeach
                         </select>

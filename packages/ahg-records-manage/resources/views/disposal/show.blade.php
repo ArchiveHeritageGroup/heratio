@@ -12,7 +12,7 @@
     @endif
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3 mb-0">Disposal Action #{{ $action->id }}</h1>
+        <h1 class="h3 mb-0">{{ __('Disposal Action #:id', ['id' => $action->id]) }}</h1>
         <a href="{{ route('records.disposal.queue') }}" class="btn btn-outline-secondary btn-sm">{{ __('Back to Queue') }}</a>
     </div>
 
@@ -89,7 +89,7 @@
                                     <i class="fas fa-circle text-secondary fa-2x"></i>
                                 @endif
                             </div>
-                            <strong>1. Initiated</strong>
+                            <strong>{{ __('1. Initiated') }}</strong>
                             @if ($action->initiated_at)
                                 <br><small>{{ \Carbon\Carbon::parse($action->initiated_at)->format('Y-m-d H:i') }}</small>
                                 <br><small class="text-muted">{{ $action->initiated_by_name ?? 'User #' . $action->initiated_by }}</small>
@@ -109,7 +109,7 @@
                                     <i class="fas fa-circle text-secondary fa-2x"></i>
                                 @endif
                             </div>
-                            <strong>2. Recommended</strong>
+                            <strong>{{ __('2. Recommended') }}</strong>
                             @if ($action->recommended_at)
                                 <br><small>{{ \Carbon\Carbon::parse($action->recommended_at)->format('Y-m-d H:i') }}</small>
                                 <br><small class="text-muted">{{ $action->recommended_by_name ?? '' }}</small>
@@ -136,7 +136,7 @@
                                     <i class="fas fa-circle text-secondary fa-2x"></i>
                                 @endif
                             </div>
-                            <strong>3. Approved</strong>
+                            <strong>{{ __('3. Approved') }}</strong>
                             @if ($action->approved_at)
                                 <br><small>{{ \Carbon\Carbon::parse($action->approved_at)->format('Y-m-d H:i') }}</small>
                                 <br><small class="text-muted">{{ $action->approved_by_name ?? '' }}</small>
@@ -163,7 +163,7 @@
                                     <i class="fas fa-circle text-secondary fa-2x"></i>
                                 @endif
                             </div>
-                            <strong>4. Legal Cleared</strong>
+                            <strong>{{ __('4. Legal Cleared') }}</strong>
                             @if ($action->legal_cleared)
                                 <br><small>{{ $action->legal_cleared_at ? \Carbon\Carbon::parse($action->legal_cleared_at)->format('Y-m-d H:i') : '' }}</small>
                                 <br><small class="text-muted">{{ $action->legal_cleared_by_name ?? '' }}</small>
@@ -193,12 +193,12 @@
                                     <i class="fas fa-circle text-secondary fa-2x"></i>
                                 @endif
                             </div>
-                            <strong>5. Executed</strong>
+                            <strong>{{ __('5. Executed') }}</strong>
                             @if ($action->executed_at)
                                 <br><small>{{ \Carbon\Carbon::parse($action->executed_at)->format('Y-m-d H:i') }}</small>
                                 <br><small class="text-muted">{{ $action->executed_by_name ?? '' }}</small>
                                 @if ($action->certificate)
-                                    <br><small><a href="{{ route('records.disposal.verify', $action->id) }}">Certificate: {{ $action->certificate->certificate_number }}</a></small>
+                                    <br><small><a href="{{ route('records.disposal.verify', $action->id) }}">{{ __('Certificate: :number', ['number' => $action->certificate->certificate_number]) }}</a></small>
                                 @endif
                             @elseif ($action->status === 'cleared')
                                 <br>
