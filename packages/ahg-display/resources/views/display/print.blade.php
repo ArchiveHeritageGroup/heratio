@@ -4,7 +4,7 @@
   Matches AtoM exactly: same styling, same table columns, same layout
 --}}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ ahg_html_lang() }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">

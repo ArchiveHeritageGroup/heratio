@@ -1,6 +1,6 @@
 {{-- heratio#1192 slice 2b - live-opening ticket email (ticket code + join link). --}}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ ahg_html_lang() }}">
 <head>
     <meta charset="utf-8">
     <title>{{ __('Your ticket') }}</title>

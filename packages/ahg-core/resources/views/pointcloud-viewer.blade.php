@@ -1,6 +1,6 @@
 {{-- heratio#1183 Point-cloud viewer: standalone full-screen Potree page for one octree. --}}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ ahg_html_lang() }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">

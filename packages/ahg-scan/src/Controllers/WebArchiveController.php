@@ -302,9 +302,10 @@ class WebArchiveController extends Controller
         $msg = e($message);
         $title = e(__('Archived snapshot unavailable'));
         $back = e(__('Back to web archive'));
+        $lang = e(ahg_html_lang());
         $html = <<<HTML
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8">
+<html lang="{$lang}"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{$title}</title>
 <style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;margin:0;background:#f8f9fa;color:#212529}
