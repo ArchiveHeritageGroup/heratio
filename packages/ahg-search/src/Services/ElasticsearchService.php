@@ -165,6 +165,12 @@ class ElasticsearchService
     {
         try {
             $row = DB::table('actor')->where('id', $actorId)->first();
+            if ($row) {
+                // Dates live on the object table (see EsReindexCommand::withObjectTimes).
+                $times = DB::table('object')->where('id', $actorId)->first(['created_at', 'updated_at']);
+                $row->created_at = $row->created_at ?? $times->created_at ?? null;
+                $row->updated_at = $row->updated_at ?? $times->updated_at ?? null;
+            }
             if (! $row || $actorId === 3) { // 3 = ROOT, never indexed
                 return ['ok' => false, 'error' => 'actor not found or ROOT'];
             }
@@ -449,17 +455,23 @@ class ElasticsearchService
                     ],
                 ],
                 [
-                    'match_phrase_prefix' => [
+                    // isbn is a keyword field: phrase-prefix is rejected on keyword
+                    // shards (failed shards on both Elasticsearch and OpenSearch).
+                    'prefix' => [
                         'isbn' => [
-                            'query' => $query,
+                            'value' => $query,
+                            'case_insensitive' => true,
                             'boost' => 3,
                         ],
                     ],
                 ],
                 [
-                    'match_phrase_prefix' => [
+                    // callNumber is a keyword field: phrase-prefix is rejected on keyword
+                    // shards (failed shards on both Elasticsearch and OpenSearch).
+                    'prefix' => [
                         'callNumber' => [
-                            'query' => $query,
+                            'value' => $query,
+                            'case_insensitive' => true,
                             'boost' => 2,
                         ],
                     ],
@@ -601,7 +613,7 @@ class ElasticsearchService
         $body = [
             'size' => $limit,
             'from' => ($page - 1) * $limit,
-            'sort' => [[$dateField => 'desc']],
+            'sort' => [[$dateField => ['order' => 'desc', 'unmapped_type' => 'date']]],
             'query' => ['bool' => ['must' => ! empty($must) ? $must : [['match_all' => (object) []]]]],
         ];
 

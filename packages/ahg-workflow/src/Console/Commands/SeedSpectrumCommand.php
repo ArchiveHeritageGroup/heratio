@@ -1,13 +1,13 @@
 <?php
 
 /**
- * SeedSpectrumCommand - installs the Spectrum 5.1 procedure starter pack:
- * 21 workflows tagged with `spectrum_procedure`, each with paraphrased
- * canonical steps.
+ * SeedSpectrumCommand - installs the Museum Workflow starter pack: The AHG's
+ * own 21 museum collection workflows (tagged by code in the historical
+ * `spectrum_procedure` column), each with its steps.
  *
  * Source data: packages/ahg-workflow/database/spectrum_procedures.json.
  *
- * Heratio Spectrum#B (heratio#143 follow-up).
+ * First added for heratio#143.
  *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
  * Licensed under the GNU Affero General Public License v3.0 or later.
@@ -22,11 +22,11 @@ use Illuminate\Support\Facades\DB;
 class SeedSpectrumCommand extends Command
 {
     protected $signature = 'workflow:seed-spectrum
-        {--overwrite : Replace name/description AND delete-and-reinstall steps for existing Spectrum workflows. WARNING: discards hand-customised steps for those procedures.}
+        {--overwrite : Replace name/description AND delete-and-reinstall steps for existing Museum Workflow procedures. WARNING: discards hand-customised steps for those procedures.}
         {--only=* : Install only specific procedure codes (e.g. --only=object_entry --only=cataloguing)}
         {--dry-run : Show what would change without writing anything}';
 
-    protected $description = 'Install the museum procedure starter pack - 21 workflows with paraphrased canonical steps.';
+    protected $description = 'Install the Museum Workflow starter pack - 21 museum collection workflows with their steps.';
 
     public function handle(): int
     {
@@ -52,7 +52,7 @@ class SeedSpectrumCommand extends Command
             $this->warn('DRY RUN - no DB writes will be made.');
         }
         if ($overwrite) {
-            $this->warn('OVERWRITE mode - existing Spectrum workflow steps will be REPLACED. Hand-customised steps for those procedures will be lost.');
+            $this->warn('OVERWRITE mode - existing Museum Workflow steps will be REPLACED. Hand-customised steps for those procedures will be lost.');
         }
         if (! empty($onlyCodes)) {
             $this->info('Limited to: '.implode(', ', $onlyCodes));
@@ -98,7 +98,7 @@ class SeedSpectrumCommand extends Command
             if ($dryRun) {
                 return ['action' => 'created', 'icon' => '+', 'message' => 'would CREATE workflow + '.count($procedure['steps'] ?? []).' steps'];
             }
-            // Spectrum#B v1.65.1 - wrap create+steps in a transaction so a mid-insert
+            // v1.65.1 - wrap create+steps in a transaction so a mid-insert
             // failure (e.g. column truncation) doesn't leave behind a partial workflow.
             [$workflowId, $stepCount] = DB::transaction(function () use ($code, $procedure) {
                 $wfId = $this->createWorkflow($code, $procedure);
@@ -138,7 +138,7 @@ class SeedSpectrumCommand extends Command
     private function createWorkflow(string $code, array $procedure): int
     {
         return (int) DB::table('ahg_workflow')->insertGetId([
-            'name' => $procedure['name'] ?? "Spectrum: {$code}",
+            'name' => $procedure['name'] ?? "Museum Workflow: {$code}",
             'description' => $procedure['description'] ?? null,
             'scope_type' => 'global',
             'trigger_event' => 'submit',

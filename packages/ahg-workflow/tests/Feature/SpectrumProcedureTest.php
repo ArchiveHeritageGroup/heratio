@@ -47,8 +47,8 @@ class SpectrumProcedureTest extends TestCase
 
     public function test_label_returns_label_for_valid_code(): void
     {
-        $this->assertSame('Object entry', SpectrumProcedureCatalog::label('object_entry'));
-        $this->assertSame('Cataloguing', SpectrumProcedureCatalog::label('cataloguing'));
+        $this->assertSame('Incoming objects', SpectrumProcedureCatalog::label('object_entry'));
+        $this->assertSame('Describing an object', SpectrumProcedureCatalog::label('cataloguing'));
     }
 
     public function test_label_returns_empty_string_for_null_or_empty(): void

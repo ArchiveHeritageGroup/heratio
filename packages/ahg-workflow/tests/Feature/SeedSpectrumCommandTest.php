@@ -140,7 +140,7 @@ class SeedSpectrumCommandTest extends TestCase
 
         $wf = DB::table('ahg_workflow')->where('spectrum_procedure', 'cataloguing')->first();
         $this->assertNotNull($wf);
-        $this->assertStringContainsString('Cataloguing', $wf->name);
+        $this->assertStringContainsString('Describing an object', $wf->name);
         $this->assertSame(1, (int) $wf->is_active);
     }
 }

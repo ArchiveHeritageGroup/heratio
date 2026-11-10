@@ -315,6 +315,14 @@ class EsReindexCommand extends Command
             $additions['embargoUntil'] = ['type' => 'date'];
         }
 
+        // Sorted on by "description updates"; mapped explicitly so the sort
+        // works on a fresh index (OpenSearch refuses to sort on an unmapped field).
+        foreach (['createdAt', 'updatedAt'] as $field) {
+            if (!isset($props[$field])) {
+                $additions[$field] = ['type' => 'date'];
+            }
+        }
+
         // Library fields. The doc builder emits all seven for any record with a
         // library row, and none of them exist in the cloned AtoM mapping, which
         // is dynamic:strict - so ES rejected those documents outright and they
@@ -481,6 +489,7 @@ class EsReindexCommand extends Command
 
         $scoped(DB::table('information_object'))->orderBy('id')
             ->chunk($this->batchSize, function ($rows) use ($index, $bar) {
+                $this->withObjectTimes($rows);
                 $ids = $rows->pluck('id')->toArray();
 
                 // heratio#1398 - batch the ancestor lookup for the whole chunk
@@ -798,6 +807,7 @@ class EsReindexCommand extends Command
             ->where('id', '!=', 3)
             ->orderBy('id')
             ->chunk($this->batchSize, function ($rows) use ($index, $bar) {
+                $this->withObjectTimes($rows);
                 $ids = $rows->pluck('id')->toArray();
 
                 $i18nRows = DB::table('actor_i18n')
@@ -884,6 +894,7 @@ class EsReindexCommand extends Command
         DB::table('term')
             ->orderBy('id')
             ->chunk($this->batchSize, function ($rows) use ($index, $bar) {
+                $this->withObjectTimes($rows);
                 $ids = $rows->pluck('id')->toArray();
 
                 $i18nRows = DB::table('term_i18n')
@@ -938,6 +949,7 @@ class EsReindexCommand extends Command
             ->where('id', '!=', 6)
             ->orderBy('id')
             ->chunk($this->batchSize, function ($rows) use ($index, $bar) {
+                $this->withObjectTimes($rows);
                 $ids = $rows->pluck('id')->toArray();
 
                 $actorI18n = DB::table('actor_i18n')
@@ -977,8 +989,8 @@ class EsReindexCommand extends Command
                     $doc = [
                         'slug' => $slug,
                         'identifier' => $row->identifier ?? ($actor->description_identifier ?? null),
-                        'createdAt' => (isset($actor->created_at) && $actor->created_at) ? date('Y-m-d\TH:i:s\Z', strtotime($actor->created_at)) : null,
-                        'updatedAt' => (isset($actor->updated_at) && $actor->updated_at) ? date('Y-m-d\TH:i:s\Z', strtotime($actor->updated_at)) : null,
+                        'createdAt' => ! empty($row->created_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->created_at)) : null,
+                        'updatedAt' => ! empty($row->updated_at ?? null) ? date('Y-m-d\TH:i:s\Z', strtotime($row->updated_at)) : null,
                         'sourceCulture' => $actor->source_culture ?? 'en',
                         'i18n' => $this->buildI18n($ai, [
                             'authorizedFormOfName' => 'authorized_form_of_name',
@@ -1286,4 +1298,21 @@ class EsReindexCommand extends Command
         }
         $this->info("  Parallel reindex complete - {$index} now has {$count} docs.");
     }
+
+    /**
+     * created_at / updated_at live on the object table, not on information_object,
+     * actor, term or repository, so the doc builders' $row->created_at was always
+     * null and every document went in with no dates. Copy them onto the rows.
+     */
+    private function withObjectTimes($rows): void
+    {
+        $times = DB::table('object')->whereIn('id', $rows->pluck('id')->all())
+            ->get(['id', 'created_at', 'updated_at'])->keyBy('id');
+        foreach ($rows as $row) {
+            $t = $times->get($row->id);
+            $row->created_at = $row->created_at ?? $t->created_at ?? null;
+            $row->updated_at = $row->updated_at ?? $t->updated_at ?? null;
+        }
+    }
+
 }

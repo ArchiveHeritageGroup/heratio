@@ -1,14 +1,14 @@
 <?php
 
 /**
- * SpectrumProcedureCatalog - heratio Spectrum#A: canonical list of the 21
- * Spectrum 5.1 primary procedures.
+ * SpectrumProcedureCatalog - the 21 Museum Workflow procedures, The AHG's own
+ * set of museum collection workflows (rewritten November 2026). The class and
+ * the spectrum_procedure column keep their historical internal names; the
+ * codes are unchanged so existing workflows still match.
  *
- * Used as the source of truth for the spectrum_procedure dropdown on the
- * workflow edit form, the column label on the workflow admin list, and the
- * Spectrum badge on workflow diagrams.
- *
- * Source: UK Collections Trust, Spectrum 5.1.
+ * Used as the source of truth for the procedure dropdown on the workflow edit
+ * form, the column label on the workflow admin list, and the procedure badge
+ * on workflow diagrams.
  *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
  * Licensed under the GNU Affero General Public License v3.0 or later.
@@ -23,27 +23,27 @@ class SpectrumProcedureCatalog
      * ahg_workflow.spectrum_procedure column.
      */
     public const PROCEDURES = [
-        'object_entry' => 'Object entry',
-        'acquisition' => 'Acquisition and accessioning',
-        'inventory' => 'Inventory',
-        'location_movement' => 'Location and movement control',
-        'cataloguing' => 'Cataloguing',
-        'object_exit' => 'Object exit',
-        'loans_in' => 'Loans in (borrowing)',
-        'loans_out' => 'Loans out (lending)',
-        'insurance' => 'Insurance and indemnity',
-        'damage_loss' => 'Damage and loss',
-        'conservation' => 'Conservation and collections care',
-        'audit' => 'Audit',
-        'condition_check' => 'Object condition checking and technical assessment',
-        'valuation' => 'Object valuation',
-        'risk_management' => 'Risk management',
-        'emergency_planning' => 'Emergency planning for collections',
-        'use_of_collections' => 'Use of collections',
-        'rights_management' => 'Rights management',
-        'reproduction' => 'Reproduction',
-        'deaccessioning' => 'Deaccessioning and disposal',
-        'retrospective_doc' => 'Retrospective documentation',
+        'object_entry' => 'Incoming objects',
+        'acquisition' => 'Acquiring an object',
+        'inventory' => 'Stocktake',
+        'location_movement' => 'Moving objects',
+        'cataloguing' => 'Describing an object',
+        'object_exit' => 'Outgoing objects',
+        'loans_in' => 'Borrowing objects',
+        'loans_out' => 'Lending objects',
+        'insurance' => 'Insurance cover',
+        'damage_loss' => 'Damage or loss',
+        'conservation' => 'Care and treatment',
+        'audit' => 'Records audit',
+        'condition_check' => 'Condition check',
+        'valuation' => 'Valuing an object',
+        'risk_management' => 'Collection risks',
+        'emergency_planning' => 'Emergency readiness',
+        'use_of_collections' => 'Access and use',
+        'rights_management' => 'Rights',
+        'reproduction' => 'Copies and images',
+        'deaccessioning' => 'Removing from the collection',
+        'retrospective_doc' => 'Documentation backlog',
     ];
 
     /** @return array<string,string> */
