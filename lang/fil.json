@@ -23404,5 +23404,7 @@
     "This user has no catalogue role, so their keys read the public catalogue only: what any visitor may see.": "Ang user ay walang role sa katalogo, kaya ang mga key ay nagbabasa lamang ng publiko katalogo: ano man ang makikita ng anumang bisita.",
     "This user's role does not allow the \":input\" scope.": "Ang role ng user ay hindi nagbibigay ng \":input\" scope.",
     "This vocabulary has :n terms, too many to export from the browser (the limit is :max). Ask an administrator for a full export.": "Ang vocabulary ay may :n mga termino, ang dami ay too many para i-export mula sa browser (ang limit ay :max). Maaari mong kwestyon ang isang administrator para sa buong export.",
-    "Title is longer than 1024 characters.": "Ang title ay mas mahaba kaysa 1024 karakter."
+    "Title is longer than 1024 characters.": "Ang title ay mas mahaba kaysa 1024 karakter.",
+    ":count with digital objects": ":count na mga digital object",
+    "No queue items": "Walang queue items"
 }

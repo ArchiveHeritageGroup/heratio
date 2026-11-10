@@ -132,7 +132,7 @@ class GraphClientService
     public function putContent(int $tenantId, string $path, string $bytes, string $contentType = 'application/octet-stream'): array
     {
         $send = fn () => Http::withToken($this->acquireToken($tenantId))->timeout(120)
-            ->withBody($bytes, $contentType)->put($this->resolveBase($tenantId).$this->ensureLeadingSlash($path));
+            ->withBody($bytes, $contentType)->put($this->urlFor($tenantId, $path));
         $resp = $send();
         if ($resp->status() === 401) {
             $this->cache->invalidate($tenantId);
@@ -214,7 +214,7 @@ class GraphClientService
     private function request(int $tenantId, string $method, string $path, ?array $body, array $headers, bool $expectJson = true): array
     {
         $token = $this->acquireToken($tenantId);
-        $url = $this->resolveBase($tenantId).$this->ensureLeadingSlash($path);
+        $url = $this->urlFor($tenantId, $path);
 
         $client = Http::withToken($token)
             ->withHeaders(array_merge(['Accept' => 'application/json'], $headers))
@@ -255,6 +255,17 @@ class GraphClientService
         $base = (string) ($tenant->graph_endpoint ?? 'https://graph.microsoft.com/v1.0');
 
         return rtrim($base, '/');
+    }
+
+    /**
+     * A Graph path, or an absolute URL Graph handed back (@odata.nextLink,
+     * @odata.deltaLink), which is used as it is. Prefixing the base onto an
+     * absolute link sent ".../v1.0/https://graph..." and every follow-up delta
+     * sync failed with 400 "Url specified is invalid" (10 Nov 2026).
+     */
+    private function urlFor(int $tenantId, string $path): string
+    {
+        return preg_match('#^https://#i', $path) ? $path : $this->resolveBase($tenantId).$this->ensureLeadingSlash($path);
     }
 
     private function ensureLeadingSlash(string $path): string

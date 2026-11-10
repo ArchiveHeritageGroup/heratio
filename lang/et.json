@@ -24454,5 +24454,10 @@
     "not linked yet": "pole veel seotud",
     "pages.": "lehekülgede.",
     "proposed": "eesmärgistatud",
-    "reviewed by": "arvestatud administraatoriga"
+    "reviewed by": "arvestatud administraatoriga",
+    ":count with digital objects": ":count digitaalsete objektidega",
+    ":count/page": ":count/lehekülg",
+    "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": "Keelekood on vigane. Kasuta 2-3 tähega keelekoodi, valikuliselt regiooniga või variandiga (nt fr, pt_BR, ca@valencia).",
+    "No queue items": "Ei ole järjekorda",
+    "Showing :count results": "Kuvatakse :count tulemusi"
 }
