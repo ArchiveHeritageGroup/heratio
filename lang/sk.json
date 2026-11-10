@@ -24334,5 +24334,10 @@
     "not linked yet": "ešte nie je odkázané",
     "pages.": "stránok.",
     "proposed": "navrhované",
-    "reviewed by": "skontrolované"
+    "reviewed by": "skontrolované",
+    ":count with digital objects": ":count s digitálnymi objektmi",
+    ":count/page": ":count/strana",
+    "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": "Neplatný kód jazyka. Použite 2-3 písmenový kód jazyka, prípadne s oblastou alebo variantou (napr. fr, pt_BR, ca@valencia).",
+    "No queue items": "Žiadne položky v rade",
+    "Showing :count results": "Zobrazenie :count výsledkov"
 }

@@ -24293,5 +24293,10 @@
     "not linked yet": "ikke koblet ennå",
     "pages.": "sider.",
     "proposed": "foreslått",
-    "reviewed by": "gjennomgått av"
+    "reviewed by": "gjennomgått av",
+    ":count with digital objects": ":count med digitale objekter",
+    ":count/page": ":count per side",
+    "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": "Ugyldig språkkode. Bruk en 2-3-bokstavskode, valgfritt med en region eller variant (f.eks. fr, pt_BR, ca@valencia).",
+    "No queue items": "Ingen oppgaver i kø",
+    "Showing :count results": "Viser :count resultater"
 }

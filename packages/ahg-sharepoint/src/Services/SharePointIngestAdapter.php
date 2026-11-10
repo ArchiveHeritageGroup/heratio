@@ -87,7 +87,14 @@ class SharePointIngestAdapter
             $rowData = array_merge($projected, $this->dispositionToRowFields($disposition));
 
             $localPath = $this->downloadFile($tenant, $drive, $event, $driveItem, $eventId);
+            $rowData['_local_path'] = $localPath;
+            $rowData['_sp_item_id'] = $event->sp_item_id;
+            $rowData['title'] = $rowData['title'] ?? $rowData['Title'] ?? pathinfo((string) ($driveItem['name'] ?? ''), PATHINFO_FILENAME);
 
+            // Under the drive's default parent unless the retention mapping chose one.
+            if (empty($rowData['parentId']) && ! empty($drive->default_parent_id)) {
+                $rowData['parentId'] = (int) $drive->default_parent_id;
+            }
             $sessionId = $this->createIngestSession((int) $drive->id, $eventId, $rowData);
             $this->createIngestRow($sessionId, $rowData);
             $this->createIngestFile(
@@ -97,7 +104,7 @@ class SharePointIngestAdapter
             );
             $jobId = $this->dispatchCommit($sessionId);
 
-            $informationObjectId = $this->resolveInformationObjectId($jobId);
+            $informationObjectId = $this->resolveInformationObjectId($jobId, $sessionId);
 
             $this->events->update($eventId, [
                 'ingest_job_id' => $jobId,
@@ -122,6 +129,11 @@ class SharePointIngestAdapter
         $allowed = json_decode($raw, true);
         if (! is_array($allowed) || count($allowed) === 0) {
             return false;
+        }
+        // ["*"]: capture every file in this library, labelled or not (a demo or
+        // working library, rather than a records-declaration one).
+        if (in_array('*', $allowed, true)) {
+            return true;
         }
         $tag = $listItemFields['_ComplianceTag'] ?? null;
         if ($tag === null || $tag === '') {
@@ -157,8 +169,9 @@ class SharePointIngestAdapter
     private function downloadFile(object $tenant, object $drive, object $event, array $driveItem, int $eventId): string
     {
         $name = $this->safeFileName((string) ($driveItem['name'] ?? "item-{$event->sp_item_id}"));
-        $relPath = "sharepoint/{$eventId}/{$name}";
-        $absPath = storage_path("app/{$relPath}");
+        // Inside the uploads base: the ingest commit only attaches files from
+        // there (#1395 path guard), so a file under storage/ was dropped.
+        $absPath = rtrim((string) config('heratio.uploads_path'), '/')."/sharepoint-inbox/{$eventId}/{$name}";
         $dir = dirname($absPath);
         if (! is_dir($dir)) {
             mkdir($dir, 0775, true);
@@ -205,9 +218,13 @@ class SharePointIngestAdapter
 
     private function createIngestRow(int $sessionId, array $rowData): void
     {
+        // Real ingest_row columns (this wrote a non-existent row_index), with
+        // the downloaded file as the row's digital object.
         DB::table('ingest_row')->insert([
             'session_id' => $sessionId,
-            'row_index' => 0,
+            'row_number' => 1,
+            'title' => $rowData['title'] ?? $rowData['Title'] ?? null,
+            'digital_object_path' => $rowData['_local_path'] ?? null,
             'data' => json_encode($rowData, JSON_UNESCAPED_SLASHES),
             'created_at' => now(),
         ]);
@@ -217,35 +234,33 @@ class SharePointIngestAdapter
     {
         DB::table('ingest_file')->insert([
             'session_id' => $sessionId,
-            'filename' => basename($localPath),
-            'path' => $localPath,
+            'file_type' => 'sharepoint',
+            'original_name' => basename($localPath),
+            'stored_path' => $localPath,
             'mime_type' => $mimeType,
-            'size' => is_file($localPath) ? filesize($localPath) : 0,
+            'file_size' => is_file($localPath) ? filesize($localPath) : 0,
             'created_at' => now(),
         ]);
     }
 
     private function dispatchCommit(int $sessionId): int
     {
-        // Heratio's ahg-ingest package exposes its commit service via the
-        // service container. The exact service name is confirmed during
-        // integration; this is the documented hand-off point.
-        if (! class_exists('\\AhgIngest\\Services\\IngestCommitService')) {
-            throw new \RuntimeException('AhgIngest IngestCommitService not registered. Verify ahg/ingest is installed.');
+        // Through ahg-ingest's IngestCommitRunner: the IngestCommitService this
+        // used to name never existed, so every capture failed here (10 Nov 2026).
+        $res = app(\AhgIngest\Services\IngestCommitRunner::class)->run($sessionId);
+        if (($res['created'] ?? 0) < 1) {
+            throw new \RuntimeException('Ingest commit created no record (errors: '.($res['errors'] ?? '?').').');
         }
-        $svc = app(\AhgIngest\Services\IngestCommitService::class);
 
-        return (int) $svc->startJob($sessionId);
+        return (int) $res['job_id'];
     }
 
-    private function resolveInformationObjectId(int $ingestJobId): ?int
+    /** The record the session's row created. */
+    private function resolveInformationObjectId(int $ingestJobId, int $sessionId): ?int
     {
-        $row = DB::table('ingest_job')->where('id', $ingestJobId)->first();
-        if ($row === null) {
-            return null;
-        }
+        $id = DB::table('ingest_row')->where('session_id', $sessionId)->whereNotNull('created_atom_id')->value('created_atom_id');
 
-        return isset($row->primary_object_id) ? (int) $row->primary_object_id : null;
+        return $id !== null ? (int) $id : null;
     }
 
     private function auditIngest(int $eventId, ?int $ioId, object $event, object $drive): void

@@ -24364,5 +24364,8 @@
     "not linked yet": "nuk është lidhur ende",
     "pages.": "faqe.",
     "proposed": "propozuar",
-    "reviewed by": "shikuar nga"
+    "reviewed by": "shikuar nga",
+    ":count with digital objects": ":count me objekte digitale",
+    "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": "Kodi i gjuhës është i pavlefshëm. Përdorni një kod të gjuhës me 2-3 shkalla, opcionally me një zonë ose variant (p.sh. fr, pt_BR, ca@valencia).",
+    "No queue items": "Nuk janë artikuj në listë"
 }
