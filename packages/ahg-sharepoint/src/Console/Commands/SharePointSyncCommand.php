@@ -188,6 +188,17 @@ class SharePointSyncCommand extends Command
                 if ($limit > 0 && $processed >= $limit) {
                     break 2;
                 }
+                // Only files are captured: the delta also lists the root and
+                // folders (e.g. "Redacted copies"), which have no content to
+                // download, and deleted items.
+                if (! isset($item['file']) || isset($item['deleted'])) {
+                    continue;
+                }
+                // A redacted copy Heratio wrote back is not a new document.
+                if (str_contains((string) ($item['parentReference']['path'] ?? ''), '/'.rawurlencode(\AhgSharePoint\Services\SharePointWriteBackService::REDACTED_FOLDER))
+                    || str_contains((string) ($item['parentReference']['path'] ?? ''), '/'.\AhgSharePoint\Services\SharePointWriteBackService::REDACTED_FOLDER)) {
+                    continue;
+                }
                 $this->createSyntheticEvent($drive, $item);
                 $processed++;
             }
