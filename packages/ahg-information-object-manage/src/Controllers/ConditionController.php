@@ -181,13 +181,17 @@ class ConditionController extends Controller
 
         // Resolve the IO for breadcrumb
         $io = DB::table('information_object as io')
-            ->join('information_object_i18n as i18n', function ($j) {
+            ->leftJoin('information_object_i18n as i18n', function ($j) {
                 $j->on('i18n.id', '=', 'io.id')
                   ->where('i18n.culture', app()->getLocale());
             })
+            ->leftJoin('information_object_i18n as i18n_fb', function ($j) {
+                $j->on('i18n_fb.id', '=', 'io.id')
+                  ->where('i18n_fb.culture', (string) config('app.fallback_locale', 'en'));
+            })
             ->join('slug as s', 's.object_id', '=', 'io.id')
             ->where('io.id', $report->information_object_id)
-            ->select('io.id', 'i18n.title', 's.slug')
+            ->select('io.id', DB::raw('COALESCE(i18n.title, i18n_fb.title) as title'), 's.slug')
             ->first();
 
         // #1452/#1453 - photos now live in the unified spectrum_condition_photo
@@ -223,12 +227,15 @@ class ConditionController extends Controller
         }
 
         $io = DB::table('information_object as io')
-            ->join('information_object_i18n as i18n', function ($j) {
+            ->leftJoin('information_object_i18n as i18n', function ($j) {
                 $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', app()->getLocale());
+            })
+            ->leftJoin('information_object_i18n as i18n_fb', function ($j) {
+                $j->on('i18n_fb.id', '=', 'io.id')->where('i18n_fb.culture', (string) config('app.fallback_locale', 'en'));
             })
             ->join('slug as s', 's.object_id', '=', 'io.id')
             ->where('io.id', $check->object_id)
-            ->select('io.id', 'i18n.title', 's.slug')
+            ->select('io.id', DB::raw('COALESCE(i18n.title, i18n_fb.title) as title'), 's.slug')
             ->first();
 
         $photos = DB::table('spectrum_condition_photo')
@@ -555,14 +562,22 @@ class ConditionController extends Controller
     private function getIO(string $slug): ?object
     {
         $culture = app()->getLocale();
+        $fallback = (string) config('app.fallback_locale', 'en');
 
         return DB::table('information_object as io')
-            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
+            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
                 $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', $culture);
+            })
+            ->leftJoin('information_object_i18n as i18n_fb', function ($j) use ($fallback) {
+                $j->on('i18n_fb.id', '=', 'io.id')->where('i18n_fb.culture', $fallback);
             })
             ->join('slug as s', 's.object_id', '=', 'io.id')
             ->where('s.slug', $slug)
-            ->select('io.id', 'i18n.title', 's.slug')
+            ->select(
+                'io.id',
+                DB::raw('COALESCE(i18n.title, i18n_fb.title) as title'),
+                's.slug'
+            )
             ->first();
     }
 }

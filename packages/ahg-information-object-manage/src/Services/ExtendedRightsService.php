@@ -813,14 +813,24 @@ class ExtendedRightsService
         // Get active embargo
         $embargo = $this->getActiveEmbargo($objectId);
 
+        $fallback = (string) config('app.fallback_locale', 'en');
+
         // Get IO metadata
         $io = DB::table('information_object as io')
-            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
+            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
                 $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', $culture);
+            })
+            ->leftJoin('information_object_i18n as i18n_fb', function ($j) use ($fallback) {
+                $j->on('i18n_fb.id', '=', 'io.id')->where('i18n_fb.culture', $fallback);
             })
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
             ->where('io.id', $objectId)
-            ->select('io.id', 'io.identifier', 'i18n.title', 's.slug')
+            ->select(
+                'io.id',
+                'io.identifier',
+                DB::raw('COALESCE(i18n.title, i18n_fb.title) as title'),
+                's.slug'
+            )
             ->first();
 
         $siteUrl = rtrim(config('app.url', ''), '/');

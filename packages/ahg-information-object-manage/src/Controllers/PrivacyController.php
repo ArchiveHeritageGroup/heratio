@@ -610,17 +610,21 @@ class PrivacyController extends Controller
     private function getIO(string $slug): ?object
     {
         $culture = app()->getLocale();
+        $fallback = (string) config('app.fallback_locale', 'en');
 
         return DB::table('information_object as io')
-            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
+            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
                 $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', $culture);
+            })
+            ->leftJoin('information_object_i18n as i18n_fb', function ($j) use ($fallback) {
+                $j->on('i18n_fb.id', '=', 'io.id')->where('i18n_fb.culture', $fallback);
             })
             ->join('slug as s', 's.object_id', '=', 'io.id')
             ->where('s.slug', $slug)
             ->select(
                 'io.id',
-                'i18n.title',
-                'i18n.scope_and_content',
+                DB::raw('COALESCE(i18n.title, i18n_fb.title) as title'),
+                DB::raw('COALESCE(i18n.scope_and_content, i18n_fb.scope_and_content) as scope_and_content'),
                 's.slug'
             )
             ->first();
@@ -632,18 +636,22 @@ class PrivacyController extends Controller
     private function getIOById(int $id): ?object
     {
         $culture = app()->getLocale();
+        $fallback = (string) config('app.fallback_locale', 'en');
 
         return DB::table('information_object as io')
-            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
+            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
                 $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', $culture);
+            })
+            ->leftJoin('information_object_i18n as i18n_fb', function ($j) use ($fallback) {
+                $j->on('i18n_fb.id', '=', 'io.id')->where('i18n_fb.culture', $fallback);
             })
             ->join('slug as s', 's.object_id', '=', 'io.id')
             ->where('io.id', $id)
             ->select(
                 'io.id',
-                'i18n.title',
-                'i18n.scope_and_content',
-                'i18n.archival_history',
+                DB::raw('COALESCE(i18n.title, i18n_fb.title) as title'),
+                DB::raw('COALESCE(i18n.scope_and_content, i18n_fb.scope_and_content) as scope_and_content'),
+                DB::raw('COALESCE(i18n.archival_history, i18n_fb.archival_history) as archival_history'),
                 's.slug'
             )
             ->first();

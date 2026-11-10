@@ -408,14 +408,23 @@ class ProvenanceController extends Controller
     private function getIO(string $slug): ?object
     {
         $culture = app()->getLocale();
+        $fallback = (string) config('app.fallback_locale', 'en');
 
         $io = DB::table('information_object as io')
-            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
+            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
                 $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', $culture);
+            })
+            ->leftJoin('information_object_i18n as i18n_fb', function ($j) use ($fallback) {
+                $j->on('i18n_fb.id', '=', 'io.id')->where('i18n_fb.culture', $fallback);
             })
             ->join('slug as s', 's.object_id', '=', 'io.id')
             ->where('s.slug', $slug)
-            ->select('io.id', 'io.identifier', 'i18n.title', 's.slug')
+            ->select(
+                'io.id',
+                'io.identifier',
+                DB::raw('COALESCE(i18n.title, i18n_fb.title) as title'),
+                's.slug'
+            )
             ->first();
 
         // hasPermission('read') in the callers is true for anonymous visitors on

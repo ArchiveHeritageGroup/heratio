@@ -219,14 +219,23 @@ class FindingAidController extends Controller
         }
 
         $culture = app()->getLocale();
+        $fallback = (string) config('app.fallback_locale', 'en');
 
         return DB::table('information_object as io')
-            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
+            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
                 $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', $culture);
+            })
+            ->leftJoin('information_object_i18n as i18n_fb', function ($j) use ($fallback) {
+                $j->on('i18n_fb.id', '=', 'io.id')->where('i18n_fb.culture', $fallback);
             })
             ->join('slug as s', 's.object_id', '=', 'io.id')
             ->where('io.id', $slugRow->object_id)
-            ->select('io.id', 'io.repository_id', 'i18n.title', 's.slug')
+            ->select(
+                'io.id',
+                'io.repository_id',
+                DB::raw('COALESCE(i18n.title, i18n_fb.title) as title'),
+                's.slug'
+            )
             ->first();
     }
 

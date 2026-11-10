@@ -382,24 +382,31 @@ class ResearchController extends Controller
         }
 
         $culture = app()->getLocale();
+        $fallback = (string) config('app.fallback_locale', 'en');
 
         // Get creators
         $creators = DB::table('event')
-            ->join('actor_i18n', function ($j) use ($culture) {
+            ->leftJoin('actor_i18n', function ($j) use ($culture) {
                 $j->on('actor_i18n.id', '=', 'event.actor_id')->where('actor_i18n.culture', $culture);
+            })
+            ->leftJoin('actor_i18n as actor_i18n_fb', function ($j) use ($fallback) {
+                $j->on('actor_i18n_fb.id', '=', 'event.actor_id')->where('actor_i18n_fb.culture', $fallback);
             })
             ->where('event.object_id', $io->id)
             ->where('event.type_id', 111)
-            ->select('actor_i18n.authorized_form_of_name as name')
+            ->select(DB::raw('COALESCE(actor_i18n.authorized_form_of_name, actor_i18n_fb.authorized_form_of_name) as name'))
             ->get();
 
         // Get repository
         $repository = DB::table('information_object as io2')
-            ->join('actor_i18n as repo_ai', function ($j) use ($culture) {
+            ->leftJoin('actor_i18n as repo_ai', function ($j) use ($culture) {
                 $j->on('repo_ai.id', '=', 'io2.repository_id')->where('repo_ai.culture', $culture);
             })
+            ->leftJoin('actor_i18n as repo_ai_fb', function ($j) use ($fallback) {
+                $j->on('repo_ai_fb.id', '=', 'io2.repository_id')->where('repo_ai_fb.culture', $fallback);
+            })
             ->where('io2.id', $io->id)
-            ->select('repo_ai.authorized_form_of_name as name')
+            ->select(DB::raw('COALESCE(repo_ai.authorized_form_of_name, repo_ai_fb.authorized_form_of_name) as name'))
             ->first();
 
         // Get dates (date_display is in event_i18n.date, not event table)
@@ -423,14 +430,24 @@ class ResearchController extends Controller
     private function getIO(string $slug): ?object
     {
         $culture = app()->getLocale();
+        $fallback = (string) config('app.fallback_locale', 'en');
 
         return DB::table('information_object as io')
-            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
+            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
                 $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', $culture);
+            })
+            ->leftJoin('information_object_i18n as i18n_fb', function ($j) use ($fallback) {
+                $j->on('i18n_fb.id', '=', 'io.id')->where('i18n_fb.culture', $fallback);
             })
             ->join('slug as s', 's.object_id', '=', 'io.id')
             ->where('s.slug', $slug)
-            ->select('io.id', 'io.identifier', 'i18n.title', 'i18n.scope_and_content', 's.slug')
+            ->select(
+                'io.id',
+                'io.identifier',
+                DB::raw('COALESCE(i18n.title, i18n_fb.title) as title'),
+                DB::raw('COALESCE(i18n.scope_and_content, i18n_fb.scope_and_content) as scope_and_content'),
+                's.slug'
+            )
             ->first();
     }
 }
