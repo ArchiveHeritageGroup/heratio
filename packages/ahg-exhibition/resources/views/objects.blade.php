@@ -145,7 +145,7 @@
           </table>
         </div>
         <div class="card-footer">
-          <span class="text-muted">{{ is_countable($objects) ? count($objects) : 0 }} objects in exhibition</span>
+          <span class="text-muted">{{ __(':count objects in exhibition', ['count' => is_countable($objects) ? count($objects) : 0]) }}</span>
         </div>
       </div>
     @endif

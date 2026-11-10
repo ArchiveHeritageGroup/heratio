@@ -101,7 +101,7 @@
         <p class="small text-muted mb-2">
           <span class="badge bg-secondary">{{ $exhibition->status ?? '' }}</span>
         </p>
-        <p class="small mb-0"><strong>{{ is_countable($sections) ? count($sections) : 0 }}</strong> sections</p>
+        <p class="small mb-0">{{ __(':count sections', ['count' => is_countable($sections) ? count($sections) : 0]) }}</p>
       </div>
     </div>
 
@@ -110,7 +110,7 @@
         <h5 class="mb-0">{{ __('Tips') }}</h5>
       </div>
       <div class="card-body">
-        <p class="small text-muted mb-2"><strong>{{ __('Sections') }}</strong> help organize your exhibition into logical groupings or physical spaces.</p>
+        <p class="small text-muted mb-2">{{ __('Sections help organize your exhibition into logical groupings or physical spaces.') }}</p>
         <ul class="small text-muted mb-0">
           <li>{{ __('Drag sections to reorder them') }}</li>
           <li>{{ __('Assign objects to sections for better organization') }}</li>

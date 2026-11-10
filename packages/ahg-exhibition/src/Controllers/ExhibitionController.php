@@ -106,7 +106,7 @@ class ExhibitionController extends Controller
                 'curator', 'designer', 'budget', 'budget_currency',
             ]) + ['created_by' => auth()->id()]);
 
-            return redirect()->route('exhibition.show', $id)->with('notice', 'Exhibition created');
+            return redirect()->route('exhibition.show', $id)->with('notice', __('Exhibition created'));
         }
 
         return view('ahg-exhibition::add', compact('types', 'statuses'));
@@ -128,7 +128,7 @@ class ExhibitionController extends Controller
                 'curator', 'designer', 'budget', 'budget_currency',
             ]));
 
-            return redirect()->route('exhibition.show', $id)->with('notice', 'Exhibition updated');
+            return redirect()->route('exhibition.show', $id)->with('notice', __('Exhibition updated'));
         }
 
         return view('ahg-exhibition::edit', compact('exhibition', 'types', 'statuses'));
@@ -263,9 +263,9 @@ class ExhibitionController extends Controller
         if ($action === 'delete' && $id) {
             $this->service->delete($id);
 
-            return redirect()->route('exhibition.index')->with('notice', 'Exhibition deleted.');
+            return redirect()->route('exhibition.index')->with('notice', __('Exhibition deleted.'));
         }
 
-        return redirect()->back()->with('error', 'Invalid action.');
+        return redirect()->back()->with('error', __('Invalid action.'));
     }
 }

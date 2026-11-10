@@ -72,7 +72,7 @@
                 <input type="hidden" name="template_id" value="{{ $tpl->id ?? '' }}">
                 <button type="submit" class="dropdown-item">
                   {{ $tpl->name ?? '' }}
-                  <small class="text-muted d-block">{{ $tpl->item_count ?? 0 }} items</small>
+                  <small class="text-muted d-block">{{ __(':count items', ['count' => $tpl->item_count ?? 0]) }}</small>
                 </button>
               </form>
             </li>
@@ -112,7 +112,7 @@
             <div class="d-flex align-items-center gap-3">
               <div class="text-end">
                 <span class="badge bg-{{ $progress == 100 ? 'success' : ($progress > 50 ? 'info' : 'secondary') }} fs-6">{{ $progress }}%</span>
-                <br><small class="text-muted">{{ $completed }}/{{ $total }} complete</small>
+                <br><small class="text-muted">{{ __(':completed/:total complete', ['completed' => $completed, 'total' => $total]) }}</small>
               </div>
             </div>
           </div>
@@ -143,7 +143,7 @@
                                 $isOverdue = false;
                                 try { $dueObj = new DateTime($it->due_date); $isOverdue = $dueObj < $today && empty($it->is_completed); } catch (\Throwable $e) {}
                               @endphp
-                              <span class="badge {{ $isOverdue ? 'bg-danger' : 'bg-light text-dark' }}">Due: {{ $it->due_date }}</span>
+                              <span class="badge {{ $isOverdue ? 'bg-danger' : 'bg-light text-dark' }}">{{ __('Due: :date', ['date' => $it->due_date]) }}</span>
                             @endif
                           </div>
                         </div>
@@ -191,7 +191,7 @@
       <div class="card-body">
         <div class="text-center mb-3">
           <div class="display-4">{{ $overallProgress }}%</div>
-          <small class="text-muted">{{ $completedItems }} of {{ $totalItems }} items complete</small>
+          <small class="text-muted">{{ __(':completed of :total items complete', ['completed' => $completedItems, 'total' => $totalItems]) }}</small>
         </div>
         <div class="progress" style="height: 8px;">
           <div class="progress-bar bg-{{ $overallProgress == 100 ? 'success' : 'primary' }}" style="width: {{ $overallProgress }}%"></div>
@@ -208,13 +208,13 @@
           @foreach(array_slice($overdueItems, 0, 5) as $item)
             <li class="list-group-item">
               <strong class="small">{{ $item->name ?? '' }}</strong>
-              <br><small class="text-danger">Due: {{ $item->due_date ?? '' }}</small>
+              <br><small class="text-danger">{{ __('Due: :date', ['date' => $item->due_date ?? '']) }}</small>
               <br><small class="text-muted">{{ $item->checklist_name ?? '' }}</small>
             </li>
           @endforeach
           @if(count($overdueItems) > 5)
             <li class="list-group-item text-center">
-              <small class="text-muted">+{{ count($overdueItems) - 5 }} more overdue</small>
+              <small class="text-muted">{{ __('+:count more overdue', ['count' => count($overdueItems) - 5]) }}</small>
             </li>
           @endif
         </ul>
@@ -227,11 +227,11 @@
       </div>
       <div class="card-body">
         <ul class="list-unstyled small mb-0">
-          <li class="mb-1"><strong>{{ __('Planning') }}</strong> - Pre-exhibition tasks</li>
-          <li class="mb-1"><strong>{{ __('Installation') }}</strong> - Setup tasks</li>
-          <li class="mb-1"><strong>{{ __('Opening') }}</strong> - Launch preparation</li>
-          <li class="mb-1"><strong>{{ __('Operation') }}</strong> - During exhibition</li>
-          <li><strong>{{ __('Closing') }}</strong> - Deinstallation tasks</li>
+          <li class="mb-1"><strong>{{ __('Planning') }}</strong> - {{ __('Pre-exhibition tasks') }}</li>
+          <li class="mb-1"><strong>{{ __('Installation') }}</strong> - {{ __('Setup tasks') }}</li>
+          <li class="mb-1"><strong>{{ __('Opening') }}</strong> - {{ __('Launch preparation') }}</li>
+          <li class="mb-1"><strong>{{ __('Operation') }}</strong> - {{ __('During exhibition') }}</li>
+          <li><strong>{{ __('Closing') }}</strong> - {{ __('Deinstallation tasks') }}</li>
         </ul>
       </div>
     </div>

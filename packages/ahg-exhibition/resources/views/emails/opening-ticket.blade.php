@@ -8,7 +8,7 @@
 <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #222;">
     <h2 style="color: #2563eb;">{{ __('Your ticket is confirmed') }}</h2>
 
-    <p>Hello {{ $rsvp->name ?? 'there' }},</p>
+    <p>{{ __('Hello :name,', ['name' => $rsvp->name ?? __('there')]) }}</p>
 
     <p>{{ __('You are booked in for the live virtual opening below. Keep your ticket code - return to the event page at start time and click') }} <strong>{{ __('Join the walkthrough') }}</strong>.</p>
 
@@ -19,7 +19,7 @@
             <tr><td style="padding: 6px 10px; color: #666;">{{ __('Host') }}</td><td style="padding: 6px 10px;">{{ $event->host_name }}</td></tr>
         @endif
         <tr><td style="padding: 6px 10px; color: #666;">{{ __('Starts') }}</td><td style="padding: 6px 10px;">{{ \Illuminate\Support\Carbon::parse($event->starts_at)->format('l j F Y, H:i') }}</td></tr>
-        <tr><td style="padding: 6px 10px; color: #666;">{{ __('Duration') }}</td><td style="padding: 6px 10px;">{{ $event->duration_minutes }} min</td></tr>
+        <tr><td style="padding: 6px 10px; color: #666;">{{ __('Duration') }}</td><td style="padding: 6px 10px;">{{ __(':count min', ['count' => $event->duration_minutes]) }}</td></tr>
         @if(!empty($rsvp->party_size) && (int) $rsvp->party_size > 1)
             <tr><td style="padding: 6px 10px; color: #666;">{{ __('Party size') }}</td><td style="padding: 6px 10px;">{{ $rsvp->party_size }}</td></tr>
         @endif
@@ -33,6 +33,6 @@
         <a href="{{ $joinUrl }}" style="display: inline-block; background: #2563eb; color: #fff; text-decoration: none; padding: 10px 18px; border-radius: 5px;">{{ __('Open the event page') }}</a>
     </p>
 
-    <p style="color: #888; font-size: 12px; margin-top: 30px;">Sent by {{ config('app.name', 'Heratio') }}.</p>
+    <p style="color: #888; font-size: 12px; margin-top: 30px;">{{ __('Sent by :app.', ['app' => config('app.name', 'Heratio')]) }}</p>
 </body>
 </html>
