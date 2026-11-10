@@ -212,14 +212,19 @@ class ImportController extends Controller
     public function skosImport()
     {
         $culture = app()->getLocale();
+        $fallback = (string) config('app.fallback_locale', 'en');
 
         $taxonomies = DB::table('taxonomy')
-            ->join('taxonomy_i18n', function ($j) use ($culture) {
+            ->leftJoin('taxonomy_i18n', function ($j) use ($culture) {
                 $j->on('taxonomy_i18n.id', '=', 'taxonomy.id')
                   ->where('taxonomy_i18n.culture', $culture);
             })
-            ->orderBy('taxonomy_i18n.name')
-            ->select('taxonomy.id', 'taxonomy_i18n.name')
+            ->leftJoin('taxonomy_i18n as taxonomy_i18n_fb', function ($j) use ($fallback) {
+                $j->on('taxonomy_i18n_fb.id', '=', 'taxonomy.id')
+                  ->where('taxonomy_i18n_fb.culture', $fallback);
+            })
+            ->orderByRaw('COALESCE(taxonomy_i18n.name, taxonomy_i18n_fb.name)')
+            ->select('taxonomy.id', DB::raw('COALESCE(taxonomy_i18n.name, taxonomy_i18n_fb.name) as name'))
             ->get();
 
         return view('ahg-io-manage::import.skos-import', [
@@ -380,14 +385,22 @@ class ImportController extends Controller
         }
 
         $culture = app()->getLocale();
+        $fallback = (string) config('app.fallback_locale', 'en');
 
         return DB::table('information_object as io')
-            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
+            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
                 $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', $culture);
+            })
+            ->leftJoin('information_object_i18n as i18n_fb', function ($j) use ($fallback) {
+                $j->on('i18n_fb.id', '=', 'io.id')->where('i18n_fb.culture', $fallback);
             })
             ->join('slug as s', 's.object_id', '=', 'io.id')
             ->where('io.id', $slugRow->object_id)
-            ->select('io.id', 'i18n.title', 's.slug')
+            ->select(
+                'io.id',
+                DB::raw('COALESCE(i18n.title, i18n_fb.title) as title'),
+                's.slug'
+            )
             ->first();
     }
 }

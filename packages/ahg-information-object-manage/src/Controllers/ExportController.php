@@ -395,9 +395,14 @@ class ExportController extends Controller
         $ids = app(HierarchyQueryService::class)
             ->descendantIds('information_object', (int) $io->id, true);
 
+        $fallback = (string) config('app.fallback_locale', 'en');
+
         $rows = DB::table('information_object as io')
-            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
+            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
                 $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $culture);
+            })
+            ->leftJoin('information_object_i18n as i18n_fb', function ($j) use ($fallback) {
+                $j->on('io.id', '=', 'i18n_fb.id')->where('i18n_fb.culture', $fallback);
             })
             ->join('slug as s', 's.object_id', '=', 'io.id')
             ->whereIn('io.id', $ids)
@@ -405,12 +410,23 @@ class ExportController extends Controller
             ->select([
                 'io.id', 'io.identifier', 'io.level_of_description_id',
                 'io.repository_id', 'io.parent_id',
-                'i18n.title', 'i18n.scope_and_content', 'i18n.extent_and_medium',
-                'i18n.archival_history', 'i18n.acquisition', 'i18n.appraisal',
-                'i18n.accruals', 'i18n.arrangement', 'i18n.access_conditions',
-                'i18n.reproduction_conditions', 'i18n.physical_characteristics',
-                'i18n.finding_aids', 'i18n.location_of_originals', 'i18n.location_of_copies',
-                'i18n.related_units_of_description', 'i18n.rules', 'i18n.sources',
+                DB::raw('COALESCE(i18n.title, i18n_fb.title) as title'),
+                DB::raw('COALESCE(i18n.scope_and_content, i18n_fb.scope_and_content) as scope_and_content'),
+                DB::raw('COALESCE(i18n.extent_and_medium, i18n_fb.extent_and_medium) as extent_and_medium'),
+                DB::raw('COALESCE(i18n.archival_history, i18n_fb.archival_history) as archival_history'),
+                DB::raw('COALESCE(i18n.acquisition, i18n_fb.acquisition) as acquisition'),
+                DB::raw('COALESCE(i18n.appraisal, i18n_fb.appraisal) as appraisal'),
+                DB::raw('COALESCE(i18n.accruals, i18n_fb.accruals) as accruals'),
+                DB::raw('COALESCE(i18n.arrangement, i18n_fb.arrangement) as arrangement'),
+                DB::raw('COALESCE(i18n.access_conditions, i18n_fb.access_conditions) as access_conditions'),
+                DB::raw('COALESCE(i18n.reproduction_conditions, i18n_fb.reproduction_conditions) as reproduction_conditions'),
+                DB::raw('COALESCE(i18n.physical_characteristics, i18n_fb.physical_characteristics) as physical_characteristics'),
+                DB::raw('COALESCE(i18n.finding_aids, i18n_fb.finding_aids) as finding_aids'),
+                DB::raw('COALESCE(i18n.location_of_originals, i18n_fb.location_of_originals) as location_of_originals'),
+                DB::raw('COALESCE(i18n.location_of_copies, i18n_fb.location_of_copies) as location_of_copies'),
+                DB::raw('COALESCE(i18n.related_units_of_description, i18n_fb.related_units_of_description) as related_units_of_description'),
+                DB::raw('COALESCE(i18n.rules, i18n_fb.rules) as rules'),
+                DB::raw('COALESCE(i18n.sources, i18n_fb.sources) as sources'),
                 's.slug',
             ]);
         // Drafts and restricted descendants stay out of a visitor's export, as
@@ -619,11 +635,15 @@ class ExportController extends Controller
     private function getIO(string $slug, string $culture)
     {
         $io = DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->leftJoin('information_object_i18n', function ($j) use ($culture) {
+                $j->on('information_object_i18n.id', '=', 'information_object.id')->where('information_object_i18n.culture', $culture);
+            })
+            ->leftJoin('information_object_i18n as information_object_i18n_fb', function ($j) {
+                $j->on('information_object_i18n_fb.id', '=', 'information_object.id')->where('information_object_i18n_fb.culture', (string) config('app.fallback_locale', 'en'));
+            })
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->join('object', 'information_object.id', '=', 'object.id')
             ->where('slug.slug', $slug)
-            ->where('information_object_i18n.culture', $culture)
             ->select([
                 'information_object.id',
                 'information_object.identifier',
@@ -636,26 +656,26 @@ class ExportController extends Controller
                 'information_object.description_detail_id',
                 'information_object.description_identifier',
                 'information_object.source_culture',
-                'information_object_i18n.title',
-                'information_object_i18n.extent_and_medium',
-                'information_object_i18n.archival_history',
-                'information_object_i18n.acquisition',
-                'information_object_i18n.scope_and_content',
-                'information_object_i18n.appraisal',
-                'information_object_i18n.accruals',
-                'information_object_i18n.arrangement',
-                'information_object_i18n.access_conditions',
-                'information_object_i18n.reproduction_conditions',
-                'information_object_i18n.physical_characteristics',
-                'information_object_i18n.finding_aids',
-                'information_object_i18n.location_of_originals',
-                'information_object_i18n.location_of_copies',
-                'information_object_i18n.related_units_of_description',
-                'information_object_i18n.rules',
-                'information_object_i18n.sources',
-                'information_object_i18n.revision_history',
-                'information_object_i18n.institution_responsible_identifier',
-                'information_object_i18n.edition',
+                DB::raw('COALESCE(information_object_i18n.title, information_object_i18n_fb.title) as title'),
+                DB::raw('COALESCE(information_object_i18n.extent_and_medium, information_object_i18n_fb.extent_and_medium) as extent_and_medium'),
+                DB::raw('COALESCE(information_object_i18n.archival_history, information_object_i18n_fb.archival_history) as archival_history'),
+                DB::raw('COALESCE(information_object_i18n.acquisition, information_object_i18n_fb.acquisition) as acquisition'),
+                DB::raw('COALESCE(information_object_i18n.scope_and_content, information_object_i18n_fb.scope_and_content) as scope_and_content'),
+                DB::raw('COALESCE(information_object_i18n.appraisal, information_object_i18n_fb.appraisal) as appraisal'),
+                DB::raw('COALESCE(information_object_i18n.accruals, information_object_i18n_fb.accruals) as accruals'),
+                DB::raw('COALESCE(information_object_i18n.arrangement, information_object_i18n_fb.arrangement) as arrangement'),
+                DB::raw('COALESCE(information_object_i18n.access_conditions, information_object_i18n_fb.access_conditions) as access_conditions'),
+                DB::raw('COALESCE(information_object_i18n.reproduction_conditions, information_object_i18n_fb.reproduction_conditions) as reproduction_conditions'),
+                DB::raw('COALESCE(information_object_i18n.physical_characteristics, information_object_i18n_fb.physical_characteristics) as physical_characteristics'),
+                DB::raw('COALESCE(information_object_i18n.finding_aids, information_object_i18n_fb.finding_aids) as finding_aids'),
+                DB::raw('COALESCE(information_object_i18n.location_of_originals, information_object_i18n_fb.location_of_originals) as location_of_originals'),
+                DB::raw('COALESCE(information_object_i18n.location_of_copies, information_object_i18n_fb.location_of_copies) as location_of_copies'),
+                DB::raw('COALESCE(information_object_i18n.related_units_of_description, information_object_i18n_fb.related_units_of_description) as related_units_of_description'),
+                DB::raw('COALESCE(information_object_i18n.rules, information_object_i18n_fb.rules) as rules'),
+                DB::raw('COALESCE(information_object_i18n.sources, information_object_i18n_fb.sources) as sources'),
+                DB::raw('COALESCE(information_object_i18n.revision_history, information_object_i18n_fb.revision_history) as revision_history'),
+                DB::raw('COALESCE(information_object_i18n.institution_responsible_identifier, information_object_i18n_fb.institution_responsible_identifier) as institution_responsible_identifier'),
+                DB::raw('COALESCE(information_object_i18n.edition, information_object_i18n_fb.edition) as edition'),
                 'object.created_at',
                 'object.updated_at',
                 'slug.slug',
@@ -778,9 +798,13 @@ class ExportController extends Controller
         // can layer the publication-status gate.
         $hierarchy = app(HierarchyQueryService::class);
         $query = DB::table('information_object as i')
-            ->join('information_object_i18n as i18n', 'i.id', '=', 'i18n.id')
+            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
+                $j->on('i18n.id', '=', 'i.id')->where('i18n.culture', $culture);
+            })
+            ->leftJoin('information_object_i18n as i18n_fb', function ($j) {
+                $j->on('i18n_fb.id', '=', 'i.id')->where('i18n_fb.culture', (string) config('app.fallback_locale', 'en'));
+            })
             ->tap(fn ($q) => $hierarchy->scopeDescendants($q, 'information_object', (int) $io->id, 'i.id', false))
-            ->where('i18n.culture', $culture)
             ->select([
                 'i.id',
                 'i.parent_id',
@@ -788,10 +812,10 @@ class ExportController extends Controller
                 'i.level_of_description_id',
                 'i.lft',
                 'i.rgt',
-                'i18n.title',
-                'i18n.scope_and_content',
-                'i18n.extent_and_medium',
-                'i18n.arrangement',
+                DB::raw('COALESCE(i18n.title, i18n_fb.title) as title'),
+                DB::raw('COALESCE(i18n.scope_and_content, i18n_fb.scope_and_content) as scope_and_content'),
+                DB::raw('COALESCE(i18n.extent_and_medium, i18n_fb.extent_and_medium) as extent_and_medium'),
+                DB::raw('COALESCE(i18n.arrangement, i18n_fb.arrangement) as arrangement'),
             ]);
         $hierarchy->applySiblingOrder($query, 'information_object', 'i.id', 'i.lft');
 

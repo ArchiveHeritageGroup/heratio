@@ -610,11 +610,15 @@ class InformationObjectController extends Controller
         $parentId = $io->parent_id;
         while ($parentId && $parentId != 1) {
             $parent = DB::table('information_object')
-                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+                ->leftJoin('information_object_i18n', function ($j) use ($culture) {
+                    $j->on('information_object_i18n.id', '=', 'information_object.id')->where('information_object_i18n.culture', $culture);
+                })
+                ->leftJoin('information_object_i18n as information_object_i18n_fb', function ($j) {
+                    $j->on('information_object_i18n_fb.id', '=', 'information_object.id')->where('information_object_i18n_fb.culture', (string) config('app.fallback_locale', 'en'));
+                })
                 ->join('slug', 'information_object.id', '=', 'slug.object_id')
                 ->where('information_object.id', $parentId)
-                ->where('information_object_i18n.culture', $culture)
-                ->select('information_object.id', 'information_object.parent_id', 'information_object_i18n.title', 'slug.slug')
+                ->select('information_object.id', 'information_object.parent_id', DB::raw('COALESCE(information_object_i18n.title, information_object_i18n_fb.title) as title'), 'slug.slug')
                 ->first();
 
             if (!$parent) {
@@ -1402,11 +1406,15 @@ class InformationObjectController extends Controller
         $culture = app()->getLocale();
 
         $io = DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->leftJoin('information_object_i18n', function ($j) use ($culture) {
+                $j->on('information_object_i18n.id', '=', 'information_object.id')->where('information_object_i18n.culture', $culture);
+            })
+            ->leftJoin('information_object_i18n as information_object_i18n_fb', function ($j) {
+                $j->on('information_object_i18n_fb.id', '=', 'information_object.id')->where('information_object_i18n_fb.culture', (string) config('app.fallback_locale', 'en'));
+            })
             ->join('object', 'information_object.id', '=', 'object.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('slug.slug', $slug)
-            ->where('information_object_i18n.culture', $culture)
             ->select([
                 'information_object.id',
                 'information_object.identifier',
@@ -1422,27 +1430,27 @@ class InformationObjectController extends Controller
                 'information_object.display_standard_id',
                 'information_object.collection_type_id',
                 'information_object.source_culture',
-                'information_object_i18n.title',
-                'information_object_i18n.alternate_title',
-                'information_object_i18n.edition',
-                'information_object_i18n.extent_and_medium',
-                'information_object_i18n.archival_history',
-                'information_object_i18n.acquisition',
-                'information_object_i18n.scope_and_content',
-                'information_object_i18n.appraisal',
-                'information_object_i18n.accruals',
-                'information_object_i18n.arrangement',
-                'information_object_i18n.access_conditions',
-                'information_object_i18n.reproduction_conditions',
-                'information_object_i18n.physical_characteristics',
-                'information_object_i18n.finding_aids',
-                'information_object_i18n.location_of_originals',
-                'information_object_i18n.location_of_copies',
-                'information_object_i18n.related_units_of_description',
-                'information_object_i18n.rules',
-                'information_object_i18n.sources',
-                'information_object_i18n.revision_history',
-                'information_object_i18n.institution_responsible_identifier',
+                DB::raw('COALESCE(information_object_i18n.title, information_object_i18n_fb.title) as title'),
+                DB::raw('COALESCE(information_object_i18n.alternate_title, information_object_i18n_fb.alternate_title) as alternate_title'),
+                DB::raw('COALESCE(information_object_i18n.edition, information_object_i18n_fb.edition) as edition'),
+                DB::raw('COALESCE(information_object_i18n.extent_and_medium, information_object_i18n_fb.extent_and_medium) as extent_and_medium'),
+                DB::raw('COALESCE(information_object_i18n.archival_history, information_object_i18n_fb.archival_history) as archival_history'),
+                DB::raw('COALESCE(information_object_i18n.acquisition, information_object_i18n_fb.acquisition) as acquisition'),
+                DB::raw('COALESCE(information_object_i18n.scope_and_content, information_object_i18n_fb.scope_and_content) as scope_and_content'),
+                DB::raw('COALESCE(information_object_i18n.appraisal, information_object_i18n_fb.appraisal) as appraisal'),
+                DB::raw('COALESCE(information_object_i18n.accruals, information_object_i18n_fb.accruals) as accruals'),
+                DB::raw('COALESCE(information_object_i18n.arrangement, information_object_i18n_fb.arrangement) as arrangement'),
+                DB::raw('COALESCE(information_object_i18n.access_conditions, information_object_i18n_fb.access_conditions) as access_conditions'),
+                DB::raw('COALESCE(information_object_i18n.reproduction_conditions, information_object_i18n_fb.reproduction_conditions) as reproduction_conditions'),
+                DB::raw('COALESCE(information_object_i18n.physical_characteristics, information_object_i18n_fb.physical_characteristics) as physical_characteristics'),
+                DB::raw('COALESCE(information_object_i18n.finding_aids, information_object_i18n_fb.finding_aids) as finding_aids'),
+                DB::raw('COALESCE(information_object_i18n.location_of_originals, information_object_i18n_fb.location_of_originals) as location_of_originals'),
+                DB::raw('COALESCE(information_object_i18n.location_of_copies, information_object_i18n_fb.location_of_copies) as location_of_copies'),
+                DB::raw('COALESCE(information_object_i18n.related_units_of_description, information_object_i18n_fb.related_units_of_description) as related_units_of_description'),
+                DB::raw('COALESCE(information_object_i18n.rules, information_object_i18n_fb.rules) as rules'),
+                DB::raw('COALESCE(information_object_i18n.sources, information_object_i18n_fb.sources) as sources'),
+                DB::raw('COALESCE(information_object_i18n.revision_history, information_object_i18n_fb.revision_history) as revision_history'),
+                DB::raw('COALESCE(information_object_i18n.institution_responsible_identifier, information_object_i18n_fb.institution_responsible_identifier) as institution_responsible_identifier'),
                 'object.created_at',
                 'object.updated_at',
                 'slug.slug',
@@ -1506,10 +1514,15 @@ class InformationObjectController extends Controller
         $parentId = $io->parent_id;
         while ($parentId && $parentId != 1) {
             $parent = DB::table('information_object')
-                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+                ->leftJoin('information_object_i18n', function ($j) use ($culture) {
+                    $j->on('information_object_i18n.id', '=', 'information_object.id')->where('information_object_i18n.culture', $culture);
+                })
+                ->leftJoin('information_object_i18n as information_object_i18n_fb', function ($j) {
+                    $j->on('information_object_i18n_fb.id', '=', 'information_object.id')->where('information_object_i18n_fb.culture', (string) config('app.fallback_locale', 'en'));
+                })
                 ->join('slug', 'information_object.id', '=', 'slug.object_id')
-                ->where('information_object.id', $parentId)->where('information_object_i18n.culture', $culture)
-                ->select('information_object.id', 'information_object.parent_id', 'information_object_i18n.title', 'slug.slug')->first();
+                ->where('information_object.id', $parentId)
+                ->select('information_object.id', 'information_object.parent_id', DB::raw('COALESCE(information_object_i18n.title, information_object_i18n_fb.title) as title'), 'slug.slug')->first();
             if (!$parent) break;
             array_unshift($breadcrumbs, $parent);
             $parentId = $parent->parent_id;
@@ -2044,11 +2057,15 @@ class InformationObjectController extends Controller
         $parentSlug = null;
         if ($io->parent_id && $io->parent_id != 1) {
             $parent = DB::table('information_object')
-                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+                ->leftJoin('information_object_i18n', function ($j) use ($culture) {
+                    $j->on('information_object_i18n.id', '=', 'information_object.id')->where('information_object_i18n.culture', $culture);
+                })
+                ->leftJoin('information_object_i18n as information_object_i18n_fb', function ($j) {
+                    $j->on('information_object_i18n_fb.id', '=', 'information_object.id')->where('information_object_i18n_fb.culture', (string) config('app.fallback_locale', 'en'));
+                })
                 ->join('slug', 'information_object.id', '=', 'slug.object_id')
                 ->where('information_object.id', $io->parent_id)
-                ->where('information_object_i18n.culture', $culture)
-                ->select('information_object_i18n.title', 'slug.slug')
+                ->select(DB::raw('COALESCE(information_object_i18n.title, information_object_i18n_fb.title) as title'), 'slug.slug')
                 ->first();
             if ($parent) {
                 $parentTitle = $parent->title;
@@ -4014,11 +4031,15 @@ class InformationObjectController extends Controller
         $culture = app()->getLocale();
 
         $io = DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->leftJoin('information_object_i18n', function ($j) use ($culture) {
+                $j->on('information_object_i18n.id', '=', 'information_object.id')->where('information_object_i18n.culture', $culture);
+            })
+            ->leftJoin('information_object_i18n as information_object_i18n_fb', function ($j) {
+                $j->on('information_object_i18n_fb.id', '=', 'information_object.id')->where('information_object_i18n_fb.culture', (string) config('app.fallback_locale', 'en'));
+            })
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('slug.slug', $slug)
-            ->where('information_object_i18n.culture', $culture)
-            ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
+            ->select('information_object.id', DB::raw('COALESCE(information_object_i18n.title, information_object_i18n_fb.title) as title'), 'slug.slug')
             ->first();
 
         if (!$io) {
@@ -4027,14 +4048,14 @@ class InformationObjectController extends Controller
 
         // Determine which report types are available (mirroring AtoM logic)
         $reportTypes = [];
+        $fallback = (string) config('app.fallback_locale', 'en');
 
         // Check for File-level children
         $hasFiles = DB::table('information_object as child')
-            ->join('term_i18n as ti', function ($j) use ($culture) {
-                $j->on('ti.id', '=', 'child.level_of_description_id')->where('ti.culture', $culture);
-            })
             ->where('child.parent_id', $io->id)
-            ->where('ti.name', 'File')
+            // Match the level by its term id: the English term name is data, and a
+            // translated name (any culture) must not stop the lookup.
+            ->whereIn('child.level_of_description_id', DB::table('term_i18n')->where('name', 'File')->select('id'))
             ->exists();
         if ($hasFiles) {
             $reportTypes['fileList'] = 'File list';
@@ -4042,11 +4063,10 @@ class InformationObjectController extends Controller
 
         // Check for Item-level children
         $hasItems = DB::table('information_object as child')
-            ->join('term_i18n as ti', function ($j) use ($culture) {
-                $j->on('ti.id', '=', 'child.level_of_description_id')->where('ti.culture', $culture);
-            })
             ->where('child.parent_id', $io->id)
-            ->where('ti.name', 'Item')
+            // Match the level by its term id: the English term name is data, and a
+            // translated name (any culture) must not stop the lookup.
+            ->whereIn('child.level_of_description_id', DB::table('term_i18n')->where('name', 'Item')->select('id'))
             ->exists();
         if ($hasItems) {
             $reportTypes['itemList'] = 'Item list';
@@ -4203,11 +4223,15 @@ class InformationObjectController extends Controller
         $culture = app()->getLocale();
 
         $io = DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->leftJoin('information_object_i18n', function ($j) use ($culture) {
+                $j->on('information_object_i18n.id', '=', 'information_object.id')->where('information_object_i18n.culture', $culture);
+            })
+            ->leftJoin('information_object_i18n as information_object_i18n_fb', function ($j) {
+                $j->on('information_object_i18n_fb.id', '=', 'information_object.id')->where('information_object_i18n_fb.culture', (string) config('app.fallback_locale', 'en'));
+            })
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('slug.slug', $slug)
-            ->where('information_object_i18n.culture', $culture)
-            ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
+            ->select('information_object.id', DB::raw('COALESCE(information_object_i18n.title, information_object_i18n_fb.title) as title'), 'slug.slug')
             ->first();
 
         if (!$io) {
@@ -4234,41 +4258,65 @@ class InformationObjectController extends Controller
         };
 
         $items = [];
+        $fallback = (string) config('app.fallback_locale', 'en');
 
         if ($type === 'fileList' || $type === 'itemList') {
             $query = DB::table('information_object as child')
-                ->join('information_object_i18n as ci', function ($j) use ($culture) {
+                ->leftJoin('information_object_i18n as ci', function ($j) use ($culture) {
                     $j->on('ci.id', '=', 'child.id')->where('ci.culture', $culture);
                 })
-                ->join('term_i18n as ti', function ($j) use ($culture) {
-                    $j->on('ti.id', '=', 'child.level_of_description_id')->where('ti.culture', $culture);
+                ->leftJoin('information_object_i18n as ci_fb', function ($j) use ($fallback) {
+                    $j->on('ci_fb.id', '=', 'child.id')->where('ci_fb.culture', $fallback);
                 })
                 ->leftJoin('slug as cs', 'cs.object_id', '=', 'child.id')
                 ->where('child.parent_id', $io->id)
-                ->where('ti.name', $levelName)
-                ->select('child.id', 'child.identifier', 'ci.title', 'cs.slug', 'ci.scope_and_content')
+                // $levelName is the English term name (data): match the term id.
+                ->whereIn('child.level_of_description_id', DB::table('term_i18n')->where('name', $levelName)->select('id'))
+                ->select(
+                    'child.id',
+                    'child.identifier',
+                    DB::raw('COALESCE(ci.title, ci_fb.title) as title'),
+                    'cs.slug',
+                    DB::raw('COALESCE(ci.scope_and_content, ci_fb.scope_and_content) as scope_and_content')
+                )
                 ->orderBy('child.lft');
 
             $items = $query->get()->toArray();
         } elseif ($type === 'storageLocations') {
             $items = DB::table('relation as rel')
                 ->join('physical_object as po', 'po.id', '=', 'rel.object_id')
-                ->join('physical_object_i18n as poi', function ($j) use ($culture) {
+                ->leftJoin('physical_object_i18n as poi', function ($j) use ($culture) {
                     $j->on('poi.id', '=', 'po.id')->where('poi.culture', $culture);
+                })
+                ->leftJoin('physical_object_i18n as poi_fb', function ($j) use ($fallback) {
+                    $j->on('poi_fb.id', '=', 'po.id')->where('poi_fb.culture', $fallback);
                 })
                 ->where('rel.subject_id', $io->id)
                 ->where('rel.type_id', 167)
-                ->select('po.id', 'poi.name', 'poi.location', 'poi.type')
+                ->select(
+                    'po.id',
+                    DB::raw('COALESCE(poi.name, poi_fb.name) as name'),
+                    DB::raw('COALESCE(poi.location, poi_fb.location) as location'),
+                    DB::raw('COALESCE(poi.type, poi_fb.type) as type')
+                )
                 ->get()->toArray();
         } elseif ($type === 'boxLabel') {
             $items = DB::table('relation as rel')
                 ->join('physical_object as po', 'po.id', '=', 'rel.object_id')
-                ->join('physical_object_i18n as poi', function ($j) use ($culture) {
+                ->leftJoin('physical_object_i18n as poi', function ($j) use ($culture) {
                     $j->on('poi.id', '=', 'po.id')->where('poi.culture', $culture);
+                })
+                ->leftJoin('physical_object_i18n as poi_fb', function ($j) use ($fallback) {
+                    $j->on('poi_fb.id', '=', 'po.id')->where('poi_fb.culture', $fallback);
                 })
                 ->where('rel.subject_id', $io->id)
                 ->where('rel.type_id', 167)
-                ->select('po.id', 'poi.name', 'poi.location', 'poi.type')
+                ->select(
+                    'po.id',
+                    DB::raw('COALESCE(poi.name, poi_fb.name) as name'),
+                    DB::raw('COALESCE(poi.location, poi_fb.location) as location'),
+                    DB::raw('COALESCE(poi.type, poi_fb.type) as type')
+                )
                 ->get()->toArray();
         }
 
@@ -4291,11 +4339,15 @@ class InformationObjectController extends Controller
         $culture = app()->getLocale();
 
         $io = DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->leftJoin('information_object_i18n', function ($j) use ($culture) {
+                $j->on('information_object_i18n.id', '=', 'information_object.id')->where('information_object_i18n.culture', $culture);
+            })
+            ->leftJoin('information_object_i18n as information_object_i18n_fb', function ($j) {
+                $j->on('information_object_i18n_fb.id', '=', 'information_object.id')->where('information_object_i18n_fb.culture', (string) config('app.fallback_locale', 'en'));
+            })
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('slug.slug', $slug)
-            ->where('information_object_i18n.culture', $culture)
-            ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
+            ->select('information_object.id', DB::raw('COALESCE(information_object_i18n.title, information_object_i18n_fb.title) as title'), 'slug.slug')
             ->first();
 
         if (!$io) {
@@ -4393,11 +4445,15 @@ class InformationObjectController extends Controller
         $culture = app()->getLocale();
 
         $io = DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->leftJoin('information_object_i18n', function ($j) use ($culture) {
+                $j->on('information_object_i18n.id', '=', 'information_object.id')->where('information_object_i18n.culture', $culture);
+            })
+            ->leftJoin('information_object_i18n as information_object_i18n_fb', function ($j) {
+                $j->on('information_object_i18n_fb.id', '=', 'information_object.id')->where('information_object_i18n_fb.culture', (string) config('app.fallback_locale', 'en'));
+            })
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('slug.slug', $slug)
-            ->where('information_object_i18n.culture', $culture)
-            ->select('information_object.id', 'information_object.lft', 'information_object.rgt', 'information_object.parent_id', 'information_object_i18n.title', 'slug.slug')
+            ->select('information_object.id', 'information_object.lft', 'information_object.rgt', 'information_object.parent_id', DB::raw('COALESCE(information_object_i18n.title, information_object_i18n_fb.title) as title'), 'slug.slug')
             ->first();
 
         if (!$io) {
@@ -4497,11 +4553,15 @@ class InformationObjectController extends Controller
         $parentId = $io->parent_id;
         while ($parentId && $parentId != 1) {
             $parent = DB::table('information_object')
-                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+                ->leftJoin('information_object_i18n', function ($j) use ($culture) {
+                    $j->on('information_object_i18n.id', '=', 'information_object.id')->where('information_object_i18n.culture', $culture);
+                })
+                ->leftJoin('information_object_i18n as information_object_i18n_fb', function ($j) {
+                    $j->on('information_object_i18n_fb.id', '=', 'information_object.id')->where('information_object_i18n_fb.culture', (string) config('app.fallback_locale', 'en'));
+                })
                 ->join('slug', 'information_object.id', '=', 'slug.object_id')
                 ->where('information_object.id', $parentId)
-                ->where('information_object_i18n.culture', $culture)
-                ->select('information_object.id', 'information_object.parent_id', 'information_object_i18n.title', 'slug.slug')
+                ->select('information_object.id', 'information_object.parent_id', DB::raw('COALESCE(information_object_i18n.title, information_object_i18n_fb.title) as title'), 'slug.slug')
                 ->first();
             if (!$parent) {
                 break;
