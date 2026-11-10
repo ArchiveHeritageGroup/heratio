@@ -95,9 +95,7 @@ class ImportController extends Controller
 
         return redirect()
             ->route($slug ? 'informationobject.show' : 'informationobject.browse', $slug ? ['slug' => $slug] : [])
-            ->with('success', "Import queued: {$objectType} ({$type}) - file: {$file->getClientOriginalName()}. "
-                ."It runs in the background - track it under Admin -> Jobs (the imported records appear when it completes). "
-                ."Please do NOT re-submit: each submit starts a separate import.");
+            ->with('success', __('Import queued: :object (:type) - file: :file. It runs in the background - track it under Admin -> Jobs (the imported records appear when it completes). Please do NOT re-submit: each submit starts a separate import.', ['object' => $objectType, 'type' => $type, 'file' => $file->getClientOriginalName()]));
     }
 
     /**
@@ -272,7 +270,7 @@ class ImportController extends Controller
             ]);
 
             return redirect()->route('sfSkosPlugin.import')
-                ->with('success', 'SKOS import initiated. The file will be processed in the background. Check the Jobs page to view the status of the import.');
+                ->with('success', __('SKOS import initiated. The file will be processed in the background. Check the Jobs page to view the status of the import.'));
         }
 
         // URL-based import
@@ -283,7 +281,7 @@ class ImportController extends Controller
         ]);
 
         return redirect()->route('sfSkosPlugin.import')
-            ->with('success', 'SKOS import initiated from URL. The file will be processed in the background. Check the Jobs page to view the status of the import.');
+            ->with('success', __('SKOS import initiated from URL. The file will be processed in the background. Check the Jobs page to view the status of the import.'));
     }
 
     /**

@@ -83,7 +83,7 @@ class PreservationController extends Controller
             }
             return redirect()
                 ->route('io.preservation', ['slug' => $slug])
-                ->with('error', 'Package #' . $downloadId . ' has no exported file yet. Run the BagIt export job first.');
+                ->with('error', __('Package #:id has no exported file yet. Run the BagIt export job first.', ['id' => $downloadId]));
         }
 
         if ($viewId > 0) {
@@ -129,7 +129,7 @@ class PreservationController extends Controller
             ->where('do.object_id', $io->id)
             ->exists();
         if (!$belongs) {
-            return back()->with('error', 'Package #' . $id . ' is not linked to this record.');
+            return back()->with('error', __('Package #:id is not linked to this record.', ['id' => $id]));
         }
 
         $ok = $this->service->updatePackage($id, $request->only(['name', 'description', 'status']));
@@ -208,7 +208,7 @@ class PreservationController extends Controller
 
         $type = strtolower((string) $request->input('package_type', 'AIP'));
         if (!in_array($type, ['sip', 'aip', 'dip'], true)) {
-            return back()->with('error', 'Invalid package type.');
+            return back()->with('error', __('Invalid package type.'));
         }
 
         $name = trim((string) $request->input('package_name', ''));
@@ -366,7 +366,7 @@ class PreservationController extends Controller
             ->where('do.object_id', $io->id)
             ->exists();
         if (!$belongs) {
-            return back()->with('error', 'Package #' . $id . ' is not linked to this record.');
+            return back()->with('error', __('Package #:id is not linked to this record.', ['id' => $id]));
         }
 
         $result = $this->service->exportPackage($id);

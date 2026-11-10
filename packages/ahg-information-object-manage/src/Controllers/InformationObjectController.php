@@ -1291,7 +1291,7 @@ class InformationObjectController extends Controller
         ]);
 
         return redirect()->route('informationobject.show', $slug)
-            ->with('success', 'Display standard updated.' . ($updateDescendants ? ' Descendants updated.' : ''));
+            ->with('success', $updateDescendants ? __('Display standard updated. Descendants updated.') : __('Display standard updated.'));
     }
 
     /**
@@ -2434,7 +2434,7 @@ class InformationObjectController extends Controller
 
                 return redirect()
                     ->route('informationobject.edit', $slug)
-                    ->with('success', 'Draft duplicate created - review and save to publish.');
+                    ->with('success', __('Draft duplicate created - review and save to publish.'));
             }
         }
 
@@ -3145,7 +3145,7 @@ class InformationObjectController extends Controller
 
         return redirect()
             ->route('informationobject.show', $slug)
-            ->with('success', 'Archival description updated successfully.');
+            ->with('success', __('Archival description updated successfully.'));
     }
 
     /**
@@ -3478,7 +3478,7 @@ class InformationObjectController extends Controller
 
         return redirect()
             ->route('informationobject.show', $slug)
-            ->with('success', 'Archival description created successfully.');
+            ->with('success', __('Archival description created successfully.'));
     }
 
     /**
@@ -3725,13 +3725,13 @@ class InformationObjectController extends Controller
     {
         $objectId = (int) $request->input('object_id');
         if (!$objectId) {
-            return redirect()->back()->with('error', 'No object ID provided.');
+            return redirect()->back()->with('error', __('No object ID provided.'));
         }
 
         // Check if slug already exists
         $existing = DB::table('slug')->where('object_id', $objectId)->value('slug');
         if ($existing) {
-            return redirect('/' . $existing)->with('info', 'Slug already exists.');
+            return redirect('/' . $existing)->with('info', __('Slug already exists.'));
         }
 
         // Get the title for slug generation
@@ -3764,7 +3764,7 @@ class InformationObjectController extends Controller
             'serial_number' => 0,
         ]);
 
-        return redirect('/' . $slug)->with('success', "Slug '{$slug}' generated for object #{$objectId}.");
+        return redirect('/' . $slug)->with('success', __("Slug ':slug' generated for object #:id.", ['slug' => $slug, 'id' => $objectId]));
     }
 
     /**
@@ -3856,7 +3856,7 @@ class InformationObjectController extends Controller
         // Accept both field names: "publicationStatus" (from dedicated page) and "publication_status" (legacy inline)
         $statusId = (int) ($request->input('publicationStatus') ?: $request->input('publication_status'));
         if (!in_array($statusId, [159, 160], true)) {
-            return redirect()->back()->with('error', 'Invalid publication status.');
+            return redirect()->back()->with('error', __('Invalid publication status.'));
         }
 
         $io = DB::table('slug')
@@ -3877,7 +3877,7 @@ class InformationObjectController extends Controller
                     && !$workflowService->isWorkflowApprovedForPublish($io->id)) {
                     return redirect()->back()->withErrors([
                         'workflow' => 'This item requires workflow approval before publishing. Please start or complete a workflow first.',
-                    ])->with('error', 'Workflow approval required before publishing.')
+                    ])->with('error', __('Workflow approval required before publishing.'))
                       ->with('workflow_start_url', route('workflow.dashboard'));
                 }
             } catch (\Exception $e) {
@@ -3952,12 +3952,12 @@ class InformationObjectController extends Controller
 
             return redirect()
                 ->route('informationobject.show', $slug)
-                ->with('success', "Publication status updated to {$label}. {$updatedCount} descendant(s) also updated.");
+                ->with('success', trans_choice('{1} Publication status updated to :status. :count descendant also updated.|[0,*] Publication status updated to :status. :count descendants also updated.', $updatedCount, ['status' => $label, 'count' => $updatedCount]));
         }
 
         return redirect()
             ->route('informationobject.show', $slug)
-            ->with('success', "Publication status updated to {$label}.");
+            ->with('success', __('Publication status updated to :status.', ['status' => $label]));
     }
 
     public function destroy(Request $request, string $slug)
@@ -4017,7 +4017,7 @@ class InformationObjectController extends Controller
 
         return redirect()
             ->to('/glam/browse')
-            ->with('success', 'Archival description deleted successfully.');
+            ->with('success', __('Archival description deleted successfully.'));
     }
 
     /**
@@ -4093,7 +4093,7 @@ class InformationObjectController extends Controller
                     'type' => $reportKey,
                 ]);
             }
-            return redirect()->route('informationobject.reports', $slug)->with('error', 'Please select a report type.');
+            return redirect()->route('informationobject.reports', $slug)->with('error', __('Please select a report type.'));
         }
 
         // Check for existing reports (job-generated report files)
@@ -4245,13 +4245,14 @@ class InformationObjectController extends Controller
 
         // Build report data based on type
         $reportTitle = match($type) {
-            'fileList' => 'File list',
-            'itemList' => 'Item list',
-            'storageLocations' => 'Physical storage locations',
-            'boxLabel' => 'Box label',
+            'fileList' => __('File list'),
+            'itemList' => __('Item list'),
+            'storageLocations' => __('Physical storage locations'),
+            'boxLabel' => __('Box label'),
         };
 
         $levelName = match($type) {
+            // English term names: used to look up the level in term_i18n below.
             'fileList' => 'File',
             'itemList' => 'Item',
             default => null,
@@ -4431,7 +4432,7 @@ class InformationObjectController extends Controller
 
         return redirect()
             ->route('informationobject.show', $newSlug ?? $slug)
-            ->with('success', 'Record renamed successfully.');
+            ->with('success', __('Record renamed successfully.'));
     }
 
     /**
@@ -4611,7 +4612,7 @@ class InformationObjectController extends Controller
         if (empty($descendantIds)) {
             return redirect()
                 ->route('informationobject.show', $slug)
-                ->with('info', 'No child descriptions found to calculate dates from.');
+                ->with('info', __('No child descriptions found to calculate dates from.'));
         }
 
         // Find earliest start_date and latest end_date across all descendants
@@ -4623,7 +4624,7 @@ class InformationObjectController extends Controller
         if (!$dateRange || (!$dateRange->earliest_start && !$dateRange->latest_end)) {
             return redirect()
                 ->route('informationobject.show', $slug)
-                ->with('info', 'No date information found in child descriptions.');
+                ->with('info', __('No date information found in child descriptions.'));
         }
 
         // Update or create the creation event for this IO
@@ -4653,7 +4654,7 @@ class InformationObjectController extends Controller
 
         return redirect()
             ->route('informationobject.show', $slug)
-            ->with('success', 'Dates calculated successfully from child descriptions.');
+            ->with('success', __('Dates calculated successfully from child descriptions.'));
     }
 
     /**
@@ -4887,7 +4888,7 @@ class InformationObjectController extends Controller
 
         return redirect()
             ->route($redirectRoute, $slug)
-            ->with('success', 'Record moved successfully.');
+            ->with('success', __('Record moved successfully.'));
     }
 
     public function autocomplete(Request $request)

@@ -129,7 +129,7 @@ class ProvenanceController extends Controller
 
         return redirect()
             ->route('io.provenance', $slug)
-            ->with('success', 'Provenance overview saved.');
+            ->with('success', __('Provenance overview saved.'));
     }
 
     /**
@@ -194,7 +194,7 @@ class ProvenanceController extends Controller
 
         return redirect()
             ->route('io.provenance', $slug)
-            ->with('success', 'Provenance entry added.');
+            ->with('success', __('Provenance entry added.'));
     }
 
     /**
@@ -242,7 +242,7 @@ class ProvenanceController extends Controller
 
         return redirect()
             ->route('io.provenance', $slug)
-            ->with('success', 'Provenance entry updated.');
+            ->with('success', __('Provenance entry updated.'));
     }
 
     /**
@@ -266,7 +266,7 @@ class ProvenanceController extends Controller
 
         return redirect()
             ->route('io.provenance', $slug)
-            ->with('success', 'Provenance entry deleted.');
+            ->with('success', __('Provenance entry deleted.'));
     }
 
     /**
@@ -347,7 +347,7 @@ class ProvenanceController extends Controller
         if (!$request->hasFile('file') && empty($validated['external_url']) && empty($validated['archive_reference'])) {
             return redirect()
                 ->route('io.provenance', $slug)
-                ->with('error', 'Attach a file, an external URL, or an archive reference.');
+                ->with('error', __('Attach a file, an external URL, or an archive reference.'));
         }
 
         $validated['is_public'] = (int) $request->boolean('is_public');
@@ -356,7 +356,7 @@ class ProvenanceController extends Controller
 
         return redirect()
             ->route('io.provenance', $slug)
-            ->with('success', 'Supporting document added.');
+            ->with('success', __('Supporting document added.'));
     }
 
     /**
@@ -376,7 +376,7 @@ class ProvenanceController extends Controller
 
         return redirect()
             ->route('io.provenance', $slug)
-            ->with('success', 'Supporting document deleted.');
+            ->with('success', __('Supporting document deleted.'));
     }
 
     /**

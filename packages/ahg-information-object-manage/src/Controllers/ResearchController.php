@@ -59,12 +59,12 @@ class ResearchController extends Controller
                     'source_service' => $request->input('source_service') ?: null,
                     'created_at' => now(),
                 ]);
-                return redirect()->route('io.research.assessment', $slug)->with('success', 'Metric added.');
+                return redirect()->route('io.research.assessment', $slug)->with('success', __('Metric added.'));
             }
 
             if ($action === 'delete_metric') {
                 DB::table('research_quality_metric')->where('id', (int) $request->input('metric_id'))->where('object_id', $io->id)->delete();
-                return redirect()->route('io.research.assessment', $slug)->with('success', 'Metric deleted.');
+                return redirect()->route('io.research.assessment', $slug)->with('success', __('Metric deleted.'));
             }
 
             if ($researcher) {
@@ -79,7 +79,7 @@ class ResearchController extends Controller
                         'assessed_at' => now(),
                     ]
                 );
-                return redirect()->route('io.research.assessment', $slug)->with('success', 'Assessment saved.');
+                return redirect()->route('io.research.assessment', $slug)->with('success', __('Assessment saved.'));
             }
         }
 

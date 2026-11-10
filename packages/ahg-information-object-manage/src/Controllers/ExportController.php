@@ -321,7 +321,7 @@ class ExportController extends Controller
             // check, so this only fires on stale links / direct URLs - send
             // the user back with a clear message instead of a bare 404.
             return redirect()->route('informationobject.show', $io->slug)
-                ->with('error', 'No OCR text is available for this record.');
+                ->with('error', __('No OCR text is available for this record.'));
         }
         return $io;
     }

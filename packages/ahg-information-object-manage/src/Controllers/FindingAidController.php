@@ -68,7 +68,7 @@ class FindingAidController extends Controller
         ]);
 
         return redirect()->route('informationobject.show', $slug)
-            ->with('success', 'Finding aid generation queued for: ' . ($io->title ?? $slug));
+            ->with('success', __('Finding aid generation queued for: :title', ['title' => $io->title ?? $slug]));
     }
 
     /**
@@ -132,7 +132,7 @@ class FindingAidController extends Controller
         ]);
 
         return redirect()->route('informationobject.show', $slug)
-            ->with('success', 'Finding aid uploaded successfully.');
+            ->with('success', __('Finding aid uploaded successfully.'));
     }
 
     /**
@@ -155,7 +155,7 @@ class FindingAidController extends Controller
         $path = $this->getFindingAidPath($io->id);
         if (!$path || !file_exists($path)) {
             return redirect()->route('informationobject.show', $slug)
-                ->with('error', 'No finding aid exists for this description.');
+                ->with('error', __('No finding aid exists for this description.'));
         }
 
         // Download filename = the collection/description title (sanitised),
@@ -204,11 +204,11 @@ class FindingAidController extends Controller
                 'data' => ['slug' => $slug, 'title' => $io->title ?? null],
             ]);
             return redirect()->route('informationobject.show', $slug)
-                ->with('success', 'Finding aid deleted successfully.');
+                ->with('success', __('Finding aid deleted successfully.'));
         }
 
         return redirect()->route('informationobject.show', $slug)
-            ->with('error', 'No finding aid exists for this description.');
+            ->with('error', __('No finding aid exists for this description.'));
     }
 
     private function getIO(string $slug): ?object

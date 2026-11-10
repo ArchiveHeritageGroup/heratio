@@ -261,7 +261,7 @@ class ExtendedRightsController extends Controller
             ->value('slug');
 
         return redirect($this->resolveRecordUrl($slug ?? ''))
-            ->with('notice', 'Embargo lifted successfully.');
+            ->with('notice', __('Embargo lifted successfully.'));
     }
 
     /**
@@ -523,7 +523,7 @@ class ExtendedRightsController extends Controller
         });
 
         return redirect($this->resolveRecordUrl($slug))
-            ->with('notice', 'Rights saved successfully.');
+            ->with('notice', __('Rights saved successfully.'));
     }
 
     /**
