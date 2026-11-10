@@ -940,20 +940,22 @@ document.addEventListener('DOMContentLoaded', function() {
   var driver = document.querySelector('[data-standard-driver]');
   var container = document.getElementById('standard-fields');
   if (!driver || !container) { return; }
-  var isadCache = container.innerHTML;              // the default ISAD field set
+  // #1604: keep the ISAD(G) nodes themselves, not their HTML, so a switch back
+  // restores the same elements with their typed values, buttons and listeners.
+  var isadNodes = null;
   var slug = @json($__driverSlug);                  // null on create
   var base = '{{ url('informationobject/standard-fields') }}';
 
   function swap(code) {
-    if (code === 'isad' || code === '') {           // back to ISAD: restore cached
-      container.innerHTML = isadCache;
+    if (code === 'isad' || code === '') {           // back to ISAD: the original nodes
+      if (isadNodes) { container.replaceChildren.apply(container, isadNodes); isadNodes = null; }
       return;
     }
     var url = base + '?code=' + encodeURIComponent(code) + (slug ? '&slug=' + encodeURIComponent(slug) : '');
     container.style.opacity = '0.5';
     fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
       .then(function (r) { return r.ok ? r.text() : Promise.reject(); })
-      .then(function (html) { container.innerHTML = html; container.style.opacity = ''; })
+      .then(function (html) { if (!isadNodes) { isadNodes = Array.prototype.slice.call(container.childNodes); } container.innerHTML = html; container.style.opacity = ''; })
       .catch(function () { container.style.opacity = ''; });  // leave ISAD on failure
   }
 
