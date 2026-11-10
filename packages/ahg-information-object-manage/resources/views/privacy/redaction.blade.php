@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'Visual Redaction Editor - ' . ($io->title ?? ''))
+@section('title', __('Visual Redaction Editor - :title', ['title' => $io->title ?? '']))
 
 @push('css')
 <style>
@@ -206,7 +206,7 @@
         <ol class="breadcrumb mb-0">
           <li class="breadcrumb-item"><a href="{{ route('home') }}">{{ __('Home') }}</a></li>
           @if(isset($io->slug))
-            <li class="breadcrumb-item"><a href="{{ route('informationobject.show', $io->slug) }}">{{ $io->title ?? 'Record' }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('informationobject.show', $io->slug) }}">{{ $io->title ?? __('Record') }}</a></li>
           @endif
           <li class="breadcrumb-item active">{{ __('Visual Redaction') }}</li>
         </ol>
@@ -262,11 +262,11 @@
       <i class="fas fa-exclamation-triangle me-2"></i>
       <strong>{{ __('Visual redaction is not available for this object type.') }}</strong>
       @if($documentType === '3d')
-        This is a 3D model - redaction only works on images and PDFs.
+        {{ __('This is a 3D model - redaction only works on images and PDFs.') }}
       @elseif(!$documentUrl)
-        No digital object is attached to this record. Upload an image or PDF first, then return here to redact it.
+        {{ __('No digital object is attached to this record. Upload an image or PDF first, then return here to redact it.') }}
       @else
-        The file type ({{ $digitalObject->mime_type ?? 'unknown' }}) is not supported for visual redaction.
+        {{ __('The file type (:type) is not supported for visual redaction.', ['type' => $digitalObject->mime_type ?? __('unknown')]) }}
       @endif
     </div>
     <div class="d-flex gap-2">
@@ -290,9 +290,9 @@
           <div class="label">{{ __('Document Type') }}</div>
           <div class="value">
             @if($isPdf)
-              <i class="fas fa-file-pdf text-danger me-1"></i> PDF Document
+              <i class="fas fa-file-pdf text-danger me-1"></i> {{ __('PDF Document') }}
             @else
-              <i class="fas fa-file-image text-info me-1"></i> Image
+              <i class="fas fa-file-image text-info me-1"></i> {{ __('Image') }}
             @endif
           </div>
         </div>
@@ -419,11 +419,11 @@
         </div>
         <div class="card-body small">
           <ol class="ps-3 mb-0">
-            <li class="mb-2">{{ __('Click') }} <strong>{{ __('Draw') }}</strong> to activate the drawing tool.</li>
+            <li class="mb-2">{!! __('Click :draw to activate the drawing tool.', ['draw' => '<strong>'.e(__('Draw')).'</strong>']) !!}</li>
             <li class="mb-2">{{ __('Click and drag on the document to draw a redaction rectangle.') }}</li>
-            <li class="mb-2">{{ __('Use') }} <strong>{{ __('Select') }}</strong> to move or resize existing redactions.</li>
-            <li class="mb-2">{{ __('Click the') }} <i class="fas fa-trash-alt text-danger"></i> icon on a region to remove it.</li>
-            <li class="mb-0">{{ __('Click') }} <strong>{{ __('Save') }}</strong> to store the redactions. Non-admin viewers will see the redacted version automatically; admins always see the original.</li>
+            <li class="mb-2">{!! __('Use :select to move or resize existing redactions.', ['select' => '<strong>'.e(__('Select')).'</strong>']) !!}</li>
+            <li class="mb-2">{!! __('Click the :icon icon on a region to remove it.', ['icon' => '<i class="fas fa-trash-alt text-danger"></i>']) !!}</li>
+            <li class="mb-0">{!! __('Click :save to store the redactions. Non-admin viewers will see the redacted version automatically; admins always see the original.', ['save' => '<strong>'.e(__('Save')).'</strong>']) !!}</li>
           </ol>
         </div>
       </div>

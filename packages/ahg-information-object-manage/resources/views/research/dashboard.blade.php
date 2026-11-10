@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'Research Dashboard')
+@section('title', __('Research Dashboard'))
 
 @section('content')
   @include('ahg-io-manage::partials.feature-header', [

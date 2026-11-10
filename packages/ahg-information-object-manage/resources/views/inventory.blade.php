@@ -1,6 +1,6 @@
 @extends('theme::layout')
 
-@section('title', 'Inventory list - ' . ($io->title ?? 'Untitled'))
+@section('title', __('Inventory list - :title', ['title' => $io->title ?? __('Untitled')]))
 
 @section('content')
 <div class="container-fluid py-3">
@@ -9,7 +9,7 @@
     <div class="multiline-header d-inline-flex align-items-center me-2">
       <i class="fas fa-3x fa-list-alt me-3" aria-hidden="true"></i>
       <div class="d-flex flex-column">
-        <h1 class="mb-0">{{ $io->title ?? 'Untitled' }}</h1>
+        <h1 class="mb-0">{{ $io->title ?? __('Untitled') }}</h1>
         <span class="small text-muted">{{ __('Inventory list') }}</span>
       </div>
     </div>
@@ -24,10 +24,10 @@
       <ol class="breadcrumb">
         @foreach($breadcrumbs as $crumb)
           <li class="breadcrumb-item">
-            <a href="{{ route('informationobject.show', $crumb->slug) }}">{{ $crumb->title ?? 'Untitled' }}</a>
+            <a href="{{ route('informationobject.show', $crumb->slug) }}">{{ $crumb->title ?? __('Untitled') }}</a>
           </li>
         @endforeach
-        <li class="breadcrumb-item active" aria-current="page">{{ $io->title ?? 'Untitled' }}</li>
+        <li class="breadcrumb-item active" aria-current="page">{{ $io->title ?? __('Untitled') }}</li>
       </ol>
     </nav>
   @endif
@@ -56,7 +56,7 @@
             <tr>
               <td>{{ $item->identifier }}</td>
               <td>
-                <a href="{{ route('informationobject.show', $item->slug) }}">{{ $item->title ?? 'Untitled' }}</a>
+                <a href="{{ route('informationobject.show', $item->slug) }}">{{ $item->title ?? __('Untitled') }}</a>
               </td>
               <td>{{ $levelNames[$item->level_of_description_id] ?? '' }}</td>
               <td>{{ $itemDates[$item->id] ?? '' }}</td>

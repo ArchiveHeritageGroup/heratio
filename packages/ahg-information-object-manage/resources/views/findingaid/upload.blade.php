@@ -7,7 +7,7 @@
   @if(isset($repository) && $repository)
     <div class="card mb-3">
       <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-university me-1"></i> {{ $repository->name ?? 'Repository' }}
+        <i class="fas fa-university me-1"></i> {{ $repository->name ?? __('Repository') }}
       </div>
       <div class="list-group list-group-flush">
         <a href="{{ route('repository.show', $repository->slug) }}" class="list-group-item list-group-item-action small">

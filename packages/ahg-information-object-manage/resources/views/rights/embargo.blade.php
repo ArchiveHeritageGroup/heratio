@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Add Embargo - ' . ($io->title ?? ''))
+@section('title', __('Add Embargo - :title', ['title' => $io->title ?? '']))
 
 @section('content')
 

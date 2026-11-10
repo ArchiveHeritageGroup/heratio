@@ -25,9 +25,9 @@
       </div>
       @if(isset($childThumbnailTotal) && $childThumbnailTotal > $childThumbnails->count())
         <div class="text-center mt-1">
-          <small class="text-muted">Showing {{ $childThumbnails->count() }} of {{ $childThumbnailTotal }} digital objects</small>
+          <small class="text-muted">{{ __('Showing :shown of :total digital objects', ['shown' => $childThumbnails->count(), 'total' => $childThumbnailTotal]) }}</small>
           <a href="{{ url('/informationobject/browse') }}?{{ http_build_query(['parent' => $io->slug, 'topLod' => 0]) }}" class="btn btn-sm atom-btn-white ms-2">
-            <i class="fas fa-images me-1" aria-hidden="true"></i> Show all {{ $childThumbnailTotal }} items
+            <i class="fas fa-images me-1" aria-hidden="true"></i> {{ __('Show all :count items', ['count' => $childThumbnailTotal]) }}
           </a>
         </div>
       @endif
@@ -296,7 +296,7 @@
         <div class="digitalObject3D">
           <div class="d-flex flex-column align-items-center">
             <div class="mb-2">
-              <span class="badge bg-primary"><i class="fas fa-cube me-1"></i>3D Model</span>
+              <span class="badge bg-primary"><i class="fas fa-cube me-1"></i>{{ __('3D Model') }}</span>
               <span class="badge bg-secondary">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? '3D Model' }}</span>
               <span class="badge bg-info">{{ strtoupper($modelExt) }}</span>
               @if($turntableMp4)
@@ -425,10 +425,10 @@
             <div id="{{ $modelViewerId }}-error" class="alert alert-danger mt-2 d-none" style="max-width:500px;">
               <i class="fas fa-exclamation-triangle me-1"></i>
               <span>{{ __('Failed to load 3D model.') }}</span>
-              <br><small class="text-muted">File: {{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? 'Unknown' }}</small>
+              <br><small class="text-muted">{{ __('File: :name', ['name' => \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? __('Unknown')]) }}</small>
             </div>
             <small class="text-muted mt-2">
-              <i class="fas fa-mouse me-1"></i>Drag to rotate | <i class="fas fa-search-plus me-1"></i>{{ __('Scroll to zoom') }}
+              <i class="fas fa-mouse me-1"></i>{{ __('Drag to rotate') }} | <i class="fas fa-search-plus me-1"></i>{{ __('Scroll to zoom') }}
             </small>
             <div class="mt-2 d-flex gap-2">
               <a href="{{ $masterUrl }}" download class="btn btn-sm btn-outline-secondary">
@@ -443,7 +443,7 @@
           <div class="modal-dialog modal-fullscreen" style="max-width:100vw;margin:0;">
             <div class="modal-content" style="background:#1a1a2e;height:100vh;">
               <div class="modal-header" style="background:var(--ahg-primary);color:#fff;position:absolute;top:0;left:0;right:0;z-index:10;">
-                <h5 class="modal-title"><i class="fas fa-cube me-2"></i>3D Model Viewer</h5>
+                <h5 class="modal-title"><i class="fas fa-cube me-2"></i>{{ __('3D Model Viewer') }}</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
               </div>
               <div class="modal-body p-0" style="position:absolute;top:0;left:0;right:0;bottom:0;overflow:hidden;">
@@ -468,8 +468,8 @@
               </div>
               <div class="modal-footer" style="background:#1a1a2e;color:#fff;position:absolute;bottom:0;left:0;right:0;z-index:10;">
                 <small>
-                  <i class="fas fa-mouse me-1"></i>Drag to rotate | 
-                  <i class="fas fa-search-plus me-1"></i>Scroll to zoom | 
+                  <i class="fas fa-mouse me-1"></i>{{ __('Drag to rotate') }} |
+                  <i class="fas fa-search-plus me-1"></i>{{ __('Scroll to zoom') }} |
                   <i class="fas fa-redo me-1"></i>{{ __('Double-click to reset') }}
                 </small>
                 <a href="{{ $masterUrl }}" download class="btn btn-sm btn-outline-light">
@@ -762,7 +762,7 @@
                   && \AhgCore\Services\AttachedDigitalObjectService::available()) {
                   foreach (app(\AhgCore\Services\AttachedDigitalObjectService::class)->listFor((int) $io->id) as $__att) {
                       $__disp = $__att->reference ?: $__att->thumbnail ?: $__att->master;
-                      $__addObj($__disp, $__att->caption ?: ($__att->role ?: ($__att->master->name ?? 'Attachment')), $__att->master->id ?? 0);
+                      $__addObj($__disp, $__att->caption ?: ($__att->role ?: ($__att->master->name ?? __('Attachment'))), $__att->master->id ?? 0);
                   }
               }
           } catch (\Throwable $e) { $__viewerObjects = []; }
@@ -878,7 +878,7 @@
             <br><small class="text-muted"><a href="{{ $masterObj->path }}" target="_blank" class="text-muted text-decoration-none">{{ $masterObj->path }} <i class="fas fa-external-link-alt ms-1"></i></a></small>
           </div>
           <a href="{{ $masterObj->path }}" target="_blank" class="btn btn-sm atom-btn-white" title="{{ __('Open on original site') }}">
-            <i class="fas fa-external-link-alt me-1"></i>View on {{ $isSketchfab ? 'Sketchfab' : 'original site' }}
+            <i class="fas fa-external-link-alt me-1"></i>{{ $isSketchfab ? __('View on :site', ['site' => 'Sketchfab']) : __('View on original site') }}
           </a>
         </div>
 
@@ -890,7 +890,7 @@
         {{-- No displayable object: show download link --}}
         <div class="py-4">
           <i class="fas {{ $masterEncryptedAtRest ? 'fa-lock' : 'fa-file' }} fa-3x text-muted mb-3 d-block"></i>
-          <p class="text-muted">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? 'Digital object' }}</p>
+          <p class="text-muted">{{ \AhgCore\Support\GlobalSettings::displayFilename($masterObj->name) ?? __('Digital object') }}</p>
           @if($masterEncryptedAtRest)
             {{-- heratio#1396: say WHY nothing renders instead of failing silently --}}
             <p class="text-muted mb-2"><small>{{ __('This master file is encrypted at rest, so it cannot be previewed or served through the IIIF deep-zoom pipeline.') }}</small></p>
@@ -942,13 +942,13 @@
                   <table class="table table-bordered table-sm table-borderless">
                     @if($mediaMetadata->duration)<tr><td class="text-muted">{{ __('Duration:') }}</td><td>{{ gmdate('H:i:s', (int) $mediaMetadata->duration) }}</td></tr>@endif
                     @if($mediaMetadata->file_size)<tr><td class="text-muted">{{ __('File Size:') }}</td><td>{{ \AhgCore\Services\DigitalObjectService::formatFileSize($mediaMetadata->file_size) }}</td></tr>@endif
-                    @if($mediaMetadata->bitrate)<tr><td class="text-muted">{{ __('Bitrate:') }}</td><td>{{ number_format($mediaMetadata->bitrate / 1000) }} kbps</td></tr>@endif
+                    @if($mediaMetadata->bitrate)<tr><td class="text-muted">{{ __('Bitrate:') }}</td><td>{{ __(':count kbps', ['count' => number_format($mediaMetadata->bitrate / 1000)]) }}</td></tr>@endif
                     @if($mediaMetadata->audio_codec ?? null)<tr><td class="text-muted">{{ __('Audio Codec:') }}</td><td>{{ $mediaMetadata->audio_codec }}</td></tr>@endif
                     @if($mediaMetadata->audio_sample_rate ?? null)<tr><td class="text-muted">{{ __('Sample Rate:') }}</td><td>{{ number_format($mediaMetadata->audio_sample_rate) }} Hz</td></tr>@endif
                     @if($mediaMetadata->audio_channels ?? null)<tr><td class="text-muted">{{ __('Channels:') }}</td><td>{{ $mediaMetadata->audio_channels == 1 ? 'Mono' : ($mediaMetadata->audio_channels == 2 ? 'Stereo' : $mediaMetadata->audio_channels . 'ch') }}</td></tr>@endif
                     @if($mediaMetadata->video_codec ?? null)<tr><td class="text-muted">{{ __('Video Codec:') }}</td><td>{{ $mediaMetadata->video_codec }}</td></tr>@endif
                     @if(($mediaMetadata->video_width ?? null) && ($mediaMetadata->video_height ?? null))<tr><td class="text-muted">{{ __('Resolution:') }}</td><td>{{ $mediaMetadata->video_width }} x {{ $mediaMetadata->video_height }}</td></tr>@endif
-                    @if($mediaMetadata->video_frame_rate ?? null)<tr><td class="text-muted">{{ __('Frame Rate:') }}</td><td>{{ round($mediaMetadata->video_frame_rate, 2) }} fps</td></tr>@endif
+                    @if($mediaMetadata->video_frame_rate ?? null)<tr><td class="text-muted">{{ __('Frame Rate:') }}</td><td>{{ __(':count fps', ['count' => round($mediaMetadata->video_frame_rate, 2)]) }}</td></tr>@endif
                   </table>
                 </div>
                 <div class="col-md-6">
@@ -1001,9 +1001,9 @@
               <small class="text-muted">
                 <i class="fas fa-language me-1"></i>{{ \Locale::getDisplayLanguage($transcription->language ?? 'en', 'en') }}
                 @if($transcription->duration ?? null) &bull; <i class="fas fa-clock me-1"></i>{{ gmdate('H:i:s', (int) $transcription->duration) }}@endif
-                @if(count($segments)) &bull; <i class="fas fa-paragraph me-1"></i>{{ count($segments) }} segments @endif
+                @if(count($segments)) &bull; <i class="fas fa-paragraph me-1"></i>{{ trans_choice('{1} :count segment|[0,*] :count segments', count($segments), ['count' => count($segments)]) }} @endif
                 @if($transcription->confidence ?? null)
-                  &bull; <span class="badge bg-{{ $transcription->confidence > 70 ? 'success' : ($transcription->confidence > 50 ? 'warning' : 'danger') }}">{{ round($transcription->confidence) }}% confidence</span>
+                  &bull; <span class="badge bg-{{ $transcription->confidence > 70 ? 'success' : ($transcription->confidence > 50 ? 'warning' : 'danger') }}">{{ __(':percent% confidence', ['percent' => round($transcription->confidence)]) }}</span>
                 @endif
               </small>
             </div>
@@ -1040,7 +1040,7 @@
           <div class="card mb-3">
             <div class="card-body text-center py-4">
               <i class="fas fa-microphone fa-2x text-muted mb-3 d-block"></i>
-              <p class="text-muted mb-3">This {{ $doMediaType }} has not been transcribed yet.</p>
+              <p class="text-muted mb-3">{{ __('This :type has not been transcribed yet.', ['type' => $doMediaType]) }}</p>
               <div class="d-flex justify-content-center gap-2 flex-wrap">
                 <button class="btn atom-btn-white" data-action="transcribe" data-do-id="{{ $doId }}" data-lang="en" data-csrf="{{ csrf_token() }}"><i class="fas fa-language me-1"></i>{{ __('Transcribe (English)') }}</button>
                 <button class="btn atom-btn-white" data-action="transcribe" data-do-id="{{ $doId }}" data-lang="af" data-csrf="{{ csrf_token() }}">{{ __('Afrikaans') }}</button>
@@ -1062,7 +1062,7 @@
               @foreach($snippets as $snippet)
                 <div class="list-group-item d-flex justify-content-between align-items-center">
                   <div>
-                    <strong>{{ e($snippet->title ?? 'Untitled') }}</strong>
+                    <strong>{{ e($snippet->title ?? __('Untitled')) }}</strong>
                     <small class="text-muted ms-2">[{{ gmdate('i:s', (int) $snippet->start_time) }} - {{ gmdate('i:s', (int) $snippet->end_time) }}]</small>
                     @if($snippet->notes)<br><small class="text-muted">{{ e($snippet->notes) }}</small>@endif
                   </div>

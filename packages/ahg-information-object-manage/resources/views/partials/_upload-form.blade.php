@@ -113,8 +113,8 @@
                   <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
                 <div class="form-text">
-                  Accepted formats: images, PDF, audio, video, office documents.
-                  Maximum file size: {{ $maxUploadDisplay }}.
+                  {{ __('Accepted formats: images, PDF, audio, video, office documents.') }}
+                  {{ __('Maximum file size: :size.', ['size' => $maxUploadDisplay]) }}
                 </div>
               </div>
 

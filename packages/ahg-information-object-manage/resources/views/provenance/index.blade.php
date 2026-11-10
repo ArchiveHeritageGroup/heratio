@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Provenance History - ' . ($io->title ?? ''))
+@section('title', __('Provenance History - :title', ['title' => $io->title ?? '']))
 
 @section('content')
 @php $ov = $overview ?? null; @endphp
@@ -185,11 +185,11 @@
                 @if($entry->start_date && $entry->end_date)
                   {{ $entry->start_date }} - {{ $entry->end_date }}
                 @elseif($entry->start_date)
-                  {{ $entry->start_date }} - present
+                  {{ __(':date - present', ['date' => $entry->start_date]) }}
                 @elseif($entry->end_date)
-                  until {{ $entry->end_date }}
+                  {{ __('until :date', ['date' => $entry->end_date]) }}
                 @else
-                  Unknown
+                  {{ __('Unknown') }}
                 @endif
               </td>
               <td>{{ ucfirst(str_replace('_', ' ', $entry->transfer_type ?? '')) }}</td>

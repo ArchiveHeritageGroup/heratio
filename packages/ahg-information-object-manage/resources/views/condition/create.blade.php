@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'New Condition Report - ' . ($io->title ?? ''))
+@section('title', __('New Condition Report - :title', ['title' => $io->title ?? '']))
 @section('body-class', 'condition create')
 
 @section('content')
@@ -38,7 +38,7 @@
           <div class="col-md-4">
             <label for="context" class="form-label">{{ __('Context') }}</label>
             <select class="form-select" id="context" name="context">
-              <option value="">-- Select --</option>
+              <option value="">{{ __('-- Select --') }}</option>
               @foreach($contextOptions as $opt)
                 <option value="{{ $opt }}" @selected(old('context') === $opt)>{{ ucfirst($opt) }}</option>
               @endforeach
@@ -61,7 +61,7 @@
           <div class="col-md-4">
             <label for="overall_rating" class="form-label">{{ __('Overall Rating *') }}</label>
             <select class="form-select @error('overall_rating') is-invalid @enderror" id="overall_rating" name="overall_rating" required>
-              <option value="">-- Select --</option>
+              <option value="">{{ __('-- Select --') }}</option>
               @foreach($ratingOptions as $opt)
                 <option value="{{ $opt }}" @selected(old('overall_rating') === $opt)>{{ ucfirst($opt) }}</option>
               @endforeach
@@ -71,7 +71,7 @@
           <div class="col-md-4">
             <label for="priority" class="form-label">{{ __('Treatment Priority') }}</label>
             <select class="form-select" id="priority" name="priority">
-              <option value="">-- Select --</option>
+              <option value="">{{ __('-- Select --') }}</option>
               @foreach($priorityOptions as $opt)
                 <option value="{{ $opt }}" @selected(old('priority') === $opt)>{{ ucfirst($opt) }}</option>
               @endforeach
@@ -90,7 +90,7 @@
           <div class="row g-2 mb-2 damage-row">
             <div class="col-md-3">
               <select class="form-select form-select-sm" name="damage_type[]">
-                <option value="">-- Damage type --</option>
+                <option value="">{{ __('-- Damage type --') }}</option>
                 @foreach($damageTypes as $dt)
                   <option value="{{ $dt }}">{{ $dt }}</option>
                 @endforeach

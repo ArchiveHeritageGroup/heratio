@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'Annotation Studio - ' . ($io->title ?? ''))
+@section('title', __('Annotation Studio - :title', ['title' => $io->title ?? '']))
 
 @section('content')
   @include('ahg-io-manage::partials.feature-header', [

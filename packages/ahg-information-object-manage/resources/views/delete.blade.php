@@ -1,7 +1,7 @@
 @extends('theme::layouts.1col')
 
 @section('title')
-  <h1>Are you sure you want to delete {{ $io->title ?? '[Untitled]' }}?</h1>
+  <h1>{{ __('Are you sure you want to delete :title?', ['title' => $io->title ?? __('[Untitled]')]) }}</h1>
 @endsection
 
 @section('content')
@@ -12,7 +12,7 @@
 
     @if(isset($descendantCount) && $descendantCount > 0)
       <div id="content" class="p-3">
-        It has {{ $descendantCount }} descendants that will also be deleted:
+        {{ __('It has :count descendants that will also be deleted:', ['count' => $descendantCount]) }}
         <ul class="mb-0">
           @foreach($descendants ?? [] as $index => $item)
             <li><a href="{{ route('informationobject.show', $item->slug) }}">{{ $item->title ?: '[Untitled]' }}</a></li>
@@ -24,7 +24,7 @@
 
         @if(isset($previewIsLimited) && $previewIsLimited)
           <div class="alert alert-warning mt-3 mb-0">
-            Only {{ $previewSize ?? 10 }} descriptions were shown.
+            {{ __('Only :count descriptions were shown.', ['count' => $previewSize ?? 10]) }}
             <a href="{{ route('informationobject.browse', ['collection' => $io->id, 'topLod' => 0]) }}" class="alert-link">
               {{ __('View the full list of descendants.') }}
             </a>

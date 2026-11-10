@@ -2,7 +2,7 @@
 @section('sidebar')
     @include('research::research._sidebar', ['sidebarActive' => 'workspace'])
 @endsection
-@section('title', 'Source Assessment - ' . ($io->title ?? ''))
+@section('title', __('Source Assessment - :title', ['title' => $io->title ?? '']))
 
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
@@ -16,7 +16,7 @@
     <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 @endif
 
-<h1 class="h2 mb-4">Source Assessment: {{ e($io->title ?? 'Untitled') }}</h1>
+<h1 class="h2 mb-4">{{ __('Source Assessment: :title', ['title' => $io->title ?? __('Untitled')]) }}</h1>
 
 <div class="row">
     <div class="col-md-8">
@@ -145,7 +145,7 @@
             <div class="card-body text-center">
                 @php $score = (int) ($assessment->trust_score ?? 0); @endphp
                 <div class="display-4 fw-bold text-{{ $score >= 70 ? 'success' : ($score >= 40 ? 'warning' : 'danger') }}">{{ $score }}</div>
-                <p class="text-muted">out of 100</p>
+                <p class="text-muted">{{ __('out of 100') }}</p>
             </div>
         </div>
 
@@ -154,9 +154,9 @@
             <div class="card-body small text-muted">
                 <p>{{ __('Source assessment evaluates the reliability and authenticity of archival sources for research purposes.') }}</p>
                 <ul class="mb-0">
-                    <li><strong>{{ __('Primary') }}</strong> - created at the time of the event</li>
-                    <li><strong>{{ __('Secondary') }}</strong> - created after the event using primary sources</li>
-                    <li><strong>{{ __('Tertiary') }}</strong> - compilations of primary and secondary sources</li>
+                    <li><strong>{{ __('Primary') }}</strong> - {{ __('created at the time of the event') }}</li>
+                    <li><strong>{{ __('Secondary') }}</strong> - {{ __('created after the event using primary sources') }}</li>
+                    <li><strong>{{ __('Tertiary') }}</strong> - {{ __('compilations of primary and secondary sources') }}</li>
                 </ul>
             </div>
         </div>

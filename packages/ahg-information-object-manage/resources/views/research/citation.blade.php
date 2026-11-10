@@ -1,5 +1,5 @@
 @extends('theme::layout_2col')
-@section('title', 'Cite this Record - ' . ($io->title ?? ''))
+@section('title', __('Cite this Record - :title', ['title' => $io->title ?? '']))
 
 @section('sidebar')
   @include('research::research._sidebar', ['sidebarActive' => 'bibliographies'])

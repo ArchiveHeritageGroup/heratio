@@ -143,7 +143,7 @@
               <li>
                 <a href="{{ route('actor.show', $creator->slug ?? '') }}">{{ $creator->authorized_form_of_name ?? '' }}</a>
                 @if($creator->dates_of_existence ?? null)<span class="text-muted small"> ({{ $creator->dates_of_existence }})</span>@endif
-                <span class="text-muted small">[creator]</span>
+                <span class="text-muted small">{{ __('[creator]') }}</span>
               </li>
             @endforeach
           </ul>

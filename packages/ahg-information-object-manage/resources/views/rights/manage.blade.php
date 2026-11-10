@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Manage Rights: ' . ($io->title ?? 'Untitled'))
+@section('title', __('Manage Rights: :title', ['title' => $io->title ?? __('Untitled')]))
 
 @push('styles')
 <link href="/vendor/ahg-theme-b5/css/vendor/tom-select.bootstrap5.min.css" rel="stylesheet">
@@ -16,7 +16,7 @@
 @section('content')
 
 <h1 class="mb-1">{{ __('Manage Rights') }}</h1>
-<p class="text-muted mb-3">{{ $io->title ?? 'Untitled' }}</p>
+<p class="text-muted mb-3">{{ $io->title ?? __('Untitled') }}</p>
 
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-4">
   <ol class="breadcrumb">
@@ -56,7 +56,7 @@
               <div class="mb-3">
                 <label for="rights_statement_id" class="form-label">{{ __('Rights Statement') }}</label>
                 <select name="rights_statement_id" id="rights_statement_id" class="form-select">
-                  <option value="">-- None --</option>
+                  <option value="">{{ __('-- None --') }}</option>
                   @foreach($rightsStatements as $rs)
                     <option value="{{ $rs->id }}" @if(old('rights_statement_id', $currentExtended->rights_statement_id ?? '') == $rs->id) selected @endif>
                       {{ $rs->name ?? $rs->code }}
@@ -68,7 +68,7 @@
               <div class="mb-3">
                 <label for="cc_license_id" class="form-label">{{ __('Creative Commons License') }}</label>
                 <select name="cc_license_id" id="cc_license_id" class="form-select">
-                  <option value="">-- None --</option>
+                  <option value="">{{ __('-- None --') }}</option>
                   @foreach($ccLicenses as $cc)
                     <option value="{{ $cc->id }}" @if(old('cc_license_id', $currentExtended->creative_commons_license_id ?? '') == $cc->id) selected @endif>
                       {{ $cc->name ?? $cc->code }}
@@ -167,7 +167,7 @@
               <div class="mb-3">
                 <label for="premis_basis_id" class="form-label">{{ __('Basis') }}</label>
                 <select name="premis_basis_id" id="premis_basis_id" class="form-select">
-                  <option value="">-- Select basis --</option>
+                  <option value="">{{ __('-- Select basis --') }}</option>
                   @foreach($basisTerms as $bt)
                     <option value="{{ $bt->id }}" data-name="{{ strtolower($bt->name) }}"
                       @if(old('premis_basis_id', $pri->basis_id ?? '') == $bt->id) selected @endif>
@@ -182,7 +182,7 @@
                 <div class="mb-3">
                   <label for="premis_copyright_status_id" class="form-label">{{ __('Copyright Status') }}</label>
                   <select name="premis_copyright_status_id" id="premis_copyright_status_id" class="form-select">
-                    <option value="">-- Select --</option>
+                    <option value="">{{ __('-- Select --') }}</option>
                     @foreach($copyrightStatusTerms as $cs)
                       <option value="{{ $cs->id }}" @if(old('premis_copyright_status_id', $pri->copyright_status_id ?? '') == $cs->id) selected @endif>
                         {{ $cs->name }}
@@ -322,14 +322,14 @@
             @forelse($existingGranted as $idx => $gr)
               <div class="granted-row" data-index="{{ $idx }}">
                 <div class="d-flex justify-content-between align-items-start mb-2">
-                  <strong>Granted Right #{{ $idx + 1 }}</strong>
+                  <strong>{{ __('Granted Right #:number', ['number' => $idx + 1]) }}</strong>
                   <button type="button" class="btn btn-sm btn-outline-danger remove-granted"><i class="fas fa-times"></i> {{ __('Remove') }}</button>
                 </div>
                 <div class="row">
                   <div class="col-md-3 mb-2">
                     <label class="form-label">{{ __('Act') }}</label>
                     <select name="granted[{{ $idx }}][act_id]" class="form-select">
-                      <option value="">-- Select --</option>
+                      <option value="">{{ __('-- Select --') }}</option>
                       @foreach($actTerms as $at)
                         <option value="{{ $at->id }}" @if($gr->act_id == $at->id) selected @endif>{{ $at->name }}</option>
                       @endforeach
@@ -375,7 +375,7 @@
     <div class="accordion-item mb-3">
       <h2 class="accordion-header">
         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sectionEmbargo">
-          <i class="fas fa-lock me-2"></i> Embargo
+          <i class="fas fa-lock me-2"></i> {{ __('Embargo') }}
           @if($embargo)
             <span class="badge bg-danger ms-2">{{ __('Active') }}</span>
           @endif
@@ -388,11 +388,11 @@
             <div class="alert alert-warning mb-3">
               <strong><i class="fas fa-exclamation-triangle me-1"></i> {{ __('Active Embargo') }}</strong><br>
               {{ __('Type:') }} <strong>{{ ucfirst($embargo->embargo_type) }}</strong> |
-              Since: <strong>{{ $embargo->start_date }}</strong>
-              @if($embargo->end_date) | Until: <strong>{{ $embargo->end_date }}</strong> @endif
+              {{ __('Since:') }} <strong>{{ $embargo->start_date }}</strong>
+              @if($embargo->end_date) | {{ __('Until:') }} <strong>{{ $embargo->end_date }}</strong> @endif
               @if($embargo->is_perpetual) | <span class="badge bg-dark">{{ __('Perpetual') }}</span> @endif
               <br>
-              @if($embargo->reason) Reason: {{ $embargo->reason }} @endif
+              @if($embargo->reason) {{ __('Reason: :reason', ['reason' => $embargo->reason]) }} @endif
             </div>
 
             <div class="card border-danger mb-3">
@@ -417,7 +417,7 @@
             <div class="col-md-4 mb-3">
               <label for="embargo_type" class="form-label">{{ __('Embargo Type') }}</label>
               <select name="embargo_type" id="embargo_type" class="form-select">
-                <option value="">-- No embargo --</option>
+                <option value="">{{ __('-- No embargo --') }}</option>
                 <option value="full" @if(old('embargo_type', $embargo->embargo_type ?? '') == 'full') selected @endif>{{ __('Full') }}</option>
                 <option value="partial" @if(old('embargo_type', $embargo->embargo_type ?? '') == 'partial') selected @endif>{{ __('Partial') }}</option>
                 <option value="metadata_only" @if(old('embargo_type', $embargo->embargo_type ?? '') == 'metadata_only') selected @endif>{{ __('Metadata Only') }}</option>

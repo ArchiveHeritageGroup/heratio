@@ -1,6 +1,6 @@
 @extends('theme::layout')
 
-@section('title', 'Reports - ' . ($io->title ?? 'Untitled'))
+@section('title', __('Reports - :title', ['title' => $io->title ?? __('Untitled')]))
 
 @section('content')
 <div class="container-fluid py-3">
@@ -25,7 +25,7 @@
 
       <div class="multiline-header d-flex flex-column mb-3">
         <h1 class="mb-0">{{ __('Reports') }}</h1>
-        <span class="small text-muted">{{ $io->title ?? 'Untitled' }}</span>
+        <span class="small text-muted">{{ $io->title ?? __('Untitled') }}</span>
       </div>
 
       <div class="accordion mb-3">

@@ -154,7 +154,7 @@
     @if($activeLoans->isNotEmpty())
       <div class="card mb-3 border-warning">
         <div class="card-header bg-warning text-dark fw-bold">
-          <i class="fas fa-exchange-alt me-1"></i> Active Loans ({{ $activeLoans->count() }})
+          <i class="fas fa-exchange-alt me-1"></i> {{ __('Active Loans (:count)', ['count' => $activeLoans->count()]) }}
         </div>
         <div class="list-group list-group-flush">
           @foreach($activeLoans as $al)
@@ -264,7 +264,7 @@
           @foreach($creators as $creator)
             <li class="list-group-item small">
               <a href="{{ route('actor.show', $creator->slug) }}" class="text-decoration-none">{{ $creator->name }}</a>
-              <span class="text-muted">(Creation)</span>
+              <span class="text-muted">{{ __('(Creation)') }}</span>
             </li>
           @endforeach
         @endif

@@ -26,7 +26,7 @@
       <span class="text-muted small">{{ __('Described per Records in Contexts (RiC-O 1.0, International Council on Archives)') }}</span>
     </div>
     <h1 class="h3 mb-0">{{ $io->title ?? __('Untitled record') }}</h1>
-    @if($levelName)<small class="text-muted">{{ $levelName }} <span class="text-muted">· {{ $ricEnt['rico:type'] ?? 'Record' }}</span></small>@endif
+    @if($levelName)<small class="text-muted">{{ $levelName }} <span class="text-muted">· {{ $ricEnt['rico:type'] ?? __('Record') }}</span></small>@endif
   </div>
 @endsection
 
@@ -175,7 +175,7 @@
       <div class="card mt-3">
         <div class="card-header d-flex align-items-center justify-content-between" style="background:var(--ahg-primary,#10373E);color:#fff;">
           <span><i class="fas fa-project-diagram me-2"></i>{{ __('RiC-O linked data') }}</span>
-          <span class="badge bg-light text-dark">{{ $ricEnt['rico:type'] ?? 'Record' }}</span>
+          <span class="badge bg-light text-dark">{{ $ricEnt['rico:type'] ?? __('Record') }}</span>
         </div>
         <div class="card-body">
           <p class="text-muted small mb-2">{{ __('Download this record as RiC-O (Records in Contexts) linked data.') }}</p>
