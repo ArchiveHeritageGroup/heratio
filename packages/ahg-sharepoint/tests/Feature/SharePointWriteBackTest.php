@@ -74,7 +74,7 @@ class SharePointWriteBackTest extends TestCase
         // A file captured by sync: the event links the record to its item.
         $io2 = (int) DB::table('object')->insertGetId(['class_name' => 'QubitInformationObject', 'created_at' => now(), 'updated_at' => now()]);
         DB::table('sharepoint_event')->insert(['subscription_id' => 0, 'drive_id' => $drive, 'sp_item_id' => 'ITEM2', 'change_type' => 'updated',
-            'status' => 'completed', 'information_object_id' => $io2, 'received_at' => now()]);
+            'raw_payload' => '{}', 'status' => 'completed', 'information_object_id' => $io2, 'received_at' => now()]);
         $this->assertSame(['tenant' => $tenant, 'site' => 'SITE', 'drive' => 'DRIVE', 'item' => 'ITEM2'], $wb->locate($io2));
     }
 }
