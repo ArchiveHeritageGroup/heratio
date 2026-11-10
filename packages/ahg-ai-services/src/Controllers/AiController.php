@@ -138,7 +138,14 @@ class AiController extends Controller
             ->get()
             ->keyBy('setting_key');
 
+        $pageSettings = [
+            'window_words' => \AhgCore\Services\AhgSettingsService::get('ai_page_window_words', '0'),
+            'on_ingest' => \AhgCore\Services\AhgSettingsService::getBool('ai_page_classify_on_ingest', false) ? '1' : '0',
+            'collections' => \AhgCore\Services\AhgSettingsService::get('ai_page_classify_collections', ''),
+        ];
+
         return view('ahg-ai-services::config', compact(
+            'pageSettings',
             'configs',
             'defaultConfig',
             'generalSettings',
@@ -204,6 +211,18 @@ class AiController extends Controller
 
         // Handle AI settings save
         if ($action === 'save_settings') {
+            // Per-page classification (heratio#1584) lives in ahg_settings.
+            if ($request->has('pages')) {
+                $p = $request->validate([
+                    'pages.window_words' => 'required|integer|min:0|max:20000',
+                    'pages.on_ingest' => 'required|in:0,1',
+                    'pages.collections' => ['nullable', 'string', 'max:500', 'regex:/^\s*\d+(\s*,\s*\d+)*\s*$/'],
+                ], ['pages.collections.regex' => __('Collections must be record ids separated by commas.')])['pages'];
+                \AhgCore\Services\AhgSettingsService::set('ai_page_window_words', (string) (int) $p['window_words'], 'ai');
+                \AhgCore\Services\AhgSettingsService::set('ai_page_classify_on_ingest', $p['on_ingest'], 'ai');
+                \AhgCore\Services\AhgSettingsService::set('ai_page_classify_collections', preg_replace('/\s+/', '', (string) ($p['collections'] ?? '')), 'ai');
+            }
+
             $features = ['general', 'ner', 'summarize', 'translate', 'spellcheck', 'suggest'];
 
             foreach ($features as $feature) {

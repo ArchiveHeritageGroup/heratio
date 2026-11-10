@@ -412,6 +412,38 @@
       </div>
     </div>
 
+    {{-- Per-page classification (heratio#1584) --}}
+    <div class="card shadow-sm mb-4">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">
+        <strong><i class="fas fa-layer-group"></i> {{ __('Per-page classification') }}</strong>
+      </div>
+      <div class="card-body">
+        <p class="small text-muted">{{ __('Each page of a PDF is screened for personal information and given a document type, and the record shows the spread. One flagged page flags the whole record. Document types are read through the AI gateway by day only (06:00-18:00).') }}</p>
+        <div class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label" for="pages-window">{{ __('Window (words)') }}</label>
+            <input type="number" id="pages-window" name="pages[window_words]" class="form-control" min="0" max="20000"
+                   value="{{ old('pages.window_words', $pageSettings['window_words']) }}" aria-describedby="pages-window-help">
+            <div id="pages-window-help" class="form-text">{{ __('0 = one result per page. A number reads born-digital text in windows of that many words.') }}</div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="pages-ingest">{{ __('Run on ingest') }}</label>
+            <select id="pages-ingest" name="pages[on_ingest]" class="form-select">
+              <option value="0" @selected(old('pages.on_ingest', $pageSettings['on_ingest']) === '0')>{{ __('No') }}</option>
+              <option value="1" @selected(old('pages.on_ingest', $pageSettings['on_ingest']) === '1')>{{ __('Yes') }}</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="pages-collections">{{ __('Collections') }}</label>
+            <input type="text" id="pages-collections" name="pages[collections]" class="form-control @error('pages.collections') is-invalid @enderror"
+                   value="{{ old('pages.collections', $pageSettings['collections']) }}" placeholder="91126, 916233" aria-describedby="pages-collections-help">
+            <div id="pages-collections-help" class="form-text">{{ __('Record ids, separated by commas, whose descendants are read on ingest. Empty = every collection.') }}</div>
+            @error('pages.collections')<div class="invalid-feedback">{{ $message }}</div>@enderror
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="mb-4">
       <button type="submit" class="btn atom-btn-outline-success btn-lg">
         <i class="fas fa-save"></i> {{ __('Save All Settings') }}

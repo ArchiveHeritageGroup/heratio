@@ -38,6 +38,8 @@ class PageClassifierTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        // Settings are cached in a static, outside the test transaction.
+        \AhgCore\Services\AhgSettingsService::clearCache();
         if (! Schema::hasTable('ahg_ai_inference') || ! Schema::hasTable('ahg_ai_override') || ! Schema::hasTable('ahg_pii_scan_report')) {
             $this->markTestSkipped('ahg_ai_inference / ahg_ai_override / ahg_pii_scan_report missing.');
         }
@@ -62,6 +64,12 @@ class PageClassifierTest extends TestCase
         $this->app->bind(InferenceService::class, fn () => new class extends InferenceService {
             protected function writeRdfStarAnnotation(int $inferenceId, string $uuid, InferenceRecord $r): void {}
         });
+    }
+
+    protected function tearDown(): void
+    {
+        \AhgCore\Services\AhgSettingsService::clearCache();
+        parent::tearDown();
     }
 
     public static function pages(): array
@@ -140,6 +148,26 @@ class PageClassifierTest extends TestCase
         \Illuminate\Support\Facades\Queue::fake();
         $this->actingAs($admin)->post(route('admin.ai.pages.run', 'pages-'.$io))->assertRedirect()->assertSessionHas('success');
         \Illuminate\Support\Facades\Queue::assertPushed(\AhgAiServices\Jobs\ClassifyPagesJob::class, fn ($j) => $j->ioId === $io);
+    }
+
+    public function test_the_settings_are_on_the_ai_configuration_page_and_validated(): void
+    {
+        if (! Schema::hasTable('ahg_settings')) {
+            $this->markTestSkipped('ahg_settings missing.');
+        }
+        $admin = \AhgCore\Models\User::findOrFail((int) DB::table('acl_user_group')->where('group_id', 100)->value('user_id'));
+        $this->actingAs($admin)->get(route('admin.ai.config'))->assertOk()->assertSee('Per-page classification');
+
+        $this->actingAs($admin)->post(route('admin.ai.config'), ['_action' => 'save_settings',
+            'pages' => ['window_words' => '3000', 'on_ingest' => '1', 'collections' => ' 91126 , 916233 ']])->assertRedirect()->assertSessionHas('success');
+        $get = fn ($k) => DB::table('ahg_settings')->where('setting_key', $k)->value('setting_value');
+        $this->assertSame('3000', $get('ai_page_window_words'));
+        $this->assertSame('1', $get('ai_page_classify_on_ingest'));
+        $this->assertSame('91126,916233', $get('ai_page_classify_collections'));
+
+        $this->actingAs($admin)->post(route('admin.ai.config'), ['_action' => 'save_settings',
+            'pages' => ['window_words' => '3000', 'on_ingest' => '1', 'collections' => 'Dakawa']])->assertSessionHasErrors('pages.collections');
+        $this->assertSame('91126,916233', $get('ai_page_classify_collections'), 'a bad value is not saved');
     }
 
     public function test_windows_span_pages_and_an_empty_page_stays_its_own_unit(): void
