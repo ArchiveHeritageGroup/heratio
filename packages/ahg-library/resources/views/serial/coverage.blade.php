@@ -105,11 +105,11 @@
                             <td>{{ $h['issue']->received_at ? \Carbon\Carbon::parse($h['issue']->received_at)->format('d M Y') : '-' }}</td>
                             <td>
                                 @if(($h['issue']->status ?? '') === 'received')
-                                    <span class="badge bg-success">received</span>
+                                    <span class="badge bg-success">{{ __('received') }}</span>
                                 @elseif(($h['issue']->status ?? '') === 'claimed')
-                                    <span class="badge bg-danger">claimed</span>
+                                    <span class="badge bg-danger">{{ __('claimed') }}</span>
                                 @else
-                                    <span class="badge bg-secondary">missing</span>
+                                    <span class="badge bg-secondary">{{ __('missing') }}</span>
                                 @endif
                             </td>
                             <td>

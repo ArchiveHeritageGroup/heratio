@@ -73,11 +73,11 @@ class AuthorityControlController extends Controller
         try {
             $id = $this->svc->create($validated);
             return redirect()->route('library.authority-view', $id)
-                ->with('success', 'Authority record created.');
+                ->with('success', __('Authority record created.'));
         } catch (Throwable $e) {
             Log::error('AuthorityControlController::store error: ' . $e->getMessage());
             return redirect()->back()
-                ->with('error', 'Failed to create authority record.');
+                ->with('error', __('Failed to create authority record.'));
         }
     }
 
@@ -108,14 +108,14 @@ class AuthorityControlController extends Controller
         try {
             $ok = $this->svc->update($id, $validated);
             if (! $ok) {
-                return redirect()->back()->with('error', 'Nothing to update.');
+                return redirect()->back()->with('error', __('Nothing to update.'));
             }
 
             return redirect()->route('library.authority-view', $id)
-                ->with('success', 'Authority record updated.');
+                ->with('success', __('Authority record updated.'));
         } catch (Throwable $e) {
             Log::error('AuthorityControlController::update error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Update failed.');
+            return redirect()->back()->with('error', __('Update failed.'));
         }
     }
 
@@ -124,14 +124,14 @@ class AuthorityControlController extends Controller
         try {
             $ok = $this->svc->delete($id);
             if (! $ok) {
-                return redirect()->back()->with('error', 'Authority record not found.');
+                return redirect()->back()->with('error', __('Authority record not found.'));
             }
 
             return redirect()->route('library.authority-index')
-                ->with('success', 'Authority record deleted.');
+                ->with('success', __('Authority record deleted.'));
         } catch (Throwable $e) {
             Log::error('AuthorityControlController::destroy error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Delete failed.');
+            return redirect()->back()->with('error', __('Delete failed.'));
         }
     }
 
@@ -163,10 +163,10 @@ class AuthorityControlController extends Controller
             );
 
             return redirect()->route('library.authority-view', $validated['authority_id'])
-                ->with('success', 'Subject heading linked to library item.');
+                ->with('success', __('Subject heading linked to library item.'));
         } catch (Throwable $e) {
             Log::error('AuthorityControlController::storeLink error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Link failed.');
+            return redirect()->back()->with('error', __('Link failed.'));
         }
     }
 
@@ -174,16 +174,16 @@ class AuthorityControlController extends Controller
     {
         $link = DB::table('library_item_authority_link')->where('id', $linkId)->first();
         if (! $link) {
-            return redirect()->back()->with('error', 'Link not found.');
+            return redirect()->back()->with('error', __('Link not found.'));
         }
 
         try {
             $this->svc->unlinkFromItem($linkId);
             return redirect()->route('library.authority-view', $link->authority_id)
-                ->with('success', 'Link removed.');
+                ->with('success', __('Link removed.'));
         } catch (Throwable $e) {
             Log::error('AuthorityControlController::unlink error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Unlink failed.');
+            return redirect()->back()->with('error', __('Unlink failed.'));
         }
     }
 }

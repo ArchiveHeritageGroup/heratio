@@ -58,7 +58,7 @@ class TradingPartnerController
         TradingPartner::create($request->validated());
         return redirect()
             ->route('library.trading-partners.index')
-            ->with('success', 'Trading partner created.');
+            ->with('success', __('Trading partner created.'));
     }
 
     /** Edit form */
@@ -82,7 +82,7 @@ class TradingPartnerController
         $partner->update($data);
         return redirect()
             ->route('library.trading-partners.index')
-            ->with('success', 'Trading partner updated.');
+            ->with('success', __('Trading partner updated.'));
     }
 
     /** Delete partner */
@@ -95,13 +95,13 @@ class TradingPartnerController
         if ($inUse) {
             return redirect()
                 ->route('library.trading-partners.index')
-                ->with('error', 'Cannot delete: partner is linked to ILL requests. Deactivate instead.');
+                ->with('error', __('Cannot delete: partner is linked to ILL requests. Deactivate instead.'));
         }
 
         $partner->delete();
         return redirect()
             ->route('library.trading-partners.index')
-            ->with('success', 'Trading partner deleted.');
+            ->with('success', __('Trading partner deleted.'));
     }
 
     /** Test connection */
@@ -115,10 +115,10 @@ class TradingPartnerController
     public function toggle(TradingPartner $partner): RedirectResponse
     {
         $partner->update(['is_active' => !$partner->is_active]);
-        $msg = $partner->is_active ? 'activated.' : 'deactivated.';
+        $msg = $partner->is_active ? __('Partner activated.') : __('Partner deactivated.');
         return redirect()
             ->route('library.trading-partners.index')
-            ->with('success', "Partner {$msg}");
+            ->with('success', $msg);
     }
 
     /** Preview EDI message for a given ILL request (id param) */

@@ -10,7 +10,7 @@
                 <i class="fas fa-database me-2"></i>{{ __('Database Usage Report (DR)') }}
             </h1>
             <p class="text-muted small mb-0">
-                COUNTER 5 Database Report -
+                {{ __('COUNTER 5 Database Report -') }}
                 @if($fromDate && $toDate)
                     {{ \Carbon\Carbon::parse($fromDate)->format('M Y') }}
                     to {{ \Carbon\Carbon::parse($toDate)->format('M Y') }}
@@ -46,8 +46,7 @@
     @if(empty($report['Items']))
         <div class="alert alert-info">
             <i class="fas fa-info-circle me-2"></i>
-            {{ __('No database usage data available. Run a') }}
-            <a href="{{ route('library.usage-harvest') }}">{{ __('SUSHI harvest') }}</a> first.
+            {!! __('No database usage data available. Run a :link first.', ['link' => '<a href="'.e(route('library.usage-harvest')).'">'.e(__('SUSHI harvest')).'</a>']) !!}
         </div>
     @else
         <div class="card">
@@ -90,8 +89,7 @@
                 </table>
             </div>
             <div class="card-footer small text-muted">
-                Report generated {{ now()->format('d M Y H:i') }} &middot;
-                Period: {{ $fromDate ?? '-' }} to {{ $toDate ?? '-' }}
+                {!! __('Report generated :date &middot; Period: :from to :to', ['date' => now()->format('d M Y H:i'), 'from' => e($fromDate ?? '-'), 'to' => e($toDate ?? '-')]) !!}
             </div>
         </div>
     @endif

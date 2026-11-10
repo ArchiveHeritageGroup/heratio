@@ -18,7 +18,7 @@
 @endsection
 @section('title-block')<h1><i class="fas fa-tags me-2"></i>{{ __('Subjects') }}</h1>@endsection
 @section('content')
-<div class="alert alert-info"><strong>{{ count($subjects) }}</strong> subjects found</div>
+<div class="alert alert-info">{!! __(':count subjects found', ['count' => '<strong>'.count($subjects).'</strong>']) !!}</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
     <thead class="table-dark"><tr><th>{{ __('Subject') }}</th><th class="text-end">{{ __('Items') }}</th></tr></thead>

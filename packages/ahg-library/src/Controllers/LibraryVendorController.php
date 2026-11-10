@@ -83,7 +83,7 @@ class LibraryVendorController extends Controller
 
         return redirect()
             ->route('library.acquisition-vendors')
-            ->with('success', 'Vendor created.');
+            ->with('success', __('Vendor created.'));
     }
 
     public function update(Request $request, int $id): RedirectResponse
@@ -99,7 +99,7 @@ class LibraryVendorController extends Controller
 
         return redirect()
             ->route('library.acquisition-vendors')
-            ->with('success', 'Vendor updated.');
+            ->with('success', __('Vendor updated.'));
     }
 
     public function destroy(int $id): RedirectResponse
@@ -116,14 +116,14 @@ class LibraryVendorController extends Controller
                 'is_active'  => 0,
                 'updated_at' => now(),
             ]);
-            return back()->with('info', 'Vendor has orders; deactivated instead of deleted.');
+            return back()->with('info', __('Vendor has orders; deactivated instead of deleted.'));
         }
 
         DB::table('library_vendor')->where('id', $id)->delete();
 
         return redirect()
             ->route('library.acquisition-vendors')
-            ->with('success', 'Vendor deleted.');
+            ->with('success', __('Vendor deleted.'));
     }
 
     /**

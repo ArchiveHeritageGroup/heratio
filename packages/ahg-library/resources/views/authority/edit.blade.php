@@ -7,7 +7,7 @@
            class="btn btn-outline-secondary btn-sm me-3">
             <i class="fas fa-arrow-left"></i>
         </a>
-        <h2 class="mb-0">Edit Authority Record #{{ $record->id ?? '' }}</h2>
+        <h2 class="mb-0">{{ __('Edit Authority Record #:id', ['id' => $record->id ?? '']) }}</h2>
     </div>
 
     @if(session('success'))

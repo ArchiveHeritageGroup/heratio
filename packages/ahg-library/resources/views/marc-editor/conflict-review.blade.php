@@ -43,14 +43,13 @@
         <i class="fas fa-code-branch me-3 fa-lg"></i>
         <div>
             @if ($report['matched'] ?? false)
-                Matched master record IO #{{ (int) ($report['matched_io_id'] ?? 0) }}
+                {{ __('Matched master record IO #:id', ['id' => (int) ($report['matched_io_id'] ?? 0)]) }}
                 @if (! empty($report['control_number']))
                     (001: {{ $report['control_number'] }})
                 @endif
-                - <strong>{{ (int) ($report['conflict_count'] ?? 0) }} conflict(s)</strong> to resolve.
+                - {!! __('<strong>:count conflict(s)</strong> to resolve.', ['count' => (int) ($report['conflict_count'] ?? 0)]) !!}
             @else
-                No master record matched the incoming 001 control number.
-                A commit would create a new record; every field is reported as an addition.
+                {{ __('No master record matched the incoming 001 control number. A commit would create a new record; every field is reported as an addition.') }}
             @endif
         </div>
     </div>

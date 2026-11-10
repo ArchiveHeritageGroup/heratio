@@ -32,7 +32,7 @@
           @endif
 
           @if($partner)
-            <div class="mt-2"><small>Partner: <code>{{ $partner->edi_partner_code }}</code> ({{ $partner->edi_type }})</small></div>
+            <div class="mt-2"><small>{!! __('Partner: :code (:type)', ['code' => '<code>'.e($partner->edi_partner_code).'</code>', 'type' => e($partner->edi_type)]) !!}</small></div>
           @endif
         </div>
 
@@ -63,7 +63,7 @@
               @csrf
               <input type="hidden" name="trading_partner_id" value="{{ $partner->id }}">
               <p class="small text-muted mb-2">
-                Send ILL request via {{ $partner->edi_partner_code }} ({{ $partner->edi_type }})
+                {{ __('Send ILL request via :code (:type)', ['code' => $partner->edi_partner_code, 'type' => $partner->edi_type]) }}
                 @if($partner->test_mode)
                   <span class="badge bg-warning text-dark">TEST</span>
                 @endif

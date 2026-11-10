@@ -142,18 +142,18 @@
           <div class="card-body small">
             <p>{{ __('Borrow (we request):') }}</p>
             <ol class="ps-3">
-              <li><strong>{{ __('Pending') }}</strong> - awaiting transmission</li>
-              <li><strong>{{ __('Requested') }}</strong> - request sent to lender</li>
-              <li><strong>{{ __('Shipped') }}</strong> - item in transit</li>
-              <li><strong>{{ __('Received') }}</strong> - item received</li>
-              <li><strong>{{ __('Returned') }}</strong> - item returned to lender</li>
+              <li><strong>{{ __('Pending') }}</strong> - {{ __('awaiting transmission') }}</li>
+              <li><strong>{{ __('Requested') }}</strong> - {{ __('request sent to lender') }}</li>
+              <li><strong>{{ __('Shipped') }}</strong> - {{ __('item in transit') }}</li>
+              <li><strong>{{ __('Received') }}</strong> - {{ __('item received') }}</li>
+              <li><strong>{{ __('Returned') }}</strong> - {{ __('item returned to lender') }}</li>
               <li class="text-muted">{{ __('Cancelled / Lost / Unfulfilled (terminal)') }}</li>
             </ol>
             <p class="mt-2">{{ __('Lend (they request from us):') }}</p>
             <ol class="ps-3">
               <li><strong>{{ __('Pending') }}</strong></li>
-              <li><strong>{{ __('Shipped') }}</strong> - item sent to borrower</li>
-              <li><strong>{{ __('Received') }}</strong> - item returned (terminal)</li>
+              <li><strong>{{ __('Shipped') }}</strong> - {{ __('item sent to borrower') }}</li>
+              <li><strong>{{ __('Received') }}</strong> - {{ __('item returned (terminal)') }}</li>
             </ol>
           </div>
         </div>

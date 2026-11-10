@@ -41,7 +41,7 @@ class EnsurePatronAuthenticated
         if (!Session::get('patron_id')) {
             return redirect()
                 ->route('opac.patron.login')
-                ->with('error', 'Please log in to access your library account.');
+                ->with('error', __('Please log in to access your library account.'));
         }
 
         return $next($request);

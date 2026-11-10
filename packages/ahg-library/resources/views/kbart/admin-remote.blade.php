@@ -19,7 +19,7 @@
         </div>
         <div>
             <span class="badge bg-{{ $auto_import_enabled ? 'success' : 'secondary' }} me-2">
-                Auto-import {{ $auto_import_enabled ? 'enabled' : 'disabled' }}
+                {{ __('Auto-import :status', ['status' => $auto_import_enabled ? __('enabled') : __('disabled')]) }}
             </span>
             <a href="{{ route('library.kbart-remote-create') }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus me-1"></i>{{ __('Add Feed') }}
@@ -163,7 +163,7 @@
                                 <tr class="table-danger">
                                     <td colspan="8" class="small text-danger ps-4">
                                         <i class="fas fa-exclamation-triangle me-1"></i>
-                                        Last error: {{ $feed->last_error }}
+                                        {{ __('Last error: :error', ['error' => $feed->last_error]) }}
                                     </td>
                                 </tr>
                             @endif
@@ -176,10 +176,8 @@
         {{-- Schedule info --}}
         <div class="alert alert-info mt-3 mb-0 small">
             <i class="fas fa-clock me-1"></i>
-            {{ __('Feeds run daily at') }} <strong>01:00</strong> via <code>ahg:library-kbart-refresh</code>.
-            The master switch <strong>library_kbart_auto_import_enabled</strong> in
-            <a href="/admin/ahgSettings" class="alert-link">{{ __('AHG Settings') }}</a>
-            disables all scheduled runs without deleting feed subscriptions.
+            {!! __('Feeds run daily at :time via :command.', ['time' => '<strong>01:00</strong>', 'command' => '<code>ahg:library-kbart-refresh</code>']) !!}
+            {!! __('The master switch :switch in :link disables all scheduled runs without deleting feed subscriptions.', ['switch' => '<strong>library_kbart_auto_import_enabled</strong>', 'link' => '<a href="/admin/ahgSettings" class="alert-link">'.e(__('AHG Settings')).'</a>']) !!}
         </div>
     @endif
 </div>

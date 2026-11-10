@@ -81,7 +81,7 @@ class CopyCataloguingController extends Controller
         } catch (Throwable $e) {
             Log::error('CopyCataloguingController::search error: ' . $e->getMessage());
             return redirect()->back()
-                ->with('error', 'Z39.50 search failed: ' . $e->getMessage());
+                ->with('error', __('Z39.50 search failed: :error', ['error' => $e->getMessage()]));
         }
     }
 
@@ -94,7 +94,7 @@ class CopyCataloguingController extends Controller
         try {
             $raw = base64_decode($validated['marc_content'], true);
             if ($raw === false) {
-                return redirect()->back()->with('error', 'Invalid MARC data.');
+                return redirect()->back()->with('error', __('Invalid MARC data.'));
             }
 
             $ioId = $this->svc->import($raw);
@@ -102,11 +102,11 @@ class CopyCataloguingController extends Controller
             $slug = DB::table('slug')->where('object_id', $ioId)->value('slug');
 
             return redirect()->route('library.show', $slug)
-                ->with('success', 'Record imported via copy cataloguing.');
+                ->with('success', __('Record imported via copy cataloguing.'));
         } catch (Throwable $e) {
             Log::error('CopyCataloguingController::import error: ' . $e->getMessage());
             return redirect()->back()
-                ->with('error', 'Import failed: ' . $e->getMessage());
+                ->with('error', __('Import failed: :error', ['error' => $e->getMessage()]));
         }
     }
 
@@ -154,10 +154,10 @@ class CopyCataloguingController extends Controller
             ]);
 
             return redirect()->route('library.copy-cataloguing-targets')
-                ->with('success', 'Z39.50 target added.');
+                ->with('success', __('Z39.50 target added.'));
         } catch (Throwable $e) {
             Log::error('CopyCataloguingController::storeTarget error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Failed to save target: ' . $e->getMessage());
+            return redirect()->back()->with('error', __('Failed to save target: :error', ['error' => $e->getMessage()]));
         }
     }
 
@@ -194,10 +194,10 @@ class CopyCataloguingController extends Controller
                 ], fn($v) => $v !== null));
 
             return redirect()->route('library.copy-cataloguing-targets')
-                ->with('success', 'Z39.50 target updated.');
+                ->with('success', __('Z39.50 target updated.'));
         } catch (Throwable $e) {
             Log::error('CopyCataloguingController::updateTarget error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Update failed.');
+            return redirect()->back()->with('error', __('Update failed.'));
         }
     }
 
@@ -206,10 +206,10 @@ class CopyCataloguingController extends Controller
         try {
             DB::table('library_z3950_target')->where('id', $id)->delete();
             return redirect()->route('library.copy-cataloguing-targets')
-                ->with('success', 'Z39.50 target deleted.');
+                ->with('success', __('Z39.50 target deleted.'));
         } catch (Throwable $e) {
             Log::error('CopyCataloguingController::destroyTarget error: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Delete failed.');
+            return redirect()->back()->with('error', __('Delete failed.'));
         }
     }
 }

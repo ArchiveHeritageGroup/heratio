@@ -174,7 +174,7 @@
                 <input type="hidden" name="status" value="{{ $t }}">
                 <button type="submit" class="btn btn-outline-primary btn-sm">
                   <i class="fas fa-arrow-right me-1"></i>
-                  Move to {{ ucfirst($t) }}
+                  {{ __('Move to :status', ['status' => ucfirst($t)]) }}
                 </button>
               </form>
             @endforeach

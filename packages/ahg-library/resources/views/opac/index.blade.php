@@ -481,7 +481,7 @@
                                     <div class="card-body p-2">
                                         <p class="card-text small text-truncate fw-semibold mb-1"
                                            title="{{ e($item->title ?? '') }}">
-                                            {{ e(Str::limit($item->title ?? 'Untitled', 40)) }}
+                                            {{ e(Str::limit($item->title ?? __('Untitled'), 40)) }}
                                         </p>
                                         <a href="{{ route('library.opac-view', $item->slug ?? $item->id) }}"
                                            class="btn btn-outline-primary btn-sm w-100">
@@ -516,7 +516,7 @@
                                     <div class="card-body p-2">
                                         <p class="card-text small text-truncate fw-semibold mb-1"
                                            title="{{ e($item->title ?? '') }}">
-                                            {{ e(Str::limit($item->title ?? 'Untitled', 40)) }}
+                                            {{ e(Str::limit($item->title ?? __('Untitled'), 40)) }}
                                         </p>
                                         <a href="{{ route('library.opac-view', $item->slug ?? $item->id) }}"
                                            class="btn btn-outline-primary btn-sm w-100">

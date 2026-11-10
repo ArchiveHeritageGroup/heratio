@@ -68,21 +68,21 @@ class OpacPatronController extends Controller
         if (!$patron) {
             return redirect()
                 ->route('opac.patron.login')
-                ->with('error', 'No patron found with that card number.')
+                ->with('error', __('No patron found with that card number.'))
                 ->withInput(['card_number' => trim($validated['card_number'])]);
         }
 
         if ($patron->borrowing_status === 'suspended') {
             return redirect()
                 ->route('opac.patron.login')
-                ->with('error', 'Your account is suspended. Please contact a librarian.')
+                ->with('error', __('Your account is suspended. Please contact a librarian.'))
                 ->withInput(['card_number' => trim($validated['card_number'])]);
         }
 
         if ($patron->borrowing_status === 'expired') {
             return redirect()
                 ->route('opac.patron.login')
-                ->with('error', 'Your membership has expired. Please visit the library to renew.')
+                ->with('error', __('Your membership has expired. Please visit the library to renew.'))
                 ->withInput(['card_number' => trim($validated['card_number'])]);
         }
 
@@ -95,7 +95,7 @@ class OpacPatronController extends Controller
             if ($supplied !== '' && !password_verify($supplied, $storedPin->pin_hash)) {
                 return redirect()
                     ->route('opac.patron.login')
-                    ->with('error', 'Incorrect PIN.')
+                    ->with('error', __('Incorrect PIN.'))
                     ->withInput(['card_number' => trim($validated['card_number'])]);
             }
         }
@@ -124,7 +124,7 @@ class OpacPatronController extends Controller
         $patron = $this->patrons->get($patronId);
         if (!$patron) {
             Session::forget(['patron_id', 'patron_card', 'patron_name']);
-            return redirect()->route('opac.patron.login')->with('error', 'Session expired.');
+            return redirect()->route('opac.patron.login')->with('error', __('Session expired.'));
         }
 
         $loans = collect($this->patrons->getActiveLoans($patronId));
@@ -190,7 +190,7 @@ class OpacPatronController extends Controller
         if (!$hold) {
             return redirect()
                 ->route('opac.patron.holds')
-                ->with('error', 'Hold not found or already cancelled.');
+                ->with('error', __('Hold not found or already cancelled.'));
         }
 
         $ok = $this->circ->cancelHold($holdId, 'Patron self-cancelled');
@@ -228,7 +228,7 @@ class OpacPatronController extends Controller
 
         return redirect()
             ->route('library.opac')
-            ->with('success', 'You have been signed out of your library account.');
+            ->with('success', __('You have been signed out of your library account.'));
     }
 
     /**
@@ -257,7 +257,7 @@ class OpacPatronController extends Controller
         if ($failed > 0) {
             return redirect()
                 ->route('opac.patron.loans')
-                ->with('error', "Renewed {$renewed} item(s); {$failed} could not be renewed.");
+                ->with('error', __('Renewed :renewed item(s); :failed could not be renewed.', ['renewed' => $renewed, 'failed' => $failed]));
         }
 
         return redirect()
@@ -286,7 +286,7 @@ class OpacPatronController extends Controller
         if (!$checkout) {
             return redirect()
                 ->route('opac.patron.loans')
-                ->with('error', 'Checkout not found or not yours.');
+                ->with('error', __('Checkout not found or not yours.'));
         }
 
         $ok = $this->circ->renew($checkoutId);

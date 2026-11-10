@@ -43,13 +43,13 @@ class OnixIngestController extends Controller
 
         [$xml, $filename, $source] = $this->resolvePayload($request);
         if ($xml === null) {
-            return back()->with('error', 'Provide an ONIX file or paste ONIX XML.');
+            return back()->with('error', __('Provide an ONIX file or paste ONIX XML.'));
         }
 
         try {
             $result = $this->onix->ingest($xml, $filename, $source, $request->user()?->id);
         } catch (\Throwable $e) {
-            return back()->with('error', 'ONIX parse failed: ' . $e->getMessage());
+            return back()->with('error', __('ONIX parse failed: :error', ['error' => $e->getMessage()]));
         }
 
         return redirect()
@@ -67,7 +67,7 @@ class OnixIngestController extends Controller
     {
         $ingest = $this->onix->getIngest($id);
         if (!$ingest) {
-            return redirect()->route('library.onix-index')->with('error', "ONIX ingest #{$id} not found.");
+            return redirect()->route('library.onix-index')->with('error', __('ONIX ingest #:id not found.', ['id' => $id]));
         }
 
         return view('ahg-library::onix.show', [
@@ -82,7 +82,7 @@ class OnixIngestController extends Controller
         try {
             $r = $this->onix->commit($id, $request->user()?->id);
         } catch (\Throwable $e) {
-            return back()->with('error', 'Commit failed: ' . $e->getMessage());
+            return back()->with('error', __('Commit failed: :error', ['error' => $e->getMessage()]));
         }
 
         return redirect()
@@ -101,7 +101,7 @@ class OnixIngestController extends Controller
     {
         $this->onix->deleteIngest($id);
 
-        return redirect()->route('library.onix-index')->with('success', "ONIX ingest #{$id} deleted.");
+        return redirect()->route('library.onix-index')->with('success', __('ONIX ingest #:id deleted.', ['id' => $id]));
     }
 
     /** POST /library-manage/onix/line/{lineId}/status - skip/include a review-queue line. */

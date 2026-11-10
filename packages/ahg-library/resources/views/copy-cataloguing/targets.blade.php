@@ -83,7 +83,7 @@
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title">Edit: {{ $t->name }}</h5>
+                                        <h5 class="modal-title">{{ __('Edit: :name', ['name' => $t->name]) }}</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
                                     <form method="POST" action="{{ route('library.copy-cataloguing-update-target', $t->id) }}">

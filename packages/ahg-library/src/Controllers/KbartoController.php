@@ -131,7 +131,7 @@ class KbartoController extends Controller
         $ext = strtolower($file->getClientOriginalExtension());
         if (!in_array($ext, ['txt', 'tsv', 'csv'])) {
             return redirect()->back()
-                ->with('error', 'Please upload a .txt, .tsv, or .csv file.');
+                ->with('error', __('Please upload a .txt, .tsv, or .csv file.'));
         }
 
         $raw = file_get_contents($file->getRealPath());
@@ -139,12 +139,12 @@ class KbartoController extends Controller
 
         if ($sizeKB > 50) {
             return redirect()->back()
-                ->with('error', "File is too large ({$sizeKB} KB). Maximum allowed is 50 MB.");
+                ->with('error', __('File is too large (:size KB). Maximum allowed is 50 MB.', ['size' => $sizeKB]));
         }
 
         if (trim($raw) === '') {
             return redirect()->back()
-                ->with('error', 'The uploaded file is empty.');
+                ->with('error', __('The uploaded file is empty.'));
         }
 
         try {
@@ -160,7 +160,7 @@ class KbartoController extends Controller
         } catch (Throwable $e) {
             Log::error('KbartoController preview error: ' . $e->getMessage());
             return redirect()->back()
-                ->with('error', 'Failed to parse the file: ' . $e->getMessage());
+                ->with('error', __('Failed to parse the file: :error', ['error' => $e->getMessage()]));
         }
     }
 

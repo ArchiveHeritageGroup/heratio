@@ -10,23 +10,22 @@
             <h2 class="mb-0">{{ __('Z39.50 Search Results') }}</h2>
             <p class="text-muted small mb-0">
                 {{ __('Target:') }} <strong>{{ $targetName }}</strong> -
-                Query: <em>"{{ $query }}"</em> -
-                {{ $count }} record(s) found
+                {!! __('Query: :query', ['query' => '<em>"'.e($query).'"</em>']) !!} -
+                {{ __(':count record(s) found', ['count' => $count]) }}
             </p>
         </div>
     </div>
 
     @if($count === 0)
         <div class="alert alert-warning">
-            <i class="fas fa-search me-2"></i>{{ __('No records returned from') }}
-            <strong>{{ $targetName }}</strong> for query <em>"{{ $query }}"</em>.
-            Verify the query format and target connectivity.
+            <i class="fas fa-search me-2"></i>{!! __('No records returned from :target for query :query.', ['target' => '<strong>'.e($targetName).'</strong>', 'query' => '<em>"'.e($query).'"</em>']) !!}
+            {{ __('Verify the query format and target connectivity.') }}
         </div>
     @else
         <div class="card shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="fas fa-list me-2"></i>{{ __('Records') }}</span>
-                <span class="badge bg-secondary">{{ count($records) }} shown</span>
+                <span class="badge bg-secondary">{{ __(':count shown', ['count' => count($records)]) }}</span>
             </div>
             <div class="card-body p-0">
                 @foreach($records as $idx => $rec)

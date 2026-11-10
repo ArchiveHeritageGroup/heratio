@@ -69,7 +69,7 @@
             <ol class="small text-muted mb-0">
                 <li>{{ __('The first record from the file is parsed and displayed for review.') }}</li>
                 <li>{{ __('Field sections (leader, control fields, title, author, publication, etc.) are shown.') }}</li>
-                <li>{{ __('Click') }} <strong>{{ __('Commit Import') }}</strong> to create library items for all valid records.</li>
+                <li>{!! __('Click :button to create library items for all valid records.', ['button' => '<strong>'.e(__('Commit Import')).'</strong>']) !!}</li>
             </ol>
         </div>
     </div>
@@ -79,7 +79,7 @@
         <div class="card shadow-sm">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="fas fa-list-check me-2"></i>{{ __('Preview: First Record') }}</span>
-                <span class="badge bg-secondary">{{ count($preview_data) }} section(s)</span>
+                <span class="badge bg-secondary">{{ __(':count section(s)', ['count' => count($preview_data)]) }}</span>
             </div>
             <div class="card-body p-0">
                 <div class="accordion" id="previewAccordion">
@@ -94,7 +94,7 @@
                                         aria-expanded="{{ $sectionIdx === 0 ? 'true' : 'false' }}"
                                         aria-controls="{{ $sectionId }}">
                                     <span class="badge bg-info text-dark me-2">{{ $section['label'] }}</span>
-                                    <span class="text-muted small">{{ count($section['fields']) }} field(s)</span>
+                                    <span class="text-muted small">{{ __(':count field(s)', ['count' => count($section['fields'])]) }}</span>
                                 </button>
                             </h2>
                             <div id="{{ $sectionId }}" class="accordion-collapse collapse {{ $sectionIdx === 0 ? 'show' : '' }}"

@@ -81,7 +81,7 @@
                                            value="1"
                                            {{ old('active', $feed->active ?? true) ? 'checked' : '' }}>
                                     <label for="active" class="form-check-label">
-                                        {{ __('Active') }} <span class="text-muted small">(include in scheduled runs)</span>
+                                        {{ __('Active') }} <span class="text-muted small">{{ __('(include in scheduled runs)') }}</span>
                                     </label>
                                 </div>
                             </div>

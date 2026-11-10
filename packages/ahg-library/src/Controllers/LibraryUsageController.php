@@ -141,11 +141,11 @@ class LibraryUsageController extends Controller
             $totalRecords = $this->usage->harvestFromAllPartners($fromDate, $toDate, ['PR', 'TR']);
 
             return redirect()->route('library.usage')
-                ->with('success', "SUSHI harvest complete. {$totalRecords} usage record(s) collected.");
+                ->with('success', __('SUSHI harvest complete. :count usage record(s) collected.', ['count' => $totalRecords]));
         } catch (Throwable $e) {
             Log::error('LibraryUsageController harvest error: ' . $e->getMessage());
             return redirect()->back()
-                ->with('error', 'Harvest failed: ' . $e->getMessage());
+                ->with('error', __('Harvest failed: :error', ['error' => $e->getMessage()]));
         }
     }
 
@@ -199,11 +199,11 @@ class LibraryUsageController extends Controller
             );
 
             return redirect()->route('library.usage-subscriptions')
-                ->with('success', "Partner '{$validated['partner_code']}' saved.");
+                ->with('success', __("Partner ':partner' saved.", ['partner' => $validated['partner_code']]));
         } catch (Throwable $e) {
             Log::error('LibraryUsageController subscriptionsStore error: ' . $e->getMessage());
             return redirect()->back()
-                ->with('error', 'Failed to save partner: ' . $e->getMessage());
+                ->with('error', __('Failed to save partner: :error', ['error' => $e->getMessage()]));
         }
     }
 
@@ -215,11 +215,11 @@ class LibraryUsageController extends Controller
         try {
             DB::table('library_sushi_subscription')->where('id', $id)->delete();
             return redirect()->route('library.usage-subscriptions')
-                ->with('success', 'Partner removed.');
+                ->with('success', __('Partner removed.'));
         } catch (Throwable $e) {
             Log::error('LibraryUsageController subscriptionsDelete error: ' . $e->getMessage());
             return redirect()->route('library.usage-subscriptions')
-                ->with('error', 'Failed to remove partner: ' . $e->getMessage());
+                ->with('error', __('Failed to remove partner: :error', ['error' => $e->getMessage()]));
         }
     }
 

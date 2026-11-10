@@ -290,13 +290,13 @@ class CirculationDeskController extends Controller
         if (!$checkoutId) {
             return redirect()
                 ->route('library.circulation.do-checkout')
-                ->with('error', 'Checkout failed. The copy may already be checked out, or the patron has reached their loan limit, is suspended, or has exceeded the fine threshold.')
+                ->with('error', __('Checkout failed. The copy may already be checked out, or the patron has reached their loan limit, is suspended, or has exceeded the fine threshold.'))
                 ->withInput();
         }
 
         return redirect()
             ->route('library.circulation.index')
-            ->with('success', 'Item checked out successfully.');
+            ->with('success', __('Item checked out successfully.'));
     }
 
     /**
@@ -347,13 +347,13 @@ class CirculationDeskController extends Controller
         if (!$ok) {
             return redirect()
                 ->route('library.circulation.do-return')
-                ->with('error', 'Return failed. The checkout may have already been processed.')
+                ->with('error', __('Return failed. The checkout may have already been processed.'))
                 ->withInput();
         }
 
         return redirect()
             ->route('library.circulation.index')
-            ->with('success', 'Item returned successfully.');
+            ->with('success', __('Item returned successfully.'));
     }
 
     /**
@@ -371,12 +371,12 @@ class CirculationDeskController extends Controller
         if (!$ok) {
             return redirect()
                 ->route('library.circulation.index')
-                ->with('error', 'Renewal failed. The item may not be renewable (max renewals reached or another patron is waiting).');
+                ->with('error', __('Renewal failed. The item may not be renewable (max renewals reached or another patron is waiting).'));
         }
 
         return redirect()
             ->route('library.circulation.index')
-            ->with('success', 'Item renewed successfully.');
+            ->with('success', __('Item renewed successfully.'));
     }
 
     /**

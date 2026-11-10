@@ -4,7 +4,7 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="h4">{{ __('EDI Trading Partners') }}</h2>
     <a href="{{ route('library.trading-partners.create') }}" class="btn btn-primary btn-sm">
-      + New Partner
+      {{ __('+ New Partner') }}
     </a>
   </div>
 

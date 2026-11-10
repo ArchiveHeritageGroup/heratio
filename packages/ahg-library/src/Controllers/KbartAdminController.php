@@ -97,7 +97,7 @@ class KbartAdminController extends Controller
 
         return redirect()
             ->action([KbartAdminController::class, 'index'])
-            ->with('success', "Feed '{$feed->name}' created.");
+            ->with('success', __("Feed ':name' created.", ['name' => $feed->name]));
     }
 
     /**
@@ -133,7 +133,7 @@ class KbartAdminController extends Controller
         $name = \Illuminate\Support\Facades\DB::table('library_kbart_feed')->where('id', $feed)->value('name');
         return redirect()
             ->action([KbartAdminController::class, 'index'])
-            ->with('success', "Feed '{$name}' updated.");
+            ->with('success', __("Feed ':name' updated.", ['name' => $name]));
     }
 
     /**
@@ -161,10 +161,9 @@ class KbartAdminController extends Controller
     {
         $this->fetchFeed($feed);
         $new = $this->remote->toggleFeed($feed);
-        $state = $new ? 'activated' : 'deactivated';
         return redirect()
             ->action([KbartAdminController::class, 'index'])
-            ->with('success', "Feed {$feed} {$state}.");
+            ->with('success', ($new ? __('Feed :feed activated.', ['feed' => $feed]) : __('Feed :feed deactivated.', ['feed' => $feed])));
     }
 
     /**
@@ -176,7 +175,7 @@ class KbartAdminController extends Controller
         $this->remote->deleteFeed($feed);
         return redirect()
             ->action([KbartAdminController::class, 'index'])
-            ->with('success', "Feed '{$row->name}' deleted.");
+            ->with('success', __("Feed ':name' deleted.", ['name' => $row->name]));
     }
 
     /**

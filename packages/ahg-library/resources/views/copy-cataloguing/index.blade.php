@@ -46,7 +46,7 @@
                         <div class="mb-3">
                             <label for="target_id" class="form-label">{{ __('Target') }} <span class="text-danger">*</span></label>
                             <select name="target_id" id="target_id" class="form-select" required>
-                                <option value="">- select target -</option>
+                                <option value="">{{ __('- select target -') }}</option>
                                 @foreach($targets as $t)
                                     <option value="{{ $t->id }}"
                                             {{ (request('target_id') == $t->id || (isset($targetId) && $targetId == $t->id)) ? 'selected' : '' }}>
@@ -62,7 +62,7 @@
                                    value="{{ $query ?? '' }}"
                                    placeholder="{{ __('isbn=9780123456 or title=python programming') }}">
                             <div class="form-text small text-muted">
-                                Use field prefixes: <code>title=</code>, <code>author=</code>,
+                                {{ __('Use field prefixes:') }} <code>title=</code>, <code>author=</code>,
                                 <code>isbn=</code>, <code>issn=</code>, <code>subject=</code>
                             </div>
                         </div>
@@ -111,7 +111,7 @@
                         <span>
                             <i class="fas fa-list me-2"></i>{{ __('Search Results') }}
                         </span>
-                        <span class="badge bg-secondary">{{ $recordCount ?? count($records) }} record(s)</span>
+                        <span class="badge bg-secondary">{{ __(':count record(s)', ['count' => $recordCount ?? count($records)]) }}</span>
                     </div>
                     <div class="card-body p-0">
                         <table class="table table-striped table-hover mb-0">
@@ -154,7 +154,7 @@
             @elseif(isset($searchError))
                 <div class="alert alert-warning">
                     <i class="fas fa-exclamation-triangle me-2"></i>
-                    Search failed: {{ $searchError }}
+                    {{ __('Search failed: :error', ['error' => $searchError]) }}
                 </div>
             @else
                 <div class="alert alert-light">

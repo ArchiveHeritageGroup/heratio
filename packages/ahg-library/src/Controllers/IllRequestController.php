@@ -115,7 +115,7 @@ class IllRequestController
 
         return redirect()
             ->route('library.ill-requests.index')
-            ->with('success', 'ILL request created.');
+            ->with('success', __('ILL request created.'));
     }
 
     /** Show detail */
@@ -123,7 +123,7 @@ class IllRequestController
     {
         $ill = $this->illService->get($id);
         if (!$ill) {
-            return redirect()->route('library.ill-requests.index')->with('error', 'ILL request not found.');
+            return redirect()->route('library.ill-requests.index')->with('error', __('ILL request not found.'));
         }
 
         $partner = !empty($ill->trading_partner_id)
@@ -152,7 +152,7 @@ class IllRequestController
 
         return redirect()
             ->route('library.ill-requests.show', $id)
-            ->with('success', 'ILL request updated.');
+            ->with('success', __('ILL request updated.'));
     }
 
     /** Transition status (state machine) */
@@ -168,12 +168,12 @@ class IllRequestController
         if (!$ok) {
             return redirect()
                 ->route('library.ill-requests.show', $id)
-                ->with('error', 'Invalid status transition. Check the ISO 10160 state machine.');
+                ->with('error', __('Invalid status transition. Check the ISO 10160 state machine.'));
         }
 
         return redirect()
             ->route('library.ill-requests.show', $id)
-            ->with('success', "Status updated to {$request->new_status}.");
+            ->with('success', __('Status updated to :status.', ['status' => $request->new_status]));
     }
 
     /** Send via EDI */
@@ -185,7 +185,7 @@ class IllRequestController
 
         $ill = $this->illService->get($id);
         if (!$ill) {
-            return redirect()->route('library.ill-requests.index')->with('error', 'ILL request not found.');
+            return redirect()->route('library.ill-requests.index')->with('error', __('ILL request not found.'));
         }
 
         $partner = TradingPartner::find($request->trading_partner_id);
@@ -211,7 +211,7 @@ class IllRequestController
 
         return redirect()
             ->route('library.ill-requests.show', $id)
-            ->with('error', 'EDI send failed: ' . $result['message']);
+            ->with('error', __('EDI send failed: :message', ['message' => $result['message']]));
     }
 
     /** Delete */

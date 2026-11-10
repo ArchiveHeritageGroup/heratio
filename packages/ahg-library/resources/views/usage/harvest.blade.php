@@ -36,9 +36,7 @@
                 </div>
                 <div class="card-body">
                     <p class="small text-muted">
-                        Fetches COUNTER 5 reports (PR, TR) from all active SUSHI partners
-                        for the selected date range and stores results in
-                        <code>library_usage_stats</code>.
+                        {!! __('Fetches COUNTER 5 reports (PR, TR) from all active SUSHI partners for the selected date range and stores results in :table.', ['table' => '<code>library_usage_stats</code>']) !!}
                     </p>
                     <form method="GET" action="{{ route('library.usage-harvest') }}">
                         <div class="mb-2">
@@ -69,8 +67,7 @@
                     <p>{{ __('Add to your system crontab for automatic monthly harvests:') }}</p>
                     <pre class="bg-dark text-light p-2 rounded small mb-2"><code>0 3 1 * * cd /usr/share/nginx/heratio && php artisan library:usage:harvest</code></pre>
                     <p class="text-muted mb-0">
-                        Or configure the scheduler in <code>routes/console.php</code> to
-                        run <code>library:usage:harvest</code> monthly.
+                        {!! __('Or configure the scheduler in :file to run :command monthly.', ['file' => '<code>routes/console.php</code>', 'command' => '<code>library:usage:harvest</code>']) !!}
                     </p>
                 </div>
             </div>
@@ -85,26 +82,19 @@
                 <div class="card-body p-0">
                     <ol class="mb-0">
                         <li class="p-3 border-bottom">
-                            <strong>{{ __('Credentials') }}</strong> - partner base URLs, API keys, and customer IDs
-                            are resolved from <code>ahg_settings</code> and/or the
-                            <code>library_sushi_subscription</code> table.
+                            <strong>{{ __('Credentials') }}</strong> - {!! __('partner base URLs, API keys, and customer IDs are resolved from :settings and/or the :table table.', ['settings' => '<code>ahg_settings</code>', 'table' => '<code>library_sushi_subscription</code>']) !!}
                         </li>
                         <li class="p-3 border-bottom">
-                            <strong>{{ __('SUSHI request') }}</strong> - a standards-compliant JSON body is POSTed to
-                            <code>/sushi/v5/reports/{PR|TR|DR}</code>.
+                            <strong>{{ __('SUSHI request') }}</strong> - {!! __('a standards-compliant JSON body is POSTed to :endpoint.', ['endpoint' => '<code>/sushi/v5/reports/{PR|TR|DR}</code>']) !!}
                         </li>
                         <li class="p-3 border-bottom">
-                            <strong>{{ __('Response parsing') }}</strong> - COUNTER 5 JSON metrics are extracted and
-                            normalised into <code>library_usage_stats</code> rows.
+                            <strong>{{ __('Response parsing') }}</strong> - {!! __('COUNTER 5 JSON metrics are extracted and normalised into :table rows.', ['table' => '<code>library_usage_stats</code>']) !!}
                         </li>
                         <li class="p-3 border-bottom">
-                            <strong>{{ __('Audit trail') }}</strong> - raw JSON responses are stored in
-                            <code>library_sushi_raw_responses</code> for debugging and reprocessing.
+                            <strong>{{ __('Audit trail') }}</strong> - {!! __('raw JSON responses are stored in :table for debugging and reprocessing.', ['table' => '<code>library_sushi_raw_responses</code>']) !!}
                         </li>
                         <li class="p-3">
-                            <strong>{{ __('Connection test') }}</strong> - use the
-                            <a href="{{ route('library.usage-subscriptions') }}">{{ __('Partners page') }}</a>
-                            to verify each endpoint before running a full harvest.
+                            <strong>{{ __('Connection test') }}</strong> - {!! __('use the :link to verify each endpoint before running a full harvest.', ['link' => '<a href="'.e(route('library.usage-subscriptions')).'">'.e(__('Partners page')).'</a>']) !!}
                         </li>
                     </ol>
                 </div>
