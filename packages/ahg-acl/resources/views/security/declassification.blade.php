@@ -31,7 +31,7 @@
             <a href="{{ url('/' . $dec->object_id) }}">{{ e($dec->title ?? $dec->identifier ?? 'ID: ' . $dec->object_id) }}</a>
           </td>
           <td><span class="badge bg-danger">{{ e($dec->from_classification) }}</span></td>
-          <td><span class="badge bg-success">{{ e($dec->to_classification ?? 'Public') }}</span></td>
+          <td><span class="badge bg-success">{{ e($dec->to_classification ?? __('Public')) }}</span></td>
           <td>{{ $dec->scheduled_date }}</td>
           <td>
             <form action="{{ route('acl.declassify-store') }}" method="post" style="display:inline">
@@ -86,9 +86,9 @@
             <a href="{{ url('/' . $item->object_id) }}">{{ e($item->title ?? 'ID: ' . $item->object_id) }}</a>
           </td>
           <td>{{ e($item->from_name ?? '') }}</td>
-          <td>{{ e($item->to_name ?? 'Public') }}</td>
+          <td>{{ e($item->to_name ?? __('Public')) }}</td>
           <td>{{ $item->scheduled_date }}</td>
-          <td>{{ round($daysUntil) }} days</td>
+          <td>{{ __(':count days', ['count' => round($daysUntil)]) }}</td>
         </tr>
         @endforeach
       </tbody>

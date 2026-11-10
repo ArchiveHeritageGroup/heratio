@@ -87,7 +87,7 @@
                       default => 'bg-secondary',
                     };
                   @endphp
-                  <span class="badge {{ $priorityClass }}">{{ ucfirst($req->priority ?? 'Normal') }}</span>
+                  <span class="badge {{ $priorityClass }}">{{ ucfirst($req->priority ?? __('Normal')) }}</span>
                 </td>
                 <td class="text-center">
                   @php
@@ -99,7 +99,7 @@
                       default => 'bg-secondary',
                     };
                   @endphp
-                  <span class="badge {{ $statusClass }}">{{ ucfirst($req->status ?? 'Pending') }}</span>
+                  <span class="badge {{ $statusClass }}">{{ ucfirst($req->status ?? __('Pending')) }}</span>
                 </td>
                 <td>{{ $req->created_at ?? '-' }}</td>
                 @if($status === 'pending')
@@ -175,7 +175,7 @@
               </tr>
             @empty
               <tr>
-                <td colspan="{{ $status === 'pending' ? 8 : 7 }}" class="text-center text-muted py-4">No {{ $status ?? '' }} access requests found.</td>
+                <td colspan="{{ $status === 'pending' ? 8 : 7 }}" class="text-center text-muted py-4">{{ __('No access requests found for this status.') }}</td>
               </tr>
             @endforelse
           </tbody>
@@ -265,7 +265,7 @@
     <div class="card">
       <div class="card-header bg-primary text-white">
         <i class="fas fa-list me-2"></i> {{ __('Audit Log') }}
-        <span class="badge bg-light text-dark ms-2">{{ number_format($total ?? 0) }} entries</span>
+        <span class="badge bg-light text-dark ms-2">{{ __(':count entries', ['count' => number_format($total ?? 0)]) }}</span>
       </div>
       @if (empty($logs) || $logs->isEmpty())
         <div class="card-body text-center text-muted py-5">
@@ -330,7 +330,7 @@
                 @if ($page > 1)
                   <li class="page-item"><a class="page-link" href="{{ route('acl.access-requests', array_merge($qs, ['page' => $page - 1])) }}">&laquo;</a></li>
                 @endif
-                <li class="page-item active"><span class="page-link">Page {{ $page }} of {{ $totalPages }}</span></li>
+                <li class="page-item active"><span class="page-link">{{ __('Page :page of :pages', ['page' => $page, 'pages' => $totalPages]) }}</span></li>
                 @if ($page < $totalPages)
                   <li class="page-item"><a class="page-link" href="{{ route('acl.access-requests', array_merge($qs, ['page' => $page + 1])) }}">&raquo;</a></li>
                 @endif

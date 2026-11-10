@@ -36,7 +36,7 @@ switch ($classification->classificationLevel ?? $classification->classification_
   </div>
   <div class="ms-auto">
     <span class="badge" style="background-color: {{ $classification->classificationColor ?? $classification->color ?? '#666' }}; font-size: 1rem;">
-      Level {{ $classification->classificationLevel ?? $classification->classification_level ?? 0 }}
+      {{ __('Level :level', ['level' => $classification->classificationLevel ?? $classification->classification_level ?? 0]) }}
     </span>
   </div>
 </div>

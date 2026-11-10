@@ -9,12 +9,12 @@
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">{{ __('Admin') }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('acl.groups') }}">{{ __('ACL Groups') }}</a></li>
-      <li class="breadcrumb-item active" aria-current="page">{{ $group->name ?? 'Unnamed' }}</li>
+      <li class="breadcrumb-item active" aria-current="page">{{ $group->name ?? __('Unnamed') }}</li>
     </ol>
   </nav>
 
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-users-cog me-2"></i> {{ $group->name ?? 'Unnamed' }}</h2>
+    <h2><i class="fas fa-users-cog me-2"></i> {{ $group->name ?? __('Unnamed') }}</h2>
     <a href="{{ route('acl.groups') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i> {{ __('Back to Groups') }}
     </a>

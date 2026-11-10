@@ -22,7 +22,7 @@
     <i class="{{ $clearance->classificationIcon ?? $clearance->icon ?? 'fa-user-shield' }}"></i>
     {{ $clearance->classificationName ?? $clearance->name ?? '' }}
     @if($expired)
-      <small>(Expired)</small>
+      <small>{{ __('(Expired)') }}</small>
     @endif
   </span>
 @endif

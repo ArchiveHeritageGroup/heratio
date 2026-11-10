@@ -96,7 +96,7 @@
                   <span class="badge fs-6" style="background-color:{{ $clr->classification_color ?? '#6c757d' }};">
                     {{ $clr->classification_name }}
                   </span>
-                  <br><small class="text-muted">Level {{ $clr->classification_level ?? '' }}</small>
+                  <br><small class="text-muted">{{ __('Level :level', ['level' => $clr->classification_level ?? '']) }}</small>
                 @else
                   <span class="badge bg-secondary">{{ __('No Clearance') }}</span>
                 @endif
@@ -189,14 +189,14 @@
             <i class="fas fa-info-circle me-1"></i>
             {{ __('Select users in the table, then choose a clearance level to grant to all selected users.') }}
           </div>
-          <p><strong id="selectedCount">0</strong> users selected</p>
+          <p><strong id="selectedCount">0</strong> {{ __('users selected') }}</p>
           <div id="selectedUsersContainer"></div>
 
           <div class="mb-3">
             <label for="bulkClassification" class="form-label">{{ __('Clearance Level') }}</label>
             <select class="form-select" name="classification_id" id="bulkClassification" required>
               @foreach($classifications as $c)
-                <option value="{{ $c->id }}">{{ $c->name }} (Level {{ $c->level ?? '' }})</option>
+                <option value="{{ $c->id }}">{{ __(':name (Level :level)', ['name' => $c->name, 'level' => $c->level ?? '']) }}</option>
               @endforeach
             </select>
           </div>
@@ -272,18 +272,18 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="col-md-6 mb-3">
               <label class="form-label">{{ __('User') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select name="user_id" class="form-select" required>
-                <option value="">-- Select User --</option>
+                <option value="">{{ __('-- Select User --') }}</option>
                 @foreach($users as $user)
-                  <option value="{{ $user->id }}">{{ $user->display_name ?: $user->username }} ({{ $user->email ?? $user->username }})</option>
+                  <option value="{{ $user->id }}">{{ __(':name (:email)', ['name' => $user->display_name ?: $user->username, 'email' => $user->email ?? $user->username]) }}</option>
                 @endforeach
               </select>
             </div>
             <div class="col-md-6 mb-3">
               <label class="form-label">{{ __('Clearance Level') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select name="classification_id" class="form-select" required>
-                <option value="">-- Select Level --</option>
+                <option value="">{{ __('-- Select Level --') }}</option>
                 @foreach($classifications as $cls)
-                  <option value="{{ $cls->id }}">{{ $cls->name }} ({{ $cls->code ?? '' }}, level {{ $cls->level ?? '' }})</option>
+                  <option value="{{ $cls->id }}">{{ __(':name (:code, level :level)', ['name' => $cls->name, 'code' => $cls->code ?? '', 'level' => $cls->level ?? '']) }}</option>
                 @endforeach
               </select>
             </div>

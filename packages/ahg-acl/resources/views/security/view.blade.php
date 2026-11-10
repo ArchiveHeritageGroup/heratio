@@ -58,7 +58,7 @@
                 @if($isExpired)
                   <br><span class="badge bg-danger fs-6 mb-2">{{ __('EXPIRED') }}</span>
                 @endif
-                <p class="small text-muted mb-0">Level {{ $clearance->level ?? 0 }}</p>
+                <p class="small text-muted mb-0">{{ __('Level :level', ['level' => $clearance->level ?? 0]) }}</p>
               @else
                 <span class="badge bg-secondary fs-5">{{ __('No Clearance') }}</span>
               @endif
@@ -86,7 +86,7 @@
                   <span>{{ __('Expires:') }}</span>
                   <strong class="{{ !empty($clearance->is_expired) ? 'text-danger' : '' }}">
                     {{ ($clearance->expires_at ?? null) ? date('M j, Y', strtotime($clearance->expires_at)) : 'Never' }}
-                    @if(!empty($clearance->is_expired)) (Expired)@endif
+                    @if(!empty($clearance->is_expired)) {{ __('(Expired)') }}@endif
                   </strong>
                 </li>
                 @if($clearance->notes ?? null)
@@ -128,14 +128,14 @@
                       @foreach($accessGrants as $grant)
                         <tr>
                           <td>
-                            <strong>{{ e($grant->object_title ?? 'Unknown') }}</strong>
+                            <strong>{{ e($grant->object_title ?? __('Unknown')) }}</strong>
                           </td>
                           <td>
                             <span class="badge bg-secondary">{{ ucfirst(str_replace('_', ' ', $grant->object_type ?? '')) }}</span>
                           </td>
                           <td>
                             @if($grant->include_descendants ?? false)
-                              <span class="badge bg-info">+ Children</span>
+                              <span class="badge bg-info">{{ __('+ Children') }}</span>
                             @else
                               <span class="badge bg-light text-dark">{{ __('Single') }}</span>
                             @endif
@@ -194,7 +194,7 @@
                           @endif
                         </div>
                         <small class="text-muted">
-                          {{ $entry->changed_by_name ?? 'System' }}<br>
+                          {{ $entry->changed_by_name ?? __('System') }}<br>
                           {{ ($entry->created_at ?? null) ? date('M j, Y H:i', strtotime($entry->created_at)) : '' }}
                         </small>
                       </div>
@@ -227,10 +227,10 @@
           <div class="mb-3">
             <label for="classification_id" class="form-label">{{ __('Clearance Level') }}</label>
             <select class="form-select" name="classification_id" required>
-              <option value="0">-- Revoke Clearance --</option>
+              <option value="0">{{ __('-- Revoke Clearance --') }}</option>
               @foreach($classifications ?? [] as $c)
                 <option value="{{ $c->id }}" {{ ($clearance && ($clearance->classification_id ?? null) == $c->id) ? 'selected' : '' }}>
-                  {{ e($c->name) }} (Level {{ $c->level }})
+                  {{ __(':name (Level :level)', ['name' => $c->name, 'level' => $c->level]) }}
                 </option>
               @endforeach
             </select>

@@ -21,7 +21,7 @@
           <tr>
             <td>
               <a href="{{ route('acl.edit-group', ['id' => $group->id]) }}">
-                {{ $group->name ?? 'Unnamed' }}
+                {{ $group->name ?? __('Unnamed') }}
               </a>
             </td>
             <td>{{ $group->member_count }}</td>

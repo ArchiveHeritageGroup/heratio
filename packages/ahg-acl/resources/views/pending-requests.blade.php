@@ -98,7 +98,7 @@
                     <br><small class="text-muted">{{ e($req->email ?? '') }}</small>
                   </td>
                   <td>
-                    <span class="badge bg-secondary">{{ $req->current_classification ?? 'None' }}</span>
+                    <span class="badge bg-secondary">{{ $req->current_classification ?? __('None') }}</span>
                     <i class="fas fa-arrow-right mx-1"></i>
                     <span class="badge bg-primary">{{ e($req->classification_name ?? '-') }}</span>
                   </td>

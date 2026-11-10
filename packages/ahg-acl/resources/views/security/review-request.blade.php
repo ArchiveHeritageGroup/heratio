@@ -5,7 +5,7 @@
 
 @section('content')
 
-<h1><i class="fas fa-search"></i> Review Access Request #{{ $accessRequest->id ?? '' }}</h1>
+<h1><i class="fas fa-search"></i> {{ __('Review Access Request #:id', ['id' => $accessRequest->id ?? '']) }}</h1>
 
 <div class="mb-3">
   <a href="{{ route('security.pending-requests') }}" class="btn btn-outline-secondary">
@@ -45,7 +45,7 @@
           </dd>
 
           <dt class="col-sm-3">{{ __('Duration Requested') }}</dt>
-          <dd class="col-sm-9">{{ $accessRequest->duration_hours ?? '' }} hours</dd>
+          <dd class="col-sm-9">{{ __(':count hours', ['count' => $accessRequest->duration_hours ?? '']) }}</dd>
 
           <dt class="col-sm-3">{{ __('Submitted') }}</dt>
           <dd class="col-sm-9">{{ ($accessRequest->created_at ?? null) ? date('Y-m-d H:i:s', strtotime($accessRequest->created_at)) : '' }}</dd>

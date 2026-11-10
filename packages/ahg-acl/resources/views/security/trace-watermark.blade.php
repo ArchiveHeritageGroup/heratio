@@ -83,7 +83,7 @@
   @else
   <div class="alert alert-warning">
     <i class="fas fa-exclamation-triangle"></i>
-    No watermark found with code: <code>{{ e($searchCode) }}</code>
+    {{ __('No watermark found with code: :code', ['code' => $searchCode]) }}
   </div>
   @endif
 @endif

@@ -13,9 +13,9 @@
 @if(request('error'))
   <div class="alert alert-danger">
     @if(request('error') === 'invalid')
-      Please select a valid classification level.
+      {{ __('Please select a valid classification level.') }}
     @elseif(request('error') === 'failed')
-      Failed to apply classification. Please try again.
+      {{ __('Failed to apply classification. Please try again.') }}
     @endif
   </div>
 @endif
@@ -26,7 +26,7 @@
   <div class="alert alert-light border mb-4">
     <h6 class="alert-heading">{{ $resource->title ?? $resource->identifier ?? '' }}</h6>
     @if($resource->identifier ?? null)
-      <small class="text-muted">Identifier: {{ $resource->identifier }}</small>
+      <small class="text-muted">{{ __('Identifier: :identifier', ['identifier' => $resource->identifier]) }}</small>
     @endif
     @if($currentClassification ?? null)
       <hr class="my-2">
@@ -65,7 +65,7 @@
                     <i class="{{ $c->icon ?? 'fas fa-lock' }} me-1"></i>
                     {{ $c->name }}
                   </span>
-                  <small class="d-block text-muted">Level {{ $c->level }}</small>
+                  <small class="d-block text-muted">{{ __('Level :level', ['level' => $c->level]) }}</small>
                 </label>
               </div>
             </div>
@@ -121,11 +121,11 @@
       <div class="mb-3">
         <label for="declassify_to_id" class="form-label">{{ __('Declassify To Level') }}</label>
         <select name="declassify_to_id" id="declassify_to_id" class="form-control">
-          <option value="">-- Remove classification entirely --</option>
+          <option value="">{{ __('-- Remove classification entirely --') }}</option>
           @foreach($classifications ?? [] as $c)
             <option value="{{ $c->id }}"
                     {{ ($currentClassification && ($currentClassification->declassifyToId ?? $currentClassification->declassify_to_id ?? null) == $c->id) ? 'selected' : '' }}>
-              {{ $c->name }} (Level {{ $c->level }})
+              {{ __(':name (Level :level)', ['name' => $c->name, 'level' => $c->level]) }}
             </option>
           @endforeach
         </select>

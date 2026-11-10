@@ -83,7 +83,7 @@
                       @endif
                     </td>
                     <td>
-                      Level {{ $approver->min_classification_level }} - {{ $approver->max_classification_level }}
+                      {{ __('Level :min - :max', ['min' => $approver->min_classification_level, 'max' => $approver->max_classification_level]) }}
                     </td>
                     <td>
                       @if($approver->email_notifications)
@@ -127,7 +127,7 @@
             <div class="mb-3">
               <label for="approver_user_id" class="form-label">{{ __('User') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select name="user_id" id="approver_user_id" class="form-select" required>
-                <option value="">-- Select User --</option>
+                <option value="">{{ __('-- Select User --') }}</option>
                 @foreach($availableUsers as $user)
                   <option value="{{ $user->id }}">{{ $user->display_name ?: $user->username }} ({{ $user->username }})</option>
                 @endforeach

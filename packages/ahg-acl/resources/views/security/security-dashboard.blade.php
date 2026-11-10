@@ -227,7 +227,7 @@
         <tr>
           <td>{{ e($dec->title ?? $dec->identifier ?? 'ID: ' . $dec->object_id) }}</td>
           <td>{{ e($dec->from_classification) }}</td>
-          <td>{{ e($dec->to_classification ?? 'Public') }}</td>
+          <td>{{ e($dec->to_classification ?? __('Public')) }}</td>
           <td>{{ $dec->scheduled_date }}</td>
         </tr>
         @endforeach
