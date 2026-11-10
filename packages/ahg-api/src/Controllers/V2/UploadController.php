@@ -148,13 +148,8 @@ class UploadController extends BaseApiController
 
     protected function resolveMediaTypeId(string $mime): ?int
     {
-        // AtoM media type taxonomy IDs
-        return match (true) {
-            str_starts_with($mime, 'image/') => 137,  // Image
-            str_starts_with($mime, 'audio/') => 138,  // Audio
-            str_starts_with($mime, 'video/') => 139,  // Video
-            $mime === 'application/pdf' => 140,        // Text
-            default => null,
-        };
+        // The core mapping: this used 137/138/139/140, which are Text/Video/Other
+        // and nothing, so images were stored as Text and audio as Video.
+        return \AhgCore\Services\DigitalObjectService::resolveMediaTypeId($mime);
     }
 }

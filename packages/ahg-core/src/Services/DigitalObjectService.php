@@ -302,6 +302,14 @@ class DigitalObjectService
             return 'unknown';
         }
 
+        // A clear audio/, image/ or video/ MIME type wins over the stored id: API v2
+        // uploads stored the wrong taxonomy ids (audio as Video, video as Other) and
+        // older imports stored audio as Other, which hid the player (10 Nov 2026).
+        $top = explode('/', (string) ($digitalObject->mime_type ?? ''))[0];
+        if (in_array($top, ['audio', 'image', 'video'], true)) {
+            return $top;
+        }
+
         if ($digitalObject->media_type_id) {
             return match ((int) $digitalObject->media_type_id) {
                 self::MEDIA_AUDIO => 'audio',   // 135
@@ -746,7 +754,7 @@ class DigitalObjectService
      * @param  string  $mimeType  MIME type string
      * @return int Media type term ID
      */
-    protected static function resolveMediaTypeId(string $mimeType): int
+    public static function resolveMediaTypeId(string $mimeType): int
     {
         $type = explode('/', $mimeType)[0] ?? '';
 
