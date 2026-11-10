@@ -230,6 +230,11 @@
           <a href="{{ route('io.privacy.redaction', $io->slug) }}" class="list-group-item list-group-item-action small">
             <i class="fas fa-eraser me-1"></i> {{ __('Visual Redaction') }}
           </a>
+          @if(Route::has('admin.ai.document-fields'))
+            <a href="{{ route('admin.ai.document-fields', $io->slug) }}" class="list-group-item list-group-item-action small">
+              <i class="fas fa-file-invoice me-1"></i> {{ __('Document fields') }}
+            </a>
+          @endif
         @endif
         <a href="{{ route('io.privacy.dashboard') }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-clipboard-check me-1"></i> {{ __('Privacy Dashboard') }}

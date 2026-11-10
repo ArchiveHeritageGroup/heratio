@@ -78,10 +78,12 @@ class DocumentFieldExtractorTest extends TestCase
         $x = app(DocumentFieldExtractor::class);
         $po = $this->record('po.pdf', ['PURCHASE ORDER PO-55501', 'Zz Valve Supplies (Pty) Ltd', 'Total R 1,150.00']);
         $inv = $this->record('inv.pdf', ['TAX INVOICE INV-9001', 'Zz Valve Supplies (Pty) Ltd', 'VAT 4999000222', 'Your order PO-55501', 'Total due R 1,150.00']);
+        $dn = $this->record('dn.pdf', ['DELIVERY NOTE DN-1', 'Your order PO-55501', 'Delivered 420']);
         $this->answer(
             ['document_type' => 'purchase_order', 'number' => 'PO-55501', 'supplier' => 'Zz Valve Supplies (Pty) Ltd', 'total' => 'R 1,150.00'],
             ['document_type' => 'invoice', 'number' => 'INV-9001', 'supplier' => 'Zz Valve Supplies (Pty) Ltd', 'supplier_vat' => 'VAT 4999000222',
                 'po_number' => 'PO-55501', 'total' => '1150', 'date' => '1 January 2026'],   // the date is not in the document
+            ['document_type' => 'delivery_note', 'number' => 'DN-1', 'po_number' => 'PO-55501'],
         );
         $this->assertSame([], $x->extract($po)['dropped']);
         $r = $x->extract($inv);
@@ -94,6 +96,11 @@ class DocumentFieldExtractorTest extends TestCase
         // The order changes: the totals no longer agree.
         DB::table('ahg_ai_suggestion')->where('object_id', $po)->where('field_name', 'po.total')->update(['suggested_value' => 'R 1,200.00']);
         $this->assertSame('totals_differ', $x->match($inv)['status']);
+
+        // A delivery note quotes the order but has no total: it is not compared on totals.
+        $this->assertSame('delivery_note', $x->extract($dn)['fields']['document_type']);
+        $this->assertSame('pending', DB::table('ahg_ai_suggestion')->where('object_id', $dn)->where('field_name', 'dn.number')->value('status'));
+        $this->assertSame('delivered', $x->match($dn)['status']);
     }
 
     public function test_the_page_lists_the_fields_for_an_administrator(): void

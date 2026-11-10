@@ -49,6 +49,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin/ai')->group(function () {
                         'matched' => 'Matches '.$m['po_number'].' ('.$m['invoice_total'].')',
                         'totals_differ' => 'Differs from '.$m['po_number'].': invoice '.$m['invoice_total'].', order '.$m['po_total'],
                         'po_not_found' => $m['po_number'].' not found',
+                        'delivered' => 'Delivered against '.$m['po_number'],
+                        'delivered_po_not_found' => 'Delivered against '.$m['po_number'].' (order not found)',
                         default => null,
                     };
                     $written = $wb->writeFields($id, $r['fields'], $matchText);

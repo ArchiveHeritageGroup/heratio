@@ -34,12 +34,12 @@ class DocumentFieldExtractor
     private const PROMPT = <<<'TXT'
 You read one business document and return its fields as JSON. Use only text that is in the document; if a field is not there, use null. Do not calculate or correct anything.
 Return exactly this JSON object:
-{"document_type": "invoice" or "purchase_order",
- "number": the invoice number or the purchase order number,
+{"document_type": "invoice", "purchase_order" or "delivery_note",
+ "number": the invoice, purchase order or delivery note number,
  "date": the invoice date or order date as written,
  "supplier": the supplier's company name as written,
  "supplier_vat": the VAT number printed with the supplier's own name and address at the top - never the VAT number under "Bill to", "Deliver to" or the customer,
- "po_number": for an invoice, the purchase order number it quotes; for a purchase order, null,
+ "po_number": for an invoice or a delivery note, the purchase order number it quotes (often under "Your order no.", "Order no." or "PO no."); for a purchase order, null,
  "subtotal": the amount before VAT as written, "vat_amount": the VAT amount as written, "total": the total as written,
  "currency": the currency code or symbol,
  "line_items": [{"description": as written, "quantity": as written, "unit_price": as written, "amount": as written}]}
@@ -65,7 +65,14 @@ TXT;
 
         $logger = class_exists(\AhgAiCompliance\Services\InferenceLogger::class) ? app(\AhgAiCompliance\Services\InferenceLogger::class) : null;
         $before = $logger?->last();
-        $res = $this->llm->completeFull(self::PROMPT, mb_substr($text, 0, 12000), null, ['temperature' => 0, 'max_tokens' => 1500]);
+        // ai_document_fields_model picks a gateway model for this reading; empty
+        // = the default LLM configuration's model.
+        $opts = ['temperature' => 0, 'max_tokens' => 1500];
+        $model = trim((string) \AhgCore\Services\AhgSettingsService::get('ai_document_fields_model', ''));
+        if ($model !== '') {
+            $opts['model'] = $model;
+        }
+        $res = $this->llm->completeFull(self::PROMPT, mb_substr($text, 0, 12000), null, $opts);
         if (empty($res['success'])) {
             return $this->fail('The AI gateway did not answer: '.($res['error'] ?? 'unknown error'));
         }
@@ -86,7 +93,7 @@ TXT;
                 $v = trim((string) preg_replace('/^(?:vat|btw)\s*(?:no\.?|nr\.?|number)?\s*[:#]?\s*/i', '', $v));
             }
             if ($f === 'document_type') {
-                $fields[$f] = in_array($v, ['invoice', 'purchase_order'], true) ? $v : 'invoice';
+                $fields[$f] = in_array($v, ['invoice', 'purchase_order', 'delivery_note'], true) ? $v : 'invoice';
             } elseif (self::grounded($v, $text, in_array($f, self::AMOUNTS, true))) {
                 $fields[$f] = $v;
             } else {
@@ -103,11 +110,11 @@ TXT;
             }
         }
 
-        $prefix = ($fields['document_type'] ?? 'invoice') === 'purchase_order' ? 'po' : 'invoice';
+        $prefix = ['purchase_order' => 'po', 'delivery_note' => 'dn'][$fields['document_type'] ?? 'invoice'] ?? 'invoice';
         $saved = 0;
         $note = json_encode(['source' => 'document-field-extraction', 'grounded' => true, 'receipt' => $receipt, 'ocr' => (bool) array_filter(array_column($pages, 'ocr'))]);
         DB::table('ahg_ai_suggestion')->where('object_id', $ioId)->where('status', 'pending')
-            ->where(fn ($q) => $q->where('field_name', 'like', 'invoice.%')->orWhere('field_name', 'like', 'po.%'))->delete();
+            ->where(fn ($q) => $q->where('field_name', 'like', 'invoice.%')->orWhere('field_name', 'like', 'po.%')->orWhere('field_name', 'like', 'dn.%'))->delete();
         foreach ($fields + ($lines ? ['line_items' => json_encode($lines, JSON_UNESCAPED_UNICODE)] : []) as $f => $v) {
             DB::table('ahg_ai_suggestion')->insert([
                 'object_id' => $ioId, 'field_name' => $prefix.'.'.$f, 'suggested_value' => $v,
@@ -125,7 +132,7 @@ TXT;
     {
         $out = [];
         foreach (DB::table('ahg_ai_suggestion')->where('object_id', $ioId)->where('status', '!=', 'rejected')
-            ->where(fn ($q) => $q->where('field_name', 'like', 'invoice.%')->orWhere('field_name', 'like', 'po.%'))
+            ->where(fn ($q) => $q->where('field_name', 'like', 'invoice.%')->orWhere('field_name', 'like', 'po.%')->orWhere('field_name', 'like', 'dn.%'))
             ->orderBy('id')->get(['field_name', 'suggested_value', 'status', 'model', 'notes']) as $r) {
             $out[substr($r->field_name, strpos($r->field_name, '.') + 1)] = $r;
         }
@@ -137,7 +144,8 @@ TXT;
      * Check an invoice against the purchase order it quotes.
      *
      * @return array{status: string, po_io?: int, invoice_total?: string, po_total?: string}
-     *   status: no_po_number | po_not_found | totals_differ | matched
+     *   status: no_po_number | po_not_found | totals_differ | matched,
+     *   or delivered / delivered_po_not_found for a delivery note (no total to compare)
      */
     public function match(int $invoiceIo): array
     {
@@ -146,10 +154,14 @@ TXT;
         if (! $po) {
             return ['status' => 'no_po_number'];
         }
+        $isDelivery = ($inv['document_type']->suggested_value ?? '') === 'delivery_note';
         $poIo = (int) DB::table('ahg_ai_suggestion')->where('field_name', 'po.number')->where('status', '!=', 'rejected')
             ->whereRaw('REPLACE(suggested_value, " ", "") = ?', [str_replace(' ', '', $po)])->value('object_id');
         if ($poIo === 0) {
-            return ['status' => 'po_not_found', 'po_number' => $po];
+            return ['status' => $isDelivery ? 'delivered_po_not_found' : 'po_not_found', 'po_number' => $po];
+        }
+        if ($isDelivery) {
+            return ['status' => 'delivered', 'po_io' => $poIo, 'po_number' => $po];
         }
         $a = $inv['total']->suggested_value ?? null;
         $b = $this->fieldsOf($poIo)['total']->suggested_value ?? null;

@@ -96,6 +96,26 @@ class AhgSharePointServiceProvider extends ServiceProvider
                 \AhgSharePoint\Console\Commands\SharePointIngestEventCommand::class,
                 \AhgSharePoint\Console\Commands\SharePointAutoIngestCommand::class,
             ]);
+
+            // Hands-free capture: poll every capture-enabled library once a
+            // minute while the setting sharepoint_auto_sync is on (ahg_settings,
+            // off unless set). Each run follows the stored delta link, so only
+            // new or changed files become events; folders and the Redacted copies
+            // folder are skipped. Switch off: set sharepoint_auto_sync to 0.
+            $this->app->booted(function () {
+                $this->app->make(\Illuminate\Console\Scheduling\Schedule::class)
+                    ->command('sharepoint:sync')
+                    ->everyMinute()
+                    ->withoutOverlapping(10)
+                    ->runInBackground()
+                    ->when(function () {
+                        try {
+                            return \AhgCore\Services\AhgSettingsService::getBool('sharepoint_auto_sync', false);
+                        } catch (\Throwable $e) {
+                            return false;
+                        }
+                    });
+            });
         }
     }
 }

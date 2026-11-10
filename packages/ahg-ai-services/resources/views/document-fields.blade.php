@@ -50,6 +50,8 @@
         'totals_differ' => ['danger', 'fa-exclamation-triangle', __('Purchase order :po found, but the totals differ: invoice :a, order :b.', ['po' => $match['po_number'] ?? '', 'a' => $match['invoice_total'] ?? '-', 'b' => $match['po_total'] ?? '-'])],
         'po_not_found' => ['warning', 'fa-question-circle', __('Purchase order :po is not in the archive yet (or has not been read).', ['po' => $match['po_number'] ?? ''])],
         'no_po_number' => ['secondary', 'fa-info-circle', __('This invoice quotes no purchase order.')],
+        'delivered' => ['info', 'fa-truck', __('Delivery note against purchase order :po, which is in the archive. Compare the quantities with the order.', ['po' => $match['po_number'] ?? ''])],
+        'delivered_po_not_found' => ['warning', 'fa-question-circle', __('Delivery note against purchase order :po, which is not in the archive yet (or has not been read).', ['po' => $match['po_number'] ?? ''])],
       ][$match['status']];
     @endphp
     <div class="alert alert-{{ $m[0] }}"><i class="fas {{ $m[1] }} me-1" aria-hidden="true"></i>{{ $m[2] }}
