@@ -17,6 +17,23 @@
  *   alt="..." aria-label="..."
  *   <option>Yes</option>           ← static select options
  *
+ * Two further passes (heratio#1597) catch what the pattern bank cannot:
+ *
+ *   Showing {{ $n }} results       ← [text]  any text node between tags, with
+ *                                    Blade expressions and @directives
+ *                                    blanked first, so text that shares an
+ *                                    element with an expression, spans lines,
+ *                                    or sits in <p>/<span>/<a>/<td>/... is seen
+ *   ->with('error', 'Not found.')  ← [flash] literal flash messages in PHP
+ *                                    (each package's src/ and app/)
+ *
+ * Baseline (the same contract as tools/scan-form-fields.php): the backlog is
+ * recorded in tools/translation-lint-baseline.txt as "file<TAB>kind<TAB>text"
+ * lines - no line numbers, so editing a file elsewhere does not churn it.
+ * --check fails only on findings that are not in the baseline, so new code
+ * cannot add hardcoded strings while the backlog is cleared package by package;
+ * --baseline rewrites it, and should only ever make it shorter.
+ *
  * Skips:
  *   - text inside {{ ... }} or {!! ... !!} (already a Blade expression)
  *   - text inside <script> / <style> blocks
@@ -29,6 +46,8 @@
  *   php artisan ahg:translation-lint --top=10
  *   php artisan ahg:translation-lint --package=ahg-museum
  *   php artisan ahg:translation-lint --fail-above=200
+ *   php artisan ahg:translation-lint --check      # CI: fail on anything new
+ *   php artisan ahg:translation-lint --baseline   # record the current backlog
  *
  * Copyright (C) 2026 Johan Pieterse, Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.
@@ -44,7 +63,9 @@ class TranslationLintCommand extends Command
                             {--top=20 : Show top-N files by hardcoded-string count}
                             {--package= : Restrict scan to a single packages/{name}/ subtree}
                             {--all : Print every candidate string, not just the per-file totals}
-                            {--fail-above= : Exit non-zero if total candidate count exceeds this number}';
+                            {--fail-above= : Exit non-zero if total candidate count exceeds this number}
+                            {--check : Exit non-zero on any candidate not in tools/translation-lint-baseline.txt}
+                            {--baseline : Write the current candidates to tools/translation-lint-baseline.txt}';
 
     protected $description = 'Find hardcoded UI strings in blade files that should be wrapped in __()';
 
@@ -71,15 +92,20 @@ class TranslationLintCommand extends Command
         $known = is_file($enJson) ? (json_decode(file_get_contents($enJson), true) ?? []) : [];
         $known = array_flip(array_keys($known));
 
-        $rii = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS)
-        );
+        // Blade roots: the package tree, plus the app's own views when the
+        // scan is not restricted to one package. PHP roots (flash messages):
+        // each package's src/ and app/.
+        $bladeRoots = [$root];
+        $phpRoots = [$packageFilter !== '' ? $root.'/src' : $root];
+        if ($packageFilter === '') {
+            $bladeRoots[] = base_path('resources/views');
+            $phpRoots[] = base_path('app');
+        }
 
         $perFile = [];
         $total = 0;
 
-        foreach ($rii as $file) {
-            $path = $file->getPathname();
+        foreach ($this->files($bladeRoots) as $path) {
             if (str_contains($path, '/worktree/')) {
                 continue;
             }
@@ -100,7 +126,10 @@ class TranslationLintCommand extends Command
             $stripped = preg_replace('#<script\b[^>]*>.*?</script>#is', '', $contents);
             $stripped = preg_replace('#<style\b[^>]*>.*?</style>#is', '', $stripped);
 
-            $hits = $this->findCandidates($stripped, $known);
+            $hits = $this->dedupe(array_merge(
+                $this->findCandidates($stripped, $known),
+                $this->findTextNodes($contents)
+            ));
             if (empty($hits)) {
                 continue;
             }
@@ -108,6 +137,28 @@ class TranslationLintCommand extends Command
             $rel = str_replace(base_path().'/', '', $path);
             $perFile[$rel] = $hits;
             $total += count($hits);
+        }
+
+        foreach ($this->files($phpRoots) as $path) {
+            if (str_ends_with($path, '.blade.php') || ! str_ends_with($path, '.php')
+                || str_contains($path, '/resources/views/') || str_contains($path, '/tests/')) {
+                continue;
+            }
+            $contents = @file_get_contents($path);
+            if ($contents === false) {
+                continue;
+            }
+            $hits = $this->findFlashMessages($contents);
+            if (empty($hits)) {
+                continue;
+            }
+            $rel = str_replace(base_path().'/', '', $path);
+            $perFile[$rel] = $hits;
+            $total += count($hits);
+        }
+
+        if ($this->option('baseline') || $this->option('check')) {
+            return $this->baseline($perFile, (bool) $this->option('baseline'));
         }
 
         // Sort files by hit-count descending.
@@ -233,6 +284,181 @@ class TranslationLintCommand extends Command
         }
 
         return false;
+    }
+
+    /** @return \Generator<string> every file under the given roots, skipping vendor/ and worktree/ */
+    private function files(array $roots): \Generator
+    {
+        foreach ($roots as $root) {
+            if (! is_dir($root)) {
+                continue;
+            }
+            $rii = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS)
+            );
+            foreach ($rii as $file) {
+                $path = $file->getPathname();
+                if (str_contains($path, '/vendor/') || str_contains($path, '/worktree/')) {
+                    continue;
+                }
+                yield $path;
+            }
+        }
+    }
+
+    /**
+     * Text between tags that still reads as English once Blade is removed.
+     *
+     * Comments, <script>/<style>/<pre>/<code>, @php blocks, {{ }} / {!! !!}
+     * and @directives(...) are blanked first, keeping newlines so the line
+     * numbers stay true. A node that contained an expression is reported with
+     * {{…}} in its place.
+     *
+     * @return array<int, array{kind: string, text: string, line: int}>
+     */
+    private function findTextNodes(string $contents): array
+    {
+        $keepLines = fn (array $m) => str_repeat("\n", substr_count($m[0], "\n"));
+        $src = preg_replace_callback(
+            '#\{\{--.*?--\}\}|<!--.*?-->|<(script|style|pre|code)\b[^>]*>.*?</\1>|@php\b.*?@endphp|@verbatim\b.*?@endverbatim#is',
+            $keepLines,
+            $contents
+        );
+        $src = preg_replace_callback('#\{\{.*?\}\}|\{!!.*?!!\}#s', fn ($m) => "\x00".str_repeat("\n", substr_count($m[0], "\n")), $src);
+        // A directive separates text: the branches of @if / @else are
+        // different strings, so mark the boundary (\x01) instead of erasing it.
+        $src = preg_replace_callback('#@[a-zA-Z]+\s*(\((?:[^()]++|(?1))*\))#', fn ($m) => "\x01".str_repeat("\n", substr_count($m[0], "\n")), $src);
+        $src = preg_replace('#@[a-zA-Z]+\b#', "\x01", $src);
+
+        $hits = [];
+        $lineMap = $this->buildLineMap($src);
+        if (! preg_match_all('#>([^<>]+)<#', $src, $matches, PREG_OFFSET_CAPTURE)) {
+            return [];
+        }
+        $segments = [];
+        foreach ($matches[1] as [$node, $offset]) {
+            foreach (explode("\x01", $node) as $segment) {
+                $segments[] = [$segment, $offset];
+                $offset += strlen($segment) + 1;
+            }
+        }
+        foreach ($segments as [$node, $offset]) {
+            $plain = trim(preg_replace('#&[\#\w]+;#', ' ', str_replace("\x00", ' ', $node)));
+            if (! preg_match('#[A-Za-z][a-z]{2,}#', $plain)) {
+                continue; // no word: numbers, symbols, ALLCAPS acronyms
+            }
+            $text = trim(preg_replace('#\s+#', ' ', str_replace("\x00", '{{…}}', $node)));
+            if ($this->shouldSkip($plain, [])) {
+                continue;
+            }
+            $hits[] = [
+                'kind' => 'text',
+                'text' => $text,
+                'line' => $this->offsetToLine($offset + strspn($node, " \t\r\n"), $lineMap),
+            ];
+        }
+
+        return $hits;
+    }
+
+    /**
+     * Literal flash messages: ->with('success'|'error'|..., 'English')
+     * and session()->flash(...). A message already passed through __() or
+     * trans() is not a candidate.
+     *
+     * @return array<int, array{kind: string, text: string, line: int}>
+     */
+    private function findFlashMessages(string $contents): array
+    {
+        $hits = [];
+        $lineMap = $this->buildLineMap($contents);
+        $re = '#(?:->with|\bflash)\(\s*([\'"])(success|error|warning|info|notice|status|message|danger)\1\s*,\s*([\'"])((?:(?!\3)[^\\\\]|\\\\.)*)\3#';
+        if (! preg_match_all($re, $contents, $matches, PREG_OFFSET_CAPTURE | PREG_SET_ORDER)) {
+            return [];
+        }
+        foreach ($matches as $m) {
+            $text = trim($m[4][0]);
+            if (! preg_match('#[A-Za-z][a-z]{2,}#', $text)) {
+                continue;
+            }
+            $hits[] = ['kind' => 'flash', 'text' => $text, 'line' => $this->offsetToLine($m[0][1], $lineMap)];
+        }
+
+        return $hits;
+    }
+
+    /** One hit per line + text; the pattern bank wins over the text-node pass. */
+    private function dedupe(array $hits): array
+    {
+        $seen = [];
+        $out = [];
+        foreach ($hits as $h) {
+            $key = $h['line']."\x00".preg_replace('#\s+#', ' ', $h['text']);
+            if (isset($seen[$key])) {
+                continue;
+            }
+            $seen[$key] = true;
+            $out[] = $h;
+        }
+
+        return $out;
+    }
+
+    /**
+     * --baseline writes the findings; --check fails on any not in it.
+     * Entries are compared as a multiset, so a string that appears twice in a
+     * file needs two baseline lines.
+     */
+    private function baseline(array $perFile, bool $write): int
+    {
+        $file = base_path('tools/translation-lint-baseline.txt');
+        $findings = [];
+        foreach ($perFile as $rel => $hits) {
+            foreach ($hits as $h) {
+                $findings[] = $rel."\t".$h['kind']."\t".str_replace(["\t", "\n"], ' ', $h['text']);
+            }
+        }
+        sort($findings);
+        $this->info(sprintf('Found %d candidate hardcoded UI strings in %d files', count($findings), count($perFile)));
+
+        if ($write) {
+            if (@file_put_contents($file, implode("\n", $findings)."\n") === false) {
+                $this->error('Cannot write tools/translation-lint-baseline.txt (check permissions).');
+
+                return self::FAILURE;
+            }
+            $this->info('baseline written: tools/translation-lint-baseline.txt');
+
+            return self::SUCCESS;
+        }
+
+        $base = is_file($file) ? array_values(array_filter(explode("\n", (string) file_get_contents($file)), 'strlen')) : [];
+        $remaining = array_count_values($base);
+        $new = [];
+        foreach ($findings as $f) {
+            if (($remaining[$f] ?? 0) > 0) {
+                $remaining[$f]--;
+            } else {
+                $new[] = $f;
+            }
+        }
+        $gone = array_sum($remaining);
+
+        if ($gone > 0) {
+            $this->line("{$gone} baseline entr".($gone === 1 ? 'y is' : 'ies are').' gone - regenerate with --baseline so the baseline stays shrink-only.');
+        }
+        if ($new !== []) {
+            $this->error(count($new).' NEW hardcoded UI string(s) - wrap them in __() (see heratio#1597):');
+            foreach ($new as $n) {
+                [$rel, $kind, $text] = explode("\t", $n, 3);
+                $this->line("  {$rel}  [{$kind}]  ".mb_substr($text, 0, 100));
+            }
+
+            return self::FAILURE;
+        }
+        $this->info('no new hardcoded UI strings.');
+
+        return self::SUCCESS;
     }
 
     /** Build cumulative offsets per line for fast line-number lookup. */

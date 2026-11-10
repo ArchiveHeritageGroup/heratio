@@ -3,7 +3,9 @@ name: Translation lint
 # Two checks, guarding the two ways a string can fail to reach a translator.
 #
 # 1. Hardcoded UI string scan - strings never wrapped in __(), so the
-#    multilingual layer (issue #34) can never see them.
+#    multilingual layer (issue #34) can never see them. Since #1597 this is
+#    gated by a shrink-only baseline (tools/translation-lint-baseline.txt):
+#    CI fails on any hardcoded string that is not already in the baseline.
 # 2. Locale key extraction - strings correctly wrapped in __() but never
 #    harvested into lang/en.json. __() falls back to rendering the key, so
 #    these display as English with nothing reporting a problem. This is how
@@ -21,17 +23,15 @@ on:
   workflow_dispatch:
 
 env:
-  # Absolute cap on hardcoded UI string candidates across the codebase.
-  # Stood at 61 against a cap of 50 - i.e. permanently red - until the
-  # 2026-07-22 sweep wrapped 40 genuine strings and brought it to 22.
-  #
-  # The remaining 22 are deliberate and should NOT be wrapped: TK/BC Local
-  # Contexts codes, MIME types and PRONOM ids (fmt/43), URL and path examples,
-  # the literal word RESTORE that a user must type to confirm a restore
-  # (translating it would break the comparison), and two linter false positives
-  # (a @yield directive, and a string already inside __()). So 22 is the real
-  # floor, not a backlog. 30 leaves headroom for new code.
-  TOTAL_THRESHOLD: 30
+  # Hardcoded UI strings are no longer gated by an absolute cap (#1597). The
+  # old cap (30) only covered headings, buttons, labels, options and a few
+  # attributes; the scan now also reads every text node and PHP flash message,
+  # which put the backlog at ~3,600. The known backlog lives in
+  # tools/translation-lint-baseline.txt and the job fails only on NEW strings.
+  # When you fix strings, run `php artisan ahg:translation-lint --baseline`
+  # and commit the shorter file. The deliberate exceptions noted before (TK/BC
+  # Local Contexts codes, MIME types, PRONOM ids, URL examples, the literal
+  # RESTORE confirmation word) stay in the baseline.
 
   # Absolute cap on __() keys present in code but missing from lang/en.json.
   # #1420 harvested 13,955 keys and took this to 0; it has since drifted to
@@ -72,10 +72,12 @@ jobs:
         id: lint
         run: |
           set -o pipefail
-          # Capture full output so we can post a comment on PRs
-          php artisan ahg:translation-lint --top=20 \
-              --fail-above=$TOTAL_THRESHOLD \
-              | tee lint-output.txt
+          # Capture full output so we can post a comment on PRs. Keep the exit
+          # code and fail at the end, so the totals below are recorded even
+          # when new hardcoded strings fail the check.
+          rc=0
+          php artisan ahg:translation-lint --check \
+              | tee lint-output.txt || rc=$?
           # Capture totals from the line "Found N candidate hardcoded UI strings in M files"
           if grep -qE 'Found ([0-9]+) candidate' lint-output.txt; then
             count=$(grep -oE 'Found [0-9]+' lint-output.txt | head -1 | awk '{print $2}')
@@ -83,6 +85,7 @@ jobs:
             echo "count=${count}" >> $GITHUB_OUTPUT
             echo "files=${files}" >> $GITHUB_OUTPUT
           fi
+          exit $rc
 
       - name: Check locale coverage + malformed files (#1410)
         run: |
@@ -101,14 +104,14 @@ jobs:
             const fs = require('fs');
             const output = fs.readFileSync('lint-output.txt', 'utf8');
             const count = '${{ steps.lint.outputs.count }}';
-            const threshold = process.env.TOTAL_THRESHOLD;
-            const status = parseInt(count) > parseInt(threshold) ? '❌ FAIL' : '✅ OK';
+            const status = '${{ steps.lint.outcome }}' === 'success' ? '✅ OK' : '❌ FAIL';
+            const newCount = (output.match(/^(\d+) NEW hardcoded/m) || [, '0'])[1];
             const body = [
               '### Translation lint ' + status,
               '',
-              `Hardcoded UI strings: **${count}** (threshold: ${threshold})`,
+              `New hardcoded UI strings: **${newCount}** (total incl. baseline backlog: ${count})`,
               '',
-              '<details><summary>Top files (click to expand)</summary>',
+              '<details><summary>Lint output (click to expand)</summary>',
               '',
               '```',
               output.substring(0, 4000),
@@ -117,7 +120,7 @@ jobs:
               '</details>',
               '',
               '_To fix: wrap user-visible strings in `{{ __(\'…\') }}` (Blade) or `__(\'…\')` (PHP)._',
-              '_To bump threshold: edit `.github/workflows/translation-lint.yml` `TOTAL_THRESHOLD`._'
+              '_Fixed some? Run `php artisan ahg:translation-lint --baseline` and commit the shorter `tools/translation-lint-baseline.txt`._'
             ].join('\n');
             try {
               await github.rest.issues.createComment({
@@ -130,8 +133,6 @@ jobs:
               core.warning(`Could not post the translation-lint PR comment: ${error.message}`);
               await core.summary.addHeading('Translation lint').addRaw(body).write();
             }
-        env:
-          TOTAL_THRESHOLD: ${{ env.TOTAL_THRESHOLD }}
 
   extract:
     name: Locale key extraction
