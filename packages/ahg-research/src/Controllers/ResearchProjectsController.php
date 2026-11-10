@@ -114,7 +114,7 @@ class ResearchProjectsController extends Controller
                 'accepted_at' => date('Y-m-d H:i:s'),
             ]);
 
-            return redirect()->route('research.viewProject', $projectId)->with('success', 'Project created');
+            return redirect()->route('research.viewProject', $projectId)->with('success', __('Project created'));
         }
 
         return view('research::research.projects', array_merge(
@@ -149,7 +149,7 @@ class ResearchProjectsController extends Controller
                     'sort_order'  => $maxSort + 1,
                     'created_at'  => now(),
                 ]);
-                return redirect()->route('research.viewProject', $id)->with('success', 'Milestone added.');
+                return redirect()->route('research.viewProject', $id)->with('success', __('Milestone added.'));
             }
 
             if ($action === 'complete_milestone') {
@@ -157,7 +157,7 @@ class ResearchProjectsController extends Controller
                     ->where('id', $request->input('milestone_id'))
                     ->where('project_id', $id)
                     ->update(['status' => 'completed', 'updated_at' => now()]);
-                return redirect()->route('research.viewProject', $id)->with('success', 'Milestone completed.');
+                return redirect()->route('research.viewProject', $id)->with('success', __('Milestone completed.'));
             }
 
             if ($action === 'delete_milestone') {
@@ -165,7 +165,7 @@ class ResearchProjectsController extends Controller
                     ->where('id', $request->input('milestone_id'))
                     ->where('project_id', $id)
                     ->delete();
-                return redirect()->route('research.viewProject', $id)->with('success', 'Milestone deleted.');
+                return redirect()->route('research.viewProject', $id)->with('success', __('Milestone deleted.'));
             }
 
             if ($action === 'add_resource') {
@@ -177,7 +177,7 @@ class ResearchProjectsController extends Controller
                     'notes'         => $request->input('resource_notes') ?: null,
                     'added_at'      => now(),
                 ]);
-                return redirect()->route('research.viewProject', $id)->with('success', 'Resource linked.');
+                return redirect()->route('research.viewProject', $id)->with('success', __('Resource linked.'));
             }
 
             if ($action === 'remove_resource') {
@@ -185,7 +185,7 @@ class ResearchProjectsController extends Controller
                     ->where('id', $request->input('resource_id'))
                     ->where('project_id', $id)
                     ->delete();
-                return redirect()->route('research.viewProject', $id)->with('success', 'Resource removed.');
+                return redirect()->route('research.viewProject', $id)->with('success', __('Resource removed.'));
             }
 
             if ($action === 'remove_collaborator') {
@@ -194,7 +194,7 @@ class ResearchProjectsController extends Controller
                     ->where('researcher_id', $request->input('collaborator_researcher_id'))
                     ->where('role', '!=', 'owner')
                     ->delete();
-                return redirect()->route('research.viewProject', $id)->with('success', 'Collaborator removed.');
+                return redirect()->route('research.viewProject', $id)->with('success', __('Collaborator removed.'));
             }
         }
 
@@ -298,7 +298,7 @@ class ResearchProjectsController extends Controller
             'accepted_at' => date('Y-m-d H:i:s'),
         ]);
 
-        return redirect()->route('research.viewProject', $projectId)->with('success', 'Project created');
+        return redirect()->route('research.viewProject', $projectId)->with('success', __('Project created'));
     }
 
 }

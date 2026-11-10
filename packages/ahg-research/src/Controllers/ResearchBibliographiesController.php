@@ -83,7 +83,7 @@ class ResearchBibliographiesController extends Controller
                 'citation_style' => $request->input('citation_style', 'chicago'),
                 'created_at' => date('Y-m-d H:i:s'),
             ]);
-            return redirect()->route('research.viewBibliography', $bibliographyId)->with('success', 'Bibliography created');
+            return redirect()->route('research.viewBibliography', $bibliographyId)->with('success', __('Bibliography created'));
         }
 
         return view('research::research.bibliographies', array_merge(
@@ -142,9 +142,9 @@ class ResearchBibliographiesController extends Controller
                         'sort_order' => $maxOrder + 1,
                         'created_at' => date('Y-m-d H:i:s'),
                     ]);
-                    return redirect()->route('research.viewBibliography', $id)->with('success', 'Entry added');
+                    return redirect()->route('research.viewBibliography', $id)->with('success', __('Entry added'));
                 }
-                return redirect()->route('research.viewBibliography', $id)->with('error', 'Title is required');
+                return redirect()->route('research.viewBibliography', $id)->with('error', __('Title is required'));
             }
 
             if ($action === 'edit_entry') {
@@ -164,7 +164,7 @@ class ResearchBibliographiesController extends Controller
                         'notes' => $request->input('notes') ?: null,
                         'updated_at' => date('Y-m-d H:i:s'),
                     ]);
-                return redirect()->route('research.viewBibliography', $id)->with('success', 'Entry updated');
+                return redirect()->route('research.viewBibliography', $id)->with('success', __('Entry updated'));
             }
 
             if ($action === 'update') {
@@ -174,7 +174,7 @@ class ResearchBibliographiesController extends Controller
                     'citation_style' => $request->input('citation_style', 'chicago'),
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]);
-                return redirect()->route('research.viewBibliography', $id)->with('success', 'Bibliography updated');
+                return redirect()->route('research.viewBibliography', $id)->with('success', __('Bibliography updated'));
             }
 
             if ($action === 'remove_entry') {
@@ -182,13 +182,13 @@ class ResearchBibliographiesController extends Controller
                     ->where('id', (int) $request->input('entry_id'))
                     ->where('bibliography_id', $id)
                     ->delete();
-                return redirect()->route('research.viewBibliography', $id)->with('success', 'Entry removed');
+                return redirect()->route('research.viewBibliography', $id)->with('success', __('Entry removed'));
             }
 
             if ($action === 'delete') {
                 DB::table('research_bibliography_entry')->where('bibliography_id', $id)->delete();
                 DB::table('research_bibliography')->where('id', $id)->delete();
-                return redirect()->route('research.bibliographies')->with('success', 'Bibliography deleted');
+                return redirect()->route('research.bibliographies')->with('success', __('Bibliography deleted'));
             }
         }
 

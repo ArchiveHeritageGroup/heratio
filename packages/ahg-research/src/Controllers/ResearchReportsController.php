@@ -95,7 +95,7 @@ class ResearchReportsController extends Controller
                 }
             }
 
-            return redirect()->route('research.viewReport', $reportId)->with('success', 'Report created');
+            return redirect()->route('research.viewReport', $reportId)->with('success', __('Report created'));
         }
 
         $query = DB::table('research_report as r')
@@ -147,7 +147,7 @@ class ResearchReportsController extends Controller
                     'is_system' => 0,
                     'created_at' => now(),
                 ]);
-                return redirect()->route('research.reportTemplates')->with('success', 'Template created.');
+                return redirect()->route('research.reportTemplates')->with('success', __('Template created.'));
             }
 
             if ($action === 'update') {
@@ -158,7 +158,7 @@ class ResearchReportsController extends Controller
                     'description' => $request->input('description') ?: null,
                     'sections_config' => json_encode($sections),
                 ]);
-                return redirect()->route('research.reportTemplates')->with('success', 'Template updated.');
+                return redirect()->route('research.reportTemplates')->with('success', __('Template updated.'));
             }
 
             if ($action === 'delete') {
@@ -166,9 +166,9 @@ class ResearchReportsController extends Controller
                 $tpl = DB::table('research_report_template')->where('id', $id)->first();
                 if ($tpl && !$tpl->is_system) {
                     DB::table('research_report_template')->where('id', $id)->delete();
-                    return redirect()->route('research.reportTemplates')->with('success', 'Template deleted.');
+                    return redirect()->route('research.reportTemplates')->with('success', __('Template deleted.'));
                 }
-                return redirect()->route('research.reportTemplates')->with('error', 'System templates cannot be deleted.');
+                return redirect()->route('research.reportTemplates')->with('error', __('System templates cannot be deleted.'));
             }
         }
 
@@ -208,7 +208,7 @@ class ResearchReportsController extends Controller
                     'sort_order' => $maxOrder + 1,
                     'created_at' => date('Y-m-d H:i:s'),
                 ]);
-                return redirect()->route('research.viewReport', $id)->with('success', 'Section added');
+                return redirect()->route('research.viewReport', $id)->with('success', __('Section added'));
             }
 
             if ($action === 'update_section') {
@@ -221,7 +221,7 @@ class ResearchReportsController extends Controller
                         'content' => $content,
                         'content_format' => 'html',
                     ]);
-                return redirect()->route('research.viewReport', $id)->with('success', 'Section updated');
+                return redirect()->route('research.viewReport', $id)->with('success', __('Section updated'));
             }
 
             if ($action === 'delete_section') {
@@ -229,18 +229,18 @@ class ResearchReportsController extends Controller
                     ->where('id', (int) $request->input('section_id'))
                     ->where('report_id', $id)
                     ->delete();
-                return redirect()->route('research.viewReport', $id)->with('success', 'Section deleted');
+                return redirect()->route('research.viewReport', $id)->with('success', __('Section deleted'));
             }
 
             if ($action === 'delete_report') {
                 DB::table('research_report_section')->where('report_id', $id)->delete();
                 DB::table('research_report')->where('id', $id)->delete();
-                return redirect()->route('research.reports')->with('success', 'Report deleted');
+                return redirect()->route('research.reports')->with('success', __('Report deleted'));
             }
 
             if ($action === 'update_status') {
                 DB::table('research_report')->where('id', $id)->update(['status' => $request->input('status'), 'updated_at' => now()]);
-                return redirect()->route('research.viewReport', $id)->with('success', 'Status updated');
+                return redirect()->route('research.viewReport', $id)->with('success', __('Status updated'));
             }
 
             if ($action === 'move_section') {
@@ -278,7 +278,7 @@ class ResearchReportsController extends Controller
                     }
                     return redirect()->route('research.viewReport', $id)->with('success', count($configs) . ' sections loaded from template');
                 }
-                return redirect()->route('research.viewReport', $id)->with('error', 'Template not found');
+                return redirect()->route('research.viewReport', $id)->with('error', __('Template not found'));
             }
 
             if ($action === 'add_multiple') {
@@ -302,7 +302,7 @@ class ResearchReportsController extends Controller
                     'content' => $request->input('comment_content'),
                     'created_at' => now(), 'updated_at' => now(),
                 ]);
-                return redirect()->route('research.viewReport', $id)->with('success', 'Comment added');
+                return redirect()->route('research.viewReport', $id)->with('success', __('Comment added'));
             }
 
             if ($action === 'update_header') {

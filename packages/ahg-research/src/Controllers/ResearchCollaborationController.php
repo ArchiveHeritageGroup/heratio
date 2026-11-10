@@ -85,7 +85,7 @@ class ResearchCollaborationController extends Controller
 
             $invitee = DB::table('research_researcher')->where('email', $email)->first();
             if (!$invitee) {
-                return redirect()->route('research.inviteCollaborator', $id)->with('error', 'No researcher found with that email.');
+                return redirect()->route('research.inviteCollaborator', $id)->with('error', __('No researcher found with that email.'));
             }
 
             $exists = DB::table('research_project_collaborator')
@@ -93,7 +93,7 @@ class ResearchCollaborationController extends Controller
                 ->where('researcher_id', $invitee->id)
                 ->first();
             if ($exists) {
-                return redirect()->route('research.inviteCollaborator', $id)->with('error', 'Already a collaborator.');
+                return redirect()->route('research.inviteCollaborator', $id)->with('error', __('Already a collaborator.'));
             }
 
             DB::table('research_project_collaborator')->insert([
@@ -104,7 +104,7 @@ class ResearchCollaborationController extends Controller
                 'invited_at'    => now(),
             ]);
 
-            return redirect()->route('research.viewProject', $id)->with('success', 'Invitation sent to ' . $email);
+            return redirect()->route('research.viewProject', $id)->with('success', __('Invitation sent to :email', ['email' => $email]));
         }
 
         $collaborators = DB::table('research_project_collaborator as pc')
@@ -130,7 +130,7 @@ class ResearchCollaborationController extends Controller
                 'share_token' => $token,
                 'updated_at'  => now(),
             ]);
-            return redirect()->route('research.shareProject', $id)->with('success', 'Share link generated.');
+            return redirect()->route('research.shareProject', $id)->with('success', __('Share link generated.'));
         }
 
         return view('research::research.share-project', array_merge(

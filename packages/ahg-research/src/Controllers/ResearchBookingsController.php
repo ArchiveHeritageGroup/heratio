@@ -112,7 +112,7 @@ class ResearchBookingsController extends Controller
         if (!Auth::check()) return redirect()->route('login');
         $researcher = $this->service->getResearcherByUserId(Auth::id());
         if (!$researcher || $researcher->status !== 'approved') {
-            return redirect()->route('research.dashboard')->with('error', 'Must be approved researcher');
+            return redirect()->route('research.dashboard')->with('error', __('Must be approved researcher'));
         }
 
         $rooms = $this->service->getReadingRooms();
@@ -140,7 +140,7 @@ class ResearchBookingsController extends Controller
                 $this->service->addMaterialRequest($bookingId, (int) $objectId);
             }
             return redirect()->route('research.viewBooking', $bookingId)
-                ->with('success', 'Booking submitted');
+                ->with('success', __('Booking submitted'));
         }
 
         return view('research::research.book', array_merge(
@@ -166,15 +166,15 @@ class ResearchBookingsController extends Controller
             if ($action === 'confirm') {
                 if (!$isStaff) abort(403, 'Staff only.');
                 $this->service->confirmBooking($id, Auth::id());
-                return redirect()->route('research.viewBooking', $id)->with('success', 'Booking confirmed');
+                return redirect()->route('research.viewBooking', $id)->with('success', __('Booking confirmed'));
             } elseif ($action === 'cancel') {
                 // Owner or staff (already enforced by the guard above).
                 $this->service->cancelBooking($id, $isStaff ? 'Cancelled by staff' : 'Cancelled by researcher');
-                return redirect()->route('research.viewBooking', $id)->with('success', 'Booking cancelled');
+                return redirect()->route('research.viewBooking', $id)->with('success', __('Booking cancelled'));
             } elseif ($action === 'noshow') {
                 if (!$isStaff) abort(403, 'Staff only.');
                 DB::table('research_booking')->where('id', $id)->update(['status' => 'no_show']);
-                return redirect()->route('research.viewBooking', $id)->with('success', 'Marked as no-show');
+                return redirect()->route('research.viewBooking', $id)->with('success', __('Marked as no-show'));
             }
         }
 
@@ -203,7 +203,7 @@ class ResearchBookingsController extends Controller
             'checked_in_at' => date('Y-m-d H:i:s'),
             'status' => 'confirmed',
         ]);
-        return redirect()->route('research.viewBooking', $id)->with('success', 'Researcher checked in');
+        return redirect()->route('research.viewBooking', $id)->with('success', __('Researcher checked in'));
     }
 
     public function checkOut(int $id)
@@ -218,7 +218,7 @@ class ResearchBookingsController extends Controller
             ->where('booking_id', $id)
             ->where('status', '!=', 'returned')
             ->update(['status' => 'returned', 'returned_at' => date('Y-m-d H:i:s')]);
-        return redirect()->route('research.bookings')->with('success', 'Researcher checked out');
+        return redirect()->route('research.bookings')->with('success', __('Researcher checked out'));
     }
 
     // =========================================================================
@@ -234,7 +234,7 @@ class ResearchBookingsController extends Controller
 
         $this->service->confirmBooking($id, Auth::id());
 
-        return redirect()->route('research.viewBooking', $id)->with('success', 'Booking confirmed');
+        return redirect()->route('research.viewBooking', $id)->with('success', __('Booking confirmed'));
     }
 
     public function checkInBooking(int $id)
@@ -249,7 +249,7 @@ class ResearchBookingsController extends Controller
             'status' => 'confirmed',
         ]);
 
-        return redirect()->route('research.viewBooking', $id)->with('success', 'Researcher checked in');
+        return redirect()->route('research.viewBooking', $id)->with('success', __('Researcher checked in'));
     }
 
     public function checkOutBooking(int $id)
@@ -268,7 +268,7 @@ class ResearchBookingsController extends Controller
             ->where('status', '!=', 'returned')
             ->update(['status' => 'returned', 'returned_at' => date('Y-m-d H:i:s')]);
 
-        return redirect()->route('research.bookings')->with('success', 'Researcher checked out');
+        return redirect()->route('research.bookings')->with('success', __('Researcher checked out'));
     }
 
     public function noShowBooking(int $id)
@@ -280,7 +280,7 @@ class ResearchBookingsController extends Controller
 
         DB::table('research_booking')->where('id', $id)->update(['status' => 'no_show']);
 
-        return redirect()->route('research.viewBooking', $id)->with('success', 'Marked as no-show');
+        return redirect()->route('research.viewBooking', $id)->with('success', __('Marked as no-show'));
     }
 
     public function cancelBooking(int $id)
@@ -296,6 +296,6 @@ class ResearchBookingsController extends Controller
 
         $this->service->cancelBooking($id, $isStaff ? 'Cancelled by staff' : 'Cancelled by researcher');
 
-        return redirect()->route('research.viewBooking', $id)->with('success', 'Booking cancelled');
+        return redirect()->route('research.viewBooking', $id)->with('success', __('Booking cancelled'));
     }
 }

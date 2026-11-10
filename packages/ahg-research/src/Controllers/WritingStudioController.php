@@ -107,11 +107,11 @@ class WritingStudioController extends Controller
         $id = $this->studio->createDoc($projectId, $validated, (int) Auth::id());
         if (! $id) {
             return redirect()->route('research.writing.index', $projectId)
-                ->with('error', 'Could not create the document.');
+                ->with('error', __('Could not create the document.'));
         }
         $this->logResearchActivity('create', 'writing', (int) $id, $validated['title'] ?? null, ['method' => 'WritingStudioController@store', 'item' => 'document'], $projectId);
         return redirect()->route('research.writing.edit', [$projectId, $id])
-            ->with('success', 'Document created. Start writing.');
+            ->with('success', __('Document created. Start writing.'));
     }
 
     /** The editor: sections + a claims/sources sidebar + version history link. */
@@ -125,7 +125,7 @@ class WritingStudioController extends Controller
         $doc = $this->studio->getDoc($projectId, $docId);
         if (! $doc) {
             return redirect()->route('research.writing.index', $projectId)
-                ->with('error', 'Document not found.');
+                ->with('error', __('Document not found.'));
         }
 
         $sections = $this->studio->getSections($docId);
@@ -195,7 +195,7 @@ class WritingStudioController extends Controller
         }
         $this->context($projectId);
         if (! $this->studio->getDoc($projectId, $docId)) {
-            return redirect()->route('research.writing.index', $projectId)->with('error', 'Document not found.');
+            return redirect()->route('research.writing.index', $projectId)->with('error', __('Document not found.'));
         }
 
         $validated = $request->validate([
@@ -219,7 +219,7 @@ class WritingStudioController extends Controller
         }
         $this->context($projectId);
         if (! $this->studio->getDoc($projectId, $docId)) {
-            return redirect()->route('research.writing.index', $projectId)->with('error', 'Document not found.');
+            return redirect()->route('research.writing.index', $projectId)->with('error', __('Document not found.'));
         }
 
         $validated = $request->validate([
@@ -271,7 +271,7 @@ class WritingStudioController extends Controller
         $reference = $this->studio->formatClaimReference($projectId, (int) $validated['claim_id']);
         if ($reference === null) {
             return redirect()->route('research.writing.edit', [$projectId, $docId])
-                ->with('error', 'That claim could not be cited.');
+                ->with('error', __('That claim could not be cited.'));
         }
 
         $ok = $this->studio->appendToSection($docId, (int) $validated['section_id'], $reference);
@@ -298,7 +298,7 @@ class WritingStudioController extends Controller
         $reference = $this->studio->formatSourceReference($projectId, (int) $validated['source_id']);
         if ($reference === null) {
             return redirect()->route('research.writing.edit', [$projectId, $docId])
-                ->with('error', 'That source could not be pulled in.');
+                ->with('error', __('That source could not be pulled in.'));
         }
 
         $ok = $this->studio->appendToSection($docId, (int) $validated['section_id'], $reference);
@@ -342,7 +342,7 @@ class WritingStudioController extends Controller
         $doc = $this->studio->getDoc($projectId, $docId);
         if (! $doc) {
             return redirect()->route('research.writing.index', $projectId)
-                ->with('error', 'Document not found.');
+                ->with('error', __('Document not found.'));
         }
 
         $versions = $this->studio->listVersions($docId);
@@ -365,7 +365,7 @@ class WritingStudioController extends Controller
         $version = $this->studio->getVersion($projectId, $docId, $versionId);
         if (! $doc || ! $version) {
             return redirect()->route('research.writing.versions', [$projectId, $docId])
-                ->with('error', 'Version not found.');
+                ->with('error', __('Version not found.'));
         }
 
         return view('research::research.writing-studio.version-show', array_merge(
@@ -390,7 +390,7 @@ class WritingStudioController extends Controller
         $markdown = $this->studio->exportMarkdown($projectId, $docId);
         if (! $doc || $markdown === null) {
             return redirect()->route('research.writing.index', $projectId)
-                ->with('error', 'Document not found.');
+                ->with('error', __('Document not found.'));
         }
 
         $filename = $this->studio->exportFilename($doc);
@@ -422,12 +422,12 @@ class WritingStudioController extends Controller
         $section = $this->studio->getSection($docId, $sectionId);
         if (! $doc || ! $section) {
             return redirect()->route('research.writing.edit', [$projectId, $docId])
-                ->with('error', 'Section not found.');
+                ->with('error', __('Section not found.'));
         }
 
         if (! $this->studio->aiAvailable()) {
             return redirect()->route('research.writing.edit', [$projectId, $docId])
-                ->with('error', 'AI drafting is not available on this install. You can keep writing without it.');
+                ->with('error', __('AI drafting is not available on this install. You can keep writing without it.'));
         }
 
         $result = $this->studio->aiDraftSection(
@@ -436,7 +436,7 @@ class WritingStudioController extends Controller
 
         if (! $result['ok']) {
             return redirect()->route('research.writing.edit', [$projectId, $docId])
-                ->with('error', 'The AI draft could not be generated. You can keep writing without it.');
+                ->with('error', __('The AI draft could not be generated. You can keep writing without it.'));
         }
 
         // Show the labelled draft alongside the editor; nothing is saved yet.

@@ -164,7 +164,7 @@ class ResearchOdrlPoliciesController extends Controller
                 if ($constraintsJson) {
                     $decoded = json_decode($constraintsJson, true);
                     if ($decoded === null && json_last_error() !== JSON_ERROR_NONE) {
-                        return redirect('/research/odrlPolicies')->with('error', 'Invalid JSON in constraints.');
+                        return redirect('/research/odrlPolicies')->with('error', __('Invalid JSON in constraints.'));
                     }
                 }
 
@@ -176,7 +176,7 @@ class ResearchOdrlPoliciesController extends Controller
                     'constraints_json' => $constraintsJson ?: null,
                     'created_by' => $researcher->id,
                 ]);
-                return redirect('/research/odrlPolicies')->with('success', 'Policy created.');
+                return redirect('/research/odrlPolicies')->with('success', __('Policy created.'));
             }
 
             if ($formAction === 'update') {
@@ -190,7 +190,7 @@ class ResearchOdrlPoliciesController extends Controller
                 if ($constraintsJson) {
                     $decoded = json_decode($constraintsJson, true);
                     if ($decoded === null && json_last_error() !== JSON_ERROR_NONE) {
-                        return redirect('/research/odrlPolicies')->with('error', 'Invalid JSON in constraints.');
+                        return redirect('/research/odrlPolicies')->with('error', __('Invalid JSON in constraints.'));
                     }
                 }
 
@@ -204,12 +204,12 @@ class ResearchOdrlPoliciesController extends Controller
                         'constraints_json' => $constraintsJson ?: null,
                         'updated_at'       => now(),
                     ]);
-                return redirect('/research/odrlPolicies')->with('success', 'Policy updated.');
+                return redirect('/research/odrlPolicies')->with('success', __('Policy updated.'));
             }
 
             if ($formAction === 'delete') {
                 $odrlService->deletePolicy((int) $request->input('policy_id'));
-                return redirect('/research/odrlPolicies')->with('success', 'Policy deleted.');
+                return redirect('/research/odrlPolicies')->with('success', __('Policy deleted.'));
             }
         }
 

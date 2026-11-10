@@ -170,7 +170,7 @@ class SourceTriageController extends Controller
         }
 
         if (! empty($result['ok'])) {
-            return redirect()->route('research.triage.index', $projectId)->with('success', 'AI preview generated. ' . SourceTriageService::AI_PREVIEW_LABEL . '.');
+            return redirect()->route('research.triage.index', $projectId)->with('success', __('AI preview generated. :label.', ['label' => SourceTriageService::AI_PREVIEW_LABEL]));
         }
 
         return redirect()->route('research.triage.index', $projectId)->with('error', $result['error'] ?? 'AI preview unavailable.');

@@ -109,7 +109,7 @@ class ResearchCustodyController extends Controller
             $this->custody->recordCheckout($id, $validated, (int) Auth::id());
 
             return redirect()->route('research.custodyChain', ['id' => $id])
-                ->with('success', 'Checkout recorded.');
+                ->with('success', __('Checkout recorded.'));
         }
 
         return view('research::research.custody-checkout', array_merge(
@@ -152,7 +152,7 @@ class ResearchCustodyController extends Controller
             $this->custody->recordReturn($id, $validated, (int) Auth::id());
 
             return redirect()->route('research.custodyChain', ['id' => $id])
-                ->with('success', 'Return verified.');
+                ->with('success', __('Return verified.'));
         }
 
         return view('research::research.custody-return-verify', array_merge(

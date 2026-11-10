@@ -132,7 +132,7 @@ class ResearchAnnotationsController extends Controller
                     null,
                     ['method' => 'ResearchAnnotationsController@annotations', 'action' => 'delete']
                 );
-                return redirect()->route('research.annotations')->with('success', 'Note deleted');
+                return redirect()->route('research.annotations')->with('success', __('Note deleted'));
             }
 
             if ($action === 'create') {
@@ -167,7 +167,7 @@ class ResearchAnnotationsController extends Controller
                         trim($request->input('title')) ?: null,
                         ['method' => 'ResearchAnnotationsController@annotations', 'action' => 'create']
                     );
-                    return redirect()->route('research.annotations')->with('success', 'Note created');
+                    return redirect()->route('research.annotations')->with('success', __('Note created'));
                 }
             }
 
@@ -205,7 +205,7 @@ class ResearchAnnotationsController extends Controller
                         trim($request->input('title')) ?: null,
                         ['method' => 'ResearchAnnotationsController@annotations', 'action' => 'update']
                     );
-                    return redirect()->route('research.annotations')->with('success', 'Note updated');
+                    return redirect()->route('research.annotations')->with('success', __('Note updated'));
                 }
             }
         }
@@ -277,10 +277,10 @@ class ResearchAnnotationsController extends Controller
                 trim($request->input('title')) ?: null,
                 ['method' => 'ResearchAnnotationsController@storeAnnotation']
             );
-            return redirect()->route('research.annotations')->with('success', 'Note created');
+            return redirect()->route('research.annotations')->with('success', __('Note created'));
         }
 
-        return redirect()->route('research.annotations')->with('error', 'Content is required');
+        return redirect()->route('research.annotations')->with('error', __('Content is required'));
     }
 
     public function updateAnnotation(Request $request, int $id)
@@ -316,10 +316,10 @@ class ResearchAnnotationsController extends Controller
                 trim($request->input('title')) ?: null,
                 ['method' => 'ResearchAnnotationsController@updateAnnotation']
             );
-            return redirect()->route('research.annotations')->with('success', 'Note updated');
+            return redirect()->route('research.annotations')->with('success', __('Note updated'));
         }
 
-        return redirect()->route('research.annotations')->with('error', 'Content is required');
+        return redirect()->route('research.annotations')->with('error', __('Content is required'));
     }
 
     public function destroyAnnotation(int $id)
@@ -338,6 +338,6 @@ class ResearchAnnotationsController extends Controller
             ['method' => 'ResearchAnnotationsController@destroyAnnotation']
         );
 
-        return redirect()->route('research.annotations')->with('success', 'Note deleted');
+        return redirect()->route('research.annotations')->with('success', __('Note deleted'));
     }
 }

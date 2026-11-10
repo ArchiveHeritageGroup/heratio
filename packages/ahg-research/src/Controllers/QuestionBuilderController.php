@@ -151,7 +151,7 @@ class QuestionBuilderController extends Controller
 
         return redirect()
             ->route('research.question.builder', $projectId)
-            ->with('success', 'Saved as version ' . $result['version_no'] . '.');
+            ->with('success', __('Saved as version :version.', ['version' => $result['version_no']]));
     }
 
     /** Version history for the project's brief. */

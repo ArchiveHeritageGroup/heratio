@@ -101,7 +101,7 @@ class ResearchExportsController extends Controller
 
         $collection = $this->service->getCollection($collectionId);
         if (!$collection || $collection->researcher_id != $researcher->id) {
-            return redirect()->route('research.collections')->with('error', 'Collection not found');
+            return redirect()->route('research.collections')->with('error', __('Collection not found'));
         }
 
         $data = $this->getCollectionFindingAidData($collectionId);
@@ -148,7 +148,7 @@ class ResearchExportsController extends Controller
         $collectionId = (int) $request->input('id');
         $collection = $this->service->getCollection($collectionId);
         if (!$collection || $collection->researcher_id != $researcher->id) {
-            return redirect()->route('research.collections')->with('error', 'Collection not found');
+            return redirect()->route('research.collections')->with('error', __('Collection not found'));
         }
 
         $data = $this->getCollectionFindingAidData($collectionId);

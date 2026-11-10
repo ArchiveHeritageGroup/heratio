@@ -115,7 +115,7 @@ class ResearchSavedSearchesController extends Controller
 
         if (!$searchQuery) {
             if ($isAjax) return response()->json(['success' => false, 'error' => 'Search query is required'], 422);
-            return redirect()->route('research.savedSearches')->with('error', 'Search query is required');
+            return redirect()->route('research.savedSearches')->with('error', __('Search query is required'));
         }
 
         $this->service->saveSearch($researcher->id, [
@@ -129,7 +129,7 @@ class ResearchSavedSearchesController extends Controller
             return response()->json(['success' => true]);
         }
 
-        return redirect()->route('research.savedSearches')->with('success', 'Search saved');
+        return redirect()->route('research.savedSearches')->with('success', __('Search saved'));
     }
 
     /**
@@ -260,6 +260,6 @@ class ResearchSavedSearchesController extends Controller
 
         $this->logResearchActivity('delete', 'saved_search', $id, null, ['method' => 'ResearchSavedSearchesController@destroySavedSearch']);
 
-        return redirect()->route('research.savedSearches')->with('success', 'Saved search deleted');
+        return redirect()->route('research.savedSearches')->with('success', __('Saved search deleted'));
     }
 }

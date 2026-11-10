@@ -110,13 +110,13 @@ class DmpController extends Controller
 
         if (! $id) {
             return redirect()->route('research.dmp.index', $projectId)
-                ->with('error', 'Could not create the data management plan. Please try again.');
+                ->with('error', __('Could not create the data management plan. Please try again.'));
         }
 
         $this->logResearchActivity('create', 'dmp', (int) $id, $data['title'] ?? null, ['method' => 'DmpController@store'], $projectId);
 
         return redirect()->route('research.dmp.edit', [$projectId, $id])
-            ->with('success', 'Data management plan created. Fill in each maDMP section below.');
+            ->with('success', __('Data management plan created. Fill in each maDMP section below.'));
     }
 
     /** Section-by-section plan editor + completeness. */
@@ -130,7 +130,7 @@ class DmpController extends Controller
         $plan = $this->dmp->getPlan($dmpId, $projectId);
         if (! $plan) {
             return redirect()->route('research.dmp.index', $projectId)
-                ->with('error', 'Data management plan not found.');
+                ->with('error', __('Data management plan not found.'));
         }
 
         $sections      = $this->dmp->getSections($dmpId);
@@ -182,13 +182,13 @@ class DmpController extends Controller
 
         if (! $ok) {
             return redirect()->route('research.dmp.index', $projectId)
-                ->with('error', 'Could not save the data management plan.');
+                ->with('error', __('Could not save the data management plan.'));
         }
 
         $this->logResearchActivity('update', 'dmp', $dmpId, $data['title'] ?? null, ['method' => 'DmpController@update'], $projectId);
 
         return redirect()->route('research.dmp.edit', [$projectId, $dmpId])
-            ->with('success', 'Data management plan saved.');
+            ->with('success', __('Data management plan saved.'));
     }
 
     /** Read-only assembled plan (print / review view) + completeness. */
@@ -202,7 +202,7 @@ class DmpController extends Controller
         $plan = $this->dmp->getPlan($dmpId, $projectId);
         if (! $plan) {
             return redirect()->route('research.dmp.index', $projectId)
-                ->with('error', 'Data management plan not found.');
+                ->with('error', __('Data management plan not found.'));
         }
 
         $sections      = $this->dmp->getSections($dmpId);

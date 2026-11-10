@@ -72,7 +72,7 @@ class ResearchWorkspaceController extends Controller
                         'is_public' => $request->input('is_public') ? 1 : 0,
                     ]);
                     $this->logResearchActivity('create', 'workspace', null, $name, ['method' => 'ResearchWorkspaceController@workspace', 'item' => 'collection']);
-                    return redirect()->route('research.workspace')->with('success', 'Collection created successfully.');
+                    return redirect()->route('research.workspace')->with('success', __('Collection created successfully.'));
                 }
             }
         }

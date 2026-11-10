@@ -102,7 +102,7 @@ class ResearchCollectionsController extends Controller
         $collection = $this->service->getCollection($id);
         if (!$collection) abort(404, 'Not found');
         if ($collection->researcher_id != $researcher->id) {
-            return redirect()->route('research.collections')->with('error', 'Access denied');
+            return redirect()->route('research.collections')->with('error', __('Access denied'));
         }
 
         if ($request->isMethod('post')) {
@@ -110,7 +110,7 @@ class ResearchCollectionsController extends Controller
 
             if ($action === 'remove') {
                 $this->service->removeFromCollection($id, (int) $request->input('object_id'));
-                return redirect()->route('research.viewCollection', $id)->with('success', 'Item removed from collection');
+                return redirect()->route('research.viewCollection', $id)->with('success', __('Item removed from collection'));
             }
 
             if ($action === 'add_item') {
@@ -150,7 +150,7 @@ class ResearchCollectionsController extends Controller
                     ->where('collection_id', $id)
                     ->where('object_id', (int) $request->input('object_id'))
                     ->update(['notes' => trim($request->input('notes'))]);
-                return redirect()->route('research.viewCollection', $id)->with('success', 'Notes updated');
+                return redirect()->route('research.viewCollection', $id)->with('success', __('Notes updated'));
             }
 
             if ($action === 'update') {
@@ -161,14 +161,14 @@ class ResearchCollectionsController extends Controller
                         'description' => trim($request->input('description')),
                         'is_public' => $request->input('is_public') ? 1 : 0,
                     ]);
-                    return redirect()->route('research.viewCollection', $id)->with('success', 'Collection updated');
+                    return redirect()->route('research.viewCollection', $id)->with('success', __('Collection updated'));
                 }
             }
 
             if ($action === 'delete') {
                 DB::table('research_collection_item')->where('collection_id', $id)->delete();
                 DB::table('research_collection')->where('id', $id)->delete();
-                return redirect()->route('research.collections')->with('success', 'Collection deleted');
+                return redirect()->route('research.collections')->with('success', __('Collection deleted'));
             }
         }
 
@@ -286,7 +286,7 @@ class ResearchCollectionsController extends Controller
         $this->logResearchActivity('create', 'collection', (int) $id, $request->input('name'), ['method' => 'ResearchCollectionsController@storeCollection']);
 
         return redirect()->route('research.viewCollection', $id)
-            ->with('success', 'Collection created');
+            ->with('success', __('Collection created'));
     }
 
     public function updateCollection(Request $request, int $id)
@@ -297,7 +297,7 @@ class ResearchCollectionsController extends Controller
 
         $collection = $this->service->getCollection($id);
         if (!$collection || $collection->researcher_id != $researcher->id) {
-            return redirect()->route('research.collections')->with('error', 'Access denied');
+            return redirect()->route('research.collections')->with('error', __('Access denied'));
         }
 
         $name = trim($request->input('name'));
@@ -308,10 +308,10 @@ class ResearchCollectionsController extends Controller
                 'is_public' => $request->input('is_public') ? 1 : 0,
             ]);
             $this->logResearchActivity('update', 'collection', (int) $id, $name, ['method' => 'ResearchCollectionsController@updateCollection']);
-            return redirect()->route('research.viewCollection', $id)->with('success', 'Collection updated');
+            return redirect()->route('research.viewCollection', $id)->with('success', __('Collection updated'));
         }
 
-        return redirect()->route('research.viewCollection', $id)->with('error', 'Name is required');
+        return redirect()->route('research.viewCollection', $id)->with('error', __('Name is required'));
     }
 
     public function destroyCollection(int $id)
@@ -322,7 +322,7 @@ class ResearchCollectionsController extends Controller
 
         $collection = $this->service->getCollection($id);
         if (!$collection || $collection->researcher_id != $researcher->id) {
-            return redirect()->route('research.collections')->with('error', 'Access denied');
+            return redirect()->route('research.collections')->with('error', __('Access denied'));
         }
 
         DB::table('research_collection_item')->where('collection_id', $id)->delete();
@@ -330,7 +330,7 @@ class ResearchCollectionsController extends Controller
 
         $this->logResearchActivity('delete', 'collection', (int) $id, $collection->name ?? null, ['method' => 'ResearchCollectionsController@destroyCollection']);
 
-        return redirect()->route('research.collections')->with('success', 'Collection deleted');
+        return redirect()->route('research.collections')->with('success', __('Collection deleted'));
     }
 
     public function addItemToCollection(Request $request, int $id)
@@ -341,7 +341,7 @@ class ResearchCollectionsController extends Controller
 
         $collection = $this->service->getCollection($id);
         if (!$collection || $collection->researcher_id != $researcher->id) {
-            return redirect()->route('research.collections')->with('error', 'Access denied');
+            return redirect()->route('research.collections')->with('error', __('Access denied'));
         }
 
         $objectId = (int) $request->input('object_id');
@@ -375,7 +375,7 @@ class ResearchCollectionsController extends Controller
             return redirect()->route('research.viewCollection', $id)->with($type, $msg);
         }
 
-        return redirect()->route('research.viewCollection', $id)->with('error', 'No item selected');
+        return redirect()->route('research.viewCollection', $id)->with('error', __('No item selected'));
     }
 
     public function removeItemFromCollection(int $collectionId, int $itemId)
@@ -386,11 +386,11 @@ class ResearchCollectionsController extends Controller
 
         $collection = $this->service->getCollection($collectionId);
         if (!$collection || $collection->researcher_id != $researcher->id) {
-            return redirect()->route('research.collections')->with('error', 'Access denied');
+            return redirect()->route('research.collections')->with('error', __('Access denied'));
         }
 
         $this->service->removeFromCollection($collectionId, $itemId);
 
-        return redirect()->route('research.viewCollection', $collectionId)->with('success', 'Item removed from collection');
+        return redirect()->route('research.viewCollection', $collectionId)->with('success', __('Item removed from collection'));
     }
 }

@@ -132,13 +132,13 @@ class ResearchFundingController extends Controller
 
         if (! $id) {
             return redirect()->route('research.funding.index', $projectId)
-                ->with('error', 'Could not create the funding record. Please try again.');
+                ->with('error', __('Could not create the funding record. Please try again.'));
         }
 
         $this->logResearchActivity('create', 'funding', (int) $id, $data['title'] ?? null, ['method' => 'ResearchFundingController@store'], $projectId);
 
         return redirect()->route('research.funding.show', [$projectId, $id])
-            ->with('success', 'Funding record saved.');
+            ->with('success', __('Funding record saved.'));
     }
 
     /** Edit-record form. */
@@ -152,7 +152,7 @@ class ResearchFundingController extends Controller
         $record = $this->funding->getRecord($fundingId, $projectId);
         if (! $record) {
             return redirect()->route('research.funding.index', $projectId)
-                ->with('error', 'Funding record not found.');
+                ->with('error', __('Funding record not found.'));
         }
 
         $typeOptions     = $this->funding->funderTypeOptions();
@@ -177,7 +177,7 @@ class ResearchFundingController extends Controller
         $existing = $this->funding->getRecord($fundingId, $projectId);
         if (! $existing) {
             return redirect()->route('research.funding.index', $projectId)
-                ->with('error', 'Funding record not found.');
+                ->with('error', __('Funding record not found.'));
         }
 
         $data = $this->validateRecord($request);
@@ -186,13 +186,13 @@ class ResearchFundingController extends Controller
 
         if (! $ok) {
             return redirect()->route('research.funding.index', $projectId)
-                ->with('error', 'Could not save the funding record.');
+                ->with('error', __('Could not save the funding record.'));
         }
 
         $this->logResearchActivity('update', 'funding', (int) $fundingId, $data['title'] ?? null, ['method' => 'ResearchFundingController@update'], $projectId);
 
         return redirect()->route('research.funding.show', [$projectId, $fundingId])
-            ->with('success', 'Funding record saved.');
+            ->with('success', __('Funding record saved.'));
     }
 
     /** Read-only record detail. */
@@ -206,7 +206,7 @@ class ResearchFundingController extends Controller
         $record = $this->funding->getRecord($fundingId, $projectId);
         if (! $record) {
             return redirect()->route('research.funding.index', $projectId)
-                ->with('error', 'Funding record not found.');
+                ->with('error', __('Funding record not found.'));
         }
 
         $typeOptions     = $this->funding->funderTypeOptions();

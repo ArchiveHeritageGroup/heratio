@@ -127,7 +127,7 @@ class ResearchStudioController extends Controller
         );
 
         return redirect()->route('research.studioShow', ['projectId' => $projectId, 'artefactId' => $artefactId])
-            ->with('success', 'Studio artefact generated.');
+            ->with('success', __('Studio artefact generated.'));
     }
 
     public function studioShow(Request $request, int $projectId, int $artefactId)
@@ -180,6 +180,6 @@ class ResearchStudioController extends Controller
 
         app(\AhgResearch\Services\ResearchStudioService::class)->delete($artefactId);
 
-        return redirect()->route('research.studio', $projectId)->with('success', 'Studio artefact removed.');
+        return redirect()->route('research.studio', $projectId)->with('success', __('Studio artefact removed.'));
     }
 }

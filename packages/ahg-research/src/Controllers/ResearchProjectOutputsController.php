@@ -131,7 +131,7 @@ class ResearchProjectOutputsController extends Controller
                 'status'         => 'proposed',
                 'created_at'     => now(),
             ]);
-            return redirect()->route('research.assertions', $id)->with('success', 'Assertion created.');
+            return redirect()->route('research.assertions', $id)->with('success', __('Assertion created.'));
         }
 
         return view('research::research.assertions', array_merge(
@@ -159,7 +159,7 @@ class ResearchProjectOutputsController extends Controller
                 'status'        => 'proposed',
                 'created_at'    => now(),
             ]);
-            return redirect()->route('research.hypotheses', $id)->with('success', 'Hypothesis created.');
+            return redirect()->route('research.hypotheses', $id)->with('success', __('Hypothesis created.'));
         }
 
         return view('research::research.hypotheses', array_merge(
@@ -193,7 +193,7 @@ class ResearchProjectOutputsController extends Controller
                     'processed_items' => 0,
                     'created_at'      => now(),
                 ]);
-                return redirect()->route('research.extractionJobs', $id)->with('success', 'Extraction job created.');
+                return redirect()->route('research.extractionJobs', $id)->with('success', __('Extraction job created.'));
             }
 
             if ($action === 'cancel' && $request->input('job_id')) {
@@ -202,7 +202,7 @@ class ResearchProjectOutputsController extends Controller
                     ->where('project_id', $id)
                     ->whereIn('status', ['queued', 'running'])
                     ->update(['status' => 'cancelled']);
-                return redirect()->route('research.extractionJobs', $id)->with('success', 'Job cancelled.');
+                return redirect()->route('research.extractionJobs', $id)->with('success', __('Job cancelled.'));
             }
 
             if ($action === 'retry' && $request->input('job_id')) {
@@ -211,7 +211,7 @@ class ResearchProjectOutputsController extends Controller
                     ->where('project_id', $id)
                     ->where('status', 'failed')
                     ->update(['status' => 'queued']);
-                return redirect()->route('research.extractionJobs', $id)->with('success', 'Job re-queued.');
+                return redirect()->route('research.extractionJobs', $id)->with('success', __('Job re-queued.'));
             }
         }
 
@@ -247,7 +247,7 @@ class ResearchProjectOutputsController extends Controller
                 'status'        => 'active',
                 'created_at'    => now(),
             ]);
-            return redirect()->route('research.snapshots', $id)->with('success', 'Snapshot created.');
+            return redirect()->route('research.snapshots', $id)->with('success', __('Snapshot created.'));
         }
 
         return view('research::research.snapshots', array_merge(
@@ -342,7 +342,7 @@ class ResearchProjectOutputsController extends Controller
                     ->where('id', $request->input('event_id'))
                     ->where('project_id', $id)
                     ->update($update);
-                return redirect()->route('research.timelineBuilder', $id)->with('success', 'Event updated.');
+                return redirect()->route('research.timelineBuilder', $id)->with('success', __('Event updated.'));
             }
 
             if ($action === 'delete_event' && $request->input('event_id')) {
@@ -350,7 +350,7 @@ class ResearchProjectOutputsController extends Controller
                     ->where('id', $request->input('event_id'))
                     ->where('project_id', $id)
                     ->delete();
-                return redirect()->route('research.timelineBuilder', $id)->with('success', 'Event deleted.');
+                return redirect()->route('research.timelineBuilder', $id)->with('success', __('Event deleted.'));
             }
 
             if ($action === 'auto_populate' && $request->input('collection_id')) {
@@ -380,14 +380,14 @@ class ResearchProjectOutputsController extends Controller
                     ]);
                     $count++;
                 }
-                return redirect()->route('research.timelineBuilder', $id)->with('success', "Added {$count} events from collection.");
+                return redirect()->route('research.timelineBuilder', $id)->with('success', trans_choice('{1} Added :count event from collection.|[2,*] Added :count events from collection.', $count, ['count' => $count]));
             }
 
             // Default: create new event (only if we have required data)
             $label = $request->input('title', $request->input('label', ''));
             $dateStart = $request->input('event_date', $request->input('date_start'));
             if (!$label || !$dateStart) {
-                return redirect()->route('research.timelineBuilder', $id)->with('error', 'Label and start date are required.');
+                return redirect()->route('research.timelineBuilder', $id)->with('error', __('Label and start date are required.'));
             }
 
             DB::table('research_timeline_event')->insert([
@@ -400,7 +400,7 @@ class ResearchProjectOutputsController extends Controller
                 'date_type'     => $request->input('event_type', $request->input('date_type', 'event')),
                 'created_at'    => now(),
             ]);
-            return redirect()->route('research.timelineBuilder', $id)->with('success', 'Event added.');
+            return redirect()->route('research.timelineBuilder', $id)->with('success', __('Event added.'));
         }
 
         $events = DB::table('research_timeline_event')
@@ -440,7 +440,7 @@ class ResearchProjectOutputsController extends Controller
                         'longitude'   => $request->input('longitude'),
                         'description' => $request->input('description'),
                     ]);
-                return redirect()->route('research.mapBuilder', $id)->with('success', 'Point updated.');
+                return redirect()->route('research.mapBuilder', $id)->with('success', __('Point updated.'));
             }
 
             if ($action === 'delete_point' && $request->input('point_id')) {
@@ -448,7 +448,7 @@ class ResearchProjectOutputsController extends Controller
                     ->where('id', $request->input('point_id'))
                     ->where('project_id', $id)
                     ->delete();
-                return redirect()->route('research.mapBuilder', $id)->with('success', 'Point deleted.');
+                return redirect()->route('research.mapBuilder', $id)->with('success', __('Point deleted.'));
             }
 
             // Default: create
@@ -462,7 +462,7 @@ class ResearchProjectOutputsController extends Controller
                 'place_name'    => $request->input('place_name'),
                 'created_at'    => now(),
             ]);
-            return redirect()->route('research.mapBuilder', $id)->with('success', 'Point added.');
+            return redirect()->route('research.mapBuilder', $id)->with('success', __('Point added.'));
         }
 
         $points = DB::table('research_map_point')
@@ -615,7 +615,7 @@ class ResearchProjectOutputsController extends Controller
             if ($request->wantsJson()) {
                 return response()->json(['success' => true, 'doi' => $doi]);
             }
-            return redirect()->route('research.mintDoi', $id)->with('success', 'DOI minted: ' . $doi);
+            return redirect()->route('research.mintDoi', $id)->with('success', __('DOI minted: :doi', ['doi' => $doi]));
         }
 
         return view('research::research.mint-doi', array_merge(
@@ -642,7 +642,7 @@ class ResearchProjectOutputsController extends Controller
                     'sort_order'  => $maxSort + 1,
                     'created_at'  => now(),
                 ]);
-                return redirect()->route('research.ethicsMilestones', $id)->with('success', 'Milestone added.');
+                return redirect()->route('research.ethicsMilestones', $id)->with('success', __('Milestone added.'));
             }
 
             if ($action === 'edit') {
@@ -654,7 +654,7 @@ class ResearchProjectOutputsController extends Controller
                         'description' => $request->input('description'),
                         'due_date'    => $request->input('due_date') ?: null,
                     ]);
-                return redirect()->route('research.ethicsMilestones', $id)->with('success', 'Milestone updated.');
+                return redirect()->route('research.ethicsMilestones', $id)->with('success', __('Milestone updated.'));
             }
 
             if ($action === 'approve') {
@@ -662,7 +662,7 @@ class ResearchProjectOutputsController extends Controller
                     ->where('id', $request->input('milestone_id'))
                     ->where('project_id', $id)
                     ->update(['status' => 'approved']);
-                return redirect()->route('research.ethicsMilestones', $id)->with('success', 'Milestone approved.');
+                return redirect()->route('research.ethicsMilestones', $id)->with('success', __('Milestone approved.'));
             }
 
             if ($action === 'reject') {
@@ -670,7 +670,7 @@ class ResearchProjectOutputsController extends Controller
                     ->where('id', $request->input('milestone_id'))
                     ->where('project_id', $id)
                     ->update(['status' => 'rejected']);
-                return redirect()->route('research.ethicsMilestones', $id)->with('success', 'Milestone rejected.');
+                return redirect()->route('research.ethicsMilestones', $id)->with('success', __('Milestone rejected.'));
             }
 
             if ($action === 'complete') {
@@ -678,7 +678,7 @@ class ResearchProjectOutputsController extends Controller
                     ->where('id', $request->input('milestone_id'))
                     ->where('project_id', $id)
                     ->update(['status' => 'completed', 'completed_at' => now(), 'completed_by' => Auth::id()]);
-                return redirect()->route('research.ethicsMilestones', $id)->with('success', 'Milestone completed.');
+                return redirect()->route('research.ethicsMilestones', $id)->with('success', __('Milestone completed.'));
             }
 
             if ($action === 'delete') {
@@ -686,7 +686,7 @@ class ResearchProjectOutputsController extends Controller
                     ->where('id', $request->input('milestone_id'))
                     ->where('project_id', $id)
                     ->delete();
-                return redirect()->route('research.ethicsMilestones', $id)->with('success', 'Milestone deleted.');
+                return redirect()->route('research.ethicsMilestones', $id)->with('success', __('Milestone deleted.'));
             }
         }
 

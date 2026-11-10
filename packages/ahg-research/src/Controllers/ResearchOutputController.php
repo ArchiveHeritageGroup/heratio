@@ -125,13 +125,13 @@ class ResearchOutputController extends Controller
 
         if (! $id) {
             return redirect()->route('research.outputs.index', $projectId)
-                ->with('error', 'Could not create the research output. Please try again.');
+                ->with('error', __('Could not create the research output. Please try again.'));
         }
 
         $this->logResearchActivity('create', 'output', (int) $id, $data['title'] ?? null, ['method' => 'ResearchOutputController@store'], $projectId);
 
         return redirect()->route('research.outputs.show', [$projectId, $id])
-            ->with('success', 'Research output recorded.');
+            ->with('success', __('Research output recorded.'));
     }
 
     /** Edit-output form. */
@@ -145,7 +145,7 @@ class ResearchOutputController extends Controller
         $output = $this->outputs->getOutput($outputId, $projectId);
         if (! $output) {
             return redirect()->route('research.outputs.index', $projectId)
-                ->with('error', 'Research output not found.');
+                ->with('error', __('Research output not found.'));
         }
 
         $typeOptions       = $this->outputs->typeOptions();
@@ -170,7 +170,7 @@ class ResearchOutputController extends Controller
         $existing = $this->outputs->getOutput($outputId, $projectId);
         if (! $existing) {
             return redirect()->route('research.outputs.index', $projectId)
-                ->with('error', 'Research output not found.');
+                ->with('error', __('Research output not found.'));
         }
 
         $data = $this->validateOutput($request);
@@ -179,13 +179,13 @@ class ResearchOutputController extends Controller
 
         if (! $ok) {
             return redirect()->route('research.outputs.index', $projectId)
-                ->with('error', 'Could not save the research output.');
+                ->with('error', __('Could not save the research output.'));
         }
 
         $this->logResearchActivity('update', 'output', $outputId, $data['title'] ?? null, ['method' => 'ResearchOutputController@update'], $projectId);
 
         return redirect()->route('research.outputs.show', [$projectId, $outputId])
-            ->with('success', 'Research output saved.');
+            ->with('success', __('Research output saved.'));
     }
 
     /** Read-only output detail with resolvable identifier link. */
@@ -199,7 +199,7 @@ class ResearchOutputController extends Controller
         $output = $this->outputs->getOutput($outputId, $projectId);
         if (! $output) {
             return redirect()->route('research.outputs.index', $projectId)
-                ->with('error', 'Research output not found.');
+                ->with('error', __('Research output not found.'));
         }
 
         $typeOptions       = $this->outputs->typeOptions();

@@ -75,7 +75,7 @@ class ResearchRegistrationController extends Controller
     public function register(Request $request)
     {
         if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Please log in to register');
+            return redirect()->route('login')->with('error', __('Please log in to register'));
         }
 
         $userId = Auth::id();
@@ -121,12 +121,12 @@ class ResearchRegistrationController extends Controller
                         ->update($data);
                     $this->logResearchActivity('update', 'registration', (int) $existingResearcher->id, trim($request->input('first_name') . ' ' . $request->input('last_name')) ?: null, ['method' => 'ResearchRegistrationController@register']);
                     return redirect()->route('research.registrationComplete')
-                        ->with('success', 'Re-registration submitted for review');
+                        ->with('success', __('Re-registration submitted for review'));
                 } else {
                     $this->service->registerResearcher($data);
                     $this->logResearchActivity('create', 'registration', null, trim($request->input('first_name') . ' ' . $request->input('last_name')) ?: null, ['method' => 'ResearchRegistrationController@register']);
                     return redirect()->route('research.registrationComplete')
-                        ->with('success', 'Registration submitted');
+                        ->with('success', __('Registration submitted'));
                 }
             } catch (\Exception $e) {
                 return back()->with('error', $e->getMessage());
@@ -247,10 +247,10 @@ class ResearchRegistrationController extends Controller
                 $this->logResearchActivity('create', 'registration', null, trim($request->input('first_name') . ' ' . $request->input('last_name')) ?: ($email ?: null), ['method' => 'ResearchRegistrationController@publicRegister']);
 
                 return redirect()->route('research.registrationComplete')
-                    ->with('success', 'Registration successful! Pending approval.');
+                    ->with('success', __('Registration successful! Pending approval.'));
             } catch (\Exception $e) {
                 DB::rollBack();
-                return back()->with('error', 'Registration failed: ' . $e->getMessage());
+                return back()->with('error', __('Registration failed: :error', ['error' => $e->getMessage()]));
             }
         }
 
@@ -311,7 +311,7 @@ class ResearchRegistrationController extends Controller
                         ->update($data);
                     $this->logResearchActivity('update', 'registration', (int) $researcher->id, trim(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) ?: null, ['method' => 'ResearchRegistrationController@renewal']);
                     return redirect()->route('research.registrationComplete')
-                        ->with('success', 'Re-registration submitted for review');
+                        ->with('success', __('Re-registration submitted for review'));
                 } catch (\Exception $e) {
                     return back()->with('error', $e->getMessage());
                 }
@@ -324,7 +324,7 @@ class ResearchRegistrationController extends Controller
         }
 
         if (!in_array($researcher->status, ['expired', 'approved'])) {
-            return redirect()->route('research.profile')->with('error', 'Renewal not available for your current status');
+            return redirect()->route('research.profile')->with('error', __('Renewal not available for your current status'));
         }
 
         if ($request->isMethod('post')) {
@@ -338,7 +338,7 @@ class ResearchRegistrationController extends Controller
             ]);
             $this->logResearchActivity('create', 'registration', (int) $researcher->id, trim(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) ?: null, ['method' => 'ResearchRegistrationController@renewal', 'request_type' => 'renewal']);
             return redirect()->route('research.profile')
-                ->with('success', 'Renewal request submitted. You will be notified when reviewed.');
+                ->with('success', __('Renewal request submitted. You will be notified when reviewed.'));
         }
 
         return view('research::research.renewal', array_merge(

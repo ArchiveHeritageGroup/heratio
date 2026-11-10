@@ -125,7 +125,7 @@ class PublicationStudioController extends Controller
 
         return redirect()
             ->route('research.publication.submission', [$projectId, $result['id']])
-            ->with('success', 'Submission created.');
+            ->with('success', __('Submission created.'));
     }
 
     // ── submission detail ────────────────────────────────────────────────────

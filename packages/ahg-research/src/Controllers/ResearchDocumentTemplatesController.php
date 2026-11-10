@@ -73,7 +73,7 @@ class ResearchDocumentTemplatesController extends Controller
                     'created_by' => $researcher->id,
                     'created_at' => date('Y-m-d H:i:s'),
                 ]);
-                return redirect('/research/documentTemplates')->with('success', 'Template created.');
+                return redirect('/research/documentTemplates')->with('success', __('Template created.'));
             }
 
             if ($formAction === 'update') {
@@ -86,7 +86,7 @@ class ResearchDocumentTemplatesController extends Controller
                         'description' => $request->input('description'),
                         'fields_json' => $request->input('fields_json') ?: '[]',
                     ]);
-                return redirect('/research/documentTemplates')->with('success', 'Template updated.');
+                return redirect('/research/documentTemplates')->with('success', __('Template updated.'));
             }
         }
 

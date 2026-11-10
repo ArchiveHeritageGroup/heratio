@@ -65,7 +65,7 @@ class ResearchNotebooksController extends Controller
                     'title'   => $request->input('title', 'Untitled notebook'),
                     'summary' => $request->input('summary'),
                 ]);
-                return redirect()->route('research.notebookShow', $id)->with('success', 'Notebook created.');
+                return redirect()->route('research.notebookShow', $id)->with('success', __('Notebook created.'));
             }
         }
 
@@ -93,7 +93,7 @@ class ResearchNotebooksController extends Controller
                     'title'   => $request->input('title'),
                     'summary' => $request->input('summary'),
                 ]);
-                return redirect()->route('research.notebookShow', $id)->with('success', 'Notebook updated.');
+                return redirect()->route('research.notebookShow', $id)->with('success', __('Notebook updated.'));
             }
             if ($action === 'add_item') {
                 $svc->addItem($id, [
@@ -104,11 +104,11 @@ class ResearchNotebooksController extends Controller
                     'saved_search_id'  => $request->input('saved_search_id') ?: null,
                     'pinned'           => (bool) $request->input('pinned'),
                 ]);
-                return redirect()->route('research.notebookShow', $id)->with('success', 'Note added.');
+                return redirect()->route('research.notebookShow', $id)->with('success', __('Note added.'));
             }
             if ($action === 'remove_item') {
                 $svc->removeItem((int) $request->input('item_id'));
-                return redirect()->route('research.notebookShow', $id)->with('success', 'Note removed.');
+                return redirect()->route('research.notebookShow', $id)->with('success', __('Note removed.'));
             }
             if ($action === 'pin_item') {
                 $itemId = (int) $request->input('item_id');
@@ -136,7 +136,7 @@ class ResearchNotebooksController extends Controller
         if (!$notebook || (int) $notebook->researcher_id !== (int) $researcher->id) abort(404);
 
         $svc->delete($id);
-        return redirect()->route('research.notebooks')->with('success', 'Notebook deleted.');
+        return redirect()->route('research.notebooks')->with('success', __('Notebook deleted.'));
     }
 
     public function notebookPromote(Request $request, int $id)
@@ -148,10 +148,10 @@ class ResearchNotebooksController extends Controller
         $projectId = $svc->promoteToProject($id, (int) $researcher->id);
 
         if (!$projectId) {
-            return redirect()->route('research.notebookShow', $id)->with('error', 'Could not promote notebook.');
+            return redirect()->route('research.notebookShow', $id)->with('error', __('Could not promote notebook.'));
         }
 
         return redirect()->route('research.viewProject', $projectId)
-            ->with('success', 'Notebook promoted to project.');
+            ->with('success', __('Notebook promoted to project.'));
     }
 }

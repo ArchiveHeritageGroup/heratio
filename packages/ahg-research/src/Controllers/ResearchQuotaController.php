@@ -111,7 +111,7 @@ class ResearchQuotaController extends Controller
             DB::table('research_quota_policy')->where('id', $policyId)->delete();
             $this->logResearchActivity('delete', 'quota_policy', $policyId, null, ['method' => 'ResearchQuotaController@store']);
 
-            return redirect()->route('research.adminQuotas')->with('success', 'Quota policy deleted.');
+            return redirect()->route('research.adminQuotas')->with('success', __('Quota policy deleted.'));
         }
 
         $scopeCodes  = $this->codeList('quota_scope', ['global', 'role', 'user', 'project']);
@@ -154,14 +154,14 @@ class ResearchQuotaController extends Controller
             DB::table('research_quota_policy')->where('id', $existing->id)->update($data);
             $this->logResearchActivity('update', 'quota_policy', (int) $existing->id, $scope.':'.$scopeKey, ['method' => 'ResearchQuotaController@store', 'period' => $period]);
 
-            return redirect()->route('research.adminQuotas')->with('success', 'Quota policy updated.');
+            return redirect()->route('research.adminQuotas')->with('success', __('Quota policy updated.'));
         }
 
         $data['created_at'] = now();
         $newId = (int) DB::table('research_quota_policy')->insertGetId($data);
         $this->logResearchActivity('create', 'quota_policy', $newId, $scope.':'.$scopeKey, ['method' => 'ResearchQuotaController@store', 'period' => $period]);
 
-        return redirect()->route('research.adminQuotas')->with('success', 'Quota policy created.');
+        return redirect()->route('research.adminQuotas')->with('success', __('Quota policy created.'));
     }
 
     // --- internals --------------------------------------------------------

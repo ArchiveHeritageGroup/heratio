@@ -130,7 +130,7 @@ class AnalysisBridgeController extends Controller
         $result = $this->bridge->getResult($projectId, $resultId);
         if (! $result) {
             return redirect()->route('research.analysis.index', $projectId)
-                ->with('error', 'Result not found.');
+                ->with('error', __('Result not found.'));
         }
 
         $linkedClaims    = $this->bridge->getLinkedClaims($resultId);
@@ -168,11 +168,11 @@ class AnalysisBridgeController extends Controller
         $id = $this->bridge->createResult($projectId, (int) Auth::id(), $validated, $artifact);
         if (! $id) {
             return redirect()->route('research.analysis.index', $projectId)
-                ->with('error', 'Could not register the result.');
+                ->with('error', __('Could not register the result.'));
         }
         $this->logResearchActivity('create', 'analysis_bridge', (int) $id, $validated['title'] ?? null, ['method' => 'AnalysisBridgeController@store'], $projectId);
         return redirect()->route('research.analysis.show', [$projectId, $id])
-            ->with('success', 'Result registered with its provenance.');
+            ->with('success', __('Result registered with its provenance.'));
     }
 
     /** Update a result's provenance metadata. */
@@ -236,7 +236,7 @@ class AnalysisBridgeController extends Controller
         $abs = $this->bridge->artifactAbsolutePath($result);
         if ($abs === null) {
             return redirect()->route('research.analysis.show', [$projectId, $resultId])
-                ->with('error', 'Artifact not available.');
+                ->with('error', __('Artifact not available.'));
         }
         return response()->download($abs);
     }

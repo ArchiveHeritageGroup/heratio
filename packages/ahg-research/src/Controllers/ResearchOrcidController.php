@@ -104,7 +104,7 @@ class ResearchOrcidController extends Controller
             $data['api_base'] ?? null
         );
 
-        return redirect()->route('research.orcid')->with('success', 'ORCID client credentials saved. You can now Connect & Sync.');
+        return redirect()->route('research.orcid')->with('success', __('ORCID client credentials saved. You can now Connect & Sync.'));
     }
 
     public function orcidClearCredentials(Request $request)
@@ -113,7 +113,7 @@ class ResearchOrcidController extends Controller
         if (!is_object($researcher)) return $researcher;
 
         app(\AhgResearch\Services\OrcidService::class)->clearCredentials((int) $researcher->id);
-        return redirect()->route('research.orcid')->with('success', 'ORCID client credentials removed.');
+        return redirect()->route('research.orcid')->with('success', __('ORCID client credentials removed.'));
     }
 
     public function orcidAuthorize(Request $request)
@@ -123,7 +123,7 @@ class ResearchOrcidController extends Controller
 
         $svc = app(\AhgResearch\Services\OrcidService::class);
         if (!$svc->isConfiguredFor((int) $researcher->id)) {
-            return redirect()->route('research.orcid')->with('error', 'Enter your ORCID Client ID and Secret first, then Connect & Sync.');
+            return redirect()->route('research.orcid')->with('error', __('Enter your ORCID Client ID and Secret first, then Connect & Sync.'));
         }
 
         session(['orcid_researcher_id' => $researcher->id]);
@@ -138,10 +138,10 @@ class ResearchOrcidController extends Controller
         $code = $request->query('code');
         $state = $request->query('state');
         if (!$code) {
-            return redirect()->route('research.orcid')->with('error', 'ORCID returned no authorisation code.');
+            return redirect()->route('research.orcid')->with('error', __('ORCID returned no authorisation code.'));
         }
         if (session('orcid_oauth_state') && $state !== session('orcid_oauth_state')) {
-            return redirect()->route('research.orcid')->with('error', 'ORCID state mismatch.');
+            return redirect()->route('research.orcid')->with('error', __('ORCID state mismatch.'));
         }
 
         $svc = app(\AhgResearch\Services\OrcidService::class);
@@ -149,10 +149,10 @@ class ResearchOrcidController extends Controller
             $token = $svc->exchangeCode($code, (int) $researcher->id);
             $svc->linkResearcher((int) $researcher->id, $token);
         } catch (\Throwable $e) {
-            return redirect()->route('research.orcid')->with('error', 'ORCID link failed: ' . $e->getMessage());
+            return redirect()->route('research.orcid')->with('error', __('ORCID link failed: :error', ['error' => $e->getMessage()]));
         }
 
-        return redirect()->route('research.orcid')->with('success', 'ORCID linked successfully.');
+        return redirect()->route('research.orcid')->with('success', __('ORCID linked successfully.'));
     }
 
     public function orcidSync(Request $request)
@@ -164,10 +164,10 @@ class ResearchOrcidController extends Controller
         try {
             $svc->pullWorks((int) $researcher->id);
         } catch (\Throwable $e) {
-            return redirect()->route('research.orcid')->with('error', 'Sync failed: ' . $e->getMessage());
+            return redirect()->route('research.orcid')->with('error', __('Sync failed: :error', ['error' => $e->getMessage()]));
         }
 
-        return redirect()->route('research.orcid')->with('success', 'Works pulled from ORCID.');
+        return redirect()->route('research.orcid')->with('success', __('Works pulled from ORCID.'));
     }
 
     public function orcidUnlink(Request $request)
@@ -176,7 +176,7 @@ class ResearchOrcidController extends Controller
         if (!is_object($researcher)) return $researcher;
 
         app(\AhgResearch\Services\OrcidService::class)->unlink((int) $researcher->id);
-        return redirect()->route('research.orcid')->with('success', 'ORCID unlinked.');
+        return redirect()->route('research.orcid')->with('success', __('ORCID unlinked.'));
     }
 
     /**
@@ -239,13 +239,13 @@ class ResearchOrcidController extends Controller
         try {
             $record = $svc->pullProfile((int) $researcher->id);
         } catch (\Throwable $e) {
-            return redirect()->route('research.orcid')->with('error', 'Profile pull failed: ' . $e->getMessage());
+            return redirect()->route('research.orcid')->with('error', __('Profile pull failed: :error', ['error' => $e->getMessage()]));
         }
 
         if (!$record) {
-            return redirect()->route('research.orcid')->with('error', 'No public ORCID record found to pull.');
+            return redirect()->route('research.orcid')->with('error', __('No public ORCID record found to pull.'));
         }
 
-        return redirect()->route('research.orcid')->with('success', 'Profile details pulled from ORCID and applied to your researcher record.');
+        return redirect()->route('research.orcid')->with('success', __('Profile details pulled from ORCID and applied to your researcher record.'));
     }
 }

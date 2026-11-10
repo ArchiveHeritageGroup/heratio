@@ -84,18 +84,18 @@ class ResearchAdminReferenceController extends Controller
             if ($action === 'create') {
                 $data['created_at'] = now();
                 DB::table('research_researcher_type')->insert($data);
-                return redirect()->route('research.adminTypes')->with('success', 'Type created.');
+                return redirect()->route('research.adminTypes')->with('success', __('Type created.'));
             }
 
             if ($action === 'update') {
                 $data['updated_at'] = now();
                 DB::table('research_researcher_type')->where('id', (int) $request->input('type_id'))->update($data);
-                return redirect()->route('research.adminTypes')->with('success', 'Type updated.');
+                return redirect()->route('research.adminTypes')->with('success', __('Type updated.'));
             }
 
             if ($action === 'delete') {
                 DB::table('research_researcher_type')->where('id', (int) $request->input('type_id'))->delete();
-                return redirect()->route('research.adminTypes')->with('success', 'Type deleted.');
+                return redirect()->route('research.adminTypes')->with('success', __('Type deleted.'));
             }
         }
 
@@ -255,16 +255,16 @@ class ResearchAdminReferenceController extends Controller
             if ($action === 'create') {
                 $data['created_at'] = now();
                 DB::table('research_institution')->insert($data);
-                return redirect()->route('research.institutions')->with('success', 'Institution added.');
+                return redirect()->route('research.institutions')->with('success', __('Institution added.'));
             }
             if ($action === 'update') {
                 $data['updated_at'] = now();
                 DB::table('research_institution')->where('id', (int) $request->input('institution_id'))->update($data);
-                return redirect()->route('research.institutions')->with('success', 'Institution updated.');
+                return redirect()->route('research.institutions')->with('success', __('Institution updated.'));
             }
             if ($action === 'delete') {
                 DB::table('research_institution')->where('id', (int) $request->input('institution_id'))->delete();
-                return redirect()->route('research.institutions')->with('success', 'Institution deleted.');
+                return redirect()->route('research.institutions')->with('success', __('Institution deleted.'));
             }
         }
 

@@ -199,7 +199,7 @@ class ReviewStudioController extends Controller
         $run = $this->studio->getRun($projectId, $runId);
         if (! $run) {
             return redirect()->route('research.review.index', $projectId)
-                ->with('error', 'Reviewer run not found.');
+                ->with('error', __('Reviewer run not found.'));
         }
 
         return view('research::research.review-studio.run', array_merge(

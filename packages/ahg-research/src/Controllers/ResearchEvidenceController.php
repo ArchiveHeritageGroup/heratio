@@ -126,7 +126,7 @@ class ResearchEvidenceController extends Controller
                 ['object_id' => $objectId, 'researcher_id' => $researcher->id, 'entity_type' => 'information_object'],
                 ['content' => $request->input('notes') ?: null, 'created_at' => now()]
             );
-            return redirect()->route('research.evidence-viewer', ['object_id' => $objectId])->with('success', 'Notes saved.');
+            return redirect()->route('research.evidence-viewer', ['object_id' => $objectId])->with('success', __('Notes saved.'));
         }
 
         // Get tags from annotations

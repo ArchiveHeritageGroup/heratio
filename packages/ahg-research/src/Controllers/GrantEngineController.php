@@ -125,7 +125,7 @@ class GrantEngineController extends Controller
 
         if (! $this->grant->getTemplate($data['funder_template'])) {
             return redirect()->route('research.grant.index', $projectId)
-                ->with('error', 'That funder template is not available.');
+                ->with('error', __('That funder template is not available.'));
         }
 
         $id = $this->grant->startDraft(
@@ -137,13 +137,13 @@ class GrantEngineController extends Controller
 
         if (! $id) {
             return redirect()->route('research.grant.index', $projectId)
-                ->with('error', 'Could not start the grant draft. Please try again.');
+                ->with('error', __('Could not start the grant draft. Please try again.'));
         }
 
         $this->logResearchActivity('create', 'grant', (int) $id, $data['title'] ?? null, ['method' => 'GrantEngineController@store'], $projectId);
 
         return redirect()->route('research.grant.edit', [$projectId, $id])
-            ->with('success', 'Grant draft started. Sections were pre-filled from your project material - edit each one below.');
+            ->with('success', __('Grant draft started. Sections were pre-filled from your project material - edit each one below.'));
     }
 
     /** Section-by-section draft editor. */
@@ -157,7 +157,7 @@ class GrantEngineController extends Controller
         $draft = $this->grant->getDraft($draftId, $projectId);
         if (! $draft) {
             return redirect()->route('research.grant.index', $projectId)
-                ->with('error', 'Grant draft not found.');
+                ->with('error', __('Grant draft not found.'));
         }
 
         $sections      = $this->grant->getSections($draftId);
@@ -195,13 +195,13 @@ class GrantEngineController extends Controller
 
         if (! $ok) {
             return redirect()->route('research.grant.index', $projectId)
-                ->with('error', 'Could not save the grant draft.');
+                ->with('error', __('Could not save the grant draft.'));
         }
 
         $this->logResearchActivity('update', 'grant', $draftId, $data['title'] ?? null, ['method' => 'GrantEngineController@update'], $projectId);
 
         return redirect()->route('research.grant.edit', [$projectId, $draftId])
-            ->with('success', 'Grant draft saved.');
+            ->with('success', __('Grant draft saved.'));
     }
 
     /** Read-only assembled draft (print / review view). */
@@ -215,7 +215,7 @@ class GrantEngineController extends Controller
         $draft = $this->grant->getDraft($draftId, $projectId);
         if (! $draft) {
             return redirect()->route('research.grant.index', $projectId)
-                ->with('error', 'Grant draft not found.');
+                ->with('error', __('Grant draft not found.'));
         }
 
         $sections = $this->grant->getSections($draftId);
