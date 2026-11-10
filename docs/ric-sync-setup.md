@@ -56,6 +56,14 @@ RIC_INSTANCE_ID=heratio-prod
 
 Run `php artisan config:clear` after editing `.env`.
 
+Then turn RiC sync on:
+
+```bash
+php artisan ahg:ric:fuseki-sync-default --setup
+```
+
+This sets `fuseki_sync_enabled` to on once the Fuseki endpoint answers, and changes nothing (exiting non-zero with the reason) if it does not. New installs start with sync **off** unless Fuseki was already answering during `bin/install` (heratio#1598). The same switch is on the Fuseki settings page (`/admin/ahgSettings/fuseki`).
+
 ### What each key does
 
 | Key | Purpose |
