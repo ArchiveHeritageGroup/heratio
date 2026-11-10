@@ -24,11 +24,11 @@
 
   // Re-establish helpers if not already set (when included from browse.blade.php they are available)
   $typeConfig = $typeConfig ?? [
-      'archive' => ['icon' => 'fa-archive',  'color' => 'success', 'label' => 'Archive'],
-      'museum'  => ['icon' => 'fa-landmark', 'color' => 'warning', 'label' => 'Museum'],
-      'gallery' => ['icon' => 'fa-palette',  'color' => 'info',    'label' => 'Gallery'],
-      'library' => ['icon' => 'fa-book',     'color' => 'primary', 'label' => 'Library'],
-      'dam'     => ['icon' => 'fa-images',   'color' => 'danger',  'label' => 'Photo/DAM'],
+      'archive' => ['icon' => 'fa-archive',  'color' => 'success', 'label' => __('Archive')],
+      'museum'  => ['icon' => 'fa-landmark', 'color' => 'warning', 'label' => __('Museum')],
+      'gallery' => ['icon' => 'fa-palette',  'color' => 'info',    'label' => __('Gallery')],
+      'library' => ['icon' => 'fa-book',     'color' => 'primary', 'label' => __('Library')],
+      'dam'     => ['icon' => 'fa-images',   'color' => 'danger',  'label' => __('Photo/DAM')],
   ];
   $sortLabels = $sortLabels ?? [
       'lastUpdated' => __('Date created'),
@@ -193,7 +193,7 @@
     {{ __('Showing results for') }} <strong>"{{ e($correctedQuery) }}"</strong>.
     @if(!empty($originalQuery))
       <a href="{{ glamBrowseUrl($fp, ['query' => $originalQuery, 'noCorrect' => 1]) }}" class="alert-link">
-        Search instead for "{{ e($originalQuery) }}"
+        {{ __('Search instead for') }} "{{ e($originalQuery) }}"
       </a>
     @endif
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
@@ -611,7 +611,7 @@
                     <dd class="col-sm-9 col-md-10">{{ $objRepo }}</dd>
                   @endif
                   @if($objScope)
-                    <dt class="col-sm-3 col-md-2">Scope &amp; content</dt>
+                    <dt class="col-sm-3 col-md-2">{{ __('Scope and content') }}</dt>
                     <dd class="col-sm-9 col-md-10">{{ Str::limit(strip_tags($objScope), 400) }}</dd>
                   @endif
                 </dl>
@@ -795,12 +795,12 @@
     <h4 class="text-muted">{{ __('No results found') }}</h4>
     <p class="text-muted">
       {{ __('Try adjusting your filters or') }}
-      <a href="{{ route('glam.browse') }}">clear all filters</a>
-      to start over.
+      <a href="{{ route('glam.browse') }}">{{ __('clear all filters') }}</a>
+      {{ __('to start over.') }}
     </p>
     @if(!empty($queryFilter))
       <p class="text-muted">
-        {{ __('Your search for') }} <strong>"{{ e($queryFilter) }}"</strong> did not match any records.
+        {{ __('Your search for') }} <strong>"{{ e($queryFilter) }}"</strong> {{ __('did not match any records.') }}
       </p>
     @endif
   </div>

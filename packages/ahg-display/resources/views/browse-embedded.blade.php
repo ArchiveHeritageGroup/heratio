@@ -57,20 +57,20 @@
   ];
 
   $typeConfig = [
-      'archive' => ['icon' => 'fa-archive',  'color' => 'success', 'label' => 'Archive'],
-      'museum'  => ['icon' => 'fa-landmark', 'color' => 'warning', 'label' => 'Museum'],
-      'gallery' => ['icon' => 'fa-palette',  'color' => 'info',    'label' => 'Gallery'],
-      'library' => ['icon' => 'fa-book',     'color' => 'primary', 'label' => 'Library'],
-      'dam'     => ['icon' => 'fa-images',   'color' => 'danger',  'label' => 'Photo/DAM'],
+      'archive' => ['icon' => 'fa-archive',  'color' => 'success', 'label' => __('Archive')],
+      'museum'  => ['icon' => 'fa-landmark', 'color' => 'warning', 'label' => __('Museum')],
+      'gallery' => ['icon' => 'fa-palette',  'color' => 'info',    'label' => __('Gallery')],
+      'library' => ['icon' => 'fa-book',     'color' => 'primary', 'label' => __('Library')],
+      'dam'     => ['icon' => 'fa-images',   'color' => 'danger',  'label' => __('Photo/DAM')],
   ];
   $limitOptions = [10, 25, 50, 100];
   $sortLabels = [
-      'date'       => 'Date modified',
-      'title'      => 'Title',
-      'identifier' => 'Identifier',
-      'refcode'    => 'Reference code',
-      'startdate'  => 'Start date',
-      'enddate'    => 'End date',
+      'date'       => __('Date modified'),
+      'title'      => __('Title'),
+      'identifier' => __('Identifier'),
+      'refcode'    => __('Reference code'),
+      'startdate'  => __('Start date'),
+      'enddate'    => __('End date'),
   ];
 
   if (!function_exists('buildEmbeddedUrl')) {
@@ -329,13 +329,13 @@
         @if($repoFilter)
           @php $rname = ''; foreach(($repositories ?? []) as $r) if($r->id == $repoFilter) $rname = $r->name; @endphp
           <a href="{{ buildEmbeddedUrl($fp, [], ['repo']) }}" class="badge bg-dark p-2 text-decoration-none text-white">
-            Repository: {{ e($rname) }} <i class="fas fa-times ms-1"></i>
+            {{ __('Repository:') }} {{ e($rname) }} <i class="fas fa-times ms-1"></i>
           </a>
         @endif
         @if($levelFilter)
           @php $lname = ''; foreach(($levels ?? []) as $l) if($l->id == $levelFilter) $lname = $l->name; @endphp
           <a href="{{ buildEmbeddedUrl($fp, [], ['level']) }}" class="badge bg-secondary p-2 text-decoration-none text-white">
-            Level: {{ e($lname) }} <i class="fas fa-times ms-1"></i>
+            {{ __('Level:') }} {{ e($lname) }} <i class="fas fa-times ms-1"></i>
           </a>
         @endif
         @if($hasDigital)
@@ -353,7 +353,7 @@
         <a href="{{ buildEmbeddedUrl($fp, ['view' => 'table']) }}" class="btn btn-sm {{ $viewMode === 'table' ? 'atom-btn-outline-success' : 'atom-btn-white' }}"><i class="fas fa-list"></i></a>
 
         <div class="dropdown">
-          <button class="btn atom-btn-outline-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">{{ $limit }}/page</button>
+          <button class="btn atom-btn-outline-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">{{ __(':count/page', ['count' => $limit]) }}</button>
           <ul class="dropdown-menu">
             @foreach($limitOptions as $opt)
               <li><a class="dropdown-item {{ $limit == $opt ? 'active' : '' }}" href="{{ buildEmbeddedUrl($fp, ['limit' => $opt]) }}">{{ $opt }}</a></li>
@@ -362,7 +362,7 @@
         </div>
 
         <div class="dropdown ms-auto">
-          <button class="btn atom-btn-outline-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">Sort: {{ $sortLabels[$sort] ?? 'Title' }}</button>
+          <button class="btn atom-btn-outline-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">{{ __('Sort') }}: {{ $sortLabels[$sort] ?? __('Title') }}</button>
           <ul class="dropdown-menu">
             @foreach($sortLabels as $sortKey => $sortLabel)
               <li><a class="dropdown-item {{ $sort === $sortKey ? 'active' : '' }}" href="{{ buildEmbeddedUrl($fp, ['sort' => $sortKey]) }}">{{ $sortLabel }}</a></li>
@@ -371,7 +371,7 @@
         </div>
 
         <div class="dropdown">
-          <button class="btn atom-btn-outline-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">{{ $sortDir === 'asc' ? 'Asc' : 'Desc' }}</button>
+          <button class="btn atom-btn-outline-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">{{ $sortDir === 'asc' ? __('Ascending') : __('Descending') }}</button>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item {{ $sortDir === 'asc' ? 'active' : '' }}" href="{{ buildEmbeddedUrl($fp, ['dir' => 'asc']) }}">{{ __('Ascending') }}</a></li>
             <li><a class="dropdown-item {{ $sortDir === 'desc' ? 'active' : '' }}" href="{{ buildEmbeddedUrl($fp, ['dir' => 'desc']) }}">{{ __('Descending') }}</a></li>
@@ -381,7 +381,7 @@
 
       {{-- Results Info --}}
       <div class="mb-3 text-muted small">
-        Results {{ min((($page - 1) * $limit) + 1, $total) }} to {{ min($page * $limit, $total) }} of {{ $total }}
+        {{ __('Results :from to :to of :total', ['from' => min((($page - 1) * $limit) + 1, $total), 'to' => min($page * $limit, $total), 'total' => $total]) }}
       </div>
 
       {{-- ===== GRID VIEW ===== --}}
@@ -392,7 +392,7 @@
           <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
             @foreach($objects as $obj)
               @php
-                $cfg = $typeConfig[$obj->object_type ?? ''] ?? ['icon' => 'fa-file', 'color' => 'secondary', 'label' => 'Unknown'];
+                $cfg = $typeConfig[$obj->object_type ?? ''] ?? ['icon' => 'fa-file', 'color' => 'secondary', 'label' => __('Unknown')];
                 $objUrl = '/' . ($obj->slug ?? '');
               @endphp
               <div class="col">
@@ -462,7 +462,7 @@
         @else
           @foreach($objects as $obj)
             @php
-              $cfg = $typeConfig[$obj->object_type ?? ''] ?? ['icon' => 'fa-file', 'color' => 'secondary', 'label' => 'Unknown'];
+              $cfg = $typeConfig[$obj->object_type ?? ''] ?? ['icon' => 'fa-file', 'color' => 'secondary', 'label' => __('Unknown')];
               $objUrl = '/' . ($obj->slug ?? '');
             @endphp
             <div class="card mb-2 shadow-sm">

@@ -10,11 +10,11 @@
 @php
   // Type configuration map
   $typeConfig = [
-      'archive' => ['icon' => 'fa-archive',  'color' => 'success', 'label' => 'Archive'],
-      'museum'  => ['icon' => 'fa-landmark', 'color' => 'warning', 'label' => 'Museum'],
-      'gallery' => ['icon' => 'fa-palette',  'color' => 'info',    'label' => 'Gallery'],
-      'library' => ['icon' => 'fa-book',     'color' => 'primary', 'label' => 'Library'],
-      'dam'     => ['icon' => 'fa-images',   'color' => 'danger',  'label' => 'Photo/DAM'],
+      'archive' => ['icon' => 'fa-archive',  'color' => 'success', 'label' => __('Archive')],
+      'museum'  => ['icon' => 'fa-landmark', 'color' => 'warning', 'label' => __('Museum')],
+      'gallery' => ['icon' => 'fa-palette',  'color' => 'info',    'label' => __('Gallery')],
+      'library' => ['icon' => 'fa-book',     'color' => 'primary', 'label' => __('Library')],
+      'dam'     => ['icon' => 'fa-images',   'color' => 'danger',  'label' => __('Photo/DAM')],
   ];
 
   // Sort labels
