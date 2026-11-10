@@ -121,7 +121,7 @@ class PrivacyController extends Controller
         $entityCount = count($piiEntities);
         return redirect()
             ->route('io.privacy.scan', ['id' => $id])
-            ->with('success', "Scan results saved (risk score {$riskScore}, {$entityCount} PII entities recorded in audit_log).");
+            ->with('success', __('Scan results saved (risk score :score, :count PII entities recorded in audit_log).', ['score' => $riskScore, 'count' => $entityCount]));
     }
 
     public function scan(int $id)

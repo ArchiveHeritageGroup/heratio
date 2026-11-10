@@ -166,7 +166,7 @@ class ConditionController extends Controller
 
         return redirect()
             ->route('io.condition', $slug)
-            ->with('success', 'Condition report created successfully.');
+            ->with('success', __('Condition report created successfully.'));
     }
 
     /**
@@ -326,7 +326,7 @@ class ConditionController extends Controller
             'created_at'         => now(),
         ]);
 
-        return redirect()->route('io.condition.show', $id)->with('success', 'Photo uploaded.');
+        return redirect()->route('io.condition.show', $id)->with('success', __('Photo uploaded.'));
     }
 
     /**
@@ -346,7 +346,7 @@ class ConditionController extends Controller
 
         DB::table('spectrum_condition_photo')->where('id', $id)->delete();
 
-        return redirect()->back()->with('success', 'Photo deleted.');
+        return redirect()->back()->with('success', __('Photo deleted.'));
     }
 
     /**

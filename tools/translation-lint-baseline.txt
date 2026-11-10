@@ -1105,68 +1105,6 @@ packages/ahg-information-object-manage/resources/views/show-ric.blade.php	text	r
 packages/ahg-information-object-manage/resources/views/show-ric.blade.php	text	rico:hasOrHadHolder
 packages/ahg-information-object-manage/resources/views/show-ric.blade.php	text	rico:hasRecordSetType
 packages/ahg-information-object-manage/resources/views/show-ric.blade.php	text	rico:isOrWasSubjectOf / rico:isAssociatedWithPlace
-packages/ahg-information-object-manage/src/Controllers/ConditionController.php	flash	Condition report created successfully.
-packages/ahg-information-object-manage/src/Controllers/ConditionController.php	flash	Photo deleted.
-packages/ahg-information-object-manage/src/Controllers/ConditionController.php	flash	Photo uploaded.
-packages/ahg-information-object-manage/src/Controllers/DigitalObjectController.php	flash	A digital object already exists. Delete the current one before uploading a new file.
-packages/ahg-information-object-manage/src/Controllers/DigitalObjectController.php	flash	A digital object already exists. Edit it here, or delete first to attach a new one.
-packages/ahg-information-object-manage/src/Controllers/DigitalObjectController.php	flash	Attachment removed.
-packages/ahg-information-object-manage/src/Controllers/DigitalObjectController.php	flash	Digital object deleted successfully.
-packages/ahg-information-object-manage/src/Controllers/DigitalObjectController.php	flash	Digital object updated.
-packages/ahg-information-object-manage/src/Controllers/DigitalObjectController.php	flash	Digital object updated.
-packages/ahg-information-object-manage/src/Controllers/DigitalObjectController.php	flash	Digital objects imported.
-packages/ahg-information-object-manage/src/Controllers/DigitalObjectController.php	flash	Failed to delete digital object.
-packages/ahg-information-object-manage/src/Controllers/DigitalObjectController.php	flash	Failed to delete representation.
-packages/ahg-information-object-manage/src/Controllers/DigitalObjectController.php	flash	Multiple attachments are not available on this installation.
-packages/ahg-information-object-manage/src/Controllers/DigitalObjectController.php	flash	Order updated.
-packages/ahg-information-object-manage/src/Controllers/DigitalObjectController.php	flash	Primary image updated.
-packages/ahg-information-object-manage/src/Controllers/DigitalObjectController.php	flash	Representation deleted successfully.
-packages/ahg-information-object-manage/src/Controllers/DigitalObjectController.php	flash	Upload failed:
-packages/ahg-information-object-manage/src/Controllers/DigitalObjectController.php	flash	Use the master delete action to remove the whole digital object.
-packages/ahg-information-object-manage/src/Controllers/ExportController.php	flash	No OCR text is available for this record.
-packages/ahg-information-object-manage/src/Controllers/ExtendedRightsController.php	flash	Embargo lifted successfully.
-packages/ahg-information-object-manage/src/Controllers/ExtendedRightsController.php	flash	Rights saved successfully.
-packages/ahg-information-object-manage/src/Controllers/FindingAidController.php	flash	Finding aid deleted successfully.
-packages/ahg-information-object-manage/src/Controllers/FindingAidController.php	flash	Finding aid generation queued for:
-packages/ahg-information-object-manage/src/Controllers/FindingAidController.php	flash	Finding aid uploaded successfully.
-packages/ahg-information-object-manage/src/Controllers/FindingAidController.php	flash	No finding aid exists for this description.
-packages/ahg-information-object-manage/src/Controllers/FindingAidController.php	flash	No finding aid exists for this description.
-packages/ahg-information-object-manage/src/Controllers/ImportController.php	flash	Import queued: {$objectType} ({$type}) - file: {$file->getClientOriginalName()}.
-packages/ahg-information-object-manage/src/Controllers/ImportController.php	flash	SKOS import initiated from URL. The file will be processed in the background. Check the Jobs page to view the status of the import.
-packages/ahg-information-object-manage/src/Controllers/ImportController.php	flash	SKOS import initiated. The file will be processed in the background. Check the Jobs page to view the status of the import.
-packages/ahg-information-object-manage/src/Controllers/InformationObjectController.php	flash	Archival description created successfully.
-packages/ahg-information-object-manage/src/Controllers/InformationObjectController.php	flash	Archival description deleted successfully.
-packages/ahg-information-object-manage/src/Controllers/InformationObjectController.php	flash	Archival description updated successfully.
-packages/ahg-information-object-manage/src/Controllers/InformationObjectController.php	flash	Dates calculated successfully from child descriptions.
-packages/ahg-information-object-manage/src/Controllers/InformationObjectController.php	flash	Display standard updated.
-packages/ahg-information-object-manage/src/Controllers/InformationObjectController.php	flash	Draft duplicate created - review and save to publish.
-packages/ahg-information-object-manage/src/Controllers/InformationObjectController.php	flash	Invalid publication status.
-packages/ahg-information-object-manage/src/Controllers/InformationObjectController.php	flash	No child descriptions found to calculate dates from.
-packages/ahg-information-object-manage/src/Controllers/InformationObjectController.php	flash	No date information found in child descriptions.
-packages/ahg-information-object-manage/src/Controllers/InformationObjectController.php	flash	No object ID provided.
-packages/ahg-information-object-manage/src/Controllers/InformationObjectController.php	flash	Please select a report type.
-packages/ahg-information-object-manage/src/Controllers/InformationObjectController.php	flash	Publication status updated to {$label}.
-packages/ahg-information-object-manage/src/Controllers/InformationObjectController.php	flash	Publication status updated to {$label}. {$updatedCount} descendant(s) also updated.
-packages/ahg-information-object-manage/src/Controllers/InformationObjectController.php	flash	Record moved successfully.
-packages/ahg-information-object-manage/src/Controllers/InformationObjectController.php	flash	Record renamed successfully.
-packages/ahg-information-object-manage/src/Controllers/InformationObjectController.php	flash	Slug '{$slug}' generated for object #{$objectId}.
-packages/ahg-information-object-manage/src/Controllers/InformationObjectController.php	flash	Slug already exists.
-packages/ahg-information-object-manage/src/Controllers/InformationObjectController.php	flash	Workflow approval required before publishing.
-packages/ahg-information-object-manage/src/Controllers/PreservationController.php	flash	Invalid package type.
-packages/ahg-information-object-manage/src/Controllers/PreservationController.php	flash	Package #
-packages/ahg-information-object-manage/src/Controllers/PreservationController.php	flash	Package #
-packages/ahg-information-object-manage/src/Controllers/PreservationController.php	flash	Package #
-packages/ahg-information-object-manage/src/Controllers/PrivacyController.php	flash	Scan results saved (risk score {$riskScore}, {$entityCount} PII entities recorded in audit_log).
-packages/ahg-information-object-manage/src/Controllers/ProvenanceController.php	flash	Attach a file, an external URL, or an archive reference.
-packages/ahg-information-object-manage/src/Controllers/ProvenanceController.php	flash	Provenance entry added.
-packages/ahg-information-object-manage/src/Controllers/ProvenanceController.php	flash	Provenance entry deleted.
-packages/ahg-information-object-manage/src/Controllers/ProvenanceController.php	flash	Provenance entry updated.
-packages/ahg-information-object-manage/src/Controllers/ProvenanceController.php	flash	Provenance overview saved.
-packages/ahg-information-object-manage/src/Controllers/ProvenanceController.php	flash	Supporting document added.
-packages/ahg-information-object-manage/src/Controllers/ProvenanceController.php	flash	Supporting document deleted.
-packages/ahg-information-object-manage/src/Controllers/ResearchController.php	flash	Assessment saved.
-packages/ahg-information-object-manage/src/Controllers/ResearchController.php	flash	Metric added.
-packages/ahg-information-object-manage/src/Controllers/ResearchController.php	flash	Metric deleted.
 packages/ahg-ingest/resources/views/commit.blade.php	text	Row #{{…}}
 packages/ahg-ingest/resources/views/configure.blade.php	text	- Select repository -
 packages/ahg-ingest/resources/views/configure.blade.php	text	aspell grammar check

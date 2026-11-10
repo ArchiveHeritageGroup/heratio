@@ -62,7 +62,7 @@ class DigitalObjectController extends Controller
             ->first();
         if ($existing) {
             return redirect()->route('io.digitalobject.show', $existing->id)
-                ->with('info', 'A digital object already exists. Edit it here, or delete first to attach a new one.');
+                ->with('info', __('A digital object already exists. Edit it here, or delete first to attach a new one.'));
         }
 
         $title = DB::table('information_object_i18n')
@@ -153,7 +153,7 @@ class DigitalObjectController extends Controller
 
         if ($existing) {
             return redirect()->route('informationobject.edit', $slug)
-                ->with('error', 'A digital object already exists. Delete the current one before uploading a new file.');
+                ->with('error', __('A digital object already exists. Delete the current one before uploading a new file.'));
         }
 
         // #115 repository_quota: refuse the upload up-front when this IO''s
@@ -294,7 +294,7 @@ class DigitalObjectController extends Controller
                 ->with('success', $msg . $extractionMsg);
         } catch (\Exception $e) {
             return redirect()->route('informationobject.show', $slug)
-                ->with('error', 'Upload failed: ' . $e->getMessage());
+                ->with('error', __('Upload failed: :error', ['error' => $e->getMessage()]));
         }
     }
 
@@ -321,7 +321,7 @@ class DigitalObjectController extends Controller
         $svc = app(\AhgCore\Services\AttachedDigitalObjectService::class);
         if (! \AhgCore\Services\AttachedDigitalObjectService::available()) {
             return redirect()->route('informationobject.show', $slug)
-                ->with('error', 'Multiple attachments are not available on this installation.');
+                ->with('error', __('Multiple attachments are not available on this installation.'));
         }
 
         $caption = trim((string) $request->input('caption', ''));
@@ -390,7 +390,7 @@ class DigitalObjectController extends Controller
         $slug = DB::table('slug')->where('object_id', $ioId)->value('slug');
 
         return redirect()->route('informationobject.show', $slug)
-            ->with('success', 'Attachment removed.');
+            ->with('success', __('Attachment removed.'));
     }
 
     /**
@@ -427,7 +427,7 @@ class DigitalObjectController extends Controller
         ]);
 
         return redirect()->route('informationobject.show', $slug)
-            ->with('success', 'Primary image updated.');
+            ->with('success', __('Primary image updated.'));
     }
 
     /** Reorder a description's attached objects. #1489. */
@@ -459,7 +459,7 @@ class DigitalObjectController extends Controller
         }
 
         return redirect()->route('informationobject.show', $slug)
-            ->with('success', 'Order updated.');
+            ->with('success', __('Order updated.'));
     }
 
     /**
@@ -768,11 +768,11 @@ class DigitalObjectController extends Controller
                 ],
             ]);
             return redirect()->route('informationobject.show', $slug)
-                ->with('success', 'Digital object deleted successfully.');
+                ->with('success', __('Digital object deleted successfully.'));
         }
 
         return redirect()->route('informationobject.show', $slug)
-            ->with('error', 'Failed to delete digital object.');
+            ->with('error', __('Failed to delete digital object.'));
     }
 
     /**
@@ -788,7 +788,7 @@ class DigitalObjectController extends Controller
         // Refuse to delete the master via this endpoint - use the regular
         // delete() route which cascades to derivatives.
         if (empty($doRow->parent_id)) {
-            return redirect()->back()->with('error', 'Use the master delete action to remove the whole digital object.');
+            return redirect()->back()->with('error', __('Use the master delete action to remove the whole digital object.'));
         }
 
         $masterId = (int) $doRow->parent_id;
@@ -796,10 +796,10 @@ class DigitalObjectController extends Controller
 
         if ($success) {
             return redirect()->route('io.digitalobject.show', $masterId)
-                ->with('success', 'Representation deleted successfully.');
+                ->with('success', __('Representation deleted successfully.'));
         }
         return redirect()->route('io.digitalobject.show', $masterId)
-            ->with('error', 'Failed to delete representation.');
+            ->with('error', __('Failed to delete representation.'));
     }
 
     /**
@@ -998,9 +998,9 @@ class DigitalObjectController extends Controller
         $ioSlug = DB::table('slug')->where('object_id', $doRow->object_id)->value('slug');
 
         if ($ioSlug) {
-            return redirect()->route('informationobject.show', $ioSlug)->with('success', 'Digital object updated.');
+            return redirect()->route('informationobject.show', $ioSlug)->with('success', __('Digital object updated.'));
         }
-        return redirect()->route('io.digitalobject.show', $id)->with('success', 'Digital object updated.');
+        return redirect()->route('io.digitalobject.show', $id)->with('success', __('Digital object updated.'));
     }
 
     /**
@@ -1155,7 +1155,7 @@ class DigitalObjectController extends Controller
                 ]);
             }
 
-            return redirect()->route('informationobject.show', $slug)->with('success', 'Digital objects imported.');
+            return redirect()->route('informationobject.show', $slug)->with('success', __('Digital objects imported.'));
         }
 
         return view('ahg-io-manage::digitalobject.multi-file-upload', [
