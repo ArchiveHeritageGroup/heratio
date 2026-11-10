@@ -125,6 +125,26 @@ class GraphClientService
         return $this->request($tenantId, 'PATCH', $path, $body, $headers);
     }
 
+    /**
+     * PUT raw bytes, e.g. a small file to /sites/{s}/drives/{d}/root:/{path}:/content
+     * (Graph's simple upload, up to 250 MB; fine for a document).
+     */
+    public function putContent(int $tenantId, string $path, string $bytes, string $contentType = 'application/octet-stream'): array
+    {
+        $send = fn () => Http::withToken($this->acquireToken($tenantId))->timeout(120)
+            ->withBody($bytes, $contentType)->put($this->resolveBase($tenantId).$this->ensureLeadingSlash($path));
+        $resp = $send();
+        if ($resp->status() === 401) {
+            $this->cache->invalidate($tenantId);
+            $resp = $send();
+        }
+        if (! $resp->successful()) {
+            throw new \RuntimeException("Graph PUT {$path} failed: HTTP {$resp->status()} ".substr($resp->body(), 0, 300));
+        }
+
+        return (array) $resp->json();
+    }
+
     public function delete(int $tenantId, string $path, array $headers = []): void
     {
         $this->request($tenantId, 'DELETE', $path, null, $headers, expectJson: false);

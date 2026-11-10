@@ -24546,5 +24546,8 @@
     "not linked yet": "еще не связано",
     "pages.": "страницы.",
     "proposed": "предложено",
-    "reviewed by": "проверено"
+    "reviewed by": "проверено",
+    ":count with digital objects": ":count с цифровыми объектами",
+    "No queue items": "Нет элементов очереди",
+    "Showing :count results": "Показано :count результатов"
 }

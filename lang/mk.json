@@ -24554,5 +24554,14 @@
     "not linked yet": "претходно поврзан",
     "pages.": "страни.",
     "proposed": "предлог",
-    "reviewed by": "прегледано од"
+    "reviewed by": "прегледано од",
+    ":count with digital objects": ":count со цифрални објекти",
+    "Check the evidence before linking or creating a record. Nothing on the description changes until you decide.": "Проверете доказите пред да врзете врзок или креирате запис. Ништо на описот се менува додека не одлучите.",
+    "Link \":name\" to an authority record first, in NER review or Authority Resolution.": "Врзете се :name до авторитетски запис прво, во преглед на NER или Решавање на Авторитет.",
+    "Link each name to an authority record in NER review or Authority Resolution, then approve.": "Врзете секој име до авторитетски запис во преглед на NER или Решавање на Авторитет, потоа одобрете.",
+    "No queue items": "Нема статусни елементи",
+    "Showing :count results": "Показување :count резултати",
+    "Step by step through browsing, a collection tree, 3D, authority records, editing and a virtual exhibition.": "Преминете постепено низ преглед, колекција дрво, 3D, авторитетски записи, уредување и виртуелно изложба.",
+    "This user also has an old-style key from before, which the API does not accept. Remove it on the edit page.": "Ова корисник исто така има стар-стил клуч од пред, кој API не прифатува. Одстрани го на страната за уредување.",
+    "This user's role does not allow the \":input\" scope.": "Ролата на овој корисник не дозволува \":input\" опсег."
 }

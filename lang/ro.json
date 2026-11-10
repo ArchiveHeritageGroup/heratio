@@ -24163,5 +24163,8 @@
     "not linked yet": "nu este legat încă",
     "pages.": "pagini.",
     "proposed": "propus",
-    "reviewed by": "revizuit de"
+    "reviewed by": "revizuit de",
+    ":count with digital objects": ":count cu obiecte digitale",
+    "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": "Cod de limbă invalid. Folosiți un cod de limbă cu 2-3 litere, opțional cu o regiune sau variantă (ex: fr, pt_BR, ca@valencia).",
+    "No queue items": "Fără elemente în coadă"
 }

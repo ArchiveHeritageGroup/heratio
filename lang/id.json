@@ -24263,5 +24263,9 @@
     "not linked yet": "masih belum terhubung",
     "pages.": "halaman.",
     "proposed": "usulan",
-    "reviewed by": "diperiksa oleh"
+    "reviewed by": "diperiksa oleh",
+    ":count with digital objects": ":count dengan objek digital",
+    "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": "Kode bahasa tidak valid. Gunakan kode bahasa 2-3 huruf, secara opsional dengan daerah atau variasi (misalnya fr, pt_BR, ca@valencia).",
+    "No queue items": "Tidak ada item antrian",
+    "Showing :count results": "Menampilkan :count hasil"
 }

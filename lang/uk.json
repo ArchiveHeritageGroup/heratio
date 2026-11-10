@@ -24498,5 +24498,8 @@
     "not linked yet": "ще не поєднано",
     "pages.": "сторінок.",
     "proposed": "запропоновано",
-    "reviewed by": "перевірено адміністратором"
+    "reviewed by": "перевірено адміністратором",
+    ":count with digital objects": ":count з цифровими об'єктами",
+    "No queue items": "Немає елементів черги",
+    "Showing :count results": "Показано :count результатів"
 }

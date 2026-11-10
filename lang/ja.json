@@ -24288,5 +24288,12 @@
     "not linked yet": "まだリンクされていません",
     "pages.": "ページ。",
     "proposed": "提案中",
-    "reviewed by": "レビュー済み"
+    "reviewed by": "レビュー済み",
+    ":count with digital objects": ":count にデジタル物件があります",
+    "Enable Spectrum": "スペクトラムを有効にする",
+    "Enable Spectrum collections management": "スペクトラムコレクション管理を有効にする",
+    "General Spectrum Procedures": "一般的なスペクトラム手順",
+    "Manage museum objects using CCO/Spectrum cataloguing standards": "CCO/スペクトラムカタログ化基準を使用して博物館の物件を管理する",
+    "My Spectrum Tasks": "私のスペクトラムタスク",
+    "No queue items": "キュー項目なし"
 }

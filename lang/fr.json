@@ -24158,5 +24158,9 @@
     "no profile page": "aucune page de profil",
     "not linked yet": "pas encore lié",
     "proposed": "proposé",
-    "reviewed by": "examiné par"
+    "reviewed by": "examiné par",
+    ":count with digital objects": ":count avec des objets numériques",
+    "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": "Code de langue invalide. Utilisez un code de langue de 2 à 3 lettres, optionnellement avec une région ou une variante (par exemple : fr, pt_BR, ca@valencia).",
+    "No queue items": "Aucun élément dans la file d'attente",
+    "Showing :count results": "Affichage de :count résultats"
 }

@@ -18,8 +18,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 6132,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 6151,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%{maxFileSizeMessage}; %{maxPostSizeMessage}",
@@ -437,13 +437,13 @@
                 "Needs c2patool on the server.": 3,
                 "A visit counts once a page has been open in a real browser for five seconds, so crawlers are left out. No IP address, cookie or personal detail is stored.": 3,
                 "Sources: github, search, social, referral:<site>, campaign:<name> (from a utm_source tag on the link), direct (no referring site).": 3,
-                "Every guide below opens at the :tag tag on GitHub, so what you read matches what you install.": 1,
-                "Everything Heratio can do, marked released, preview or planned, with a link that shows each one.": 1,
-                "For EAD, Dublin Core or EAC-CPF XML, use the": 1,
-                "Heratio is a standalone open-source GLAM application on Laravel. It is not AtoM or AtoM plugins; it uses the AtoM database structure so AtoM sites can switch in place.": 1,
-                "Step by step through browsing, a collection tree, 3D, authority records, editing and a virtual exhibition.": 1,
+                "Every guide below opens at the :tag tag on GitHub, so what you read matches what you install.": 2,
+                "Everything Heratio can do, marked released, preview or planned, with a link that shows each one.": 2,
+                "For EAD, Dublin Core or EAC-CPF XML, use the": 2,
+                "Heratio is a standalone open-source GLAM application on Laravel. It is not AtoM or AtoM plugins; it uses the AtoM database structure so AtoM sites can switch in place.": 2,
+                "Step by step through browsing, a collection tree, 3D, authority records, editing and a virtual exhibition.": 2,
                 "The grid holds at most :n rows.": 1,
-                "Use YYYY, YYYY-MM or YYYY-MM-DD.": 1,
+                "Use YYYY, YYYY-MM or YYYY-MM-DD.": 2,
                 "Why proposed": 1,
                 "Withheld": 1,
                 "Withhold files from visitors": 1,
@@ -457,7 +457,8 @@
                 "not linked yet": 1,
                 "pages.": 1,
                 "proposed": 1,
-                "reviewed by": 1
+                "reviewed by": 1,
+                "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": 1
             }
         },
         "bs": {
@@ -2796,8 +2797,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 24297,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 24302,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%{maxFileSizeMessage}; %{maxPostSizeMessage}",
@@ -4298,8 +4299,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 23297,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 23304,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%{maxFileSizeMessage}; %{maxPostSizeMessage}",
@@ -7037,8 +7038,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 23765,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 23769,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%{maxFileSizeMessage}; %{maxPostSizeMessage}",
@@ -7678,8 +7679,9 @@
                 "A visit counts once a page has been open in a real browser for five seconds, so crawlers are left out. No IP address, cookie or personal detail is stored.": 3,
                 "Hosting by The Archive and Heritage Digital Commons Group": 3,
                 "Sources: github, search, social, referral:<site>, campaign:<name> (from a utm_source tag on the link), direct (no referring site).": 3,
-                "A key lets a program or an AI assistant use the catalogue as you, with your permissions. Revoke a key and anything using it is disconnected at once.": 1,
-                "How the quickstart is checked": 1
+                "A key lets a program or an AI assistant use the catalogue as you, with your permissions. Revoke a key and anything using it is disconnected at once.": 2,
+                "How the quickstart is checked": 2,
+                "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": 1
             }
         },
         "en": {
@@ -7694,8 +7696,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 23291,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 23295,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%{maxFileSizeMessage}; %{maxPostSizeMessage}",
@@ -8364,7 +8366,8 @@
                 "Some rows need attention before they can be saved.",
                 "Spectrum",
                 "Spectrum CSV",
-                "Spectrum:"
+                "Spectrum:",
+                ":count/page"
             ],
             "review_required": "native-speaker review required before production",
             "mt_rejections": {
@@ -9665,8 +9668,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 24407,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 24430,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%{maxFileSizeMessage}; %{maxPostSizeMessage}",
@@ -9997,7 +10000,8 @@
                 "MySQL, Elasticsearch",
                 "JSON-LD @context",
                 "AGPL-3.0",
-                "GraphQL"
+                "GraphQL",
+                ":count/page"
             ],
             "review_required": "native-speaker review required before production",
             "mt_rejections": {
@@ -10187,7 +10191,7 @@
                 "Needs c2patool on the server.": 3,
                 "A visit counts once a page has been open in a real browser for five seconds, so crawlers are left out. No IP address, cookie or personal detail is stored.": 3,
                 "Sources: github, search, social, referral:<site>, campaign:<name> (from a utm_source tag on the link), direct (no referring site).": 3,
-                "For EAD, Dublin Core or EAC-CPF XML, use the": 1,
+                "For EAD, Dublin Core or EAC-CPF XML, use the": 2,
                 "Spectrum": 1,
                 "Spectrum 5.1 Procedures": 1,
                 "Spectrum CSV": 1,
@@ -10208,7 +10212,8 @@
                 "Spectrum settings": 1,
                 "Spectrum:": 1,
                 "Step by step through browsing, a collection tree, 3D, authority records, editing and a virtual exhibition.": 1,
-                "Use YYYY, YYYY-MM or YYYY-MM-DD.": 1
+                "Use YYYY, YYYY-MM or YYYY-MM-DD.": 2,
+                "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": 1
             }
         },
         "fil": {
@@ -11876,8 +11881,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 22957,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 22961,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "review_required": "native-speaker review required before production",
             "mt_same_as_source": [
@@ -12815,7 +12820,8 @@
                 "GraphQL",
                 "Spectrum",
                 "Spectrum CSV",
-                "pages."
+                "pages.",
+                ":count/page"
             ],
             "mt_rejections": {
                 "Asset Type &amp; Classification": 3,
@@ -14245,8 +14251,8 @@
         "he": {
             "credit": "(empty in AtoM upstream — needs translator)",
             "primary_source": "placeholder",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 24480,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 24512,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%{maxFileSizeMessage}; %{maxPostSizeMessage}",
@@ -14634,7 +14640,8 @@
                 "Aacr2",
                 "AGPL-3.0",
                 "GraphQL",
-                "Spectrum CSV"
+                "Spectrum CSV",
+                ":count/page"
             ],
             "review_required": "native-speaker review required before production",
             "mt_rejections": {
@@ -14846,9 +14853,9 @@
                 "Needs c2patool on the server.": 3,
                 "Hosting by The Archive and Heritage Digital Commons Group": 1,
                 "Sources: github, search, social, referral:<site>, campaign:<name> (from a utm_source tag on the link), direct (no referring site).": 3,
-                "(empty)": 1,
-                "Change to :field": 1,
-                "Choose...": 1,
+                "(empty)": 2,
+                "Change to :field": 2,
+                "Choose...": 2,
                 "Condition assessment confirmed.": 1,
                 "Condition assessment dismissed.": 1,
                 "Condition grade": 1,
@@ -14866,22 +14873,24 @@
                 "Enable Spectrum collections management": 1,
                 "Heratio is a standalone open-source GLAM application on Laravel. It is not AtoM or AtoM plugins; it uses the AtoM database structure so AtoM sites can switch in place.": 1,
                 "How the quickstart is checked": 1,
-                "Release notes for :version": 1,
+                "Release notes for :version": 2,
                 "Spectrum chain rules": 1,
                 "Why proposed": 1,
                 "Withheld": 1,
                 "Withhold files from visitors": 1,
                 "Working across every branch, set by an administrator.": 1,
-                "Working at :branch, set by an administrator. Loans below are those made there.": 1,
+                "Working at :branch, set by an administrator. Loans below are those made there.": 2,
                 "Works across all branches": 1,
-                "You may not add descriptions under this parent.": 1,
+                "You may not add descriptions under this parent.": 2,
                 "Your branch is set by an administrator.": 1,
                 "e.g. AI assistant": 1,
                 "no profile page": 1,
                 "not linked yet": 1,
                 "pages.": 1,
                 "proposed": 1,
-                "reviewed by": 1
+                "reviewed by": 1,
+                "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": 1,
+                "Showing :count results": 1
             }
         },
         "hr": {
@@ -15592,8 +15601,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 23371,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 23377,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "OCR (Tesseract)",
@@ -16216,8 +16225,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 23248,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 23252,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%d total",
@@ -17041,7 +17050,8 @@
                 "AGPL-3.0",
                 "GraphQL",
                 "Spectrum CSV",
-                "Spectrum:"
+                "Spectrum:",
+                ":count/page"
             ],
             "review_required": "native-speaker review required before production"
         },
@@ -17663,8 +17673,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 23225,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 23230,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "Steward",
@@ -18438,8 +18448,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 23625,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 23632,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%{maxFileSizeMessage}; %{maxPostSizeMessage}",
@@ -18878,7 +18888,8 @@
                 "Universal Viewer",
                 "Post max size",
                 "AGPL-3.0",
-                "GraphQL"
+                "GraphQL",
+                ":count/page"
             ],
             "review_required": "native-speaker review required before production",
             "mt_rejections": {
@@ -19321,35 +19332,37 @@
                 "Moving from AtoM or another system": 1,
                 "Sources: github, search, social, referral:<site>, campaign:<name> (from a utm_source tag on the link), direct (no referring site).": 3,
                 "Heratio is open-source GLAM and archival management software. Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system. Free under the GNU AGPL-3.0 licence.": 3,
-                "A key lets a program or an AI assistant use the catalogue as you, with your permissions. Revoke a key and anything using it is disconnected at once.": 1,
-                "All words must match. Use \"quotes\" for a phrase, \"word1 word2\"~5 for words near each other, | for or, - to exclude, and * at the end of a word for its beginnings.": 1,
+                "A key lets a program or an AI assistant use the catalogue as you, with your permissions. Revoke a key and anything using it is disconnected at once.": 2,
+                "All words must match. Use \"quotes\" for a phrase, \"word1 word2\"~5 for words near each other, | for or, - to exclude, and * at the end of a word for its beginnings.": 2,
                 "Enable Spectrum": 1,
                 "Enable Spectrum collections management": 1,
-                "Every guide below opens at the :tag tag on GitHub, so what you read matches what you install.": 1,
-                "Everything Heratio can do, marked released, preview or planned, with a link that shows each one.": 1,
-                "For EAD, Dublin Core or EAC-CPF XML, use the": 1,
-                "For Heratio :version, the release this site runs.": 1,
+                "Every guide below opens at the :tag tag on GitHub, so what you read matches what you install.": 2,
+                "Everything Heratio can do, marked released, preview or planned, with a link that shows each one.": 2,
+                "For EAD, Dublin Core or EAC-CPF XML, use the": 2,
+                "For Heratio :version, the release this site runs.": 2,
                 "General Spectrum Procedures": 1,
-                "Heratio is a standalone open-source GLAM application on Laravel. It is not AtoM or AtoM plugins; it uses the AtoM database structure so AtoM sites can switch in place.": 1,
-                "Link \":name\" to an authority record first, in NER review or Authority Resolution.": 1,
-                "Link each name to an authority record in NER review or Authority Resolution, then approve.": 1,
-                "Manage API keys": 1,
+                "Heratio is a standalone open-source GLAM application on Laravel. It is not AtoM or AtoM plugins; it uses the AtoM database structure so AtoM sites can switch in place.": 2,
+                "Link \":name\" to an authority record first, in NER review or Authority Resolution.": 2,
+                "Link each name to an authority record in NER review or Authority Resolution, then approve.": 2,
+                "Manage API keys": 2,
                 "Manage museum objects using CCO/Spectrum cataloguing standards": 1,
                 "My Spectrum Tasks": 1,
-                "Only the scopes this user's role allows are offered. To propose changes through an AI assistant, give the key read and write.": 1,
-                "Proposed through the API as the record this name most likely is": 1,
-                "Release notes for :version": 1,
-                "Remove the old-style :label key (it is not accepted by the API)": 1,
-                "Sent through the API (an assistant's condition flag)": 1,
-                "Step by step through browsing, a collection tree, 3D, authority records, editing and a virtual exhibition.": 1,
-                "This user also has an old-style key from before, which the API does not accept. Remove it on the edit page.": 1,
-                "This user has :n API key(s). Keys are managed by administrators.": 1,
-                "This vocabulary has :n terms, too many to export from the browser (the limit is :max). Ask an administrator for a full export.": 1,
-                "Translation of :field into :lang": 1,
-                "Use YYYY, YYYY-MM or YYYY-MM-DD.": 1,
-                "Where a capability has an automated test, the Proof column links to it at this release. A test shows the capability is checked on every change; it is not an independent certification.": 1,
-                "Working at :branch, set by an administrator. Loans below are those made there.": 1,
-                "e.g. AI assistant": 1
+                "Only the scopes this user's role allows are offered. To propose changes through an AI assistant, give the key read and write.": 2,
+                "Proposed through the API as the record this name most likely is": 2,
+                "Release notes for :version": 2,
+                "Remove the old-style :label key (it is not accepted by the API)": 2,
+                "Sent through the API (an assistant's condition flag)": 2,
+                "Step by step through browsing, a collection tree, 3D, authority records, editing and a virtual exhibition.": 2,
+                "This user also has an old-style key from before, which the API does not accept. Remove it on the edit page.": 2,
+                "This user has :n API key(s). Keys are managed by administrators.": 2,
+                "This vocabulary has :n terms, too many to export from the browser (the limit is :max). Ask an administrator for a full export.": 2,
+                "Translation of :field into :lang": 2,
+                "Use YYYY, YYYY-MM or YYYY-MM-DD.": 2,
+                "Where a capability has an automated test, the Proof column links to it at this release. A test shows the capability is checked on every change; it is not an independent certification.": 2,
+                "Working at :branch, set by an administrator. Loans below are those made there.": 2,
+                "e.g. AI assistant": 2,
+                "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": 1,
+                "Showing :count results": 1
             }
         },
         "ka": {
@@ -19875,8 +19888,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 23606,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 23610,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%{maxFileSizeMessage}; %{maxPostSizeMessage}",
@@ -20313,7 +20326,8 @@
                 "Rc",
                 "Rda",
                 "AGPL-3.0",
-                "GraphQL"
+                "GraphQL",
+                ":count/page"
             ],
             "review_required": "native-speaker review required before production",
             "mt_rejections": {
@@ -20643,31 +20657,32 @@
                 "Hosting by The Archive and Heritage Digital Commons Group": 3,
                 "Sources: github, search, social, referral:<site>, campaign:<name> (from a utm_source tag on the link), direct (no referring site).": 3,
                 "Heratio is open-source GLAM and archival management software. Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system. Free under the GNU AGPL-3.0 licence.": 3,
-                "All words must match. Use \"quotes\" for a phrase, \"word1 word2\"~5 for words near each other, | for or, - to exclude, and * at the end of a word for its beginnings.": 1,
-                "Change to :field": 1,
+                "All words must match. Use \"quotes\" for a phrase, \"word1 word2\"~5 for words near each other, | for or, - to exclude, and * at the end of a word for its beginnings.": 2,
+                "Change to :field": 2,
                 "Duplicate row :n below it": 1,
-                "Every guide below opens at the :tag tag on GitHub, so what you read matches what you install.": 1,
-                "Everything Heratio can do, marked released, preview or planned, with a link that shows each one.": 1,
-                "For EAD, Dublin Core or EAC-CPF XML, use the": 1,
-                "For Heratio :version, the release this site runs.": 1,
-                "Heratio is a standalone open-source GLAM application on Laravel. It is not AtoM or AtoM plugins; it uses the AtoM database structure so AtoM sites can switch in place.": 1,
-                "Link \":name\" to an authority record first, in NER review or Authority Resolution.": 1,
-                "Proposed through the API as the record this name most likely is": 1,
-                "Release notes for :version": 1,
-                "Remove the old-style :label key (it is not accepted by the API)": 1,
-                "Sent through the API (an assistant's condition flag)": 1,
-                "This user also has an old-style key from before, which the API does not accept. Remove it on the edit page.": 1,
-                "This vocabulary has :n terms, too many to export from the browser (the limit is :max). Ask an administrator for a full export.": 1,
-                "Translation of :field into :lang": 1,
-                "Working at :branch, set by an administrator. Loans below are those made there.": 1
+                "Every guide below opens at the :tag tag on GitHub, so what you read matches what you install.": 2,
+                "Everything Heratio can do, marked released, preview or planned, with a link that shows each one.": 2,
+                "For EAD, Dublin Core or EAC-CPF XML, use the": 2,
+                "For Heratio :version, the release this site runs.": 2,
+                "Heratio is a standalone open-source GLAM application on Laravel. It is not AtoM or AtoM plugins; it uses the AtoM database structure so AtoM sites can switch in place.": 2,
+                "Link \":name\" to an authority record first, in NER review or Authority Resolution.": 2,
+                "Proposed through the API as the record this name most likely is": 2,
+                "Release notes for :version": 2,
+                "Remove the old-style :label key (it is not accepted by the API)": 2,
+                "Sent through the API (an assistant's condition flag)": 2,
+                "This user also has an old-style key from before, which the API does not accept. Remove it on the edit page.": 2,
+                "This vocabulary has :n terms, too many to export from the browser (the limit is :max). Ask an administrator for a full export.": 2,
+                "Translation of :field into :lang": 2,
+                "Working at :branch, set by an administrator. Loans below are those made there.": 2,
+                "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": 1
             }
         },
         "mk": {
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 23222,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 23231,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%{maxFileSizeMessage}; %{maxPostSizeMessage}",
@@ -21179,11 +21194,13 @@
                 "Check the evidence before linking or creating a record. Nothing on the description changes until you decide.": 1,
                 "Link \":name\" to an authority record first, in NER review or Authority Resolution.": 1,
                 "Link each name to an authority record in NER review or Authority Resolution, then approve.": 1,
-                "Manage museum objects using CCO/Spectrum cataloguing standards": 1,
-                "Museum (Spectrum)": 1,
+                "Manage museum objects using CCO/Spectrum cataloguing standards": 2,
+                "Museum (Spectrum)": 2,
                 "Step by step through browsing, a collection tree, 3D, authority records, editing and a virtual exhibition.": 1,
                 "This user also has an old-style key from before, which the API does not accept. Remove it on the edit page.": 1,
-                "This user's role does not allow the \":input\" scope.": 1
+                "This user's role does not allow the \":input\" scope.": 1,
+                ":count/page": 1,
+                "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": 1
             }
         },
         "nb": {
@@ -21973,8 +21990,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 23676,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 23680,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%1% metadata",
@@ -22983,7 +23000,8 @@
                 "Proof",
                 "Record Resource",
                 "Scopes",
-                "Spectrum procedures"
+                "Spectrum procedures",
+                ":count/page"
             ],
             "review_required": "native-speaker review required before production",
             "mt_rejections": {
@@ -23840,8 +23858,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 23927,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 23932,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%{maxFileSizeMessage}; %{maxPostSizeMessage}",
@@ -24473,8 +24491,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 23157,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 23159,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%{maxFileSizeMessage}; %{maxPostSizeMessage}",
@@ -25170,8 +25188,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 23034,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 23036,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%{maxFileSizeMessage}; %{maxPostSizeMessage}",
@@ -25883,8 +25901,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 23988,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 23991,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%d total",
@@ -26756,7 +26774,8 @@
                 "Spectrum Data",
                 "Spectrum Workflow",
                 "Spectrum data",
-                "Spectrum:"
+                "Spectrum:",
+                ":count/page"
             ],
             "review_required": "native-speaker review required before production",
             "mt_rejections": {
@@ -26781,15 +26800,16 @@
                 "You can be both &mdash; register as a buyer now, and add a seller profile any time from your dashboard.": 3,
                 "Z39.50 Client &amp; Server": 3,
                 "Prefer Local": 3,
-                "Prefer Remote": 3
+                "Prefer Remote": 3,
+                "Showing :count results": 1
             }
         },
         "ru": {
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 24279,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 24282,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%{maxFileSizeMessage}; %{maxPostSizeMessage}",
@@ -27178,7 +27198,9 @@
                 "AGPL-3.0",
                 "GraphQL",
                 "Proof",
-                "Spectrum:"
+                "Spectrum:",
+                ":count/page",
+                "Spectrum CSV"
             ],
             "review_required": "native-speaker review required before production",
             "mt_rejections": {
@@ -27304,9 +27326,10 @@
                 "A visit counts once a page has been open in a real browser for five seconds, so crawlers are left out. No IP address, cookie or personal detail is stored.": 3,
                 "Hosting by The Archive and Heritage Digital Commons Group": 3,
                 "Sources: github, search, social, referral:<site>, campaign:<name> (from a utm_source tag on the link), direct (no referring site).": 3,
-                "All words must match. Use \"quotes\" for a phrase, \"word1 word2\"~5 for words near each other, | for or, - to exclude, and * at the end of a word for its beginnings.": 1,
-                "How the quickstart is checked": 1,
-                "Spectrum CSV": 1
+                "All words must match. Use \"quotes\" for a phrase, \"word1 word2\"~5 for words near each other, | for or, - to exclude, and * at the end of a word for its beginnings.": 2,
+                "How the quickstart is checked": 2,
+                "Spectrum CSV": 1,
+                "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": 1
             }
         },
         "sk": {
@@ -33635,8 +33658,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 23170,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 23175,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%1% representation",
@@ -34948,8 +34971,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 24035,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 24038,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%{maxFileSizeMessage}; %{maxPostSizeMessage}",
@@ -35411,7 +35434,8 @@
                 "Spectrum data",
                 "Spectrum procedures",
                 "Spectrum settings",
-                "Spectrum:"
+                "Spectrum:",
+                ":count/page"
             ],
             "review_required": "native-speaker review required before production",
             "mt_rejections": {
@@ -35549,8 +35573,9 @@
                 "Change a field, add a subject or a place, and save. Every change is recorded in the audit trail.": 1,
                 "Hosting by The Archive and Heritage Digital Commons Group": 3,
                 "Sources: github, search, social, referral:<site>, campaign:<name> (from a utm_source tag on the link), direct (no referring site).": 3,
-                "Heratio is a standalone open-source GLAM application on Laravel. It is not AtoM or AtoM plugins; it uses the AtoM database structure so AtoM sites can switch in place.": 1,
-                "e.g. AI assistant": 1
+                "Heratio is a standalone open-source GLAM application on Laravel. It is not AtoM or AtoM plugins; it uses the AtoM database structure so AtoM sites can switch in place.": 2,
+                "e.g. AI assistant": 2,
+                "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": 1
             }
         },
         "tn": {
@@ -36610,8 +36635,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 24488,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 24492,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%{maxFileSizeMessage}; %{maxPostSizeMessage}",
@@ -37153,7 +37178,8 @@
                 "$u (URL)",
                 "Linkedin",
                 "AGPL-3.0",
-                "GraphQL"
+                "GraphQL",
+                ":count/page"
             ],
             "review_required": "native-speaker review required before production",
             "mt_rejections": {
@@ -45450,8 +45476,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 23821,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 23825,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%{maxFileSizeMessage}; %{maxPostSizeMessage}",
@@ -46050,7 +46076,8 @@
                 "Spectrum compliance dashboard",
                 "Spectrum data",
                 "Spectrum procedures",
-                "Spectrum settings"
+                "Spectrum settings",
+                ":count/page"
             ],
             "review_required": "native-speaker review required before production",
             "mt_rejections": {
@@ -46972,7 +46999,26 @@
                 "WordNet (Datamuse API)",
                 "$u (URL)",
                 "AGPL-3.0",
-                "GraphQL"
+                "GraphQL",
+                ":count with digital objects",
+                ":count/page",
+                "A key lets a program or an AI assistant use the catalogue as you, with your permissions. Revoke a key and anything using it is disconnected at once.",
+                "All words must match. Use \"quotes\" for a phrase, \"word1 word2\"~5 for words near each other, | for or, - to exclude, and * at the end of a word for its beginnings.",
+                "For EAD, Dublin Core or EAC-CPF XML, use the",
+                "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).",
+                "No queue items",
+                "Only the scopes this user's role allows are offered. To propose changes through an AI assistant, give the key read and write.",
+                "Proposed through the API as the record this name most likely is",
+                "Sent through the API (an assistant's condition flag)",
+                "Showing :count results",
+                "Step by step through browsing, a collection tree, 3D, authority records, editing and a virtual exhibition.",
+                "This user also has an old-style key from before, which the API does not accept. Remove it on the edit page.",
+                "This user has :n API key(s). Keys are managed by administrators.",
+                "This vocabulary has :n terms, too many to export from the browser (the limit is :max). Ask an administrator for a full export.",
+                "Translation of :field into :lang",
+                "Use YYYY, YYYY-MM or YYYY-MM-DD.",
+                "Working at :branch, set by an administrator. Loans below are those made there.",
+                "e.g. AI assistant"
             ],
             "review_required": "native-speaker review required before production",
             "mt_rejections": {
@@ -47875,8 +47921,8 @@
             "review_required": "native-speaker review required before production"
         },
         "uk": {
-            "mt_batch_last_run": "2026-11-09",
-            "mt_batch_count": 24530,
+            "mt_batch_last_run": "2026-11-10",
+            "mt_batch_count": 24533,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%1 count",
@@ -48283,7 +48329,8 @@
                 "WordNet (Datamuse API)",
                 "Temp (/tmp)",
                 "AGPL-3.0",
-                "GraphQL"
+                "GraphQL",
+                ":count/page"
             ],
             "review_required": "native-speaker review required before production",
             "mt_rejections": {
@@ -48439,7 +48486,8 @@
                 "A visit counts once a page has been open in a real browser for five seconds, so crawlers are left out. No IP address, cookie or personal detail is stored.": 3,
                 "Hosting by The Archive and Heritage Digital Commons Group": 3,
                 "Sources: github, search, social, referral:<site>, campaign:<name> (from a utm_source tag on the link), direct (no referring site).": 3,
-                "All words must match. Use \"quotes\" for a phrase, \"word1 word2\"~5 for words near each other, | for or, - to exclude, and * at the end of a word for its beginnings.": 1
+                "All words must match. Use \"quotes\" for a phrase, \"word1 word2\"~5 for words near each other, | for or, - to exclude, and * at the end of a word for its beginnings.": 2,
+                "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": 1
             }
         }
     }

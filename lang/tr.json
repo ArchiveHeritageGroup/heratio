@@ -24510,5 +24510,9 @@
     "not linked yet": "hâlâ bağlanmadı",
     "pages.": "sayfa",
     "proposed": "önerilen",
-    "reviewed by": "denetlenmiştir"
+    "reviewed by": "denetlenmiştir",
+    ":count with digital objects": ":count ile dijital nesneler",
+    "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": "Geçersiz dil kodu. 2-3 harflik bir dil kodu kullanın, isteğe bağlı olarak bir bölge veya varyant ile (ör. fr, pt_BR, ca@valencia).",
+    "No queue items": "Kuyruk öğeleri yok",
+    "Showing :count results": ":count sonuç gösteriliyor"
 }

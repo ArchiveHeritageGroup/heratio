@@ -24290,5 +24290,9 @@
     "not linked yet": "아직 연결되지 않음",
     "pages.": "페이지들",
     "proposed": "제안됨",
-    "reviewed by": "검토됨"
+    "reviewed by": "검토됨",
+    ":count with digital objects": ":count 디지털 객체 포함",
+    "Duplicate row :n below it": "복제 행 :n 아래에 추가",
+    "No queue items": "큐 항목 없음",
+    "Showing :count results": ":count 결과 표시"
 }

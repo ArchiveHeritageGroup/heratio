@@ -24441,5 +24441,10 @@
     "not linked yet": "nie połączony jeszcze",
     "pages.": "strony.",
     "proposed": "zaproponowano",
-    "reviewed by": "przezrezutywany przez"
+    "reviewed by": "przezrezutywany przez",
+    ":count with digital objects": ":count z obiektami cyfrowymi",
+    ":count/page": ":count/strona",
+    "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": "Nieprawidłowy kod języka. Użyj kodu języka o długości 2-3 znaków, opcjonalnie z regionem lub wariantem (np. fr, pt_BR, ca@valencia).",
+    "No queue items": "Brak elementów w kolejce",
+    "Showing :count results": "Pokazuje się :count wyników"
 }

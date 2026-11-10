@@ -24252,5 +24252,10 @@
     "not linked yet": "inte länkad än",
     "pages.": "sidor.",
     "proposed": "föreslagen",
-    "reviewed by": "granskad av"
+    "reviewed by": "granskad av",
+    ":count with digital objects": ":count med digitala objekt",
+    ":count/page": ":count/sida",
+    "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": "Ogiltig språk kod. Använd en 2-3 tecken språk kod, valfritt med en region eller variant (t.ex. fr, pt_BR, ca@valencia).",
+    "No queue items": "Inga köföremål",
+    "Showing :count results": "Visar :count resultat"
 }

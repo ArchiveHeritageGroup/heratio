@@ -24314,5 +24314,10 @@
     "not linked yet": "non collegato ancora",
     "pages.": "pagine.",
     "proposed": "proposto",
-    "reviewed by": "revisionato da"
+    "reviewed by": "revisionato da",
+    ":count with digital objects": ":count con oggetti digitali",
+    ":count/page": ":count/pagina",
+    "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": "Codice lingua non valido. Utilizza un codice lingua di 2-3 lettere, opzionalmente con una regione o variante (es. fr, pt_BR, ca@valencia).",
+    "No queue items": "Nessun elemento in coda",
+    "Showing :count results": "Visualizzazione di :count risultati"
 }

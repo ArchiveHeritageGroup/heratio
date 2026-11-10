@@ -24461,5 +24461,11 @@
     "not linked yet": "még nem kapcsolódik",
     "pages.": "oldalak.",
     "proposed": "javasolt",
-    "reviewed by": "felülvizsgált"
+    "reviewed by": "felülvizsgált",
+    ":count with digital objects": ":count digitális objektumokkal",
+    ":count/page": ":count/oldal",
+    "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": "Érvénytelen nyelvtájka. Használj 2-3 betűs nyelvtájkat, választhatóan régióval vagy változattal (pl. fr, pt_BR, ca@valencia).",
+    "No queue items": "Nincs sorban lévő elem",
+    "Showing :count results": ":count eredmény megjelenítése",
+    "Working at :branch, set by an administrator. Loans below are those made there.": "Munkában :branch, beállította egy adminisztrátor. A kölcsönzések azok, amelyek ezen a helyszínen történnek."
 }

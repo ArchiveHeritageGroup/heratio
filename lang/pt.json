@@ -24395,5 +24395,7 @@
     "reviewed by": "revisado por",
     "Showing :count results": "Mostrando :count resultados",
     ":count/page": ":count/página",
-    ":count with digital objects": ":count com objetos digitais"
+    ":count with digital objects": ":count com objetos digitais",
+    "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": "Código de idioma inválido. Use um código de idioma de 2 a 3 letras, opcionalmente com uma região ou variação (ex.: fr, pt_BR, ca@valencia).",
+    "No queue items": "Nenhum item na fila"
 }

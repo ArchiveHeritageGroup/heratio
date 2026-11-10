@@ -86,6 +86,8 @@ class AhgSharePointServiceProvider extends ServiceProvider
             $this->commands([
                 \AhgSharePoint\Console\Commands\SharePointInstallCommand::class,
                 \AhgSharePoint\Console\Commands\SharePointTestConnectionCommand::class,
+                \AhgSharePoint\Console\Commands\SharePointTenantAddCommand::class,
+                \AhgSharePoint\Console\Commands\SharePointDriveAddCommand::class,
                 \AhgSharePoint\Console\Commands\SharePointSyncCommand::class,
                 \AhgSharePoint\Console\Commands\SharePointStatusCommand::class,
                 // Phase 2 commands registered up-front; they fail loudly until implemented.

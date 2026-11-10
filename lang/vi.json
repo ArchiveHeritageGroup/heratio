@@ -24467,5 +24467,9 @@
     "not linked yet": "chưa được liên kết",
     "pages.": "trang.",
     "proposed": "được đề xuất",
-    "reviewed by": "đã được xem xét bởi"
+    "reviewed by": "đã được xem xét bởi",
+    ":count with digital objects": ":count với đối tượng số",
+    "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": "Mã ngôn ngữ không hợp lệ. Sử dụng mã ngôn ngữ 2-3 chữ cái, có thể chọn thêm vùng hoặc biến thể (ví dụ: fr, pt_BR, ca@valencia).",
+    "No queue items": "Không có mục trong hàng đợi",
+    "Showing :count results": "Đang hiển thị :count kết quả"
 }

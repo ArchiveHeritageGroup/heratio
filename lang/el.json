@@ -24450,5 +24450,9 @@
     "not linked yet": "ακόμα δεν συνδέεται",
     "pages.": "σελίδες.",
     "proposed": "προτείνεται",
-    "reviewed by": "επικριθεί από"
+    "reviewed by": "επικριθεί από",
+    ":count with digital objects": ":count με ψηφιακά αντικείμενα",
+    ":count/page": ":count/σελίδα",
+    "No queue items": "Δεν υπάρχουν αντικείμενα στην ουρά",
+    "Showing :count results": "Εμφανίζονται :count αποτελέσματα"
 }

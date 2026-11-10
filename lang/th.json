@@ -24475,5 +24475,8 @@
     "not linked yet": "ยังไม่เชื่อมโยง",
     "pages.": "หน้า",
     "proposed": "เสนอ",
-    "reviewed by": "ได้รับการตรวจสอบโดย"
+    "reviewed by": "ได้รับการตรวจสอบโดย",
+    ":count with digital objects": ":count ที่มีวัตถุดิจิทัล",
+    "No queue items": "ไม่มีรายการในคิว",
+    "Showing :count results": "แสดง :count ผลลัพธ์"
 }

@@ -24034,5 +24034,9 @@
     "not linked yet": "nog niet gelinkt",
     "pages.": "pagina's.",
     "proposed": "voorgesteld",
-    "reviewed by": "beoordeeld door"
+    "reviewed by": "beoordeeld door",
+    ":count with digital objects": ":count met digitale objecten",
+    "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": "Ongeldige taalcode. Gebruik een 2-3 letterige taalcode, optioneel met een regio of variant (bijv. fr, pt_BR, ca@valencia).",
+    "No queue items": "Geen items in de wachtrij",
+    "Showing :count results": "Toon :count resultaten"
 }
