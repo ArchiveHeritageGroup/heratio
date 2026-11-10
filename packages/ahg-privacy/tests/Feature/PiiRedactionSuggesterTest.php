@@ -52,7 +52,10 @@ PY;
 
     protected function tearDown(): void
     {
-        (new Process(['rm', '-rf', $this->dir]))->run();
+        // setUp() may skip before $dir is set (PyMuPDF or a table missing).
+        if (isset($this->dir)) {
+            (new Process(['rm', '-rf', $this->dir]))->run();
+        }
         parent::tearDown();
     }
 
