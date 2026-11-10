@@ -2,7 +2,7 @@
 
 **Summary:** On 2026-07-19 Heratio was given its own canonical product domain, **https://heratio.org**, and the first two phases of a GEO/SEO exposure programme shipped on it. This closed the "branded invisibility" gap found in the GEO baseline (LLMs and web search had no record of Heratio). heratio.org now serves the live app over HTTPS, carries structured data and an llms.txt for AI answer engines, hosts a Heratio-vs-AtoM comparison page and a migration-assessment lead form, and is wired into a three-domain brand entity graph. The old demo hostname heratio.theahg.co.za now 301-redirects to heratio.org.
 
-Related KM docs: geo-seo-visibility-baseline.md, geo-phase0-exposure-pack.md, geo-comparison-heratio-vs-atom.md, spectrum-partner-licensing.md.
+Related KM docs: geo-seo-visibility-baseline.md, geo-phase0-exposure-pack.md, geo-comparison-heratio-vs-atom.md, museum-workflow-licensing.md.
 
 ## Why (the baseline problem)
 

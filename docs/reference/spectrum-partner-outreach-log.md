@@ -2,7 +2,7 @@
 
 **Status:** Sent 2026-07-17. Awaiting reply.
 
-An enquiry email was sent to Collections Trust to open a **Spectrum Partner** commercial-licence conversation for Heratio. This is the first outreach on the Spectrum compliance gap recorded in `spectrum-partner-licensing.md`.
+An enquiry email was sent to Collections Trust to open a **Spectrum Partner** commercial-licence conversation for Heratio. This is the first outreach on the Spectrum compliance gap recorded in `museum-workflow-licensing.md`.
 
 ## Send details
 
@@ -21,7 +21,7 @@ An enquiry email was sent to Collections Trust to open a **Spectrum Partner** co
 
 ## Why it was sent
 
-Heratio's `ahg-spectrum` package already implements the Spectrum 5.1 procedures commercially. The Spectrum non-commercial licence forbids commercially competing products and derivative works without prior written consent, so a Partner commercial licence is needed to close a genuine compliance gap - not just a marketing badge. Background: `spectrum-partner-licensing.md`.
+Heratio's `ahg-spectrum` package already implements the Spectrum 5.1 procedures commercially. The Spectrum non-commercial licence forbids commercially competing products and derivative works without prior written consent, so a Partner commercial licence is needed to close a genuine compliance gap - not just a marketing badge. Background: `museum-workflow-licensing.md`.
 
 ## Next action
 

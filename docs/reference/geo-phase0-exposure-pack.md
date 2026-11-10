@@ -17,7 +17,7 @@
 
 ## Spectrum wording rule (important)
 
-All public-facing copy uses **"museum-procedure-capable"** - a factual statement that the software supports the museum procedures. It does NOT use **"Spectrum compliant"** or **"Spectrum Partner"**, which require a commercial licence from Collections Trust (see spectrum-partner-licensing.md and spectrum-partner-outreach-log.md). Each Phase 0 file carries a switch-on note: upgrade the wording only once the Partner licence is signed. Publishing "compliant/Partner" before then would advertise the exact commercial-use gap the licence closes.
+All public-facing copy uses **"museum-procedure-capable"** - a factual statement that the software supports the museum procedures. It does NOT use **"Spectrum compliant"** or **"Spectrum Partner"**, which require a commercial licence from Collections Trust (see museum-workflow-licensing.md and spectrum-partner-outreach-log.md). Each Phase 0 file carries a switch-on note: upgrade the wording only once the Partner licence is signed. Publishing "compliant/Partner" before then would advertise the exact commercial-use gap the licence closes.
 
 ## Standards claimed (grounded against the codebase)
 

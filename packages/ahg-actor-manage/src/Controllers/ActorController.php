@@ -266,7 +266,7 @@ class ActorController extends Controller
 
         // Parent actor (hierarchical actors - parent_id=3 is ROOT)
         $parentActor = null;
-        if ($actor->parent_id && $actor->parent_id != 3) {
+        if ($actor->parent_id && !in_array((int) $actor->parent_id, [3, \AhgCore\Models\Repository::ROOT_ID], true)) { // 3 = actor root; some records point at the repository root (6)
             $parentActor = DB::table('actor')
                 ->join('actor_i18n', function ($j) {
                     $j->on('actor.id', '=', 'actor_i18n.id')
@@ -449,7 +449,7 @@ class ActorController extends Controller
 
         // Parent actor name for the parent_id autocomplete field
         $parentActorName = '';
-        if ($actor->parent_id && $actor->parent_id != 3) {
+        if ($actor->parent_id && !in_array((int) $actor->parent_id, [3, \AhgCore\Models\Repository::ROOT_ID], true)) { // 3 = actor root; some records point at the repository root (6)
             $culture = app()->getLocale();
             $parentActorName = DB::table('actor_i18n')
                 ->where('id', $actor->parent_id)
