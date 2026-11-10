@@ -235,6 +235,11 @@
               <i class="fas fa-file-invoice me-1"></i> {{ __('Document fields') }}
             </a>
           @endif
+          @if(Route::has('admin.ai.pages'))
+            <a href="{{ route('admin.ai.pages', $io->slug) }}" class="list-group-item list-group-item-action small">
+              <i class="fas fa-layer-group me-1"></i> {{ __('Pages: type and privacy') }}
+            </a>
+          @endif
         @endif
         <a href="{{ route('io.privacy.dashboard') }}" class="list-group-item list-group-item-action small">
           <i class="fas fa-clipboard-check me-1"></i> {{ __('Privacy Dashboard') }}

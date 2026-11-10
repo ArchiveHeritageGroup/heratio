@@ -459,6 +459,14 @@ class IngestCommitRunner
                 }
             });
         }
+
+        // Per-page document type and privacy screening (heratio#1584), when
+        // the settings ask for it on ingest; queued, PDFs only.
+        if ($filePath && strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) === 'pdf'
+            && class_exists(\AhgAiServices\Services\PageClassifier::class)
+            && \AhgAiServices\Services\PageClassifier::wantsOnIngest($ioId)) {
+            $tryStep('classify_pages', fn () => \AhgAiServices\Jobs\ClassifyPagesJob::dispatch($ioId));
+        }
     }
 
     /**

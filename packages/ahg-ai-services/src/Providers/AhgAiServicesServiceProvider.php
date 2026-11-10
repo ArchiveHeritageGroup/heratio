@@ -76,6 +76,7 @@ class AhgAiServicesServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgAiServices\Commands\AiNerExtractCommand::class,
+                \AhgAiServices\Commands\AiClassifyPagesCommand::class, // heratio#1584
                 \AhgAiServices\Commands\CrossReferenceCommand::class, // heratio#1524
                 \AhgAiServices\Commands\AiTranslateCommand::class,
                 \AhgAiServices\Commands\AiProcessPendingCommand::class,

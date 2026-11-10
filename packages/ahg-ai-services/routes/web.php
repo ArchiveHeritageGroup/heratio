@@ -65,6 +65,46 @@ Route::middleware(['auth', 'admin'])->prefix('admin/ai')->group(function () {
             ->with('dropped', $r['dropped'] ?? []);
     })->name('admin.ai.document-fields.extract');
 
+    // Per-page document type and privacy screening, rolled up to the record
+    // (heratio#1584).
+    Route::get('/pages/{slug}', function (string $slug) {
+        $io = DB::table('slug')->join('information_object_i18n as i', 'i.id', '=', 'slug.object_id')
+            ->where('slug.slug', $slug)->first(['slug.object_id as id', 'slug.slug', 'i.title']);
+        abort_if(! $io, 404);
+        $pc = app(\AhgAiServices\Services\PageClassifier::class);
+        $segments = $pc->segments((int) $io->id);
+        $rollup = \AhgAiServices\Services\PageClassifier::rollup($segments);
+        $types = \AhgAiServices\Services\PageClassifier::types();
+        $master = class_exists(\AhgInformationObjectManage\Services\RedactionRenderService::class)
+            ? app(\AhgInformationObjectManage\Services\RedactionRenderService::class)->defaultMaster((int) $io->id) : null;
+        $pdfUrl = $master ? url(rtrim((string) $master->path, '/').'/'.$master->name) : null;
+
+        return view('ahg-ai-services::pages', compact('io', 'segments', 'rollup', 'types', 'pdfUrl'));
+    })->name('admin.ai.pages');
+    Route::post('/pages/{slug}', function (string $slug) {
+        $id = (int) DB::table('slug')->where('slug', $slug)->value('object_id');
+        abort_if($id <= 0, 404);
+        \AhgAiServices\Jobs\ClassifyPagesJob::dispatch($id, auth()->id());
+        $msg = \AhgAiServices\Services\PageClassifier::gpuHours()
+            ? __('Queued: every page is screened and classified. Refresh this page in a minute or two.')
+            : __('Queued: every page is screened for personal information now; document types wait for a daytime run (the GPUs are off 18:00-06:00).');
+
+        return redirect()->route('admin.ai.pages', $slug)->with('success', $msg);
+    })->name('admin.ai.pages.run');
+    Route::post('/pages/{slug}/review/{inference}', function (\Illuminate\Http\Request $request, string $slug, int $inference) {
+        $data = $request->validate(['value' => 'required|string|max:64', 'reason' => 'nullable|string|max:500']);
+        $id = (int) DB::table('slug')->where('slug', $slug)->value('object_id');
+        $owner = (int) DB::table('ahg_ai_inference')->where('id', $inference)->value('target_entity_id');
+        abort_if($id <= 0 || $owner !== $id, 404);
+        try {
+            app(\AhgAiServices\Services\PageClassifier::class)->review($inference, $data['value'], (int) auth()->id(), $data['reason'] ?? null);
+        } catch (\InvalidArgumentException $e) {
+            return back()->with('error', $e->getMessage());
+        }
+
+        return redirect()->route('admin.ai.pages', $slug)->with('success', __('Review saved.'));
+    })->whereNumber('inference')->name('admin.ai.pages.review');
+
 
     // Dashboard
     Route::get('/', [AiController::class, 'index'])->name('admin.ai.index');
