@@ -72,6 +72,19 @@ class PageClassifierTest extends TestCase
         parent::tearDown();
     }
 
+    /** CI's database has no administrator, so make one (as BulkEditTest does). */
+    private function makeAdmin(): \AhgCore\Models\User
+    {
+        $id = (int) DB::table('object')->insertGetId(['class_name' => 'QubitUser', 'created_at' => now(), 'updated_at' => now()]);
+        DB::table('actor')->insert(['id' => $id, 'source_culture' => 'en']);
+        DB::table('user')->insert(['id' => $id, 'username' => 'pages-admin-'.$id, 'email' => uniqid('pages-', true).'@example.test',
+            'password_hash' => \Illuminate\Support\Facades\Hash::make('secret'), 'active' => 1]);
+        DB::table('acl_user_group')->insert(['user_id' => $id, 'group_id' => 100]);
+        \Illuminate\Support\Facades\Cache::forget("acl_groups_{$id}");
+
+        return \AhgCore\Models\User::findOrFail($id);
+    }
+
     public static function pages(): array
     {
         return self::PAGES;
@@ -140,7 +153,7 @@ class PageClassifierTest extends TestCase
         DB::table('slug')->insert(['object_id' => $io, 'slug' => 'pages-'.$io]);
         DB::table('information_object_i18n')->insert(['id' => $io, 'culture' => 'en', 'title' => 'Zz mixed file']);
         app(PageClassifier::class)->run($io, null, true);
-        $admin = \AhgCore\Models\User::findOrFail((int) DB::table('acl_user_group')->where('group_id', 100)->value('user_id'));
+        $admin = $this->makeAdmin();
 
         $this->actingAs($admin)->get(route('admin.ai.pages', 'pages-'.$io))->assertOk()
             ->assertSee('Page strip')->assertSee('the record is flagged for privacy review')
@@ -155,7 +168,7 @@ class PageClassifierTest extends TestCase
         if (! Schema::hasTable('ahg_settings')) {
             $this->markTestSkipped('ahg_settings missing.');
         }
-        $admin = \AhgCore\Models\User::findOrFail((int) DB::table('acl_user_group')->where('group_id', 100)->value('user_id'));
+        $admin = $this->makeAdmin();
         $this->actingAs($admin)->get(route('admin.ai.config'))->assertOk()->assertSee('Per-page classification');
 
         $this->actingAs($admin)->post(route('admin.ai.config'), ['_action' => 'save_settings',
