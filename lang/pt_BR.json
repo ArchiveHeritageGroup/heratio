@@ -24378,5 +24378,8 @@
     "not linked yet": "ainda não vinculado",
     "pages.": "páginas.",
     "proposed": "proposto",
-    "reviewed by": "revisado por"
+    "reviewed by": "revisado por",
+    "Showing :count results": "Mostrando :count resultados",
+    ":count/page": ":count/página",
+    ":count with digital objects": ":count com objetos digitais"
 }

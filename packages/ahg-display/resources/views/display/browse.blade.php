@@ -4,7 +4,7 @@
 --}}
 @extends('theme::layouts.master')
 
-@section('title', 'GLAM Browser')
+@section('title', __('GLAM Browser'))
 @section('body-class', 'display browse')
 
 @php
@@ -19,12 +19,12 @@
 
   // Sort labels
   $sortLabels = [
-      'lastUpdated' => 'Date created',
-      'alphabetic'  => 'Title',
-      'identifier'  => 'Identifier',
-      'refcode'     => 'Reference code',
-      'startdate'   => 'Start date',
-      'enddate'     => 'End date',
+      'lastUpdated' => __('Date created'),
+      'alphabetic'  => __('Title'),
+      'identifier'  => __('Identifier'),
+      'refcode'     => __('Reference code'),
+      'startdate'   => __('Start date'),
+      'enddate'     => __('End date'),
   ];
 
   // Helper: build GLAM browse URL with filter params
