@@ -285,12 +285,12 @@
         <div class="mb-3">
           <label class="form-label">{{ __('Policy Links') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <textarea class="form-control font-monospace" name="ahg_footer_links" rows="4" placeholder="{{ __('Privacy policy|/privacy&#10;Terms of use|/terms') }}">{{ $settings['ahg_footer_links'] ?? '' }}</textarea>
-          <div class="form-text">One per line: <code>Label|/url</code></div>
+          <div class="form-text">{{ __('One per line:') }} <code>Label|/url</code></div>
         </div>
         <div class="mb-3">
           <label class="form-label">{{ __('Utility Links') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <textarea class="form-control font-monospace" name="ahg_footer_utility_links" rows="2" placeholder="{{ __('Help|/help&#10;Contact|/contact') }}">{{ $settings['ahg_footer_utility_links'] ?? '' }}</textarea>
-          <div class="form-text">One per line: <code>Label|/url</code></div>
+          <div class="form-text">{{ __('One per line:') }} <code>Label|/url</code></div>
         </div>
       </div>
     </div>

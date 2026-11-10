@@ -73,9 +73,9 @@
             <div class="card-body">
               <div class="alert alert-info small">
                 <strong>{{ __('Available placeholders:') }}</strong><br>
-                <code>{name}</code> Recipient name, <code>{email}</code> Recipient email,
-                <code>{institution}</code> Institution, <code>{login_url}</code> Login URL,
-                <code>{reset_url}</code> Reset URL, <code>{date}</code> / <code>{time}</code> Booking details
+                <code>{name}</code> {{ __('Recipient name') }}, <code>{email}</code> {{ __('Recipient email') }},
+                <code>{institution}</code> {{ __('Institution') }}, <code>{login_url}</code> {{ __('Login URL') }},
+                <code>{reset_url}</code> {{ __('Reset URL') }}, <code>{date}</code> / <code>{time}</code> {{ __('Booking details') }}
               </div>
               <div class="accordion" id="templateAccordion">
                 @php $index = 0; @endphp

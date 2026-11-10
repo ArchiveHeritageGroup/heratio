@@ -40,7 +40,7 @@
               <div class="mb-3">
                 <label class="form-label">{{ __('Storage service type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="settings[storage_service_type]" class="form-select">
-                  <option value="">-- Select --</option>
+                  <option value="">{{ __('-- Select --') }}</option>
                   <option value="archivematica" {{ ($settings['storage_service_type'] ?? '') == 'archivematica' ? 'selected' : '' }}>{{ __('Archivematica') }}</option>
                   <option value="preservica" {{ ($settings['storage_service_type'] ?? '') == 'preservica' ? 'selected' : '' }}>{{ __('Preservica') }}</option>
                   <option value="dspace" {{ ($settings['storage_service_type'] ?? '') == 'dspace' ? 'selected' : '' }}>{{ __('DSpace') }}</option>

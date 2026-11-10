@@ -47,7 +47,7 @@
             <input type="url" class="form-control" id="fuseki_endpoint" name="fuseki_endpoint"
                    value="{{ $settings['fuseki_endpoint'] ?? config('ric.fuseki_endpoint', 'http://localhost:3030/ric') }}"
                    placeholder="{{ __('http://localhost:3030/ric') }}">
-            <div class="form-text">Full URL to Fuseki SPARQL endpoint (e.g., http://localhost:3030/ric)</div>
+            <div class="form-text">{{ __('Full URL to Fuseki SPARQL endpoint (e.g., http://localhost:3030/ric)') }}</div>
           </div>
           <div class="col-md-4">
             <label class="form-label">&nbsp;</label>

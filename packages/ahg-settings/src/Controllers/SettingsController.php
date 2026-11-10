@@ -218,7 +218,7 @@ class SettingsController extends Controller
                 );
             }
 
-            return redirect()->route('settings.section', $section)->with('success', $sectionLabel.' settings saved.');
+            return redirect()->route('settings.section', $section)->with('success', __(':section settings saved.', ['section' => $sectionLabel]));
         }
 
         return view('ahg-settings::section', compact('settings', 'section', 'sectionLabel'));
@@ -250,7 +250,7 @@ class SettingsController extends Controller
                 );
             }
 
-            return redirect()->route('settings.default-template')->with('success', 'Default templates saved.');
+            return redirect()->route('settings.default-template')->with('success', __('Default templates saved.'));
         }
 
         // Template choices matching AtoM exactly
@@ -279,7 +279,7 @@ class SettingsController extends Controller
         if ($request->isMethod('post')) {
             $this->service->saveGlobalSettings($request->input('settings', []), $culture);
 
-            return redirect()->route('settings.global')->with('success', 'Global settings saved.');
+            return redirect()->route('settings.global')->with('success', __('Global settings saved.'));
         }
 
         $settings = $this->service->getGlobalSettings($culture);
@@ -297,7 +297,7 @@ class SettingsController extends Controller
                 $this->service->saveSetting($name, null, $request->input($name, ''), $culture);
             }
 
-            return redirect()->route('settings.site-information')->with('success', 'Site information saved.');
+            return redirect()->route('settings.site-information')->with('success', __('Site information saved.'));
         }
 
         $settings = $this->service->getSiteInformation($culture);
@@ -315,7 +315,7 @@ class SettingsController extends Controller
                 $this->service->saveSetting($name, null, $request->input($name, ''), $culture);
             }
 
-            return redirect()->route('settings.security')->with('success', 'Security settings saved.');
+            return redirect()->route('settings.security')->with('success', __('Security settings saved.'));
         }
 
         $settings = $this->service->getSecuritySettings($culture);
@@ -333,7 +333,7 @@ class SettingsController extends Controller
                 $this->service->saveSetting($name, null, $value ?? '', $culture);
             }
 
-            return redirect()->route('settings.identifier')->with('success', 'Identifier settings saved.');
+            return redirect()->route('settings.identifier')->with('success', __('Identifier settings saved.'));
         }
 
         $settings = $this->service->getIdentifierSettings($culture);
@@ -352,7 +352,7 @@ class SettingsController extends Controller
                 $request->input('notif_toggles', [])
             );
 
-            return redirect()->route('settings.email')->with('success', 'Email settings saved.');
+            return redirect()->route('settings.email')->with('success', __('Email settings saved.'));
         }
 
         return view('ahg-settings::email', [
@@ -374,7 +374,7 @@ class SettingsController extends Controller
                 $this->service->saveSetting($name, null, $value ?? '', $culture);
             }
 
-            return redirect()->route('settings.treeview')->with('success', 'Treeview settings saved.');
+            return redirect()->route('settings.treeview')->with('success', __('Treeview settings saved.'));
         }
 
         $settings = $this->service->getTreeviewSettings($culture);
@@ -392,7 +392,7 @@ class SettingsController extends Controller
                 $this->service->saveSetting($name, null, $value ?? '', $culture);
             }
 
-            return redirect()->route('settings.digital-objects')->with('success', 'Digital object settings saved.');
+            return redirect()->route('settings.digital-objects')->with('success', __('Digital object settings saved.'));
         }
 
         $settings = $this->service->getDigitalObjectSettings($culture);
@@ -461,7 +461,7 @@ class SettingsController extends Controller
             \AhgCore\Services\SettingHelper::flush();
 
             return redirect()->route('settings.interface-labels', ['culture' => $culture])
-                ->with('success', "Interface labels saved for {$culture}.");
+                ->with('success', __('Interface labels saved for :culture.', ['culture' => $culture]));
         }
 
         // For each ui_label setting row, return:
@@ -509,7 +509,7 @@ class SettingsController extends Controller
                 );
             }
 
-            return redirect()->route('settings.visible-elements')->with('success', 'Visible elements saved.');
+            return redirect()->route('settings.visible-elements')->with('success', __('Visible elements saved.'));
         }
 
         // Group settings by prefix for accordion sections
@@ -569,10 +569,10 @@ class SettingsController extends Controller
                         'value' => $code,
                     ]);
 
-                    return redirect()->route('settings.languages')->with('success', "Language '{$code}' added.");
+                    return redirect()->route('settings.languages')->with('success', __('Language ":code" added.', ['code' => $code]));
                 }
 
-                return redirect()->route('settings.languages')->with('error', "Language '{$code}' already exists.");
+                return redirect()->route('settings.languages')->with('error', __('Language ":code" already exists.', ['code' => $code]));
             }
 
             return redirect()->route('settings.languages')->with('error', __('Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).'));
@@ -585,10 +585,10 @@ class SettingsController extends Controller
                 DB::table('setting_i18n')->where('id', $deleteId)->delete();
                 DB::table('setting')->where('id', $deleteId)->delete();
 
-                return redirect()->route('settings.languages')->with('success', 'Language removed.');
+                return redirect()->route('settings.languages')->with('success', __('Language removed.'));
             }
 
-            return redirect()->route('settings.languages')->with('error', 'This language cannot be deleted.');
+            return redirect()->route('settings.languages')->with('error', __('This language cannot be deleted.'));
         }
 
         return view('ahg-settings::languages', compact('languages', 'menu'));
@@ -610,7 +610,7 @@ class SettingsController extends Controller
                 }
             }
 
-            return redirect()->route('settings.oai')->with('success', 'OAI repository settings saved.');
+            return redirect()->route('settings.oai')->with('success', __('OAI repository settings saved.'));
         }
 
         $settings = $this->service->getOaiSettings($culture);
@@ -723,14 +723,10 @@ class SettingsController extends Controller
             }
             $cssFailures = $this->regenerateThemeCss();
             if (! empty($cssFailures)) {
-                return redirect()->route('settings.themes')->with('warning',
-                    'Theme settings were saved, but the generated CSS file(s) could not be written ('
-                    .implode(', ', array_map('basename', $cssFailures)).'). Generated colours (e.g. the footer) '
-                    .'will NOT update until the web server can write to public/css and public/vendor/ahg-theme-b5/css. '
-                    .'On hardened php-fpm (ProtectSystem=full) grant those paths via a systemd drop-in, then restart php-fpm.');
+                return redirect()->route('settings.themes')->with('warning', __('Theme settings were saved, but the generated CSS file(s) could not be written (:files). Generated colours (e.g. the footer) will NOT update until the web server can write to public/css and public/vendor/ahg-theme-b5/css. On hardened php-fpm (ProtectSystem=full), grant those paths via a systemd drop-in, then restart php-fpm.', ['files' => implode(', ', array_map('basename', $cssFailures))]));
             }
 
-            return redirect()->route('settings.themes')->with('success', 'Theme settings saved.');
+            return redirect()->route('settings.themes')->with('success', __('Theme settings saved.'));
         }
 
         $settings = DB::table('ahg_settings')
@@ -1149,14 +1145,11 @@ class SettingsController extends Controller
             if ($group === 'general') {
                 $cssFailures = $this->regenerateThemeCss();
                 if (! empty($cssFailures)) {
-                    return redirect()->route('settings.ahg', $group)->with('warning',
-                        ucfirst(str_replace('_', ' ', $group)).' settings were saved, but the theme CSS file(s) could not be written ('
-                        .implode(', ', array_map('basename', $cssFailures)).') - generated colours (e.g. the footer) will not update '
-                        .'until public/css and public/vendor/ahg-theme-b5/css are writable by the web server.');
+                    return redirect()->route('settings.ahg', $group)->with('warning', __(':group settings were saved, but the theme CSS file(s) could not be written (:files) - generated colours (e.g. the footer) will not update until public/css and public/vendor/ahg-theme-b5/css are writable by the web server.', ['group' => ucfirst(str_replace('_', ' ', $group)), 'files' => implode(', ', array_map('basename', $cssFailures))]));
                 }
             }
 
-            return redirect()->route('settings.ahg', $group)->with('success', ucfirst(str_replace('_', ' ', $group)).' settings saved.');
+            return redirect()->route('settings.ahg', $group)->with('success', __(':group settings saved.', ['group' => ucfirst(str_replace('_', ' ', $group))]));
         }
 
         $settings = DB::table('ahg_settings')
@@ -1244,7 +1237,7 @@ class SettingsController extends Controller
                 $this->service->saveSetting($name, null, $value, $culture);
             }
 
-            return redirect()->route('settings.clipboard')->with('success', 'Clipboard settings saved.');
+            return redirect()->route('settings.clipboard')->with('success', __('Clipboard settings saved.'));
         }
 
         $settings = [];
@@ -1265,7 +1258,7 @@ class SettingsController extends Controller
             $value = $request->input('settings.csv_validator_default_import_behaviour', '0');
             $this->service->saveSetting('csv_validator_default_import_behaviour', null, $value, $culture);
 
-            return redirect()->route('settings.csv-validator')->with('success', 'CSV Validator settings saved.');
+            return redirect()->route('settings.csv-validator')->with('success', __('CSV Validator settings saved.'));
         }
 
         $settings = [
@@ -1292,11 +1285,11 @@ class SettingsController extends Controller
                 try {
                     $file->move(dirname($destPath), basename($destPath));
                 } catch (\Exception $e) {
-                    return redirect()->route('settings.diacritics')->with('error', 'Unable to upload diacritics mapping yaml file.');
+                    return redirect()->route('settings.diacritics')->with('error', __('Unable to upload diacritics mapping yaml file.'));
                 }
             }
 
-            return redirect()->route('settings.diacritics')->with('success', 'Diacritics settings saved.');
+            return redirect()->route('settings.diacritics')->with('success', __('Diacritics settings saved.'));
         }
 
         $settings = [
@@ -1316,7 +1309,7 @@ class SettingsController extends Controller
             $value = $request->input('settings.stripExtensions', '0');
             $this->service->saveSetting('stripExtensions', null, $value, $culture);
 
-            return redirect()->route('settings.dip-upload')->with('success', 'DIP upload settings saved.');
+            return redirect()->route('settings.dip-upload')->with('success', __('DIP upload settings saved.'));
         }
 
         $settings = [
@@ -1352,7 +1345,7 @@ class SettingsController extends Controller
                 $this->service->saveSetting($dbName, null, $value, $culture);
             }
 
-            return redirect()->route('settings.finding-aid')->with('success', 'Finding aid settings saved.');
+            return redirect()->route('settings.finding-aid')->with('success', __('Finding aid settings saved.'));
         }
 
         $settings = [];
@@ -1394,7 +1387,7 @@ class SettingsController extends Controller
             $serialized = serialize($selected);
             $this->service->saveSetting('inventory_levels', null, $serialized, $culture);
 
-            return redirect()->route('settings.inventory')->with('success', 'Inventory settings saved.');
+            return redirect()->route('settings.inventory')->with('success', __('Inventory settings saved.'));
         }
 
         return view('ahg-settings::inventory', compact('menu', 'levels', 'selectedLevels'));
@@ -1410,7 +1403,7 @@ class SettingsController extends Controller
             $value = $request->input('settings.enabled', '1');
             $this->service->saveSetting('markdown_enabled', null, $value, $culture);
 
-            return redirect()->route('settings.markdown')->with('success', 'Markdown settings saved.');
+            return redirect()->route('settings.markdown')->with('success', __('Markdown settings saved.'));
         }
 
         $settings = [
@@ -1497,7 +1490,7 @@ class SettingsController extends Controller
             $this->service->saveSetting('digitalobject_preservation_system_access_statement_enabled', null, $request->input('preservationStatementEnabled', '0'), $culture);
             $this->service->saveSetting('digitalobject_preservation_system_access_statement', null, $request->input('preservationStatement', ''), $culture);
 
-            return redirect()->route('settings.permissions')->with('success', 'Permissions saved.');
+            return redirect()->route('settings.permissions')->with('success', __('Permissions saved.'));
         }
 
         return view('ahg-settings::permissions', compact(
@@ -1517,7 +1510,7 @@ class SettingsController extends Controller
             $this->service->saveSetting('privacy_notification_enabled', null, $request->input('settings.privacy_notification_enabled', '0'), $culture);
             $this->service->saveSetting('privacy_notification', null, $request->input('settings.privacy_notification', ''), $culture);
 
-            return redirect()->route('settings.privacy-notification')->with('success', 'Privacy notification settings saved.');
+            return redirect()->route('settings.privacy-notification')->with('success', __('Privacy notification settings saved.'));
         }
 
         $settings = [
@@ -1553,7 +1546,7 @@ class SettingsController extends Controller
                 $this->service->saveSetting($name, null, $value, $culture);
             }
 
-            return redirect()->route('settings.uploads')->with('success', 'Uploads settings saved.');
+            return redirect()->route('settings.uploads')->with('success', __('Uploads settings saved.'));
         }
 
         $settings = [];
@@ -1614,7 +1607,7 @@ class SettingsController extends Controller
                 if (file_exists($defaultLogoPath)) {
                     copy($defaultLogoPath, $logoImgPath);
                 } else {
-                    return redirect()->route('settings.header-customizations')->with('error', 'Default logo not found.');
+                    return redirect()->route('settings.header-customizations')->with('error', __('Default logo not found.'));
                 }
             }
 
@@ -1644,7 +1637,7 @@ class SettingsController extends Controller
                 }
             }
 
-            return redirect()->route('settings.header-customizations')->with('success', 'Header customizations settings saved.');
+            return redirect()->route('settings.header-customizations')->with('success', __('Header customizations settings saved.'));
         }
 
         $settings = [];
@@ -1672,7 +1665,7 @@ class SettingsController extends Controller
                 $this->service->saveSetting($name, null, $value, $culture);
             }
 
-            return redirect()->route('settings.web-analytics')->with('success', 'Web analytics settings saved.');
+            return redirect()->route('settings.web-analytics')->with('success', __('Web analytics settings saved.'));
         }
 
         $settings = [];
@@ -1776,7 +1769,7 @@ class SettingsController extends Controller
             }
 
             return redirect()->route('settings.ai-condition')
-                ->with('notice', 'AI Condition settings saved.');
+                ->with('notice', __('AI Condition settings saved.'));
         }
 
         return view('ahg-settings::ai-condition', compact(
@@ -1796,7 +1789,7 @@ class SettingsController extends Controller
         if (! Schema::hasTable('ahg_ai_condition_client')) {
             return $wantsJson
                 ? response()->json(['success' => false, 'error' => 'Client table not provisioned.'], 500)
-                : back()->with('error', 'AI condition client table not provisioned.');
+                : back()->with('error', __('AI condition client table not provisioned.'));
         }
 
         $name = trim((string) $request->input('name'));
@@ -1804,7 +1797,7 @@ class SettingsController extends Controller
         if ($name === '' || $email === '') {
             return $wantsJson
                 ? response()->json(['success' => false, 'error' => 'Name and email are required.'], 422)
-                : back()->with('error', 'Name and email are required.');
+                : back()->with('error', __('Name and email are required.'));
         }
 
         try {
@@ -1827,13 +1820,13 @@ class SettingsController extends Controller
             }
 
             return redirect()->route('settings.ai-condition')
-                ->with('notice', 'API client created. Key: '.$apiKey);
+                ->with('notice', __('API client created. Key: :key', ['key' => $apiKey]));
         } catch (\Throwable $e) {
             \Log::error('aiConditionClientSave failed: '.$e->getMessage());
 
             return $wantsJson
                 ? response()->json(['success' => false, 'error' => $e->getMessage()], 500)
-                : back()->with('error', 'Failed to create client: '.$e->getMessage());
+                : back()->with('error', __('Failed to create client: :message', ['message' => $e->getMessage()]));
         }
     }
 
@@ -1946,7 +1939,7 @@ class SettingsController extends Controller
             }
 
             return redirect()->route('settings.ahg.accession')
-                ->with('notice', 'Accession settings saved.');
+                ->with('notice', __('Accession settings saved.'));
         }
 
         return view('ahg-settings::accession-settings', compact('menu', 'settings'));
@@ -1985,7 +1978,7 @@ class SettingsController extends Controller
             }
 
             return redirect()->route('settings.ahg.audit')
-                ->with('success', 'Audit Trail settings saved.');
+                ->with('success', __('Audit Trail settings saved.'));
         }
 
         return view('ahg-settings::audit-settings', compact('menu', 'settings'));
@@ -2025,7 +2018,7 @@ class SettingsController extends Controller
             }
 
             return redirect()->route('settings.ahg.jobs')
-                ->with('success', 'Background Jobs settings saved.');
+                ->with('success', __('Background Jobs settings saved.'));
         }
 
         return view('ahg-settings::jobs-settings', compact('menu', 'settings'));
@@ -2051,7 +2044,7 @@ class SettingsController extends Controller
                 $this->service->saveSetting($name, null, $value, $culture);
             }
 
-            return redirect()->route('settings.storage-service')->with('success', 'Storage service settings saved.');
+            return redirect()->route('settings.storage-service')->with('success', __('Storage service settings saved.'));
         }
 
         $settings = [];
@@ -2076,7 +2069,7 @@ class SettingsController extends Controller
                     ->where('id', $request->input('resolve_id'))
                     ->update(['resolved_at' => now(), 'resolved_by' => $authUser, 'is_read' => 1]);
 
-                return redirect()->route('settings.error-log')->with('success', 'Error resolved.');
+                return redirect()->route('settings.error-log')->with('success', __('Error resolved.'));
             }
 
             if ($request->filled('reopen_id')) {
@@ -2084,7 +2077,7 @@ class SettingsController extends Controller
                     ->where('id', $request->input('reopen_id'))
                     ->update(['resolved_at' => null, 'resolved_by' => null]);
 
-                return redirect()->route('settings.error-log')->with('success', 'Error reopened.');
+                return redirect()->route('settings.error-log')->with('success', __('Error reopened.'));
             }
 
             if ($request->has('mark_read')) {
@@ -2092,7 +2085,7 @@ class SettingsController extends Controller
                     ->where('is_read', 0)
                     ->update(['is_read' => 1]);
 
-                return redirect()->route('settings.error-log')->with('success', 'All errors marked as read.');
+                return redirect()->route('settings.error-log')->with('success', __('All errors marked as read.'));
             }
 
             if ($request->has('resolve_all')) {
@@ -2100,7 +2093,7 @@ class SettingsController extends Controller
                     ->whereNull('resolved_at')
                     ->update(['resolved_at' => now(), 'resolved_by' => $authUser, 'is_read' => 1]);
 
-                return redirect()->route('settings.error-log')->with('success', 'All open errors resolved.');
+                return redirect()->route('settings.error-log')->with('success', __('All open errors resolved.'));
             }
 
             if ($request->has('clear_old')) {
@@ -2109,7 +2102,7 @@ class SettingsController extends Controller
                     ->where('created_at', '<', DB::raw("DATE_SUB(NOW(), INTERVAL {$days} DAY)"))
                     ->delete();
 
-                return redirect()->route('settings.error-log')->with('success', "Errors older than {$days} days cleared.");
+                return redirect()->route('settings.error-log')->with('success', __('Errors older than :count days cleared.', ['count' => $days]));
             }
 
             if ($request->filled('delete_id')) {
@@ -2117,7 +2110,7 @@ class SettingsController extends Controller
                     ->where('id', $request->input('delete_id'))
                     ->delete();
 
-                return redirect()->route('settings.error-log')->with('success', 'Error deleted.');
+                return redirect()->route('settings.error-log')->with('success', __('Error deleted.'));
             }
 
             return redirect()->route('settings.error-log');
@@ -2227,24 +2220,24 @@ class SettingsController extends Controller
                     // so we never surface a plugin that would then break its pages.
                     if ($err = $this->pluginInstallationError($plugin)) {
                         return redirect()->route('settings.plugins')
-                            ->with('error', "Cannot enable '{$pluginName}': {$err}");
+                            ->with('error', __('Cannot enable ":plugin": :error', ['plugin' => $pluginName, 'error' => $err]));
                     }
 
                     DB::table('atom_plugin')->where('name', $pluginName)
                         ->update(['is_enabled' => 1, 'enabled_at' => now(), 'updated_at' => now()]);
 
-                    return redirect()->route('settings.plugins')->with('success', "Plugin '{$pluginName}' enabled.");
+                    return redirect()->route('settings.plugins')->with('success', __('Plugin ":plugin" enabled.', ['plugin' => $pluginName]));
                 }
 
                 if ($plugin && $action === 'disable') {
                     if ($plugin->is_core || $plugin->is_locked) {
                         return redirect()->route('settings.plugins')
-                            ->with('error', "Cannot disable '{$pluginName}': ".($plugin->is_core ? 'core plugin' : 'plugin is locked'));
+                            ->with('error', __('Cannot disable ":plugin": :reason', ['plugin' => $pluginName, 'reason' => __($plugin->is_core ? 'core plugin' : 'plugin is locked')]));
                     }
                     DB::table('atom_plugin')->where('name', $pluginName)
                         ->update(['is_enabled' => 0, 'disabled_at' => now(), 'updated_at' => now()]);
 
-                    return redirect()->route('settings.plugins')->with('success', "Plugin '{$pluginName}' disabled.");
+                    return redirect()->route('settings.plugins')->with('success', __('Plugin ":plugin" disabled.', ['plugin' => $pluginName]));
                 }
 
                 // Issue #40 follow-up: admin-only toggle. When set, non-admin users
@@ -2253,11 +2246,11 @@ class SettingsController extends Controller
                     $adminOnly = $action === 'lock-to-admins' ? 1 : 0;
                     DB::table('atom_plugin')->where('name', $pluginName)
                         ->update(['admin_only' => $adminOnly, 'updated_at' => now()]);
-                    $msg = $adminOnly ? 'now admin-only - non-admins will not see it'
-                                      : 'available to non-admins (subject to per-user grants)';
+                    $msg = $adminOnly ? __('now admin-only - non-admins will not see it')
+                                      : __('available to non-admins (subject to per-user grants)');
 
                     return redirect()->route('settings.plugins')
-                        ->with('success', "Plugin '{$pluginName}' is {$msg}.");
+                        ->with('success', __('Plugin ":plugin" is :message.', ['plugin' => $pluginName, 'message' => $msg]));
                 }
             }
 
@@ -2321,13 +2314,13 @@ class SettingsController extends Controller
     {
         $schedule = $service->find($id);
         if (! $schedule) {
-            return back()->with('error', 'Schedule not found.');
+            return back()->with('error', __('Schedule not found.'));
         }
 
         $service->toggleEnabled($id, ! $schedule->is_enabled);
         $state = $schedule->is_enabled ? 'disabled' : 'enabled';
 
-        return back()->with('success', "Job \"{$schedule->name}\" {$state}.");
+        return back()->with('success', __('Job ":name" :state.', ['name' => $schedule->name, 'state' => __($state)]));
     }
 
     /**
@@ -2337,7 +2330,7 @@ class SettingsController extends Controller
     {
         $schedule = $service->find($id);
         if (! $schedule) {
-            return back()->with('error', 'Schedule not found.');
+            return back()->with('error', __('Schedule not found.'));
         }
 
         $validated = $request->validate([
@@ -2351,7 +2344,7 @@ class SettingsController extends Controller
 
         $service->updateSchedule($id, $validated);
 
-        return back()->with('success', "Job \"{$schedule->name}\" updated.");
+        return back()->with('success', __('Job ":name" updated.', ['name' => $schedule->name]));
     }
 
     /**
@@ -2361,16 +2354,16 @@ class SettingsController extends Controller
     {
         $schedule = $service->find($id);
         if (! $schedule) {
-            return back()->with('error', 'Schedule not found.');
+            return back()->with('error', __('Schedule not found.'));
         }
 
         $result = $service->runSingle($schedule);
 
         if ($result['status'] === 'success') {
-            return back()->with('success', "Job \"{$schedule->name}\" completed in {$result['duration_ms']}ms.");
+            return back()->with('success', __('Job ":name" completed in :duration ms.', ['name' => $schedule->name, 'duration' => $result['duration_ms']]));
         }
 
-        return back()->with('error', "Job \"{$schedule->name}\" failed after {$result['duration_ms']}ms.");
+        return back()->with('error', __('Job ":name" failed after :duration ms.', ['name' => $schedule->name, 'duration' => $result['duration_ms']]));
     }
 
     /**
@@ -2381,7 +2374,7 @@ class SettingsController extends Controller
         $reset = $request->has('reset');
         $count = $service->seedDefaults($reset);
 
-        $msg = $reset ? "Reset {$count} schedules to defaults." : "Seeded {$count} schedule entries (new only).";
+        $msg = $reset ? __('Reset :count schedules to defaults.', ['count' => $count]) : __('Seeded :count schedule entries (new only).', ['count' => $count]);
 
         return back()->with('success', $msg);
     }
@@ -2399,7 +2392,7 @@ class SettingsController extends Controller
                 $this->service->saveSetting($name, null, $request->input("settings.{$name}", ''), $culture);
             }
 
-            return redirect()->route('settings.ldap')->with('success', 'LDAP settings saved.');
+            return redirect()->route('settings.ldap')->with('success', __('LDAP settings saved.'));
         }
 
         $settings = [];
@@ -2481,7 +2474,7 @@ class SettingsController extends Controller
                 }
 
                 return redirect()->route('settings.levels', ['sector' => $currentSector])
-                    ->with('success', 'Sector levels updated successfully.');
+                    ->with('success', __('Sector levels updated successfully.'));
             }
 
             if ($actionType === 'update_order') {
@@ -2494,7 +2487,7 @@ class SettingsController extends Controller
                 }
 
                 return redirect()->route('settings.levels', ['sector' => $currentSector])
-                    ->with('success', 'Display order updated.');
+                    ->with('success', __('Display order updated.'));
             }
         }
 
@@ -2516,7 +2509,7 @@ class SettingsController extends Controller
                 $this->service->saveSetting($name, null, $request->input("settings.{$name}", ''), $culture);
             }
 
-            return redirect()->route('settings.paths')->with('success', 'Paths saved.');
+            return redirect()->route('settings.paths')->with('success', __('Paths saved.'));
         }
 
         $settings = [];
@@ -2562,7 +2555,7 @@ class SettingsController extends Controller
                     'updated_at' => now(),
                 ]);
 
-                return redirect()->route('settings.webhooks')->with('success', 'Webhook created.');
+                return redirect()->route('settings.webhooks')->with('success', __('Webhook created.'));
             }
             // delivery_count is rendered on this list and was never computed,
             // so every webhook showed 0 deliveries however many it had (#1478).
@@ -2606,7 +2599,7 @@ class SettingsController extends Controller
                 );
             }
 
-            return redirect()->route('settings.tts')->with('success', 'Text-to-Speech settings saved.');
+            return redirect()->route('settings.tts')->with('success', __('Text-to-Speech settings saved.'));
         }
 
         return view('ahg-settings::tts', compact('menu', 'settings'));
@@ -2665,7 +2658,7 @@ class SettingsController extends Controller
                 );
             }
 
-            return redirect()->route('settings.icip-settings')->with('success', 'ICIP settings saved.');
+            return redirect()->route('settings.icip-settings')->with('success', __('ICIP settings saved.'));
         }
 
         // Read - if icip_config is missing on a fresh install (e.g. the
@@ -2765,7 +2758,7 @@ class SettingsController extends Controller
                 }
             }
 
-            return redirect()->route('settings.sector-numbering')->with('success', 'Sector numbering saved.');
+            return redirect()->route('settings.sector-numbering')->with('success', __('Sector numbering saved.'));
         }
 
         return view('ahg-settings::sector-numbering', compact('menu', 'globalValues', 'sectors', 'sectorSettings'));
@@ -2822,7 +2815,7 @@ class SettingsController extends Controller
                 DB::table('numbering_scheme')->where('id', $id)->update($data);
             }
 
-            return redirect()->route('settings.numbering-schemes')->with('success', 'Numbering scheme saved.');
+            return redirect()->route('settings.numbering-schemes')->with('success', __('Numbering scheme saved.'));
         }
 
         return view('ahg-settings::numbering-scheme-edit', compact('menu', 'isNew', 'scheme', 'schemeId', 'previews'));
@@ -3126,7 +3119,7 @@ class SettingsController extends Controller
                 }
             }
 
-            return redirect()->route('settings.ai-services')->with('success', 'AI Services settings saved.');
+            return redirect()->route('settings.ai-services')->with('success', __('AI Services settings saved.'));
         }
 
         return view('ahg-settings::ai-services', compact(
@@ -3360,10 +3353,10 @@ class SettingsController extends Controller
                     );
                 }
 
-                return redirect()->route('settings.ahg-import')->with('success', 'Settings imported successfully.');
+                return redirect()->route('settings.ahg-import')->with('success', __('Settings imported successfully.'));
             }
 
-            return redirect()->route('settings.ahg-import')->with('error', 'Invalid JSON file.');
+            return redirect()->route('settings.ahg-import')->with('error', __('Invalid JSON file.'));
         }
 
         return view('ahg-settings::ahg-import-settings', compact('menu'));
@@ -3393,7 +3386,7 @@ class SettingsController extends Controller
         if ($request->isMethod('post')) {
             if ($allLocked) {
                 return redirect()->route('settings.ahg-integration')
-                    ->with('error', 'AHG Central is under construction - settings are locked and cannot be changed.');
+                    ->with('error', __('AHG Central is under construction - settings are locked and cannot be changed.'));
             }
 
             foreach ($settingNames as $name) {
@@ -3425,7 +3418,7 @@ class SettingsController extends Controller
                     }
                 }
             } else {
-                return redirect()->route('settings.ahg-integration')->with('notice', 'AHG Central integration settings saved.');
+                return redirect()->route('settings.ahg-integration')->with('notice', __('AHG Central integration settings saved.'));
             }
         }
 
@@ -3516,7 +3509,7 @@ class SettingsController extends Controller
             }
 
             return redirect()->route('settings.page-elements')
-                ->with('success', 'Default page elements saved.');
+                ->with('success', __('Default page elements saved.'));
         }
 
         // Build settings map for the view: name => ['id', 'value', 'label']
@@ -3618,7 +3611,7 @@ class SettingsController extends Controller
                 ]);
             }
 
-            return redirect()->route('settings.dropdown.index')->with('success', 'Dropdown saved.');
+            return redirect()->route('settings.dropdown.index')->with('success', __('Dropdown saved.'));
         }
 
         return view('ahg-settings::ahgDropdown.edit', compact('menu', 'dropdown', 'values'));
@@ -3678,7 +3671,7 @@ class SettingsController extends Controller
             }
 
             return redirect()->route('settings.authority')
-                ->with('success', 'Authority Records settings saved.');
+                ->with('success', __('Authority Records settings saved.'));
         }
 
         return view('ahg-settings::authority', compact('menu', 'settings'));
@@ -3741,7 +3734,7 @@ class SettingsController extends Controller
             }
 
             return redirect()->route('settings.ahg.data_protection')
-                ->with('notice', 'Data protection settings saved.');
+                ->with('notice', __('Data protection settings saved.'));
         }
 
         // Single source for the scanner's jurisdiction list: the
@@ -3795,7 +3788,7 @@ class SettingsController extends Controller
             }
 
             return redirect()->route('settings.ahg.encryption')
-                ->with('notice', 'Encryption settings saved.');
+                ->with('notice', __('Encryption settings saved.'));
         }
 
         return view('ahg-settings::encryption-settings', compact('menu', 'settings'));
@@ -3836,7 +3829,7 @@ class SettingsController extends Controller
             }
 
             return redirect()->route('settings.ahg.faces')
-                ->with('notice', 'Face detection settings saved.');
+                ->with('notice', __('Face detection settings saved.'));
         }
 
         return view('ahg-settings::faces-settings', compact('menu', 'settings'));
@@ -3894,7 +3887,7 @@ class SettingsController extends Controller
             }
 
             return redirect()->route('settings.ahg.ftp')
-                ->with('notice', 'FTP/SFTP settings saved.');
+                ->with('notice', __('FTP/SFTP settings saved.'));
         }
 
         return view('ahg-settings::ftp-settings', compact('menu', 'settings'));
@@ -3949,7 +3942,7 @@ class SettingsController extends Controller
             }
 
             return redirect()->route('settings.ahg.sharepoint')
-                ->with('notice', 'SharePoint settings saved.');
+                ->with('notice', __('SharePoint settings saved.'));
         }
 
         return view('ahg-settings::sharepoint-settings', compact('menu', 'settings'));
@@ -4016,7 +4009,7 @@ class SettingsController extends Controller
             }
 
             return redirect()->route('settings.ahg.fuseki')
-                ->with('notice', 'Fuseki settings saved.');
+                ->with('notice', __('Fuseki settings saved.'));
         }
 
         return view('ahg-settings::fuseki-settings', compact('menu', 'settings'));
@@ -4080,7 +4073,7 @@ class SettingsController extends Controller
                 );
             }
 
-            return redirect()->route("settings.ahg.{$group}")->with('success', "{$title} settings saved.");
+            return redirect()->route("settings.ahg.{$group}")->with('success', __(':title settings saved.', ['title' => $title]));
         }
 
         return view("ahg-settings::{$viewName}", compact('menu', 'settings'));

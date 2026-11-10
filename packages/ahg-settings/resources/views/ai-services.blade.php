@@ -38,14 +38,14 @@
             <input class="form-check-input" type="radio" name="processing_mode" id="mode_hybrid" value="hybrid"
               {{ ($settings['processing_mode'] ?? 'job') === 'hybrid' ? 'checked' : '' }}>
             <label class="form-check-label" for="mode_hybrid">
-              <strong>{{ __('Hybrid') }}</strong> - Interactive for small docs, background for large
+              <strong>{{ __('Hybrid') }}</strong> - {{ __('Interactive for small docs, background for large') }}
             </label>
           </div>
           <div class="form-check">
             <input class="form-check-input" type="radio" name="processing_mode" id="mode_job" value="job"
               {{ ($settings['processing_mode'] ?? 'job') === 'job' ? 'checked' : '' }}>
             <label class="form-check-label" for="mode_job">
-              <strong>{{ __('Background Job') }}</strong> - Always queue (recommended for production)
+              <strong>{{ __('Background Job') }}</strong> - {{ __('Always queue (recommended for production)') }}
             </label>
           </div>
         </div>
@@ -329,9 +329,10 @@
         </div>
         <div class="col-sm-9">
           <small class="text-muted">
-            When enabled, translations will be saved in the <code>information_object_i18n</code> table
-            with the language culture code (e.g., <code>af</code>, <code>zu</code>, <code>xh</code>).
-            This allows multi-language support where users can switch between languages.
+            {!! __('When enabled, translations will be saved in the :table table with the language culture code (e.g., :cultures). This allows multi-language support where users can switch between languages.', [
+              'table' => '<code>'.e('information_object_i18n').'</code>',
+              'cultures' => '<code>'.e('af').'</code>, <code>'.e('zu').'</code>, <code>'.e('xh').'</code>',
+            ]) !!}
           </small>
         </div>
       </div>
@@ -419,14 +420,14 @@
             <input class="form-check-input" type="radio" name="translation_mode" id="mode_review" value="review"
               {{ ($settings['translation_mode'] ?? 'review') === 'review' ? 'checked' : '' }}>
             <label class="form-check-label" for="mode_review">
-              <strong>{{ __('Review First') }}</strong> - Save as draft for review before applying
+              <strong>{{ __('Review First') }}</strong> - {{ __('Save as draft for review before applying') }}
             </label>
           </div>
           <div class="form-check">
             <input class="form-check-input" type="radio" name="translation_mode" id="mode_auto" value="auto"
               {{ ($settings['translation_mode'] ?? 'review') === 'auto' ? 'checked' : '' }}>
             <label class="form-check-label" for="mode_auto">
-              <strong>{{ __('Auto Apply') }}</strong> - Immediately save translations to target language
+              <strong>{{ __('Auto Apply') }}</strong> - {{ __('Immediately save translations to target language') }}
             </label>
           </div>
         </div>
@@ -506,7 +507,7 @@
           <div class="alert alert-danger py-2">
             <i class="fas fa-exclamation-triangle me-1"></i>
             <strong>{{ __('Qdrant is not running.') }}</strong>
-            Start it with: <code>docker start qdrant</code>
+            {{ __('Start it with:') }} <code>docker start qdrant</code>
           </div>
         @endif
       </div>
@@ -527,27 +528,26 @@
         <div class="col-md-6">
           <label class="form-label fw-bold">{{ __('Embedding Model') }}</label>
           <select class="form-select" name="qdrant_model">
-            <option value="all-MiniLM-L6-v2" {{ ($settings['qdrant_model'] ?? '') === 'all-MiniLM-L6-v2' ? 'selected' : '' }}>all-MiniLM-L6-v2 (384d, fast)</option>
-            <option value="all-mpnet-base-v2" {{ ($settings['qdrant_model'] ?? '') === 'all-mpnet-base-v2' ? 'selected' : '' }}>all-mpnet-base-v2 (768d, higher quality)</option>
-            <option value="multi-qa-MiniLM-L6-cos-v1" {{ ($settings['qdrant_model'] ?? '') === 'multi-qa-MiniLM-L6-cos-v1' ? 'selected' : '' }}>multi-qa-MiniLM-L6-cos-v1 (384d, QA optimized)</option>
+            <option value="all-MiniLM-L6-v2" {{ ($settings['qdrant_model'] ?? '') === 'all-MiniLM-L6-v2' ? 'selected' : '' }}>{{ __(':model (:dimensions, :speed)', ['model' => 'all-MiniLM-L6-v2', 'dimensions' => '384d', 'speed' => __('fast')]) }}</option>
+            <option value="all-mpnet-base-v2" {{ ($settings['qdrant_model'] ?? '') === 'all-mpnet-base-v2' ? 'selected' : '' }}>{{ __(':model (:dimensions, :quality)', ['model' => 'all-mpnet-base-v2', 'dimensions' => '768d', 'quality' => __('higher quality')]) }}</option>
+            <option value="multi-qa-MiniLM-L6-cos-v1" {{ ($settings['qdrant_model'] ?? '') === 'multi-qa-MiniLM-L6-cos-v1' ? 'selected' : '' }}>{{ __(':model (:dimensions, :description)', ['model' => 'multi-qa-MiniLM-L6-cos-v1', 'dimensions' => '384d', 'description' => __('QA optimized')]) }}</option>
           </select>
           <div class="form-text">{{ __('Sentence-transformers model for embeddings') }}</div>
         </div>
         <div class="col-md-6">
           <label class="form-label fw-bold">{{ __('Minimum Similarity Score') }}</label>
           <input type="number" class="form-control" name="qdrant_min_score" value="{{ $settings['qdrant_min_score'] ?? '0.25' }}" min="0" max="1" step="0.05">
-          <div class="form-text">Cosine similarity threshold (0-1). Lower = more results, higher = stricter match.</div>
+          <div class="form-text">{{ __('Cosine similarity threshold (0-1). Lower = more results, higher = stricter match.') }}</div>
         </div>
       </div>
       <div class="alert alert-light border mt-3">
         <i class="fas fa-info-circle me-1 text-primary"></i>
-        <strong>{{ __('Indexing:') }}</strong> Run the Qdrant indexer from the CLI or cron. See
+        <strong>{{ __('Indexing:') }}</strong>
         @if(\Route::has('settings.cron-jobs'))
-          <a href="{{ route('settings.cron-jobs') }}">{{ __('Cron Jobs') }}</a>
+          {!! __('Run the Qdrant indexer from the CLI or cron. See :link for the scheduled command.', ['link' => '<a href="'.e(route('settings.cron-jobs')).'">'.e(__('Cron Jobs')).'</a>']) !!}
         @else
-          Cron Jobs
+          {{ __('Run the Qdrant indexer from the CLI or cron. See :link for the scheduled command.', ['link' => __('Cron Jobs')]) }}
         @endif
-        for the scheduled command.
       </div>
     </div>
   </div>

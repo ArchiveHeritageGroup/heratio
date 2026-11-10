@@ -48,7 +48,7 @@
                min="0.5" max="2.0" step="0.1"
                value="{{ $settings['all']['default_rate'] ?? '1.0' }}"
                oninput="document.getElementById('tts_rate_val').textContent=this.value">
-        <div class="form-text">Playback speed (0.5 = slow, 2.0 = fast).</div>
+        <div class="form-text">{{ __('Playback speed (0.5 = slow, 2.0 = fast).') }}</div>
       </div>
 
       <div class="mb-3">

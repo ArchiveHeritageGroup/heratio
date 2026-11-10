@@ -112,7 +112,7 @@
             <div class="input-group">
               <input type="number" class="form-control" id="dp_popia_response_days" name="dp_popia_response_days"
                      value="{{ $settings['dp_popia_response_days'] ?? '30' }}" min="1" max="90">
-              <span class="input-group-text">days</span>
+              <span class="input-group-text">{{ __('days') }}</span>
             </div>
           </div>
         </div>

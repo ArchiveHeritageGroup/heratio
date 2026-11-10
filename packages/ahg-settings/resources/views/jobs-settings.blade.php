@@ -60,7 +60,7 @@
               <input type="number" class="form-control" id="jobs_timeout"
                      name="settings[jobs_timeout]"
                      value="{{ $settings['jobs_timeout'] ?? 3600 }}" min="60" max="86400">
-              <span class="input-group-text">seconds</span>
+              <span class="input-group-text">{{ __('seconds') }}</span>
             </div>
           </div>
         </div>
@@ -81,7 +81,7 @@
               <input type="number" class="form-control" id="jobs_cleanup_days"
                      name="settings[jobs_cleanup_days]"
                      value="{{ $settings['jobs_cleanup_days'] ?? 30 }}" min="1" max="365">
-              <span class="input-group-text">days</span>
+              <span class="input-group-text">{{ __('days') }}</span>
             </div>
             <div class="form-text">{{ __('Delete completed jobs after this many days') }}</div>
           </div>

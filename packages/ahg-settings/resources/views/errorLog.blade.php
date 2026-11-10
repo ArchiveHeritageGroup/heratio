@@ -159,7 +159,7 @@
                   </div>
                 @endif
                 @if($entry->resolved_at)
-                  <div class="small text-success"><i class="fas fa-check me-1"></i>Resolved {{ $entry->resolved_at }}</div>
+                  <div class="small text-success"><i class="fas fa-check me-1"></i>{{ __('Resolved :date', ['date' => $entry->resolved_at]) }}</div>
                 @endif
               </td>
               <td class="small text-truncate" style="max-width:160px" title="{{ e($entry->file ?? '') }}">
@@ -168,7 +168,7 @@
               <td class="small">
                 {{ $entry->ip_address ?? ($entry->client_ip ?? ($entry->ip ?? '-')) }}
                 @if($entry->user_id ?? null)
-                  <br><span class="badge bg-info">user:{{ $entry->user_id }}</span>
+                  <br><span class="badge bg-info">{{ __('User:') }}{{ $entry->user_id }}</span>
                 @endif
               </td>
               <td class="text-nowrap">
@@ -227,7 +227,7 @@
 
     @if($totalPages > 1)
       <div class="card-footer d-flex justify-content-between align-items-center">
-        <small class="text-muted">Page {{ $page }} / {{ $totalPages }} ({{ number_format($total) }} total)</small>
+        <small class="text-muted">{{ __('Page :page / :pages (:total total)', ['page' => $page, 'pages' => $totalPages, 'total' => number_format($total)]) }}</small>
         <nav>
           <ul class="pagination pagination-sm mb-0">
             @if($page > 1)

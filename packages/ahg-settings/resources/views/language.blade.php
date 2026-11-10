@@ -20,7 +20,7 @@
       @csrf
       <div class="accordion mb-3">
         <div class="accordion-item">
-          <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#lang-collapse">i18n language settings</button></h2>
+          <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#lang-collapse">{{ __('i18n language settings') }}</button></h2>
           <div id="lang-collapse" class="accordion-collapse collapse show">
             <div class="accordion-body">
               @foreach($languages as $lang)

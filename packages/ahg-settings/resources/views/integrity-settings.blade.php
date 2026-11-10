@@ -72,7 +72,7 @@
             <input type="number" class="form-control" id="integrity_default_batch_size"
                    name="settings[integrity_default_batch_size]"
                    value="{{ e($settings['integrity_default_batch_size'] ?? '200') }}" min="0" max="50000">
-            <div class="form-text">Objects per run (0 = unlimited).</div>
+            <div class="form-text">{{ __('Objects per run (0 = unlimited).') }}</div>
           </div>
           <div class="col-md-4">
             <label class="form-label" for="integrity_io_throttle_ms">{{ __('IO Throttle (ms)') }}</label>

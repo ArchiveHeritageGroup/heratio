@@ -72,7 +72,7 @@
                    min="0.3" max="0.95" step="0.05"
                    value="{{ $settings['voice_confidence_threshold'] ?? '0.4' }}"
                    oninput="document.getElementById('voice_confidence_threshold_val').textContent=this.value">
-            <div class="form-text">Minimum confidence score for voice recognition (0.3 = lenient, 0.95 = strict).</div>
+            <div class="form-text">{{ __('Minimum confidence score for voice recognition (0.3 = lenient, 0.95 = strict).') }}</div>
           </div>
           <div class="col-md-6">
             <label class="form-label" for="voice_speech_rate">{{ __('Speech Rate:') }} <span id="voice_speech_rate_val">{{ $settings['voice_speech_rate'] ?? '1.0' }}</span></label>
@@ -81,7 +81,7 @@
                    min="0.5" max="2.0" step="0.1"
                    value="{{ $settings['voice_speech_rate'] ?? '1.0' }}"
                    oninput="document.getElementById('voice_speech_rate_val').textContent=this.value">
-            <div class="form-text">Text-to-speech playback rate (0.5 = slow, 2.0 = fast).</div>
+            <div class="form-text">{{ __('Text-to-speech playback rate (0.5 = slow, 2.0 = fast).') }}</div>
           </div>
         </div>
 
@@ -129,7 +129,7 @@
                    min="100" max="1000" step="50"
                    value="{{ $settings['voice_hover_read_delay'] ?? '400' }}"
                    oninput="document.getElementById('voice_hover_read_delay_val').textContent=this.value">
-            <div class="form-text">Milliseconds to wait before reading (100 = instant, 1000 = slow). Lower values are more responsive.</div>
+            <div class="form-text">{{ __('Milliseconds to wait before reading (100 = instant, 1000 = slow). Lower values are more responsive.') }}</div>
           </div>
         </div>
       </div>
@@ -156,7 +156,7 @@
             <input type="number" class="form-control" id="voice_daily_cloud_limit"
                    name="settings[voice_daily_cloud_limit]"
                    value="{{ e($settings['voice_daily_cloud_limit'] ?? '50') }}" min="0" max="10000">
-            <div class="form-text">Maximum cloud API calls per day (0 = unlimited).</div>
+            <div class="form-text">{{ __('Maximum cloud API calls per day (0 = unlimited).') }}</div>
           </div>
         </div>
 

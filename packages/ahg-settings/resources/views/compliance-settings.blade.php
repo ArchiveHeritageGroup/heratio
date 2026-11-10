@@ -33,7 +33,13 @@
         <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>{{ __('Regulatory Compliance') }}</h5>
       </div>
       <div class="card-body">
-        <p class="text-muted mb-3">Configure regulatory compliance features. For detailed compliance management (DSARs, breaches, ROPA), see the @if(\Illuminate\Support\Facades\Route::has('privacy.dashboard'))<a href="{{ route('privacy.dashboard') }}">{{ __('Privacy Compliance module') }}</a>@else Privacy Compliance module @endif.</p>
+        <p class="text-muted mb-3">
+          @if(\Illuminate\Support\Facades\Route::has('privacy.dashboard'))
+            {!! __('Configure regulatory compliance features. For detailed compliance management (DSARs, breaches, ROPA), see the :module.', ['module' => '<a href="'.e(route('privacy.dashboard')).'">'.e(__('Privacy Compliance module')).'</a>']) !!}
+          @else
+            {{ __('Configure regulatory compliance features. For detailed compliance management (DSARs, breaches, ROPA), see the :module.', ['module' => __('Privacy Compliance module')]) }}
+          @endif
+        </p>
 
         @php
           // Hide internal {audit_last_pruned_*} stamps from the form - they're
@@ -46,9 +52,9 @@
           <div class="alert alert-info small d-flex justify-content-between align-items-center mb-3">
             <div>
               <i class="fas fa-clock me-1"></i>
-              Audit log pruner runs daily at 03:30. 0 disables pruning.
+              {{ __('Audit log pruner runs daily at :time. :limit disables pruning.', ['time' => '03:30', 'limit' => 0]) }}
               @if($lastPrunedAt)
-                <br><span class="text-muted">Last run: {{ $lastPrunedAt }} - {{ (int) $lastPrunedRows }} row(s) removed.</span>
+                <br><span class="text-muted">{{ __('Last run: :date - :count row(s) removed.', ['date' => $lastPrunedAt, 'count' => (int) $lastPrunedRows]) }}</span>
               @else
                 <br><span class="text-muted">{{ __('Has not run yet.') }}</span>
               @endif
@@ -95,7 +101,10 @@
           @endif
         @empty
           <div class="alert alert-info mb-0">
-            <i class="fas fa-info-circle me-1"></i>No compliance settings configured yet. Settings will appear here once they are added to the <code>ahg_settings</code> table with group <code>compliance</code>.
+            <i class="fas fa-info-circle me-1"></i>{!! __('No compliance settings are configured yet. Settings will appear here once they are added to the :table table with group :group.', [
+              'table' => '<code>'.e('ahg_settings').'</code>',
+              'group' => '<code>'.e('compliance').'</code>',
+            ]) !!}
           </div>
         @endforelse
       </div>

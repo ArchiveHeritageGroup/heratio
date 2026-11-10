@@ -37,7 +37,7 @@
                 <input class="form-check-input" type="radio" name="finding_aid[finding_aids_enabled]" id="finding_aid_finding_aids_enabled_0" value="0" {{ $settings['finding_aids_enabled'] !== '1' ? 'checked="checked"' : '' }}>
                 <label class="form-check-label" for="finding_aid_finding_aids_enabled_0">{{ __('Disabled') }}</label>
               </fieldset>
-              <div class="form-text">When disabled: Finding Aid links are not displayed, Finding Aid generation is disabled, and the 'Advanced Search &gt; Finding Aid' filter is hidden</div>
+              <div class="form-text">{{ __('When disabled: Finding Aid links are not displayed, Finding Aid generation is disabled, and the "Advanced Search > Finding Aid" filter is hidden') }}</div>
             </div>
 
             {{-- Finding Aid format (select) --}}
@@ -59,8 +59,8 @@
               </select>
               <div class="form-text">
                 {{ __('Finding Aid model:') }}<br>
-                - Inventory summary: will include only key details for lower-level descriptions (file, item, part) in a table<br>
-                - Full details: includes full lower-level descriptions in the same format used throughout the finding aid
+                - {{ __('Inventory summary: will include only key details for lower-level descriptions (file, item, part) in a table') }}<br>
+                - {{ __('Full details: includes full lower-level descriptions in the same format used throughout the finding aid') }}
               </div>
             </div>
 
