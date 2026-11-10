@@ -2,7 +2,7 @@ name: KM publish on issue close
 
 # Publishes a doc to the AHG cross-agent KM corpus whenever an issue is
 # closed (or a PR is merged). Implements Phase 6 of the KM cross-agent
-# endpoint rollout — see /root/.claude/CLAUDE.md "KM auto-publish rule".
+# endpoint rollout - see /root/.claude/CLAUDE.md "KM auto-publish rule".
 #
 # The doc lands in km_agent_docs (project=<repo-short>) and becomes
 # queryable from every agent (Claude / Workbench / ahg-ai) via km_ask.
@@ -17,6 +17,10 @@ on:
   pull_request:
     types: [closed]
 
+# Read-only token: this workflow only reads the event and calls KM.
+permissions:
+  contents: read
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -24,32 +28,31 @@ jobs:
     steps:
       - name: Compose payload
         id: payload
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
-          if [ "${{ github.event_name }}" = "issues" ]; then
-            EVENT_TYPE="issue"
-            NUM="${{ github.event.issue.number }}"
-            TITLE="${{ github.event.issue.title }}"
-            BODY=$(jq -r '.issue.body // ""' "$GITHUB_EVENT_PATH")
-            URL="${{ github.event.issue.html_url }}"
-            CLOSED_BY="${{ github.event.issue.user.login }}"
-            LABELS=$(jq -r '[.issue.labels[].name] | join(",")' "$GITHUB_EVENT_PATH")
+          # Every event field is read from the event file with jq, never pasted
+          # into the script as an expression: an issue or PR title is attacker text
+          # on a public repo, and interpolated it ran as shell (GHSA-xwpp).
+          if [ "$EVENT_NAME" = "issues" ]; then
+            EVENT_TYPE="issue"; K=issue
           else
-            EVENT_TYPE="pr"
-            NUM="${{ github.event.pull_request.number }}"
-            TITLE="${{ github.event.pull_request.title }}"
-            BODY=$(jq -r '.pull_request.body // ""' "$GITHUB_EVENT_PATH")
-            URL="${{ github.event.pull_request.html_url }}"
-            CLOSED_BY="${{ github.event.pull_request.user.login }}"
-            LABELS=$(jq -r '[.pull_request.labels[].name] | join(",")' "$GITHUB_EVENT_PATH")
+            EVENT_TYPE="pr"; K=pull_request
           fi
-          REPO="${{ github.repository }}"
+          NUM=$(jq -r --arg k "$K" '.[$k].number' "$GITHUB_EVENT_PATH")
+          TITLE=$(jq -r --arg k "$K" '.[$k].title // ""' "$GITHUB_EVENT_PATH")
+          BODY=$(jq -r --arg k "$K" '.[$k].body // ""' "$GITHUB_EVENT_PATH")
+          URL=$(jq -r --arg k "$K" '.[$k].html_url // ""' "$GITHUB_EVENT_PATH")
+          CLOSED_BY=$(jq -r --arg k "$K" '.[$k].user.login // ""' "$GITHUB_EVENT_PATH")
+          LABELS=$(jq -r --arg k "$K" '[.[$k].labels[]?.name] | join(",")' "$GITHUB_EVENT_PATH")
           REPO_SHORT="${REPO##*/}"
           NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           DOC_TITLE="$EVENT_TYPE #$NUM closed: $TITLE"
 
           # Compose body + final payload via jq (heredocs collide with the
-          # YAML literal block-scalar indent — that's what broke the 2026-05-25
+          # YAML literal block-scalar indent - that's what broke the 2026-05-25
           # first cut). All inputs flow in via --arg, jq does the concat.
           jq -n \
             --arg title      "$DOC_TITLE" \
@@ -86,12 +89,12 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "${KM_API_KEY:-}" ] || [ -z "${KM_BASE_URL:-}" ]; then
-            echo "::warning::KM_API_KEY or KM_BASE_URL secret missing — skipping publish"
+            echo "::warning::KM_API_KEY or KM_BASE_URL secret missing - skipping publish"
             exit 0
           fi
           # Never fail the workflow because KM is down
           set +e
-          curl -sk -m 30 -X POST "${KM_BASE_URL%/}/api/ingest" \
+          curl -s -m 30 -X POST "${KM_BASE_URL%/}/api/ingest" \
             -H "Authorization: Bearer $KM_API_KEY" \
             -H "Content-Type: application/json" \
             -d @/tmp/km_payload.json \
