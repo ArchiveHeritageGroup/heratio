@@ -64,9 +64,9 @@
           <div>
             <h4><i class="fas fa-times-circle me-2"></i>{{ __('Registration Rejected') }}</h4>
             <p class="mb-0">
-              Your registration was not approved.
+              {{ __('Your registration was not approved.') }}
               @if($researcher->rejection_reason ?? false)
-                <br><small>Reason: {{ e($researcher->rejection_reason) }}</small>
+                <br><small>{{ __('Reason: :reason', ['reason' => $researcher->rejection_reason]) }}</small>
               @endif
             </p>
           </div>
@@ -79,7 +79,7 @@
         <div class="card-body">
           <div class="row align-items-center">
             <div class="col-md-8">
-              <h5 class="mb-1">Welcome back, {{ e($researcher->first_name ?? '') }}!</h5>
+              <h5 class="mb-1">{{ __('Welcome back, :name!', ['name' => $researcher->first_name ?? '']) }}</h5>
               <p class="text-muted mb-0">{{ e($researcher->institution ?? 'Independent Researcher') }}</p>
             </div>
             <div class="col-md-4 text-md-end mt-3 mt-md-0">
@@ -201,7 +201,7 @@
             <li class="list-group-item d-flex justify-content-between align-items-center">
               <div>
                 <strong>{{ e($applicant->first_name ?? '') }} {{ e($applicant->last_name ?? '') }}</strong><br>
-                <small class="text-muted">{{ e($applicant->institution ?? 'Independent') }}</small>
+                <small class="text-muted">{{ e($applicant->institution ?? __('Independent')) }}</small>
               </div>
               <a href="{{ route('research.viewResearcher', $applicant->id) }}" class="btn btn-sm atom-btn-white">{{ __('Review') }}</a>
             </li>
@@ -316,7 +316,7 @@
           @foreach($searchAlerts as $alert)
             <li class="list-group-item py-2 d-flex justify-content-between align-items-center">
               <span>{{ e($alert->name ?? '') }}</span>
-              <span class="badge bg-info rounded-pill">{{ (int) ($alert->new_results_count ?? 0) }} new</span>
+              <span class="badge bg-info rounded-pill">{{ __(':count new', ['count' => (int) ($alert->new_results_count ?? 0)]) }}</span>
             </li>
           @endforeach
         </ul>

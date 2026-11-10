@@ -4,7 +4,7 @@
 @section('title', 'Room Details')
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li><li class="breadcrumb-item"><a href="{{ route('research.rooms') }}">{{ __('Rooms') }}</a></li><li class="breadcrumb-item active">{{ e($room->name ?? '') }}</li></ol></nav>
-<h1 class="h2 mb-4"><i class="fas fa-door-open text-primary me-2"></i>{{ e($room->name ?? 'Room') }}</h1>
+<h1 class="h2 mb-4"><i class="fas fa-door-open text-primary me-2"></i>{{ e($room->name ?? __('Room')) }}</h1>
 <div class="row"><div class="col-md-8">
 <div class="card mb-4"><div class="card-header" style="background:var(--ahg-primary);color:#fff">{{ __('Room Information') }}</div><div class="card-body">
     <dl class="row mb-0">
@@ -17,7 +17,7 @@
     @if($room->description ?? false)<hr><p class="mb-0">{{ e($room->description) }}</p>@endif
 </div></div>
 @if(!empty($seats))
-<div class="card mb-4"><div class="card-header">Seats ({{ count($seats) }})</div><div class="card-body p-0">
+<div class="card mb-4"><div class="card-header">{{ __('Seats (:count)', ['count' => count($seats)]) }}</div><div class="card-body p-0">
     <table class="table table-sm mb-0"><thead class="table-light"><tr><th>{{ __('Seat') }}</th><th>{{ __('Type') }}</th><th>{{ __('Status') }}</th></tr></thead><tbody>
         @foreach($seats as $s)<tr><td>{{ e($s->seat_label ?: ('Seat ' . ($s->seat_number ?? $s->id))) }}</td><td>{{ e($s->seat_type ?? 'standard') }}</td><td>@php $occupied = ($s->status ?? '') === 'occupied'; @endphp<span class="badge bg-{{ $occupied ? 'danger' : 'success' }}">{{ $occupied ? 'Occupied' : 'Available' }}</span></td></tr>@endforeach
     </tbody></table>

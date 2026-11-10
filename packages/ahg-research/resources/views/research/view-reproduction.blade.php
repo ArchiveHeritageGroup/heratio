@@ -42,7 +42,7 @@
 
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Items ({{ count($items) }})</h5>
+                <h5 class="mb-0">{{ __('Items (:count)', ['count' => count($items)]) }}</h5>
                 @if(in_array($reproRequest->status, ['draft', 'submitted']))
                     <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addItemModal"><i class="fas fa-plus me-1"></i>{{ __('Add Item') }}</button>
                 @endif

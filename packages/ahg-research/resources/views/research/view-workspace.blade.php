@@ -91,9 +91,9 @@
                                 @foreach($ans->sources as $src)
                                     <li>
                                         @if(!empty($src['slug']))
-                                            <a href="{{ url('/' . $src['slug']) }}" target="_blank" rel="noopener">{{ e($src['title'] ?? 'Untitled') }}</a>
+                                            <a href="{{ url('/' . $src['slug']) }}" target="_blank" rel="noopener">{{ e($src['title'] ?? __('Untitled')) }}</a>
                                         @else
-                                            {{ e($src['title'] ?? 'Untitled') }}
+                                            {{ e($src['title'] ?? __('Untitled')) }}
                                         @endif
                                     </li>
                                 @endforeach
@@ -138,10 +138,10 @@
                                         <h6 class="mb-1">{{ e($disc->subject ?? $disc->title ?? '') }}</h6>
                                         <p class="mb-1 small">{{ e(\Illuminate\Support\Str::limit($disc->content, 150)) }}</p>
                                         <small class="text-muted">
-                                            by {{ e($disc->author_name ?? 'Unknown') }} -
+                                            by {{ e($disc->author_name ?? __('Unknown')) }} -
                                             {{ date('M j, Y H:i', strtotime($disc->created_at)) }}
                                             @if($disc->reply_count ?? 0)
-                                                <span class="badge bg-secondary ms-2">{{ $disc->reply_count }} replies</span>
+                                                <span class="badge bg-secondary ms-2">{{ __(':count replies', ['count' => $disc->reply_count]) }}</span>
                                             @endif
                                         </small>
                                     </div>

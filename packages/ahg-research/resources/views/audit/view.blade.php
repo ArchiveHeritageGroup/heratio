@@ -4,7 +4,7 @@
 @section('title', 'Audit Entry #' . ($entry->id ?? ''))
 
 @section('content')
-<h1><i class="fas fa-history text-primary me-2"></i>Audit Entry #{{ $entry->id ?? '' }}</h1>
+<h1><i class="fas fa-history text-primary me-2"></i>{{ __('Audit Entry #:id', ['id' => $entry->id ?? '']) }}</h1>
 
 <div class="row">
   <div class="col-md-6">
@@ -14,7 +14,7 @@
         @php $ac = match($entry->action ?? '') { 'create' => 'success', 'update' => 'warning', 'delete' => 'danger', default => 'secondary' }; @endphp
         <table class="table table-bordered mb-0">
           <tr><th style="width:30%;">{{ __('Date/Time') }}</th><td>{{ $entry->created_at ?? '' }}</td></tr>
-          <tr><th>{{ __('User') }}</th><td>{{ e($entry->user_name ?? 'System') }}</td></tr>
+          <tr><th>{{ __('User') }}</th><td>{{ e($entry->user_name ?? __('System')) }}</td></tr>
           <tr><th>{{ __('Action') }}</th><td><span class="badge bg-{{ $ac }}">{{ ucfirst($entry->action ?? '') }}</span></td></tr>
           <tr><th>{{ __('Table') }}</th><td><code>{{ $entry->table_name ?? '' }}</code></td></tr>
           <tr><th>{{ __('Record ID') }}</th><td>#{{ $entry->record_id ?? '' }}</td></tr>

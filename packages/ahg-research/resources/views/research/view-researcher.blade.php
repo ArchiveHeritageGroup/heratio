@@ -93,7 +93,7 @@
   <div class="card mb-4">
     <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-microscope me-2"></i>{{ __('Research Interests') }}</div>
     <div class="card-body">
-      <p>{{ e($researcher->research_interests ?? 'Not specified') }}</p>
+      <p>{{ e($researcher->research_interests ?? __('Not specified')) }}</p>
       @if($researcher->current_project ?? false)
         <hr>
         <h6>{{ __('Current Project') }}</h6>

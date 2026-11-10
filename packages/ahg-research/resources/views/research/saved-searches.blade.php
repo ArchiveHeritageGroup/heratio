@@ -52,7 +52,7 @@
                     <td><code class="small">{{ e(\Illuminate\Support\Str::limit($s->search_query, 40)) }}</code></td>
                     <td>
                         @if(isset($s->last_result_count) && $s->last_result_count !== null)
-                            <span class="badge bg-secondary">{{ (int) $s->last_result_count }} results</span>
+                            <span class="badge bg-secondary">{{ __(':count results', ['count' => (int) $s->last_result_count]) }}</span>
                         @else
                             <small class="text-muted">{{ __('No snapshot') }}</small>
                         @endif

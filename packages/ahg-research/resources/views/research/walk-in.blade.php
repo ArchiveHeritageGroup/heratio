@@ -9,7 +9,7 @@
             <div class="col-md-4">
                 <label class="form-label">{{ __('Reading Room') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="room_id" class="form-select">
-                    <option value="">-- Select Room --</option>
+                    <option value="">{{ __('-- Select Room --') }}</option>
                     @foreach($rooms as $room)
                     <option value="{{ $room->id }}" {{ $roomId == $room->id ? 'selected' : '' }}>{{ e($room->name) }}</option>
                     @endforeach
@@ -27,8 +27,8 @@
     <div class="col-md-7">
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-                <h5 class="mb-0">Current Visitors - {{ e($currentRoom->name) }}</h5>
-                <span class="badge bg-primary">{{ count($currentWalkIns) }} visitor(s)</span>
+                <h5 class="mb-0">{{ __('Current Visitors - :room', ['room' => $currentRoom->name]) }}</h5>
+                <span class="badge bg-primary">{{ __(':count visitor(s)', ['count' => count($currentWalkIns)]) }}</span>
             </div>
             <div class="card-body p-0">
                 @if(count($currentWalkIns) > 0)
@@ -102,7 +102,7 @@
                         <div class="col-md-5 mb-3">
                             <label class="form-label">{{ __('ID Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select name="id_type" class="form-select">
-                                <option value="">-- Select --</option>
+                                <option value="">{{ __('-- Select --') }}</option>
                                 {{-- Issue #59 Tier 2 - culture-aware dropdown via the COALESCE helper. --}}
                                 @foreach(\AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('id_type') as $idType)
                                     <option value="{{ $idType->code }}">{{ $idType->label }}</option>

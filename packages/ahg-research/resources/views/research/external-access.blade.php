@@ -18,7 +18,7 @@
                         <tr>
                             <td>{{ e($link->resource_title ?? '') }}</td>
                             <td><span class="badge bg-secondary">{{ ucfirst($link->access_type ?? '') }}</span></td>
-                            <td class="small">{{ $link->expires_at ?? 'Never' }}</td>
+                            <td class="small">{{ $link->expires_at ?? __('Never') }}</td>
                             <td>{{ $link->view_count ?? 0 }}</td>
                             <td><span class="badge bg-{{ ($link->is_active ?? false) ? 'success' : 'danger' }}">{{ ($link->is_active ?? false) ? 'Active' : 'Expired' }}</span></td>
                             <td>
@@ -40,7 +40,7 @@
             <div class="card-header"><h6 class="mb-0">{{ __('Create Shared Link') }}</h6></div>
             <div class="card-body">
                 <form method="POST">@csrf
-                    <div class="mb-3"><label class="form-label">{{ __('Resource') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><select name="resource_id" class="form-select" required><option value="">-- Select --</option>
+                    <div class="mb-3"><label class="form-label">{{ __('Resource') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><select name="resource_id" class="form-select" required><option value="">{{ __('-- Select --') }}</option>
                         @foreach($resources ?? [] as $res)<option value="{{ $res->id }}">{{ e($res->title ?? '') }}</option>@endforeach
                     </select></div>
                     <div class="mb-3"><label class="form-label">{{ __('Access Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select name="access_type" class="form-select"><option value="view">{{ __('View Only') }}</option><option value="download">{{ __('Download') }}</option><option value="annotate">{{ __('Annotate') }}</option></select></div>

@@ -74,7 +74,7 @@
           </form>
         </div>
         <div class="col-md-6 text-end">
-          <span class="text-muted">{{ is_countable($researchers) ? count($researchers) : (is_object($researchers) && method_exists($researchers, 'total') ? $researchers->total() : 0) }} researchers</span>
+          <span class="text-muted">{{ __(':count researchers', ['count' => is_countable($researchers) ? count($researchers) : (is_object($researchers) && method_exists($researchers, 'total') ? $researchers->total() : 0)]) }}</span>
         </div>
       </div>
     </div>

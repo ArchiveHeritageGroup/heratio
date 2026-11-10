@@ -32,7 +32,7 @@
 
 {{-- Events table --}}
 <div class="card">
-    <div class="card-header"><h5 class="mb-0">Events ({{ count($events) }})</h5></div>
+    <div class="card-header"><h5 class="mb-0">{{ __('Events (:count)', ['count' => count($events)]) }}</h5></div>
     <div class="card-body">
         @if(empty($events))
             <p class="text-muted">{{ __('No events yet.') }}</p>

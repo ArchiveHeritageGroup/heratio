@@ -113,7 +113,7 @@
                     <div class="border-bottom p-3 @if($c->resolved) bg-light @endif">
                         <div class="d-flex justify-content-between align-items-start">
                             <div class="me-2">
-                                <span class="fw-bold">{{ e($c->author_name ?? 'User') }}</span>
+                                <span class="fw-bold">{{ e($c->author_name ?? __('User')) }}</span>
                                 <span class="text-muted small ms-1">{{ \Illuminate\Support\Carbon::parse($c->created_at)->diffForHumans() }}</span>
                                 @if($c->resolved)
                                     <span class="badge bg-success ms-1"><i class="fas fa-check me-1"></i>{{ __('Resolved') }}</span>
@@ -141,7 +141,7 @@
                             <div class="ms-4 mt-2 ps-2 border-start">
                                 @foreach($c->replies as $rep)
                                     <div class="mb-2">
-                                        <span class="fw-bold small">{{ e($rep->author_name ?? 'User') }}</span>
+                                        <span class="fw-bold small">{{ e($rep->author_name ?? __('User')) }}</span>
                                         <span class="text-muted small ms-1">{{ \Illuminate\Support\Carbon::parse($rep->created_at)->diffForHumans() }}</span>
                                         <div class="small" style="white-space:pre-line">{{ e($rep->body) }}</div>
                                     </div>

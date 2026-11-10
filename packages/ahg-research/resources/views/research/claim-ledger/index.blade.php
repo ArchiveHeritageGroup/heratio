@@ -53,7 +53,7 @@
                     <ul class="list-group list-group-flush">
                         @foreach($noCitation as $c)
                             <li class="list-group-item small">
-                                <a href="{{ route('research.claims.show', [$project->id, $c->id]) }}">{{ e(\Illuminate\Support\Str::limit($c->object_value ?? $c->subject_label ?? 'Untitled claim', 120)) }}</a>
+                                <a href="{{ route('research.claims.show', [$project->id, $c->id]) }}">{{ e(\Illuminate\Support\Str::limit($c->object_value ?? $c->subject_label ?? __('Untitled claim'), 120)) }}</a>
                             </li>
                         @endforeach
                     </ul>
@@ -74,7 +74,7 @@
                     <ul class="list-group list-group-flush">
                         @foreach($overDependent as $c)
                             <li class="list-group-item small d-flex justify-content-between">
-                                <a href="{{ route('research.claims.show', [$project->id, $c->id]) }}">{{ e(\Illuminate\Support\Str::limit($c->object_value ?? $c->subject_label ?? 'Untitled claim', 100)) }}</a>
+                                <a href="{{ route('research.claims.show', [$project->id, $c->id]) }}">{{ e(\Illuminate\Support\Str::limit($c->object_value ?? $c->subject_label ?? __('Untitled claim'), 100)) }}</a>
                                 <span class="text-muted">{{ $c->evidence_count ?? 0 }} {{ __('refs / 1 source') }}</span>
                             </li>
                         @endforeach
@@ -189,7 +189,7 @@
                     @foreach($claims as $c)
                     @php $st = $c->status ?? 'idea'; @endphp
                     <tr>
-                        <td>{{ e(\Illuminate\Support\Str::limit($c->object_value ?? $c->subject_label ?? 'Untitled claim', 140)) }}</td>
+                        <td>{{ e(\Illuminate\Support\Str::limit($c->object_value ?? $c->subject_label ?? __('Untitled claim'), 140)) }}</td>
                         <td><span class="badge bg-{{ $badges[$st] ?? 'secondary' }}">{{ __($statuses[$st] ?? ucfirst($st)) }}</span></td>
                         <td><span class="badge bg-light text-dark border">{{ ucfirst($c->meta->provenance_kind ?? 'original') }}</span></td>
                         <td class="text-center">

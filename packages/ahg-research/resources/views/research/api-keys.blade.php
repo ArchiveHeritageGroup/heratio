@@ -106,24 +106,24 @@
     <div class="card-header"><h5 class="mb-0">{{ __('API Documentation') }}</h5></div>
     <div class="card-body">
         <h6>{{ __('Authentication') }}</h6>
-        <p>Include your API key in the <code>X-API-Key</code> header or as an <code>api_key</code> query parameter.</p>
+        <p>{!! __('Include your API key in the :header header or as an :param query parameter.', ['header' => '<code>X-API-Key</code>', 'param' => '<code>api_key</code>']) !!}</p>
         <pre class="bg-light p-3 rounded"><code>curl -H "X-API-Key: YOUR_API_KEY" {{ url('/api/research/profile') }}</code></pre>
 
         <h6 class="mt-4">{{ __('Available Endpoints') }}</h6>
         <table class="table table-sm">
             <thead><tr><th>{{ __('Method') }}</th><th>{{ __('Endpoint') }}</th><th>{{ __('Description') }}</th></tr></thead>
             <tbody>
-                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/profile</td><td>{{ __('Get your researcher profile') }}</td></tr>
-                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/projects</td><td>{{ __('List your projects') }}</td></tr>
-                <tr><td><span class="badge bg-primary">{{ __('POST') }}</span></td><td>/projects</td><td>{{ __('Create a project') }}</td></tr>
-                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/collections</td><td>{{ __('List your evidence sets') }}</td></tr>
-                <tr><td><span class="badge bg-primary">{{ __('POST') }}</span></td><td>/collections</td><td>{{ __('Create an evidence set') }}</td></tr>
-                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/searches</td><td>{{ __('List saved searches') }}</td></tr>
-                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/bookings</td><td>{{ __('List bookings') }}</td></tr>
-                <tr><td><span class="badge bg-primary">{{ __('POST') }}</span></td><td>/bookings</td><td>{{ __('Create a booking') }}</td></tr>
-                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/bibliographies</td><td>{{ __('List bibliographies') }}</td></tr>
-                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/annotations</td><td>{{ __('List annotations') }}</td></tr>
-                <tr><td><span class="badge bg-success">{{ __('GET') }}</span></td><td>/stats</td><td>{{ __('Get your usage statistics') }}</td></tr>
+                <tr><td><span class="badge bg-success">GET</span></td><td>/profile</td><td>{{ __('Get your researcher profile') }}</td></tr>
+                <tr><td><span class="badge bg-success">GET</span></td><td>/projects</td><td>{{ __('List your projects') }}</td></tr>
+                <tr><td><span class="badge bg-primary">POST</span></td><td>/projects</td><td>{{ __('Create a project') }}</td></tr>
+                <tr><td><span class="badge bg-success">GET</span></td><td>/collections</td><td>{{ __('List your evidence sets') }}</td></tr>
+                <tr><td><span class="badge bg-primary">POST</span></td><td>/collections</td><td>{{ __('Create an evidence set') }}</td></tr>
+                <tr><td><span class="badge bg-success">GET</span></td><td>/searches</td><td>{{ __('List saved searches') }}</td></tr>
+                <tr><td><span class="badge bg-success">GET</span></td><td>/bookings</td><td>{{ __('List bookings') }}</td></tr>
+                <tr><td><span class="badge bg-primary">POST</span></td><td>/bookings</td><td>{{ __('Create a booking') }}</td></tr>
+                <tr><td><span class="badge bg-success">GET</span></td><td>/bibliographies</td><td>{{ __('List bibliographies') }}</td></tr>
+                <tr><td><span class="badge bg-success">GET</span></td><td>/annotations</td><td>{{ __('List annotations') }}</td></tr>
+                <tr><td><span class="badge bg-success">GET</span></td><td>/stats</td><td>{{ __('Get your usage statistics') }}</td></tr>
             </tbody>
         </table>
     </div>

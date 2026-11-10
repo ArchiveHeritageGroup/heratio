@@ -33,7 +33,7 @@
             </div>
             <div class="row mb-3">
                 <div class="col-md-6"><label class="form-label">{{ __('Institution') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-                    <select name="institution_id" class="form-select"><option value="">-- None --</option>
+                    <select name="institution_id" class="form-select"><option value="">{{ __('-- None --') }}</option>
                         @foreach($institutions ?? [] as $inst)<option value="{{ $inst->id }}" {{ ($project->institution_id ?? '') == $inst->id ? 'selected' : '' }}>{{ e($inst->name) }}</option>@endforeach
                     </select>
                 </div>

@@ -4,7 +4,7 @@
 @section('title', 'User Activity: ' . e($user->username ?? ''))
 
 @section('content')
-<h1><i class="fas fa-user text-primary me-2"></i>User Activity: {{ e($user->username ?? '') }}</h1>
+<h1><i class="fas fa-user text-primary me-2"></i>{{ __('User Activity: :user', ['user' => $user->username ?? '']) }}</h1>
 
 <div class="row mb-4">
   <div class="col-md-6">
@@ -31,7 +31,7 @@
 </div>
 
 <div class="card">
-  <div class="card-header">Recent Activity ({{ $totalCount ?? 0 }} total)</div>
+  <div class="card-header">{{ __('Recent Activity (:count total)', ['count' => $totalCount ?? 0]) }}</div>
   <div class="table-responsive">
     <table class="table table-striped mb-0">
       <thead><tr><th>{{ __('Date') }}</th><th>{{ __('Action') }}</th><th>{{ __('Table') }}</th><th>{{ __('Record') }}</th><th></th></tr></thead>

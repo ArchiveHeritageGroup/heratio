@@ -53,7 +53,7 @@
                   @endif
                   <div class="mt-2">
                     <small>
-                      <i class="fas fa-chair me-1"></i>{{ $room->capacity ?? '?' }} seats
+                      <i class="fas fa-chair me-1"></i>{{ __(':count seats', ['count' => $room->capacity ?? '?']) }}
                       @if($room->equipment ?? false)
                         <span class="ms-2"><i class="fas fa-tools me-1"></i>{{ e($room->equipment) }}</span>
                       @endif

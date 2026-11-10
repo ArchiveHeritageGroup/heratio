@@ -24,8 +24,8 @@
         @if($bibliography->description ?? null)
             <p class="text-muted">{{ e($bibliography->description) }}</p>
         @endif
-        <span class="badge bg-secondary">{{ count($entries) }} entries</span>
-        <span class="badge bg-light text-dark">{{ ucfirst($bibliography->citation_style ?? 'chicago') }} style</span>
+        <span class="badge bg-secondary">{{ __(':count entries', ['count' => count($entries)]) }}</span>
+        <span class="badge bg-light text-dark">{{ __(':style style', ['style' => ucfirst($bibliography->citation_style ?? 'chicago')]) }}</span>
     </div>
     <div class="d-flex gap-2">
         <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#importBibliographyModal">
@@ -37,9 +37,9 @@
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
                 <li><h6 class="dropdown-header">{{ __('Reference manager') }}</h6></li>
-                <li><a class="dropdown-item" href="{{ route('research.bibliography.export', ['id' => $bibliography->id, 'format' => 'bibtex']) }}">BibTeX (.bib) &middot; {{ __('LaTeX, JabRef') }}</a></li>
-                <li><a class="dropdown-item" href="{{ route('research.bibliography.export', ['id' => $bibliography->id, 'format' => 'ris']) }}">RIS (.ris) &middot; {{ __('EndNote, Zotero, Mendeley') }}</a></li>
-                <li><a class="dropdown-item" href="{{ route('research.bibliography.export', ['id' => $bibliography->id, 'format' => 'csljson']) }}">CSL-JSON (.json) &middot; {{ __('Zotero, Pandoc') }}</a></li>
+                <li><a class="dropdown-item" href="{{ route('research.bibliography.export', ['id' => $bibliography->id, 'format' => 'bibtex']) }}">{{ __('BibTeX (.bib)') }} &middot; {{ __('LaTeX, JabRef') }}</a></li>
+                <li><a class="dropdown-item" href="{{ route('research.bibliography.export', ['id' => $bibliography->id, 'format' => 'ris']) }}">{{ __('RIS (.ris)') }} &middot; {{ __('EndNote, Zotero, Mendeley') }}</a></li>
+                <li><a class="dropdown-item" href="{{ route('research.bibliography.export', ['id' => $bibliography->id, 'format' => 'csljson']) }}">{{ __('CSL-JSON (.json)') }} &middot; {{ __('Zotero, Pandoc') }}</a></li>
             </ul>
         </div>
         <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editBibModal"><i class="fas fa-edit"></i></button>

@@ -71,7 +71,7 @@
                 <div class="flex-grow-1">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <strong>{{ e($a->title ?? ucfirst(str_replace('_', ' ', $a->type ?? 'Activity'))) }}</strong>
+                            <strong>{{ e($a->title ?? ucfirst(str_replace('_', ' ', $a->type ?? __('Activity')))) }}</strong>
                             @if($a->researcher_name ?? null)
                                 <br><small class="text-muted"><i class="fas fa-user me-1"></i>{{ e($a->researcher_name) }}</small>
                             @endif

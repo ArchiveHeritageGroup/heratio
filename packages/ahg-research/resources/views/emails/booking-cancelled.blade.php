@@ -7,7 +7,7 @@
 <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #222;">
     <h2 style="color: #dc2626;">{{ __('Booking cancelled') }}</h2>
 
-    <p>Hello {{ trim(($booking->first_name ?? '') . ' ' . ($booking->last_name ?? '')) ?: 'Researcher' }},</p>
+    <p>{{ __('Hello :name,', ['name' => trim(($booking->first_name ?? '') . ' ' . ($booking->last_name ?? '')) ?: __('Researcher')]) }}</p>
 
     <p>{{ __('Your reading-room booking has been cancelled.') }}</p>
 
@@ -23,6 +23,6 @@
 
     <p>{{ __('You are welcome to make a new booking at any time.') }}</p>
 
-    <p style="color: #888; font-size: 12px; margin-top: 30px;">Sent by {{ config('app.name', 'Heratio') }}.</p>
+    <p style="color: #888; font-size: 12px; margin-top: 30px;">{{ __('Sent by :app.', ['app' => config('app.name', 'Heratio')]) }}</p>
 </body>
 </html>

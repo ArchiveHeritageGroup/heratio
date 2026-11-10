@@ -21,7 +21,7 @@
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.writing.index', $project->id) }}">{{ __('Writing Studio') }}</a></li>
-        <li class="breadcrumb-item active">{{ e(\Illuminate\Support\Str::limit($doc->title ?? 'Document', 60)) }}</li>
+        <li class="breadcrumb-item active">{{ e(\Illuminate\Support\Str::limit($doc->title ?? __('Document'), 60)) }}</li>
     </ol>
 </nav>
 

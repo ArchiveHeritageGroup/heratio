@@ -66,7 +66,7 @@
             @if($entry->related_entity_type ?? null)
             <div class="mb-3">
                 <small class="text-muted">
-                    <i class="fas fa-link me-1"></i>Related: {{ ucfirst(str_replace('_', ' ', $entry->related_entity_type)) }} #{{ $entry->related_entity_id }}
+                    <i class="fas fa-link me-1"></i>{{ __('Related: :type #:id', ['type' => ucfirst(str_replace('_', ' ', $entry->related_entity_type)), 'id' => $entry->related_entity_id]) }}
                 </small>
             </div>
             @endif

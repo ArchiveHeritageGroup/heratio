@@ -77,7 +77,7 @@
                             {{ date('M j, Y', strtotime($project->start_date)) }}
                             @if($project->expected_end_date) - {{ date('M j, Y', strtotime($project->expected_end_date)) }}@endif
                         @else
-                            Not specified
+                            {{ __('Not specified') }}
                         @endif
                     </div>
                 </div>
@@ -130,7 +130,7 @@
                     <div class="list-group-item d-flex justify-content-between align-items-start">
                         <div class="flex-grow-1">
                             <span class="{{ ($m->status ?? '') === 'completed' ? 'text-decoration-line-through text-muted' : '' }}">
-                                {{ e($m->title ?? 'Milestone') }}
+                                {{ e($m->title ?? __('Milestone')) }}
                             </span>
                             @if($m->due_date ?? null)
                                 <small class="text-muted ms-2"><i class="fas fa-calendar-alt fa-xs"></i> {{ date('M j, Y', strtotime($m->due_date)) }}</small>
@@ -387,7 +387,7 @@
             <div class="list-group list-group-flush">
                 <a href="{{ route('research.studio', $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-flask me-2 text-info"></i>{{ __('Studio') }}</a>
                 <a href="{{ route('research.collabPanel', $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-users me-2 text-primary"></i>{{ __('Live Collaboration') }}</a>
-                <a href="{{ route('research.reports', ['project_id' => $project->id]) }}" class="list-group-item list-group-item-action"><i class="fas fa-file-alt me-2 text-dark"></i>Reports ({{ count($reports ?? []) }})</a>
+                <a href="{{ route('research.reports', ['project_id' => $project->id]) }}" class="list-group-item list-group-item-action"><i class="fas fa-file-alt me-2 text-dark"></i>{{ __('Reports (:count)', ['count' => count($reports ?? [])]) }}</a>
                 <a href="{{ url('/research/ro-crate/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-box me-2 text-primary"></i>{{ __('RO-Crate Package') }}</a>
                 <a href="{{ url('/research/reproducibility/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-redo me-2 text-info"></i>{{ __('Reproducibility Pack') }}</a>
                 <a href="{{ url('/research/doi/' . $project->id) }}" class="list-group-item list-group-item-action"><i class="fas fa-link me-2 text-success"></i>{{ __('DOI Minting') }}</a>
@@ -470,7 +470,7 @@
         <input type="hidden" name="form_action" value="create">
         <input type="hidden" name="project_id" value="{{ $project->id }}">
         <input type="hidden" name="template_type" id="projectReportTemplate" value="custom">
-        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-file-alt me-2"></i>New Report for {{ e($project->title) }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-header"><h5 class="modal-title"><i class="fas fa-file-alt me-2"></i>{{ __('New Report for :title', ['title' => $project->title]) }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
         <div class="modal-body">
             <div class="mb-3"><label class="form-label">{{ __('Title *') }}</label><input type="text" name="title" class="form-control" required placeholder="{{ __('Report title...') }}"></div>
             <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" class="form-control" rows="2"></textarea></div>

@@ -42,8 +42,8 @@
                         @if($type->description)<br><small class="text-muted">{{ e(\Illuminate\Support\Str::limit($type->description, 50)) }}</small>@endif
                     </td>
                     <td><code>{{ $type->code }}</code></td>
-                    <td>{{ $type->max_booking_days_advance ?? 14 }} days</td>
-                    <td>{{ $type->max_booking_hours_per_day ?? 4 }} hrs</td>
+                    <td>{{ __(':count days', ['count' => $type->max_booking_days_advance ?? 14]) }}</td>
+                    <td>{{ __(':count hrs', ['count' => $type->max_booking_hours_per_day ?? 4]) }}</td>
                     <td>{{ $type->max_materials_per_booking ?? 10 }}</td>
                     <td>{!! ($type->auto_approve ?? 0) ? '<span class="badge bg-success">' . e(__('Yes')) . '</span>' : '<span class="badge bg-secondary">' . e(__('No')) . '</span>' !!}</td>
                     <td>{!! ($type->is_active ?? 1) ? '<span class="badge bg-success">' . e(__('Active')) . '</span>' : '<span class="badge bg-danger">' . e(__('Inactive')) . '</span>' !!}</td>

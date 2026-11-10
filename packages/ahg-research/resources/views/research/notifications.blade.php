@@ -49,7 +49,7 @@
     </li>
     <li class="nav-item">
         <a class="nav-link {{ $currentTab === 'unread' ? 'active' : '' }}" href="{{ route('research.notifications', ['tab' => 'unread']) }}">
-            Unread @if($unreadCount > 0)<span class="badge bg-danger ms-1">{{ $unreadCount }}</span>@endif
+            {{ __('Unread') }} @if($unreadCount > 0)<span class="badge bg-danger ms-1">{{ $unreadCount }}</span>@endif
         </a>
     </li>
     <li class="nav-item dropdown">

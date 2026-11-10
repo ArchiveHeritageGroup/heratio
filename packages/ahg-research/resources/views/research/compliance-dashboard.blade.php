@@ -43,7 +43,7 @@
                 @endphp
                 <i class="{{ $esIcon }} fa-2x mb-2"></i>
                 <h6>{{ __('Ethics Status') }}</h6>
-                <span class="badge bg-{{ match($ethicsStatus ?? '') { 'approved' => 'success', 'pending' => 'warning', 'rejected' => 'danger', default => 'secondary' } }}">{{ ucfirst($ethicsStatus ?? 'Unknown') }}</span>
+                <span class="badge bg-{{ match($ethicsStatus ?? '') { 'approved' => 'success', 'pending' => 'warning', 'rejected' => 'danger', default => 'secondary' } }}">{{ ucfirst($ethicsStatus ?? __('Unknown')) }}</span>
             </div>
         </div>
     </div>

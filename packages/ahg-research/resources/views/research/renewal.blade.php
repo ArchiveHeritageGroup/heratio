@@ -36,7 +36,7 @@
             <dd class="col-sm-8">
                 @if($researcher->expires_at ?? null)
                     @if(\Carbon\Carbon::parse($researcher->expires_at)->isPast())
-                        <span class="text-danger fw-bold">{{ \Carbon\Carbon::parse($researcher->expires_at)->format('j F Y') }} (Expired)</span>
+                        <span class="text-danger fw-bold">{{ __(':date (Expired)', ['date' => \Carbon\Carbon::parse($researcher->expires_at)->format('j F Y')]) }}</span>
                     @else
                         {{ \Carbon\Carbon::parse($researcher->expires_at)->format('j F Y') }}
                         <small class="text-muted">({{ \Carbon\Carbon::parse($researcher->expires_at)->diffForHumans() }})</small>

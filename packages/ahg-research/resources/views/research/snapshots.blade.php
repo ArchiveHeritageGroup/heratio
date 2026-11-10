@@ -32,7 +32,7 @@
         <tbody>
         @foreach($snapshots as $s)
             <tr>
-                <td><strong>{{ e($s->title ?? 'Untitled') }}</strong></td>
+                <td><strong>{{ e($s->title ?? __('Untitled')) }}</strong></td>
                 <td>{{ (int)($s->item_count ?? 0) }}</td>
                 <td><code class="small">{{ Str::limit($s->hash_sha256 ?? '', 12, '...') }}</code></td>
                 <td><span class="badge bg-{{ ($s->status ?? '') === 'active' ? 'success' : 'secondary' }}">{{ ucfirst($s->status ?? 'created') }}</span></td>

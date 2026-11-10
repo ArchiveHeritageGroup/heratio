@@ -78,7 +78,7 @@
 {{-- Snapshots (AtoM) --}}
 <div class="card mb-4">
     <div class="card-header d-flex justify-content-between">
-        <h5 class="mb-0">Snapshots ({{ count($snapshots ?? []) }})</h5>
+        <h5 class="mb-0">{{ __('Snapshots (:count)', ['count' => count($snapshots ?? [])]) }}</h5>
         <a href="{{ route('research.snapshots', $project->id) }}" class="btn btn-sm btn-outline-primary">{{ __('Manage') }}</a>
     </div>
     <div class="card-body">
@@ -89,7 +89,7 @@
                 <tbody>
                 @foreach($snapshots as $snap)
                     <tr>
-                        <td>{{ e($snap->title ?? 'Snapshot') }}</td>
+                        <td>{{ e($snap->title ?? __('Snapshot')) }}</td>
                         <td><small>{{ $snap->created_at ?? '' }}</small></td>
                         <td>{{ (int)($snap->item_count ?? 0) }}</td>
                     </tr>
@@ -105,7 +105,7 @@
 
 {{-- Search Queries (AtoM) --}}
 <div class="card mb-4">
-    <div class="card-header"><h5 class="mb-0">Search Queries ({{ count($searchQueries ?? []) }})</h5></div>
+    <div class="card-header"><h5 class="mb-0">{{ __('Search Queries (:count)', ['count' => count($searchQueries ?? [])]) }}</h5></div>
     <div class="card-body">
         @if(!empty($searchQueries))
         <ul class="list-group list-group-flush">
@@ -125,7 +125,7 @@
 {{-- Milestones (Heratio extra) --}}
 <div class="card mb-4">
     <div class="card-header d-flex justify-content-between">
-        <h5 class="mb-0">Milestones ({{ count($milestones ?? []) }})</h5>
+        <h5 class="mb-0">{{ __('Milestones (:count)', ['count' => count($milestones ?? [])]) }}</h5>
         <a href="{{ route('research.ethicsMilestones', $project->id) }}" class="btn btn-sm btn-outline-primary">{{ __('Manage') }}</a>
     </div>
     <ul class="list-group list-group-flush">
@@ -144,7 +144,7 @@
     {{-- Assertions (AtoM) --}}
     <div class="col-md-6">
         <div class="card mb-4">
-            <div class="card-header"><h5 class="mb-0">Assertions ({{ count($assertions ?? []) }})</h5></div>
+            <div class="card-header"><h5 class="mb-0">{{ __('Assertions (:count)', ['count' => count($assertions ?? [])]) }}</h5></div>
             <div class="card-body" style="max-height:300px; overflow:auto;">
                 @if(!empty($assertions))
                 <ul class="list-group list-group-flush">
@@ -168,7 +168,7 @@
     {{-- Extraction Jobs (AtoM) --}}
     <div class="col-md-6">
         <div class="card mb-4">
-            <div class="card-header"><h5 class="mb-0">Extraction Jobs ({{ count($extractionJobs ?? []) }})</h5></div>
+            <div class="card-header"><h5 class="mb-0">{{ __('Extraction Jobs (:count)', ['count' => count($extractionJobs ?? [])]) }}</h5></div>
             <div class="card-body" style="max-height:300px; overflow:auto;">
                 @if(!empty($extractionJobs))
                 <ul class="list-group list-group-flush">
@@ -191,7 +191,7 @@
 
 {{-- Resources (Heratio extra) --}}
 <div class="card mb-4">
-    <div class="card-header"><h5 class="mb-0">Resources ({{ count($resources ?? []) }})</h5></div>
+    <div class="card-header"><h5 class="mb-0">{{ __('Resources (:count)', ['count' => count($resources ?? [])]) }}</h5></div>
     <ul class="list-group list-group-flush">
         @forelse($resources ?? [] as $r)
         <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -212,7 +212,7 @@
 
 {{-- Hypotheses (Heratio extra) --}}
 <div class="card mb-4">
-    <div class="card-header"><h5 class="mb-0">Hypotheses ({{ count($hypotheses ?? []) }})</h5></div>
+    <div class="card-header"><h5 class="mb-0">{{ __('Hypotheses (:count)', ['count' => count($hypotheses ?? [])]) }}</h5></div>
     <ul class="list-group list-group-flush">
         @forelse($hypotheses ?? [] as $h)
         <li class="list-group-item d-flex justify-content-between align-items-center">

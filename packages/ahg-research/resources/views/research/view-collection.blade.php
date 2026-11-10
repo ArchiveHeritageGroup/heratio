@@ -40,11 +40,11 @@
         @if($collection->description)
           <p class="mb-2">{{ e($collection->description) }}</p>
         @endif
-        <small class="text-muted"><i class="fas fa-clock me-1"></i>Created: {{ date('M j, Y', strtotime($collection->created_at)) }}</small>
+        <small class="text-muted"><i class="fas fa-clock me-1"></i>{{ __('Created: :date', ['date' => date('M j, Y', strtotime($collection->created_at))]) }}</small>
       </div>
       <div class="col-md-4 text-md-end">
         <span class="badge bg-{{ ($collection->is_public ?? false) ? 'success' : 'secondary' }} me-2">{{ ($collection->is_public ?? false) ? 'Public' : 'Private' }}</span>
-        <span class="badge bg-primary">{{ count($collection->items ?? []) }} items</span>
+        <span class="badge bg-primary">{{ __(':count items', ['count' => count($collection->items ?? [])]) }}</span>
       </div>
     </div>
   </div>
@@ -84,7 +84,7 @@
 
 {{-- Items Table --}}
 <div class="card">
-  <div class="card-header"><i class="fas fa-list me-2"></i>Evidence Set Items ({{ count($collection->items ?? []) }})</div>
+  <div class="card-header"><i class="fas fa-list me-2"></i>{{ __('Evidence Set Items (:count)', ['count' => count($collection->items ?? [])]) }}</div>
   @if(count($collection->items ?? []) > 0)
   <div class="table-responsive">
     <table class="table table-hover mb-0">
@@ -101,7 +101,7 @@
       @foreach($collection->items as $item)
         <tr>
           <td>
-            <a href="{{ url('/' . ($item->object_slug ?? $item->slug ?? '')) }}">{{ e($item->object_title ?? $item->title ?? 'Untitled') }}</a>
+            <a href="{{ url('/' . ($item->object_slug ?? $item->slug ?? '')) }}">{{ e($item->object_title ?? $item->title ?? __('Untitled')) }}</a>
             @if($item->identifier ?? false)
               <br><small class="text-muted">{{ e($item->identifier) }}</small>
             @endif
@@ -111,7 +111,7 @@
             <div class="notes-cell"
                  data-id="{{ $item->object_id ?? $item->id }}"
                  data-notes="{{ e($item->notes ?? '') }}"
-                 data-title="{{ e($item->object_title ?? $item->title ?? 'Untitled') }}">
+                 data-title="{{ e($item->object_title ?? $item->title ?? __('Untitled')) }}">
               <span class="notes-text">{!! nl2br(e($item->notes ?: '-')) !!}</span>
             </div>
           </td>

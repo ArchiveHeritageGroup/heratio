@@ -11,7 +11,7 @@
 @endsection
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <span class="text-muted">{{ count($rooms) }} reading room(s)</span>
+    <span class="text-muted">{{ __(':count reading room(s)', ['count' => count($rooms)]) }}</span>
     <a href="{{ route('research.editRoom') }}" class="btn btn-primary">
         <i class="fas fa-plus me-1"></i>{{ __('Add Reading Room') }}
     </a>
@@ -38,7 +38,7 @@
                     @if(!empty($room->code))
                         <span><i class="fas fa-tag me-1"></i>{{ e($room->code) }}</span>
                     @endif
-                    <span><i class="fas fa-users me-1"></i>Capacity: {{ (int) ($room->capacity ?? 0) }}</span>
+                    <span><i class="fas fa-users me-1"></i>{{ __('Capacity: :capacity', ['capacity' => (int) ($room->capacity ?? 0)]) }}</span>
                 </div>
                 @if(!empty($room->location))
                     <div class="text-muted small mt-1">

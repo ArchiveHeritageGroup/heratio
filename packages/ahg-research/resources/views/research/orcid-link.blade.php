@@ -26,7 +26,7 @@
             {{ __('To Connect & Sync your Works, register your own free ORCID application and paste its Client ID + Secret below. This is optional - Fetch and Pull-profile already work without it.') }}
         </p>
         <ol class="small text-muted mb-3">
-            <li>{{ __('Go to') }} <a href="https://orcid.org/developer-tools" target="_blank">orcid.org/developer-tools</a> {{ __('and sign in.') }}</li>
+            <li>{!! __('Go to :link and sign in.', ['link' => '<a href="https://orcid.org/developer-tools" target="_blank">orcid.org/developer-tools</a>']) !!}</li>
             <li>{{ __('Register for the free public API. Set the redirect URI to exactly:') }}<br>
                 <code>{{ $orcidRedirectUri }}</code></li>
             <li>{{ __('Copy the Client ID + Client Secret it gives you into the fields below.') }}</li>
@@ -74,7 +74,7 @@
                 <dd class="col-sm-9">{{ ($link->last_profile_synced_at ?? null) ?: '-' }}</dd>
 
                 <dt class="col-sm-3">{{ __('Works synced') }}</dt>
-                <dd class="col-sm-9">{{ $link->last_synced_at ?: '-' }} @if($link->last_works_count !== null) <span class="badge bg-secondary ms-1">{{ $link->last_works_count }} works</span> @endif</dd>
+                <dd class="col-sm-9">{{ $link->last_synced_at ?: '-' }} @if($link->last_works_count !== null) <span class="badge bg-secondary ms-1">{{ __(':count works', ['count' => $link->last_works_count]) }}</span> @endif</dd>
 
                 @if($link->last_error)
                     <dt class="col-sm-3 text-danger">{{ __('Last error') }}</dt>

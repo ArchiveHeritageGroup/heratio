@@ -38,7 +38,7 @@
 
 {{-- Points table --}}
 <div class="card">
-    <div class="card-header"><h5 class="mb-0">Points ({{ count($points) }})</h5></div>
+    <div class="card-header"><h5 class="mb-0">{{ __('Points (:count)', ['count' => count($points)]) }}</h5></div>
     <div class="card-body">
         @if(empty($points))
             <p class="text-muted">{{ __('No map points yet.') }}</p>

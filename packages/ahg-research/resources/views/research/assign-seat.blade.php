@@ -41,7 +41,7 @@
                     <div class="mb-3">
                         <label class="form-label">{{ __('Select Seat') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <select name="seat_id" class="form-select" required>
-                            <option value="">-- Choose a seat --</option>
+                            <option value="">{{ __('-- Choose a seat --') }}</option>
                             @foreach($availableSeats ?? [] as $seat)
                                 <option value="{{ $seat->id }}">{{ e($seat->label ?? 'Seat #' . $seat->id) }} ({{ e($seat->equipment_type ?? 'standard') }})</option>
                             @endforeach

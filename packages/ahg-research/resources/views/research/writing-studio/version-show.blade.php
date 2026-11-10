@@ -13,7 +13,7 @@
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.viewProject', $project->id ?? 0) }}">{{ e($project->title ?? '') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.writing.index', $project->id) }}">{{ __('Writing Studio') }}</a></li>
-        <li class="breadcrumb-item"><a href="{{ route('research.writing.edit', [$project->id, $doc->id]) }}">{{ e(\Illuminate\Support\Str::limit($doc->title ?? 'Document', 50)) }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('research.writing.edit', [$project->id, $doc->id]) }}">{{ e(\Illuminate\Support\Str::limit($doc->title ?? __('Document'), 50)) }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.writing.versions', [$project->id, $doc->id]) }}">{{ __('Versions') }}</a></li>
         <li class="breadcrumb-item active">v{{ $version->version_no ?? '' }}</li>
     </ol>
