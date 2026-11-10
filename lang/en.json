@@ -10454,6 +10454,7 @@
     "Invalid code. Re-scan the QR code and enter the current code from your authenticator app.": "Invalid code. Re-scan the QR code and enter the current code from your authenticator app.",
     "Invalid end date": "Invalid end date",
     "Invalid export options.": "Invalid export options.",
+    "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).",
     "Invalid or expired code. Try again, or resend a fresh code.": "Invalid or expired code. Try again, or resend a fresh code.",
     "Invalid or expired verification code.": "Invalid or expired verification code.",
     "Invalid response from server": "Invalid response from server",
