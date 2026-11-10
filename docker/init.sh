@@ -190,6 +190,9 @@ echo "[init] running migrations"
 php artisan migrate --force --no-interaction 2>&1 | tail -3 || true
 echo "[init] building closure tables"
 php artisan ahg:build-closure --all 2>&1 | tail -3 || true
+# heratio#1598: write fuseki_sync_enabled only when missing - on if Fuseki
+# answers, off if not - so a stack without Fuseki does not fail nightly RiC jobs.
+php artisan ahg:ric:fuseki-sync-default --no-interaction 2>&1 | tail -1 || true
 
 # ─── Stage 11: Elasticsearch indices ─────────────────────────────────────────
 if [ -n "${ELASTICSEARCH_HOST:-}" ]; then

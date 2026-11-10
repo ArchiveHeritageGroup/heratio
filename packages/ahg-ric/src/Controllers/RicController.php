@@ -32,6 +32,7 @@ use AhgRic\Services\RelationshipService;
 use AhgRic\Services\RicSerializationService;
 use AhgRic\Services\ShaclValidationService;
 use AhgRic\Support\RicDisclosure;
+use AhgRic\Support\FusekiEndpoint;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -573,40 +574,15 @@ class RicController extends Controller
             $reasons[] = "Sync script missing or not executable: {$script}";
         }
 
-        $fusekiUrl     = config('ahg-ric.fuseki.url');
-        $fusekiDataset = config('ahg-ric.fuseki.dataset');
-        $fusekiUser    = config('ahg-ric.fuseki.user');
-        $fusekiPass    = config('ahg-ric.fuseki.pass');
-
-        // #1421 (bug 1): the rest of the package reads its Fuseki config from
-        // ahg_settings (group 'fuseki', key fuseki_endpoint) via getFusekiConfig(),
-        // but this readiness check only consulted the .env-backed config - so the
-        // dashboard reported "Sync not configured: RIC_FUSEKI_URL is not set"
-        // even while the settings-configured endpoint was live and actively
-        // syncing. Fall back to the settings when .env is empty so the status
-        // reflects the same source everything else uses. fuseki_endpoint is a
-        // full dataset URL (http://host:port/<dataset>); split it into the base
-        // URL + dataset the shell runner expects.
-        if (empty($fusekiUrl) || empty($fusekiDataset)) {
-            $settings = $this->getFusekiConfig();
-            $endpoint = trim((string) ($settings['fuseki_endpoint'] ?? ''));
-            if ($endpoint !== '') {
-                $parts = parse_url($endpoint);
-                if (empty($fusekiUrl) && ! empty($parts['host'])) {
-                    $fusekiUrl = ($parts['scheme'] ?? 'http') . '://' . $parts['host']
-                        . (isset($parts['port']) ? ':' . $parts['port'] : '');
-                }
-                if (empty($fusekiDataset)) {
-                    $fusekiDataset = trim((string) ($parts['path'] ?? ''), '/') ?: $fusekiDataset;
-                }
-            }
-            if (empty($fusekiUser)) {
-                $fusekiUser = $settings['fuseki_username'] ?? $fusekiUser;
-            }
-            if (empty($fusekiPass) && ! empty($settings['fuseki_password'])) {
-                $fusekiPass = SecretCrypto::reveal($settings['fuseki_password']);
-            }
-        }
+        // Endpoint resolution (.env first, RiC settings as fallback, #1421)
+        // lives in FusekiEndpoint so the install-time default command uses
+        // exactly the same rules.
+        $endpoint      = app(FusekiEndpoint::class);
+        $fuseki        = $endpoint->resolve();
+        $fusekiUrl     = $fuseki['url'];
+        $fusekiDataset = $fuseki['dataset'];
+        $fusekiUser    = $fuseki['user'];
+        $fusekiPass    = $fuseki['pass'];
 
         if (empty($fusekiUrl)) {
             $reasons[] = 'Fuseki URL is not set (RIC_FUSEKI_URL in .env, or fuseki_endpoint in RiC settings).';
@@ -616,7 +592,7 @@ class RicController extends Controller
         }
 
         if (empty($reasons) && !empty($fusekiUrl)) {
-            if (!$this->fusekiReachable($fusekiUrl)) {
+            if (! $endpoint->reachable($fusekiUrl)) {
                 $reasons[] = "Fuseki not reachable at {$fusekiUrl}.";
             }
         }
@@ -638,25 +614,6 @@ class RicController extends Controller
                 'instance_id'    => config('ahg-ric.instance_id', 'heratio'),
             ],
         ];
-    }
-
-    /**
-     * Best-effort Fuseki ping - 1-second timeout, accept 200 or 401.
-     */
-    private function fusekiReachable(string $baseUrl): bool
-    {
-        $pingUrl = rtrim($baseUrl, '/') . '/$/ping';
-        $ch = curl_init($pingUrl);
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_NOBODY         => true,
-            CURLOPT_CONNECTTIMEOUT => 1,
-            CURLOPT_TIMEOUT        => 1,
-        ]);
-        curl_exec($ch);
-        $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        return in_array($code, [200, 401], true);
     }
 
     /**

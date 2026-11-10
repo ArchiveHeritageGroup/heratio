@@ -524,6 +524,11 @@ php artisan migrate --force && ok "migrations applied" || warn "some migrations 
 # them on a fresh install (no self-rows for the term root 110 or the
 # description root 1), so a move under a root attached to nothing.
 php artisan ahg:build-closure --all && ok "closure tables built" || warn "closure build reported errors - rerun 'php artisan ahg:build-closure --all'"
+# heratio#1598: RiC sync to Fuseki is on when no setting row exists, so an
+# install without Fuseki failed the nightly orphan cleanup. Write the row only
+# when it is missing - on if Fuseki answers, off if not. Existing rows (and so
+# updates of existing installs) are left alone.
+php artisan ahg:ric:fuseki-sync-default && ok "RiC sync default set" || warn "could not set the RiC sync default - run 'php artisan ahg:ric:fuseki-sync-default'"
 
 # ============================================================================
 # 10. Storage paths
