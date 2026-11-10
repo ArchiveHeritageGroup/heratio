@@ -24387,5 +24387,10 @@
     "not linked yet": "još nije povezan",
     "pages.": "stranice.",
     "proposed": "predloženo",
-    "reviewed by": "pregledano od strane"
+    "reviewed by": "pregledano od strane",
+    ":count with digital objects": ":count s digitalnih objekata",
+    ":count/page": ":count/stranica",
+    "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": "Pogrešan kod jezika. Koristite 2-3 slova za kod jezika, opcionalno s područjem ili varijantom (npr. fr, pt_BR, ca@valencia).",
+    "No queue items": "Nema stavki u redu",
+    "Showing :count results": "Prikazuje se :count rezultata"
 }

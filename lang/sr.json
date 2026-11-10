@@ -24195,5 +24195,9 @@
     "not linked yet": "још не везан",
     "pages.": "страница.",
     "proposed": "предложено",
-    "reviewed by": "прегледано од стране"
+    "reviewed by": "прегледано од стране",
+    ":count with digital objects": ":count са цифраним објектима",
+    "Condition (Spectrum 5.1)": "Стање (Spectrum 5.1)",
+    "No queue items": "Нема ставки у реду",
+    "Showing :count results": "Показује :count резултата"
 }

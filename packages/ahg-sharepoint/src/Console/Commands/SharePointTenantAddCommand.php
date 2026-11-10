@@ -41,10 +41,21 @@ class SharePointTenantAddCommand extends Command
             return self::FAILURE;
         }
 
-        $id = $tenants->create([
-            'name' => $name, 'tenant_id' => strtolower($tenantId), 'client_id' => strtolower($clientId),
-            'client_secret_ref' => 'pending', 'webhook_client_state' => Str::random(40), 'status' => 'active',
-        ]);
+        // The same app registration again (a re-run, or one cut short before its
+        // secret was stored): update that tenant instead of failing on the
+        // unique tenant+client key.
+        $existing = \Illuminate\Support\Facades\DB::table('sharepoint_tenant')
+            ->where('tenant_id', strtolower($tenantId))->where('client_id', strtolower($clientId))->value('id');
+        if ($existing) {
+            $id = (int) $existing;
+            $tenants->update($id, ['name' => $name, 'status' => 'active', 'last_error' => null]);
+            $this->line("Tenant {$id} already registered for this app; updating it.");
+        } else {
+            $id = $tenants->create([
+                'name' => $name, 'tenant_id' => strtolower($tenantId), 'client_id' => strtolower($clientId),
+                'client_secret_ref' => 'pending', 'webhook_client_state' => Str::random(40), 'status' => 'active',
+            ]);
+        }
         $tenants->persistSecret($id, $secret);
         unset($secret);
         $this->info("Tenant {$id} saved; the secret is stored encrypted.");

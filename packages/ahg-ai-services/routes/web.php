@@ -34,10 +34,32 @@ Route::middleware(['auth', 'admin'])->prefix('admin/ai')->group(function () {
     Route::post('/document-fields/{slug}', function (string $slug) {
         $id = (int) DB::table('slug')->where('slug', $slug)->value('object_id');
         abort_if($id <= 0, 404);
-        $r = app(\AhgAiServices\Services\DocumentFieldExtractor::class)->extract($id, auth()->id());
+        $x = app(\AhgAiServices\Services\DocumentFieldExtractor::class);
+        $r = $x->extract($id, auth()->id());
+        $msg = $r['error'] ?? __(':n field(s) read from the document and kept; :d not found in its text and dropped.', ['n' => $r['saved'], 'd' => count($r['dropped'])]);
 
-        return redirect()->route('admin.ai.document-fields', $slug)->with($r['error'] ?? false ? 'error' : 'success',
-            $r['error'] ?? __(':n field(s) read from the document and kept; :d not found in its text and dropped.', ['n' => $r['saved'], 'd' => count($r['dropped'])]))
+        // A document captured from SharePoint gets its fields back in the library's columns.
+        $sp = null;
+        if (! isset($r['error']) && class_exists(\AhgSharePoint\Services\SharePointWriteBackService::class)) {
+            try {
+                $wb = app(\AhgSharePoint\Services\SharePointWriteBackService::class);
+                if ($wb->locate($id)) {
+                    $m = $x->match($id);
+                    $matchText = match ($m['status']) {
+                        'matched' => 'Matches '.$m['po_number'].' ('.$m['invoice_total'].')',
+                        'totals_differ' => 'Differs from '.$m['po_number'].': invoice '.$m['invoice_total'].', order '.$m['po_total'],
+                        'po_not_found' => $m['po_number'].' not found',
+                        default => null,
+                    };
+                    $written = $wb->writeFields($id, $r['fields'], $matchText);
+                    $sp = $written ? __('Written back to SharePoint: :cols.', ['cols' => implode(', ', array_keys($written))]) : null;
+                }
+            } catch (\Throwable $e) {
+                $sp = __('SharePoint write-back failed: :e', ['e' => substr($e->getMessage(), 0, 200)]);
+            }
+        }
+
+        return redirect()->route('admin.ai.document-fields', $slug)->with(isset($r['error']) ? 'error' : 'success', $msg.($sp ? ' '.$sp : ''))
             ->with('dropped', $r['dropped'] ?? []);
     })->name('admin.ai.document-fields.extract');
 

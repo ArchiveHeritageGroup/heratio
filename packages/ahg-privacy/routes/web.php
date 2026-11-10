@@ -158,7 +158,21 @@ Route::post('/privacy/redaction/{slug}/suggest-pii', function (string $slug) {
         return back()->with('error', __($r['error']));
     }
 
-    return back()->with('success', __(':found item(s) of personal information found:pdf; :added new redaction region(s) added. They are blacked out for visitors now; review them below.', [
+    $msg = __(':found item(s) of personal information found:pdf; :added new redaction region(s) added. They are blacked out for visitors now; review them below.', [
         'found' => $r['findings'], 'added' => $r['added'], 'pdf' => $r['ocr'] ? ' '.__('(read by OCR)') : '',
-    ]));
+    ]);
+    // A document captured from SharePoint gets its redacted copy back in the library.
+    if (class_exists(\AhgSharePoint\Services\SharePointWriteBackService::class)) {
+        try {
+            $wb = app(\AhgSharePoint\Services\SharePointWriteBackService::class);
+            if ($wb->locate($id) && ($out = app(\AhgInformationObjectManage\Services\RedactionRenderService::class)->render($id))) {
+                $wb->uploadRedacted($id, $out);
+                $msg .= ' '.__('The redacted copy was saved to SharePoint (:folder).', ['folder' => \AhgSharePoint\Services\SharePointWriteBackService::REDACTED_FOLDER]);
+            }
+        } catch (\Throwable $e) {
+            $msg .= ' '.__('SharePoint upload failed: :e', ['e' => substr($e->getMessage(), 0, 200)]);
+        }
+    }
+
+    return back()->with('success', $msg);
 })->middleware(['auth', 'acl:update'])->name('privacy.redaction.suggest-pii');

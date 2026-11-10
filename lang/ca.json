@@ -24265,5 +24265,10 @@
     "not linked yet": "encara no enllaçat",
     "pages.": "pàgines.",
     "proposed": "proposat",
-    "reviewed by": "revisat per"
+    "reviewed by": "revisat per",
+    ":count with digital objects": ":count amb objectes digitals",
+    ":count/page": ":count/pàgina",
+    "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": "Codi de llengua invàlid. Utilitza un codi de llengua de 2-3 lletres, opcionalment amb una regió o variant (p. ex. fr, pt_BR, ca@valencia).",
+    "No queue items": "Sense elements a la cua",
+    "Showing :count results": "Mostrant :count resultats"
 }

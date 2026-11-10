@@ -24463,5 +24463,11 @@
     "not linked yet": "ekki tengt enn",
     "pages.": "síður.",
     "proposed": "fyrirbært",
-    "reviewed by": "skoðað af"
+    "reviewed by": "skoðað af",
+    ":count with digital objects": ":count með digitalum hlutum",
+    ":count/page": ":count/síða",
+    "Invalid language code. Use a 2-3 letter language code, optionally with a region or variant (e.g. fr, pt_BR, ca@valencia).": "Ógild tungumálskóða. Notaðu 2-3 stafi tungumálskóða, tilvikið með landi eða variant (t.d. fr, pt_BR, ca@valencia).",
+    "No queue items": "Engin reynslaaflokkur",
+    "Showing :count results": "Sýna :count niðurstöður",
+    "The grid holds at most :n rows.": "Gridinn er að minnstaðar :n röða."
 }

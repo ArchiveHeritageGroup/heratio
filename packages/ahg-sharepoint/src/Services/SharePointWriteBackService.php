@@ -38,6 +38,16 @@ class SharePointWriteBackService
     /** @return array{tenant:int, site:string, drive:string, item:string}|null */
     public function locate(int $ioId): ?array
     {
+        // A file captured by sync or a webhook: its event names the drive, the
+        // item and the record it created.
+        $ev = DB::table('sharepoint_event as e')->join('sharepoint_drive as d', 'd.id', '=', 'e.drive_id')
+            ->where('e.information_object_id', $ioId)->whereNotNull('e.sp_item_id')->orderByDesc('e.id')
+            ->first(['d.tenant_id', 'd.site_id', 'd.drive_id', 'e.sp_item_id']);
+        if ($ev) {
+            return ['tenant' => (int) $ev->tenant_id, 'site' => $ev->site_id, 'drive' => $ev->drive_id, 'item' => (string) $ev->sp_item_id];
+        }
+
+        // A file captured by an auto-ingest rule: the ingest row holds the item.
         $row = DB::table('ingest_row as r')->join('ingest_session as s', 's.id', '=', 'r.session_id')
             ->where('r.created_atom_id', $ioId)->orderByDesc('r.id')->first(['r.data', 's.source_metadata']);
         if (! $row) {
