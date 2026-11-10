@@ -416,41 +416,32 @@
         <div id="access-collapse" class="accordion-collapse collapse" aria-labelledby="access-heading">
           <div class="accordion-body">
 
-            {{-- Subject access points --}}
-            <div class="mb-3">
-              <label class="form-label">{{ __('Subject access points') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-              <div id="subject-ap-list"></div>
-              <div class="input-group input-group-sm mt-1">
-                <input type="text" class="form-control" data-taxonomy="35" data-target="subject-ap-list" data-name="subjectAccessPointIds[]" placeholder="{{ __('Type to add subject...') }}" autocomplete="off">
-              </div>
-            </div>
-
-            {{-- Place access points --}}
-            <div class="mb-3">
-              <label class="form-label">{{ __('Place access points') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-              <div id="place-ap-list"></div>
-              <div class="input-group input-group-sm mt-1">
-                <input type="text" class="form-control" data-taxonomy="42" data-target="place-ap-list" data-name="placeAccessPointIds[]" placeholder="{{ __('Type to add place...') }}" autocomplete="off">
-              </div>
-            </div>
-
-            {{-- Genre access points --}}
-            <div class="mb-3">
-              <label class="form-label">{{ __('Genre access points') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-              <div id="genre-ap-list"></div>
-              <div class="input-group input-group-sm mt-1">
-                <input type="text" class="form-control" data-taxonomy="78" data-target="genre-ap-list" data-name="genreAccessPointIds[]" placeholder="{{ __('Type to add genre...') }}" autocomplete="off">
-              </div>
-            </div>
-
-            {{-- Name access points (subjects) --}}
-            <div class="mb-3">
-              <label class="form-label">{{ __('Name access points (subjects)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-              <div id="name-ap-list"></div>
-              <div class="input-group input-group-sm mt-1">
-                <input type="text" class="form-control" data-target="name-ap-list" placeholder="{{ __('Type to add name...') }}" autocomplete="off">
-              </div>
-            </div>
+            {{-- Access points: the same autocomplete as the edit form. These boxes
+                 had no script and store() never saved them (10 Nov 2026). --}}
+            @foreach([
+                ['subjectAccessPoints', 'Subject access points', 'term.autocomplete', __('Type a subject and press Enter (or click off) to add - picks from the list also create a new row...'), 'subjectAccessPoint', 35],
+                ['placeAccessPoints', 'Place access points', 'term.autocomplete', __('Type a place and press Enter (or click off) to add - picks from the list also create a new row...'), 'placeAccessPoint', 42],
+                ['genreAccessPoints', 'Genre access points', 'term.autocomplete', __('Type a genre and press Enter (or click off) to add - picks from the list also create a new row...'), 'genreAccessPoint', 78],
+                ['nameAccessPoints', 'Name access points (subjects)', 'actor.autocomplete', __('Type a name and press Enter (or click off) to add - picks from the list also create a new row...'), 'nameAccessPoint', null],
+              ] as [$__apName, $__apLabel, $__apRoute, $__apPlaceholder, $__apField, $__apTaxonomy])
+              @include('ahg-core::components.autocomplete', [
+                  'name'          => $__apName,
+                  'label'         => $__apLabel,
+                  'route'         => $__apRoute,
+                  'placeholder'   => $__apPlaceholder,
+                  'required'      => false,
+                  'idField'       => 'id',
+                  'nameField'     => 'name',
+                  'multi'         => true,
+                  'multiName'     => $__apField.'Ids[]',
+                  'rowsLayout'    => true,
+                  'freeText'      => true,
+                  'freeTextName'  => $__apField.'Names[]',
+                  'existingItems' => [],
+                  'inputClass'    => 'form-control-sm',
+                  'extraParams'   => $__apTaxonomy ? ['taxonomy_id' => $__apTaxonomy] : [],
+              ])
+            @endforeach
 
           </div>
         </div>

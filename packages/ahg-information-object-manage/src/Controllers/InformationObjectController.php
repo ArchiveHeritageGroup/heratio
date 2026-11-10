@@ -2128,6 +2128,105 @@ class InformationObjectController extends Controller
      * Show the create form for a new information object.
      */
     /**
+     * Subject, place and genre access points (term-based) and name access points
+     * (relation type 161), from the autocomplete fields: <name>Ids[] for picks,
+     * <name>Names[] for free text (find-or-create). Shared by store() and update().
+     */
+    private function saveAccessPoints(Request $request, int $ioId, string $culture): void
+    {
+        // ---- Subject / Place / Genre access points (term-based) ----
+        // Each section reads two arrays: <name>Ids[] for picks from the
+        // autocomplete dropdown, and <name>Names[] for free-text entries that
+        // should be created as new terms in the right taxonomy. Find-or-create
+        // dedupes on (taxonomy_id, lower(name)) so re-typing an existing label
+        // doesn't spawn a duplicate.
+        $taxonomyAP = [
+            35 => ['idsKey' => 'subjectAccessPointIds', 'namesKey' => 'subjectAccessPointNames'],
+            42 => ['idsKey' => 'placeAccessPointIds',   'namesKey' => 'placeAccessPointNames'],
+            78 => ['idsKey' => 'genreAccessPointIds',   'namesKey' => 'genreAccessPointNames'],
+        ];
+        foreach ($taxonomyAP as $taxonomyId => $cfg) {
+            if (!$request->has($cfg['idsKey']) && !$request->has($cfg['namesKey'])) continue;
+
+            // Wipe existing object_term_relation rows for this IO in this taxonomy.
+            $oldRelIds = DB::table('object_term_relation')
+                ->where('object_id', $ioId)
+                ->whereIn('term_id', function ($q) use ($taxonomyId) {
+                    $q->select('id')->from('term')->where('taxonomy_id', $taxonomyId);
+                })
+                ->pluck('id')->toArray();
+            if (!empty($oldRelIds)) {
+                DB::table('object_term_relation')->whereIn('id', $oldRelIds)->delete();
+                DB::table('object')->whereIn('id', $oldRelIds)->delete();
+            }
+
+            // Build the unified set of term IDs to link (existing picks +
+            // find-or-create on free-text names).
+            $termIds = [];
+            foreach (array_filter((array) $request->input($cfg['idsKey'], [])) as $tid) {
+                $termIds[(int) $tid] = true;
+            }
+            foreach ((array) $request->input($cfg['namesKey'], []) as $name) {
+                $resolved = self::findOrCreateTerm((string) $name, $taxonomyId, $culture);
+                if ($resolved > 0) $termIds[$resolved] = true;
+            }
+
+            foreach (array_keys($termIds) as $tid) {
+                $relId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitObjectTermRelation',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('object_term_relation')->insert([
+                    'id'        => $relId,
+                    'object_id' => $ioId,
+                    'term_id'   => $tid,
+                ]);
+            }
+        }
+
+        // ---- Name access points (relation type 161) ----
+        // nameAccessPointIds[] = actor IDs picked from the dropdown.
+        // nameAccessPointNames[] = free-text names; each becomes an actor
+        // via find-or-create, then linked.
+        if ($request->has('nameAccessPointIds') || $request->has('nameAccessPointNames')) {
+            // Drop existing outbound name access-point relations for this IO.
+            $oldRelIds = DB::table('relation')
+                ->where('subject_id', $ioId)
+                ->where('type_id', 161)
+                ->pluck('id')->toArray();
+            if (!empty($oldRelIds)) {
+                DB::table('relation')->whereIn('id', $oldRelIds)->delete();
+                DB::table('object')->whereIn('id', $oldRelIds)->delete();
+            }
+
+            $actorIds = [];
+            foreach (array_filter((array) $request->input('nameAccessPointIds', [])) as $aid) {
+                $actorIds[(int) $aid] = true;
+            }
+            foreach ((array) $request->input('nameAccessPointNames', []) as $name) {
+                $resolved = self::findOrCreateActor((string) $name, $culture);
+                if ($resolved > 0) $actorIds[$resolved] = true;
+            }
+
+            foreach (array_keys($actorIds) as $aid) {
+                $relObjectId = DB::table('object')->insertGetId([
+                    'class_name' => 'QubitRelation',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                DB::table('relation')->insert([
+                    'id'             => $relObjectId,
+                    'subject_id'     => $ioId,
+                    'object_id'      => $aid,
+                    'type_id'        => 161,
+                    'source_culture' => $culture,
+                ]);
+            }
+        }
+    }
+
+    /**
      * Default values from the form template that resolves for a new description
      * (heratio#1537), keyed by the create form's input names: the field's
      * atom_field when set, else its field_name in snake_case (scopeAndContent
@@ -2628,56 +2727,7 @@ class InformationObjectController extends Controller
             }
         }
 
-        // ---- Subject / Place / Genre access points (term-based) ----
-        // Each section reads two arrays: <name>Ids[] for picks from the
-        // autocomplete dropdown, and <name>Names[] for free-text entries that
-        // should be created as new terms in the right taxonomy. Find-or-create
-        // dedupes on (taxonomy_id, lower(name)) so re-typing an existing label
-        // doesn't spawn a duplicate.
-        $taxonomyAP = [
-            35 => ['idsKey' => 'subjectAccessPointIds', 'namesKey' => 'subjectAccessPointNames'],
-            42 => ['idsKey' => 'placeAccessPointIds',   'namesKey' => 'placeAccessPointNames'],
-            78 => ['idsKey' => 'genreAccessPointIds',   'namesKey' => 'genreAccessPointNames'],
-        ];
-        foreach ($taxonomyAP as $taxonomyId => $cfg) {
-            if (!$request->has($cfg['idsKey']) && !$request->has($cfg['namesKey'])) continue;
-
-            // Wipe existing object_term_relation rows for this IO in this taxonomy.
-            $oldRelIds = DB::table('object_term_relation')
-                ->where('object_id', $ioId)
-                ->whereIn('term_id', function ($q) use ($taxonomyId) {
-                    $q->select('id')->from('term')->where('taxonomy_id', $taxonomyId);
-                })
-                ->pluck('id')->toArray();
-            if (!empty($oldRelIds)) {
-                DB::table('object_term_relation')->whereIn('id', $oldRelIds)->delete();
-                DB::table('object')->whereIn('id', $oldRelIds)->delete();
-            }
-
-            // Build the unified set of term IDs to link (existing picks +
-            // find-or-create on free-text names).
-            $termIds = [];
-            foreach (array_filter((array) $request->input($cfg['idsKey'], [])) as $tid) {
-                $termIds[(int) $tid] = true;
-            }
-            foreach ((array) $request->input($cfg['namesKey'], []) as $name) {
-                $resolved = self::findOrCreateTerm((string) $name, $taxonomyId, $culture);
-                if ($resolved > 0) $termIds[$resolved] = true;
-            }
-
-            foreach (array_keys($termIds) as $tid) {
-                $relId = DB::table('object')->insertGetId([
-                    'class_name' => 'QubitObjectTermRelation',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-                DB::table('object_term_relation')->insert([
-                    'id'        => $relId,
-                    'object_id' => $ioId,
-                    'term_id'   => $tid,
-                ]);
-            }
-        }
+        $this->saveAccessPoints($request, (int) $ioId, $culture);
 
         // ---- Alternative identifiers (property name = alternativeIdentifiers) ----
         if ($request->has('altIds')) {
@@ -2712,46 +2762,6 @@ class InformationObjectController extends Controller
                     'id'      => $propId,
                     'culture' => $culture,
                     'value'   => $value,
-                ]);
-            }
-        }
-
-        // ---- Name access points (relation type 161) ----
-        // nameAccessPointIds[] = actor IDs picked from the dropdown.
-        // nameAccessPointNames[] = free-text names; each becomes an actor
-        // via find-or-create, then linked.
-        if ($request->has('nameAccessPointIds') || $request->has('nameAccessPointNames')) {
-            // Drop existing outbound name access-point relations for this IO.
-            $oldRelIds = DB::table('relation')
-                ->where('subject_id', $ioId)
-                ->where('type_id', 161)
-                ->pluck('id')->toArray();
-            if (!empty($oldRelIds)) {
-                DB::table('relation')->whereIn('id', $oldRelIds)->delete();
-                DB::table('object')->whereIn('id', $oldRelIds)->delete();
-            }
-
-            $actorIds = [];
-            foreach (array_filter((array) $request->input('nameAccessPointIds', [])) as $aid) {
-                $actorIds[(int) $aid] = true;
-            }
-            foreach ((array) $request->input('nameAccessPointNames', []) as $name) {
-                $resolved = self::findOrCreateActor((string) $name, $culture);
-                if ($resolved > 0) $actorIds[$resolved] = true;
-            }
-
-            foreach (array_keys($actorIds) as $aid) {
-                $relObjectId = DB::table('object')->insertGetId([
-                    'class_name' => 'QubitRelation',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-                DB::table('relation')->insert([
-                    'id'             => $relObjectId,
-                    'subject_id'     => $ioId,
-                    'object_id'      => $aid,
-                    'type_id'        => 161,
-                    'source_culture' => $culture,
                 ]);
             }
         }
@@ -3429,6 +3439,10 @@ class InformationObjectController extends Controller
         }
 
         \AhgCore\Support\AuditLog::captureCreate((int) $objectId, 'information_object', \AhgInformationObjectManage\Services\InformationObjectService::auditSnapshot((int) $objectId, $culture));
+
+        // Access points on the add form were never saved (10 Nov 2026): the same
+        // code as Edit now runs here.
+        $this->saveAccessPoints($request, (int) $objectId, $culture);
 
         // #1425: if the operator picked a non-ISAD standard on the dynamic form,
         // overlay its standard-specific fields via that standard's persist().
