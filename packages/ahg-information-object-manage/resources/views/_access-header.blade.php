@@ -46,7 +46,7 @@ if (empty($access['classification']) && empty($access['restrictions']) && empty(
         @if(!empty($access['embargo']))
             <span class="badge bg-secondary">
                 <i class="fas fa-clock me-1"></i>
-                Embargoed until {{ date('M j, Y', strtotime($access['embargo']['end_date'])) }}
+                {{ __('Embargoed until :date', ['date' => date('M j, Y', strtotime($access['embargo']['end_date']))]) }}
             </span>
         @endif
 

@@ -1,11 +1,11 @@
 @extends('theme::layouts.1col')
-@section('title', 'Record Not Found')
+@section('title', __('Record Not Found'))
 @section('body-class', 'admin error')
 
 @section('content')
 <div class="alert alert-danger mb-4">
   <h4 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Record Not Found (404)') }}</h4>
-  <p>The URL <code>/{{ $diagnostics['slug'] }}</code> could not be resolved to a record.</p>
+  <p>{!! __('The URL :url could not be resolved to a record.', ['url' => '<code>/'.e($diagnostics['slug']).'</code>']) !!}</p>
 </div>
 
 @foreach($diagnostics['issues'] as $issue)
@@ -13,11 +13,11 @@
     <div class="card-header {{ $issue['type'] === 'missing_slugs' ? 'bg-warning text-dark' : 'bg-danger text-white' }}">
       <i class="fas fa-{{ $issue['type'] === 'missing_slugs' ? 'unlink' : 'times-circle' }} me-2"></i>
       @if($issue['type'] === 'missing_slugs')
-        Missing Slugs Detected
+        {{ __('Missing Slugs Detected') }}
       @elseif($issue['type'] === 'unknown_class')
-        Unknown Object Class
+        {{ __('Unknown Object Class') }}
       @else
-        Not Found
+        {{ __('Not Found') }}
       @endif
     </div>
     <div class="card-body">
@@ -69,7 +69,7 @@
 
 @if(empty($diagnostics['issues']))
   <div class="alert alert-info">
-    <i class="fas fa-info-circle me-2"></i>No specific issues detected. The slug <code>{{ $diagnostics['slug'] }}</code> simply does not exist in the database.
+    <i class="fas fa-info-circle me-2"></i>{!! __('No specific issues detected. The slug :slug simply does not exist in the database.', ['slug' => '<code>'.e($diagnostics['slug']).'</code>']) !!}
   </div>
 @endif
 

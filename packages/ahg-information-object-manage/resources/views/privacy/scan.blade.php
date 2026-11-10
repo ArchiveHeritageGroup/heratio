@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'PII Scan Results - ' . ($io->title ?? ''))
+@section('title', __('PII Scan Results - :title', ['title' => $io->title ?? '']))
 
 @section('content')
 <div class="container py-4">
@@ -20,7 +20,7 @@
       </h4>
       <p class="text-muted mb-0">
         {{ __('Personally Identifiable Information detected in') }}
-        <strong>{{ $io->title ?? 'Untitled' }}</strong>
+        <strong>{{ $io->title ?? __('Untitled') }}</strong>
       </p>
     </div>
     <div class="btn-group">

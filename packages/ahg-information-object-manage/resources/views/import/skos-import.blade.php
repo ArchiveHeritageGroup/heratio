@@ -36,7 +36,7 @@
             <div class="mb-3">
               <label class="form-label" for="taxonomy-select">{{ __('Taxonomy') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select class="form-select" name="taxonomy" id="taxonomy-select" required>
-                <option value="">-- Select a taxonomy --</option>
+                <option value="">{{ __('-- Select a taxonomy --') }}</option>
                 @foreach($taxonomies as $taxonomy)
                   <option value="{{ $taxonomy->id }}" {{ old('taxonomy') == $taxonomy->id ? 'selected' : '' }}>{{ $taxonomy->name }}</option>
                 @endforeach

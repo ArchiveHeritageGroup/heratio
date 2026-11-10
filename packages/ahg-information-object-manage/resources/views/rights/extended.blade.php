@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Edit Rights: ' . ($io->title ?? 'Untitled'))
+@section('title', __('Edit Rights: :title', ['title' => $io->title ?? __('Untitled')]))
 
 @push('styles')
 <link href="/vendor/ahg-theme-b5/css/vendor/tom-select.bootstrap5.min.css" rel="stylesheet">
@@ -8,7 +8,7 @@
 
 @section('content')
 
-<h1>Edit Rights: {{ $io->title ?? 'Untitled' }}</h1>
+<h1>{{ __('Edit Rights: :title', ['title' => $io->title ?? __('Untitled')]) }}</h1>
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-4">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ route('io.rights.extended', $io->slug) }}">{{ __('Extended Rights') }}</a></li>
@@ -33,7 +33,7 @@
         <div class="card-body">
           <label for="rights_statement_id" class="form-label">{{ __('Rights Statement') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="rights_statement_id" id="rights_statement_id" class="form-select">
-            <option value="">-- None --</option>
+            <option value="">{{ __('-- None --') }}</option>
             @foreach($rightsStatements ?? [] as $rs)
               <option value="{{ $rs->id }}"
                 @if(isset($currentRights->rights_statement) && $currentRights->rights_statement->rights_statement_id == $rs->id) selected @endif>
@@ -50,7 +50,7 @@
         <div class="card-body">
           <label for="cc_license_id" class="form-label">{{ __('Creative Commons License') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="cc_license_id" id="cc_license_id" class="form-select">
-            <option value="">-- None --</option>
+            <option value="">{{ __('-- None --') }}</option>
             @foreach($ccLicenses ?? [] as $cc)
               <option value="{{ $cc->id }}"
                 @if(isset($currentRights->cc_license) && $currentRights->cc_license->creative_commons_license_id == $cc->id) selected @endif>
@@ -67,7 +67,7 @@
         <div class="card-body">
           <label for="rights_holder_id" class="form-label">{{ __('Rights Holder') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="rights_holder_id" id="rights_holder_id" class="form-select" placeholder="{{ __('Type to search...') }}">
-            <option value="">-- None --</option>
+            <option value="">{{ __('-- None --') }}</option>
             @if(isset($donors) && count($donors) > 0)
               @php
                 $currentHolderId = isset($currentRights->rights_holder->donor_id) ? $currentRights->rights_holder->donor_id : null;
@@ -75,7 +75,7 @@
               @foreach($donors as $donor)
                 <option value="{{ $donor->id }}"
                   @if($currentHolderId == $donor->id) selected @endif>
-                  {{ $donor->name ?? 'Unknown' }}
+                  {{ $donor->name ?? __('Unknown') }}
                 </option>
               @endforeach
             @endif

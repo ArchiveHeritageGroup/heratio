@@ -10,13 +10,13 @@
 --}}
 @extends('theme::layouts.1col')
 
-@section('title', 'Edit ' . mb_strtolower(config('app.ui_label_digitalobject', 'digital object')) . ' - ' . ($ioTitle ?: 'Untitled'))
+@section('title', __('Edit :type - :title', ['type' => mb_strtolower(config('app.ui_label_digitalobject', 'digital object')), 'title' => $ioTitle ?: __('Untitled')]))
 
 @section('content')
 <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x {{ $mediaIcon }} me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-        <h1 class="mb-0">Edit {{ mb_strtolower(config('app.ui_label_digitalobject', 'digital object')) }}</h1>
+        <h1 class="mb-0">{{ __('Edit :type', ['type' => mb_strtolower(config('app.ui_label_digitalobject', 'digital object'))]) }}</h1>
         @if($ioTitle)
             <span class="small text-muted">{{ e($ioTitle) }}</span>
         @endif

@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Provenance Timeline - ' . ($io->title ?? ''))
+@section('title', __('Provenance Timeline - :title', ['title' => $io->title ?? '']))
 
 @section('content')
 <div class="container py-3">
@@ -106,7 +106,7 @@
   @else
   <div class="alert alert-info">
     <i class="bi bi-info-circle me-2"></i>
-    No provenance events have been recorded.
+    {{ __('No provenance events have been recorded.') }}
     @auth
     <a href="{{ route('io.provenance', $io->slug) }}" class="alert-link">{{ __('Add events') }}</a>
     @endauth

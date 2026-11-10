@@ -1,6 +1,6 @@
 @extends('theme::layout')
 
-@section('title', $reportTitle . ' - ' . ($io->title ?? 'Untitled'))
+@section('title', $reportTitle . ' - ' . ($io->title ?? __('Untitled')))
 
 @section('content')
 <div class="container-fluid py-3">
@@ -38,7 +38,7 @@
     <div class="col-md-9">
       <div class="multiline-header d-flex flex-column mb-3">
         <h1 class="mb-0">{{ $reportTitle }}</h1>
-        <span class="small text-muted">{{ $io->title ?? 'Untitled' }}</span>
+        <span class="small text-muted">{{ $io->title ?? __('Untitled') }}</span>
       </div>
 
       @if($type === 'fileList' || $type === 'itemList')
@@ -46,7 +46,7 @@
           <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
               <span>{{ $reportTitle }}</span>
-              <span class="badge bg-primary">{{ count($items) }} items</span>
+              <span class="badge bg-primary">{{ __(':count items', ['count' => count($items)]) }}</span>
             </div>
             <div class="table-responsive">
               <table class="table table-hover mb-0">
@@ -63,9 +63,9 @@
                       <td><small>{{ e($item->identifier ?? '') }}</small></td>
                       <td>
                         @if($item->slug ?? null)
-                          <a href="{{ url('/' . $item->slug) }}">{{ e($item->title ?? 'Untitled') }}</a>
+                          <a href="{{ url('/' . $item->slug) }}">{{ e($item->title ?? __('Untitled')) }}</a>
                         @else
-                          {{ e($item->title ?? 'Untitled') }}
+                          {{ e($item->title ?? __('Untitled')) }}
                         @endif
                       </td>
                       <td><small class="text-muted">{{ e(\Illuminate\Support\Str::limit($item->scope_and_content ?? '', 150)) }}</small></td>
@@ -77,7 +77,7 @@
           </div>
         @else
           <div class="alert alert-info">
-            <i class="fas fa-info-circle me-1"></i> No {{ $type === 'fileList' ? 'file' : 'item' }}-level children found for this description.
+            <i class="fas fa-info-circle me-1"></i> {{ $type === 'fileList' ? __('No file-level children found for this description.') : __('No item-level children found for this description.') }}
           </div>
         @endif
 

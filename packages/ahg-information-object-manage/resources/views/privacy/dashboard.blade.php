@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'Privacy Dashboard')
+@section('title', __('Privacy Dashboard'))
 
 @section('content')
 <div class="container-fluid py-4">
@@ -167,11 +167,11 @@
         <div class="card-body">
           <p>{{ __('Under applicable data protection laws, you have the following rights regarding your personal information:') }}</p>
           <ul class="list-group list-group-flush">
-            <li class="list-group-item"><i class="fas fa-eye text-primary me-2"></i><strong>{{ __('Right of Access') }}</strong> - Request access to your personal information</li>
-            <li class="list-group-item"><i class="fas fa-edit text-primary me-2"></i><strong>{{ __('Right to Rectification') }}</strong> - Request correction of inaccurate information</li>
-            <li class="list-group-item"><i class="fas fa-trash text-primary me-2"></i><strong>{{ __('Right to Erasure') }}</strong> - Request deletion of your personal information</li>
-            <li class="list-group-item"><i class="fas fa-hand-paper text-primary me-2"></i><strong>{{ __('Right to Object') }}</strong> - Object to processing of your information</li>
-            <li class="list-group-item"><i class="fas fa-exchange-alt text-primary me-2"></i><strong>{{ __('Right to Portability') }}</strong> - Receive your data in a portable format</li>
+            <li class="list-group-item"><i class="fas fa-eye text-primary me-2"></i><strong>{{ __('Right of Access') }}</strong> - {{ __('Request access to your personal information') }}</li>
+            <li class="list-group-item"><i class="fas fa-edit text-primary me-2"></i><strong>{{ __('Right to Rectification') }}</strong> - {{ __('Request correction of inaccurate information') }}</li>
+            <li class="list-group-item"><i class="fas fa-trash text-primary me-2"></i><strong>{{ __('Right to Erasure') }}</strong> - {{ __('Request deletion of your personal information') }}</li>
+            <li class="list-group-item"><i class="fas fa-hand-paper text-primary me-2"></i><strong>{{ __('Right to Object') }}</strong> - {{ __('Object to processing of your information') }}</li>
+            <li class="list-group-item"><i class="fas fa-exchange-alt text-primary me-2"></i><strong>{{ __('Right to Portability') }}</strong> - {{ __('Receive your data in a portable format') }}</li>
           </ul>
         </div>
       </div>

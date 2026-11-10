@@ -9,12 +9,12 @@
   Heratio is free software under the GNU AGPL v3.
 --}}
 @extends('theme::layouts.1col')
-@section('title', 'Import multiple digital objects - ' . ($io->title ?? ''))
+@section('title', __('Import multiple digital objects - :title', ['title' => $io->title ?? '']))
 
 @section('content')
 <div class="multiline-header d-flex flex-column mb-3">
     <h1 class="mb-0">{{ __('Import multiple digital objects') }}</h1>
-    <span class="small text-muted">{{ e($io->title ?? 'Untitled') }}</span>
+    <span class="small text-muted">{{ e($io->title ?? __('Untitled')) }}</span>
 </div>
 
 <div class="multifileupload-form"
@@ -73,14 +73,14 @@
                     <div class="accordion-body">
                         <div class="alert alert-info" role="alert">
                             <p>{{ __('Add your digital objects by dragging and dropping local files into the pane below, or by clicking the browse link to open your local file explorer.') }}</p>
-                            <p>{{ __('The Title and Level of description values entered on this page will be applied to each child description created for the associated digital objects -') }} <strong>%dd%</strong> represents an incrementing 2-value number, so by default descriptions created via this uploader will be named image 01, image 02, etc.</p>
+                            <p>{!! __('The Title and Level of description values entered on this page will be applied to each child description created for the associated digital objects - :placeholder represents an incrementing 2-value number, so by default descriptions created via this uploader will be named image 01, image 02, etc.', ['placeholder' => '<strong>%dd%</strong>']) !!}</p>
                             <p>{{ __('You will also be able to review and individually modify each description title on the next page after clicking "Upload."') }}</p>
                         </div>
 
                         <div class="mb-3">
                             <label for="title" class="form-label">{{ __('Title') }}</label>
                             <input type="text" class="form-control" id="title" name="title" value="image %dd%">
-                            <div class="form-text">{{ __('The "') }}<strong>%dd%</strong>" placeholder will be replaced with an incremental number (e.g. 'image <strong>01</strong>', 'image <strong>02</strong>')</div>
+                            <div class="form-text">{!! __('The ":placeholder" placeholder will be replaced with an incremental number (e.g. :first, :second)', ['placeholder' => '<strong>%dd%</strong>', 'first' => "'image <strong>01</strong>'", 'second' => "'image <strong>02</strong>'"]) !!}</div>
                         </div>
 
                         <div class="mb-3">
@@ -95,8 +95,7 @@
 
                         <div class="alert alert-secondary py-2 mb-3">
                             <i class="fas fa-lightbulb me-1 text-warning"></i>
-                            <strong>{{ __('Tip:') }}</strong> {{ __('For bulk imports with metadata mapping, validation, and CSV support, use the') }}
-                            <a href="{{ route('ingest.index') }}"><i class="fas fa-file-import me-1"></i>{{ __('Data Ingest') }}</a> tool instead.
+                            <strong>{{ __('Tip:') }}</strong> {!! __('For bulk imports with metadata mapping, validation, and CSV support, use the :tool tool instead.', ['tool' => '<a href="'.e(route('ingest.index')).'"><i class="fas fa-file-import me-1"></i>'.e(__('Data Ingest')).'</a>']) !!}
                         </div>
 
                         <h3 class="fs-6 mb-2">{{ __('Digital objects') }}</h3>

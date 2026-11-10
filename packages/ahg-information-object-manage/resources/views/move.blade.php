@@ -5,7 +5,7 @@
 
 @section('title-block')
   <div class="multiline-header d-flex flex-column mb-3">
-    <h1 class="mb-0">{{ __('Move :title', ['title' => $io->title ?? 'Untitled']) }}</h1>
+    <h1 class="mb-0">{{ __('Move :title', ['title' => $io->title ?? __('Untitled')]) }}</h1>
     <span class="small text-muted">{{ __('Browse to the new parent and click "Move here", or type to search.') }}</span>
   </div>
 @endsection

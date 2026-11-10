@@ -2,7 +2,7 @@
 @section('sidebar')
     @include('research::research._sidebar', ['sidebarActive' => 'workspace'])
 @endsection
-@section('title', 'Trust Score - ' . ($io->title ?? ''))
+@section('title', __('Trust Score - :title', ['title' => $io->title ?? '']))
 
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
@@ -21,7 +21,7 @@
     <div>
         <h1 class="h2">{{ __('Trust Score') }}</h1>
         <p class="text-muted mb-0">
-            <a href="{{ url('/' . $io->slug) }}">{{ e($io->title ?? 'Untitled') }}</a>
+            <a href="{{ url('/' . $io->slug) }}">{{ e($io->title ?? __('Untitled')) }}</a>
             @if($io->identifier ?? null)
                 <small class="ms-2">({{ e($io->identifier) }})</small>
             @endif
@@ -61,7 +61,7 @@
                 {{-- Source Type --}}
                 <div class="mb-3">
                     <div class="d-flex justify-content-between mb-1">
-                        <span><i class="fas fa-archive me-1 text-primary"></i>Source Type
+                        <span><i class="fas fa-archive me-1 text-primary"></i>{{ __('Source Type') }}
                             @if($assessment)
                                 <span class="badge bg-light text-dark ms-1">{{ ucfirst($assessment->source_type) }}</span>
                             @endif
@@ -75,7 +75,7 @@
                 {{-- Completeness --}}
                 <div class="mb-3">
                     <div class="d-flex justify-content-between mb-1">
-                        <span><i class="fas fa-puzzle-piece me-1 text-info"></i>Completeness
+                        <span><i class="fas fa-puzzle-piece me-1 text-info"></i>{{ __('Completeness') }}
                             @if($assessment)
                                 <span class="badge bg-light text-dark ms-1">{{ ucfirst(str_replace('_', ' ', $assessment->completeness ?? '')) }}</span>
                             @endif
@@ -90,7 +90,7 @@
                 <div class="mb-3">
                     <div class="d-flex justify-content-between mb-1">
                         <span><i class="fas fa-star me-1 text-warning"></i>{{ __('Quality Metrics') }}
-                            <small class="text-muted">({{ $qualityCount }} metrics)</small>
+                            <small class="text-muted">{{ __('(:count metrics)', ['count' => $qualityCount]) }}</small>
                         </span>
                         <span class="fw-bold">{{ $qualityScore }}/30</span>
                     </div>
@@ -99,7 +99,7 @@
                     </div>
                 </div>
                 @if(!$assessment)
-                    <div class="alert alert-info py-2 mb-0"><i class="fas fa-info-circle me-1"></i>{{ __('No source assessment yet.') }} <a href="{{ route('io.research.assessment', $io->slug) }}">{{ __('Submit one') }}</a> to get a meaningful score.</div>
+                    <div class="alert alert-info py-2 mb-0"><i class="fas fa-info-circle me-1"></i>{{ __('No source assessment yet.') }} {!! __(':link to get a meaningful score.', ['link' => '<a href="'.e(route('io.research.assessment', $io->slug)).'">'.e(__('Submit one')).'</a>']) !!}</div>
                 @endif
             </div>
         </div>

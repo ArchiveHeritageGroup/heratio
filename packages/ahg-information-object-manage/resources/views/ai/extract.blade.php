@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Extract Entities (NER) - ' . ($io->title ?? 'Untitled'))
+@section('title', __('Extract Entities (NER) - :title', ['title' => $io->title ?? __('Untitled')]))
 
 @section('content')
 <div class="container py-4">
@@ -13,7 +13,7 @@
 
   {{-- IO Title Header --}}
   <h5 class="mb-3">
-    <a href="{{ route('informationobject.show', $io->slug) }}">{{ $io->title ?? 'Untitled' }}</a>
+    <a href="{{ route('informationobject.show', $io->slug) }}">{{ $io->title ?? __('Untitled') }}</a>
   </h5>
 
   {{-- Extract Button --}}

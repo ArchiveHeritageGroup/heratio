@@ -481,15 +481,15 @@
         <div class="small text-muted mt-2">
           @if(!empty($companionAnim->ai_model))
             <i class="fas fa-brain me-1"></i>{{ $companionAnim->ai_model }}
-            &middot; {{ $companionAnim->mp4_duration_secs }}s @ {{ $companionAnim->mp4_fps }}fps
-            &middot; {{ number_format(($companionAnim->mp4_size ?? 0) / 1024, 0) }} KB
+            &middot; {{ __(':seconds s @ :fps fps', ['seconds' => $companionAnim->mp4_duration_secs, 'fps' => $companionAnim->mp4_fps]) }}
+            &middot; {{ __(':size KB', ['size' => number_format(($companionAnim->mp4_size ?? 0) / 1024, 0)]) }}
             @if($companionAnim->generation_secs)
               &middot; {{ __('Took') }} {{ (int) $companionAnim->generation_secs }}s
             @endif
           @else
             <i class="fas fa-video me-1"></i>{{ $companionAnim->mp4_motion }}
             &middot; {{ $companionAnim->mp4_duration_secs }}s
-            &middot; {{ number_format(($companionAnim->mp4_size ?? 0) / 1024, 0) }} KB
+            &middot; {{ __(':size KB', ['size' => number_format(($companionAnim->mp4_size ?? 0) / 1024, 0)]) }}
           @endif
           @auth
             &middot;
@@ -790,8 +790,8 @@
         @if($embargoData)
           <div class="alert alert-danger d-flex align-items-center mb-3">
             <i class="fas fa-ban me-2 fa-lg"></i>
-            <div><strong>{{ __('Under Embargo') }}</strong> - {{ ucfirst($embargoData->embargo_type ?? 'full') }} embargo since {{ $embargoData->start_date }}
-              @if($embargoData->end_date) until {{ $embargoData->end_date }} @else (no end date) @endif
+            <div><strong>{{ __('Under Embargo') }}</strong> - {{ __(':type embargo since :date', ['type' => ucfirst($embargoData->embargo_type ?? 'full'), 'date' => $embargoData->start_date]) }}
+              @if($embargoData->end_date) {{ __('until :date', ['date' => $embargoData->end_date]) }} @else {{ __('(no end date)') }} @endif
             </div>
           </div>
         @endif
@@ -886,9 +886,9 @@
                   @if($entry->start_date && $entry->end_date)
                     {{ $entry->start_date }} - {{ $entry->end_date }}
                   @elseif($entry->start_date)
-                    {{ $entry->start_date }} - present
+                    {{ __(':date - present', ['date' => $entry->start_date]) }}
                   @elseif($entry->end_date)
-                    until {{ $entry->end_date }}
+                    {{ __('until :date', ['date' => $entry->end_date]) }}
                   @endif
                 </small>
               </div>
@@ -922,7 +922,7 @@
         <section class="border-bottom digitalObjectRights">
           <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
             <a class="text-decoration-none text-white" href="#do-rights-{{ $usageKey }}-collapse">
-              Digital object ({{ $doRightsData['usageName'] }}) rights area
+              {{ __('Digital object (:usage) rights area', ['usage' => $doRightsData['usageName']]) }}
             </a>
             @if(isset($digitalObjects) && $digitalObjects['master'])
               <a href="{{ route('io.digitalobject.show', $digitalObjects['master']->id) }}" class="float-end text-white opacity-75" style="font-size:.75rem;" title="{{ __('Edit digital object') }}">
@@ -933,7 +933,7 @@
           <div id="do-rights-{{ $usageKey }}-collapse">
             @foreach($doRightsData['rights'] as $doRight)
               <div class="field text-break row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ $doRight->basis ?? 'Right' }}</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ $doRight->basis ?? __('Right') }}</h3>
                 <div class="col-9 p-2">
                   @if(isset($doRight->act)){{ $doRight->act }}@endif
                   @if(isset($doRight->start_date) || isset($doRight->end_date))
@@ -1173,7 +1173,7 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <p class="text-muted small mb-3">{{ __('AI-powered visual description of') }} <strong>{{ $io->title ?? 'this record' }}</strong>. Analyses the digital object and generates a detailed description.</p>
+        <p class="text-muted small mb-3">{!! __('AI-powered visual description of :title. Analyses the digital object and generates a detailed description.', ['title' => '<strong>'.e($io->title ?? __('this record')).'</strong>']) !!}</p>
 
         <div class="text-center mb-3">
           <button type="button" class="btn btn-primary btn-lg" id="describeBtn">
@@ -1202,7 +1202,7 @@
 <script>
 (function() {
   var objectId = {{ $io->id }};
-  var ioTitle = @json($io->title ?? 'Untitled');
+  var ioTitle = @json($io->title ?? __('Untitled'));
   var ioContext = @json(($io->scope_and_content ?? '') . ' ' . ($io->extent_and_medium ?? ''));
 
   document.getElementById('describeBtn').addEventListener('click', function() {
@@ -1575,7 +1575,7 @@
           </div>
           {{-- Step 2 --}}
           <div id="translate-step2" style="display:none;">
-            <div class="alert alert-warning py-2 mb-3"><i class="fas fa-eye me-1"></i><strong>{{ __('Review Translations') }}</strong> - Edit if needed, then click "Approve & Save".</div>
+            <div class="alert alert-warning py-2 mb-3"><i class="fas fa-eye me-1"></i><strong>{{ __('Review Translations') }}</strong> - {{ __('Edit if needed, then click "Approve & Save".') }}</div>
             <div id="translatePreview"></div>
           </div>
           <div class="mt-3"><div class="alert py-2 mb-0" id="translateStatus" style="display:none;"></div></div>
@@ -1699,7 +1699,7 @@
         <div class="modal-content">
           <div class="modal-header bg-warning bg-opacity-25">
             <h5 class="modal-title" id="triposrPreviewModalLabel">
-              <i class="fas fa-cube me-2 text-warning"></i> 3D preview - review before saving
+              <i class="fas fa-cube me-2 text-warning"></i> {{ __('3D preview - review before saving') }}
             </h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
           </div>
@@ -1731,7 +1731,7 @@
               </model-viewer>
             </div>
             <div class="small text-muted mt-2">
-              <strong>{{ __('Source image') }}:</strong> the IO's image &middot;
+              <strong>{{ __('Source image') }}:</strong> {{ __('the record\'s image') }} &middot;
               <strong>{{ __('Generated') }}:</strong> {{ \Carbon\Carbon::parse($triposrPreview['created_at'])->diffForHumans() }} &middot;
               <strong>{{ __('Filename') }}:</strong> <code>{{ $triposrPreview['filename'] }}</code>
             </div>

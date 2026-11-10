@@ -226,7 +226,7 @@
   <div class="row mb-4">
     <div class="col-12 d-flex justify-content-between align-items-center">
       <div>
-        <h1 class="h3 mb-1">{{ $io->identifier ?? 'N/A' }} - {{ $io->title ?? 'Untitled' }}</h1>
+        <h1 class="h3 mb-1">{{ $io->identifier ?? 'N/A' }} - {{ $io->title ?? __('Untitled') }}</h1>
         <p class="text-muted mb-0">{{ $asset->standard_name ?? 'No Standard' }}</p>
       </div>
       <div class="btn-group">
@@ -277,7 +277,7 @@
       <div class="card">
         <div class="card-body text-center">
           <h6 class="text-muted">{{ __('Asset Class') }}</h6>
-          <h5 class="mb-0">{{ $asset->class_name ?? 'Unclassified' }}</h5>
+          <h5 class="mb-0">{{ $asset->class_name ?? __('Unclassified') }}</h5>
         </div>
       </div>
     </div>

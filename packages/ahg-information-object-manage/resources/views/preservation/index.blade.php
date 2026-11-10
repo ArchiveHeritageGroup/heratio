@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Preservation Packages - ' . ($io->title ?? 'Untitled'))
+@section('title', __('Preservation Packages - :title', ['title' => $io->title ?? __('Untitled')]))
 
 @section('content')
 <div class="container py-4">
@@ -8,7 +8,7 @@
   {{-- Breadcrumb --}}
   <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{{ route('informationobject.show', ['slug' => $io->slug ?? $io->id]) }}">{{ $io->title ?? 'Untitled' }}</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('informationobject.show', ['slug' => $io->slug ?? $io->id]) }}">{{ $io->title ?? __('Untitled') }}</a></li>
       <li class="breadcrumb-item active" aria-current="page">{{ __('Preservation Packages') }}</li>
     </ol>
   </nav>
@@ -317,12 +317,12 @@
                 @endphp
                 <tr>
                   <td>
-                    <strong>{{ $aip->filename ?? $aip->name ?? 'Unnamed package' }}</strong>
+                    <strong>{{ $aip->filename ?? $aip->name ?? __('Unnamed package') }}</strong>
                     <br>
                     <small class="text-muted"><code>{{ $aip->uuid ?? '-' }}</code></small>
                   </td>
                   <td><span class="badge {{ $typeBadgeClass }}">{{ $packageTypeUpper }}</span></td>
-                  <td><span class="badge {{ $statusBadgeClass }}">{{ ucfirst($aip->status ?? 'Unknown') }}</span></td>
+                  <td><span class="badge {{ $statusBadgeClass }}">{{ ucfirst($aip->status ?? __('Unknown')) }}</span></td>
                   <td>{{ $aip->object_count ?? '-' }}</td>
                   <td>{{ isset($aip->size_on_disk) ? formatBytes($aip->size_on_disk) : '-' }}</td>
                   <td>{{ $aip->created_at ?? '-' }}</td>

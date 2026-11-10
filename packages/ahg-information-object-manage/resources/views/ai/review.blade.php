@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'NER Review Dashboard')
+@section('title', __('NER Review Dashboard'))
 
 @section('content')
 <div class="container py-4">
@@ -59,7 +59,7 @@
               <tr>
                 <td>
                   <a href="{{ route('informationobject.show', $obj->slug ?? $obj->id) }}">
-                    {{ $obj->title ?? 'Untitled' }}
+                    {{ $obj->title ?? __('Untitled') }}
                   </a>
                 </td>
                 <td class="text-center">

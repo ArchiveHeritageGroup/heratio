@@ -1,6 +1,6 @@
 @extends('theme::layout')
 
-@section('title', 'Rename - ' . ($io->title ?? 'Untitled'))
+@section('title', __('Rename - :title', ['title' => $io->title ?? __('Untitled')]))
 
 @section('content')
 <div class="container-fluid py-3">
@@ -23,7 +23,7 @@
     {{-- Main content --}}
     <div class="col-md-9">
 
-      <h1 class="mb-3">{{ $io->title ?? 'Untitled' }}</h1>
+      <h1 class="mb-3">{{ $io->title ?? __('Untitled') }}</h1>
 
       <form action="{{ route('informationobject.renameUpdate', $io->slug) }}" method="POST" id="rename-form">
         @csrf

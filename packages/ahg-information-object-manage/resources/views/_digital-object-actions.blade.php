@@ -66,19 +66,19 @@ $resourceSlug = $resource->slug ?? null; @endphp
                     <div class="col-md-4">
                         <label for="tpmDpi" class="form-label">{{ __('Resolution (DPI)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <select id="tpmDpi" class="form-select form-select-sm">
-                            <option value="150">150 DPI (Screen)</option>
-                            <option value="300" selected>300 DPI (Print)</option>
-                            <option value="400">400 DPI (High Quality)</option>
-                            <option value="600">600 DPI (Archival)</option>
+                            <option value="150">{{ __('150 DPI (Screen)') }}</option>
+                            <option value="300" selected>{{ __('300 DPI (Print)') }}</option>
+                            <option value="400">{{ __('400 DPI (High Quality)') }}</option>
+                            <option value="600">{{ __('600 DPI (Archival)') }}</option>
                         </select>
                     </div>
                     <div class="col-md-4">
                         <label for="tpmQuality" class="form-label">{{ __('Quality') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                         <select id="tpmQuality" class="form-select form-select-sm">
-                            <option value="70">70% (Smaller file)</option>
-                            <option value="85" selected>85% (Balanced)</option>
-                            <option value="95">95% (High quality)</option>
-                            <option value="100">100% (Maximum)</option>
+                            <option value="70">{{ __('70% (Smaller file)') }}</option>
+                            <option value="85" selected>{{ __('85% (Balanced)') }}</option>
+                            <option value="95">{{ __('95% (High quality)') }}</option>
+                            <option value="100">{{ __('100% (Maximum)') }}</option>
                         </select>
                     </div>
                 </div>
@@ -87,7 +87,7 @@ $resourceSlug = $resource->slug ?? null; @endphp
                 <div id="tpmDropZone" class="border border-2 border-dashed rounded p-4 text-center mb-3 bg-light">
                     <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-2"></i>
                     <p class="mb-1"><strong>{{ __('Drag and drop images here') }}</strong></p>
-                    <p class="text-muted small mb-2">or click to browse</p>
+                    <p class="text-muted small mb-2">{{ __('or click to browse') }}</p>
                     <p class="text-muted small mb-0">{{ __('Supported: TIFF, JPEG, PNG, BMP, GIF') }}</p>
                     <input type="file" id="tpmFileInput" class="d-none" multiple
                            accept=".tif,.tiff,.jpg,.jpeg,.png,.bmp,.gif">

@@ -76,13 +76,13 @@
       <div class="card-body">
         <div class="row mb-3">
           <div class="col-auto">
-            <span class="badge bg-success fs-6">{{ $validCount }} valid</span>
+            <span class="badge bg-success fs-6">{{ __(':count valid', ['count' => $validCount]) }}</span>
           </div>
           <div class="col-auto">
-            <span class="badge bg-danger fs-6">{{ $invalidCount }} invalid</span>
+            <span class="badge bg-danger fs-6">{{ __(':count invalid', ['count' => $invalidCount]) }}</span>
           </div>
           <div class="col-auto">
-            <span class="badge bg-warning text-dark fs-6">{{ $missingCount }} missing required</span>
+            <span class="badge bg-warning text-dark fs-6">{{ __(':count missing required', ['count' => $missingCount]) }}</span>
           </div>
         </div>
 
@@ -92,7 +92,7 @@
           </div>
         @elseif($missingCount > 0)
           <div class="alert alert-warning">
-            <i class="fas fa-exclamation-triangle me-2"></i>There are {{ $missingCount }} required column(s) missing. The import may fail or produce incomplete records.
+            <i class="fas fa-exclamation-triangle me-2"></i>{{ trans_choice('{1} There is :count required column missing. The import may fail or produce incomplete records.|[0,*] There are :count required columns missing. The import may fail or produce incomplete records.', $missingCount, ['count' => $missingCount]) }}
           </div>
         @endif
 

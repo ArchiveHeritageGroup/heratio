@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'Condition Report - ' . ($io->title ?? ''))
+@section('title', __('Condition Report - :title', ['title' => $io->title ?? '']))
 @section('body-class', 'condition show')
 
 @php
@@ -28,7 +28,7 @@
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('informationobject.show', $io->slug) }}">{{ $io->title ?? '' }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('io.condition', $io->slug) }}">{{ __('Condition') }}</a></li>
-      <li class="breadcrumb-item active">Report #{{ $report->id }}</li>
+      <li class="breadcrumb-item active">{{ __('Report #:id', ['id' => $report->id]) }}</li>
     </ol>
   </nav>
 
@@ -113,7 +113,7 @@
   @if($damages->isNotEmpty())
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <i class="fas fa-exclamation-triangle me-1"></i> Damage Records ({{ $damages->count() }})
+        <i class="fas fa-exclamation-triangle me-1"></i> {{ __('Damage Records (:count)', ['count' => $damages->count()]) }}
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">
@@ -201,7 +201,7 @@
                 <div class="position-relative">
                   <img src="{{ $imgSrc }}" class="card-img-top" alt="{{ $photo->caption ?? '' }}" style="height:180px;object-fit:cover;cursor:pointer;"
                        data-action="annotate" data-photo-id="{{ $photo->id }}" data-image-src="{{ $imgSrc }}">
-                  <span class="badge bg-info position-absolute top-0 end-0 m-2">{{ $photoTypes[$photo->image_type] ?? 'Other' }}</span>
+                  <span class="badge bg-info position-absolute top-0 end-0 m-2">{{ $photoTypes[$photo->image_type] ?? __('Other') }}</span>
                   @if($annCount > 0)
                     <span class="badge bg-warning position-absolute top-0 start-0 m-2">
                       <i class="fas fa-draw-polygon"></i> {{ $annCount }}

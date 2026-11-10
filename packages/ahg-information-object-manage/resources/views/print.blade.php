@@ -92,9 +92,9 @@
         <div class="field-row">
           <div class="field-label">
             @if(isset($creator->entity_type_id) && $creator->entity_type_id == 131)
-              Administrative history
+              {{ __('Administrative history') }}
             @else
-              Biographical history
+              {{ __('Biographical history') }}
             @endif
           </div>
           <div class="field-value">{!! nl2br(e($creator->history)) !!}</div>
@@ -274,7 +274,7 @@
   @if(isset($alternativeIdentifiers) && (is_countable($alternativeIdentifiers) ? count($alternativeIdentifiers) > 0 : !empty($alternativeIdentifiers)))
     @foreach($alternativeIdentifiers as $altId)
       <div class="field-row">
-        <div class="field-label">{{ $altId->label ?? 'Alternative identifier' }}</div>
+        <div class="field-label">{{ $altId->label ?? __('Alternative identifier') }}</div>
         <div class="field-value">{{ $altId->value ?? $altId->name ?? '' }}</div>
       </div>
     @endforeach
@@ -415,7 +415,7 @@
     <h2 class="section-heading">{{ __('Rights area') }}</h2>
     @foreach($rights as $right)
       <div class="field-row">
-        <div class="field-label">{{ $right->basis ?? 'Right' }}</div>
+        <div class="field-label">{{ $right->basis ?? __('Right') }}</div>
         <div class="field-value">
           @if(isset($right->act)){{ $right->act }}@endif
           @if(isset($right->start_date) || isset($right->end_date))
@@ -449,7 +449,7 @@
           @if(isset($physicalObjectTypeNames[$pobj->type_id ?? null]))
             {{ $physicalObjectTypeNames[$pobj->type_id] }}
           @else
-            Container
+            {{ __('Container') }}
           @endif
         </div>
         <div class="field-value">{{ $pobj->name ?? $pobj->location ?? '[Unknown]' }}</div>
@@ -468,7 +468,7 @@
 
   {{-- ===== 13. Child descriptions ===== --}}
   @if(isset($children) && $children->isNotEmpty())
-    <h2 class="section-heading">Child descriptions ({{ $children->count() }})</h2>
+    <h2 class="section-heading">{{ __('Child descriptions (:count)', ['count' => $children->count()]) }}</h2>
     <table>
       <thead>
         <tr>

@@ -59,7 +59,7 @@
                  href="{{ route('informationobject.browse', array_merge($langParams, ['languages' => $langCode])) }}"
                  title="{{ $facet['name'] }}, {{ $facet['count'] }} results">
                 {{ $facet['name'] }}
-                <span class="visually-hidden">, {{ $facet['count'] }} results</span>
+                <span class="visually-hidden">, {{ __(':count results', ['count' => $facet['count']]) }}</span>
                 <span aria-hidden="true" class="ms-3 text-nowrap">{{ $facet['count'] }}</span>
               </a>
             @endforeach
@@ -92,7 +92,7 @@
                  href="{{ route('informationobject.browse', array_merge($collParams, ['collection' => $coll->id])) }}"
                  title="{{ $coll->label }}, {{ $coll->count }} results">
                 {{ $coll->label }}
-                <span class="visually-hidden">, {{ $coll->count }} results</span>
+                <span class="visually-hidden">, {{ __(':count results', ['count' => $coll->count]) }}</span>
                 <span aria-hidden="true" class="ms-3 text-nowrap">{{ $coll->count }}</span>
               </a>
             @endforeach
@@ -130,7 +130,7 @@
                      href="{{ route('informationobject.browse', $isActive ? $facetParams : array_merge($facetParams, [$facetName => $termValue])) }}"
                      title="{{ $term['label'] ?? $term['name'] ?? $term['value'] ?? '' }}, {{ $term['count'] ?? 0 }} results">
                     {{ $term['label'] ?? $term['name'] ?? $term['value'] ?? '' }}
-                    <span class="visually-hidden">, {{ $term['count'] ?? 0 }} results</span>
+                    <span class="visually-hidden">, {{ __(':count results', ['count' => $term['count'] ?? 0]) }}</span>
                     <span aria-hidden="true" class="ms-3 text-nowrap">{{ $term['count'] ?? 0 }}</span>
                   </a>
                 @endforeach
@@ -222,7 +222,7 @@
         @endphp
         <div class="dropdown d-inline-block">
           <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sortDir-button" data-bs-toggle="dropdown" aria-expanded="false">
-            Direction: {{ $currentDir === 'desc' ? 'Descending' : 'Ascending' }}
+            {{ __('Direction: :direction', ['direction' => $currentDir === 'desc' ? __('Descending') : __('Ascending')]) }}
           </button>
           <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sortDir-button">
             <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'asc'])) }}" class="dropdown-item {{ $currentDir === 'asc' ? 'active' : '' }}">{{ __('Ascending') }}</a></li>

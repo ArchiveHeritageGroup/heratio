@@ -32,7 +32,7 @@
       @foreach($alternativeIdentifiers as $altId)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">
-            {{ $altId->label ?? 'Alternative identifier' }}
+            {{ $altId->label ?? __('Alternative identifier') }}
           </h3>
           <div class="col-9 p-2">{{ $altId->value ?? $altId->name ?? '' }}</div>
         </div>

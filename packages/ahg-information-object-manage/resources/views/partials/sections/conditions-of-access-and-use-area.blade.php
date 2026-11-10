@@ -88,7 +88,7 @@
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ $findingAid->label }}</h3>
           <div class="findingAidLink col-9 p-2">
             <a href="{{ route('informationobject.findingaid.download', $findingAid->slug) }}" target="_blank">
-              <i class="fas fa-file-pdf me-1"></i>{{ $findingAid->slug }}.pdf
+              <i class="fas fa-file-pdf me-1"></i>{{ $findingAid->slug . '.pdf' }}
             </a>
           </div>
         </div>

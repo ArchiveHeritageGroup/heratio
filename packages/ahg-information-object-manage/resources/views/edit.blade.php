@@ -1,6 +1,6 @@
 @extends('theme::layouts.2col')
 
-@section('title', 'Edit: ' . ($io->title ?? 'Untitled'))
+@section('title', __('Edit: :title', ['title' => $io->title ?? __('Untitled')]))
 @section('body-class', 'edit informationobject')
 
 {{-- Sidebar intentionally empty in edit mode: the repository-logo / "Go to
@@ -8,7 +8,7 @@
      misleading while the user has unsaved edits in the form. --}}
 
 @section('content')
-  <h1>Item {{ $io->identifier ? $io->identifier . ' - ' : '' }}{{ $io->title ?? '[Untitled]' }}</h1>
+  <h1>{{ __('Item :label', ['label' => ($io->identifier ? $io->identifier . ' - ' : '') . ($io->title ?? __('[Untitled]'))]) }}</h1>
 
   @php
     // Form-templates banner: list active templates for information_object so the user can switch
@@ -34,7 +34,7 @@
         @if($__defaultTpl)
           <a href="{{ url('/forms/edit/information_object/' . $io->id . '/' . $__defaultTpl->id) }}"
              class="btn btn-sm btn-primary ms-2">
-            Edit with “{{ $__defaultTpl->name }}”
+            {{ __('Edit with “:name”', ['name' => $__defaultTpl->name]) }}
           </a>
         @endif
         @if($__formTemplates->count() > 1)
@@ -48,7 +48,7 @@
                   <li>
                     <a class="dropdown-item" href="{{ url('/forms/edit/information_object/' . $io->id . '/' . $tpl->id) }}">
                       {{ $tpl->name }}
-                      @if($tpl->is_default)<span class="badge bg-success ms-1">default</span>@endif
+                      @if($tpl->is_default)<span class="badge bg-success ms-1">{{ __('default') }}</span>@endif
                     </a>
                   </li>
                 @endif
@@ -172,7 +172,7 @@
                     <tr>
                       <td>
                         <select class="form-select form-select-sm" name="events[{{ $idx }}][typeId]">
-                          <option value="">- Select -</option>
+                          <option value="">{{ __('- Select -') }}</option>
                           @foreach($eventTypes as $et)
                             <option value="{{ $et->id }}" @selected($et->id == $evt->type_id)>{{ $et->name }}</option>
                           @endforeach
@@ -196,7 +196,7 @@
             <div class="mb-3">
               <label for="level_of_description_id" class="form-label">{{ __('Level of description') }} <span class="form-required text-danger" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="{{ __('Record the level of this unit of description. (ISAD 3.1.4)') }}"><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <select class="form-select" id="level_of_description_id" name="level_of_description_id">
-                <option value="">- Select -</option>
+                <option value="">{{ __('- Select -') }}</option>
                 @foreach($levels as $level)
                   <option value="{{ $level->id }}" @selected(old('level_of_description_id', $io->level_of_description_id) == $level->id)>
                     {{ $level->name }}
@@ -372,7 +372,7 @@
                 @foreach($materialLanguages as $lIdx => $langCode)
                   <div class="input-group input-group-sm mb-1">
                     <select class="form-select form-select-sm" name="languages[]">
-                      <option value="">-- Select language --</option>
+                      <option value="">{{ __('-- Select language --') }}</option>
                       @foreach($languageOptions as $code => $name)
                         <option value="{{ $code }}" @selected($langCode === $code)>{{ $name }} ({{ $code }})</option>
                       @endforeach
@@ -398,7 +398,7 @@
                 @foreach($materialScripts as $sIdx => $scriptCode)
                   <div class="input-group input-group-sm mb-1">
                     <select class="form-select form-select-sm" name="scripts[]">
-                      <option value="">-- Select script --</option>
+                      <option value="">{{ __('-- Select script --') }}</option>
                       @foreach($scriptOptions as $code => $name)
                         <option value="{{ $code }}" @selected($scriptCode === $code)>{{ $name }} ({{ $code }})</option>
                       @endforeach
@@ -523,7 +523,7 @@
                   <tr>
                     <td>
                       <select class="form-select form-select-sm" name="notes[{{ $nIdx }}][typeId]">
-                        <option value="">- Select -</option>
+                        <option value="">{{ __('- Select -') }}</option>
                         @foreach($noteTypes as $nt)
                           <option value="{{ $nt->id }}" @selected($nt->id == $note->type_id)>{{ $nt->name }}</option>
                         @endforeach
@@ -678,7 +678,7 @@
             <div class="mb-3">
               <label for="description_status_id" class="form-label">{{ __('Status') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Record the current status of the description, indicating whether it is a draft, finalized and/or revised or deleted."><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <select class="form-select" id="description_status_id" name="description_status_id">
-                <option value="">-- Select --</option>
+                <option value="">{{ __('-- Select --') }}</option>
                 @foreach($descriptionStatuses as $status)
                   <option value="{{ $status->id }}" @selected(old('description_status_id', $io->description_status_id) == $status->id)>
                     {{ $status->name }}
@@ -690,7 +690,7 @@
             <div class="mb-3">
               <label for="description_detail_id" class="form-label">{{ __('Level of detail') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span><span class="ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-placement="top" data-bs-content="Record whether the description consists of a minimal, partial or full level of detail in accordance with relevant international and/or national guidelines and/or rules."><i class="fas fa-question-circle text-muted" style="cursor:help;"></i></span> </label>
               <select class="form-select" id="description_detail_id" name="description_detail_id">
-                <option value="">-- Select --</option>
+                <option value="">{{ __('-- Select --') }}</option>
                 @foreach($descriptionDetails as $detail)
                   <option value="{{ $detail->id }}" @selected(old('description_detail_id', $io->description_detail_id) == $detail->id)>
                     {{ $detail->name }}
@@ -711,7 +711,7 @@
                 @foreach($languagesOfDescription as $ldIdx => $ldCode)
                   <div class="input-group input-group-sm mb-1">
                     <select class="form-select form-select-sm" name="languagesOfDescription[]">
-                      <option value="">-- Select language --</option>
+                      <option value="">{{ __('-- Select language --') }}</option>
                       @foreach($languageOptions as $code => $name)
                         <option value="{{ $code }}" @selected($ldCode === $code)>{{ $name }} ({{ $code }})</option>
                       @endforeach
@@ -734,7 +734,7 @@
                 @foreach($scriptsOfDescription as $sdIdx => $sdCode)
                   <div class="input-group input-group-sm mb-1">
                     <select class="form-select form-select-sm" name="scriptsOfDescription[]">
-                      <option value="">-- Select script --</option>
+                      <option value="">{{ __('-- Select script --') }}</option>
                       @foreach($scriptOptions as $code => $name)
                         <option value="{{ $code }}" @selected($sdCode === $code)>{{ $name }} ({{ $code }})</option>
                       @endforeach
@@ -793,7 +793,7 @@
           <div class="mb-3">
             <label for="security_classification_id" class="form-label">{{ __('Classification level') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="security_classification_id" id="security_classification_id" class="form-select">
-              <option value="">-- None --</option>
+              <option value="">{{ __('-- None --') }}</option>
               @foreach($formChoices['securityLevels'] ?? [] as $level)
                 <option value="{{ $level->id }}" @selected(old('security_classification_id', $io->security_classification_id ?? '') == $level->id)>{{ $level->name }}</option>
               @endforeach
@@ -1035,7 +1035,7 @@
             <div class="mb-3">
               <label for="collection_type_id" class="form-label">{{ __('Collection type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select name="collection_type_id" id="collection_type_id" class="form-select">
-                <option value="">-- None --</option>
+                <option value="">{{ __('-- None --') }}</option>
                 @foreach($collectionTypes ?? [] as $ct)
                   <option value="{{ $ct->id }}" @selected(old('collection_type_id', $io->collection_type_id) == $ct->id)>{{ $ct->name }}</option>
                 @endforeach
