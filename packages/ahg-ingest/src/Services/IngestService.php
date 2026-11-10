@@ -310,6 +310,36 @@ class IngestService
 
     public function validateSession(int $sessionId): array
     {
+        // Check the rows, with grid entry's rules (title required, a known level,
+        // ISO start/end dates, end not before start), record the problems and set
+        // is_valid. Uploaded rows are stored with is_valid=0 and nothing ever
+        // checked them, so the commit, which takes only valid rows, created
+        // nothing: "Commit complete: 0 IO(s), 0 error(s)" (10 Nov 2026).
+        $grid = new GridEntryService($this);
+        $levels = $grid->levelNames(app()->getLocale());
+        DB::table('ingest_validation')->where('session_id', $sessionId)->where('severity', 'error')->delete();
+        $rows = DB::table('ingest_row')->where('session_id', $sessionId)->where('is_excluded', 0)->whereNull('created_atom_id')
+            ->get(['id', 'row_number', 'title', 'level_of_description', 'data', 'enriched_data']);
+        foreach ($rows as $row) {
+            $f = json_decode((string) ($row->enriched_data ?: $row->data), true) ?: [];
+            $first = fn (string ...$keys) => trim(explode('|', (string) (collect($keys)->map(fn ($k) => $f[$k] ?? null)->first(fn ($v) => $v !== null && $v !== '') ?? ''))[0]);
+            $check = [[
+                'identifier' => $first('identifier'),
+                'title' => $first('title', 'Title') ?: trim((string) $row->title),
+                'levelOfDescription' => $first('levelOfDescription', 'level_of_description') ?: trim((string) $row->level_of_description),
+                'creationDatesStart' => $first('creationDatesStart', 'eventStartDates'),
+                'creationDatesEnd' => $first('creationDatesEnd', 'eventEndDates'),
+            ]];
+            $problems = $grid->validate($check, $levels)[0] ?? [];
+            foreach ($problems as $field => $message) {
+                DB::table('ingest_validation')->insert([
+                    'session_id' => $sessionId, 'row_number' => $row->row_number, 'severity' => 'error',
+                    'field_name' => $field, 'message' => $message, 'created_at' => now(),
+                ]);
+            }
+            DB::table('ingest_row')->where('id', $row->id)->update(['is_valid' => $problems ? 0 : 1]);
+        }
+
         $total = DB::table('ingest_row')->where('session_id', $sessionId)->count();
         $excluded = DB::table('ingest_row')->where('session_id', $sessionId)->where('is_excluded', 1)->count();
         $errors = DB::table('ingest_validation')->where('session_id', $sessionId)->count();
@@ -317,7 +347,7 @@ class IngestService
         return [
             'total' => $total,
             'excluded' => $excluded,
-            'valid' => $total - $excluded - $errors,
+            'valid' => DB::table('ingest_row')->where('session_id', $sessionId)->where('is_excluded', 0)->where('is_valid', 1)->count(),
             'errors' => $errors,
         ];
     }
