@@ -115,6 +115,22 @@ if (! function_exists('ahg_locale')) {
     }
 }
 
+if (! function_exists('ahg_html_lang')) {
+    /**
+     * The locale as a BCP 47 language tag for HTML lang attributes.
+     * Heratio's locale codes follow the lang/*.json filenames (pt_BR,
+     * de_AT, ca@valencia), which are not valid in <html lang>: browsers,
+     * screen readers and spell checkers expect pt-BR, de-AT, ca-valencia.
+     * Use ahg_locale() / app()->getLocale() for everything else.
+     */
+    function ahg_html_lang(?string $locale = null): string
+    {
+        $tag = str_replace(['_', '@'], '-', trim($locale ?? ahg_locale()));
+
+        return $tag !== '' ? $tag : 'en';
+    }
+}
+
 if (! function_exists('ahg_date')) {
     /**
      * Locale-aware date (no time component).
