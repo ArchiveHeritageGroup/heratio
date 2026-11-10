@@ -21,11 +21,12 @@
   @if(!$isBroker)
     <div class="alert alert-info">
       <i class="fas fa-info-circle me-1"></i>
-      {{ __('Your seller type is') }} <strong>{{ $seller->seller_type ?? 'collector' }}</strong>.
-      Set it to <strong>broker</strong>, <strong>gallery</strong>, or <strong>dealer</strong> on
-      <a href="{{ route('ahgmarketplace.seller-profile') }}">your profile</a>
-      to enable broker features (artist selector + markup pricing on listings).
-      Adding artists below is allowed regardless - you just won't see the broker fields on listing forms until your seller type is updated.
+      {{ __('Your seller type is') }} <strong>{{ __($seller->seller_type ?? 'collector') }}</strong>.
+      {!! __('Set it to :types on :profile to enable broker features, including an artist selector and markup pricing on listings.', [
+        'types' => '<strong>'.__('broker').'</strong>, <strong>'.__('gallery').'</strong>, or <strong>'.__('dealer').'</strong>',
+        'profile' => '<a href="'.e(route('ahgmarketplace.seller-profile')).'">'.e(__('your profile')).'</a>',
+      ]) !!}
+      {{ __('You can add artists below regardless; the broker fields will appear on listing forms after you update your seller type.') }}
     </div>
   @endif
 
@@ -66,7 +67,7 @@
                 @endif
               </td>
               <td class="small text-muted">
-                {{ $a->birth_year ?: '?' }} - {{ $a->death_year ?: 'present' }}
+                {{ $a->birth_year ?: '?' }} - {{ $a->death_year ?: __('present') }}
               </td>
               <td class="small">
                 @if($a->default_markup_type === 'percentage')
@@ -74,15 +75,15 @@
                 @elseif($a->default_markup_type === 'fixed')
                   <span class="badge bg-info text-dark">+ {{ number_format($a->default_markup_value, 2) }}</span>
                 @else
-                  <span class="text-muted">none</span>
+                  <span class="text-muted">{{ __('none') }}</span>
                 @endif
                 @if($a->default_commission_split)
-                  <div class="text-muted">Split: {{ number_format($a->default_commission_split, 0) }}/{{ 100 - $a->default_commission_split }}</div>
+                  <div class="text-muted">{{ __('Split: :seller/:artist', ['seller' => number_format($a->default_commission_split, 0), 'artist' => 100 - $a->default_commission_split]) }}</div>
                 @endif
               </td>
               <td>{{ $a->total_listings }}</td>
               <td>
-                <span class="badge bg-{{ $a->status === 'active' ? 'success' : 'secondary' }}">{{ $a->status }}</span>
+                <span class="badge bg-{{ $a->status === 'active' ? 'success' : 'secondary' }}">{{ __(ucfirst($a->status)) }}</span>
               </td>
               <td class="text-end">
                 <a href="{{ route('ahgmarketplace.seller-artist-edit', ['id' => $a->id]) }}" class="btn btn-sm btn-outline-primary">

@@ -208,7 +208,7 @@
             </a>
             <div class="card-body">
               <h6 class="card-title">
-                <a href="{{ route('ahgmarketplace.listing', ['slug' => $listing->slug ?? '']) }}" class="text-decoration-none">{{ \Illuminate\Support\Str::limit($listing->title ?? 'Untitled', 50) }}</a>
+                <a href="{{ route('ahgmarketplace.listing', ['slug' => $listing->slug ?? '']) }}" class="text-decoration-none">{{ \Illuminate\Support\Str::limit($listing->title ?? __('Untitled'), 50) }}</a>
               </h6>
               <div class="d-flex justify-content-between align-items-center mb-2">
                 <span class="fw-bold">

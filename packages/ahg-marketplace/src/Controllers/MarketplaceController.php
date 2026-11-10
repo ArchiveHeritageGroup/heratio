@@ -48,7 +48,7 @@ class MarketplaceController extends Controller
     private function requireAuth(Request $request): int
     {
         if (!Auth::check()) {
-            session()->flash('error', 'Please log in to continue.');
+            session()->flash('error', __('Please log in to continue.'));
             abort(redirect(route('login')));
         }
 
@@ -61,7 +61,7 @@ class MarketplaceController extends Controller
             abort(redirect(route('login')));
         }
         if (!Auth::user()->is_admin) {
-            session()->flash('error', 'Admin access required.');
+            session()->flash('error', __('Admin access required.'));
             abort(redirect(route('ahgmarketplace.browse')));
         }
     }
@@ -167,7 +167,7 @@ class MarketplaceController extends Controller
             );
         } elseif ($formAction === 'suspend') {
             $this->service->updateListingStatus($listingId, 'suspended');
-            session()->flash('notice', 'Listing suspended.');
+            session()->flash('notice', __('Listing suspended.'));
         }
 
         return redirect()->route('ahgmarketplace.admin-listings');
@@ -205,7 +205,7 @@ class MarketplaceController extends Controller
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
-            session()->flash('notice', 'Category created.');
+            session()->flash('notice', __('Category created.'));
         } elseif ($formAction === 'update') {
             $catId = (int) $request->input('category_id');
             if ($catId) {
@@ -222,13 +222,13 @@ class MarketplaceController extends Controller
                     $updateData['slug'] = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $name), '-'));
                 }
                 $this->service->updateCategory($catId, $updateData);
-                session()->flash('notice', 'Category updated.');
+                session()->flash('notice', __('Category updated.'));
             }
         } elseif ($formAction === 'delete') {
             $catId = (int) $request->input('category_id');
             if ($catId) {
                 $this->service->deleteCategory($catId);
-                session()->flash('notice', 'Category deleted.');
+                session()->flash('notice', __('Category deleted.'));
             }
         }
 
@@ -256,9 +256,9 @@ class MarketplaceController extends Controller
 
             if (!empty($code) && $exchangeRate > 0) {
                 $this->service->updateCurrency($code, ['exchange_rate_to_zar' => $exchangeRate]);
-                session()->flash('notice', 'Exchange rate updated for ' . $code . '.');
+                session()->flash('notice', __('Exchange rate updated for :code.', ['code' => $code]));
             } else {
-                session()->flash('error', 'Invalid currency code or exchange rate.');
+                session()->flash('error', __('Invalid currency code or exchange rate.'));
             }
         } elseif ($formAction === 'add') {
             $request->validate([
@@ -270,7 +270,7 @@ class MarketplaceController extends Controller
             $existing = $this->service->getCurrency($code);
 
             if ($existing) {
-                session()->flash('error', 'Currency ' . $code . ' already exists.');
+                session()->flash('error', __('Currency :code already exists.', ['code' => $code]));
             } else {
                 $this->service->addCurrency([
                     'code' => $code,
@@ -282,7 +282,7 @@ class MarketplaceController extends Controller
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
-                session()->flash('notice', 'Currency ' . $code . ' added.');
+                session()->flash('notice', __('Currency :code added.', ['code' => $code]));
             }
         } elseif ($formAction === 'toggle') {
             $code = trim($request->input('code', ''));
@@ -291,8 +291,8 @@ class MarketplaceController extends Controller
                 if ($currency) {
                     $newStatus = $currency->is_active ? 0 : 1;
                     $this->service->updateCurrency($code, ['is_active' => $newStatus]);
-                    $statusLabel = $newStatus ? 'activated' : 'deactivated';
-                    session()->flash('notice', 'Currency ' . $code . ' ' . $statusLabel . '.');
+                    $statusLabel = $newStatus ? __('activated') : __('deactivated');
+                    session()->flash('notice', __('Currency :code :status.', ['code' => $code, 'status' => $statusLabel]));
                 }
             }
         }
@@ -429,7 +429,7 @@ class MarketplaceController extends Controller
         $selectedIds = $request->input('payout_ids', []);
         $ids = array_filter(array_map('intval', $selectedIds), fn ($id) => $id > 0);
         if (empty($ids)) {
-            session()->flash('error', 'No valid payouts selected.');
+            session()->flash('error', __('No valid payouts selected.'));
 
             return redirect()->route('ahgmarketplace.admin-payouts');
         }
@@ -489,7 +489,7 @@ class MarketplaceController extends Controller
         if ($request->hasAny(['payout_ids']) && $commit) {
             $ids = array_filter(array_map('intval', (array) $request->input('payout_ids', [])), fn ($i) => $i > 0);
             if (empty($ids)) {
-                session()->flash('error', 'No valid payout IDs in payload.');
+                session()->flash('error', __('No valid payout IDs in payload.'));
 
                 return redirect()->route('ahgmarketplace.admin-payouts');
             }
@@ -506,14 +506,14 @@ class MarketplaceController extends Controller
         // Branch B: CSV upload.
         $file = $request->file('csv');
         if (!$file) {
-            session()->flash('error', 'CSV file is required.');
+            session()->flash('error', __('CSV file is required.'));
 
             return redirect()->route('ahgmarketplace.admin-payouts');
         }
 
         $parsed = $this->parsePayoutsCsv($file->getRealPath());
         if (!empty($parsed['errors']) && empty($parsed['rows'])) {
-            session()->flash('error', 'CSV could not be parsed: ' . implode('; ', $parsed['errors']));
+            session()->flash('error', __('CSV could not be parsed: :errors', ['errors' => implode('; ', $parsed['errors'])]));
 
             return redirect()->route('ahgmarketplace.admin-payouts');
         }
@@ -557,7 +557,7 @@ class MarketplaceController extends Controller
         }
 
         if (empty($ids)) {
-            session()->flash('error', 'No payable rows in the CSV.');
+            session()->flash('error', __('No payable rows in the CSV.'));
 
             return redirect()->route('ahgmarketplace.admin-payouts');
         }
@@ -757,7 +757,7 @@ class MarketplaceController extends Controller
             }
         }
 
-        session()->flash('notice', 'Settings updated.');
+        session()->flash('notice', __('Settings updated.'));
 
         return redirect()->route('ahgmarketplace.admin-settings');
     }
@@ -1166,26 +1166,26 @@ class MarketplaceController extends Controller
         }
 
         if ($listing->listing_type !== 'auction') {
-            session()->flash('error', 'This listing is not an auction.');
+            session()->flash('error', __('This listing is not an auction.'));
 
             return redirect()->route('ahgmarketplace.listing', ['slug' => $slug]);
         }
 
         $auction = $this->service->getAuctionForListing($listing->id);
         if (!$auction) {
-            session()->flash('error', 'Auction not found for this listing.');
+            session()->flash('error', __('Auction not found for this listing.'));
 
             return redirect()->route('ahgmarketplace.listing', ['slug' => $slug]);
         }
 
         if ($auction->status !== 'active') {
-            session()->flash('error', 'This auction is not currently active.');
+            session()->flash('error', __('This auction is not currently active.'));
 
             return redirect()->route('ahgmarketplace.listing', ['slug' => $slug]);
         }
 
         if (strtotime($auction->end_time) <= time()) {
-            session()->flash('error', 'This auction has ended.');
+            session()->flash('error', __('This auction has ended.'));
 
             return redirect()->route('ahgmarketplace.listing', ['slug' => $slug]);
         }
@@ -1222,7 +1222,7 @@ class MarketplaceController extends Controller
 
         $auction = $this->service->getAuctionForListingBySlug($slug);
         if (!$auction) {
-            session()->flash('error', 'Auction not found.');
+            session()->flash('error', __('Auction not found.'));
 
             return redirect()->route('ahgmarketplace.browse');
         }
@@ -1230,7 +1230,7 @@ class MarketplaceController extends Controller
         $result = $this->service->placeBid($auction->id, $userId, $bidAmount, $maxBid);
 
         if ($result['success']) {
-            session()->flash('notice', 'Your bid has been placed successfully.');
+            session()->flash('notice', __('Your bid has been placed successfully.'));
 
             return redirect()->route('ahgmarketplace.listing', ['slug' => $slug]);
         }
@@ -1245,7 +1245,7 @@ class MarketplaceController extends Controller
         $guestEnquiriesEnabled = (bool) $this->service->getSetting('guest_enquiries_enabled', true);
 
         if (!$guestEnquiriesEnabled && !Auth::check()) {
-            session()->flash('error', 'Please log in to send an enquiry.');
+            session()->flash('error', __('Please log in to send an enquiry.'));
 
             return redirect()->route('login');
         }
@@ -1286,7 +1286,7 @@ class MarketplaceController extends Controller
         $guestEnquiriesEnabled = (bool) $this->service->getSetting('guest_enquiries_enabled', true);
 
         if (!$guestEnquiriesEnabled && !Auth::check()) {
-            session()->flash('error', 'Please log in to send an enquiry.');
+            session()->flash('error', __('Please log in to send an enquiry.'));
 
             return redirect()->route('login');
         }
@@ -1318,7 +1318,7 @@ class MarketplaceController extends Controller
             'updated_at' => now(),
         ]);
 
-        session()->flash('notice', 'Your enquiry has been sent successfully. The seller will respond to you by email.');
+        session()->flash('notice', __('Your enquiry has been sent successfully. The seller will respond to you by email.'));
 
         return redirect()->route('ahgmarketplace.listing', ['slug' => $slug]);
     }
@@ -1338,13 +1338,13 @@ class MarketplaceController extends Controller
         }
 
         if ($listing->status !== 'active') {
-            session()->flash('error', 'This listing is no longer available.');
+            session()->flash('error', __('This listing is no longer available.'));
 
             return redirect()->route('ahgmarketplace.listing', ['slug' => $slug]);
         }
 
         if ($listing->listing_type === 'auction') {
-            session()->flash('error', 'Cannot make offers on auction listings. Please place a bid instead.');
+            session()->flash('error', __('Cannot make offers on auction listings. Please place a bid instead.'));
 
             return redirect()->route('ahgmarketplace.listing', ['slug' => $slug]);
         }
@@ -1377,7 +1377,7 @@ class MarketplaceController extends Controller
         $result = $this->service->createOffer($listing->id, $userId, $amount, $message ?: null);
 
         if ($result['success']) {
-            session()->flash('notice', 'Your offer has been submitted successfully.');
+            session()->flash('notice', __('Your offer has been submitted successfully.'));
 
             return redirect()->route('ahgmarketplace.my-offers');
         }
@@ -1398,25 +1398,25 @@ class MarketplaceController extends Controller
 
         $transaction = $this->service->getTransaction($txnId);
         if (!$transaction) {
-            session()->flash('error', 'Transaction not found.');
+            session()->flash('error', __('Transaction not found.'));
 
             return redirect()->route('ahgmarketplace.my-purchases');
         }
 
         if ((int) $transaction->buyer_id !== $userId) {
-            session()->flash('error', 'You do not have permission to review this transaction.');
+            session()->flash('error', __('You do not have permission to review this transaction.'));
 
             return redirect()->route('ahgmarketplace.my-purchases');
         }
 
         if ($transaction->status !== 'completed') {
-            session()->flash('error', 'Transaction must be completed before leaving a review.');
+            session()->flash('error', __('Transaction must be completed before leaving a review.'));
 
             return redirect()->route('ahgmarketplace.my-purchases');
         }
 
         if ($this->service->hasReviewed($txnId, $userId)) {
-            session()->flash('error', 'You have already reviewed this transaction.');
+            session()->flash('error', __('You have already reviewed this transaction.'));
 
             return redirect()->route('ahgmarketplace.my-purchases');
         }
@@ -1449,7 +1449,7 @@ class MarketplaceController extends Controller
         );
 
         if ($result['success']) {
-            session()->flash('notice', 'Thank you for your review!');
+            session()->flash('notice', __('Thank you for your review!'));
 
             return redirect()->route('ahgmarketplace.my-purchases');
         }
@@ -1532,18 +1532,18 @@ class MarketplaceController extends Controller
             abort(404);
         }
         if (($listing->status ?? '') !== 'active') {
-            session()->flash('error', 'This listing is no longer available.');
+            session()->flash('error', __('This listing is no longer available.'));
             return redirect()->route('ahgmarketplace.listing', ['slug' => $slug]);
         }
         if (($listing->listing_type ?? '') === 'offer_only') {
-            session()->flash('error', 'This listing only accepts offers.');
+            session()->flash('error', __('This listing only accepts offers.'));
             return redirect()->route('ahgmarketplace.offer-form', ['slug' => $slug]);
         }
 
         if (($listing->listing_type ?? '') === 'auction') {
             $auction = $this->service->getAuctionForListing((int) $listing->id);
             if (!$auction || empty($auction->buy_now_price)) {
-                session()->flash('error', 'Buy Now is not available for this auction.');
+                session()->flash('error', __('Buy Now is not available for this auction.'));
                 return redirect()->route('ahgmarketplace.listing', ['slug' => $slug]);
             }
             $buyResult = $this->service->buyNow((int) $auction->id, $userId);
@@ -1571,7 +1571,7 @@ class MarketplaceController extends Controller
 
         $txnNumber = $result['transaction']->transaction_number
             ?? ($result['transaction_id'] ?? '');
-        session()->flash('notice', 'Purchase initiated. Transaction #' . $txnNumber . ' created.');
+        session()->flash('notice', __('Purchase initiated. Transaction #:number created.', ['number' => $txnNumber]));
         return redirect()->route('ahgmarketplace.my-purchases');
     }
 
@@ -1595,7 +1595,7 @@ class MarketplaceController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['error' => 'Seller not found'], 404);
             }
-            session()->flash('error', 'Seller not found.');
+            session()->flash('error', __('Seller not found.'));
             return redirect()->route('ahgmarketplace.browse');
         }
 
@@ -1641,7 +1641,7 @@ class MarketplaceController extends Controller
             abort(404);
         }
         if ((int) $listing->seller_id !== (int) $seller->id) {
-            session()->flash('error', 'You do not have permission to publish this listing.');
+            session()->flash('error', __('You do not have permission to publish this listing.'));
             return redirect()->route('ahgmarketplace.seller-listings');
         }
 
@@ -1683,13 +1683,13 @@ class MarketplaceController extends Controller
             abort(404);
         }
         if ((int) $listing->seller_id !== (int) $seller->id) {
-            session()->flash('error', 'You do not have permission to withdraw this listing.');
+            session()->flash('error', __('You do not have permission to withdraw this listing.'));
             return redirect()->route('ahgmarketplace.seller-listings');
         }
 
         $result = $this->service->withdrawListing($listingId);
         if (!empty($result['success'])) {
-            session()->flash('notice', 'Listing has been withdrawn.');
+            session()->flash('notice', __('Listing has been withdrawn.'));
         } else {
             session()->flash('error', $result['error'] ?? 'Unable to withdraw listing.');
         }
@@ -1828,7 +1828,7 @@ class MarketplaceController extends Controller
     public function buyerStart(Request $request)
     {
         $this->requireAuth($request);
-        session()->flash('notice', "You're all set. Browse the marketplace below - your Heratio account is your buyer account.");
+        session()->flash('notice', __('You’re all set. Browse the marketplace below; your Heratio account is your buyer account.'));
         return redirect()->route('ahgmarketplace.browse');
     }
 
@@ -1869,15 +1869,15 @@ class MarketplaceController extends Controller
             abort(404);
         }
         if (!in_array($listing->status, ['active', 'published'], true)) {
-            session()->flash('error', 'This listing is no longer available.');
+            session()->flash('error', __('This listing is no longer available.'));
             return redirect()->route('ahgmarketplace.listing', ['slug' => $listing->slug]);
         }
         if ($listing->listing_type === 'offer_only') {
-            session()->flash('error', 'This listing only accepts offers.');
+            session()->flash('error', __('This listing only accepts offers.'));
             return redirect()->route('ahgmarketplace.offer-form', ['slug' => $listing->slug]);
         }
         if ($listing->seller_id && (int) $listing->seller_id === $this->getSellerIdForUser($userId)) {
-            session()->flash('error', 'You cannot buy your own listing.');
+            session()->flash('error', __('You cannot buy your own listing.'));
             return redirect()->route('ahgmarketplace.listing', ['slug' => $listing->slug]);
         }
 
@@ -1907,7 +1907,7 @@ class MarketplaceController extends Controller
             abort(404);
         }
         if ((int) ($auction->winner_id ?? 0) !== (int) $userId) {
-            session()->flash('error', 'Only the auction winner can pay for this lot.');
+            session()->flash('error', __('Only the auction winner can pay for this lot.'));
             return redirect()->route('ahgmarketplace.my-bids');
         }
 
@@ -2131,7 +2131,7 @@ class MarketplaceController extends Controller
         $payments = app(MarketplacePaymentService::class);
         $txn = $result['transaction'] ?? $this->service->getTransaction((int) $result['transaction_id']);
         if (!$txn) {
-            session()->flash('error', 'Transaction not found after creation.');
+            session()->flash('error', __('Transaction not found after creation.'));
             return redirect()->route('ahgmarketplace.listing', ['slug' => $listing->slug]);
         }
 
@@ -2143,7 +2143,7 @@ class MarketplaceController extends Controller
             $url = $payments->buildProcessUrl($txn, $listing, $name, $email);
         } catch (\Throwable $e) {
             Log::error('[PayFast] buildProcessUrl failed', ['err' => $e->getMessage()]);
-            session()->flash('error', 'Payment gateway is not configured: ' . $e->getMessage());
+            session()->flash('error', __('Payment gateway is not configured: :message', ['message' => $e->getMessage()]));
             return redirect()->route('ahgmarketplace.listing', ['slug' => $listing->slug]);
         }
 
@@ -2266,7 +2266,7 @@ class MarketplaceController extends Controller
         ]));
 
         if (!empty($result['success'])) {
-            session()->flash('notice', "Artist '{$request->input('display_name')}' added.");
+            session()->flash('notice', __('Artist “:name” added.', ['name' => $request->input('display_name')]));
             return redirect()->route('ahgmarketplace.seller-artists');
         }
         session()->flash('error', $result['error'] ?? 'Failed to add artist.');
@@ -2376,7 +2376,7 @@ class MarketplaceController extends Controller
         $result = $this->service->registerSeller($userId, $data);
 
         if ($result['success']) {
-            session()->flash('notice', 'Welcome! Your seller profile has been created.');
+            session()->flash('notice', __('Welcome! Your seller profile has been created.'));
 
             return redirect()->route('ahgmarketplace.dashboard');
         }
@@ -2454,7 +2454,7 @@ class MarketplaceController extends Controller
         $result = $this->service->updateSellerProfile($seller->id, $data);
 
         if ($result['success']) {
-            session()->flash('notice', 'Profile updated successfully.');
+            session()->flash('notice', __('Profile updated successfully.'));
         } else {
             session()->flash('error', $result['error']);
         }
@@ -2589,7 +2589,7 @@ class MarketplaceController extends Controller
         if ($artistId) {
             $artist = $this->service->getArtistById($artistId);
             if (!$artist || (int) $artist->seller_id !== (int) $seller->id) {
-                session()->flash('error', 'Selected artist is not in your roster.');
+                session()->flash('error', __('Selected artist is not in your roster.'));
                 return redirect()->route('ahgmarketplace.seller-listing-create');
             }
             $artistNameFromBroker = $artist->display_name;
@@ -2662,7 +2662,7 @@ class MarketplaceController extends Controller
             // override on the listing-images page.
             $this->service->defaultListingImageFromIo((int) $result['id']);
 
-            session()->flash('notice', 'Listing created. Add images to complete your listing.');
+            session()->flash('notice', __('Listing created. Add images to complete your listing.'));
 
             return redirect()->route('ahgmarketplace.seller-listing-images', ['id' => $result['id']]);
         }
@@ -2690,19 +2690,19 @@ class MarketplaceController extends Controller
         $listing = $this->service->getListingById($listingId);
         if (!$listing) abort(404);
         if ((int) $listing->seller_id !== (int) $seller->id) {
-            session()->flash('error', 'You do not have permission to feature this listing.');
+            session()->flash('error', __('You do not have permission to feature this listing.'));
             return redirect()->route('ahgmarketplace.seller-listings');
         }
 
         $fee = (float) $this->service->getSetting('featured_listing_fee', 0);
         if ($fee <= 0) {
-            session()->flash('error', 'Featured-listing fee is not configured. Contact the marketplace operator.');
+            session()->flash('error', __('Featured-listing fee is not configured. Contact the marketplace operator.'));
             return redirect()->route('ahgmarketplace.seller-listing-edit', ['id' => $listingId]);
         }
 
         $txn = $this->service->createFeaturePurchaseTransaction($listingId, $userId);
         if (!$txn) {
-            session()->flash('error', 'Could not create feature-purchase transaction.');
+            session()->flash('error', __('Could not create feature-purchase transaction.'));
             return redirect()->route('ahgmarketplace.seller-listing-edit', ['id' => $listingId]);
         }
 
@@ -2713,7 +2713,7 @@ class MarketplaceController extends Controller
             $url = $payments->buildProcessUrl($txn, $listing, $buyerName, $buyerEmail);
             return redirect()->away($url);
         } catch (\Throwable $e) {
-            session()->flash('error', 'Could not initiate payment: ' . $e->getMessage());
+            session()->flash('error', __('Could not initiate payment: :message', ['message' => $e->getMessage()]));
             return redirect()->route('ahgmarketplace.seller-listing-edit', ['id' => $listingId]);
         }
     }
@@ -2734,7 +2734,7 @@ class MarketplaceController extends Controller
         }
 
         if ((int) $listing->seller_id !== (int) $seller->id) {
-            session()->flash('error', 'You do not have permission to edit this listing.');
+            session()->flash('error', __('You do not have permission to edit this listing.'));
 
             return redirect()->route('ahgmarketplace.seller-listings');
         }
@@ -2770,7 +2770,7 @@ class MarketplaceController extends Controller
 
         $listing = $this->service->getListingById($listingId);
         if (!$listing || (int) $listing->seller_id !== (int) $seller->id) {
-            session()->flash('error', 'You do not have permission to edit this listing.');
+            session()->flash('error', __('You do not have permission to edit this listing.'));
 
             return redirect()->route('ahgmarketplace.seller-listings');
         }
@@ -2860,7 +2860,7 @@ class MarketplaceController extends Controller
         $result = $this->service->updateListing($listingId, $data);
 
         if ($result['success']) {
-            session()->flash('notice', 'Listing updated successfully.');
+            session()->flash('notice', __('Listing updated successfully.'));
         } else {
             session()->flash('error', $result['error']);
         }
@@ -2884,7 +2884,7 @@ class MarketplaceController extends Controller
         }
 
         if ((int) $listing->seller_id !== (int) $seller->id) {
-            session()->flash('error', 'You do not have permission to manage this listing.');
+            session()->flash('error', __('You do not have permission to manage this listing.'));
 
             return redirect()->route('ahgmarketplace.seller-listings');
         }
@@ -2895,7 +2895,7 @@ class MarketplaceController extends Controller
         // digital objects, auto-attach the linked record's reference/master image
         // as the primary image so the listing isn't blank on the public site.
         if ($this->service->defaultListingImageFromIo($listingId)) {
-            session()->flash('notice', 'Used the linked GLAM record\'s image as the default. Upload your own to replace it.');
+            session()->flash('notice', __('Used the linked GLAM record’s image as the default. Upload your own to replace it.'));
         }
 
         $images = $this->service->getListingImages($listingId);
@@ -2923,7 +2923,7 @@ class MarketplaceController extends Controller
         $listingId = (int) $request->input('id');
         $listing = $this->service->getListingById($listingId);
         if (!$listing || (int) $listing->seller_id !== (int) $seller->id) {
-            session()->flash('error', 'You do not have permission to manage this listing.');
+            session()->flash('error', __('You do not have permission to manage this listing.'));
 
             return redirect()->route('ahgmarketplace.seller-listings');
         }
@@ -2935,25 +2935,25 @@ class MarketplaceController extends Controller
             $currentImages = $this->service->getListingImages($listingId);
 
             if (count($currentImages) >= $maxImages) {
-                session()->flash('error', 'Maximum image limit reached (' . $maxImages . ').');
+                session()->flash('error', __('Maximum image limit reached (:count).', ['count' => $maxImages]));
             } elseif (!$request->hasFile('image_file') || !$request->file('image_file')->isValid()) {
-                session()->flash('error', 'Please select an image to upload.');
+                session()->flash('error', __('Please select an image to upload.'));
             } else {
                 $file = $request->file('image_file');
 
                 $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
                 if (!in_array($file->getMimeType(), $allowedTypes)) {
-                    session()->flash('error', 'Invalid file type. Allowed: JPEG, PNG, GIF, WebP.');
+                    session()->flash('error', __('Invalid file type. Allowed: JPEG, PNG, GIF, WebP.'));
                 } elseif ($file->getSize() > 10 * 1024 * 1024) {
-                    session()->flash('error', 'File size exceeds the 10 MB limit.');
+                    session()->flash('error', __('File size exceeds the 10 MB limit.'));
                 } else {
                     $caption = trim($request->input('caption', ''));
                     $result = $this->service->uploadListingImage($listingId, $file, $caption, count($currentImages));
 
                     if ($result) {
-                        session()->flash('notice', 'Image uploaded successfully.');
+                        session()->flash('notice', __('Image uploaded successfully.'));
                     } else {
-                        session()->flash('error', 'Failed to upload image. Please try again.');
+                        session()->flash('error', __('Failed to upload image. Please try again.'));
                     }
                 }
             }
@@ -2961,13 +2961,13 @@ class MarketplaceController extends Controller
             $imageId = (int) $request->input('image_id');
             if ($imageId) {
                 $this->service->setPrimaryImage($listingId, $imageId);
-                session()->flash('notice', 'Primary image updated.');
+                session()->flash('notice', __('Primary image updated.'));
             }
         } elseif ($formAction === 'delete') {
             $imageId = (int) $request->input('image_id');
             if ($imageId) {
                 $this->service->deleteListingImage($imageId);
-                session()->flash('notice', 'Image removed.');
+                session()->flash('notice', __('Image removed.'));
             }
         }
 
@@ -3041,7 +3041,7 @@ class MarketplaceController extends Controller
         $result = $this->service->createCollection($seller->id, $data);
 
         if ($result['success']) {
-            session()->flash('notice', 'Collection created successfully.');
+            session()->flash('notice', __('Collection created successfully.'));
 
             return redirect()->route('ahgmarketplace.seller-collections');
         }
@@ -3089,7 +3089,7 @@ class MarketplaceController extends Controller
         }
 
         if ((int) $offer->seller_id !== (int) $seller->id) {
-            session()->flash('error', 'You do not have permission to respond to this offer.');
+            session()->flash('error', __('You do not have permission to respond to this offer.'));
 
             return redirect()->route('ahgmarketplace.seller-offers');
         }
@@ -3116,7 +3116,7 @@ class MarketplaceController extends Controller
 
         $offer = $this->service->getOfferWithDetails($offerId);
         if (!$offer || (int) $offer->seller_id !== (int) $seller->id) {
-            session()->flash('error', 'You do not have permission to respond to this offer.');
+            session()->flash('error', __('You do not have permission to respond to this offer.'));
 
             return redirect()->route('ahgmarketplace.seller-offers');
         }
@@ -3139,7 +3139,7 @@ class MarketplaceController extends Controller
         } elseif ($formAction === 'counter') {
             $counterAmount = (float) $request->input('counter_amount');
             if ($counterAmount <= 0) {
-                session()->flash('error', 'Counter amount must be greater than zero.');
+                session()->flash('error', __('Counter amount must be greater than zero.'));
 
                 return redirect()->route('ahgmarketplace.seller-offer-respond', ['id' => $offerId]);
             }
@@ -3189,7 +3189,7 @@ class MarketplaceController extends Controller
         }
 
         if ((int) $transaction->seller_id !== (int) $seller->id) {
-            session()->flash('error', 'You do not have permission to view this transaction.');
+            session()->flash('error', __('You do not have permission to view this transaction.'));
 
             return redirect()->route('ahgmarketplace.seller-transactions');
         }
@@ -3216,7 +3216,7 @@ class MarketplaceController extends Controller
 
         $transaction = $this->service->getTransaction($txnId);
         if (!$transaction || (int) $transaction->seller_id !== (int) $seller->id) {
-            session()->flash('error', 'You do not have permission to update this transaction.');
+            session()->flash('error', __('You do not have permission to update this transaction.'));
 
             return redirect()->route('ahgmarketplace.seller-transactions');
         }
@@ -3278,7 +3278,7 @@ class MarketplaceController extends Controller
             $reply = trim($request->input('reply_message', ''));
 
             if (!$enquiryId || empty($reply)) {
-                session()->flash('error', 'Reply message is required.');
+                session()->flash('error', __('Reply message is required.'));
             } else {
                 $result = $this->service->replyToEnquiry($enquiryId, $reply);
                 session()->flash(

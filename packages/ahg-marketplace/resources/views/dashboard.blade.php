@@ -18,15 +18,15 @@
         {{ $seller->display_name }}
       </h1>
       <div class="text-muted small">
-        Seller #{{ $seller->id }} &middot;
+        {{ __('Seller #:id', ['id' => $seller->id]) }} &middot;
         <span class="badge {{ $seller->is_active ? 'bg-success' : 'bg-secondary' }}">
-          {{ $seller->is_active ? 'Active' : 'Inactive' }}
+          {{ $seller->is_active ? __('Active') : __('Inactive') }}
         </span>
         <span class="badge {{ $seller->verification_status === 'verified' ? 'bg-success' : 'bg-warning text-dark' }}">
-          {{ ucfirst($seller->verification_status) }}
+          {{ __(ucfirst($seller->verification_status)) }}
         </span>
         @if($seller->trust_level)
-          <span class="badge bg-info text-dark">Trust: {{ $seller->trust_level }}</span>
+          <span class="badge bg-info text-dark">{{ __('Trust: :level', ['level' => $seller->trust_level]) }}</span>
         @endif
       </div>
     </div>
@@ -76,10 +76,10 @@
         <div class="card-body">
           <div class="display-6 mb-1">{{ number_format($stats['sold_listings']) }}</div>
           <div class="text-muted small">
-            Sold
+            {{ __('Sold') }}
             @if(($stats['demo_sold_listings'] ?? 0) > 0)
               <span class="badge bg-warning text-dark ms-1" title="{{ __('Includes demo-mode sales (e-commerce disabled)') }}">
-                {{ number_format($stats['demo_sold_listings']) }} demo
+                {{ __(':count demo', ['count' => number_format($stats['demo_sold_listings'])]) }}
               </span>
             @endif
           </div>
@@ -129,16 +129,16 @@
     <div class="card-body">
       <div class="d-flex flex-wrap gap-2">
         <a href="{{ route('ahgmarketplace.seller-listings') }}" class="btn btn-outline-primary btn-sm">
-          <i class="fas fa-list me-1"></i> All listings ({{ $stats['total_listings'] }})
+          <i class="fas fa-list me-1"></i> {{ __('All listings (:count)', ['count' => $stats['total_listings']]) }}
         </a>
         <a href="{{ route('ahgmarketplace.seller-offers') }}" class="btn btn-outline-primary btn-sm">
-          <i class="fas fa-handshake me-1"></i> Offers ({{ $stats['pending_offers'] }} pending)
+          <i class="fas fa-handshake me-1"></i> {{ __('Offers (:count pending)', ['count' => $stats['pending_offers']]) }}
         </a>
         <a href="{{ route('ahgmarketplace.seller-transactions') }}" class="btn btn-outline-primary btn-sm">
           <i class="fas fa-receipt me-1"></i> {{ __('Transactions') }}
         </a>
         <a href="{{ route('ahgmarketplace.seller-enquiries') }}" class="btn btn-outline-primary btn-sm">
-          <i class="fas fa-envelope me-1"></i> Enquiries ({{ $stats['total_enquiries'] }})
+          <i class="fas fa-envelope me-1"></i> {{ __('Enquiries (:count)', ['count' => $stats['total_enquiries']]) }}
         </a>
         <a href="{{ route('ahgmarketplace.seller-collections') }}" class="btn btn-outline-primary btn-sm">
           <i class="fas fa-layer-group me-1"></i> {{ __('Collections') }}
@@ -156,7 +156,7 @@
           <i class="fas fa-chart-line me-1"></i> {{ __('Analytics') }}
         </a>
         <a href="{{ route('ahgmarketplace.seller-reviews') }}" class="btn btn-outline-primary btn-sm">
-          <i class="fas fa-star me-1"></i> Reviews ({{ $seller->rating_count }})
+          <i class="fas fa-star me-1"></i> {{ __('Reviews (:count)', ['count' => $seller->rating_count]) }}
         </a>
       </div>
     </div>
@@ -169,7 +169,7 @@
       <div class="card h-100">
         <div class="card-header d-flex justify-content-between align-items-center">
           <span class="fw-bold"><i class="fas fa-list me-1"></i> {{ __('Recent listings') }}</span>
-          <a href="{{ route('ahgmarketplace.seller-listings') }}" class="small">View all &raquo;</a>
+          <a href="{{ route('ahgmarketplace.seller-listings') }}" class="small">{{ __('View all »') }}</a>
         </div>
         @if(count($recentListings))
           <div class="table-responsive">
@@ -260,7 +260,7 @@
       <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
           <span class="fw-bold"><i class="fas fa-handshake me-1"></i> {{ __('Recent offers') }}</span>
-          <a href="{{ route('ahgmarketplace.seller-offers') }}" class="small">View all &raquo;</a>
+          <a href="{{ route('ahgmarketplace.seller-offers') }}" class="small">{{ __('View all »') }}</a>
         </div>
         @if(count($recentOffers))
           <ul class="list-group list-group-flush">
@@ -288,7 +288,7 @@
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
           <span class="fw-bold"><i class="fas fa-receipt me-1"></i> {{ __('Recent transactions') }}</span>
-          <a href="{{ route('ahgmarketplace.seller-transactions') }}" class="small">View all &raquo;</a>
+          <a href="{{ route('ahgmarketplace.seller-transactions') }}" class="small">{{ __('View all »') }}</a>
         </div>
         @if(count($recentTransactions))
           <ul class="list-group list-group-flush">

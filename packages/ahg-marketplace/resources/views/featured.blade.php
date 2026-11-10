@@ -33,7 +33,7 @@
             <div class="card-body">
               <h6 class="card-title">
                 <a href="{{ route('ahgmarketplace.listing', ['slug' => $listing->slug ?? '']) }}" class="text-decoration-none">
-                  {{ \Illuminate\Support\Str::limit($listing->title ?? 'Untitled', 50) }}
+                  {{ \Illuminate\Support\Str::limit($listing->title ?? __('Untitled'), 50) }}
                 </a>
               </h6>
               @if(!empty($listing->seller_name))

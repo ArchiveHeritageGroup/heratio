@@ -15,7 +15,7 @@
   @if(count($wonAuctions))
     <div class="card mb-4 border-success">
       <div class="card-header bg-success bg-opacity-10 fw-bold">
-        <i class="fas fa-trophy me-1 text-success"></i> Auctions you've won ({{ count($wonAuctions) }})
+        <i class="fas fa-trophy me-1 text-success"></i> {{ __('Auctions you’ve won (:count)', ['count' => count($wonAuctions)]) }}
       </div>
       <div class="table-responsive">
         <table class="table table-hover mb-0 align-middle">
@@ -38,13 +38,13 @@
                 <td class="small text-muted">{{ \Carbon\Carbon::parse($w->end_time)->format('Y-m-d H:i') }}</td>
                 <td>
                   @if($w->payment_status === 'paid')
-                    <span class="badge bg-success">paid</span>
+                    <span class="badge bg-success">{{ __('paid') }}</span>
                   @elseif(in_array($w->payment_status, ['pending', 'pending_payment']))
-                    <span class="badge bg-warning text-dark">awaiting payment</span>
+                    <span class="badge bg-warning text-dark">{{ __('awaiting payment') }}</span>
                   @elseif($w->payment_status === 'cancelled')
-                    <span class="badge bg-secondary">cancelled</span>
+                    <span class="badge bg-secondary">{{ __('cancelled') }}</span>
                   @else
-                    <span class="badge bg-light text-dark">not started</span>
+                    <span class="badge bg-light text-dark">{{ __('not started') }}</span>
                   @endif
                 </td>
                 <td class="text-center">
@@ -71,7 +71,7 @@
 
   {{-- All bids placed --}}
   <div class="card">
-    <div class="card-header fw-bold"><i class="fas fa-list me-1"></i> Bids you've placed ({{ $total }})</div>
+    <div class="card-header fw-bold"><i class="fas fa-list me-1"></i> {{ __('Bids you’ve placed (:count)', ['count' => $total]) }}</div>
     @if(count($bids))
       <div class="table-responsive">
         <table class="table table-hover mb-0 align-middle">

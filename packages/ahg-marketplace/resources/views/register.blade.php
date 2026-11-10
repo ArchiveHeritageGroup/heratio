@@ -32,7 +32,7 @@
             <li>{{ __('Place bids on auctions') }}</li>
             <li>{{ __('Make offers on fixed-price items') }}</li>
             <li>{{ __('Send enquiries to sellers') }}</li>
-            <li>Track favourites &amp; purchases</li>
+            <li>{{ __('Track favourites & purchases') }}</li>
           </ul>
           <p class="small text-muted mb-4">
             <i class="fas fa-info-circle me-1"></i>

@@ -108,7 +108,7 @@
         {{ __('by :name', ['name' => $listing->artist_name]) }}
         @if(!empty($listing->artist_id))
           <span class="badge bg-info text-dark ms-1" title="{{ __('Sold on behalf of this artist by the seller') }}">
-            <i class="fas fa-handshake me-1"></i>via broker
+            <i class="fas fa-handshake me-1"></i>{{ __('via broker') }}
           </span>
         @endif
       </p>
@@ -186,10 +186,10 @@
                 <i class="fas fa-clock me-1"></i>
                 <strong>{{ __('You have this reserved.') }}</strong>
                 {{ __('Hold expires') }} <span data-countdown="{{ $reservation->expires_at }}">{{ \Carbon\Carbon::parse($reservation->expires_at)->diffForHumans() }}</span>.
-                Complete the purchase below to keep it.
+                {{ __('Complete the purchase below to keep it.') }}
               @else
                 <i class="fas fa-lock me-1"></i>
-                <strong>{{ __('Reserved by another buyer') }}</strong> - hold released
+                <strong>{{ __('Reserved by another buyer') }}</strong> - {{ __('hold released') }}
                 <span data-countdown="{{ $reservation->expires_at }}">{{ \Carbon\Carbon::parse($reservation->expires_at)->diffForHumans() }}</span>.
               @endif
             </div>
@@ -340,7 +340,7 @@
           </li>
           <li class="list-group-item">
             <span class="text-muted">{{ __('Territory') }}:</span>
-            <strong>{{ $listing->licence_template_territory ?? 'Worldwide' }}</strong>
+            <strong>{{ $listing->licence_template_territory ?? __('Worldwide') }}</strong>
           </li>
           <li class="list-group-item">
             <span class="text-muted">{{ __('Exclusivity') }}:</span>
@@ -355,7 +355,7 @@
           <li class="list-group-item">
             <span class="text-muted">{{ __('Attribution required') }}:</span>
             @if($listing->licence_template_attribution_required ?? 1)
-              <i class="fas fa-check-circle text-success"></i> Yes
+              <i class="fas fa-check-circle text-success"></i> {{ __('Yes') }}
             @else
               <i class="fas fa-times-circle text-secondary"></i> No
             @endif
@@ -363,7 +363,7 @@
           <li class="list-group-item">
             <span class="text-muted">{{ __('Modifications allowed') }}:</span>
             @if($listing->licence_template_modifications_allowed ?? 0)
-              <i class="fas fa-check-circle text-success"></i> Yes
+              <i class="fas fa-check-circle text-success"></i> {{ __('Yes') }}
             @else
               <i class="fas fa-times-circle text-secondary"></i> No
             @endif
@@ -371,9 +371,9 @@
           <li class="list-group-item">
             <span class="text-muted">{{ __('Sub-licensing') }}:</span>
             @if($listing->licence_template_sublicensing_allowed ?? 0)
-              <i class="fas fa-check-circle text-success"></i> Allowed
+              <i class="fas fa-check-circle text-success"></i> {{ __('Allowed') }}
             @else
-              <i class="fas fa-times-circle text-secondary"></i> Not allowed
+              <i class="fas fa-times-circle text-secondary"></i> {{ __('Not allowed') }}
             @endif
           </li>
           @if($listing->licence_template_scope)
