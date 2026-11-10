@@ -81,7 +81,7 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
     <span class="text-muted">
-      Showing {{ $pager['from'] }} to {{ $pager['to'] }} of {{ $pager['total'] }} results
+      {{ __('Showing :first to :last of :total', ['first' => $pager['from'], 'last' => $pager['to'], 'total' => $pager['total']]) }}
     </span>
     <div class="d-flex align-items-center gap-2">
       {{-- Page-size switch --}}

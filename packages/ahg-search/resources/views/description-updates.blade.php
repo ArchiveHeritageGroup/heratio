@@ -9,9 +9,9 @@
     <div class="d-flex flex-column">
       <h1 class="mb-0">
         @if(isset($pager) && $pager->getNbResults())
-          Showing {{ number_format($pager->getNbResults()) }} results
+          {{ __('Showing :count results', ['count' => number_format($pager->getNbResults())]) }}
         @else
-          Description updates
+          {{ __('Description updates') }}
         @endif
       </h1>
     </div>

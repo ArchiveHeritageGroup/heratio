@@ -74,7 +74,7 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
     <span class="text-muted">
-      Showing {{ $pager['from'] }} to {{ $pager['to'] }} of {{ $pager['total'] }} results
+      {{ __('Showing :first to :last of :total', ['first' => $pager['from'], 'last' => $pager['to'], 'total' => $pager['total']]) }}
     </span>
     <div class="btn-group btn-group-sm">
       <a href="{{ route('audit.export', array_merge(request()->query(), ['format' => 'csv'])) }}" class="btn btn-outline-secondary"><i class="fas fa-file-csv me-1"></i>{{ __('Export CSV') }}</a>

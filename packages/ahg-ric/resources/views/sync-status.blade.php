@@ -9,9 +9,9 @@
     <div class="d-flex flex-column">
       <h1 class="mb-0">
         @if($items->total())
-          Showing {{ number_format($items->total()) }} results
+          {{ __('Showing :count results', ['count' => number_format($items->total())]) }}
         @else
-          No results found
+          {{ __('No results found') }}
         @endif
       </h1>
       <span class="small text-muted">{{ __('RiC Sync Status') }}</span>

@@ -53,7 +53,7 @@
     </div>
 
     <div id="result-count" class="mt-2">
-      Showing {{ count($rows) }} results
+      {{ __('Showing :count results', ['count' => count($rows)]) }}
     </div>
   @else
     <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>{{ __('No records found.') }}</div>

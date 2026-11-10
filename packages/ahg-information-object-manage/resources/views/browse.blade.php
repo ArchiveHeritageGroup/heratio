@@ -13,9 +13,9 @@
     <div class="d-flex flex-column">
       <h1 class="mb-0" aria-describedby="heading-label">
         @if(isset($pager) && $pager->getNbResults())
-          Showing {{ number_format($pager->getNbResults()) }} results
+          {{ __('Showing :count results', ['count' => number_format($pager->getNbResults())]) }}
         @else
-          No results found
+          {{ __('No results found') }}
         @endif
       </h1>
       <span class="small" id="heading-label">{{ config('app.ui_label_informationobject', 'Archival description') }}</span>
