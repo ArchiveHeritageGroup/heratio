@@ -61,6 +61,27 @@ class SharePointEventRepository
             ->exists();
     }
 
+    /**
+     * Has this file already been captured (or is it on its way) with the same
+     * content? Keyed on the cTag, which changes only when the content does:
+     * the eTag also changes when a column is edited, and Heratio's own
+     * write-back of the read fields made every read capture the file again
+     * (10 Nov 2026, events 57-81 on prod).
+     */
+    public function capturedWithContent(int $driveId, ?string $itemId, ?string $cTag): bool
+    {
+        if ($itemId === null || $cTag === null || $cTag === '') {
+            return false;
+        }
+
+        return DB::table('sharepoint_event')
+            ->where('drive_id', $driveId)
+            ->where('sp_item_id', $itemId)
+            ->whereIn('status', ['received', 'queued', 'processing', 'completed'])
+            ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(raw_payload, '$.item.cTag')) = ?", [$cTag])
+            ->exists();
+    }
+
     /** @return array<string, int> */
     public function statusCounts(?string $sinceSql = '24 HOUR'): array
     {

@@ -199,6 +199,12 @@ class SharePointSyncCommand extends Command
                     || str_contains((string) ($item['parentReference']['path'] ?? ''), '/'.\AhgSharePoint\Services\SharePointWriteBackService::REDACTED_FOLDER)) {
                     continue;
                 }
+                // Same content already captured: only columns changed (often
+                // Heratio's own write-back), so this is not a new document.
+                if (app(\AhgSharePoint\Repositories\SharePointEventRepository::class)
+                    ->capturedWithContent((int) $drive->id, $item['id'] ?? null, $item['cTag'] ?? null)) {
+                    continue;
+                }
                 $this->createSyntheticEvent($drive, $item);
                 $processed++;
             }
