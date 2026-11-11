@@ -706,66 +706,8 @@ packages/ahg-export/resources/views/index.blade.php	text	For bulk exports, use t
 packages/ahg-export/resources/views/repository.blade.php	text	100 records
 packages/ahg-export/resources/views/repository.blade.php	text	50 records
 packages/ahg-export/resources/views/repository.blade.php	text	500 records
-packages/ahg-extended-rights/resources/views/admin/embargoes.blade.php	text	{{…}} days left
-packages/ahg-extended-rights/resources/views/admin/expiring-embargoes.blade.php	text	No embargoes expiring within {{…}} days.
-packages/ahg-extended-rights/resources/views/admin/report.blade.php	text	Embargoes Report
-packages/ahg-extended-rights/resources/views/admin/report.blade.php	text	Orphan Works Report
-packages/ahg-extended-rights/resources/views/admin/report.blade.php	text	Rights Summary Report
-packages/ahg-extended-rights/resources/views/admin/report.blade.php	text	TK Labels Report
-packages/ahg-extended-rights/resources/views/admin/statements.blade.php	text	- For works in the public domain or with specific use restrictions
-packages/ahg-extended-rights/resources/views/admin/statements.blade.php	text	- For works that are still under copyright protection
-packages/ahg-extended-rights/resources/views/admin/statements.blade.php	text	- When copyright status is unclear or not yet evaluated
 packages/ahg-extended-rights/resources/views/admin/statements.blade.php	text	creativecommons.org
 packages/ahg-extended-rights/resources/views/admin/statements.blade.php	text	rightsstatements.org
-packages/ahg-extended-rights/resources/views/admin/tk-labels.blade.php	text	- Select Label -
-packages/ahg-extended-rights/resources/views/admin/tk-labels.blade.php	text	Attribution Labels
-packages/ahg-extended-rights/resources/views/admin/tk-labels.blade.php	text	Biocultural Labels
-packages/ahg-extended-rights/resources/views/admin/tk-labels.blade.php	text	Pending
-packages/ahg-extended-rights/resources/views/admin/tk-labels.blade.php	text	Traditional Knowledge Labels
-packages/ahg-extended-rights/resources/views/admin/tk-labels.blade.php	text	initiative to support Indigenous communities in the management of their cultural heritage and intellectual property.
-packages/ahg-extended-rights/resources/views/partials/_embargo-block.blade.php	text	Only the digital object is available. Metadata is restricted.
-packages/ahg-extended-rights/resources/views/partials/_embargo-block.blade.php	text	Some content for this record is restricted.
-packages/ahg-extended-rights/resources/views/partials/_embargo-block.blade.php	text	The digital object for this record is embargoed. Metadata is available.
-packages/ahg-extended-rights/resources/views/partials/_embargo-block.blade.php	text	This record and all associated content is embargoed.
-packages/ahg-extended-rights/resources/views/partials/_embargo-status.blade.php	text	- Perpetual
-packages/ahg-extended-rights/resources/views/partials/_embargo-status.blade.php	text	- Until {{…}}
-packages/ahg-extended-rights/resources/views/partials/_rights-button.blade.php	text	Rights
-packages/ahg-extended-rights/resources/views/partials/_rights-display.blade.php	text	Basis: {{…}}
-packages/ahg-extended-rights/resources/views/partials/_rights-panel.blade.php	text	Diligent search completed: {{…}}
-packages/ahg-extended-rights/resources/views/rights/edit.blade.php	text	-- Select --
-packages/ahg-extended-rights/resources/views/rights/edit.blade.php	text	-- Select --
-packages/ahg-extended-rights/resources/views/rights/edit.blade.php	text	-- Select --
-packages/ahg-extended-rights/resources/views/rights/edit.blade.php	text	-- Select --
-packages/ahg-extended-rights/resources/views/rights/edit.blade.php	text	-- Select --
-packages/ahg-extended-rights/resources/views/rights/edit.blade.php	text	-- Select act --
-packages/ahg-extended-rights/resources/views/rights/index.blade.php	text	(until {{…}})
-packages/ahg-extended-rights/resources/views/rights/index.blade.php	text	Community: {{…}}
-packages/ahg-extended-rights/resources/views/rights/index.blade.php	text	Holder: {{…}}
-packages/ahg-extended-rights/resources/views/rights/index.blade.php	text	{{…}} days remaining
-packages/ahg-extended-rights/resources/views/rights/orphan-work.blade.php	text	No orphan work due diligence record exists for this item.
-packages/ahg-extended-rights/resources/views/rights/tk-labels.blade.php	text	- Select Label -
-packages/ahg-extended-rights/resources/views/rights/tk-labels.blade.php	text	Community: {{…}}
-packages/ahg-extended-rights/src/Controllers/RightsAdminController.php	flash	Embargo created successfully.
-packages/ahg-extended-rights/src/Controllers/RightsAdminController.php	flash	Embargo extended successfully.
-packages/ahg-extended-rights/src/Controllers/RightsAdminController.php	flash	Embargo lifted successfully.
-packages/ahg-extended-rights/src/Controllers/RightsAdminController.php	flash	Embargo updated successfully.
-packages/ahg-extended-rights/src/Controllers/RightsAdminController.php	flash	Failed to extend embargo.
-packages/ahg-extended-rights/src/Controllers/RightsAdminController.php	flash	Failed to lift embargo.
-packages/ahg-extended-rights/src/Controllers/RightsAdminController.php	flash	Failed to remove TK Label.
-packages/ahg-extended-rights/src/Controllers/RightsAdminController.php	flash	Orphan work record created.
-packages/ahg-extended-rights/src/Controllers/RightsAdminController.php	flash	Orphan work record updated.
-packages/ahg-extended-rights/src/Controllers/RightsAdminController.php	flash	Please select at least one object.
-packages/ahg-extended-rights/src/Controllers/RightsAdminController.php	flash	Processed {$count} expired embargoes.
-packages/ahg-extended-rights/src/Controllers/RightsAdminController.php	flash	Processed {$count} object(s).
-packages/ahg-extended-rights/src/Controllers/RightsAdminController.php	flash	Search marked as complete.
-packages/ahg-extended-rights/src/Controllers/RightsAdminController.php	flash	Search step added.
-packages/ahg-extended-rights/src/Controllers/RightsAdminController.php	flash	TK Label assigned successfully.
-packages/ahg-extended-rights/src/Controllers/RightsAdminController.php	flash	TK Label removed.
-packages/ahg-extended-rights/src/Controllers/RightsController.php	flash	Embargo released.
-packages/ahg-extended-rights/src/Controllers/RightsController.php	flash	Embargo saved.
-packages/ahg-extended-rights/src/Controllers/RightsController.php	flash	Rights record deleted.
-packages/ahg-extended-rights/src/Controllers/RightsController.php	flash	Rights record saved.
-packages/ahg-extended-rights/src/Controllers/RightsController.php	flash	TK Label assigned.
 packages/ahg-favorites/resources/views/browse.blade.php	text	0 selected
 packages/ahg-favorites/resources/views/browse.blade.php	text	Expires: {{…}}
 packages/ahg-favorites/resources/views/browse.blade.php	text	No favorites match your search.

@@ -41,7 +41,7 @@
             <li>
               {{ ucfirst($restriction['type'] ?? '') }}
               @if(isset($restriction['reason'])) - {{ ucfirst(str_replace('_', ' ', $restriction['reason'])) }} @endif
-              @if(isset($restriction['until'])) (until {{ $restriction['until'] }}) @endif
+              @if(isset($restriction['until'])) {{ __('(until :date)', ['date' => $restriction['until']]) }} @endif
             </li>
             @endforeach
           </ul>
@@ -96,7 +96,7 @@
             {{ \Carbon\Carbon::parse($embargo->end_date)->format('j F Y') }}
             @php $daysLeft = (int) now()->diffInDays(\Carbon\Carbon::parse($embargo->end_date), false); @endphp
             @if($daysLeft > 0)
-              <span class="badge bg-warning text-dark ms-2">{{ $daysLeft }} days remaining</span>
+              <span class="badge bg-warning text-dark ms-2">{{ __(':count days remaining', ['count' => $daysLeft]) }}</span>
             @endif
           @else
             <span class="text-danger">{{ __('Indefinite') }}</span>
@@ -134,7 +134,7 @@
               <br>
               <small class="text-muted">{{ $label->description ?? '' }}</small>
               @if($label->community_name ?? null)
-                <br><small>Community: {{ $label->community_name }}</small>
+                <br><small>{{ __('Community: :community', ['community' => $label->community_name]) }}</small>
               @endif
             </div>
           </div>
@@ -203,7 +203,7 @@
                   {{ ucfirst(str_replace('_', ' ', $right->copyright_status)) }}
                 @endif
                 @if($right->copyright_holder ?? null)
-                  <br><small>Holder: {{ $right->copyright_holder }}</small>
+                  <br><small>{{ __('Holder: :holder', ['holder' => $right->copyright_holder]) }}</small>
                 @endif
               </td>
               <td>

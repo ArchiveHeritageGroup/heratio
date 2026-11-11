@@ -143,7 +143,7 @@ class RightsController extends Controller
 
         $this->service->saveRightsRecord($data);
 
-        return redirect()->route('ext-rights.index', $slug)->with('success', 'Rights record saved.');
+        return redirect()->route('ext-rights.index', $slug)->with('success', __('Rights record saved.'));
     }
 
     /**
@@ -154,7 +154,7 @@ class RightsController extends Controller
         $resource = $this->resolveResource($slug);
         $this->service->deleteRightsRecord($id);
 
-        return redirect()->route('ext-rights.index', $slug)->with('success', 'Rights record deleted.');
+        return redirect()->route('ext-rights.index', $slug)->with('success', __('Rights record deleted.'));
     }
 
     /**
@@ -196,7 +196,7 @@ class RightsController extends Controller
             $this->service->createEmbargo($data);
         }
 
-        return redirect()->route('ext-rights.index', $slug)->with('success', 'Embargo saved.');
+        return redirect()->route('ext-rights.index', $slug)->with('success', __('Embargo saved.'));
     }
 
     /**
@@ -205,7 +205,7 @@ class RightsController extends Controller
     public function releaseEmbargo(Request $request, string $slug, int $id)
     {
         $this->service->liftEmbargo($id);
-        return redirect()->route('ext-rights.index', $slug)->with('success', 'Embargo released.');
+        return redirect()->route('ext-rights.index', $slug)->with('success', __('Embargo released.'));
     }
 
     /**
@@ -236,7 +236,7 @@ class RightsController extends Controller
             $data
         );
 
-        return redirect()->route('ext-rights.tk-labels', $slug)->with('success', 'TK Label assigned.');
+        return redirect()->route('ext-rights.tk-labels', $slug)->with('success', __('TK Label assigned.'));
     }
 
     /**

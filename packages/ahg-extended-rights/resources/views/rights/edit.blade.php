@@ -32,7 +32,7 @@
                     <div class="mb-3">
                         <label class="form-label">{{ __('Basis') }} <span class="text-danger">*</span></label>
                         <select name="basis" id="basis" class="form-select" required>
-                            <option value="">-- Select --</option>
+                            <option value="">{{ __('-- Select --') }}</option>
                             @foreach($formOptions['basis_options'] as $value => $label)
                                 <option value="{{ $value }}" {{ old('basis', $right->basis ?? '') === $value ? 'selected' : '' }}>
                                     {{ $label }}
@@ -44,7 +44,7 @@
                     <div class="mb-3">
                         <label class="form-label">{{ __('Rights Statement') }}</label>
                         <select name="rights_statement_id" class="form-select">
-                            <option value="">-- Select --</option>
+                            <option value="">{{ __('-- Select --') }}</option>
                             @foreach($formOptions['rights_statements'] as $stmt)
                                 <option value="{{ $stmt->id }}" {{ old('rights_statement_id', $right->rights_statement_id ?? '') == $stmt->id ? 'selected' : '' }}>
                                     {{ $stmt->name ?? $stmt->code ?? '' }}
@@ -61,7 +61,7 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">{{ __('Copyright status') }}</label>
                                 <select name="copyright_status" class="form-select">
-                                    <option value="">-- Select --</option>
+                                    <option value="">{{ __('-- Select --') }}</option>
                                     @foreach($formOptions['copyright_status_options'] as $v => $l)
                                         <option value="{{ $v }}" {{ old('copyright_status', $right->copyright_status ?? '') === $v ? 'selected' : '' }}>{{ $l }}</option>
                                     @endforeach
@@ -98,7 +98,7 @@
                         <div class="mb-3">
                             <label class="form-label">{{ __('License type') }}</label>
                             <select name="license_type" id="license_type" class="form-select">
-                                <option value="">-- Select --</option>
+                                <option value="">{{ __('-- Select --') }}</option>
                                 <option value="cc" {{ old('license_type', $right->license_type ?? '') === 'cc' ? 'selected' : '' }}>{{ __('Creative Commons') }}</option>
                                 <option value="open" {{ old('license_type', $right->license_type ?? '') === 'open' ? 'selected' : '' }}>{{ __('Other Open License') }}</option>
                                 <option value="proprietary" {{ old('license_type', $right->license_type ?? '') === 'proprietary' ? 'selected' : '' }}>{{ __('Proprietary') }}</option>
@@ -108,7 +108,7 @@
                         <div id="ccLicenseField" class="mb-3" style="display: none;">
                             <label class="form-label">{{ __('Creative Commons License') }}</label>
                             <select name="cc_license_id" class="form-select">
-                                <option value="">-- Select --</option>
+                                <option value="">{{ __('-- Select --') }}</option>
                                 @foreach($formOptions['cc_licenses'] as $license)
                                     <option value="{{ $license->id }}" {{ old('cc_license_id', $right->cc_license_id ?? '') == $license->id ? 'selected' : '' }}>
                                         {{ ($license->code ?? '') . ' - ' . ($license->name ?? '') }}
@@ -230,7 +230,7 @@
                         <div class="granted-right-row row mb-2">
                             <div class="col-md-4">
                                 <select name="acts[]" class="form-select form-select-sm">
-                                    <option value="">-- Select act --</option>
+                                    <option value="">{{ __('-- Select act --') }}</option>
                                     @foreach($formOptions['act_options'] as $v => $l)
                                         <option value="{{ $v }}" {{ (is_object($g) ? ($g->act ?? '') : ($g['act'] ?? '')) === $v ? 'selected' : '' }}>{{ $l }}</option>
                                     @endforeach

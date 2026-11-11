@@ -129,7 +129,7 @@
                     <span class="badge bg-{{ $owColor }}">{{ ucwords(str_replace('_', ' ', $extOrphanWork->status ?? '')) }}</span>
                 </p>
                 @if($extOrphanWork->search_completed_date ?? null)
-                    <p class="mb-0 small">Diligent search completed: {{ \Carbon\Carbon::parse($extOrphanWork->search_completed_date)->format('j F Y') }}</p>
+                    <p class="mb-0 small">{{ __('Diligent search completed: :date', ['date' => \Carbon\Carbon::parse($extOrphanWork->search_completed_date)->format('j F Y')]) }}</p>
                 @endif
                 @if($canEdit)
                     <a href="{{ route('ext-rights.orphan-work', $slug) }}" class="btn btn-sm btn-link p-0 mt-1">{{ __('View/Edit Details') }}</a>

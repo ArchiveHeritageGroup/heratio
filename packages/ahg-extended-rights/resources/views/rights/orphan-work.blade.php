@@ -67,7 +67,7 @@
   @else
   <div class="alert alert-info">
     <i class="fas fa-info-circle me-2"></i>
-    No orphan work due diligence record exists for this item.
+    {{ __('No orphan work due diligence record exists for this item.') }}
     @auth
     <a href="{{ route('ext-rights-admin.orphan-work-new', ['object_id' => $resource->id]) }}" class="btn btn-sm btn-info ms-2">
       {{ __('Start Search') }}

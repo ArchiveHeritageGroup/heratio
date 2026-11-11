@@ -6,13 +6,13 @@
   <h5>{{ __('Content Under Embargo') }}</h5>
   <p class="text-muted">
     @if($embargo->embargo_type === 'full')
-      This record and all associated content is embargoed.
+      {{ __('This record and all associated content is embargoed.') }}
     @elseif($embargo->embargo_type === 'digital_only')
-      The digital object for this record is embargoed. Metadata is available.
+      {{ __('The digital object for this record is embargoed. Metadata is available.') }}
     @elseif($embargo->embargo_type === 'metadata_only')
-      Only the digital object is available. Metadata is restricted.
+      {{ __('Only the digital object is available. Metadata is restricted.') }}
     @else
-      Some content for this record is restricted.
+      {{ __('Some content for this record is restricted.') }}
     @endif
   </p>
   @if(!empty($embargo->end_date))
