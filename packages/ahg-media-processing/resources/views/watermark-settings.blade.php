@@ -106,7 +106,7 @@
             <div class="mb-3">
               <label for="default_custom_watermark_id" class="form-label">{{ __('Default Custom Watermark') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select class="form-select" id="default_custom_watermark_id" name="default_custom_watermark_id">
-                <option value="">-- Use system watermark type --</option>
+                <option value="">{{ __('-- Use system watermark type --') }}</option>
                 @foreach($customWatermarks as $cw)
                   <option value="{{ $cw->id }}"
                     {{ ($settings['default_custom_watermark_id'] ?? '') == $cw->id ? 'selected' : '' }}>
@@ -217,7 +217,7 @@
             <div>
               <strong>{{ $cw->name }}</strong>
               <div class="small text-muted">
-                {{ $cw->position ?? 'center' }} / {{ (int)(($cw->opacity ?? 0.40) * 100) }}% opacity
+                {{ __(':value1 / :value2% opacity', ['value1' => $cw->position ?? 'center', 'value2' => (int)(($cw->opacity ?? 0.40) * 100)]) }}
               </div>
               <div class="small text-muted">{{ $cw->filename }}</div>
             </div>

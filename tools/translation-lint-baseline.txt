@@ -1243,21 +1243,6 @@ packages/ahg-marketing/resources/views/migration-assessment.blade.php	text	(opti
 packages/ahg-marketing/resources/views/migration-assessment.blade.php	text	(required)
 packages/ahg-marketing/resources/views/migration-assessment.blade.php	text	(required)
 packages/ahg-marketing/resources/views/migration-assessment.blade.php	text	(required)
-packages/ahg-media-processing/resources/views/index.blade.php	text	{{…}} masters missing references
-packages/ahg-media-processing/resources/views/index.blade.php	text	{{…}} masters missing thumbnails
-packages/ahg-media-processing/resources/views/index.blade.php	text	{{…}} shown
-packages/ahg-media-processing/resources/views/index.blade.php	text	{{…}} shown
-packages/ahg-media-processing/resources/views/index.blade.php	text	{{…}} thumbs / {{…}} refs
-packages/ahg-media-processing/resources/views/watermark-settings.blade.php	text	-- Use system watermark type --
-packages/ahg-media-processing/resources/views/watermark-settings.blade.php	text	{{…}} / {{…}}% opacity
-packages/ahg-media-processing/src/Controllers/MediaProcessingController.php	flash	Custom watermark deleted.
-packages/ahg-media-processing/src/Controllers/MediaProcessingController.php	flash	Custom watermark uploaded successfully.
-packages/ahg-media-processing/src/Controllers/MediaProcessingController.php	flash	Derivative generation errors:
-packages/ahg-media-processing/src/Controllers/MediaProcessingController.php	flash	Digital object derivative settings saved.
-packages/ahg-media-processing/src/Controllers/MediaProcessingController.php	flash	Failed to upload custom watermark. Only PNG, JPEG, and GIF files are allowed.
-packages/ahg-media-processing/src/Controllers/MediaProcessingController.php	flash	Media processing settings saved successfully.
-packages/ahg-media-processing/src/Controllers/MediaProcessingController.php	flash	Queue cleared.
-packages/ahg-media-processing/src/Controllers/MediaProcessingController.php	flash	Watermark settings saved successfully.
 packages/ahg-media-streaming/resources/views/caption-track/form.blade.php	text	- or paste VTT content below -
 packages/ahg-media-streaming/resources/views/caption-track/index.blade.php	text	- no tracks configured
 packages/ahg-media-streaming/resources/views/caption-track/index.blade.php	text	- {{…}} track(s) configured
