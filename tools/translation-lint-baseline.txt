@@ -1767,40 +1767,6 @@ packages/ahg-rights-holder-manage/src/Controllers/RightsController.php	flash	Rig
 packages/ahg-rights-holder-manage/src/Controllers/RightsHolderController.php	flash	Rights holder created successfully.
 packages/ahg-rights-holder-manage/src/Controllers/RightsHolderController.php	flash	Rights holder deleted successfully.
 packages/ahg-rights-holder-manage/src/Controllers/RightsHolderController.php	flash	Rights holder updated successfully.
-packages/ahg-scan/resources/views/admin/scan/dashboard.blade.php	text	{{…}} arrival(s)
-packages/ahg-scan/resources/views/admin/scan/dashboard.blade.php	text	{{…}} completed
-packages/ahg-scan/resources/views/admin/scan/folders/edit.blade.php	text	- None (require path-resolution) -
-packages/ahg-scan/resources/views/admin/scan/folders/edit.blade.php	text	- None -
-packages/ahg-scan/resources/views/admin/scan/folders/edit.blade.php	text	- for museum-sector scans, automatically create a Museum object-entry + acquisition record and enter the configured workflow (default off).
-packages/ahg-scan/resources/views/admin/scan/folders/edit.blade.php	text	- process files automatically without human approval (default on)
-packages/ahg-scan/resources/views/admin/scan/folders/edit.blade.php	text	- when a sidecar names a new creator/artist that doesn't exist, create a draft actor record (default on). Turn off to skip files with unknown creators instead.
-packages/ahg-scan/resources/views/admin/scan/folders/edit.blade.php	text	Flat-sidecar: +
-packages/ahg-scan/resources/views/admin/scan/folders/edit.blade.php	text	Lowercase slug. Used as on the ingest session.
-packages/ahg-scan/resources/views/admin/scan/folders/edit.blade.php	text	Path:
-packages/ahg-scan/resources/views/admin/scan/folders/edit.blade.php	text	are configured on this folder's ingest session. The scanner pipeline honours those settings.
-packages/ahg-scan/resources/views/admin/scan/folders/edit.blade.php	text	e.g. - must be readable by the Heratio user.
-packages/ahg-scan/resources/views/admin/scan/folders/edit.blade.php	text	e.g. isadg, rad, dacs, marc21, mods, lido, spectrum, dwc
-packages/ahg-scan/resources/views/admin/scan/inbox/index.blade.php	text	- All -
-packages/ahg-scan/resources/views/admin/scan/inbox/index.blade.php	text	- All -
-packages/ahg-scan/resources/views/admin/scan/inbox/index.blade.php	text	Showing {{…}}-{{…}} of {{…}}
-packages/ahg-scan/resources/views/admin/scan/inbox/show.blade.php	text	Scan file #{{…}}
-packages/ahg-scan/resources/views/admin/scan/inbox/show.blade.php	text	{{…}} - sector {{…}}, standard {{…}}
-packages/ahg-scan/resources/views/admin/web-archive/index.blade.php	text	sha256: {{…}}
-packages/ahg-scan/src/Controllers/ScanFolderController.php	flash	Scan run for '{$folder->code}' completed.
-packages/ahg-scan/src/Controllers/ScanFolderController.php	flash	Watched folder created.
-packages/ahg-scan/src/Controllers/ScanFolderController.php	flash	Watched folder removed.
-packages/ahg-scan/src/Controllers/ScanFolderController.php	flash	Watched folder updated.
-packages/ahg-scan/src/Controllers/ScanInboxController.php	flash	Discarded {$count} file(s).
-packages/ahg-scan/src/Controllers/ScanInboxController.php	flash	Dispatched {$count} retry(s).
-packages/ahg-scan/src/Controllers/ScanInboxController.php	flash	File discarded.
-packages/ahg-scan/src/Controllers/ScanInboxController.php	flash	File is not in awaiting_rights state.
-packages/ahg-scan/src/Controllers/ScanInboxController.php	flash	File is not quarantined.
-packages/ahg-scan/src/Controllers/ScanInboxController.php	flash	File restored from quarantine; retry dispatched.
-packages/ahg-scan/src/Controllers/ScanInboxController.php	flash	No files selected.
-packages/ahg-scan/src/Controllers/ScanInboxController.php	flash	Resume failed:
-packages/ahg-scan/src/Controllers/ScanInboxController.php	flash	Retry attempted.
-packages/ahg-scan/src/Controllers/ScanInboxController.php	flash	Rights released; pipeline resumed.
-packages/ahg-scan/src/Controllers/ScanInboxController.php	flash	Unknown bulk action:
 packages/ahg-search/resources/views/_find-similar.blade.php	text	to fetch records semantically similar to this one (powered by Qdrant + sentence embeddings).
 packages/ahg-search/resources/views/advanced.blade.php	text	-- Any level --
 packages/ahg-search/resources/views/advanced.blade.php	text	-- Any repository --

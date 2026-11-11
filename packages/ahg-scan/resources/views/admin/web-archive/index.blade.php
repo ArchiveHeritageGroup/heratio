@@ -231,7 +231,7 @@
                         <tr>
                           <td></td>
                           <td colspan="6" class="small text-muted font-monospace" style="font-size:.7rem">
-                            sha256: {{ $c['sha256'] }}
+                            {{ __('sha256: :hash', ['hash' => $c['sha256']]) }}
                           </td>
                         </tr>
                       @endif
