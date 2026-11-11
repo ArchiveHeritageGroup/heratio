@@ -251,6 +251,10 @@ class TranslationLintCommand extends Command
         if (mb_strlen($text) < 2) {
             return true;
         }
+        // Only HTML entities and spaces (&nbsp;, &times;): nothing to translate
+        if (trim((string) preg_replace('/&[a-z0-9#]+;/i', '', $text)) === '') {
+            return true;
+        }
         // All numeric / dates / decimals
         if (preg_match('/^[\d\s.,:\/+\-%]+$/', $text)) {
             return true;
