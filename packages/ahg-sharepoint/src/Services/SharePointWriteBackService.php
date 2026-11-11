@@ -94,7 +94,110 @@ class SharePointWriteBackService
             default => null,
         };
 
-        return ['result' => $r, 'written' => $this->writeFields($ioId, $r['fields'] ?? [], $matchText)];
+        $written = $this->writeFields($ioId, $r['fields'] ?? [], $matchText);
+        try {
+            $written += $this->writeRecordColumns($ioId, $r['fields'] ?? [], $m);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('SharePoint records columns for '.$ioId.' failed: '.substr($e->getMessage(), 0, 300));
+        }
+
+        return ['result' => $r, 'written' => $written];
+    }
+
+    /**
+     * Records metadata after a read: Record Type, Record Class,
+     * Function/Directorate, Record Date, Status, and the File plan term
+     * (Managed Metadata). Only the columns the item's library has are written,
+     * so Records and Supplier invoices each get their own set.
+     *
+     * @return array<string,string> column written => value
+     */
+    public function writeRecordColumns(int $ioId, array $fields, array $match): array
+    {
+        $at = $this->locate($ioId);
+        if (! $at) {
+            return [];
+        }
+        $title = (string) DB::table('information_object_i18n')->where('id', $ioId)->where('culture', 'en')->value('title');
+        $type = SharePointRecordsClassifier::typeFor($fields['document_type'] ?? null, $title);
+        if ($type === null) {
+            return [];
+        }
+        $date = ! empty($fields['date']) && ($ts = strtotime((string) $fields['date'])) ? gmdate('Y-m-d\T00:00:00\Z', $ts) : null;
+        $status = SharePointRecordsClassifier::status(true, $match['status'] ?? null, $type, ! empty($fields['po_number']));
+        $values = SharePointRecordsClassifier::columnsFor($type, $date, $status);
+
+        $base = "/sites/{$at['site']}/drives/{$at['drive']}";
+        $list = $this->graph->get($at['tenant'], "{$base}/list?\$select=id")['id'];
+        $cols = [];
+        foreach ($this->graph->get($at['tenant'], "/sites/{$at['site']}/lists/{$list}/columns")['value'] ?? [] as $c) {
+            $cols[self::norm((string) ($c['displayName'] ?? ''))] = $c;
+        }
+        $patch = $written = [];
+        foreach ($values as $display => $v) {
+            $col = $cols[self::norm($display)] ?? null;
+            if ($col === null) {
+                continue;
+            }
+            if (isset($col['term'])) {
+                // Managed Metadata: Graph cannot set it directly; its hidden
+                // note field ("File plan_0") takes "Label|TermGuid".
+                $note = $cols[self::norm($display.'_0')] ?? null;
+                $termId = $note ? $this->termId($at, $v) : null;
+                if ($termId) {
+                    $patch[$note['name']] = $v.'|'.$termId;
+                    $written[$display] = $v;
+                }
+
+                continue;
+            }
+            if (isset($col['choice']) && ! in_array($v, $col['choice']['choices'] ?? [], true)) {
+                continue;   // not one of the column's choices: leave it rather than fail the update
+            }
+            $patch[$col['name']] = $v;
+            $written[$display] = $v;
+        }
+        if ($patch) {
+            $listItem = $this->graph->get($at['tenant'], "{$base}/items/{$at['item']}/listItem?\$select=id")['id'];
+            $this->graph->patch($at['tenant'], "/sites/{$at['site']}/lists/{$list}/items/{$listItem}/fields", $patch);
+        }
+
+        return $written;
+    }
+
+    /** The id of the file plan term labelled $label in the term set named by sharepoint_fileplan_set (cached a day). */
+    private function termId(array $at, string $label): ?string
+    {
+        $setName = (string) (\AhgCore\Services\AhgSettingsService::get('sharepoint_fileplan_set') ?: 'Kopano file plan');
+        $map = \Illuminate\Support\Facades\Cache::remember('sp_fileplan_terms_'.md5($at['site'].$setName), 86400, function () use ($at, $setName) {
+            $base = "/sites/{$at['site']}/termStore";
+            foreach ($this->graph->get($at['tenant'], "{$base}/groups")['value'] ?? [] as $g) {
+                foreach ($this->graph->get($at['tenant'], "{$base}/groups/{$g['id']}/sets")['value'] ?? [] as $set) {
+                    if (! collect($set['localizedNames'] ?? [])->contains('name', $setName)) {
+                        continue;
+                    }
+                    $map = [];
+                    $this->collectTerms($at, "{$base}/sets/{$set['id']}", "{$base}/sets/{$set['id']}/children", $map);
+
+                    return $map;
+                }
+            }
+
+            return [];
+        });
+
+        return $map[$label] ?? null;
+    }
+
+    /** Depth-first: every term under $childrenPath into $map (label => id). */
+    private function collectTerms(array $at, string $setPath, string $childrenPath, array &$map): void
+    {
+        foreach ($this->graph->get($at['tenant'], $childrenPath)['value'] ?? [] as $term) {
+            $map[$term['labels'][0]['name'] ?? ''] = $term['id'];
+            if (! empty($term['childrenCount']) || ! array_key_exists('childrenCount', $term)) {
+                $this->collectTerms($at, $setPath, "{$setPath}/terms/{$term['id']}/children", $map);
+            }
+        }
     }
 
     public function writeFields(int $ioId, array $fields, ?string $matchText = null): array

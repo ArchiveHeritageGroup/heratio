@@ -96,6 +96,7 @@ class AhgSharePointServiceProvider extends ServiceProvider
                 \AhgSharePoint\Console\Commands\SharePointIngestEventCommand::class,
                 \AhgSharePoint\Console\Commands\SharePointAutoIngestCommand::class,
                 \AhgSharePoint\Console\Commands\SharePointFilePlanImportCommand::class,
+                \AhgSharePoint\Console\Commands\SharePointRecordsColumnsCommand::class,
             ]);
 
             // Hands-free capture: poll every capture-enabled library once a
