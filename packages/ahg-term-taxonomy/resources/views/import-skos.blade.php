@@ -37,7 +37,7 @@
                 <div class="form-text">{{ __('Importing into the taxonomy of the term you came from.') }} <a href="{{ route('term.import.skos') }}">{{ __('Choose a different taxonomy') }}</a></div>
             @else
                 <select class="form-select" name="taxonomy_id" id="taxonomy_id" required>
-                    <option value="">- Select taxonomy -</option>
+                    <option value="">{{ __('- Select taxonomy -') }}</option>
                     @foreach($taxonomies as $tax)
                         <option value="{{ $tax->id }}">{{ $tax->name }}</option>
                     @endforeach

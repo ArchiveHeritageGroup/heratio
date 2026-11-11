@@ -1,13 +1,13 @@
 @extends('theme::layouts.1col')
 
 @section('title')
-  <h1>Are you sure you want to delete {{ $term->name }}?</h1>
+  <h1>{{ __('Are you sure you want to delete :term?', ['term' => $term->name]) }}</h1>
 @endsection
 
 @section('content')
 
   @if($taxonomyName)
-    <p class="text-muted">Taxonomy: {{ $taxonomyName }}</p>
+    <p class="text-muted">{{ __('Taxonomy: :name', ['name' => $taxonomyName]) }}</p>
   @endif
 
   <form method="POST" action="{{ route('term.destroy', $term->slug) }}">
@@ -18,11 +18,11 @@
       <div id="content" class="p-3">
 
         @if(isset($relatedObjectCount) && $relatedObjectCount > 0)
-          <p>This term is used by {{ $relatedObjectCount }} related object(s).</p>
+          <p>{{ __('This term is used by :count related objects.', ['count' => $relatedObjectCount]) }}</p>
         @endif
 
         @if(isset($eventCount) && $eventCount > 0)
-          <p>It is associated with {{ $eventCount }} event(s):</p>
+          <p>{{ __('It is associated with :count events:', ['count' => $eventCount]) }}</p>
           @php
             $eventDetails = \Illuminate\Support\Facades\DB::table('event')
                 ->leftJoin('event_i18n', function ($j) {
@@ -56,7 +56,7 @@
                   @elseif($evt->io_title)
                     {{ $evt->io_title }}
                   @else
-                    Event #{{ $evt->event_id }}
+                    {{ __('Event #:id', ['id' => $evt->event_id]) }}
                   @endif
                   @if($evt->date_display)
                     - {{ $evt->date_display }}
@@ -67,13 +67,13 @@
               @endforeach
             </ul>
             @if($eventCount > 10)
-              <p class="text-muted small mt-1">... and {{ $eventCount - 10 }} more event(s).</p>
+              <p class="text-muted small mt-1">{{ __('... and :count more events.', ['count' => $eventCount - 10]) }}</p>
             @endif
           @endif
         @endif
 
         @if(isset($descendantCount) && $descendantCount > 0)
-          <p>It has {{ $descendantCount }} descendants that will also be deleted:</p>
+          <p>{{ __('It has :count descendants that will also be deleted:', ['count' => $descendantCount]) }}</p>
           <ul class="mb-0">
             @foreach($descendants ?? [] as $index => $desc)
               <li><a href="{{ route('term.show', $desc->slug) }}">{{ $desc->name ?: '[Untitled]' }}</a></li>
@@ -85,7 +85,7 @@
 
           @if(isset($previewIsLimited) && $previewIsLimited)
             <div class="alert alert-warning mt-3 mb-0">
-              Only {{ $previewSize ?? 10 }} terms were shown.
+              {{ __('Only :count terms were shown.', ['count' => $previewSize ?? 10]) }}
             </div>
           @endif
         @endif

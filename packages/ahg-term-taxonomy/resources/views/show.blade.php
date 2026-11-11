@@ -36,7 +36,7 @@
       {{-- Browse taxonomy: collapsible heading with 3 tabs --}}
       <h2 class="d-grid">
         <button class="btn btn-lg atom-btn-white text-wrap" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-treeview" aria-expanded="true">
-          Browse {{ $taxonomyName }}:
+          {{ __('Browse :taxonomy:', ['taxonomy' => $taxonomyName]) }}
         </button>
       </h2>
 
@@ -137,7 +137,7 @@
             </div>
             @if($listLastPage > 1)
               <nav class="p-2 bg-white border border-top-0">
-                <p class="text-center mb-1 small text-muted">Page {{ $listPage }} of {{ $listLastPage }} ({{ number_format($listTotal) }} terms)</p>
+                <p class="text-center mb-1 small text-muted">{{ __('Page :page of :last (:count terms)', ['page' => $listPage, 'last' => $listLastPage, 'count' => number_format($listTotal)]) }}</p>
                 <ul class="pagination pagination-sm justify-content-center mb-0">
                   <li class="page-item {{ $listPage <= 1 ? 'disabled' : '' }}">
                     <a class="page-link" href="{{ request()->fullUrlWithQuery(['listPage' => $listPage - 1]) }}">{{ __('Previous') }}</a>
@@ -169,7 +169,7 @@
                     </div>
                     <div class="form-check">
                       <input class="form-check-input" type="radio" name="queryField" id="qf-usefor" value="useForLabels">
-                      <label class="form-check-label" for="qf-usefor">'Use for' labels</label>
+                      <label class="form-check-label" for="qf-usefor">{{ __('Use for labels') }}</label>
                     </div>
                   </div>
                 </div>
@@ -233,12 +233,12 @@
         <ul class="nav nav-pills mb-3 d-flex gap-2">
           <li class="nav-item">
             <a class="btn atom-btn-white active-primary text-wrap active" href="{{ route('term.show', $term->slug) }}">
-              Related {{ config('app.ui_label_informationobject', 'Archival description') }}s ({{ number_format($relatedDescriptionsCount) }})
+              {{ __('Related :label (:count)', ['label' => config('app.ui_label_informationobject', __('Archival description')), 'count' => number_format($relatedDescriptionsCount)]) }}
             </a>
           </li>
           <li class="nav-item">
             <a class="btn atom-btn-white active-primary text-wrap" href="{{ route('term.show', ['slug' => $term->slug, 'view' => 'actors']) }}">
-              Related {{ config('app.ui_label_actor', 'Authority record') }}s ({{ number_format($relatedActorCount) }})
+              {{ __('Related :label (:count)', ['label' => config('app.ui_label_actor', __('Authority record')), 'count' => number_format($relatedActorCount)]) }}
             </a>
           </li>
         </ul>
@@ -257,11 +257,11 @@
         </nav>
       @endif
 
-      {{-- ===== Elements area ===== --}}
+      {{-- ===== {{ __('Elements area') }} ===== --}}
       <section class="border-bottom mb-3">
         <h2 class="h5 mb-0 atom-section-header">
           <div class="d-flex p-3 border-bottom text-primary">
-            Elements area
+            {{ __('Elements area') }}
             @auth
               @if(\AhgCore\Services\AclService::check($term, 'update'))
               <a href="{{ route('term.edit', $term->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></a>
@@ -377,7 +377,7 @@
       @endauth
 
       {{-- ===== Related archival descriptions ===== --}}
-      <h1>{{ number_format($totalRelated) }} {{ config('app.ui_label_informationobject', 'Archival description') }} results for {{ $term->name }}</h1>
+      <h1>{{ __(':count :label results for :term', ['count' => number_format($totalRelated), 'label' => config('app.ui_label_informationobject', __('Archival description')), 'term' => $term->name]) }}</h1>
 
       {{-- #22 Only direct filter --}}
       @if($onlyDirect)
@@ -391,7 +391,7 @@
         </div>
       @elseif($directCount < $totalRelated && $directCount > 0)
         <div class="d-grid d-sm-flex gap-2 align-items-center p-3 border-bottom mb-2">
-          {{ number_format($directCount) }} results directly related
+          {{ __(':count results directly related', ['count' => number_format($directCount)]) }}
           <a class="btn btn-sm atom-btn-white ms-auto text-wrap" href="{{ request()->fullUrlWithQuery(['onlyDirect' => 1, 'page' => 1]) }}">
             <i class="fas fa-search me-1"></i>{{ __('Exclude narrower terms') }}
           </a>

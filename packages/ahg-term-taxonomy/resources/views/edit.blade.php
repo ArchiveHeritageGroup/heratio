@@ -44,7 +44,7 @@
               @else
                 {{-- Fresh create: show dropdown of all taxonomies --}}
                 <select name="taxonomy_id" id="taxonomy_id" class="form-select" required>
-                  <option value="">- Select taxonomy -</option>
+                  <option value="">{{ __('- Select taxonomy -') }}</option>
                   @foreach($taxonomies as $tax)
                     <option value="{{ $tax->id }}" @selected(old('taxonomy_id') == $tax->id)>{{ $tax->name }}</option>
                   @endforeach
@@ -121,7 +121,7 @@
                         </optgroup>
                       @endforeach
                       @if($plc && ! $cat->firstWhere('code', $plc))
-                        <option value="{{ $plc }}" selected>{{ $plc }} (custom)</option>
+                        <option value="{{ $plc }}" selected>{{ __(':label (custom)', ['label' => $plc]) }}</option>
                       @endif
                     </select>
                   @else
@@ -430,7 +430,7 @@
           <div class="col-sm-8">
             <label for="target_taxonomy_id" class="form-label">{{ __('Target taxonomy') }}</label>
             <select name="target_taxonomy_id" id="target_taxonomy_id" class="form-select" required>
-              <option value="">{{ __('- Select taxonomy -') }}</option>
+              <option value="">{{ __('{{ __('- Select taxonomy -') }}') }}</option>
               @foreach($taxonomies ?? [] as $tax)
                 @if((int) $tax->id !== (int) $term->taxonomy_id && !in_array((int) $tax->id, \AhgTermTaxonomy\Services\TermService::LOCKED_TAXONOMY_IDS, true))
                   <option value="{{ $tax->id }}">{{ $tax->name }}</option>

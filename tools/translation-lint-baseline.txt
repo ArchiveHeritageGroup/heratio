@@ -1950,43 +1950,6 @@ packages/ahg-storage-manage/src/Controllers/StorageController.php	flash	Physical
 packages/ahg-storage-manage/src/Controllers/StrongroomController.php	flash	Strongroom created.
 packages/ahg-storage-manage/src/Controllers/StrongroomController.php	flash	Strongroom deleted.
 packages/ahg-storage-manage/src/Controllers/StrongroomController.php	flash	Strongroom updated.
-packages/ahg-term-taxonomy/resources/views/browse.blade.php	text	"Use for" labels
-packages/ahg-term-taxonomy/resources/views/browse.blade.php	text	Browse {{…}}:
-packages/ahg-term-taxonomy/resources/views/browse.blade.php	text	Direction: {{…}}
-packages/ahg-term-taxonomy/resources/views/browse.blade.php	text	Sort by: {{…}}
-packages/ahg-term-taxonomy/resources/views/browse.blade.php	text	Use for: {{…}}
-packages/ahg-term-taxonomy/resources/views/browse.blade.php	text	{{…}} count
-packages/ahg-term-taxonomy/resources/views/browse.blade.php	text	{{…}} count
-packages/ahg-term-taxonomy/resources/views/browse.blade.php	text	{{…}} term
-packages/ahg-term-taxonomy/resources/views/delete.blade.php	text	... and {{…}} more event(s).
-packages/ahg-term-taxonomy/resources/views/delete.blade.php	text	Are you sure you want to delete {{…}}?
-packages/ahg-term-taxonomy/resources/views/delete.blade.php	text	Event #{{…}}
-packages/ahg-term-taxonomy/resources/views/delete.blade.php	text	It has {{…}} descendants that will also be deleted:
-packages/ahg-term-taxonomy/resources/views/delete.blade.php	text	It is associated with {{…}} event(s):
-packages/ahg-term-taxonomy/resources/views/delete.blade.php	text	Only {{…}} terms were shown.
-packages/ahg-term-taxonomy/resources/views/delete.blade.php	text	Taxonomy: {{…}}
-packages/ahg-term-taxonomy/resources/views/delete.blade.php	text	This term is used by {{…}} related object(s).
-packages/ahg-term-taxonomy/resources/views/edit.blade.php	text	- Select taxonomy -
-packages/ahg-term-taxonomy/resources/views/edit.blade.php	text	{{…}} (custom)
-packages/ahg-term-taxonomy/resources/views/import-skos.blade.php	text	- Select taxonomy -
-packages/ahg-term-taxonomy/resources/views/show.blade.php	text	'Use for' labels
-packages/ahg-term-taxonomy/resources/views/show.blade.php	text	Browse {{…}}:
-packages/ahg-term-taxonomy/resources/views/show.blade.php	text	Elements area
-packages/ahg-term-taxonomy/resources/views/show.blade.php	text	Page {{…}} of {{…}} ({{…}} terms)
-packages/ahg-term-taxonomy/resources/views/show.blade.php	text	Related {{…}}s ({{…}})
-packages/ahg-term-taxonomy/resources/views/show.blade.php	text	Related {{…}}s ({{…}})
-packages/ahg-term-taxonomy/resources/views/show.blade.php	text	{{…}} results directly related
-packages/ahg-term-taxonomy/resources/views/show.blade.php	text	{{…}} {{…}} results for {{…}}
-packages/ahg-term-taxonomy/src/Controllers/TermController.php	flash	Failed to fetch SKOS file from URL:
-packages/ahg-term-taxonomy/src/Controllers/TermController.php	flash	Imported $imported terms from SKOS file.
-packages/ahg-term-taxonomy/src/Controllers/TermController.php	flash	Invalid URL.
-packages/ahg-term-taxonomy/src/Controllers/TermController.php	flash	Invalid XML content.
-packages/ahg-term-taxonomy/src/Controllers/TermController.php	flash	Please select a taxonomy.
-packages/ahg-term-taxonomy/src/Controllers/TermController.php	flash	Please upload a file or provide a URL.
-packages/ahg-term-taxonomy/src/Controllers/TermController.php	flash	Term created successfully.
-packages/ahg-term-taxonomy/src/Controllers/TermController.php	flash	Term deleted successfully.
-packages/ahg-term-taxonomy/src/Controllers/TermController.php	flash	Term updated successfully.
-packages/ahg-term-taxonomy/src/Controllers/TermController.php	flash	URL not allowed.
 packages/ahg-theme-b5/resources/views/layouts/print.blade.php	heading	@yield('record-title')
 packages/ahg-theme-b5/resources/views/partials/voice-commands.blade.php	text	"browse / go to browse"
 packages/ahg-theme-b5/resources/views/partials/voice-commands.blade.php	text	"browse archive"
