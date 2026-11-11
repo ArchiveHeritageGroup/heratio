@@ -117,7 +117,7 @@ final class ProvenanceController extends Controller
 
         return redirect()
             ->route('c2pa.provenance.show', ['informationObjectId' => $informationObjectId, 'provenanceId' => $id])
-            ->with('status', 'Provenance record created.');
+            ->with('status', __('Provenance record created.'));
     }
 
     /**
