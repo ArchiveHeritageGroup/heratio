@@ -184,7 +184,7 @@ class FunctionController extends Controller
 
         return redirect()
             ->route('function.show', $slug)
-            ->with('success', 'Function created successfully.');
+            ->with('success', __('Function created successfully.'));
     }
 
     public function update(Request $request, string $slug)
@@ -227,7 +227,7 @@ class FunctionController extends Controller
 
         return redirect()
             ->route('function.show', $slug)
-            ->with('success', 'Function updated successfully.');
+            ->with('success', __('Function updated successfully.'));
     }
 
     public function confirmDelete(string $slug)
@@ -253,6 +253,6 @@ class FunctionController extends Controller
 
         return redirect()
             ->route('function.browse')
-            ->with('success', 'Function deleted successfully.');
+            ->with('success', __('Function deleted successfully.'));
     }
 }

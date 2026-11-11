@@ -41,7 +41,7 @@
           <a href="{{ route('function.edit', $function->slug) }}#identity-collapse" class="text-primary text-decoration-none">{{ __('Identity area') }}</a>
           <a href="{{ route('function.edit', $function->slug) }}#identity-collapse" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></a>
         @else
-          Identity area
+          {{ __('Identity area') }}
         @endif
       </div>
     </h2>
@@ -105,7 +105,7 @@
           <a href="{{ route('function.edit', $function->slug) }}#context-collapse" class="text-primary text-decoration-none">{{ __('Context area') }}</a>
           <a href="{{ route('function.edit', $function->slug) }}#context-collapse" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></a>
         @else
-          Context area
+          {{ __('Context area') }}
         @endif
       </div>
     </h2>
@@ -150,7 +150,7 @@
           <a href="{{ route('function.edit', $function->slug) }}#relationships-collapse" class="text-primary text-decoration-none">{{ __('Relationships area') }}</a>
           <a href="{{ route('function.edit', $function->slug) }}#relationships-collapse" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></a>
         @else
-          Relationships area
+          {{ __('Relationships area') }}
         @endif
       </div>
     </h2>
@@ -284,7 +284,7 @@
           <a href="{{ route('function.edit', $function->slug) }}#control-collapse" class="text-primary text-decoration-none">{{ __('Control area') }}</a>
           <a href="{{ route('function.edit', $function->slug) }}#control-collapse" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></a>
         @else
-          Control area
+          {{ __('Control area') }}
         @endif
       </div>
     </h2>

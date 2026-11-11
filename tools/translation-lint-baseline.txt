@@ -831,19 +831,6 @@ packages/ahg-ftp-upload/resources/views/index.blade.php	text	Files uploaded here
 packages/ahg-ftp-upload/resources/views/index.blade.php	text	Protocol: {{…}}
 packages/ahg-ftp-upload/resources/views/index.blade.php	text	with the actual filename you upload.
 packages/ahg-ftp-upload/resources/views/index.blade.php	text	your-filename.ext
-packages/ahg-function-manage/resources/views/delete.blade.php	text	Are you sure you want to delete {{…}}?
-packages/ahg-function-manage/resources/views/edit.blade.php	text	-- Select --
-packages/ahg-function-manage/resources/views/edit.blade.php	text	-- Select --
-packages/ahg-function-manage/resources/views/edit.blade.php	text	-- Select --
-packages/ahg-function-manage/resources/views/edit.blade.php	text	Add new function - ISDF
-packages/ahg-function-manage/resources/views/edit.blade.php	text	Edit function - ISDF
-packages/ahg-function-manage/resources/views/show.blade.php	text	Context area
-packages/ahg-function-manage/resources/views/show.blade.php	text	Control area
-packages/ahg-function-manage/resources/views/show.blade.php	text	Identity area
-packages/ahg-function-manage/resources/views/show.blade.php	text	Relationships area
-packages/ahg-function-manage/src/Controllers/FunctionController.php	flash	Function created successfully.
-packages/ahg-function-manage/src/Controllers/FunctionController.php	flash	Function deleted successfully.
-packages/ahg-function-manage/src/Controllers/FunctionController.php	flash	Function updated successfully.
 packages/ahg-gallery/resources/views/gallery/artist-create.blade.php	text	-- Select --
 packages/ahg-gallery/resources/views/gallery/artist-create.blade.php	text	The artist's Instagram handle (e.g. "
 packages/ahg-gallery/resources/views/gallery/artist-create.blade.php	text	The artist's personal website URL (e.g. "https://www.artistname.com").
