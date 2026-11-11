@@ -37,9 +37,9 @@
             <td class="text-center">{{ $t->columns }} &times; {{ $t->rows }}</td>
             <td class="text-center">{{ rtrim(rtrim(number_format($t->label_width_mm, 2), '0'), '.') }} &times; {{ rtrim(rtrim(number_format($t->label_height_mm, 2), '0'), '.') }}</td>
             <td class="small">
-              @if($t->show_title)<span class="badge bg-light text-dark">title</span>@endif
+              @if($t->show_title)<span class="badge bg-light text-dark">{{ __('title') }}</span>@endif
               @if($t->show_identifier)<span class="badge bg-light text-dark">id</span>@endif
-              @if($t->show_barcode)<span class="badge bg-light text-dark">barcode:{{ $t->barcode_source }}</span>@endif
+              @if($t->show_barcode)<span class="badge bg-light text-dark">{{ __('barcode::value1', ['value1' => $t->barcode_source]) }}</span>@endif
               @if($t->show_qr)<span class="badge bg-light text-dark">qr</span>@endif
             </td>
             <td class="text-center">@if($t->is_default)<span class="badge bg-success">{{ __('default') }}</span>@endif</td>

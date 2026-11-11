@@ -22,7 +22,7 @@
 .qr-img { max-width: 120px; max-height: 120px; }
 </style>
 
-<h1 class="no-print">Print Labels: {{ e($title ?: $slug) }}</h1>
+<h1 class="no-print">{{ __('Print Labels: :value1', ['value1' => e($title ?: $slug)]) }}</h1>
 
 <div class="row">
     {{-- Configuration panel --}}

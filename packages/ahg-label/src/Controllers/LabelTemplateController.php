@@ -42,14 +42,14 @@ class LabelTemplateController extends Controller
             $this->makeSoleDefault((int) $template->id);
         }
 
-        return redirect()->route('ahglabel.templates.index')->with('success', 'Label template created.');
+        return redirect()->route('ahglabel.templates.index')->with('success', __('Label template created.'));
     }
 
     public function edit(int $id): View|RedirectResponse
     {
         $template = LabelTemplate::find($id);
         if (! $template) {
-            return redirect()->route('ahglabel.templates.index')->with('error', 'Template not found.');
+            return redirect()->route('ahglabel.templates.index')->with('error', __('Template not found.'));
         }
 
         return view('label::templates.edit', ['template' => $template] + $this->formOptions());
@@ -59,21 +59,21 @@ class LabelTemplateController extends Controller
     {
         $template = LabelTemplate::find($id);
         if (! $template) {
-            return redirect()->route('ahglabel.templates.index')->with('error', 'Template not found.');
+            return redirect()->route('ahglabel.templates.index')->with('error', __('Template not found.'));
         }
         $template->update($this->validated($request));
         if ($template->is_default) {
             $this->makeSoleDefault((int) $template->id);
         }
 
-        return redirect()->route('ahglabel.templates.index')->with('success', 'Label template updated.');
+        return redirect()->route('ahglabel.templates.index')->with('success', __('Label template updated.'));
     }
 
     public function destroy(int $id): RedirectResponse
     {
         LabelTemplate::where('id', $id)->delete();
 
-        return redirect()->route('ahglabel.templates.index')->with('success', 'Label template deleted.');
+        return redirect()->route('ahglabel.templates.index')->with('success', __('Label template deleted.'));
     }
 
     private function validated(Request $request): array
