@@ -34,10 +34,10 @@ class SharePointRecordsClassifier
         'goods_received_note' => ['Goods received note', '5/3/2 Goods received notes', 'SCM/Procurement', 'Finance', true],
         'supplier_record' => ['Supplier record', '5/1 Supplier registration and vetting', 'SCM/Procurement', 'Finance', true],
         'bank_letter' => ['Supplier record', '4/2/1 Bank account changes and confirmations', 'SCM/Procurement', 'Finance', true],
-        'claim' => ['Claim', '2/3 Leave overtime and travel claims', 'HR/Payroll', 'Corporate Services', false],
-        'incident_report' => ['Incident report', '3/1 Incident reports', 'Health and Safety', 'Corporate Services', false],
-        'register' => ['Register', '3/2 Site access and visitor registers', 'Health and Safety', 'Corporate Services', false],
-        'site_access' => ['Register', '3/3 Contractor site access and induction', 'Health and Safety', 'Corporate Services', false],
+        'claim' => ['Claim', '2/3 Leave overtime and travel claims', 'HR/Payroll', 'Corporate Services', true],
+        'incident_report' => ['Incident report', '3/1 Incident reports', 'Health and Safety', 'Corporate Services', true],
+        'register' => ['Register', '3/2 Site access and visitor registers', 'Health and Safety', 'Corporate Services', true],
+        'site_access' => ['Register', '3/3 Contractor site access and induction', 'Health and Safety', 'Corporate Services', true],
     ];
 
     /** Title keyword => type, checked in order (first match wins). */
@@ -126,7 +126,8 @@ class SharePointRecordsClassifier
 
     /**
      * The file plan entries ("5/2/2 Purchase orders") from the sample file plan,
-     * in code order. $supplierOnly: series 4 and 5 (finance, supply chain).
+     * in code order. $supplierOnly: series 2 to 5 (HR, health and safety, finance,
+     * supply chain) - the personal-information samples are dropped there too.
      * ponytail: a Choice column stands in for Managed Metadata, which Graph
      * cannot write; move to the term set once SharePoint REST (certificate
      * app-only sign-in) is in place.
@@ -142,7 +143,7 @@ class SharePointRecordsClassifier
         fgetcsv($fh);
         $rows = [];
         while (($r = fgetcsv($fh)) !== false) {
-            if (! empty($r[0]) && (! $supplierOnly || in_array(explode('/', $r[0])[0], ['4', '5'], true))) {
+            if (! empty($r[0]) && (! $supplierOnly || in_array(explode('/', $r[0])[0], ['2', '3', '4', '5'], true))) {
                 $rows[$r[0]] = $r[0].' '.$r[1];
             }
         }

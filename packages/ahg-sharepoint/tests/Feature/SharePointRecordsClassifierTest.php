@@ -54,7 +54,8 @@ class SharePointRecordsClassifierTest extends TestCase
         $s = C::choicesNeeded(true);
         $this->assertArrayNotHasKey('Record Class', $s);
         $this->assertContains('Invoice', $s['Record Type']);
-        $this->assertNotContains('Incident report', $s['Record Type']);
+        $this->assertContains('Incident report', $s['Record Type']);   // personal-information samples land there too
+        $this->assertNotContains('1/1 Policies and procedures', $s['File plan']);
         $this->assertContains('Health and Safety', C::choicesNeeded()['Record Class']);
     }
 }
