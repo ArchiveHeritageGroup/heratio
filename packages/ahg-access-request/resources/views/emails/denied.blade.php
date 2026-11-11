@@ -1,8 +1,8 @@
 {{-- AccessRequestDeniedMail body --}}
 <p>{{ __('Hi,') }}</p>
 
-<p>{{ __('Your access request') }} <strong>#{{ $request->id }}</strong> has been
-<span style="color:#c62828; font-weight:bold;">denied</span>.</p>
+<p>{{ __('Your access request') }} <strong>#{{ $request->id }}</strong> {{ __('has been') }}
+<span style="color:#c62828; font-weight:bold;">{{ __('denied') }}</span>.</p>
 
 @if(!empty($reason))
 <p><strong>{{ __('Reason:') }}</strong></p>

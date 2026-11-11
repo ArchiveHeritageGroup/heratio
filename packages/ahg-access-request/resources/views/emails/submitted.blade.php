@@ -1,8 +1,7 @@
 {{-- AccessRequestSubmittedMail body --}}
 <p>{{ __('Hi,') }}</p>
 
-<p>{{ __('Your access request') }} <strong>#{{ $request->id }}</strong> has been received and is now in the
-pending queue. You'll get another email once an approver reviews it.</p>
+<p>{{ __('Your access request') }} <strong>#{{ $request->id }}</strong> {{ __('has been received and is now in the pending queue. You’ll get another email once an approver reviews it.') }}</p>
 
 @if(!empty($request->justification))
 <p><strong>{{ __('Your justification:') }}</strong></p>

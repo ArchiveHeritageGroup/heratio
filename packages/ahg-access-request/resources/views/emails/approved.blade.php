@@ -1,8 +1,8 @@
 {{-- AccessRequestApprovedMail body --}}
 <p>{{ __('Hi,') }}</p>
 
-<p>{{ __('Your access request') }} <strong>#{{ $request->id }}</strong> has been
-<span style="color:#2e7d32; font-weight:bold;">approved</span>.</p>
+<p>{{ __('Your access request') }} <strong>#{{ $request->id }}</strong> {{ __('has been') }}
+<span style="color:#2e7d32; font-weight:bold;">{{ __('approved') }}</span>.</p>
 
 @if(!empty($reviewNotes))
 <p><strong>{{ __('Reviewer note:') }}</strong></p>

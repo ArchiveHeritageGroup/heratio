@@ -76,24 +76,6 @@ packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	This object al
 packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	Thumbnail generated for: {$digitalObject->name}
 packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	Thumbnail generation failed for: {$digitalObject->name}. Check storage/logs/3d-thumbnail.log for details.
 packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	TripoSR settings saved successfully.
-packages/ahg-access-request/resources/views/approvers.blade.php	text	-- Select user --
-packages/ahg-access-request/resources/views/emails/approved.blade.php	text	approved
-packages/ahg-access-request/resources/views/emails/approved.blade.php	text	has been
-packages/ahg-access-request/resources/views/emails/denied.blade.php	text	denied
-packages/ahg-access-request/resources/views/emails/denied.blade.php	text	has been
-packages/ahg-access-request/resources/views/emails/submitted.blade.php	text	has been received and is now in the pending queue. You'll get another email once an approver reviews it.
-packages/ahg-access-request/resources/views/new.blade.php	text	-- Default (lowest level) --
-packages/ahg-access-request/resources/views/new.blade.php	text	-- Select type --
-packages/ahg-access-request/resources/views/new.blade.php	text	{{…}} (level {{…}})
-packages/ahg-access-request/resources/views/view.blade.php	text	Access Request #{{…}}
-packages/ahg-access-request/resources/views/view.blade.php	text	Request #{{…}}
-packages/ahg-access-request/src/Controllers/AccessRequestController.php	flash	Access request cancelled.
-packages/ahg-access-request/src/Controllers/AccessRequestController.php	flash	Access request submitted.
-packages/ahg-access-request/src/Controllers/AccessRequestController.php	flash	Approver added.
-packages/ahg-access-request/src/Controllers/AccessRequestController.php	flash	Approver removed.
-packages/ahg-access-request/src/Controllers/AccessRequestController.php	flash	Object access request submitted.
-packages/ahg-access-request/src/Controllers/AccessRequestController.php	flash	Request approved.
-packages/ahg-access-request/src/Controllers/AccessRequestController.php	flash	Request denied.
 packages/ahg-accession-manage/resources/views/appraisal-templates.blade.php	text	All
 packages/ahg-accession-manage/resources/views/browse.blade.php	text	Browse {{…}}s
 packages/ahg-accession-manage/resources/views/dashboard.blade.php	text	Browse {{…}}s
