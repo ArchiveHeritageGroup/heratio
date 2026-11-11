@@ -179,7 +179,7 @@ class AiController extends Controller
             ]));
 
             return redirect()->route('admin.ai.config')
-                ->with('success', 'LLM configuration created.');
+                ->with('success', __('LLM configuration created.'));
         }
 
         if ($action === 'update_config') {
@@ -199,14 +199,14 @@ class AiController extends Controller
             );
 
             return redirect()->route('admin.ai.config')
-                ->with('success', 'LLM configuration updated.');
+                ->with('success', __('LLM configuration updated.'));
         }
 
         if ($action === 'delete_config') {
             $this->llmService->deleteConfiguration((int) $request->input('config_id'));
 
             return redirect()->route('admin.ai.config')
-                ->with('success', 'LLM configuration deleted.');
+                ->with('success', __('LLM configuration deleted.'));
         }
 
         // Handle AI settings save
@@ -241,11 +241,11 @@ class AiController extends Controller
             }
 
             return redirect()->route('admin.ai.config')
-                ->with('success', 'AI settings saved.');
+                ->with('success', __('AI settings saved.'));
         }
 
         return redirect()->route('admin.ai.config')
-            ->with('error', 'Unknown action.');
+            ->with('error', __('Unknown action.'));
     }
 
     /**
@@ -3103,7 +3103,7 @@ PY;
             if (!$results) {
                 @unlink($imgPath);
                 return redirect()->route('admin.ai.htr.extract')
-                    ->with('error', 'HTR extraction failed. ' . ($results['error'] ?? 'Service may be offline.'));
+                    ->with('error', __('HTR extraction failed. :error', ['error' => $results['error'] ?? __('Service may be offline.')]));
             }
         }
 
@@ -3155,7 +3155,7 @@ PY;
 
         if (!$response || !$response->successful()) {
             return redirect()->route('admin.ai.htr.results', $jobId)
-                ->with('error', 'Download failed.');
+                ->with('error', __('Download failed.'));
         }
 
         $contentType = $response->header('Content-Type') ?? 'application/octet-stream';
@@ -3194,7 +3194,7 @@ PY;
 
         if (!$batchResults) {
             return redirect()->route('admin.ai.htr.batch')
-                ->with('error', 'Batch processing failed. The service may be offline.');
+                ->with('error', __('Batch processing failed. The service may be offline.'));
         }
 
         return view('ahg-ai-services::htr.batch', compact('batchResults'));
@@ -3244,7 +3244,7 @@ PY;
         file_put_contents($envPath, $envContent);
 
         return redirect()->route('admin.ai.htr.sources')
-            ->with('success', 'FamilySearch credentials saved to .env. Restart the HTR service to apply.');
+            ->with('success', __('FamilySearch credentials saved to .env. Restart the HTR service to apply.'));
     }
 
     public function htrAnnotate()
@@ -5320,11 +5320,11 @@ PY;
 
         if ($result) {
             return redirect()->route('admin.ai.htr.training')
-                ->with('success', 'Fine-tuning started successfully.');
+                ->with('success', __('Fine-tuning started successfully.'));
         }
 
         return redirect()->route('admin.ai.htr.training')
-            ->with('error', 'Failed to start training. The service may be offline.');
+            ->with('error', __('Failed to start training. The service may be offline.'));
     }
 
     public function htrTrainingStatus()
@@ -5638,11 +5638,11 @@ PY;
         @unlink($fullPath);
 
         if (!$result) {
-            return back()->with('error', 'Donut service unavailable. Check that the service is running on port 5008.');
+            return back()->with('error', __('Donut service unavailable. Check that the service is running on port 5008.'));
         }
 
         if (isset($result['error'])) {
-            return back()->with('error', 'Donut extraction failed: ' . $result['error']);
+            return back()->with('error', __('Donut extraction failed: :error', ['error' => $result['error']]));
         }
 
         $jobId = $result['job_id'] ?? 'donut_' . time();
@@ -5684,7 +5684,7 @@ PY;
         }
 
         if (!$result || !($result['success'] ?? false)) {
-            return back()->with('error', 'Donut batch processing failed.');
+            return back()->with('error', __('Donut batch processing failed.'));
         }
 
         return view('ahg-ai-services::donut.batch-results', [
@@ -5719,7 +5719,7 @@ PY;
         $result = $this->donutService->triggerTraining($epochs, $batchSize);
 
         if (!$result) {
-            return back()->with('error', 'Could not start Donut training. Check service status.');
+            return back()->with('error', __('Could not start Donut training. Check service status.'));
         }
 
         return back()->with('success', $result['message'] ?? 'Training started.');
@@ -5747,7 +5747,7 @@ PY;
         ]);
 
         if (!$result) {
-            return back()->with('error', 'Could not start LLM fine-tune. Check service status.');
+            return back()->with('error', __('Could not start LLM fine-tune. Check service status.'));
         }
 
         return back()->with('success', $result['message'] ?? 'LLM fine-tune started.');

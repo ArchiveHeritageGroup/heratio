@@ -40,7 +40,7 @@
             <option value="type_a">{{ __('Training: Type A') }}</option>
             <option value="type_b">{{ __('Training: Type B') }}</option>
             <option value="type_c">{{ __('Training: Type C') }}</option>
-            <option value="">- Custom path -</option>
+            <option value="">{{ __('- Custom path -') }}</option>
           </select>
           <input type="text" id="folder-custom" class="form-control form-control-sm" placeholder="{{ __('or type path here') }}">
           <button class="btn atom-btn-outline-success" id="btn-folder-load"><i class="fas fa-folder-open me-1"></i>{{ __('Load') }}</button>
@@ -54,8 +54,8 @@
         </div>
       </div>
       <div class="col-auto" id="folder-stats" style="display:none;">
-        <span class="badge bg-success" id="badge-done">0</span> done
-        <span class="badge bg-secondary ms-1" id="badge-todo">0</span> todo
+        <span class="badge bg-success" id="badge-done">0</span> {{ __('done') }}
+        <span class="badge bg-secondary ms-1" id="badge-todo">0</span> {{ __('to do') }}
       </div>
       <div class="col-auto" id="skip-wrap" style="display:none;">
         <div class="form-check form-check-inline mb-0">
@@ -141,7 +141,7 @@
           <div>
             <i class="fas fa-image fa-3x mb-3 d-block"></i>
             <p class="mb-1">{{ __('Load a server folder or upload an image') }}</p>
-            <p class="small mb-0">Box 1 = <strong>{{ __('Event Year') }}</strong> | Box 2 = <strong>{{ __('Event Place') }}</strong> | Record Type = document level</p>
+            <p class="small mb-0">{{ __('Box 1 =') }} <strong>{{ __('Event Year') }}</strong> | {{ __('Box 2 =') }} <strong>{{ __('Event Place') }}</strong> | {{ __('Record Type = document level') }}</p>
           </div>
         </div>
         <canvas id="cvs" style="display:none; cursor:grab;"></canvas>
@@ -215,24 +215,24 @@
       <div class="card-body py-2 small">
         <div class="fw-bold mb-1">{{ __('Type A - Single Form (Death Cert):') }}</div>
         <ol class="mb-2 ps-3" style="line-height:1.7;">
-          <li>{{ __('Select') }} <strong>server folder</strong> → click <strong>{{ __('Load') }}</strong></li>
-          <li>{{ __('Set') }} <strong>{{ __('Record Type') }}</strong> (top-right)</li>
-          <li>{{ __('Press') }} <strong>R</strong> → draw box around <strong>event year</strong> → type year</li>
-          <li>{{ __('Press') }} <strong>R</strong> → draw box around <strong>event place</strong> → type place</li>
-          <li>{{ __('Press') }} <strong>{{ __('Enter') }}</strong> to save → auto-advances</li>
+          <li>{{ __('Select a server folder') }} → {{ __('click') }} <strong>{{ __('Load') }}</strong></li>
+          <li>{{ __('Set') }} <strong>{{ __('Record Type') }}</strong> ({{ __('top-right') }})</li>
+          <li>{{ __('Press') }} <strong>R</strong> → {{ __('draw a box around the event year, then type the year') }}</li>
+          <li>{{ __('Press') }} <strong>R</strong> → {{ __('draw a box around the event place, then type the place') }}</li>
+          <li>{{ __('Press') }} <strong>{{ __('Enter') }}</strong> {{ __('to save; it advances automatically') }}</li>
         </ol>
         <div class="fw-bold mb-1">{{ __('Type B - Register (Multiple Records):') }}</div>
         <ol class="mb-2 ps-3" style="line-height:1.7;">
-          <li>{{ __('Select') }} <strong>{{ __('Type B - Register') }}</strong> from Doc Type</li>
-          <li>{{ __('Load image → click') }} <strong>{{ __('Auto Rows') }}</strong> (set row count first)</li>
-          <li>{{ __('Use') }} <strong>V</strong> to drag/resize row boxes to fit entries</li>
-          <li><strong>{{ __('Delete') }}</strong> empty rows, <strong>R</strong> to add missed ones</li>
-          <li>{{ __('Click') }} <strong>{{ __('Split & Annotate') }}</strong> → crops each row</li>
+          <li>{{ __('Select') }} <strong>{{ __('Type B - Register') }}</strong> {{ __('from Document Type') }}</li>
+          <li>{{ __('Load the image and click') }} <strong>{{ __('Auto Rows') }}</strong> ({{ __('set the row count first') }})</li>
+          <li>{{ __('Use') }} <strong>V</strong> {{ __('to drag or resize row boxes to fit entries') }}</li>
+          <li><strong>{{ __('Delete') }}</strong> {{ __('empty rows') }}, <strong>R</strong> {{ __('to add missing rows') }}</li>
+          <li>{{ __('Click') }} <strong>{{ __('Split & Annotate') }}</strong> → {{ __('each row is cropped') }}</li>
           <li>{{ __('Switches to Type A → annotate each row (year + place)') }}</li>
         </ol>
         <hr class="my-1">
         <div class="text-muted" style="font-size:.7rem;">
-          <strong>{{ __('Keys:') }}</strong> H=pan, R=draw, V=select/move, Space=hold-to-pan, +/-=zoom, Tab=cycle, Del=delete, Ctrl+Z=undo
+          <strong>{{ __('Keys:') }}</strong> {{ __('H=pan, R=draw, V=select/move, Space=hold-to-pan, +/-=zoom, Tab=cycle, Del=delete, Ctrl+Z=undo') }}
         </div>
       </div>
     </div>

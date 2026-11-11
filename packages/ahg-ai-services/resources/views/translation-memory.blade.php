@@ -20,7 +20,7 @@
   </a>
 </div>
 
-<p class="text-muted">{{ __('Cached translations indexed by SHA-256 of') }} <em>source + langs</em>. A lookup hit skips the inference dispatch entirely; <code>hit_count</code> tracks reuse and <code>last_used_at</code> shows recency. Delete an entry to force a fresh translation.</p>
+<p class="text-muted">{{ __('Cached translations indexed by SHA-256 of') }} <em>{{ __('source + languages') }}</em>. {{ __('A lookup hit skips inference;') }} <code>hit_count</code> {{ __('tracks reuse and') }} <code>last_used_at</code> {{ __('shows recency. Delete an entry to force a fresh translation.') }}</p>
 
 @if(session('status'))
 <div class="alert alert-success alert-dismissible fade show">

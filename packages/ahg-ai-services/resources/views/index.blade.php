@@ -49,7 +49,7 @@
 
             @if(!empty($health['models']) && is_array($health['models']))
             <dt class="col-5">{{ __('Models') }}</dt>
-            <dd class="col-7">{{ count($health['models']) }} available</dd>
+            <dd class="col-7">{{ __(':count available', ['count' => count($health['models'])]) }}</dd>
             @endif
 
             @if(!empty($health['error']))

@@ -20,7 +20,7 @@
   </a>
 </div>
 
-<p class="text-muted">Per-tenant daily and monthly call limits across the seven gated AI services. A limit of <code>0</code> means unlimited. Tenant <code>0</code> is the global default.</p>
+<p class="text-muted">{{ __('Per-tenant daily and monthly call limits across the seven gated AI services. A limit of') }} <code>0</code> {{ __('means unlimited. Tenant') }} <code>0</code> {{ __('is the global default.') }}</p>
 
 @if(session('status'))
 <div class="alert alert-success alert-dismissible fade show">
