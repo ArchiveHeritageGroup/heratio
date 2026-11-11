@@ -48,7 +48,7 @@ $isColumnLayout = in_array($block->machine_name, ['row_1_col', 'row_2_col', 'row
                  style="min-height: 80px; background: #fff;">
               @if ($colBlocks->isEmpty())
                 <div class="empty-column text-muted py-2">
-                  <small><i class="bi bi-arrow-down"></i> Col {{ $i }}</small>
+                  <small><i class="bi bi-arrow-down"></i> {{ __('Col :value1', ['value1' => $i]) }}</small>
                 </div>
               @else
                 @foreach ($colBlocks as $childBlock)
@@ -79,7 +79,7 @@ $isColumnLayout = in_array($block->machine_name, ['row_1_col', 'row_2_col', 'row
           @break
         @case('browse_panels')
           @php $panelCount = count($config['panels'] ?? []); @endphp
-          <i class="bi bi-folder"></i> {{ $panelCount }} browse panels
+          <i class="bi bi-folder"></i> {{ __(':value1 browse panels', ['value1' => $panelCount]) }}
           @break
         @case('recent_items')
           <i class="bi bi-clock-history"></i> {{ e($config['title'] ?? 'Recent Items') }} ({{ $config['limit'] ?? 6 }})
@@ -96,26 +96,26 @@ $isColumnLayout = in_array($block->machine_name, ['row_1_col', 'row_2_col', 'row
           @break
         @case('image_carousel')
           @php $imgCount = count($config['images'] ?? []); @endphp
-          <i class="bi bi-images"></i> {{ $imgCount }} images
+          <i class="bi bi-images"></i> {{ __(':value1 images', ['value1' => $imgCount]) }}
           @break
         @case('quick_links')
           @php $linkCount = count($config['links'] ?? []); @endphp
-          <i class="bi bi-link-45deg"></i> {{ $linkCount }} links
+          <i class="bi bi-link-45deg"></i> {{ __(':value1 links', ['value1' => $linkCount]) }}
           @break
         @case('header_section')
-          <i class="bi bi-arrow-up"></i> Header
+          <i class="bi bi-arrow-up"></i> {{ __('Header') }}
           @break
         @case('footer_section')
-          <i class="bi bi-arrow-down"></i> Footer
+          <i class="bi bi-arrow-down"></i> {{ __('Footer') }}
           @break
         @case('row_1_col')
-          <i class="bi bi-layout-wtf"></i> 1 Column Layout
+          <i class="bi bi-layout-wtf"></i> {{ __('1 Column Layout') }}
           @break
         @case('divider')
-          - Divider ({{ $config['style'] ?? 'line' }})
+          {{ __('- Divider (:value1)', ['value1' => $config['style'] ?? 'line']) }}
           @break
         @case('spacer')
-          <i class="bi bi-arrows-expand"></i> Spacer ({{ $config['height'] ?? '50px' }})
+          <i class="bi bi-arrows-expand"></i> {{ __('Spacer (:value1)', ['value1' => $config['height'] ?? '50px']) }}
           @break
         @default
           {{ $block->type_label }}

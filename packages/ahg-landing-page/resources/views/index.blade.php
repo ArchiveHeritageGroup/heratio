@@ -5,8 +5,7 @@ $isPreview = $isPreview ?? false;
 
 @if ($isPreview)
 <div class="alert alert-warning alert-dismissible fade show m-3" role="alert">
-  <i class="bi bi-eye"></i> <strong>{{ __('Preview Mode') }}</strong> - This is how the page will appear to visitors.
-  Hidden blocks are shown with reduced opacity.
+  <i class="bi bi-eye"></i> <strong>{{ __('Preview Mode') }}</strong> {{ __('- This is how the page will appear to visitors. Hidden blocks are shown with reduced opacity.') }}
   <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 </div>
 @endif
@@ -87,7 +86,7 @@ $isPreview = $isPreview ?? false;
                 @if (view()->exists('ahg-landing-page::blocks.' . $templateName))
                   @include('ahg-landing-page::blocks.' . $templateName, ['block' => $block, 'config' => $config, 'data' => $data])
                 @else
-                  <div class="alert alert-warning">Block template not found: {{ e($rawBlock->machine_name) }}</div>
+                  <div class="alert alert-warning">{{ __('Block template not found: :value1', ['value1' => e($rawBlock->machine_name)]) }}</div>
                 @endif
               </div>
             </div>
@@ -132,7 +131,7 @@ $isPreview = $isPreview ?? false;
         @if (view()->exists('ahg-landing-page::blocks.' . $templateName))
           @include('ahg-landing-page::blocks.' . $templateName, ['block' => $block, 'config' => $config, 'data' => $data])
         @else
-          <div class="alert alert-warning">Block template not found: {{ e($rawBlock->machine_name) }}</div>
+          <div class="alert alert-warning">{{ __('Block template not found: :value1', ['value1' => e($rawBlock->machine_name)]) }}</div>
         @endif
         @if ($rawBlock->machine_name !== 'hero_banner' && $containerClass !== 'fluid')
         </div>

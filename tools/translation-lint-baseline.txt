@@ -1136,36 +1136,6 @@ packages/ahg-label/src/Controllers/LabelTemplateController.php	flash	Label templ
 packages/ahg-label/src/Controllers/LabelTemplateController.php	flash	Label template updated.
 packages/ahg-label/src/Controllers/LabelTemplateController.php	flash	Template not found.
 packages/ahg-label/src/Controllers/LabelTemplateController.php	flash	Template not found.
-packages/ahg-landing-page/resources/views/_block-card.blade.php	text	- Divider ({{…}})
-packages/ahg-landing-page/resources/views/_block-card.blade.php	text	1 Column Layout
-packages/ahg-landing-page/resources/views/_block-card.blade.php	text	Col {{…}}
-packages/ahg-landing-page/resources/views/_block-card.blade.php	text	Footer
-packages/ahg-landing-page/resources/views/_block-card.blade.php	text	Header
-packages/ahg-landing-page/resources/views/_block-card.blade.php	text	Spacer ({{…}})
-packages/ahg-landing-page/resources/views/_block-card.blade.php	text	{{…}} browse panels
-packages/ahg-landing-page/resources/views/_block-card.blade.php	text	{{…}} images
-packages/ahg-landing-page/resources/views/_block-card.blade.php	text	{{…}} links
-packages/ahg-landing-page/resources/views/_nested-block.blade.php	text	Recent Items
-packages/ahg-landing-page/resources/views/_nested-block.blade.php	text	Search Box
-packages/ahg-landing-page/resources/views/_nested-block.blade.php	text	{{…}} links
-packages/ahg-landing-page/resources/views/_nested-block.blade.php	text	{{…}} stats
-packages/ahg-landing-page/resources/views/blocks/_block_browse_panels.blade.php	text	{{…}} records
-packages/ahg-landing-page/resources/views/blocks/_block_copyright_bar.blade.php	text	Enhanced by
-packages/ahg-landing-page/resources/views/blocks/_block_copyright_bar.blade.php	text	Powered by
-packages/ahg-landing-page/resources/views/blocks/_block_footer_section.blade.php	text	.com
-packages/ahg-landing-page/resources/views/blocks/_block_footer_section.blade.php	text	Email: info
-packages/ahg-landing-page/resources/views/blocks/_block_holdings_list.blade.php	text	{{…}} visits
-packages/ahg-landing-page/resources/views/blocks/_block_image_carousel.blade.php	text	Collection: {{…}}
-packages/ahg-landing-page/resources/views/blocks/_block_repository_spotlight.blade.php	text	{{…}} Holdings
-packages/ahg-landing-page/resources/views/blocks/_block_row_3_col.blade.php	text	Column {{…}} (empty)
-packages/ahg-landing-page/resources/views/edit.blade.php	text	({{…}} blocks)
-packages/ahg-landing-page/resources/views/edit.blade.php	text	URL: {{…}}/landing/
-packages/ahg-landing-page/resources/views/index.blade.php	text	- This is how the page will appear to visitors. Hidden blocks are shown with reduced opacity.
-packages/ahg-landing-page/resources/views/index.blade.php	text	Block template not found: {{…}}
-packages/ahg-landing-page/resources/views/index.blade.php	text	Block template not found: {{…}}
-packages/ahg-landing-page/resources/views/list.blade.php	text	Updated {{…}}
-packages/ahg-landing-page/resources/views/list.blade.php	text	{{…}} blocks
-packages/ahg-landing-page/resources/views/my-dashboard-list.blade.php	text	Updated {{…}}
 packages/ahg-loan/resources/views/loan/create.blade.php	text	-- Select sector --
 packages/ahg-loan/resources/views/loan/index.blade.php	text	Due: {{…}}
 packages/ahg-loan/resources/views/loan/index.blade.php	text	Due: {{…}}

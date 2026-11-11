@@ -25,13 +25,13 @@ if ($showVersion) {
       <span>{{ e($copyright) }}</span>
       <span>
         @if (!empty($poweredBy))
-          Powered by <a href="{{ e($poweredByUrl) }}" class="text-decoration-none" style="color: {{ e($textColor) }};" target="_blank">{{ e($poweredBy . $appVersion) }}</a>
+          {{ __('Powered by') }} <a href="{{ e($poweredByUrl) }}" class="text-decoration-none" style="color: {{ e($textColor) }};" target="_blank">{{ e($poweredBy . $appVersion) }}</a>
         @endif
         @if (!empty($poweredBy) && !empty($enhancedBy))
           <span class="mx-1">|</span>
         @endif
         @if (!empty($enhancedBy))
-          Enhanced by <a href="{{ e($enhancedByUrl) }}" class="text-decoration-none" style="color: {{ e($textColor) }};" target="_blank">{{ e($enhancedBy) }}</a>
+          {{ __('Enhanced by') }} <a href="{{ e($enhancedByUrl) }}" class="text-decoration-none" style="color: {{ e($textColor) }};" target="_blank">{{ e($enhancedBy) }}</a>
         @endif
       </span>
     </div>
