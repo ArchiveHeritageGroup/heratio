@@ -117,7 +117,7 @@
     <div class="card-body">
       <div class="alert alert-warning py-2 mb-3">
         <i class="fas fa-eye me-1"></i>
-        <strong>{{ __('Review Translations') }}</strong> - Edit if needed, then click "Approve &amp; Save" to apply.
+        <strong>{{ __('Review Translations') }}</strong> {{ __('- Edit if needed, then click "Approve & Save" to apply.') }}
       </div>
       <div id="translations-preview"></div>
     </div>

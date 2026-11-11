@@ -2064,23 +2064,6 @@ packages/ahg-theme-b5/resources/views/partials/voice-commands.blade.php	text	"to
 packages/ahg-theme-b5/resources/views/partials/voice-commands.blade.php	text	"undo last"
 packages/ahg-theme-b5/resources/views/partials/voice-commands.blade.php	text	"what type of file / file type"
 packages/ahg-theme-b5/resources/views/partials/voice-commands.blade.php	text	"where am I"
-packages/ahg-translation/resources/views/_translate-modal.blade.php	text	- Edit if needed, then click "Approve &amp; Save" to apply.
-packages/ahg-translation/resources/views/translate.blade.php	text	- Edit if needed, then click "Approve &amp; Save" to apply.
-packages/ahg-translation/src/Controllers/TranslationController.php	flash	Admin only
-packages/ahg-translation/src/Controllers/TranslationController.php	flash	Apply failed for draft #{$draft->id}:
-packages/ahg-translation/src/Controllers/TranslationController.php	flash	Apply failed:
-packages/ahg-translation/src/Controllers/TranslationController.php	flash	Batch {$action}: {$ok} ok, {$fail} failed.
-packages/ahg-translation/src/Controllers/TranslationController.php	flash	Draft #{$draft->id} applied to {$source}.{$rowId} ({$culture}).
-packages/ahg-translation/src/Controllers/TranslationController.php	flash	Draft #{$draft->id} discarded - parent {$source} row #{$rowId} was deleted before approval.
-packages/ahg-translation/src/Controllers/TranslationController.php	flash	Draft #{$id} applied to {$draft->target_culture}.
-packages/ahg-translation/src/Controllers/TranslationController.php	flash	Draft #{$id} discarded - original record (object #{$draft->object_id}) was deleted before approval.
-packages/ahg-translation/src/Controllers/TranslationController.php	flash	Draft already applied
-packages/ahg-translation/src/Controllers/TranslationController.php	flash	Draft not found
-packages/ahg-translation/src/Controllers/TranslationController.php	flash	Language "
-packages/ahg-translation/src/Controllers/TranslationController.php	flash	No drafts selected or invalid action.
-packages/ahg-translation/src/Controllers/TranslationController.php	flash	No orphaned drafts to clean up.
-packages/ahg-translation/src/Controllers/TranslationController.php	flash	Settings updated
-packages/ahg-translation/src/Controllers/TranslationController.php	flash	Unknown dropdown source '{$source}' on draft #{$draft->id}
 packages/ahg-user-manage/resources/views/browse.blade.php	text	(inactive)
 packages/ahg-user-manage/resources/views/browse.blade.php	text	(you)
 packages/ahg-user-manage/resources/views/delete.blade.php	text	Are you sure you want to delete {{…}}?

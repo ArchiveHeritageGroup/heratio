@@ -163,7 +163,7 @@
         <div class="ahg-step-2" style="display:none;">
           <div class="alert alert-warning py-2 mb-3">
             <i class="fas fa-eye me-1"></i>
-            <strong>{{ __('Review Translations') }}</strong> - Edit if needed, then click "Approve &amp; Save" to apply.
+            <strong>{{ __('Review Translations') }}</strong> {{ __('- Edit if needed, then click "Approve & Save" to apply.') }}
           </div>
           <div class="ahg-translations-preview"></div>
         </div>
