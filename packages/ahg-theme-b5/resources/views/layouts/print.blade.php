@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', $themeData['siteTitle'] ?? 'Heratio') - Print</title>
+    <title>@yield('title', $themeData['siteTitle'] ?? 'Heratio') {{ __('- Print') }}</title>
     <style>
       /* Base typography */
       body {
@@ -185,8 +185,8 @@
     @yield('content')
 
     <div class="print-footer">
-      <div style="float: right;">Page generated: {{ now()->format('Y-m-d H:i:s') }}</div>
-      <div>Printed from {{ $themeData['siteTitle'] ?? 'Heratio' }} - {{ url()->current() }}</div>
+      <div style="float: right;">{{ __('Page generated: :date', ['date' => now()->format('Y-m-d H:i:s')]) }}</div>
+      <div>{{ __('Printed from :site - :url', ['site' => $themeData['siteTitle'] ?? 'Heratio', 'url' => url()->current()]) }}</div>
     </div>
 
   </body>
