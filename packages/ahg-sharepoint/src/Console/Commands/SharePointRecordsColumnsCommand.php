@@ -103,6 +103,18 @@ class SharePointRecordsColumnsCommand extends Command
             }
         }
 
+        // 1c. "AI read" (text) on the capture library: model, time and receipt of
+        // the read that filled the other columns.
+        if ($targetId !== $model['id']) {
+            $tc = $this->columns($graph, $t, $site, $targetId);
+            if (! isset($tc['AI read'])) {
+                $this->line("  + {$drive->drive_name} / AI read");
+                if (! $check) {
+                    $graph->post($t, "/sites/{$site}/lists/{$targetId}/columns", ['name' => 'AIRead', 'displayName' => 'AI read', 'text' => ['allowMultipleLines' => false, 'maxLength' => 255]]);
+                }
+            }
+        }
+
         // 2. The target library (Supplier invoices): only the columns relevant to
         // supplier documents - Record Type (supplier types only), Record Date,
         // Status. Record Class and Function/Directorate would always read

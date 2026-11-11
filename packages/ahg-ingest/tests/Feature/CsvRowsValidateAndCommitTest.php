@@ -50,4 +50,40 @@ class CsvRowsValidateAndCommitTest extends TestCase
         $this->assertSame(2, $res['created'], 'the two valid rows become records');
         $this->assertSame(2, DB::table('information_object_i18n')->whereIn('title', ['ZZ csv row one', 'ZZ csv row three'])->count());
     }
+
+    public function test_columns_named_after_fields_are_mapped_on_upload(): void
+    {
+        $id = (int) DB::table('ingest_session')->insertGetId([
+            'user_id' => 1, 'title' => 'ZZ automap', 'sector' => 'archive', 'standard' => 'isadg', 'parent_placement' => 'top_level',
+            'output_create_records' => 1, 'status' => 'map', 'created_at' => now(),
+        ]);
+        $m = new \ReflectionMethod(IngestService::class, 'ensureMappingsForColumns');
+        $m->setAccessible(true);
+        $m->invoke(app(IngestService::class), $id, ['title', 'Scope and content', 'level_of_description', 'Box barcode']);
+
+        $map = DB::table('ingest_mapping')->where('session_id', $id)->pluck('target_field', 'source_column')->all();
+        $this->assertSame('title', $map['title']);
+        $this->assertSame('scopeAndContent', $map['Scope and content']);
+        $this->assertSame('levelOfDescription', $map['level_of_description']);
+        $this->assertNull($map['Box barcode'], 'an unknown column stays for the user to map');
+    }
+
+
+    public function test_metadata_only_rows_with_packaging_on_commit_without_errors(): void
+    {
+        $id = (int) DB::table('ingest_session')->insertGetId([
+            'user_id' => 1, 'title' => 'ZZ no files', 'sector' => 'archive', 'standard' => 'isadg', 'parent_placement' => 'top_level',
+            'output_create_records' => 1, 'output_generate_sip' => 1, 'output_generate_aip' => 1, 'output_generate_dip' => 1,
+            'derivative_thumbnails' => 0, 'derivative_reference' => 0, 'process_virus_scan' => 0, 'status' => 'validate', 'created_at' => now(),
+        ]);
+        $r = ['identifier' => 'ZZNF-1', 'title' => 'ZZ metadata only', 'levelOfDescription' => 'File', 'eventStartDates' => '1950', 'eventEndDates' => '1950'];
+        DB::table('ingest_row')->insert(['session_id' => $id, 'row_number' => 1, 'title' => $r['title'], 'data' => json_encode($r),
+            'enriched_data' => json_encode($r), 'is_valid' => 0, 'is_excluded' => 0, 'created_at' => now()]);
+        app(IngestService::class)->validateSession($id);
+
+        $res = app(IngestCommitRunner::class)->run($id);
+        $this->assertSame(1, $res['created']);
+        $this->assertSame(0, $res['errors'], 'a record with no file has nothing to package - not an error');
+    }
+
 }

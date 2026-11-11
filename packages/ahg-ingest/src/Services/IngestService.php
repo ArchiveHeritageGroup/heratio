@@ -1058,8 +1058,50 @@ class IngestService
     // Small helpers shared by parseRows + enrichRows.
     // ------------------------------------------------------------------
 
+    /** The fields a column can map to, per descriptive standard (also used by the map screen). */
+    public static function targetFieldsFor(string $standard): array
+    {
+        $isadg = [
+            'identifier', 'title', 'levelOfDescription', 'scopeAndContent',
+            'extentAndMedium', 'archivalHistory', 'acquisition',
+            'appraisal', 'accruals', 'arrangement', 'accessConditions',
+            'reproductionConditions', 'language', 'physicalCharacteristics',
+            'findingAids', 'locationOfOriginals', 'locationOfCopies',
+            'relatedUnitsOfDescription', 'publicationNote',
+            'creators', 'subjects', 'places',
+            'eventDates', 'eventStartDate', 'eventEndDate',
+            'legacyId', 'parentId', 'repository',
+        ];
+        $dacs  = array_merge($isadg, ['biographicalHistory', 'preferredCitation']);
+        $rad   = array_merge($isadg, ['editionStatement', 'standardNumber']);
+        $mods  = ['identifier', 'title', 'subTitle', 'language', 'genre', 'subject',
+                  'publisher', 'placeOfPublication', 'dateIssued', 'abstract',
+                  'physicalDescription', 'tableOfContents', 'note', 'classification'];
+        $spectrum = ['objectNumber', 'objectName', 'briefDescription', 'materials',
+                     'techniques', 'measurements', 'condition', 'location',
+                     'creator', 'placeOfOrigin', 'dateMade', 'subjectMatter'];
+
+        return match (strtolower($standard)) {
+            'dacs'     => $dacs,
+            'rad'      => $rad,
+            'mods'     => $mods,
+            'spectrum' => $spectrum,
+            default    => $isadg,
+        };
+    }
+
     private function ensureMappingsForColumns(int $sessionId, array $columns): void
     {
+        // A column already named after a field ("title", "Scope and content",
+        // "level_of_description") is mapped to it straight away; before this every
+        // column started unmapped, even "title".
+        $norm = fn (string $x) => strtolower((string) preg_replace('/[^a-z0-9]/i', '', $x));
+        $standard = (string) (DB::table('ingest_session')->where('id', $sessionId)->value('standard') ?: 'isadg');
+        $byNorm = [];
+        foreach (self::targetFieldsFor($standard) as $f) {
+            $byNorm[$norm($f)] = $f;
+        }
+
         $existing = DB::table('ingest_mapping')
             ->where('session_id', $sessionId)
             ->pluck('source_column')
@@ -1076,7 +1118,7 @@ class IngestService
             DB::table('ingest_mapping')->insert([
                 'session_id'    => $sessionId,
                 'source_column' => $col,
-                'target_field'  => null,
+                'target_field'  => $byNorm[$norm($col)] ?? null,
                 'is_ignored'    => 0,
                 'sort_order'    => $sort++,
             ]);

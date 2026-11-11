@@ -128,6 +128,17 @@ class IngestController extends Controller
                 'process_format_id', 'process_face_detect',
                 'process_normalize',
             ]);
+            // An unticked checkbox is not sent at all, and buildSessionRow() reads a
+            // missing key as "use the site default" (on, for SIP/AIP/DIP) - so
+            // unticking did nothing. From this form, a missing checkbox means off.
+            foreach (['output_create_records', 'output_generate_sip', 'output_generate_aip', 'output_generate_dip',
+                'derivative_thumbnails', 'derivative_reference', 'process_ner', 'process_ocr', 'process_virus_scan',
+                'process_summarize', 'process_spellcheck', 'process_translate', 'process_format_id',
+                'process_face_detect', 'process_normalize'] as $box) {
+                if (! $request->has($box)) {
+                    $config[$box] = 0;
+                }
+            }
 
             if ($id) {
                 $this->service->updateSession($id, $config);
@@ -474,33 +485,7 @@ class IngestController extends Controller
      */
     private function targetFieldsFor(string $standard): array
     {
-        $isadg = [
-            'identifier', 'title', 'levelOfDescription', 'scopeAndContent',
-            'extentAndMedium', 'archivalHistory', 'acquisition',
-            'appraisal', 'accruals', 'arrangement', 'accessConditions',
-            'reproductionConditions', 'language', 'physicalCharacteristics',
-            'findingAids', 'locationOfOriginals', 'locationOfCopies',
-            'relatedUnitsOfDescription', 'publicationNote',
-            'creators', 'subjects', 'places',
-            'eventDates', 'eventStartDate', 'eventEndDate',
-            'legacyId', 'parentId', 'repository',
-        ];
-        $dacs  = array_merge($isadg, ['biographicalHistory', 'preferredCitation']);
-        $rad   = array_merge($isadg, ['editionStatement', 'standardNumber']);
-        $mods  = ['identifier', 'title', 'subTitle', 'language', 'genre', 'subject',
-                  'publisher', 'placeOfPublication', 'dateIssued', 'abstract',
-                  'physicalDescription', 'tableOfContents', 'note', 'classification'];
-        $spectrum = ['objectNumber', 'objectName', 'briefDescription', 'materials',
-                     'techniques', 'measurements', 'condition', 'location',
-                     'creator', 'placeOfOrigin', 'dateMade', 'subjectMatter'];
-
-        return match (strtolower($standard)) {
-            'dacs'     => $dacs,
-            'rad'      => $rad,
-            'mods'     => $mods,
-            'spectrum' => $spectrum,
-            default    => $isadg,
-        };
+        return \AhgIngest\Services\IngestService::targetFieldsFor($standard);
     }
 
     /**

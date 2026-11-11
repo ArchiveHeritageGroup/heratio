@@ -36,6 +36,17 @@ class ValidateCommitButtonTest extends TestCase
         $this->assertSame('commit', DB::table('ingest_session')->where('id', $id)->value('status'));
     }
 
+    public function test_unticked_checkboxes_on_the_configure_form_are_saved_as_off(): void
+    {
+        // Only title and sector posted: SIP/AIP/DIP and the rest are unticked.
+        $this->actingAs($this->makeAdmin())->post(route('ingest.configure'), ['title' => 'ZZ untick test', 'sector' => 'archive', 'standard' => 'isadg',
+            'parent_placement' => 'top_level', 'output_create_records' => '1']);
+        $s = DB::table('ingest_session')->where('title', 'ZZ untick test')->orderByDesc('id')->first();
+        $this->assertNotNull($s);
+        $this->assertSame(1, (int) $s->output_create_records);
+        $this->assertSame([0, 0, 0], [(int) $s->output_generate_sip, (int) $s->output_generate_aip, (int) $s->output_generate_dip]);
+    }
+
     private function makeAdmin(): User
     {
         $id = (int) DB::table('object')->insertGetId(['class_name' => 'QubitUser', 'created_at' => now(), 'updated_at' => now()]);

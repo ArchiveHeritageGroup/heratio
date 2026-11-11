@@ -108,7 +108,7 @@ class SharePointWriteBackService
 
         $written = $this->writeFields($ioId, $r['fields'] ?? [], $matchText);
         try {
-            $written += $this->writeRecordColumns($ioId, $r['fields'] ?? [], $m);
+            $written += $this->writeRecordColumns($ioId, $r['fields'] ?? [], $m, true, $r);
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning('SharePoint records columns for '.$ioId.' failed: '.substr($e->getMessage(), 0, 300));
         }
@@ -151,7 +151,7 @@ class SharePointWriteBackService
      *
      * @return array<string,string> column written => value
      */
-    public function writeRecordColumns(int $ioId, array $fields, array $match, bool $readOk = true): array
+    public function writeRecordColumns(int $ioId, array $fields, array $match, bool $readOk = true, array $read = []): array
     {
         $at = $this->locate($ioId);
         if (! $at) {
@@ -165,6 +165,12 @@ class SharePointWriteBackService
         $date = ! empty($fields['date']) && ($ts = strtotime((string) $fields['date'])) ? gmdate('Y-m-d\T00:00:00\Z', $ts) : null;
         $status = SharePointRecordsClassifier::status($readOk, $match['status'] ?? null, $type, ! empty($fields['po_number']));
         $values = SharePointRecordsClassifier::columnsFor($type, $date, $status);
+        // Who filled these columns: the model, when (SAST), and the start of the
+        // signed inference receipt shown on the record's Document fields page.
+        if ($readOk && ! empty($read['model'])) {
+            $values['AI read'] = trim($read['model'].', '.now('Africa/Johannesburg')->format('j M H:i')
+                .(! empty($read['receipt']['hash']) ? ', receipt '.substr((string) $read['receipt']['hash'], 0, 8) : ''));
+        }
 
         $base = "/sites/{$at['site']}/drives/{$at['drive']}";
         $list = $this->graph->get($at['tenant'], "{$base}/list?\$select=id")['id'];

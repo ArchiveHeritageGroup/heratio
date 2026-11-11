@@ -129,7 +129,15 @@ class IngestCommitRunner
             'dip' => !empty($session->output_generate_dip),
         ];
         if (array_filter($packageBuild) && !empty($createdIoIds)) {
+            // A package wraps files; a record imported from metadata only (no
+            // digital object) has nothing to package. That is not an error - it
+            // was counted as three per record ("12 errors" for a 4-row CSV).
+            $withFiles = array_flip(DB::table('digital_object')->whereIn('object_id', $createdIoIds)
+                ->whereNull('parent_id')->distinct()->pluck('object_id')->map(fn ($v) => (int) $v)->all());
             foreach ($createdIoIds as $ioId) {
+                if (! isset($withFiles[(int) $ioId])) {
+                    continue;
+                }
                 foreach ($packageBuild as $type => $enabled) {
                     if (!$enabled) { continue; }
                     try {
