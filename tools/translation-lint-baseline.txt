@@ -1095,24 +1095,6 @@ packages/ahg-integrity/src/Controllers/IntegrityController.php	flash	Retention e
 packages/ahg-integrity/src/Controllers/IntegrityController.php	flash	Schedule updated.
 packages/ahg-integrity/src/Controllers/IntegrityController.php	flash	Vital record flag removed.
 packages/ahg-integrity/src/Controllers/IntegrityController.php	flash	Vital record marked as reviewed.
-packages/ahg-ipsas/resources/views/financial-year.blade.php	text	Financial Year Summary {{…}}
-packages/ahg-ipsas/resources/views/financial-year.blade.php	text	Financial Year {{…}}
-packages/ahg-ipsas/resources/views/index.blade.php	text	Fair value revaluations every {{…}} years
-packages/ahg-ipsas/resources/views/index.blade.php	text	IPSAS Compliance: {{…}}
-packages/ahg-ipsas/resources/views/index.blade.php	text	Insurance Policies
-packages/ahg-ipsas/resources/views/index.blade.php	text	{{…}} active
-packages/ahg-ipsas/resources/views/index.blade.php	text	{{…}} days
-packages/ahg-ipsas/resources/views/index.blade.php	text	{{…}} expiring
-packages/ahg-ipsas/resources/views/index.blade.php	text	{{…}} issue(s) require attention
-packages/ahg-ipsas/resources/views/index.blade.php	text	{{…}} this year
-packages/ahg-ipsas/resources/views/index.blade.php	text	{{…}} warning(s) to review
-packages/ahg-ipsas/src/Controllers/IpsasController.php	flash	Asset deleted.
-packages/ahg-ipsas/src/Controllers/IpsasController.php	flash	Asset registered
-packages/ahg-ipsas/src/Controllers/IpsasController.php	flash	Asset updated
-packages/ahg-ipsas/src/Controllers/IpsasController.php	flash	Configuration saved
-packages/ahg-ipsas/src/Controllers/IpsasController.php	flash	Financial year recalculated.
-packages/ahg-ipsas/src/Controllers/IpsasController.php	flash	Invalid action.
-packages/ahg-ipsas/src/Controllers/IpsasController.php	flash	Valuation recorded
 packages/ahg-jobs-manage/resources/views/browse.blade.php	text	Showing {{…}} of {{…}} job(s)
 packages/ahg-jobs-manage/resources/views/browse.blade.php	text	off
 packages/ahg-jobs-manage/src/Controllers/JobController.php	flash	Job deleted successfully.

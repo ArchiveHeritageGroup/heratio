@@ -27,10 +27,10 @@
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.index') }}">IPSAS</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('ipsas.reports') }}">{{ __('Reports') }}</a></li>
-                    <li class="breadcrumb-item active">Financial Year {{ $year }}</li>
+                    <li class="breadcrumb-item active">{{ __('Financial Year :value1', ['value1' => $year]) }}</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-calendar-alt me-2"></i>Financial Year Summary {{ $year }}</h1>
+            <h1><i class="fas fa-calendar-alt me-2"></i>{{ __('Financial Year Summary :value1', ['value1' => $year]) }}</h1>
         </div>
         <div class="col-auto">
             <form method="get" class="d-flex gap-2">
