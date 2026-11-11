@@ -128,7 +128,7 @@
                             <i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}
                         </a>
                         <button type="submit" class="btn btn-primary" id="btn-upload">
-                            Upload &amp; Continue <i class="fas fa-arrow-right ms-1"></i>
+                            {{ __('Upload &amp; Continue') }} <i class="fas fa-arrow-right ms-1"></i>
                         </button>
                     </div>
                 </form>
@@ -205,11 +205,11 @@
                             </div>
                             <div class="mb-3">
                                 <label for="sp_site" class="form-label">{{ __('Site') }}</label>
-                                <select class="form-select" id="sp_site"><option value="">- Loading sites... -</option></select>
+                                <select class="form-select" id="sp_site"><option value="">{{ __('- Loading sites... -') }}</option></select>
                             </div>
                             <div class="mb-3">
                                 <label for="sp_drive" class="form-label">{{ __('Drive (document library)') }}</label>
-                                <select class="form-select" id="sp_drive" disabled><option value="">- Select a site first -</option></select>
+                                <select class="form-select" id="sp_drive" disabled><option value="">{{ __('- Select a site first -') }}</option></select>
                                 <input type="hidden" name="sp_drive_id" id="sp_drive_id_hidden">
                                 <input type="hidden" name="sp_drive_name" id="sp_drive_name_hidden">
                                 <input type="hidden" name="sp_site_id" id="sp_site_id_hidden">
@@ -283,7 +283,7 @@
             <div class="card-body">
                 <a href="{{ route('ingest.template', ['sector' => $session->sector ?? 'archive']) }}"
                    class="btn btn-outline-secondary btn-sm w-100">
-                    <i class="fas fa-download me-1"></i>Download Template for {{ ucfirst($session->sector ?? '') }}
+                    <i class="fas fa-download me-1"></i>{{ __('Download Template for :sector', ['sector' => ucfirst($session->sector ?? '')]) }}
                 </a>
             </div>
         </div>
@@ -353,7 +353,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function loadSites() {
-        spSite.innerHTML = '<option value="">- Loading sites... -</option>';
+        spSite.innerHTML = '<option value="">{{ __('- Loading sites... -') }}</option>';
         fetchSP({ op: 'sites', tenant_id: spTenant.value }).then(function (json) {
             spSite.innerHTML = '<option value="">- Select site -</option>';
             (json.sites || []).forEach(function (s) {

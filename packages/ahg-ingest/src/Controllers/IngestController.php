@@ -502,7 +502,7 @@ class IngestController extends Controller
                 ->value('id');
         }
         if ($drivePk <= 0) {
-            session()->flash('error', 'Could not resolve SharePoint drive; mapping template NOT saved.');
+            session()->flash('error', __('Could not resolve SharePoint drive; mapping template NOT saved.'));
             return;
         }
         \Illuminate\Support\Facades\DB::table('sharepoint_mapping')->where('drive_id', $drivePk)->delete();
@@ -613,16 +613,16 @@ class IngestController extends Controller
                     ]);
                     \AhgIngest\Jobs\IngestCommitJob::dispatch($id);
                     return redirect()->route('ingest.commit', $id)
-                        ->with('notice', "Commit dispatched to queue ({$rowCount} rows) - this page will auto-refresh as progress lands.");
+                        ->with('notice', __('Commit dispatched to queue (:count rows) - this page will auto-refresh as progress lands.', ['count' => $rowCount]));
                 }
 
                 $runner = app(\AhgIngest\Services\IngestCommitRunner::class);
                 $result = $runner->run($id);
                 return redirect()->route('ingest.commit', $id)
-                    ->with('notice', "Commit complete: {$result['created']} IO(s), {$result['errors']} error(s).");
+                    ->with('notice', __('Commit complete: :created records, :errors errors.', ['created' => $result['created'], 'errors' => $result['errors']]));
             } catch (\Throwable $e) {
                 return redirect()->route('ingest.commit', $id)
-                    ->with('error', 'Commit failed: ' . $e->getMessage());
+                    ->with('error', __('Commit failed: :message', ['message' => $e->getMessage()]));
             }
         }
 
@@ -642,15 +642,15 @@ class IngestController extends Controller
         if ($action === 'delete' && $id) {
             $this->service->deleteSession($id);
 
-            return redirect()->route('ingest.index')->with('notice', 'Ingest session deleted.');
+            return redirect()->route('ingest.index')->with('notice', __('Ingest session deleted.'));
         }
 
         if ($action === 'cancel' && $id) {
             $this->service->updateSessionStatus($id, 'cancelled');
 
-            return redirect()->route('ingest.index')->with('notice', 'Ingest session cancelled.');
+            return redirect()->route('ingest.index')->with('notice', __('Ingest session cancelled.'));
         }
 
-        return redirect()->back()->with('error', 'Invalid action.');
+        return redirect()->back()->with('error', __('Invalid action.'));
     }
 }

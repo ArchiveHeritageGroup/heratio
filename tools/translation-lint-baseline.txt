@@ -1027,42 +1027,7 @@ packages/ahg-information-object-manage/resources/views/show-ric.blade.php	text	r
 packages/ahg-information-object-manage/resources/views/show-ric.blade.php	text	rico:hasOrHadHolder
 packages/ahg-information-object-manage/resources/views/show-ric.blade.php	text	rico:hasRecordSetType
 packages/ahg-information-object-manage/resources/views/show-ric.blade.php	text	rico:isOrWasSubjectOf / rico:isAssociatedWithPlace
-packages/ahg-ingest/resources/views/commit.blade.php	text	Row #{{…}}
-packages/ahg-ingest/resources/views/configure.blade.php	text	- Select repository -
-packages/ahg-ingest/resources/views/configure.blade.php	text	aspell grammar check
-packages/ahg-ingest/resources/views/map.blade.php	text	- Select -
-packages/ahg-ingest/resources/views/map.blade.php	text	- Select -
-packages/ahg-ingest/resources/views/map.blade.php	text	- unmapped -
-packages/ahg-ingest/resources/views/map.blade.php	text	...and {{…}} more files
-packages/ahg-ingest/resources/views/map.blade.php	text	= Required
-packages/ahg-ingest/resources/views/map.blade.php	text	Apply Metadata &amp; Validate
-packages/ahg-ingest/resources/views/map.blade.php	text	Map &amp; Enrich
-packages/ahg-ingest/resources/views/map.blade.php	text	Preview:
-packages/ahg-ingest/resources/views/map.blade.php	text	Row {{…}}
-packages/ahg-ingest/resources/views/map.blade.php	text	Row {{…}}
-packages/ahg-ingest/resources/views/map.blade.php	text	Save Mappings &amp; Validate
-packages/ahg-ingest/resources/views/map.blade.php	text	found in directory. Enter metadata to apply to all records. Individual titles are generated from filenames.
-packages/ahg-ingest/resources/views/map.blade.php	text	{{…}} columns
-packages/ahg-ingest/resources/views/map.blade.php	text	{{…}} files
-packages/ahg-ingest/resources/views/preview.blade.php	text	Approve &amp; Commit ({{…}} records)
-packages/ahg-ingest/resources/views/preview.blade.php	text	{{…}} objects
-packages/ahg-ingest/resources/views/preview.blade.php	text	{{…}} objects
 packages/ahg-ingest/resources/views/preview.blade.php	title-attr	' . htmlspecialchars(__('Has digital object')) . '
-packages/ahg-ingest/resources/views/upload.blade.php	text	- Loading sites... -
-packages/ahg-ingest/resources/views/upload.blade.php	text	- Select a site first -
-packages/ahg-ingest/resources/views/upload.blade.php	text	Download Template for {{…}}
-packages/ahg-ingest/resources/views/upload.blade.php	text	Upload &amp; Continue
-packages/ahg-ingest/resources/views/validate.blade.php	text	Commit ({{…}} rows)
-packages/ahg-ingest/resources/views/validate.blade.php	text	Field:
-packages/ahg-ingest/resources/views/validate.blade.php	text	Preview ({{…}} valid rows)
-packages/ahg-ingest/resources/views/validate.blade.php	text	{{…}} issues
-packages/ahg-ingest/src/Controllers/IngestController.php	flash	Commit complete: {$result['created']} IO(s), {$result['errors']} error(s).
-packages/ahg-ingest/src/Controllers/IngestController.php	flash	Commit dispatched to queue ({$rowCount} rows) - this page will auto-refresh as progress lands.
-packages/ahg-ingest/src/Controllers/IngestController.php	flash	Commit failed:
-packages/ahg-ingest/src/Controllers/IngestController.php	flash	Could not resolve SharePoint drive; mapping template NOT saved.
-packages/ahg-ingest/src/Controllers/IngestController.php	flash	Ingest session cancelled.
-packages/ahg-ingest/src/Controllers/IngestController.php	flash	Ingest session deleted.
-packages/ahg-ingest/src/Controllers/IngestController.php	flash	Invalid action.
 packages/ahg-integrity/resources/views/index.blade.php	text	Dead Letters
 packages/ahg-integrity/resources/views/index.blade.php	text	The integrity check system has not been set up yet. The required database tables (, ) do not exist. Please run the integrity module migration to enable this feature.
 packages/ahg-integrity/resources/views/integrity/certificate-generate.blade.php	text	-- Select method --

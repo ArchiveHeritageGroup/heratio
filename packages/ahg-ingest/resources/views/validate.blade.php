@@ -101,7 +101,7 @@
 <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Issues') }}</h5>
-        <span class="badge bg-secondary">{{ count($validationErrors) }} issues</span>
+        <span class="badge bg-secondary">{{ __(':count issues', ['count' => count($validationErrors)]) }}</span>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -180,7 +180,7 @@
                         <label class="form-label">{{ __('Row:') }} <strong id="fix_row_label"></strong></label>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Field: <code id="fix_field_label"></code></label>
+                        <label class="form-label">{{ __('Field:') }} <code id="fix_field_label"></code></label>
                     </div>
                     <div class="mb-3">
                         <label for="fix_value" class="form-label">{{ __('New value') }}</label>
@@ -212,7 +212,7 @@
             @csrf
             <input type="hidden" name="form_action" value="proceed">
             <button type="submit" class="btn btn-primary" {{ $validCount === 0 ? 'disabled' : '' }}>
-                <i class="fas fa-eye me-1"></i>Preview ({{ $validCount }} valid rows)
+                <i class="fas fa-eye me-1"></i>{{ __('Preview (:count valid rows)', ['count' => $validCount]) }}
                 <i class="fas fa-arrow-right ms-1"></i>
             </button>
         </form>
@@ -220,7 +220,7 @@
             @csrf
             <input type="hidden" name="form_action" value="commit">
             <button type="submit" class="btn btn-success" {{ $validCount === 0 ? 'disabled' : '' }}>
-                <i class="fas fa-check me-1"></i>Commit ({{ $validCount }} rows)
+                <i class="fas fa-check me-1"></i>{{ __('Commit (:count rows)', ['count' => $validCount]) }}
             </button>
         </form>
     </div>
