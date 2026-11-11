@@ -1,0 +1,31 @@
+code,title,retention_period,disposal_action,document_types
+1,Governance and statutory framework,,,
+1/1,Policies and procedures,10 years after superseded,Transfer to archives,
+1/2,Board and committee meetings,Permanent,Transfer to archives,
+2,Human resources,,,
+2/1,Recruitment and appointments,5 years after appointment,Destroy,
+2/2,Personnel case files,7 years after termination,Destroy,
+2/3,Leave overtime and travel claims,5 years,Destroy,overtime_claim
+3,Health safety and security,,,
+3/1,Incident reports,10 years,Review,incident_report
+3/2,Site access and visitor registers,2 years,Destroy,visitor_register
+3/3,Contractor site access and induction,5 years,Destroy,site_access_form
+4,Financial management,,,
+4/1,Budget,5 years,Destroy,
+4/2,Banking,,,
+4/2/1,Bank account changes and confirmations,5 years,Destroy,bank_letter
+4/3,Accounts payable,,,
+4/3/1,Supplier invoices,5 years after end of financial year,Destroy,invoice
+4/3/2,Credit notes,5 years after end of financial year,Destroy,credit_note
+4/3/3,Supplier statements,5 years after end of financial year,Destroy,statement
+5,Supply chain management,,,
+5/1,Supplier registration and vetting,5 years after last transaction,Destroy,supplier_registration;affidavit
+5/2,Procurement,,,
+5/2/1,Quotations,5 years,Destroy,quotation
+5/2/2,Purchase orders,5 years after end of financial year,Destroy,purchase_order
+5/3,Receiving,,,
+5/3/1,Delivery notes,5 years,Destroy,delivery_note
+5/3/2,Goods received notes,5 years,Destroy,goods_received_note
+6,Information management,,,
+6/1,File plan and records control,Permanent,Transfer to archives,
+6/2,Destruction registers,Permanent,Transfer to archives,
