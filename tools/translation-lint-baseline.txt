@@ -2179,9 +2179,6 @@ packages/ahg-term-taxonomy/src/Controllers/TermController.php	flash	Term deleted
 packages/ahg-term-taxonomy/src/Controllers/TermController.php	flash	Term updated successfully.
 packages/ahg-term-taxonomy/src/Controllers/TermController.php	flash	URL not allowed.
 packages/ahg-theme-b5/resources/views/layouts/print.blade.php	heading	@yield('record-title')
-packages/ahg-theme-b5/resources/views/layouts/print.blade.php	text	- Print
-packages/ahg-theme-b5/resources/views/layouts/print.blade.php	text	Page generated: {{…}}
-packages/ahg-theme-b5/resources/views/layouts/print.blade.php	text	Printed from {{…}} - {{…}}
 packages/ahg-theme-b5/resources/views/partials/voice-commands.blade.php	text	"browse / go to browse"
 packages/ahg-theme-b5/resources/views/partials/voice-commands.blade.php	text	"browse archive"
 packages/ahg-theme-b5/resources/views/partials/voice-commands.blade.php	text	"browse dam / browse photos"
