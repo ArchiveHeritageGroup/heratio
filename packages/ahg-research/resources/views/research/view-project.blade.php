@@ -30,12 +30,6 @@
     @endif
 </div>
 
-@if(session('success'))
-<div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-@endif
-@if(session('error'))
-<div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-@endif
 
 {{-- Research OS #1225 - the per-project Command Centre journey --}}
 @include('research::research._command-centre')

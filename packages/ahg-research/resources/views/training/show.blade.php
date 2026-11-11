@@ -26,7 +26,6 @@
       </form>
     </div>
   </div>
-  @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
   @if ($course['description'])<p class="text-muted">{{ $course['description'] }}</p>@endif
 
   <div class="row">

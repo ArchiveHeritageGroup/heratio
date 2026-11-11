@@ -14,7 +14,6 @@
   <p class="text-muted">{{ __('Learner') }}: <strong>{{ $enrol['learner_name'] ?: ('#'.$enrol['id']) }}</strong>
     · {{ __('Progress') }}: {{ $done }}/{{ $total }} {{ __('modules') }}
     @if($enrol['status'] === 'completed')· <span class="badge bg-success">{{ __('Completed') }}</span>@endif</p>
-  @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
   @if($total)
     <div class="progress mb-3" role="progressbar"><div class="progress-bar bg-success" style="width: {{ $total ? round($done/$total*100) : 0 }}%"></div></div>

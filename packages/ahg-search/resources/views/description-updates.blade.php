@@ -83,7 +83,7 @@
           <select name="user" id="user" class="form-select">
             <option value="">{{ __('All users') }}</option>
             @foreach($users as $userId => $displayName)
-              <option value="{{ $userId }}" {{ (string) $userName === (string) $userId ? 'selected' : '' }}>{{ $displayName }}</option>
+              <option value="{{ $userId }}" {{ (string) $userName === (string) $userId ? 'selected' : '' }}>{{ \Illuminate\Support\Str::before($displayName, '@') }}</option>
             @endforeach
           </select>
         </div>

@@ -10,9 +10,6 @@
     </ol>
 </nav>
 
-@if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-@endif
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1><i class="fas fa-file-alt text-primary me-2"></i>{{ __('Research Reports') }}</h1>

@@ -45,7 +45,7 @@
           <option value="">{{ __('All') }}</option>
           @foreach ($users as $u)
             <option value="{{ $u->id }}" {{ ($filters['assigned_to'] ?? '') == $u->id ? 'selected' : '' }}>
-              {{ $u->name }}
+              {{ \Illuminate\Support\Str::before($u->name, '@') }}
             </option>
           @endforeach
         </select>

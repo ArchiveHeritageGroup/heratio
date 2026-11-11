@@ -5,8 +5,6 @@
     <p class="text-muted mb-0">{{ __('Link your ORCID iD to pull your publications list and push citations from this archive back to your ORCID Works.') }}</p>
 @endsection
 @section('content')
-@if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-@if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 
 {{-- Self-service per-researcher ORCID client. Each researcher registers their
      own free client at orcid.org/developer-tools and enters it here - no admin

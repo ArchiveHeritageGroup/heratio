@@ -11,9 +11,6 @@
     </ol>
 </nav>
 
-@if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-@endif
 
 <div class="row">
     <div class="col-md-8">

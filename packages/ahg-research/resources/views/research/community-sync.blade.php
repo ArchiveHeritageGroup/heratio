@@ -9,15 +9,6 @@
       {{ __('Have a shared offline package with corrections or additions? Submit them here for a curator to review. You do not need an account - your suggestions go into a review queue and nothing changes on the record until a curator approves it.') }}
     </p>
 
-    @if(session('success'))
-      <div class="alert alert-success"><i class="fas fa-check-circle me-1"></i>{{ session('success') }}</div>
-    @endif
-    @if(session('info'))
-      <div class="alert alert-info">{{ session('info') }}</div>
-    @endif
-    @if(session('error'))
-      <div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-1"></i>{{ session('error') }}</div>
-    @endif
 
     <div class="card">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">

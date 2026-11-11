@@ -6,12 +6,6 @@
 @endsection
 
 @section('content')
-  @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show">
-      {{ session('error') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-  @endif
 
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="fas fa-calendar-check me-2"></i>{{ __('Booking Detail') }}</h1>

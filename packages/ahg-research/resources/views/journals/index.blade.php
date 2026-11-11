@@ -17,7 +17,6 @@
     </div>
   </div>
 
-  @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
   @foreach ([['label' => __('Journal publications'), 'rows' => $publications, 'hint' => __('Institutional journals you publish: issues, articles, table of contents.')], ['label' => __('Manuscripts'), 'rows' => $manuscripts, 'hint' => __('Single articles drafted toward an external target journal.')]] as $group)
     <div class="card mb-4">

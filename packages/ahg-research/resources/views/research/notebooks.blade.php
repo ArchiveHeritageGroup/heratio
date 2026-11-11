@@ -5,8 +5,6 @@
     <p class="text-muted mb-0">{{ __('Private scratchpads for saved queries, AI outputs and pinned sources. Promote to a public project when ready.') }}</p>
 @endsection
 @section('content')
-@if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-@if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 
 <div class="row">
     <div class="col-lg-7">

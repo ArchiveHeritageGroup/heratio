@@ -6,12 +6,6 @@
 @endsection
 
 @section('content')
-  @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show">
-      {{ session('error') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-  @endif
 
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="fas fa-project-diagram me-2"></i>{{ __('My Projects') }}</h1>
@@ -56,10 +50,10 @@
                 <span><i class="fas fa-university me-1"></i>{{ e($project->institution) }}</span>
               @endif
             </div>
-            @if(($project->start_date ?? false) || ($project->end_date ?? false))
+            @if(($project->start_date ?? false) || ($project->expected_end_date ?? false))
               <div class="small text-muted mt-1">
                 <i class="fas fa-calendar me-1"></i>
-                {{ e($project->start_date ?? '?') }} - {{ e($project->end_date ?? 'ongoing') }}
+                {{ e($project->start_date ?? '?') }} - {{ e($project->expected_end_date ?? 'ongoing') }}
               </div>
             @endif
           </div>

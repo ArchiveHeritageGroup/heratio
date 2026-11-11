@@ -18,7 +18,6 @@
     </div>
   </div>
 
-  @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
   @foreach ([
       ['label' => __('Curriculum lectures'), 'rows' => $curriculum, 'hint' => __('Teaching content for the training curriculum (#1099).')],

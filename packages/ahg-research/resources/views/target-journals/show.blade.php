@@ -24,7 +24,6 @@
 @endif
   </div>
 
-  @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
   @if ($journal['subject_scope'])<h2 class="h6 mt-3">{{ __('Scope - what it accepts') }}</h2><p>{{ $journal['subject_scope'] }}</p>@endif
 

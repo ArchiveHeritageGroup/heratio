@@ -29,7 +29,6 @@
     </div>
   </div>
 
-  @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
   @if ($journal['aims_scope'])<p class="text-muted">{{ $journal['aims_scope'] }}</p>@endif
 
   @unless ($isManuscript)

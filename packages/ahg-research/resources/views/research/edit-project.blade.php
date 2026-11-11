@@ -29,7 +29,7 @@
                     </select>
                 </div>
                 <div class="col-md-4"><label class="form-label">{{ __('Start Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" name="start_date" class="form-control" value="{{ $project->start_date ?? '' }}"></div>
-                <div class="col-md-4"><label class="form-label">{{ __('End Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" name="end_date" class="form-control" value="{{ $project->end_date ?? '' }}"></div>
+                <div class="col-md-4"><label class="form-label">{{ __('End Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="date" name="end_date" class="form-control" value="{{ $project->expected_end_date ?? '' }}"></div>
             </div>
             <div class="row mb-3">
                 <div class="col-md-6"><label class="form-label">{{ __('Institution') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>

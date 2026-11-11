@@ -10,7 +10,6 @@
 @endsection
 @section('content')
 
-@if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
 <div class="d-flex justify-content-between mb-3">
     <a href="{{ route('research.studio', $project->id) }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Studio') }}</a>

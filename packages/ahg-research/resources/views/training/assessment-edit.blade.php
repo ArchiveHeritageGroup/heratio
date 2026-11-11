@@ -18,7 +18,6 @@
     <h1 class="h3 mb-0"><i class="fas fa-clipboard-check text-primary me-2"></i>{{ __('Assessment') }} - {{ $course['title'] }}</h1>
     <a href="{{ route('research.training.show', $course['id']) }}" class="btn atom-btn-white">{{ __('Back') }}</a>
   </div>
-  @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
   <form method="post" action="{{ route('research.training.assessment-save', $course['id']) }}" autocomplete="off">
     @csrf

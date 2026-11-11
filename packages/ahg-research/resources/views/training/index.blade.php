@@ -13,7 +13,6 @@
     <h1 class="h3 mb-0"><i class="fas fa-user-graduate text-primary me-2"></i>{{ __('Training') }}</h1>
     <a href="{{ route('research.training.create') }}" class="btn btn-primary"><i class="fas fa-plus me-1"></i>{{ __('New Course') }}</a>
   </div>
-  @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
   <div class="card"><div class="card-body p-0">
     @if (count($courses))

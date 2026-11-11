@@ -10,14 +10,6 @@
 @endsection
 
 @section('content')
-  @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-  @endif
-  @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-  @endif
 
   <h1 class="h2 mb-2"><i class="fas fa-comment-dots text-primary me-2"></i>{{ __('Metadata Suggestions') }}</h1>
   <p class="text-muted">{{ __('Corrections and additions contributed offline (portable / research packages) and synced back for review. Approving an auto-mappable field applies it to the record.') }}</p>

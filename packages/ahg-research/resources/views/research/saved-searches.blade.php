@@ -11,12 +11,6 @@
     </ol>
 </nav>
 
-@if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-@endif
-@if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show">{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-@endif
 
 <h1 class="h2 mb-4"><i class="fas fa-search text-primary me-2"></i>{{ __('Saved Searches') }}</h1>
 

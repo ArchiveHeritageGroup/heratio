@@ -21,7 +21,6 @@
     </div>
   </div>
 
-  @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 
   <form method="get" class="row g-2 mb-3">
     <div class="col-md-6"><input name="q" value="{{ $q }}" class="form-control" placeholder="{{ __('Search title, scope, publisher, indexing…') }}"></div>

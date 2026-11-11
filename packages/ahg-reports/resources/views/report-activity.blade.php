@@ -23,7 +23,7 @@
             <select name="actionUser" class="form-select form-select-sm">
               <option value="">{{ __('All users') }}</option>
               @foreach($users as $u)
-                <option value="{{ $u }}" {{ ($params['actionUser'] ?? '') === $u ? 'selected' : '' }}>{{ $u }}</option>
+                <option value="{{ $u }}" {{ ($params['actionUser'] ?? '') === $u ? 'selected' : '' }}>{{ \Illuminate\Support\Str::before($u, '@') }}</option>
               @endforeach
             </select>
           </div>

@@ -10,19 +10,7 @@
 @endsection
 
 @section('content')
-  @if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show">
-      {{ session('error') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-  @endif
 
-  @if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show">
-      {{ session('success') }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-  @endif
 
   <h1 class="h2 mb-4"><i class="fas fa-users text-primary me-2"></i>{{ __('Manage Researchers') }}</h1>
 

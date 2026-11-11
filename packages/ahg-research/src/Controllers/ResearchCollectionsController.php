@@ -161,14 +161,14 @@ class ResearchCollectionsController extends Controller
                         'description' => trim($request->input('description')),
                         'is_public' => $request->input('is_public') ? 1 : 0,
                     ]);
-                    return redirect()->route('research.viewCollection', $id)->with('success', __('Collection updated'));
+                    return redirect()->route('research.viewCollection', $id)->with('success', __('Evidence set updated'));
                 }
             }
 
             if ($action === 'delete') {
                 DB::table('research_collection_item')->where('collection_id', $id)->delete();
                 DB::table('research_collection')->where('id', $id)->delete();
-                return redirect()->route('research.collections')->with('success', __('Collection deleted'));
+                return redirect()->route('research.collections')->with('success', __('Evidence set deleted'));
             }
         }
 
@@ -248,7 +248,7 @@ class ResearchCollectionsController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Collection created',
+            'message' => __('Evidence set created'),
             'collection_id' => $collectionId,
         ]);
     }
@@ -286,7 +286,7 @@ class ResearchCollectionsController extends Controller
         $this->logResearchActivity('create', 'collection', (int) $id, $request->input('name'), ['method' => 'ResearchCollectionsController@storeCollection']);
 
         return redirect()->route('research.viewCollection', $id)
-            ->with('success', __('Collection created'));
+            ->with('success', __('Evidence set created'));
     }
 
     public function updateCollection(Request $request, int $id)
@@ -308,7 +308,7 @@ class ResearchCollectionsController extends Controller
                 'is_public' => $request->input('is_public') ? 1 : 0,
             ]);
             $this->logResearchActivity('update', 'collection', (int) $id, $name, ['method' => 'ResearchCollectionsController@updateCollection']);
-            return redirect()->route('research.viewCollection', $id)->with('success', __('Collection updated'));
+            return redirect()->route('research.viewCollection', $id)->with('success', __('Evidence set updated'));
         }
 
         return redirect()->route('research.viewCollection', $id)->with('error', __('Name is required'));
@@ -330,7 +330,7 @@ class ResearchCollectionsController extends Controller
 
         $this->logResearchActivity('delete', 'collection', (int) $id, $collection->name ?? null, ['method' => 'ResearchCollectionsController@destroyCollection']);
 
-        return redirect()->route('research.collections')->with('success', __('Collection deleted'));
+        return redirect()->route('research.collections')->with('success', __('Evidence set deleted'));
     }
 
     public function addItemToCollection(Request $request, int $id)

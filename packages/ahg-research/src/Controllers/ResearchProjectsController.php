@@ -99,7 +99,7 @@ class ResearchProjectsController extends Controller
                 'project_type' => $request->input('project_type', 'personal'),
                 'institution' => $request->input('institution'),
                 'start_date' => $request->input('start_date'),
-                'expected_end_date' => $request->input('expected_end_date'),
+                'expected_end_date' => $request->input('expected_end_date', $request->input('end_date')) ?: null, // the form field is end_date
                 'status' => 'active',
                 'created_at' => date('Y-m-d H:i:s'),
             ]);
@@ -284,7 +284,7 @@ class ResearchProjectsController extends Controller
             'project_type' => $request->input('project_type', 'personal'),
             'institution' => $request->input('institution'),
             'start_date' => $request->input('start_date'),
-            'expected_end_date' => $request->input('expected_end_date'),
+            'expected_end_date' => $request->input('expected_end_date', $request->input('end_date')) ?: null, // the form field is end_date
             'status' => 'active',
             'created_at' => date('Y-m-d H:i:s'),
         ]);

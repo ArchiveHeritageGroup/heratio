@@ -29,7 +29,6 @@
     </div>
   </div>
 
-  @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
   @if ($lecture['summary'])<p class="text-muted">{{ $lecture['summary'] }}</p>@endif
   @if ($lecture['slides_url'] || $lecture['recording_url'])
     <p>@if($lecture['slides_url'])<a href="{{ $lecture['slides_url'] }}" target="_blank" rel="noopener" class="me-3"><i class="fas fa-file-powerpoint me-1"></i>{{ __('Slides') }}</a>@endif

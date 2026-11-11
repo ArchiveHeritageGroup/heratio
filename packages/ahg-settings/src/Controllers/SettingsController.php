@@ -901,7 +901,7 @@ class SettingsController extends Controller
             .'{ background-color: color-mix(in srgb, var(--ahg-btn-bg) 85%, #000) !important; '
             .'border-color: color-mix(in srgb, var(--ahg-btn-bg) 85%, #000) !important; '
             ."color: var(--ahg-btn-text) !important; filter: none; }\n"
-            ."a:not(.btn):not(.nav-link):not(.dropdown-item) { color: var(--ahg-link-color); }\n"
+            ."a:not(.btn):not(.nav-link):not(.dropdown-item):not(.list-group-item.active) { color: var(--ahg-link-color); }\n" // active list items keep their white text (heratio#1616)
             .".sidebar, #sidebar-content { background-color: var(--ahg-sidebar-bg) !important; color: var(--ahg-sidebar-text) !important; }\n"
             .':root { --ahg-background-white: var(--ahg-background-light); --bs-body-bg: var(--ahg-background-light); '
               // Legacy bundled-CSS aliases - the AtoM-era theme bundle ships with hardcoded

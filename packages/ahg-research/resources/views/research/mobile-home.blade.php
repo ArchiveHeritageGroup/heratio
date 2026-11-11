@@ -15,15 +15,6 @@
         <span class="badge bg-secondary" id="net-status">{{ __('online') }}</span>
     </div>
 
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
-    @endif
-    @if(session('info'))
-        <div class="alert alert-info">{{ session('info') }}</div>
-    @endif
 
     @unless($researcher)
         <div class="alert alert-warning">

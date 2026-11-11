@@ -5,8 +5,6 @@
     @if($notebook->summary)<p class="text-muted mb-0">{{ e($notebook->summary) }}</p>@endif
 @endsection
 @section('content')
-@if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
-@if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 
 <div class="d-flex justify-content-between mb-3">
     <a href="{{ route('research.notebooks') }}" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('All notebooks') }}</a>
