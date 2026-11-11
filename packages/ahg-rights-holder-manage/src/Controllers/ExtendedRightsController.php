@@ -135,7 +135,7 @@ class ExtendedRightsController extends Controller
 
     public function batchStore(Request $request)
     {
-        return redirect()->route('extended-rights.dashboard')->with('success', 'Batch operation completed.');
+        return redirect()->route('extended-rights.dashboard')->with('success', __('Batch operation completed.'));
     }
 
     public function clear(string $slug)
@@ -152,7 +152,7 @@ class ExtendedRightsController extends Controller
 
     public function clearStore(string $slug)
     {
-        return redirect()->back()->with('success', 'Extended rights cleared.');
+        return redirect()->back()->with('success', __('Extended rights cleared.'));
     }
 
     public function embargoBlocked()
@@ -248,7 +248,7 @@ class ExtendedRightsController extends Controller
             ]);
         }
 
-        return redirect()->route('extended-rights.embargoes')->with('success', 'Embargo lifted successfully.');
+        return redirect()->route('extended-rights.embargoes')->with('success', __('Embargo lifted successfully.'));
     }
 
     private function getStats(): object

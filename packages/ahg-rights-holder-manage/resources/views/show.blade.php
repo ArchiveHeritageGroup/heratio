@@ -36,7 +36,7 @@
 
   {{-- ===== Identity area ===== --}}
   <section class="section border-bottom" id="identityArea">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}#identity-collapse" class="text-primary text-decoration-none">{{ __('Identity area') }}</a>@else Identity area @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}#identity-collapse" class="text-primary text-decoration-none">{{ __('Identity area') }}</a>@else {{ __('Identity area') }} @endauth</div></h2>
     <div id="identity-collapse">
 
       @if($rightsHolder->authorized_form_of_name)
@@ -51,7 +51,7 @@
 
   {{-- ===== Contact area ===== --}}
   <section class="section border-bottom" id="contactArea">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}#contact-collapse" class="text-primary text-decoration-none">{{ __('Contact area') }}</a>@else Contact area @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('rightsholder.edit', $rightsHolder->slug) }}#contact-collapse" class="text-primary text-decoration-none">{{ __('Contact area') }}</a>@else {{ __('Contact area') }} @endauth</div></h2>
     <div id="contact-collapse">
 
       @if(isset($contacts) && $contacts->isNotEmpty())
@@ -280,7 +280,7 @@
                 <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Dates') }}</h3>
                 <div class="col-9 p-2">
                   @if($er->rights_date)
-                    <span>From: {{ $er->rights_date }}</span>
+                    <span>{{ __('From: :date', ['date' => $er->rights_date]) }}</span>
                   @endif
                   @if($er->expiry_date)
                     <span class="ms-2">To: {{ $er->expiry_date }}</span>
@@ -345,10 +345,10 @@
                 <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Timestamps') }}</h3>
                 <div class="col-9 p-2">
                   @if($er->created_at)
-                    <small class="text-muted">Created: {{ $er->created_at }}</small>
+                    <small class="text-muted">{{ __('Created: :date', ['date' => $er->created_at]) }}</small>
                   @endif
                   @if($er->updated_at)
-                    <small class="text-muted ms-2">Updated: {{ $er->updated_at }}</small>
+                    <small class="text-muted ms-2">{{ __('Updated: :date', ['date' => $er->updated_at]) }}</small>
                   @endif
                 </div>
               </div>

@@ -16,10 +16,10 @@
       <ul class="mb-0">
         @foreach($expiringEmbargoes->take(5) as $embargo)
           <li>
-            <a href="{{ route('embargo.show', $embargo->id) }}">Object #{{ $embargo->object_id }}</a>
-            - Expires: {{ $embargo->end_date }}
+            <a href="{{ route('embargo.show', $embargo->id) }}">{{ __('Object #:id', ['id' => $embargo->object_id]) }}</a>
+            - {{ __('Expires: :date', ['date' => $embargo->end_date]) }}
             @if(isset($embargo->days_remaining))
-              ({{ $embargo->days_remaining }} days)
+              ({{ __(':count days', ['count' => $embargo->days_remaining]) }})
             @endif
           </li>
         @endforeach

@@ -17,7 +17,7 @@
       @php $activeSort = request('sort', 'alphabetic'); @endphp
       <div class="dropdown d-inline-block">
         <button class="btn btn-sm btn-outline-secondary dropdown-toggle text-wrap" type="button" id="sort-button" data-bs-toggle="dropdown" aria-expanded="false">
-          Sort by: {{ $sortOptions[$activeSort] ?? 'Name' }}
+          {{ __('Sort by: :field', ['field' => $sortOptions[$activeSort] ?? __('Name')]) }}
         </button>
         <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sort-button">
           @foreach($sortOptions as $key => $label)
@@ -33,7 +33,7 @@
       @endphp
       <div class="dropdown d-inline-block">
         <button class="btn btn-sm btn-outline-secondary dropdown-toggle text-wrap" type="button" id="sortDir-button" data-bs-toggle="dropdown" aria-expanded="false">
-          Direction: {{ $currentDir === 'desc' ? 'Descending' : 'Ascending' }}
+          {{ __('Direction: :direction', ['direction' => __($currentDir === 'desc' ? 'Descending' : 'Ascending')]) }}
         </button>
         <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sortDir-button">
           <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'asc'])) }}" class="dropdown-item {{ $currentDir === 'asc' ? 'active' : '' }}">{{ __('Ascending') }}</a></li>

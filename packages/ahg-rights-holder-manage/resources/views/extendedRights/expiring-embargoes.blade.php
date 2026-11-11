@@ -12,16 +12,16 @@
 
 <div class="card">
   <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
-    <h4 class="mb-0">Embargoes Expiring Within {{ $days }} Days</h4>
+    <h4 class="mb-0">{{ __('Embargoes Expiring Within :days Days', ['days' => $days]) }}</h4>
     <div class="btn-group btn-group-sm">
-      <a href="{{ route('extended-rights.expiring-embargoes', ['days' => 7]) }}" class="btn {{ $days == 7 ? 'atom-btn-white' : 'btn-outline-dark' }}">7 days</a>
-      <a href="{{ route('extended-rights.expiring-embargoes', ['days' => 30]) }}" class="btn {{ $days == 30 ? 'atom-btn-white' : 'btn-outline-dark' }}">30 days</a>
-      <a href="{{ route('extended-rights.expiring-embargoes', ['days' => 90]) }}" class="btn {{ $days == 90 ? 'atom-btn-white' : 'btn-outline-dark' }}">90 days</a>
+      <a href="{{ route('extended-rights.expiring-embargoes', ['days' => 7]) }}" class="btn {{ $days == 7 ? 'atom-btn-white' : 'btn-outline-dark' }}">{{ __('7 days') }}</a>
+      <a href="{{ route('extended-rights.expiring-embargoes', ['days' => 30]) }}" class="btn {{ $days == 30 ? 'atom-btn-white' : 'btn-outline-dark' }}">{{ __('30 days') }}</a>
+      <a href="{{ route('extended-rights.expiring-embargoes', ['days' => 90]) }}" class="btn {{ $days == 90 ? 'atom-btn-white' : 'btn-outline-dark' }}">{{ __('90 days') }}</a>
     </div>
   </div>
   <div class="card-body p-0">
     @if(empty($embargoes))
-      <div class="alert alert-success m-3"><i class="fas fa-check-circle me-2"></i>No embargoes expiring within the next {{ $days }} days.</div>
+      <div class="alert alert-success m-3"><i class="fas fa-check-circle me-2"></i>{{ __('No embargoes expiring within the next :days days.', ['days' => $days]) }}</div>
     @else
       <div class="table-responsive">
         <table class="table table-striped table-hover mb-0">
@@ -44,11 +44,11 @@
               <td>{{ $embargo->end_date ?? '' }}</td>
               <td>
                 @if($daysRemaining <= 7)
-                  <span class="badge bg-danger">{{ $daysRemaining }} days</span>
+                  <span class="badge bg-danger">{{ __(':count days', ['count' => $daysRemaining]) }}</span>
                 @elseif($daysRemaining <= 14)
-                  <span class="badge bg-warning text-dark">{{ $daysRemaining }} days</span>
+                  <span class="badge bg-warning text-dark">{{ __(':count days', ['count' => $daysRemaining]) }}</span>
                 @else
-                  <span class="badge bg-info">{{ $daysRemaining }} days</span>
+                  <span class="badge bg-info">{{ __(':count days', ['count' => $daysRemaining]) }}</span>
                 @endif
               </td>
               <td>{{ ($embargo->embargo_type ?? '') . ' - ' . ($embargo->reason ?? '-') }}</td>
@@ -65,6 +65,6 @@
       </div>
     @endif
   </div>
-  <div class="card-footer text-muted">Total: {{ count($embargoes) }} embargoes</div>
+  <div class="card-footer text-muted">{{ __('Total: :count embargoes', ['count' => count($embargoes)]) }}</div>
 </div>
 @endsection

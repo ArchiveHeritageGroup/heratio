@@ -23,7 +23,7 @@
         @if(!($embargoInfo['is_perpetual'] ?? false) && !empty($embargoInfo['end_date']))
           <div class="alert alert-info d-inline-block mt-3">
             <i class="fas fa-calendar-alt me-2"></i>
-            This record will become available on {{ date('j F Y', strtotime($embargoInfo['end_date'])) }}
+            {{ __('This record will become available on :date', ['date' => date('j F Y', strtotime($embargoInfo['end_date']))]) }}
           </div>
         @elseif($embargoInfo['is_perpetual'] ?? false)
           <div class="alert alert-secondary d-inline-block mt-3">

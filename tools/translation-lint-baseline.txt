@@ -1715,58 +1715,6 @@ packages/ahg-ric/src/Controllers/RdfImportController.php	flash	Commit failed:
 packages/ahg-ric/src/Controllers/RdfImportController.php	flash	Parse error:
 packages/ahg-ric/src/Controllers/RdfImportController.php	flash	Provide a file upload or paste an RDF document.
 packages/ahg-ric/src/Controllers/RicController.php	flash	Configuration saved successfully.
-packages/ahg-rights-holder-manage/resources/views/browse.blade.php	text	Direction: {{…}}
-packages/ahg-rights-holder-manage/resources/views/browse.blade.php	text	Sort by: {{…}}
-packages/ahg-rights-holder-manage/resources/views/delete.blade.php	text	Are you sure you want to delete {{…}}?
-packages/ahg-rights-holder-manage/resources/views/embargo/index.blade.php	text	({{…}} days)
-packages/ahg-rights-holder-manage/resources/views/embargo/index.blade.php	text	- Expires: {{…}}
-packages/ahg-rights-holder-manage/resources/views/embargo/index.blade.php	text	Object #{{…}}
-packages/ahg-rights-holder-manage/resources/views/embargo/view.blade.php	text	Always
-packages/ahg-rights-holder-manage/resources/views/embargo/view.blade.php	text	Reason: {{…}}
-packages/ahg-rights-holder-manage/resources/views/extendedRights/_embargo-block.blade.php	text	Available from: {{…}}
-packages/ahg-rights-holder-manage/resources/views/extendedRights/_embargo-status.blade.php	text	Available from: {{…}}
-packages/ahg-rights-holder-manage/resources/views/extendedRights/_provenance-display.blade.php	text	Donor: {{…}}
-packages/ahg-rights-holder-manage/resources/views/extendedRights/batch.blade.php	text	-- Select --
-packages/ahg-rights-holder-manage/resources/views/extendedRights/batch.blade.php	text	-- Select --
-packages/ahg-rights-holder-manage/resources/views/extendedRights/batch.blade.php	text	-- Select --
-packages/ahg-rights-holder-manage/resources/views/extendedRights/clear.blade.php	text	Creative Commons License: {{…}}
-packages/ahg-rights-holder-manage/resources/views/extendedRights/clear.blade.php	text	Rights Holder: {{…}}
-packages/ahg-rights-holder-manage/resources/views/extendedRights/clear.blade.php	text	Rights Statement: {{…}}
-packages/ahg-rights-holder-manage/resources/views/extendedRights/clear.blade.php	text	Traditional Knowledge Labels: {{…}}
-packages/ahg-rights-holder-manage/resources/views/extendedRights/embargo-blocked.blade.php	text	This record will become available on {{…}}
-packages/ahg-rights-holder-manage/resources/views/extendedRights/expiring-embargoes.blade.php	text	30 days
-packages/ahg-rights-holder-manage/resources/views/extendedRights/expiring-embargoes.blade.php	text	7 days
-packages/ahg-rights-holder-manage/resources/views/extendedRights/expiring-embargoes.blade.php	text	90 days
-packages/ahg-rights-holder-manage/resources/views/extendedRights/expiring-embargoes.blade.php	text	Embargoes Expiring Within {{…}} Days
-packages/ahg-rights-holder-manage/resources/views/extendedRights/expiring-embargoes.blade.php	text	No embargoes expiring within the next {{…}} days.
-packages/ahg-rights-holder-manage/resources/views/extendedRights/expiring-embargoes.blade.php	text	Total: {{…}} embargoes
-packages/ahg-rights-holder-manage/resources/views/extendedRights/expiring-embargoes.blade.php	text	{{…}} days
-packages/ahg-rights-holder-manage/resources/views/extendedRights/expiring-embargoes.blade.php	text	{{…}} days
-packages/ahg-rights-holder-manage/resources/views/extendedRights/expiring-embargoes.blade.php	text	{{…}} days
-packages/ahg-rights-holder-manage/resources/views/extendedRights/export.blade.php	text	-- Select an object --
-packages/ahg-rights-holder-manage/resources/views/extendedRights/view.blade.php	text	Rights Information
-packages/ahg-rights-holder-manage/resources/views/rights/index.blade.php	text	-- Select --
-packages/ahg-rights-holder-manage/resources/views/rights/index.blade.php	text	-- Select act --
-packages/ahg-rights-holder-manage/resources/views/rights/index.blade.php	text	-- Select basis --
-packages/ahg-rights-holder-manage/resources/views/rights/index.blade.php	text	Allow
-packages/ahg-rights-holder-manage/resources/views/rights/index.blade.php	text	Conditional
-packages/ahg-rights-holder-manage/resources/views/rights/index.blade.php	text	Disallow
-packages/ahg-rights-holder-manage/resources/views/show.blade.php	text	Contact area
-packages/ahg-rights-holder-manage/resources/views/show.blade.php	text	Created: {{…}}
-packages/ahg-rights-holder-manage/resources/views/show.blade.php	text	From: {{…}}
-packages/ahg-rights-holder-manage/resources/views/show.blade.php	text	Identity area
-packages/ahg-rights-holder-manage/resources/views/show.blade.php	text	Updated: {{…}}
-packages/ahg-rights-holder-manage/src/Controllers/EmbargoController.php	flash	Embargo created successfully.
-packages/ahg-rights-holder-manage/src/Controllers/EmbargoController.php	flash	Embargo lifted successfully.
-packages/ahg-rights-holder-manage/src/Controllers/ExtendedRightsController.php	flash	Batch operation completed.
-packages/ahg-rights-holder-manage/src/Controllers/ExtendedRightsController.php	flash	Embargo lifted successfully.
-packages/ahg-rights-holder-manage/src/Controllers/ExtendedRightsController.php	flash	Extended rights cleared.
-packages/ahg-rights-holder-manage/src/Controllers/RightsAdminController.php	flash	Embargo updated.
-packages/ahg-rights-holder-manage/src/Controllers/RightsAdminController.php	flash	Orphan work updated.
-packages/ahg-rights-holder-manage/src/Controllers/RightsController.php	flash	Rights record created successfully.
-packages/ahg-rights-holder-manage/src/Controllers/RightsHolderController.php	flash	Rights holder created successfully.
-packages/ahg-rights-holder-manage/src/Controllers/RightsHolderController.php	flash	Rights holder deleted successfully.
-packages/ahg-rights-holder-manage/src/Controllers/RightsHolderController.php	flash	Rights holder updated successfully.
 packages/ahg-scan/resources/views/admin/scan/dashboard.blade.php	text	{{…}} arrival(s)
 packages/ahg-scan/resources/views/admin/scan/dashboard.blade.php	text	{{…}} completed
 packages/ahg-scan/resources/views/admin/scan/folders/edit.blade.php	text	- None (require path-resolution) -

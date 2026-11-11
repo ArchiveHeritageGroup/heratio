@@ -65,8 +65,8 @@
         @if($embargo['lifted_at'] ?? null)
           on {{ date('Y-m-d H:i', strtotime($embargo['lifted_at'])) }}
         @endif
-        @if($embargo['lift_reason'] ?? null)
-          <br>Reason: {{ $embargo['lift_reason'] }}
+          @if($embargo['lift_reason'] ?? null)
+          <br>{{ __('Reason: :reason', ['reason' => $embargo['lift_reason']]) }}
         @endif
       </div>
     @endif
@@ -99,7 +99,7 @@
                 @if(($exception['valid_from'] ?? null) || ($exception['valid_until'] ?? null))
                   {{ $exception['valid_from'] ?? '...' }} - {{ $exception['valid_until'] ?? '...' }}
                 @else
-                  Always
+                  {{ __('Always') }}
                 @endif
               </td>
             </tr>

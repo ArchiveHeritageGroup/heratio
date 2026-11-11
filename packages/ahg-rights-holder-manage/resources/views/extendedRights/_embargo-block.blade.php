@@ -28,7 +28,7 @@ $message = $embargoInfo['public_message'] ?? $typeMessages[$type] ?? $typeMessag
             @if(!($embargoInfo['is_perpetual'] ?? false) && ($embargoInfo['end_date'] ?? null))
                 <small class="text-muted">
                     <i class="fas fa-calendar-alt me-1"></i>
-                    Available from: {{ date('j F Y', strtotime($embargoInfo['end_date'])) }}
+                    {{ __('Available from: :date', ['date' => date('j F Y', strtotime($embargoInfo['end_date']))]) }}
                 </small>
             @elseif($embargoInfo['is_perpetual'] ?? false)
                 <small class="text-muted">
