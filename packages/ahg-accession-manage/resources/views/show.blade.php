@@ -158,7 +158,7 @@
   <section class="section border-bottom" id="basicInfo">
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
-        Basic info
+        {{ __('Basic info') }}
         @auth
           <a href="{{ route('accession.edit', $accession->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></a>
         @endauth
@@ -207,7 +207,7 @@
   <section class="section border-bottom" id="donorArea">
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
-        Donor/Transferring body area
+        {{ __('Donor/Transferring body area') }}
         @auth
           <a href="{{ route('accession.edit', $accession->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></a>
         @endauth
@@ -306,7 +306,7 @@
   <section class="section border-bottom" id="administrativeArea">
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
-        Administrative area
+        {{ __('Administrative area') }}
         @auth
           <a href="{{ route('accession.edit', $accession->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></a>
         @endauth
@@ -479,7 +479,7 @@
           <div class="field row g-0">
             <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Rights') }}</h3>
             <div class="col-9 p-2">
-              @if($right->basis_name ?? null) <div>Basis: {{ $right->basis_name }}</div> @endif
+              @if($right->basis_name ?? null) <div>{{ __('Basis: :value1', ['value1' => $right->basis_name]) }}</div> @endif
               @if($right->start_date || $right->end_date) <div>{{ $right->start_date ?? '?' }} - {{ $right->end_date ?? '?' }}</div> @endif
               @if($right->rights_note ?? null) <div>{!! nl2br(e($right->rights_note)) !!}</div> @endif
             </div>
@@ -493,7 +493,7 @@
   <section class="section border-bottom" id="informationObjectArea">
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
-        {{ config('app.ui_label_informationobject', 'Archival description') }} area
+        {{ __(':value1 area', ['value1' => config('app.ui_label_informationobject', 'Archival description')]) }}
         @auth
           <a href="{{ route('accession.edit', $accession->slug) }}" class="ms-auto text-primary opacity-75" style="font-size:.75rem;" title="{{ __('Edit') }}"><i class="fas fa-pencil-alt"></i></a>
         @endauth
@@ -580,7 +580,7 @@
             {{ __('More') }}
           </button>
           <ul class="dropdown-menu mb-2">
-            <li><a href="{{ route('informationobject.create', ['accession' => $accession->id]) }}" class="dropdown-item">Create {{ config('atom.ui_label_informationobject', 'archival description') }}</a></li>
+            <li><a href="{{ route('informationobject.create', ['accession' => $accession->id]) }}" class="dropdown-item">{{ __('Create :label', ['label' => config('atom.ui_label_informationobject', 'archival description')]) }}</a></li>
             <li><a href="{{ route('accession.rights', $accession->id) }}" class="dropdown-item">{{ __('Create new rights') }}</a></li>
             <li><a href="{{ route('physicalobject.link-to', $accession->slug) }}" class="dropdown-item">{{ __('Link physical storage') }}</a></li>
           </ul>

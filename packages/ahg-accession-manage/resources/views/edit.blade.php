@@ -14,7 +14,7 @@
 
   @if(request('accession'))
     <div class="alert alert-info" role="alert">
-      You are creating an accrual to accession {{ request('accession') }}
+      {{ __('You are creating an accrual to accession :value1', ['value1' => request('accession')]) }}
     </div>
   @endif
 
@@ -419,7 +419,7 @@
               </table>
             </div>
             <div class="form-text mb-3" id="isad-events-table-help">
-              "Identify and record the date(s) of the unit of description. Identify the type of date given. Record as a single date or a range of dates as appropriate." (ISAD 3.1.3). The Date display field can be used to enter free-text date information, including typographical marks to express approximation, uncertainty, or qualification. Use the start and end fields to make the dates searchable. Do not use any qualifiers or typographical symbols to express uncertainty. Acceptable date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM, YYYY.
+              {{ __('"Identify and record the date(s) of the unit of description. Identify the type of date given. Record as a single date or a range of dates as appropriate." (ISAD 3.1.3). The Date display field can be used to enter free-text date information, including typographical marks to express approximation, uncertainty, or qualification. Use the start and end fields to make the dates searchable. Do not use any qualifiers or typographical symbols to express uncertainty. Acceptable date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM, YYYY.') }}
             </div>
 
             <!-- Event(s) multi-row table -->

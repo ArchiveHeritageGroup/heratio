@@ -94,30 +94,6 @@ packages/ahg-access-request/src/Controllers/AccessRequestController.php	flash	Ap
 packages/ahg-access-request/src/Controllers/AccessRequestController.php	flash	Object access request submitted.
 packages/ahg-access-request/src/Controllers/AccessRequestController.php	flash	Request approved.
 packages/ahg-access-request/src/Controllers/AccessRequestController.php	flash	Request denied.
-packages/ahg-accession-manage/resources/views/appraisal-templates.blade.php	text	All
-packages/ahg-accession-manage/resources/views/browse.blade.php	text	Browse {{…}}s
-packages/ahg-accession-manage/resources/views/dashboard.blade.php	text	Browse {{…}}s
-packages/ahg-accession-manage/resources/views/delete.blade.php	text	Are you sure you want to delete {{…}}?
-packages/ahg-accession-manage/resources/views/edit.blade.php	text	"Identify and record the date(s) of the unit of description. Identify the type of date given. Record as a single date or a range of dates as appropriate." (ISAD 3.1.3). The Date display field can be used to enter free-text date information, including typographical marks to express approximation, uncertainty, or qualification. Use the start and end fields to make the dates searchable. Do not use any qualifiers or typographical symbols to express uncertainty. Acceptable date formats: YYYYMMDD, YYYY-MM-DD, YYYY-MM, YYYY.
-packages/ahg-accession-manage/resources/views/edit.blade.php	text	You are creating an accrual to accession {{…}}
-packages/ahg-accession-manage/resources/views/show.blade.php	text	Administrative area
-packages/ahg-accession-manage/resources/views/show.blade.php	text	Basic info
-packages/ahg-accession-manage/resources/views/show.blade.php	text	Basis: {{…}}
-packages/ahg-accession-manage/resources/views/show.blade.php	text	Create {{…}}
-packages/ahg-accession-manage/resources/views/show.blade.php	text	Donor/Transferring body area
-packages/ahg-accession-manage/resources/views/show.blade.php	text	{{…}} area
-packages/ahg-accession-manage/src/Controllers/AccessionController.php	flash	A rejected accession cannot be finalised - clear the rejection first.
-packages/ahg-accession-manage/src/Controllers/AccessionController.php	flash	Accession finalised.
-packages/ahg-accession-manage/src/Controllers/AccessionController.php	flash	Accession record created successfully.
-packages/ahg-accession-manage/src/Controllers/AccessionController.php	flash	Accession record deleted successfully.
-packages/ahg-accession-manage/src/Controllers/AccessionController.php	flash	Accession record updated successfully.
-packages/ahg-accession-manage/src/Controllers/AccessionController.php	flash	Appraisal saved.
-packages/ahg-accession-manage/src/Controllers/AccessionController.php	flash	Attachment uploaded.
-packages/ahg-accession-manage/src/Controllers/AccessionController.php	flash	Cannot finalise:
-packages/ahg-accession-manage/src/Controllers/AccessionController.php	flash	Checklist saved.
-packages/ahg-accession-manage/src/Controllers/AccessionController.php	flash	Configuration saved.
-packages/ahg-accession-manage/src/Controllers/AccessionController.php	flash	Numbering scheme saved.
-packages/ahg-accession-manage/src/Controllers/AccessionController.php	flash	This accession is already finalised.
 packages/ahg-acl/resources/views/access-denied.blade.php	text	Your current clearance does not permit access.
 packages/ahg-acl/resources/views/access-denied.blade.php	text	log in
 packages/ahg-acl/resources/views/access-denied.blade.php	text	to verify your clearance.
