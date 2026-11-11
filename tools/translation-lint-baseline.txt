@@ -1605,29 +1605,6 @@ packages/ahg-research/resources/views/research/entity-resolution.blade.php	text	
 packages/ahg-research/resources/views/research/entity-resolution.blade.php	text	relatedTo
 packages/ahg-research/resources/views/research/entity-resolution.blade.php	text	sameAs
 packages/ahg-research/resources/views/research/share-project.blade.php	text	Copied'; setTimeout(function(){ document.querySelector('#shareUrl + button').innerHTML='
-packages/ahg-researcher-manage/resources/views/add-item.blade.php	text	-- Root level --
-packages/ahg-researcher-manage/resources/views/dashboard.blade.php	text	{{…}} item{{…}}
-packages/ahg-researcher-manage/resources/views/edit-item.blade.php	text	-- Root level --
-packages/ahg-researcher-manage/resources/views/edit-submission.blade.php	text	-- None --
-packages/ahg-researcher-manage/resources/views/edit-submission.blade.php	text	-- Select repository --
-packages/ahg-researcher-manage/resources/views/import-exchange.blade.php	text	-- Auto-detect or leave unset --
-packages/ahg-researcher-manage/resources/views/import-exchange.blade.php	text	. Review the items and submit for archivist approval.
-packages/ahg-researcher-manage/resources/views/import-exchange.blade.php	text	Select a file exported from the Portable Viewer.
-packages/ahg-researcher-manage/resources/views/import-exchange.blade.php	text	When you use the Portable Export viewer in edit mode (offline), you can add notes, import files, create new items, creators, and repositories. The viewer exports a file that you upload here. It becomes a draft submission for archivist review.
-packages/ahg-researcher-manage/resources/views/import-exchange.blade.php	text	draft submission
-packages/ahg-researcher-manage/resources/views/import-exchange.blade.php	text	files
-packages/ahg-researcher-manage/resources/views/import-exchange.blade.php	text	new_creators
-packages/ahg-researcher-manage/resources/views/import-exchange.blade.php	text	new_items
-packages/ahg-researcher-manage/resources/views/import-exchange.blade.php	text	new_repositories
-packages/ahg-researcher-manage/resources/views/import-exchange.blade.php	text	notes
-packages/ahg-researcher-manage/resources/views/new-submission.blade.php	text	-- None --
-packages/ahg-researcher-manage/resources/views/new-submission.blade.php	text	-- Select repository --
-packages/ahg-researcher-manage/resources/views/publish.blade.php	text	items, files
-packages/ahg-researcher-manage/resources/views/submissions.blade.php	text	No submissions found.
-packages/ahg-researcher-manage/resources/views/submissions.blade.php	text	No submissions with status "{{…}}".
-packages/ahg-researcher-manage/resources/views/view-submission.blade.php	text	No items yet.
-packages/ahg-researcher-manage/resources/views/view-submission.blade.php	text	file
-packages/ahg-researcher-manage/src/Controllers/ResearcherSubmissionController.php	flash	Exchange file imported successfully. A draft submission has been created.
 packages/ahg-ric-manage/resources/views/_fields.blade.php	text	(rico:Event)
 packages/ahg-ric-manage/resources/views/_fields.blade.php	text	(rico:descriptiveNote)
 packages/ahg-ric-manage/resources/views/_fields.blade.php	text	(rico:hasInstantiation)

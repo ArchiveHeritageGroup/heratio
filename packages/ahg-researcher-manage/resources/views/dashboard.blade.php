@@ -218,7 +218,7 @@
             <div class="d-flex justify-content-between align-items-center">
               <div>
                 <strong class="small">{{ e($col->name) }}</strong>
-                <br><small class="text-muted">{{ $col->item_count }} item{{ $col->item_count !== 1 ? 's' : '' }}</small>
+                <br><small class="text-muted">{{ __(':value1 item:value2', ['value1' => $col->item_count, 'value2' => $col->item_count !== 1 ? 's' : '']) }}</small>
               </div>
               @if($col->item_count > 0)
               <a href="{{ route('researcher.submissions') }}"

@@ -75,7 +75,7 @@
           @if(empty($items))
             <div class="text-center text-muted py-4">
               <i class="bi bi-inbox" style="font-size: 1.5rem;"></i>
-              <p class="mt-2 mb-0">No items yet.
+              <p class="mt-2 mb-0">{{ __('No items yet.') }}
                 @if(in_array($submission->status, ['draft', 'returned']))
                   <a href="{{ route('researcher.addItem', ['id' => $submission->id]) }}">{{ __('Add your first item') }}</a>.
                 @endif
@@ -123,7 +123,7 @@
                     <td><small>@php echo $item->level_of_description @endphp</small></td>
                     <td>
                       @if($itemFileCount > 0)
-                        <span class="badge bg-outline-secondary">@php echo $itemFileCount @endphp file@php echo $itemFileCount > 1 ? 's' : '' @endphp</span>
+                        <span class="badge bg-outline-secondary">@php echo $itemFileCount @endphp {{ __('file') }}@php echo $itemFileCount > 1 ? 's' : '' @endphp</span>
                       @else
                         <small class="text-muted">-</small>
                       @endif

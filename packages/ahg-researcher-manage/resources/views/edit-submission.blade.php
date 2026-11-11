@@ -41,7 +41,7 @@
             <div class="mb-3">
               <label class="form-label fw-bold">{{ __('Target Repository') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select name="repository_id" class="form-select">
-                <option value="">-- Select repository --</option>
+                <option value="">{{ __('-- Select repository --') }}</option>
                 @php foreach ($repositories as $repo): @endphp
                   <option value="@php echo $repo->id @endphp" @php echo (int) $submission->repository_id === (int) $repo->id ? 'selected' : '' @endphp>
                     @php echo htmlspecialchars($repo->name) @endphp
@@ -54,7 +54,7 @@
             <div class="mb-3">
               <label class="form-label fw-bold">{{ __('Linked Research Project') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select name="project_id" class="form-select">
-                <option value="">-- None --</option>
+                <option value="">{{ __('-- None --') }}</option>
                 @php foreach ($projects as $proj): @endphp
                   <option value="@php echo $proj->id @endphp" @php echo (int) ($submission->project_id ?? 0) === (int) $proj->id ? 'selected' : '' @endphp>
                     @php echo htmlspecialchars($proj->title) @endphp (@php echo ucfirst($proj->status) @endphp)

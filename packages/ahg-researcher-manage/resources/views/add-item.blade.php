@@ -45,7 +45,7 @@
               <div class="col-md-6">
                 <label class="form-label fw-bold">{{ __('Parent Item') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <select name="parent_item_id" class="form-select">
-                  <option value="">-- Root level --</option>
+                  <option value="">{{ __('-- Root level --') }}</option>
                   @php foreach ($items as $parentItem): @endphp
                     @if((!$item || (int) $parentItem->id !== (int) $item->id) && $parentItem->item_type === 'description')
                       <option value="@php echo $parentItem->id @endphp"

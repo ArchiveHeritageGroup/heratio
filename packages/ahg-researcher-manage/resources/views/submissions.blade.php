@@ -120,9 +120,9 @@
       <div class="card-body text-center text-muted py-5">
         <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
         @if($currentStatus !== '')
-          No submissions with status "{{ str_replace('_', ' ', $currentStatus) }}".
+          {{ __('No submissions with status ":value1".', ['value1' => str_replace('_', ' ', $currentStatus)]) }}
         @else
-          No submissions found.
+          {{ __('No submissions found.') }}
         @endif
       </div>
     </div>
