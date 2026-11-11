@@ -79,7 +79,7 @@ final class SystemInventoryController
         AiSystem::create($this->validated($request));
 
         return redirect()->route('ai-compliance.systems.index')
-            ->with('status', 'AI system added to the inventory.');
+            ->with('status', __('AI system added to the inventory.'));
     }
 
     public function edit(int $id): View|RedirectResponse
@@ -87,7 +87,7 @@ final class SystemInventoryController
         $system = AiSystem::find($id);
         if (! $system) {
             return redirect()->route('ai-compliance.systems.index')
-                ->with('status', 'System not found.');
+                ->with('status', __('System not found.'));
         }
 
         return view('ahg-ai-compliance::systems.edit', [
@@ -103,13 +103,13 @@ final class SystemInventoryController
         $system = AiSystem::find($id);
         if (! $system) {
             return redirect()->route('ai-compliance.systems.index')
-                ->with('status', 'System not found.');
+                ->with('status', __('System not found.'));
         }
 
         $system->update($this->validated($request));
 
         return redirect()->route('ai-compliance.systems.index')
-            ->with('status', 'AI system updated.');
+            ->with('status', __('AI system updated.'));
     }
 
     public function destroy(int $id): RedirectResponse
@@ -117,7 +117,7 @@ final class SystemInventoryController
         AiSystem::where('id', $id)->delete();
 
         return redirect()->route('ai-compliance.systems.index')
-            ->with('status', 'AI system removed from the inventory.');
+            ->with('status', __('AI system removed from the inventory.'));
     }
 
     /**

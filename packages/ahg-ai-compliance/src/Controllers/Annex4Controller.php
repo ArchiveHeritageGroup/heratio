@@ -79,12 +79,12 @@ final class Annex4Controller extends Controller
             $output = Artisan::output();
             return redirect()
                 ->route('ai-compliance.documentation.index')
-                ->with('success', 'Annex IV generation finished.')
+                ->with('success', __('Annex IV generation finished.'))
                 ->with('console', $output);
         } catch (\Throwable $e) {
             return redirect()
                 ->route('ai-compliance.documentation.index')
-                ->with('error', 'Annex IV generation failed: ' . $e->getMessage());
+                ->with('error', __('Annex IV generation failed: :message', ['message' => $e->getMessage()]));
         }
     }
 

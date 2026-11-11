@@ -265,35 +265,6 @@ packages/ahg-ai-chatbot/resources/views/index.blade.php	text	grounding: -
 packages/ahg-ai-chatbot/resources/views/index.blade.php	text	model: -
 packages/ahg-ai-chatbot/resources/views/index.blade.php	text	thinking…
 packages/ahg-ai-chatbot/resources/views/review.blade.php	text	none
-packages/ahg-ai-compliance/src/Controllers/Annex4Controller.php	flash	Annex IV generation failed:
-packages/ahg-ai-compliance/src/Controllers/Annex4Controller.php	flash	Annex IV generation finished.
-packages/ahg-ai-compliance/src/Controllers/ModelRegistryController.php	flash	Model registry entry created.
-packages/ahg-ai-compliance/src/Controllers/ModelRegistryController.php	flash	Model registry entry deleted.
-packages/ahg-ai-compliance/src/Controllers/ModelRegistryController.php	flash	Model registry entry updated.
-packages/ahg-ai-compliance/src/Controllers/OversightController.php	flash	Automation-bias attestation recorded. Receipt written to the inference chain.
-packages/ahg-ai-compliance/src/Controllers/OversightController.php	flash	Cannot countersign: decision not found, or you are the original reviewer.
-packages/ahg-ai-compliance/src/Controllers/OversightController.php	flash	Countersigned decision {$reviewDecisionId}. Art. 14(5) two-person verification complete.
-packages/ahg-ai-compliance/src/Controllers/OversightController.php	flash	Halted {$n} services.
-packages/ahg-ai-compliance/src/Controllers/OversightController.php	flash	Halted {$service}. Receipt written.
-packages/ahg-ai-compliance/src/Controllers/OversightController.php	flash	Policy for {$policy->service} updated.
-packages/ahg-ai-compliance/src/Controllers/OversightController.php	flash	Policy not found.
-packages/ahg-ai-compliance/src/Controllers/OversightController.php	flash	Resumed {$service}.
-packages/ahg-ai-compliance/src/Controllers/OversightController.php	flash	Service not found.
-packages/ahg-ai-compliance/src/Controllers/OversightController.php	flash	Service not found.
-packages/ahg-ai-compliance/src/Controllers/OversightController.php	flash	You must be signed in to attest.
-packages/ahg-ai-compliance/src/Controllers/RiskController.php	flash	Incident recorded.
-packages/ahg-ai-compliance/src/Controllers/RiskController.php	flash	Reviewed risk {$r->id}. Receipt written to the inference chain.
-packages/ahg-ai-compliance/src/Controllers/RiskController.php	flash	Risk added.
-packages/ahg-ai-compliance/src/Controllers/RiskController.php	flash	Risk archived.
-packages/ahg-ai-compliance/src/Controllers/RiskController.php	flash	Risk not found.
-packages/ahg-ai-compliance/src/Controllers/RiskController.php	flash	Risk not found.
-packages/ahg-ai-compliance/src/Controllers/RiskController.php	flash	Risk not found.
-packages/ahg-ai-compliance/src/Controllers/RiskController.php	flash	Risk updated.
-packages/ahg-ai-compliance/src/Controllers/SystemInventoryController.php	flash	AI system added to the inventory.
-packages/ahg-ai-compliance/src/Controllers/SystemInventoryController.php	flash	AI system removed from the inventory.
-packages/ahg-ai-compliance/src/Controllers/SystemInventoryController.php	flash	AI system updated.
-packages/ahg-ai-compliance/src/Controllers/SystemInventoryController.php	flash	System not found.
-packages/ahg-ai-compliance/src/Controllers/SystemInventoryController.php	flash	System not found.
 packages/ahg-ai-services/resources/views/condition-bulk.blade.php	text	php artisan ahg:ai-condition-bulk-scan --limit=50 --confidence=0.25
 packages/ahg-ai-services/resources/views/htr/results.blade.php	text	non_genealogical
 packages/ahg-ai-services/resources/views/index.blade.php	text	The National Archives of South Africa in Pretoria holds the records of Jan van Riebeeck from 1652. The Dutch East India Company (VOC) established a refreshment station at the Cape of Good Hope on 6 April 1652.

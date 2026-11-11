@@ -53,14 +53,14 @@ final class RiskController
     {
         $attrs = $this->validateAttrs($request);
         $this->service->create($attrs);
-        return redirect()->route('ai-compliance.risk.index')->with('status', 'Risk added.');
+        return redirect()->route('ai-compliance.risk.index')->with('status', __('Risk added.'));
     }
 
     public function edit(int $id): View|RedirectResponse
     {
         $risk = $this->service->find($id);
         if ($risk === null) {
-            return redirect()->route('ai-compliance.risk.index')->with('error', 'Risk not found.');
+            return redirect()->route('ai-compliance.risk.index')->with('error', __('Risk not found.'));
         }
 
         return view('ahg-ai-compliance::risk.edit', [
@@ -76,23 +76,23 @@ final class RiskController
     {
         $attrs = $this->validateAttrs($request);
         $this->service->update($id, $attrs);
-        return redirect()->route('ai-compliance.risk.index')->with('status', 'Risk updated.');
+        return redirect()->route('ai-compliance.risk.index')->with('status', __('Risk updated.'));
     }
 
     public function signOff(int $id): RedirectResponse
     {
         $r = $this->service->signOff($id);
         if ($r === null) {
-            return redirect()->route('ai-compliance.risk.index')->with('error', 'Risk not found.');
+            return redirect()->route('ai-compliance.risk.index')->with('error', __('Risk not found.'));
         }
         return redirect()->route('ai-compliance.risk.index')
-            ->with('status', "Reviewed risk {$r->id}. Receipt written to the inference chain.");
+            ->with('status', __('Reviewed risk :id. Receipt written to the inference chain.', ['id' => $r->id]));
     }
 
     public function archive(int $id): RedirectResponse
     {
         $this->service->archive($id);
-        return redirect()->route('ai-compliance.risk.index')->with('status', 'Risk archived.');
+        return redirect()->route('ai-compliance.risk.index')->with('status', __('Risk archived.'));
     }
 
     public function reportIncident(Request $request, int $id): RedirectResponse
@@ -108,9 +108,9 @@ final class RiskController
             $request->integer('inference_log_id') ?: null,
         );
         if ($inc === null) {
-            return redirect()->route('ai-compliance.risk.index')->with('error', 'Risk not found.');
+            return redirect()->route('ai-compliance.risk.index')->with('error', __('Risk not found.'));
         }
-        return redirect()->route('ai-compliance.risk.index')->with('status', 'Incident recorded.');
+        return redirect()->route('ai-compliance.risk.index')->with('status', __('Incident recorded.'));
     }
 
     private function validateAttrs(Request $request): array

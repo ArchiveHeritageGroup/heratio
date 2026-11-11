@@ -57,7 +57,7 @@ final class OversightController
 
         $policy = $this->service->allPolicies()->firstWhere('id', $id);
         if ($policy === null) {
-            return redirect()->route('ai-compliance.oversight.index')->with('error', 'Policy not found.');
+            return redirect()->route('ai-compliance.oversight.index')->with('error', __('Policy not found.'));
         }
 
         $policy->requires_human_review = (bool) ($attrs['requires_human_review'] ?? false);
@@ -66,7 +66,7 @@ final class OversightController
         $policy->automation_bias_prompt_text = $attrs['automation_bias_prompt_text'] ?? null;
         $policy->save();
 
-        return redirect()->route('ai-compliance.oversight.index')->with('status', "Policy for {$policy->service} updated.");
+        return redirect()->route('ai-compliance.oversight.index')->with('status', __('Policy for :service updated.', ['service' => $policy->service]));
     }
 
     public function halt(Request $request, string $service): RedirectResponse
@@ -74,35 +74,35 @@ final class OversightController
         $reason = $request->input('reason', 'Operator halt via admin UI');
         $p = $this->service->halt($service, $reason);
         if ($p === null) {
-            return redirect()->route('ai-compliance.oversight.index')->with('error', 'Service not found.');
+            return redirect()->route('ai-compliance.oversight.index')->with('error', __('Service not found.'));
         }
-        return redirect()->route('ai-compliance.oversight.index')->with('status', "Halted {$service}. Receipt written.");
+        return redirect()->route('ai-compliance.oversight.index')->with('status', __('Halted :service. Receipt written.', ['service' => $service]));
     }
 
     public function resume(string $service): RedirectResponse
     {
         $p = $this->service->resume($service);
         if ($p === null) {
-            return redirect()->route('ai-compliance.oversight.index')->with('error', 'Service not found.');
+            return redirect()->route('ai-compliance.oversight.index')->with('error', __('Service not found.'));
         }
-        return redirect()->route('ai-compliance.oversight.index')->with('status', "Resumed {$service}.");
+        return redirect()->route('ai-compliance.oversight.index')->with('status', __('Resumed :service.', ['service' => $service]));
     }
 
     public function haltAll(Request $request): RedirectResponse
     {
         $reason = $request->input('reason', 'Global halt via admin UI');
         $n = $this->service->haltAll($reason);
-        return redirect()->route('ai-compliance.oversight.index')->with('status', "Halted {$n} services.");
+        return redirect()->route('ai-compliance.oversight.index')->with('status', __('Halted :count services.', ['count' => $n]));
     }
 
     public function attest(): RedirectResponse
     {
         if (Auth::id() === null) {
-            return redirect()->route('ai-compliance.oversight.index')->with('error', 'You must be signed in to attest.');
+            return redirect()->route('ai-compliance.oversight.index')->with('error', __('You must be signed in to attest.'));
         }
         $this->service->recordAttestation((int) Auth::id());
         return redirect()->route('ai-compliance.oversight.index')
-            ->with('status', 'Automation-bias attestation recorded. Receipt written to the inference chain.');
+            ->with('status', __('Automation-bias attestation recorded. Receipt written to the inference chain.'));
     }
 
     public function countersign(int $reviewDecisionId): RedirectResponse
@@ -110,10 +110,10 @@ final class OversightController
         $row = $this->service->countersign($reviewDecisionId);
         if ($row === null) {
             return redirect()->route('ai-compliance.oversight.index')
-                ->with('error', 'Cannot countersign: decision not found, or you are the original reviewer.');
+                ->with('error', __('Cannot countersign: decision not found, or you are the original reviewer.'));
         }
         return redirect()->route('ai-compliance.oversight.index')
-            ->with('status', "Countersigned decision {$reviewDecisionId}. Art. 14(5) two-person verification complete.");
+            ->with('status', __('Countersigned decision :id. Art. 14(5) two-person verification complete.', ['id' => $reviewDecisionId]));
     }
 
     /**
