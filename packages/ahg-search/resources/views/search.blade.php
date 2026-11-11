@@ -352,9 +352,9 @@
       @elseif($query || !empty($activeFilters))
         <div class="alert alert-info">
           <i class="fas fa-info-circle" aria-hidden="true"></i>
-          No results matched your search. Try different keywords or broaden your search terms.
+          {{ __('No results matched your search. Try different keywords or broaden your search terms.') }}
           @if(!empty($activeFilters))
-            <a href="{{ route('search', ['q' => $query]) }}">{{ __('Clear all filters') }}</a> to see more results.
+            <a href="{{ route('search', ['q' => $query]) }}">{{ __('Clear all filters') }}</a> {{ __('to see more results.') }}
           @endif
         </div>
       @endif

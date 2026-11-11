@@ -1801,22 +1801,6 @@ packages/ahg-scan/src/Controllers/ScanInboxController.php	flash	Resume failed:
 packages/ahg-scan/src/Controllers/ScanInboxController.php	flash	Retry attempted.
 packages/ahg-scan/src/Controllers/ScanInboxController.php	flash	Rights released; pipeline resumed.
 packages/ahg-scan/src/Controllers/ScanInboxController.php	flash	Unknown bulk action:
-packages/ahg-search/resources/views/_find-similar.blade.php	text	to fetch records semantically similar to this one (powered by Qdrant + sentence embeddings).
-packages/ahg-search/resources/views/advanced.blade.php	text	-- Any level --
-packages/ahg-search/resources/views/advanced.blade.php	text	-- Any repository --
-packages/ahg-search/resources/views/advanced.blade.php	text	-- Any type --
-packages/ahg-search/resources/views/analytics.blade.php	text	/help/search-analytics
-packages/ahg-search/resources/views/analytics.blade.php	text	Recorded via . CTR = clicks / executions for a query string. See
-packages/ahg-search/resources/views/analytics.blade.php	text	Since {{…}} ({{…}} {{…}})
-packages/ahg-search/resources/views/analytics.blade.php	text	for the full schema and POPIA / GDPR notes.
-packages/ahg-search/resources/views/description-updates.blade.php	text	Showing {{…}} result(s)
-packages/ahg-search/resources/views/global-replace.blade.php	text	-- Select a field --
-packages/ahg-search/resources/views/global-replace.blade.php	text	Confirm replacement ({{…}} records)
-packages/ahg-search/resources/views/global-replace.blade.php	text	Showing {{…}} of {{…}} affected record(s).
-packages/ahg-search/resources/views/global-replace.blade.php	text	record(s). This action cannot be undone!
-packages/ahg-search/resources/views/search.blade.php	text	No results matched your search. Try different keywords or broaden your search terms.
-packages/ahg-search/resources/views/search.blade.php	text	to see more results.
-packages/ahg-search/src/Controllers/SearchController.php	flash	Successfully replaced {$updatedCount} record(s). Column: {$columns[$column]}.
 packages/ahg-security-clearance/resources/views/audit/dashboard.blade.php	text	Since: {{…}}
 packages/ahg-security-clearance/resources/views/audit/index.blade.php	text	{{…}} total entries
 packages/ahg-security-clearance/resources/views/clearance/classify.blade.php	text	Level {{…}}
