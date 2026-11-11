@@ -810,7 +810,7 @@ class DiscoveryController extends Controller
 
         if ($objectId <= 0) {
             return redirect()->route('ahgdiscovery.pageindex')
-                ->with('error', 'Object ID is required.');
+                ->with('error', __('Object ID is required.'));
         }
 
         $service = new \AhgDiscovery\Services\PageIndexService;
