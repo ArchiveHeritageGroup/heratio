@@ -583,21 +583,6 @@ packages/ahg-doi-manage/resources/views/view.blade.php	text	doi.org landing page
 packages/ahg-doi-manage/src/Controllers/DoiController.php	flash	DOI configuration saved.
 packages/ahg-doi-manage/src/Controllers/DoiController.php	flash	Settings table does not exist.
 packages/ahg-doi-manage/src/Controllers/DoiController.php	flash	{$queued} record(s) queued for DOI minting ({$state}).
-packages/ahg-donor-manage/resources/views/agreement-edit.blade.php	text	Edit Agreement: {{…}}
-packages/ahg-donor-manage/resources/views/show.blade.php	text	Archival description area
-packages/ahg-donor-manage/resources/views/show.blade.php	text	Basic info
-packages/ahg-donor-manage/resources/views/show.blade.php	text	Contact area
-packages/ahg-donor-manage/resources/views/show.blade.php	text	Control area
-packages/ahg-donor-manage/resources/views/show.blade.php	text	Description area
-packages/ahg-donor-manage/src/Controllers/DonorController.php	flash	Agreement created successfully.
-packages/ahg-donor-manage/src/Controllers/DonorController.php	flash	Agreement deleted successfully.
-packages/ahg-donor-manage/src/Controllers/DonorController.php	flash	Agreement updated successfully.
-packages/ahg-donor-manage/src/Controllers/DonorController.php	flash	Donor created successfully.
-packages/ahg-donor-manage/src/Controllers/DonorController.php	flash	Donor deleted successfully.
-packages/ahg-donor-manage/src/Controllers/DonorController.php	flash	Donor updated successfully.
-packages/ahg-donor-manage/src/Controllers/DonorController.php	flash	Error deleting agreement:
-packages/ahg-donor-manage/src/Controllers/DonorController.php	flash	Error updating agreement:
-packages/ahg-donor-manage/src/Controllers/DonorController.php	flash	Failed to create agreement:
 packages/ahg-dropdown-manage/resources/views/edit.blade.php	text	active)
 packages/ahg-dropdown-manage/resources/views/index.blade.php	text	column mappings
 packages/ahg-dropdown-manage/resources/views/index.blade.php	text	taxonomies

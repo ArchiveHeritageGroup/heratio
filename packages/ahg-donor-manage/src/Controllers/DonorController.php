@@ -115,7 +115,7 @@ class DonorController extends Controller
             $this->service->syncInformationObjects($id, (array) $request->input('information_objects', []));
         }
 
-        return redirect()->route('donor.show', $this->service->getSlug($id))->with('success', 'Donor created successfully.');
+        return redirect()->route('donor.show', $this->service->getSlug($id))->with('success', __('Donor created successfully.'));
     }
 
     public function update(Request $request, string $slug)
@@ -130,7 +130,7 @@ class DonorController extends Controller
             $this->service->syncInformationObjects($donor->id, (array) $request->input('information_objects', []));
         }
 
-        return redirect()->route('donor.show', $slug)->with('success', 'Donor updated successfully.');
+        return redirect()->route('donor.show', $slug)->with('success', __('Donor updated successfully.'));
     }
 
     public function confirmDelete(string $slug)
@@ -151,7 +151,7 @@ class DonorController extends Controller
         }
         $this->service->delete($donor->id);
 
-        return redirect()->route('donor.browse')->with('success', 'Donor deleted successfully.');
+        return redirect()->route('donor.browse')->with('success', __('Donor deleted successfully.'));
     }
 
     private function emptyContact(): object
@@ -294,11 +294,11 @@ class DonorController extends Controller
                 $id = \DB::table('donor_agreement')->insertGetId($data);
 
                 return redirect()->route('donor.agreement.view', $id)
-                    ->with('success', 'Agreement created successfully.');
+                    ->with('success', __('Agreement created successfully.'));
             }
         } catch (\Exception $e) {
             return redirect()->route('donor.agreements')
-                ->with('error', 'Failed to create agreement: '.$e->getMessage());
+                ->with('error', __('Failed to create agreement: :message', ['message' => $e->getMessage()]));
         }
 
         return redirect()->route('donor.agreements');
@@ -490,12 +490,12 @@ class DonorController extends Controller
             \DB::commit();
 
             return redirect()->route('donor.agreement.view', $id)
-                ->with('success', 'Agreement updated successfully.');
+                ->with('success', __('Agreement updated successfully.'));
         } catch (\Exception $e) {
             \DB::rollBack();
 
             return redirect()->route('donor.agreement.edit', $id)
-                ->with('error', 'Error updating agreement: '.$e->getMessage());
+                ->with('error', __('Error updating agreement: :message', ['message' => $e->getMessage()]));
         }
     }
 
@@ -525,10 +525,10 @@ class DonorController extends Controller
                 }
 
                 return redirect()->route('donor.agreements')
-                    ->with('success', 'Agreement deleted successfully.');
+                    ->with('success', __('Agreement deleted successfully.'));
             } catch (\Exception $e) {
                 return redirect()->route('donor.agreements')
-                    ->with('error', 'Error deleting agreement: '.$e->getMessage());
+                    ->with('error', __('Error deleting agreement: :message', ['message' => $e->getMessage()]));
             }
         }
 

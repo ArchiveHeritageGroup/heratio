@@ -36,7 +36,7 @@
 
   {{-- ===== Basic info ===== --}}
   <section class="section border-bottom" id="basicInfo">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('donor.edit', $donor->slug) }}#identity-collapse" class="text-primary text-decoration-none">{{ __('Basic info') }}</a>@else Basic info @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('donor.edit', $donor->slug) }}#identity-collapse" class="text-primary text-decoration-none">{{ __('Basic info') }}</a>@else {{ __('Basic info') }} @endauth</div></h2>
     <div id="identity-collapse">
 
       @if($donor->authorized_form_of_name)
@@ -51,7 +51,7 @@
 
   {{-- ===== Description area ===== --}}
   <section class="section border-bottom" id="descriptionArea">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('donor.edit', $donor->slug) }}#description-collapse" class="text-primary text-decoration-none">{{ __('Description area') }}</a>@else Description area @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('donor.edit', $donor->slug) }}#description-collapse" class="text-primary text-decoration-none">{{ __('Description area') }}</a>@else {{ __('Description area') }} @endauth</div></h2>
     <div id="description-collapse">
 
       @if($donor->dates_of_existence ?? null)
@@ -115,7 +115,7 @@
 
   {{-- ===== Control area ===== --}}
   <section class="section border-bottom" id="controlArea">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('donor.edit', $donor->slug) }}#control-collapse" class="text-primary text-decoration-none">{{ __('Control area') }}</a>@else Control area @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('donor.edit', $donor->slug) }}#control-collapse" class="text-primary text-decoration-none">{{ __('Control area') }}</a>@else {{ __('Control area') }} @endauth</div></h2>
     <div id="control-collapse">
 
       @if($donor->institution_responsible_identifier ?? null)
@@ -151,7 +151,7 @@
 
   {{-- ===== Contact area ===== --}}
   <section class="section border-bottom" id="contactArea">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('donor.edit', $donor->slug) }}#contact-collapse" class="text-primary text-decoration-none">{{ __('Contact area') }}</a>@else Contact area @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('donor.edit', $donor->slug) }}#contact-collapse" class="text-primary text-decoration-none">{{ __('Contact area') }}</a>@else {{ __('Contact area') }} @endauth</div></h2>
     <div id="contact-collapse">
 
       @if(isset($contacts) && $contacts->isNotEmpty())
@@ -265,7 +265,7 @@
 
   {{-- ===== Archival descriptions area ===== --}}
   <section class="section border-bottom" id="ioArea">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('donor.edit', $donor->slug) }}#io-collapse" class="text-primary text-decoration-none">{{ __('Archival description area') }}</a>@else Archival description area @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('donor.edit', $donor->slug) }}#io-collapse" class="text-primary text-decoration-none">{{ __('Archival description area') }}</a>@else {{ __('Archival description area') }} @endauth</div></h2>
     <div>
       <div class="field row g-0">
         <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Linked archival descriptions') }}</h3>
