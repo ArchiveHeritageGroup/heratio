@@ -34,7 +34,7 @@
         <span class="badge bg-secondary ms-2">{{ $template->descriptive_standard }}</span>
       @endif
       @if(!empty($template->is_default))
-        <span class="badge bg-success ms-1">default</span>
+        <span class="badge bg-success ms-1">{{ __('default') }}</span>
       @endif
     </div>
     <a href="{{ $cancelUrl }}" class="btn btn-sm btn-outline-secondary">{{ __('Switch to standard form') }}</a>
@@ -77,7 +77,7 @@
                     @break
                   @case('select')
                     <select id="fld-{{ $field->id }}" name="fields[{{ $name }}]" class="form-select" {{ $req }} {{ $ro }}>
-                      <option value="">- Select -</option>
+                      <option value="">{{ __('- Select -') }}</option>
                       @foreach($opts as $optVal => $optLabel)
                         <option value="{{ is_int($optVal) ? $optLabel : $optVal }}" @selected((string)$val === (string)(is_int($optVal) ? $optLabel : $optVal))>
                           {{ is_array($optLabel) ? ($optLabel['label'] ?? $optLabel['value'] ?? '') : $optLabel }}

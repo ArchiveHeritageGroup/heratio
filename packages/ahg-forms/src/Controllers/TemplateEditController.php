@@ -54,7 +54,7 @@ class TemplateEditController extends Controller
 
         if (! $template) {
             return redirect($this->cancelUrl($entityType, $entityId))
-                ->with('error', 'No form template configured for this entity.');
+                ->with('error', __('No form template configured for this entity.'));
         }
 
         if ($template->form_type !== $entityType) {
@@ -129,11 +129,11 @@ class TemplateEditController extends Controller
             DB::rollBack();
             Log::error('TemplateEditController submit failed', ['err' => $e->getMessage()]);
 
-            return back()->with('error', 'Save failed: '.$e->getMessage())->withInput();
+            return back()->with('error', __('Save failed: :message', ['message' => $e->getMessage()]))->withInput();
         }
 
         return redirect($this->showUrl($entityType, $entityId))
-            ->with('success', "Saved using template '{$template->name}'.");
+            ->with('success', __('Saved using template :name.', ['name' => $template->name]));
     }
 
     // -- helpers ----------------------------------------------------------------

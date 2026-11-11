@@ -65,7 +65,7 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">
-                {{ count($templates ?? []) }} Template{{ count($templates ?? []) !== 1 ? 's' : '' }} Found
+                {{ __(':value1 Template:value2 Found', ['value1' => count($templates ?? []), 'value2' => count($templates ?? []) !== 1 ? 's' : '']) }}
             </h5>
         </div>
         <div class="card-body p-0">
@@ -104,7 +104,7 @@
                                         </span>
                                         <span class="badge bg-secondary">
                                             <i class="fas fa-th-list me-1"></i>
-                                            {{ $template->field_count ?? 0 }} field{{ ($template->field_count ?? 0) !== 1 ? 's' : '' }}
+                                            {{ __(':value1 field:value2', ['value1' => $template->field_count ?? 0, 'value2' => ($template->field_count ?? 0) !== 1 ? 's' : '']) }}
                                         </span>
                                         @if(!empty($template->is_active))
                                             <span class="badge bg-success">

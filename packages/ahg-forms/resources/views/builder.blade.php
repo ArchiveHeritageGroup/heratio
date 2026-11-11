@@ -24,7 +24,7 @@
                     <li class="breadcrumb-item active">{{ __('Form Builder') }}</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-edit me-2"></i>Form Builder: {{ $template->name ?? '' }}</h1>
+            <h1><i class="fas fa-edit me-2"></i>{{ __('Form Builder: :value1', ['value1' => $template->name ?? '']) }}</h1>
             <p class="text-muted">{{ $template->description ?? '' }}</p>
         </div>
         <div class="col-auto">
@@ -92,7 +92,7 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-th-list me-2"></i>{{ __('Form Layout') }}</h5>
-                    <span class="badge bg-info">{{ count($fields ?? []) }} fields</span>
+                    <span class="badge bg-info">{{ __(':value1 fields', ['value1' => count($fields ?? [])]) }}</span>
                 </div>
                 <div class="card-body">
                     <div id="form-canvas" class="form-canvas" data-template-id="{{ $template->id ?? 0 }}">

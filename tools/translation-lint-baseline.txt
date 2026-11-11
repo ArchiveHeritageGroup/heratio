@@ -808,24 +808,6 @@ packages/ahg-feedback/src/Controllers/FeedbackController.php	flash	Feedback dele
 packages/ahg-feedback/src/Controllers/FeedbackController.php	flash	Feedback updated successfully.
 packages/ahg-feedback/src/Controllers/FeedbackController.php	flash	Thank you for your feedback. We will review it shortly.
 packages/ahg-feedback/src/Controllers/FeedbackController.php	flash	Thank you for your feedback. We will review it shortly.
-packages/ahg-forms/resources/views/assignments.blade.php	text	Priority (higher number = higher priority)
-packages/ahg-forms/resources/views/browse.blade.php	text	{{…}} Template{{…}} Found
-packages/ahg-forms/resources/views/browse.blade.php	text	{{…}} field{{…}}
-packages/ahg-forms/resources/views/builder.blade.php	text	Form Builder: {{…}}
-packages/ahg-forms/resources/views/builder.blade.php	text	{{…}} fields
-packages/ahg-forms/resources/views/library.blade.php	text	{{…}} fields
-packages/ahg-forms/resources/views/partials/render-form.blade.php	text	- Select -
-packages/ahg-forms/resources/views/partials/render-form.blade.php	text	default
-packages/ahg-forms/resources/views/preview.blade.php	text	(hidden field)
-packages/ahg-forms/resources/views/preview.blade.php	text	-- Select --
-packages/ahg-forms/resources/views/preview.blade.php	text	Preview: {{…}}
-packages/ahg-forms/src/Controllers/FormsController.php	flash	Assignment created
-packages/ahg-forms/src/Controllers/FormsController.php	flash	Invalid action.
-packages/ahg-forms/src/Controllers/FormsController.php	flash	Template deleted.
-packages/ahg-forms/src/Controllers/FormsController.php	flash	Template duplicated.
-packages/ahg-forms/src/Controllers/TemplateEditController.php	flash	No form template configured for this entity.
-packages/ahg-forms/src/Controllers/TemplateEditController.php	flash	Save failed:
-packages/ahg-forms/src/Controllers/TemplateEditController.php	flash	Saved using template '{$template->name}'.
 packages/ahg-ftp-upload/resources/views/index.blade.php	text	(supports files up to 2 GB - chunked upload with resume)
 packages/ahg-ftp-upload/resources/views/index.blade.php	text	Files uploaded here are stored at the remote path shown below. In your CSV import file, set the column to:
 packages/ahg-ftp-upload/resources/views/index.blade.php	text	Protocol: {{…}}

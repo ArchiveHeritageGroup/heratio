@@ -28,7 +28,7 @@
                     <li class="breadcrumb-item active">{{ __('Preview') }}</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-eye me-2"></i>Preview: {{ $template->name ?? '' }}</h1>
+            <h1><i class="fas fa-eye me-2"></i>{{ __('Preview: :value1', ['value1' => $template->name ?? '']) }}</h1>
         </div>
         <div class="col-auto">
             <a href="{{ route('forms.builder', ['id' => $template->id ?? 0]) }}" class="btn btn-outline-primary">
@@ -78,7 +78,7 @@
 
                                         @elseif($field->field_type === 'select' || $field->field_type === 'multiselect' || $field->field_type === 'radio')
                                             <select class="form-select" {{ !empty($field->is_readonly) ? 'disabled' : '' }}>
-                                                <option value="">-- Select --</option>
+                                                <option value="">{{ __('-- Select --') }}</option>
                                                 <option>{{ __('Option 1') }}</option>
                                                 <option>{{ __('Option 2') }}</option>
                                                 <option>{{ __('Option 3') }}</option>
@@ -116,7 +116,7 @@
 
                                         @elseif($field->field_type === 'hidden')
                                             <input type="hidden" value="{{ $field->default_value ?? '' }}">
-                                            <span class="text-muted small">(hidden field)</span>
+                                            <span class="text-muted small">{{ __('(hidden field)') }}</span>
 
                                         @else
                                             <input type="text" class="form-control"
