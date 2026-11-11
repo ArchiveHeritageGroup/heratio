@@ -264,11 +264,11 @@ class HelpController extends Controller
         }
         $targetId = HelpArticleService::resolveArticleId((string) $request->input('target', ''));
         if (! $targetId) {
-            return back()->with('error', 'Could not find that article - pick one from the list or paste its /help/article/… URL.');
+            return back()->with('error', __('Could not find that article - pick one from the list or paste its /help/article/… URL.'));
         }
         HelpArticleService::addManualLink((int) $article['id'], $targetId);
 
-        return redirect()->route('help.article.links', $slug)->with('success', 'Link added.');
+        return redirect()->route('help.article.links', $slug)->with('success', __('Link added.'));
     }
 
     /** Admin: remove a link. */
@@ -280,7 +280,7 @@ class HelpController extends Controller
         }
         HelpArticleService::removeLink((int) $article['id'], $targetId);
 
-        return redirect()->route('help.article.links', $slug)->with('success', 'Link removed.');
+        return redirect()->route('help.article.links', $slug)->with('success', __('Link removed.'));
     }
 
     /**

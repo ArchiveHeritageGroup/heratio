@@ -112,7 +112,7 @@
                   <h5 class="card-title mb-0">{{ $catName }}</h5>
                 </div>
                 <p class="card-text text-muted small">{{ $categoryDescriptions[$catName] ?? '' }}</p>
-                <span class="badge bg-secondary">{{ $cat['article_count'] }} articles</span>
+                <span class="badge bg-secondary">{{ __(':value1 articles', ['value1' => $cat['article_count']]) }}</span>
               </div>
             </div>
           </a>
