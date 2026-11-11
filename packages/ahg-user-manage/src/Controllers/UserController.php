@@ -188,7 +188,7 @@ class UserController extends Controller
 
         return redirect()
             ->route('user.show', $this->service->getSlug($id))
-            ->with('success', 'User created successfully.');
+            ->with('success', __('User created successfully.'));
     }
 
     public function update(Request $request, string $slug)
@@ -241,7 +241,7 @@ class UserController extends Controller
 
         return redirect()
             ->route('user.show', $slug)
-            ->with('success', 'User updated successfully.');
+            ->with('success', __('User updated successfully.'));
     }
 
     /**
@@ -288,7 +288,7 @@ class UserController extends Controller
 
         return redirect()
             ->route('user.browse')
-            ->with('success', 'User deleted successfully.');
+            ->with('success', __('User deleted successfully.'));
     }
 
     public function registrationPending(Request $request)
@@ -539,14 +539,14 @@ class UserController extends Controller
 
             $user = \Illuminate\Support\Facades\DB::table('user')->where('id', auth()->id())->first();
             if (! $user || ! password_verify($request->input('current_password'), $user->password_hash)) {
-                return redirect()->back()->with('error', 'Current password is incorrect.');
+                return redirect()->back()->with('error', __('Current password is incorrect.'));
             }
 
             \Illuminate\Support\Facades\DB::table('user')
                 ->where('id', auth()->id())
                 ->update(['password_hash' => bcrypt($request->input('password'))]);
 
-            return redirect()->route('user.profile')->with('success', 'Password updated successfully.');
+            return redirect()->route('user.profile')->with('success', __('Password updated successfully.'));
         }
 
         $resource = $this->service->getById(auth()->id());
@@ -1038,7 +1038,7 @@ class UserController extends Controller
         }
 
         return redirect()->route('user.plugin-grants', $slug)
-            ->with('status', 'Plugin grants updated for '.($target->username ?? $target->email ?? $slug).'.');
+            ->with('status', __('Plugin grants updated for :user.', ['user' => $target->username ?? $target->email ?? $slug]));
     }
 
     /**
@@ -1090,6 +1090,6 @@ class UserController extends Controller
         }
 
         return redirect()->route('user.plugin-preferences')
-            ->with('status', 'Your plugin preferences have been saved.');
+            ->with('status', __('Your plugin preferences have been saved.'));
     }
 }

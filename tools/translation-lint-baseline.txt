@@ -2081,29 +2081,6 @@ packages/ahg-translation/src/Controllers/TranslationController.php	flash	No draf
 packages/ahg-translation/src/Controllers/TranslationController.php	flash	No orphaned drafts to clean up.
 packages/ahg-translation/src/Controllers/TranslationController.php	flash	Settings updated
 packages/ahg-translation/src/Controllers/TranslationController.php	flash	Unknown dropdown source '{$source}' on draft #{$draft->id}
-packages/ahg-user-manage/resources/views/browse.blade.php	text	(inactive)
-packages/ahg-user-manage/resources/views/browse.blade.php	text	(you)
-packages/ahg-user-manage/resources/views/delete.blade.php	text	Are you sure you want to delete {{…}}?
-packages/ahg-user-manage/resources/views/delete.blade.php	text	This user has {{…}} note(s) in the system. These notes will not be deleted, but their association with this user will be removed.
-packages/ahg-user-manage/resources/views/edit.blade.php	text	Leave blank to keep current password.
-packages/ahg-user-manage/resources/views/edit.blade.php	text	No languages configured. Add languages in Admin &gt; Settings &gt; I18n.
-packages/ahg-user-manage/resources/views/edit.blade.php	text	Password
-packages/ahg-user-manage/resources/views/plugin-grants.blade.php	text	- follow the global enable/disable on Settings → Plugins (default).
-packages/ahg-user-manage/resources/views/plugin-grants.blade.php	text	- user has access even if globally disabled (use for beta-testers).
-packages/ahg-user-manage/resources/views/plugin-grants.blade.php	text	- user is blocked even if globally enabled. Plugin URLs return 403.
-packages/ahg-user-manage/resources/views/show.blade.php	text	(you)
-packages/ahg-user-manage/resources/views/show.blade.php	text	Access control
-packages/ahg-user-manage/resources/views/show.blade.php	text	Allowed languages for translation
-packages/ahg-user-manage/resources/views/show.blade.php	text	Basic info
-packages/ahg-user-manage/resources/views/show.blade.php	text	Contact information
-packages/ahg-user-manage/resources/views/show.blade.php	text	Profile
-packages/ahg-user-manage/src/Controllers/UserController.php	flash	Current password is incorrect.
-packages/ahg-user-manage/src/Controllers/UserController.php	flash	Password updated successfully.
-packages/ahg-user-manage/src/Controllers/UserController.php	flash	Plugin grants updated for
-packages/ahg-user-manage/src/Controllers/UserController.php	flash	User created successfully.
-packages/ahg-user-manage/src/Controllers/UserController.php	flash	User deleted successfully.
-packages/ahg-user-manage/src/Controllers/UserController.php	flash	User updated successfully.
-packages/ahg-user-manage/src/Controllers/UserController.php	flash	Your plugin preferences have been saved.
 packages/ahg-vendor/resources/views/browse.blade.php	text	Overdue Transactions ({{…}})
 packages/ahg-vendor/resources/views/browse.blade.php	text	View all transactions &rarr;
 packages/ahg-vendor/resources/views/browse.blade.php	text	{{…}} days
