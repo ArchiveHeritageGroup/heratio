@@ -343,6 +343,7 @@ class AhgCoreServiceProvider extends ServiceProvider
 
                 // Digital Objects
                 \AhgCore\Commands\RegenDerivativesCommand::class,
+                \AhgCore\Commands\MediaDerivativesCommand::class,
                 \AhgCore\Commands\LoadDigitalObjectsCommand::class,
 
                 // OAI-PMH
@@ -409,6 +410,13 @@ class AhgCoreServiceProvider extends ServiceProvider
                 // ahg_central_enabled=0 so flipping the toggle in
                 // /admin/ahgSettings/ahgIntegration is enough to silence it
                 // without needing artisan re-cache.
+                // Every audio/video master gets a browser-playable copy: catches
+                // older files and failed conversions (CPU ffmpeg, fine at night).
+                $schedule->command('ahg:media-derivatives --missing --limit=200')
+                    ->dailyAt('01:30')
+                    ->withoutOverlapping(120)
+                    ->runInBackground();
+
                 $schedule->command('ahg:central-heartbeat')
                     ->dailyAt('05:00')
                     ->withoutOverlapping(60);

@@ -96,8 +96,11 @@
       $needsStreaming = in_array($masterMime, $nonNativeVideo) || in_array($masterMime, $nonNativeAudio);
 
       // For non-native formats: prefer reference derivative (should be MP4/MP3), fallback to master
-      $videoSrc = ($needsStreaming && $refObj) ? $refUrl : $masterUrl;
-      $videoMime = ($needsStreaming && $refObj) ? ($refObj->mime_type ?? 'video/mp4') : $masterMime;
+      // ... but only a reference that really is audio/video: an icon filed as the
+      // reference (older uploads) would otherwise be handed to the player.
+      $refPlayable = $refObj && preg_match('#^(video|audio)/#', (string) ($refObj->mime_type ?? ''));
+      $videoSrc = ($needsStreaming && $refPlayable) ? $refUrl : $masterUrl;
+      $videoMime = ($needsStreaming && $refPlayable) ? ($refObj->mime_type ?? 'video/mp4') : $masterMime;
 
       // Check for 3D model files (GLB, GLTF, OBJ, etc.)
       $is3DModel = $masterObj && in_array(strtolower($masterMime), [

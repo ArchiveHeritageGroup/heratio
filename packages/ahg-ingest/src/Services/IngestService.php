@@ -542,6 +542,14 @@ class IngestService
             'parent_id' => null,
         ]);
 
+        // Audio and video: queue the playable MP4/MP3 copy (ingest made none, so
+        // a WMV or MOV that came in this way - including SharePoint capture - never played).
+        try {
+            \AhgCore\Services\DigitalObjectService::queueMediaDerivatives((int) $doObjectId, $mediaTypeId ? (int) $mediaTypeId : null, $mimeType);
+        } catch (\Throwable $e) {
+            \Log::warning('Queuing media derivatives on ingest failed: '.$e->getMessage(), ['do_id' => $doObjectId]);
+        }
+
         // Auto metadata extraction (closes #86 Phase 6 for the ingest path).
         // Mirrors the wire-up in DigitalObjectController::upload: fires the
         // shared orchestrator against the file at its canonical location,

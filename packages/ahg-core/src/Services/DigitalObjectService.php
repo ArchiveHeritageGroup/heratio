@@ -462,7 +462,7 @@ class DigitalObjectService
         } elseif ($mimeType === 'application/pdf') {
             // Rasterise page 0 into a real JPEG thumbnail instead of a grey icon.
             self::generatePdfDerivatives($masterId, $objectId, $masterPath, $safeName, $webPath, $uploadDir, $mimeType);
-        } else {
+        } elseif (! self::queueMediaDerivatives($masterId, $mediaTypeId, $mimeType)) {
             self::generateGenericDerivatives($masterId, $objectId, $mimeType, $safeName, $webPath, $uploadDir);
         }
 
@@ -1178,6 +1178,27 @@ class DigitalObjectService
      * @param  int  $masterId  digital_object.id of the master
      * @param  bool|null  $makeReference  null = honour session flag upstream
      */
+    /**
+     * Audio and video masters get their playable copy (MP4 H.264 480p / MP3, plus
+     * a poster or waveform) from MediaDerivativeService through a queued ffmpeg
+     * job, never a placeholder icon - an icon filed as the reference copy is what
+     * the player would then try to play. Every way in calls this: the record
+     * page upload, FTP, PDF tools, ingest (and so SharePoint capture), and the
+     * nightly ahg:media-derivatives --missing sweep catches anything left over.
+     *
+     * @return bool true when the master is audio/video and the job was queued
+     */
+    public static function queueMediaDerivatives(int $masterId, ?int $mediaTypeId, ?string $mimeType = null): bool
+    {
+        $type = $mediaTypeId ?: ($mimeType ? self::resolveMediaTypeId($mimeType) : null);
+        if (! in_array($type, [self::MEDIA_AUDIO, self::MEDIA_VIDEO], true)) {
+            return false;
+        }
+        \AhgCore\Jobs\GenerateMediaDerivativesJob::dispatch($masterId);
+
+        return true;
+    }
+
     public static function generateDerivativesForMaster(int $masterId, ?bool $makeReference = true, ?bool $makeThumbnail = true): void
     {
         $master = DB::table('digital_object')->where('id', $masterId)->first();
@@ -1252,7 +1273,7 @@ class DigitalObjectService
             imagedestroy($srcImage);
         } elseif ($mimeType === 'application/pdf') {
             self::generatePdfDerivatives($masterId, (int) $master->object_id, $masterPath, $safeName, $webPath, $uploadDir, $mimeType);
-        } else {
+        } elseif (! self::queueMediaDerivatives($masterId, $mediaTypeId, $mimeType)) {
             self::generateGenericDerivatives($masterId, $master->object_id, $mimeType, $safeName, $webPath, $uploadDir);
         }
     }
