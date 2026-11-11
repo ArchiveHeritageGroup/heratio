@@ -1196,53 +1196,6 @@ packages/ahg-loan/src/Controllers/LoanController.php	flash	Object removed from l
 packages/ahg-loan/src/Controllers/TourController.php	flash	Cannot book:
 packages/ahg-loan/src/Controllers/TourController.php	flash	Tour booking cancelled - the window is now free.
 packages/ahg-loan/src/Controllers/TourController.php	flash	Venue booked - the window is clear. Booking #
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	(HTR, NER), and a modern
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	(OCFL, BagIt, OAIS/PREMIS) plus a portable dark-archive export that reconstructs a browsable collection with no server or database.
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	(Symfony) installation, over the same AtoM database. Your original AtoM stays intact and fully functional, and the overlay is
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	, with no museum, DAM, or records-management requirement.
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	- Heratio's
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	- the pure
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	- we will review your AtoM instance, map the migration, and show you the result in Heratio, with no obligation.
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	. AtoM runs on Symfony 1.4, a framework that reached end-of-life in 2012; Heratio is built on Laravel 12 and PHP 8.3, which keeps security patching, hiring, and extension realistic for the next decade.
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	. We will review your current AtoM instance, plan the migration (EAD/CSV import, authority and repository records, digital objects), and show you your collection running in Heratio - with no obligation.
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	66 locale scaffolds; English and Afrikaans complete, others in progress
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	: museum collections (with structured object-lifecycle procedures), digital assets with IIIF deep-zoom and 3D, and records management, on one platform and data model instead of several integrated products.
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	: remove it and you are back to stock AtoM. So an existing AtoM site can add Heratio's modern capabilities - Records in Contexts, digital asset management, museum collections workflows, AI-assisted description, and digital preservation - with
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	AtoM (Access to Memory) is one of the most widely used open-source archival description systems in the world. Heratio is a newer, Laravel-based platform that covers the same archival ground and extends it to museum collections, digital asset management, digital preservation, and Records in Contexts. This page compares the two honestly, including where AtoM remains the better choice.
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	Both are open source under AGPL-3.0 and both are self-hostable, so licensing cost is not a point of difference. The real differences are the technology stack, the breadth of functionality, and how actively each is evolving. And, importantly, adopting Heratio need not mean leaving AtoM at all - see the two deployment editions below.
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	Heratio covers the same archival description standards (ISAD(G), ISAAR(CPF), ISDIAH) and adds museum, DAM, preservation, and RiC capabilities. It is a modern alternative rather than a code-compatible fork; migration tooling moves your data across.
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	Migration is only one path - the AtoM / Heratio overlay above lets you adopt Heratio with no migration at all. If you do choose to migrate to the standalone platform, Heratio imports native EAD 2002 and EAD3 finding aids directly (with a preview step before commit), alongside CSV and authority-record import. A typical migration preserves your ISAD(G) hierarchy, authority (ISAAR) and repository (ISDIAH) records, and digital object links, and can layer a RiC contextual view over the migrated data. Round-trip is safe across the core ISAD(G) fields (title, identifier, scope and content, extent and medium, archival history, acquisition, access and reproduction conditions, arrangement, appraisal).
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	Stack age and breadth. AtoM is built on Symfony 1.4 (end-of-life 2012) and focuses on archival description; Heratio is built on Laravel 12 and spans archives, museums, DAM, preservation, and records management, with native Records in Contexts.
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	Yes. The AtoM / Heratio overlay edition runs Heratio's Laravel modules alongside your existing AtoM (Symfony) installation, over the same database. The original AtoM stays fully functional and the overlay is fully reversible, so you can add Records in Contexts, DAM, museum and AI capabilities with no migration and no lock-in, and remove it cleanly if you choose. It is the lowest-risk way to evaluate Heratio on your live collection.
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	You can have both. Keep AtoM and add the AtoM / Heratio overlay reversibly, or move to the standalone Laravel platform. AtoM remains a strong standalone choice if you need its multilingual depth, native Archivematica integration, or very large community and your remit is archival description only. If you want a current stack, native RiC, and museum/DAM/preservation in one platform, Heratio is the stronger fit - and the overlay lets you get there without a leap.
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	alongside your existing AtoM
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	and want AtoM's native, first-party
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	archival description and access
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	as a working capability now, not a roadmap item. Heratio gives every major entity both a traditional archival view and a RiC contextual graph view over the same data, permissions, and identifiers.
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	current technology stack
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	deployment with mature, community-maintained translations across many locales today (Heratio's locale completeness is still catching up outside English and Afrikaans).
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	digital preservation built in
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	fully reversible
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	integration for digital preservation.
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	modules run
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	more than archives
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	multilingual
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	needing special collections, institutional archives, and research data managed together.
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	no data migration and no lock-in
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	platform on its own stack. Best for new deployments, or once you have migrated off AtoM. This is the edition compared in the table below.
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	research and reading-room portal
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	university
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	v1 and v2 (key auth, OpenAPI)
-packages/ahg-marketing/resources/views/compare/atom.blade.php	text	without bolting on separate tools.
-packages/ahg-marketing/resources/views/layout.blade.php	text	, with software by
-packages/ahg-marketing/resources/views/layout.blade.php	text	. &copy; {{…}} Plain Sailing Information Systems.
-packages/ahg-marketing/resources/views/layout.blade.php	text	. Records in Contexts ecosystem:
-packages/ahg-marketing/resources/views/migration-assessment.blade.php	text	(optional)
-packages/ahg-marketing/resources/views/migration-assessment.blade.php	text	(optional)
-packages/ahg-marketing/resources/views/migration-assessment.blade.php	text	(optional)
-packages/ahg-marketing/resources/views/migration-assessment.blade.php	text	(required)
-packages/ahg-marketing/resources/views/migration-assessment.blade.php	text	(required)
-packages/ahg-marketing/resources/views/migration-assessment.blade.php	text	(required)
 packages/ahg-media-processing/resources/views/index.blade.php	text	{{…}} masters missing references
 packages/ahg-media-processing/resources/views/index.blade.php	text	{{…}} masters missing thumbnails
 packages/ahg-media-processing/resources/views/index.blade.php	text	{{…}} shown
