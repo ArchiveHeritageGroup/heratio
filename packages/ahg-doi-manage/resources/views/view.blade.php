@@ -197,7 +197,7 @@
             <ul class="list-unstyled mb-0">
               <li class="mb-2">
                 <a href="https://doi.org/{{ $doi->doi }}" target="_blank">
-                  <i class="fas fa-external-link-alt me-1"></i> doi.org landing page
+                  <i class="fas fa-external-link-alt me-1"></i> {{ __('doi.org landing page') }}
                 </a>
               </li>
               <li class="mb-2">

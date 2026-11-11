@@ -7,8 +7,8 @@
   @if(!($tablesExist ?? false))
     <div class="alert alert-warning">
       <i class="fas fa-exclamation-triangle me-2"></i>
-      The DOI management tables (<code>ahg_doi</code>, <code>ahg_doi_queue</code>, <code>ahg_doi_log</code>) have not been created yet.
-      Please run the database migration to set up DOI management.
+      {{ __('The DOI management tables') }} (<code>ahg_doi</code>, <code>ahg_doi_queue</code>, <code>ahg_doi_log</code>) {{ __('have not been created yet.') }}
+      {{ __('Please run the database migration to set up DOI management.') }}
     </div>
   @else
     {{-- Header --}}

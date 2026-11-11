@@ -572,17 +572,6 @@ packages/ahg-discovery/resources/views/pageindex.blade.php	text	indexed record(s
 packages/ahg-discovery/resources/views/pageindex.blade.php	text	matching node(s) across
 packages/ahg-discovery/resources/views/pageindex.blade.php	text	{{…}} match(es)
 packages/ahg-discovery/src/Controllers/DiscoveryController.php	flash	Object ID is required.
-packages/ahg-doi-manage/resources/views/batch-mint.blade.php	text	Findable = publicly discoverable, Registered = resolvable but not indexed, Draft = not yet active
-packages/ahg-doi-manage/resources/views/batch-mint.blade.php	text	Showing up to 100 records. Use CLI for larger batches:
-packages/ahg-doi-manage/resources/views/config.blade.php	text	Available placeholders: {repository_code}, {year}, {month}, {object_id}, {slug}, {identifier}
-packages/ahg-doi-manage/resources/views/config.blade.php	text	Production (https://api.datacite.org)
-packages/ahg-doi-manage/resources/views/config.blade.php	text	Test (https://api.test.datacite.org)
-packages/ahg-doi-manage/resources/views/index.blade.php	text	The DOI management tables (, , ) have not been created yet. Please run the database migration to set up DOI management.
-packages/ahg-doi-manage/resources/views/queue.blade.php	text	The DOI queue table () has not been created yet. Please run the database migration to set up DOI management.
-packages/ahg-doi-manage/resources/views/view.blade.php	text	doi.org landing page
-packages/ahg-doi-manage/src/Controllers/DoiController.php	flash	DOI configuration saved.
-packages/ahg-doi-manage/src/Controllers/DoiController.php	flash	Settings table does not exist.
-packages/ahg-doi-manage/src/Controllers/DoiController.php	flash	{$queued} record(s) queued for DOI minting ({$state}).
 packages/ahg-donor-manage/resources/views/agreement-edit.blade.php	text	Edit Agreement: {{…}}
 packages/ahg-donor-manage/resources/views/show.blade.php	text	Archival description area
 packages/ahg-donor-manage/resources/views/show.blade.php	text	Basic info
