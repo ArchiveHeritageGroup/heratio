@@ -408,7 +408,7 @@ class GalleryController extends Controller
 
         return redirect()
             ->route('gallery.show', $slug)
-            ->with('success', 'Gallery artwork created successfully.');
+            ->with('success', __('Gallery artwork created successfully.'));
     }
 
     /**
@@ -475,7 +475,7 @@ class GalleryController extends Controller
 
         return redirect()
             ->route('gallery.show', $slug)
-            ->with('success', 'Gallery artwork updated successfully.');
+            ->with('success', __('Gallery artwork updated successfully.'));
     }
 
     /**
@@ -487,7 +487,7 @@ class GalleryController extends Controller
 
         return redirect()
             ->route('gallery.browse')
-            ->with('success', 'Gallery artwork deleted successfully.');
+            ->with('success', __('Gallery artwork deleted successfully.'));
     }
 
     /**
@@ -582,7 +582,7 @@ class GalleryController extends Controller
             $newId = DB::table('gallery_loan')->insertGetId($loanData);
             \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'gallery_loan', $loanData);
         }
-        return redirect()->route('gallery.loans')->with('success', 'Loan created.');
+        return redirect()->route('gallery.loans')->with('success', __('Loan created.'));
     }
 
     /** Valuations list. */
@@ -608,7 +608,7 @@ class GalleryController extends Controller
             $newId = DB::table('gallery_valuation')->insertGetId($valuationData);
             \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'gallery_valuation', $valuationData);
         }
-        return redirect()->route('gallery.valuations')->with('success', 'Valuation created.');
+        return redirect()->route('gallery.valuations')->with('success', __('Valuation created.'));
     }
 
     /** Venues list. */
@@ -634,7 +634,7 @@ class GalleryController extends Controller
             $newId = DB::table('gallery_venue')->insertGetId($venueData);
             \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'gallery_venue', $venueData);
         }
-        return redirect()->route('gallery.venues')->with('success', 'Venue created.');
+        return redirect()->route('gallery.venues')->with('success', __('Venue created.'));
     }
 
     /** Facility Report. */
@@ -732,6 +732,6 @@ class GalleryController extends Controller
 
         return redirect()
             ->route('gallery.artists.show', $id)
-            ->with('success', 'Gallery artist created successfully.');
+            ->with('success', __('Gallery artist created successfully.'));
     }
 }

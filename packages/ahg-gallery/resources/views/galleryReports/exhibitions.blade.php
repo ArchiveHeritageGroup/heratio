@@ -33,7 +33,7 @@
 @endsection
 
 @section('content')
-<div class="alert alert-info"><strong>{{ count($items) }}</strong> exhibitions found</div>
+<div class="alert alert-info"><strong>{{ count($items) }}</strong> {{ __('exhibitions found') }}</div>
 
 <div class="table-responsive">
   <table class="table table-striped table-hover">

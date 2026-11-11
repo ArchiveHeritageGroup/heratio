@@ -844,29 +844,6 @@ packages/ahg-function-manage/resources/views/show.blade.php	text	Relationships a
 packages/ahg-function-manage/src/Controllers/FunctionController.php	flash	Function created successfully.
 packages/ahg-function-manage/src/Controllers/FunctionController.php	flash	Function deleted successfully.
 packages/ahg-function-manage/src/Controllers/FunctionController.php	flash	Function updated successfully.
-packages/ahg-gallery/resources/views/gallery/artist-create.blade.php	text	-- Select --
-packages/ahg-gallery/resources/views/gallery/artist-create.blade.php	text	The artist's Instagram handle (e.g. "
-packages/ahg-gallery/resources/views/gallery/artist-create.blade.php	text	The artist's personal website URL (e.g. "https://www.artistname.com").
-packages/ahg-gallery/resources/views/gallery/artist-show.blade.php	text	Artworks ({{…}})
-packages/ahg-gallery/resources/views/gallery/artist-show.blade.php	text	Created: {{…}}
-packages/ahg-gallery/resources/views/gallery/artist-show.blade.php	text	Updated: {{…}}
-packages/ahg-gallery/resources/views/gallery/create-artist.blade.php	text	-- Select --
-packages/ahg-gallery/resources/views/gallery/create-artist.blade.php	text	The artist's Instagram handle (e.g. "
-packages/ahg-gallery/resources/views/gallery/create-artist.blade.php	text	The artist's personal website URL (e.g. "https://www.artistname.com").
-packages/ahg-gallery/resources/views/gallery/facility-report.blade.php	text	24hr Security
-packages/ahg-gallery/resources/views/galleryReports/exhibitions.blade.php	text	exhibitions found
-packages/ahg-gallery/resources/views/galleryReports/facility-reports.blade.php	text	facility reports found
-packages/ahg-gallery/resources/views/galleryReports/index.blade.php	text	{{…}} pending requests
-packages/ahg-gallery/resources/views/galleryReports/loans.blade.php	text	loans found
-packages/ahg-gallery/resources/views/galleryReports/spaces.blade.php	text	spaces found
-packages/ahg-gallery/resources/views/galleryReports/valuations.blade.php	text	valuations found
-packages/ahg-gallery/src/Controllers/GalleryController.php	flash	Gallery artist created successfully.
-packages/ahg-gallery/src/Controllers/GalleryController.php	flash	Gallery artwork created successfully.
-packages/ahg-gallery/src/Controllers/GalleryController.php	flash	Gallery artwork deleted successfully.
-packages/ahg-gallery/src/Controllers/GalleryController.php	flash	Gallery artwork updated successfully.
-packages/ahg-gallery/src/Controllers/GalleryController.php	flash	Loan created.
-packages/ahg-gallery/src/Controllers/GalleryController.php	flash	Valuation created.
-packages/ahg-gallery/src/Controllers/GalleryController.php	flash	Venue created.
 packages/ahg-graphql/resources/views/playground.blade.php	text	{ informationObjects(limit: 10, offset: 0) { id identifier title slug } }
 packages/ahg-help/resources/views/article.blade.php	text	Back to {{…}}
 packages/ahg-help/resources/views/article.blade.php	text	{{…}} words

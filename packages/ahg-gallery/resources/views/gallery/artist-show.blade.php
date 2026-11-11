@@ -156,7 +156,7 @@
       {{-- Artworks by this artist --}}
       @if(isset($artist->artworks) && $artist->artworks->isNotEmpty())
         <section class="mb-4">
-          <h2 class="fs-5 border-bottom pb-2">Artworks ({{ $artist->artworks->count() }})</h2>
+          <h2 class="fs-5 border-bottom pb-2">{{ __('Artworks (:value1)', ['value1' => $artist->artworks->count()]) }}</h2>
           <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
             @foreach($artist->artworks as $aw)
               <div class="col">
@@ -265,10 +265,10 @@
             {{ $artist->is_active ? 'Active' : 'Inactive' }}
           </span>
           @if($artist->created_at)
-            <small class="text-muted d-block mt-1">Created: {{ \Carbon\Carbon::parse($artist->created_at)->format('Y-m-d') }}</small>
+            <small class="text-muted d-block mt-1">{{ __('Created: :value1', ['value1' => \Carbon\Carbon::parse($artist->created_at)->format('Y-m-d')]) }}</small>
           @endif
           @if($artist->updated_at)
-            <small class="text-muted d-block">Updated: {{ \Carbon\Carbon::parse($artist->updated_at)->format('Y-m-d') }}</small>
+            <small class="text-muted d-block">{{ __('Updated: :value1', ['value1' => \Carbon\Carbon::parse($artist->updated_at)->format('Y-m-d')]) }}</small>
           @endif
         </div>
       </div>

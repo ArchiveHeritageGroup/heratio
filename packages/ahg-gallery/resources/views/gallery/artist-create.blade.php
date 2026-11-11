@@ -124,7 +124,7 @@
       <div class="mb-3">
         <label for="artist_type" class="form-label">{{ __('Artist type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <select class="form-select" id="artist_type" name="artist_type">
-          <option value="">-- Select --</option>
+          <option value="">{{ __('-- Select --') }}</option>
           @foreach($artistTypes as $at)
             <option value="{{ $at }}" @selected(old('artist_type') == $at)>{{ $at }}</option>
           @endforeach
@@ -207,7 +207,7 @@
         <label for="website" class="form-label">{{ __('Website') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="text" class="form-control" id="website" name="website"
                value="{{ old('website') }}">
-        <div class="form-text text-muted small">The artist's personal website URL (e.g. "https://www.artistname.com").</div>
+        <div class="form-text text-muted small">{{ __('The artist\'s personal website URL (e.g. "https://www.artistname.com").') }}</div>
       </div>
 
       <div class="mb-3">
@@ -228,7 +228,7 @@
             <label for="instagram" class="form-label">{{ __('Instagram') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <input type="text" class="form-control" id="instagram" name="instagram"
                    value="{{ old('instagram') }}" placeholder="{{ __('@handle') }}">
-            <div class="form-text text-muted small">The artist's Instagram handle (e.g. "@artistname").</div>
+            <div class="form-text text-muted small">{{ __('The artist\'s Instagram handle (e.g. "') }}@artistname").</div>
           </div>
         </div>
         <div class="col-md-4">
