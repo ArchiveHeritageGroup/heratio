@@ -211,7 +211,7 @@
       <form method="post" action="{{ route('favorites.bulk') }}" id="bulkForm">
         @csrf
         <div class="d-flex gap-2 align-items-center flex-wrap">
-          <span id="selectedCount" class="text-muted small me-2">0 selected</span>
+          <span id="selectedCount" class="text-muted small me-2" data-count-template="{{ __(':count selected') }}">{{ __(':count selected', ['count' => 0]) }}</span>
           <button type="submit" name="action" value="remove" class="btn btn-sm atom-btn-outline-danger"
                   onclick="return confirm('Remove selected favorites?');">
             <i class="fas fa-trash me-1"></i>{{ __('Remove Selected') }}
@@ -289,9 +289,9 @@
       <div class="alert alert-info">
         <i class="fas fa-info-circle me-2"></i>
         @if(!empty($params['query']))
-          No favorites match your search.
+          {{ __('No favorites match your search.') }}
         @else
-          You have no favorites yet. Browse the archive and click the heart icon to add items.
+          {{ __('You have no favorites yet. Browse the archive and click the heart icon to add items.') }}
         @endif
       </div>
     @elseif(($params['view'] ?? 'table') === 'grid')
@@ -511,7 +511,7 @@
           </div>
         </div>
         @if($activeFolder->share_expires_at)
-          <p class="text-muted small">Expires: {{ $activeFolder->share_expires_at }}</p>
+          <p class="text-muted small">{{ __('Expires: :date', ['date' => $activeFolder->share_expires_at]) }}</p>
         @endif
       </div>
       <div class="modal-footer">
@@ -555,7 +555,7 @@
 
         if (checked.length > 0) {
             bar.style.display = 'block';
-            countEl.textContent = checked.length + ' selected';
+            countEl.textContent = countEl.dataset.countTemplate.replace(':count', checked.length);
             container.innerHTML = '';
             checked.forEach(function(cb) {
                 var input = document.createElement('input');

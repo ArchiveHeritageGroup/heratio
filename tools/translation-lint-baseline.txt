@@ -766,25 +766,6 @@ packages/ahg-extended-rights/src/Controllers/RightsController.php	flash	Embargo 
 packages/ahg-extended-rights/src/Controllers/RightsController.php	flash	Rights record deleted.
 packages/ahg-extended-rights/src/Controllers/RightsController.php	flash	Rights record saved.
 packages/ahg-extended-rights/src/Controllers/RightsController.php	flash	TK Label assigned.
-packages/ahg-favorites/resources/views/browse.blade.php	text	0 selected
-packages/ahg-favorites/resources/views/browse.blade.php	text	Expires: {{…}}
-packages/ahg-favorites/resources/views/browse.blade.php	text	No favorites match your search.
-packages/ahg-favorites/resources/views/browse.blade.php	text	You have no favorites yet. Browse the archive and click the heart icon to add items.
-packages/ahg-favorites/resources/views/shared.blade.php	text	to save these to your favorites.
-packages/ahg-favorites/src/Controllers/FavoritesController.php	flash	Added to favorites.
-packages/ahg-favorites/src/Controllers/FavoritesController.php	flash	Already in favorites.
-packages/ahg-favorites/src/Controllers/FavoritesController.php	flash	Cleared {$count} favorites.
-packages/ahg-favorites/src/Controllers/FavoritesController.php	flash	Could not share folder.
-packages/ahg-favorites/src/Controllers/FavoritesController.php	flash	Folder created.
-packages/ahg-favorites/src/Controllers/FavoritesController.php	flash	Folder deleted. Items moved to unfiled.
-packages/ahg-favorites/src/Controllers/FavoritesController.php	flash	Folder updated.
-packages/ahg-favorites/src/Controllers/FavoritesController.php	flash	Imported {$count} items.
-packages/ahg-favorites/src/Controllers/FavoritesController.php	flash	Item not found.
-packages/ahg-favorites/src/Controllers/FavoritesController.php	flash	No items selected.
-packages/ahg-favorites/src/Controllers/FavoritesController.php	flash	Removed from favorites.
-packages/ahg-favorites/src/Controllers/FavoritesController.php	flash	Removed {$count} items.
-packages/ahg-favorites/src/Controllers/FavoritesController.php	flash	Share link:
-packages/ahg-favorites/src/Controllers/FavoritesController.php	flash	Sharing revoked.
 packages/ahg-federation/resources/views/edit-peer.blade.php	text	oai_dc (Dublin Core)
 packages/ahg-federation/resources/views/edit-peer.blade.php	text	oai_eac (EAC-CPF)
 packages/ahg-federation/resources/views/edit-peer.blade.php	text	oai_ead (EAD)
