@@ -176,13 +176,13 @@ class JobController extends Controller
         $job = DB::table('job')->where('id', $id)->first();
 
         if (! $job || ! in_array($job->status_id, [184, 185])) {
-            return redirect()->route('job.browse')->with('error', 'Only completed or failed jobs can be deleted.');
+            return redirect()->route('job.browse')->with('error', __('Only completed or failed jobs can be deleted.'));
         }
 
         DB::table('job')->where('id', $id)->delete();
         DB::table('object')->where('id', $id)->delete();
 
-        return redirect()->route('job.browse')->with('success', 'Job deleted successfully.');
+        return redirect()->route('job.browse')->with('success', __('Job deleted successfully.'));
     }
 
     public function clearInactive()
