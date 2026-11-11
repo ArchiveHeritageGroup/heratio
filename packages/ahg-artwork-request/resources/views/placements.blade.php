@@ -35,7 +35,7 @@
                 @if($p->department)<span class="text-muted d-block">{{ $p->department }}</span>@endif</td>
               <td class="small">{{ trim(($p->placement_building ?? '').' '.($p->placement_room ?? '')) ?: '-' }}</td>
               <td>{{ $p->requested_to ?: '-' }}
-                @if($overdue)<span class="badge bg-danger ms-1">overdue</span>@endif</td>
+                @if($overdue)<span class="badge bg-danger ms-1">{{ __('overdue') }}</span>@endif</td>
               <td><span class="badge bg-secondary">{{ $p->status }}</span></td>
             </tr>
           @endforeach

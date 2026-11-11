@@ -315,18 +315,6 @@ packages/ahg-articles/src/Controllers/Admin/BlogAdminController.php	flash	Could 
 packages/ahg-articles/src/Controllers/Admin/BlogAdminController.php	flash	Link added.
 packages/ahg-articles/src/Controllers/Admin/BlogAdminController.php	flash	Link removed.
 packages/ahg-articles/src/Controllers/Admin/BlogAdminController.php	flash	Order saved.
-packages/ahg-artwork-request/resources/views/placements.blade.php	text	overdue
-packages/ahg-artwork-request/resources/views/request.blade.php	text	no such record
-packages/ahg-artwork-request/resources/views/view.blade.php	text	decided offline
-packages/ahg-artwork-request/src/Controllers/ArtworkRequestController.php	flash	Approver added.
-packages/ahg-artwork-request/src/Controllers/ArtworkRequestController.php	flash	Approver disabled.
-packages/ahg-artwork-request/src/Controllers/ArtworkRequestController.php	flash	Approver enabled.
-packages/ahg-artwork-request/src/Controllers/ArtworkRequestController.php	flash	Approver removed.
-packages/ahg-artwork-request/src/Controllers/ArtworkRequestController.php	flash	Decision recorded and the requester notified.
-packages/ahg-artwork-request/src/Controllers/ArtworkRequestController.php	flash	Loan record created. Condition reports and movement are tracked there.
-packages/ahg-artwork-request/src/Controllers/ArtworkRequestController.php	flash	No loan record was created - ahg-loan may not be installed, nothing on this request is approved, or a loan already exists.
-packages/ahg-artwork-request/src/Controllers/ArtworkRequestController.php	flash	Notification setting saved.
-packages/ahg-artwork-request/src/Controllers/ArtworkRequestController.php	flash	Request submitted. The gallery has been notified.
 packages/ahg-audit-trail/resources/views/show.blade.php	text	Audit entry #{{…}}
 packages/ahg-audit-trail/resources/views/statistics.blade.php	text	30 days
 packages/ahg-audit-trail/resources/views/statistics.blade.php	text	7 days

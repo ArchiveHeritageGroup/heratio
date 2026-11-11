@@ -16,7 +16,7 @@
     <div>
       <h1 class="h3 mb-1">{{ $requestRow->request_number }}</h1>
       <span class="badge bg-{{ in_array($requestRow->status, ['approved','fulfilled']) ? 'success' : ($requestRow->status === 'declined' ? 'danger' : 'secondary') }}">{{ $requestRow->status }}</span>
-      @if($requestRow->decision_channel === 'offline')<span class="badge bg-info text-dark">decided offline</span>@endif
+      @if($requestRow->decision_channel === 'offline')<span class="badge bg-info text-dark">{{ __('decided offline') }}</span>@endif
     </div>
     <div class="d-flex gap-2">
       <a href="{{ route('artwork-request.index') }}" class="btn btn-outline-secondary btn-sm">{{ __('My requests') }}</a>

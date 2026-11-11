@@ -40,7 +40,7 @@
                 @foreach($works as $w)
                   <li class="list-group-item d-flex justify-content-between align-items-start" data-object-id="{{ $w->id }}">
                     <div>
-                      <div>{{ $w->title ?: '(untitled)' }} @if(!$w->exists)<span class="badge bg-danger">no such record</span>@endif</div>
+                      <div>{{ $w->title ?: '(untitled)' }} @if(!$w->exists)<span class="badge bg-danger">{{ __('no such record') }}</span>@endif</div>
                       <div class="small text-muted">#{{ $w->id }} {{ $w->identifier ? '· '.$w->identifier : '' }}</div>
                     </div>
                     <span class="availability small text-muted">&nbsp;</span>
