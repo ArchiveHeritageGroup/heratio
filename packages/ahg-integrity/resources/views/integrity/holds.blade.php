@@ -84,7 +84,7 @@
                 <form method="post" action="{{ route('integrity.holds.release', ['id' => $hold->id]) }}">
                   @csrf
                   <div class="modal-content">
-                    <div class="modal-header"><h5 class="modal-title">Release Hold #{{ $hold->id }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                    <div class="modal-header"><h5 class="modal-title">{{ __('Release Hold #:id', ['id' => $hold->id]) }}</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
                     <div class="modal-body">
                       <div class="mb-3">
                         <label class="form-label">{{ __('Release Reason') }}</label>

@@ -38,9 +38,9 @@
           <td><a href="{{ url('/informationobject/show/' . $rec->information_object_id) }}">#{{ $rec->information_object_id }}</a></td>
           <td>{{ $rec->io_title ?? '-' }}</td>
           <td>{{ \Illuminate\Support\Str::limit($rec->reason, 50) }}</td>
-          <td>{{ $rec->review_cycle_days }} days</td>
+          <td>{{ __(':count days', ['count' => $rec->review_cycle_days]) }}</td>
           <td><span class="badge bg-danger">{{ $rec->next_review_date }}</span></td>
-          <td><strong class="text-danger">{{ $daysOverdue }} days</strong></td>
+          <td><strong class="text-danger">{{ __(':count days', ['count' => $daysOverdue]) }}</strong></td>
           <td>{{ $rec->last_reviewed_at ?? 'Never' }}</td>
           <td>
             <form method="POST" action="{{ route('integrity.vital-records.review', $rec->id) }}">

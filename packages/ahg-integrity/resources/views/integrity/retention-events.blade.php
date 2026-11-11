@@ -30,14 +30,14 @@
           <div class="mb-3">
             <label for="event_type" class="form-label">{{ __('Event Type') }}</label>
             <select class="form-select" id="event_type" name="event_type" required>
-              <option value="">-- Select or type --</option>
+              <option value="">{{ __('-- Select or type --') }}</option>
               @foreach($eventTypes as $type)
               <option value="{{ $type }}">{{ $type }}</option>
               @endforeach
-              <option value="case_closed">case_closed</option>
-              <option value="retention_review">retention_review</option>
-              <option value="disposal_approved">disposal_approved</option>
-              <option value="transfer_complete">transfer_complete</option>
+              <option value="{{ __('Case closed') }}">{{ __('Case closed') }}</option>
+              <option value="{{ __('Retention review') }}">{{ __('Retention review') }}</option>
+              <option value="{{ __('Disposal approved') }}">{{ __('Disposal approved') }}</option>
+              <option value="{{ __('Transfer complete') }}">{{ __('Transfer complete') }}</option>
             </select>
           </div>
           <div class="mb-3">
@@ -60,7 +60,7 @@
             @foreach($policies as $p)
             <tr>
               <td>{{ $p->name }}</td>
-              <td>{{ $p->retention_period_days }} days</td>
+              <td>{{ __(':count days', ['count' => $p->retention_period_days]) }}</td>
               <td><span class="badge bg-info">{{ $p->trigger_type }}</span></td>
               <td>{!! $p->is_enabled ? '<span class="badge bg-success">' . e(__('Yes')) . '</span>' : '<span class="badge bg-secondary">' . e(__('No')) . '</span>' !!}</td>
             </tr>

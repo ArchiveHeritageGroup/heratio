@@ -1063,38 +1063,6 @@ packages/ahg-ingest/src/Controllers/IngestController.php	flash	Could not resolve
 packages/ahg-ingest/src/Controllers/IngestController.php	flash	Ingest session cancelled.
 packages/ahg-ingest/src/Controllers/IngestController.php	flash	Ingest session deleted.
 packages/ahg-ingest/src/Controllers/IngestController.php	flash	Invalid action.
-packages/ahg-integrity/resources/views/index.blade.php	text	Dead Letters
-packages/ahg-integrity/resources/views/index.blade.php	text	The integrity check system has not been set up yet. The required database tables (, ) do not exist. Please run the integrity module migration to enable this feature.
-packages/ahg-integrity/resources/views/integrity/certificate-generate.blade.php	text	-- Select method --
-packages/ahg-integrity/resources/views/integrity/certificate-generate.blade.php	text	Disposition Queue #{{…}}
-packages/ahg-integrity/resources/views/integrity/holds.blade.php	text	Release Hold #{{…}}
-packages/ahg-integrity/resources/views/integrity/retention-events.blade.php	text	-- Select or type --
-packages/ahg-integrity/resources/views/integrity/retention-events.blade.php	text	case_closed
-packages/ahg-integrity/resources/views/integrity/retention-events.blade.php	text	disposal_approved
-packages/ahg-integrity/resources/views/integrity/retention-events.blade.php	text	retention_review
-packages/ahg-integrity/resources/views/integrity/retention-events.blade.php	text	transfer_complete
-packages/ahg-integrity/resources/views/integrity/retention-events.blade.php	text	{{…}} days
-packages/ahg-integrity/resources/views/integrity/vital-records-overdue.blade.php	text	{{…}} days
-packages/ahg-integrity/resources/views/integrity/vital-records-overdue.blade.php	text	{{…}} days
-packages/ahg-integrity/resources/views/integrity/vital-records.blade.php	text	-- All Repositories --
-packages/ahg-integrity/resources/views/integrity/vital-records.blade.php	text	{{…}} days
-packages/ahg-integrity/src/Controllers/IntegrityController.php	flash	Could not approve declaration. It may not be in pending state.
-packages/ahg-integrity/src/Controllers/IntegrityController.php	flash	Could not mark vital record as reviewed.
-packages/ahg-integrity/src/Controllers/IntegrityController.php	flash	Could not release hold #
-packages/ahg-integrity/src/Controllers/IntegrityController.php	flash	Could not submit record declaration. Table may not exist.
-packages/ahg-integrity/src/Controllers/IntegrityController.php	flash	Destruction certificate
-packages/ahg-integrity/src/Controllers/IntegrityController.php	flash	Information object #
-packages/ahg-integrity/src/Controllers/IntegrityController.php	flash	Information object #
-packages/ahg-integrity/src/Controllers/IntegrityController.php	flash	Information object flagged as vital record.
-packages/ahg-integrity/src/Controllers/IntegrityController.php	flash	Legal hold #
-packages/ahg-integrity/src/Controllers/IntegrityController.php	flash	Legal hold #
-packages/ahg-integrity/src/Controllers/IntegrityController.php	flash	Policy updated.
-packages/ahg-integrity/src/Controllers/IntegrityController.php	flash	Record declaration approved.
-packages/ahg-integrity/src/Controllers/IntegrityController.php	flash	Record declaration submitted for approval.
-packages/ahg-integrity/src/Controllers/IntegrityController.php	flash	Retention event recorded.
-packages/ahg-integrity/src/Controllers/IntegrityController.php	flash	Schedule updated.
-packages/ahg-integrity/src/Controllers/IntegrityController.php	flash	Vital record flag removed.
-packages/ahg-integrity/src/Controllers/IntegrityController.php	flash	Vital record marked as reviewed.
 packages/ahg-ipsas/resources/views/financial-year.blade.php	text	Financial Year Summary {{…}}
 packages/ahg-ipsas/resources/views/financial-year.blade.php	text	Financial Year {{…}}
 packages/ahg-ipsas/resources/views/index.blade.php	text	Fair value revaluations every {{…}} years

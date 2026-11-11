@@ -17,7 +17,7 @@
   <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Certificate Details') }}</h5></div>
   <div class="card-body">
     <div class="alert alert-info">
-      <strong>Disposition Queue #{{ $disposition->id }}</strong><br>
+      <strong>{{ __('Disposition Queue #:id', ['id' => $disposition->id]) }}</strong><br>
       {{ __('Information Object:') }} <strong>{{ $ioTitle }}</strong> (ID: {{ $disposition->information_object_id }})<br>
       {{ __('Status:') }} <span class="badge bg-secondary">{{ ucfirst($disposition->status) }}</span>
     </div>
@@ -37,7 +37,7 @@
       <div class="mb-3">
         <label for="destruction_method" class="form-label">{{ __('Method of Destruction') }}</label>
         <select name="destruction_method" id="destruction_method" class="form-select" required>
-          <option value="">-- Select method --</option>
+          <option value="">{{ __('-- Select method --') }}</option>
           <option value="secure_delete" {{ old('destruction_method') === 'secure_delete' ? 'selected' : '' }}>{{ __('Secure Delete (Digital)') }}</option>
           <option value="overwrite" {{ old('destruction_method') === 'overwrite' ? 'selected' : '' }}>{{ __('Overwrite (Digital)') }}</option>
           <option value="degaussing" {{ old('destruction_method') === 'degaussing' ? 'selected' : '' }}>{{ __('Degaussing') }}</option>
