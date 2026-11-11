@@ -47,8 +47,7 @@
 
 <p>
   <a href="{{ url('/admin/backup') }}">{{ __('Open the backup dashboard') }}</a>,
-  or check the Laravel queue logs / <code>storage/logs/laravel.log</code> for the
-  full stack trace.
+  {{ __('or check the Laravel queue logs /') }} <code>storage/logs/laravel.log</code> {{ __('for the full stack trace.') }}
 </p>
 
 <p>{{ __('Thanks,') }}<br>{{ config('app.name', 'Heratio') }}</p>

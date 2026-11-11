@@ -14,7 +14,7 @@
 <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="{{ url('/admin') }}">{{ __('Admin') }}</a></li>
-    <li class="breadcrumb-item"><a href="{{ route('backup.index') }}">Backup &amp; Restore</a></li>
+    <li class="breadcrumb-item"><a href="{{ route('backup.index') }}">{{ __('Backup & Restore') }}</a></li>
     <li class="breadcrumb-item active" aria-current="page">{{ __('Restore') }}</li>
   </ol>
 </nav>
@@ -66,7 +66,7 @@
           <li><strong>{{ __('Backups:') }}</strong> {{ $backupCount ?? count($backups) }}</li>
           <li><strong>{{ __('Total Size:') }}</strong> {{ $totalSize ?? '' }}</li>
           <li><strong>{{ __('Max Backups:') }}</strong> {{ $maxBackups ?? '' }}</li>
-          <li><strong>{{ __('Retention:') }}</strong> {{ $retentionDays ?? '' }} days</li>
+          <li><strong>{{ __('Retention:') }}</strong> {{ __(':value1 days', ['value1' => $retentionDays ?? '']) }}</li>
         </ul>
       </div>
     </div>
@@ -102,8 +102,7 @@
               <li class="list-group-item py-2">
                 <strong>{{ $sched->name ?? 'Schedule' }}</strong>
                 <br><small class="text-muted">
-                  {{ ucfirst($sched->frequency ?? 'daily') }} @ {{ substr($sched->time ?? '02:00', 0, 5) }}
-                  · {{ (int) ($sched->retention_days ?? 30) }}d retention
+                  {{ __(':frequency @ :time · :daysd retention', ['frequency' => ucfirst($sched->frequency ?? 'daily'), 'time' => substr($sched->time ?? '02:00', 0, 5), 'days' => (int) ($sched->retention_days ?? 30)]) }}
                 </small>
               </li>
             @endforeach
@@ -128,7 +127,7 @@
     <div class="mb-3">
       <label for="backup-select" class="form-label">{{ __('Available Backups') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
       <select class="form-select" id="backup-select" onchange="onBackupSelected()">
-        <option value="">-- Select a backup --</option>
+        <option value="">{{ __('-- Select a backup --') }}</option>
         @foreach($backups as $backup)
           <option value="{{ $backup['id'] }}"
                   data-components="{{ implode(',', $backup['components']) }}"

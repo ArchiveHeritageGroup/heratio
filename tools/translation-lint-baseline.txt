@@ -348,28 +348,6 @@ packages/ahg-authority-resolution/resources/views/create-new.blade.php	text	Obje
 packages/ahg-authority-resolution/resources/views/review.blade.php	text	{{…}}: actor #{{…}}
 packages/ahg-authority-resolution/resources/views/settings.blade.php	text	geonames.org/login
 packages/ahg-authority-resolution/src/Http/Controllers/AuthorityReviewController.php	flash	Saved {$writes} lookup setting(s).
-packages/ahg-backup/resources/views/emails/backup-completed.blade.php	text	A Heratio backup run has completed
-packages/ahg-backup/resources/views/emails/backup-completed.blade.php	text	successfully
-packages/ahg-backup/resources/views/emails/backup-completed.blade.php	text	to review or download artefacts.
-packages/ahg-backup/resources/views/emails/backup-completed.blade.php	text	with warnings
-packages/ahg-backup/resources/views/emails/backup-failed.blade.php	text	, or check the Laravel queue logs / for the full stack trace.
-packages/ahg-backup/resources/views/index.blade.php	text	(Digital objects)
-packages/ahg-backup/resources/views/index.blade.php	text	(Required)
-packages/ahg-backup/resources/views/index.blade.php	text	(Required)
-packages/ahg-backup/resources/views/index.blade.php	text	(Required)
-packages/ahg-backup/resources/views/index.blade.php	text	- Day {{…}}
-packages/ahg-backup/resources/views/index.blade.php	text	@ {{…}} &middot; {{…}}d retention
-packages/ahg-backup/resources/views/index.blade.php	text	Cron:
-packages/ahg-backup/resources/views/index.blade.php	text	Last: {{…}}
-packages/ahg-backup/resources/views/index.blade.php	text	{{…}} days
-packages/ahg-backup/resources/views/restore.blade.php	text	-- Select a backup --
-packages/ahg-backup/resources/views/restore.blade.php	text	Backup &amp; Restore
-packages/ahg-backup/resources/views/restore.blade.php	text	{{…}} @ {{…}} · {{…}}d retention
-packages/ahg-backup/resources/views/restore.blade.php	text	{{…}} days
-packages/ahg-backup/resources/views/settings.blade.php	text	Email address to receive backup completion notifications. Leave blank to fall back to .
-packages/ahg-backup/resources/views/settings.blade.php	text	Workbench username for backup bell/toast notifications (drops a JSON file into ). Defaults to .
-packages/ahg-backup/src/Controllers/BackupController.php	flash	Backup path may not be inside a web-served directory (/uploads or public/).
-packages/ahg-backup/src/Controllers/BackupController.php	flash	Backup settings saved successfully.
 packages/ahg-biblio-bf/resources/views/agent.blade.php	text	&larr; Back
 packages/ahg-biblio-bf/resources/views/export.blade.php	text	&larr; Back
 packages/ahg-biblio-bf/resources/views/export.blade.php	text	- Select a work -

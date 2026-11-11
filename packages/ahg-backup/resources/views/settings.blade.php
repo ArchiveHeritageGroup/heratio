@@ -72,7 +72,7 @@
         <label for="backup_notification_email" class="form-label">{{ __('Notification Email') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="email" class="form-control @error('backup_notification_email') is-invalid @enderror" id="backup_notification_email" name="backup_notification_email"
                value="{{ old('backup_notification_email', $settings['backup_notification_email']) }}" placeholder="{{ __('admin@example.com') }}">
-        <div class="form-text">Email address to receive backup completion notifications. Leave blank to fall back to <code>config/mail.from.address</code>.</div>
+        <div class="form-text">{{ __('Email address to receive backup completion notifications. Leave blank to fall back to') }} <code>config/mail.from.address</code>.</div>
         @error('backup_notification_email')
           <div class="invalid-feedback">{{ $message }}</div>
         @enderror
@@ -82,7 +82,7 @@
         <label for="backup_notify_workbench_username" class="form-label">{{ __('Workbench Username') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="text" class="form-control @error('backup_notify_workbench_username') is-invalid @enderror" id="backup_notify_workbench_username" name="backup_notify_workbench_username"
                value="{{ old('backup_notify_workbench_username', $settings['backup_notify_workbench_username']) }}" placeholder="{{ __('admin') }}" maxlength="64">
-        <div class="form-text">Workbench username for backup bell/toast notifications (drops a JSON file into <code>/var/spool/workbench/notifications/</code>). Defaults to <code>admin</code>.</div>
+        <div class="form-text">{{ __('Workbench username for backup bell/toast notifications (drops a JSON file into') }} <code>/var/spool/workbench/notifications/</code>{{ __('). Defaults to') }} <code>admin</code>.</div>
         @error('backup_notify_workbench_username')
           <div class="invalid-feedback">{{ $message }}</div>
         @enderror
