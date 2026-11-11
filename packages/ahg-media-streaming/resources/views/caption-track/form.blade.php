@@ -135,7 +135,7 @@
             </div>
 
             <div class="text-center my-3">
-                <span class="text-muted">- or paste VTT content below -</span>
+                <span class="text-muted">{{ __('- or paste VTT content below -') }}</span>
             </div>
 
             {{-- VTT content --}}

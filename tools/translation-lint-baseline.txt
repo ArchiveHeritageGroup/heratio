@@ -1258,18 +1258,6 @@ packages/ahg-media-processing/src/Controllers/MediaProcessingController.php	flas
 packages/ahg-media-processing/src/Controllers/MediaProcessingController.php	flash	Media processing settings saved successfully.
 packages/ahg-media-processing/src/Controllers/MediaProcessingController.php	flash	Queue cleared.
 packages/ahg-media-processing/src/Controllers/MediaProcessingController.php	flash	Watermark settings saved successfully.
-packages/ahg-media-streaming/resources/views/caption-track/form.blade.php	text	- or paste VTT content below -
-packages/ahg-media-streaming/resources/views/caption-track/index.blade.php	text	- no tracks configured
-packages/ahg-media-streaming/resources/views/caption-track/index.blade.php	text	- {{…}} track(s) configured
-packages/ahg-media-streaming/resources/views/caption-track/index.blade.php	text	Add {{…}}
-packages/ahg-media-streaming/resources/views/caption-track/index.blade.php	text	Full transcription with audio cues; essential for accessibility compliance.
-packages/ahg-media-streaming/resources/views/caption-track/index.blade.php	text	VTT preview: {{…}}
-packages/ahg-media-streaming/src/Controllers/CaptionTrackController.php	flash	Caption track added successfully.
-packages/ahg-media-streaming/src/Controllers/CaptionTrackController.php	flash	Caption track deleted.
-packages/ahg-media-streaming/src/Controllers/CaptionTrackController.php	flash	Caption track updated successfully.
-packages/ahg-media-streaming/src/Controllers/CaptionTrackController.php	flash	Caption track {$stateLabel}.
-packages/ahg-media-streaming/src/Controllers/CaptionTrackController.php	flash	Failed to fetch remote VTT content. Check the URL and try again.
-packages/ahg-media-streaming/src/Controllers/CaptionTrackController.php	flash	Remote VTT content fetched and saved.
 packages/ahg-menu-manage/resources/views/show.blade.php	text	Children ({{…}})
 packages/ahg-menu-manage/resources/views/show.blade.php	text	N/A (root)
 packages/ahg-menu-manage/src/Controllers/MenuController.php	flash	Menu item created successfully.
