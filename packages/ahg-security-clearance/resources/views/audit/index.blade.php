@@ -11,7 +11,7 @@
   </ol></nav>
 
   <h1><i class="fas fa-list"></i> {{ __('Security Audit Log') }}</h1>
-  <p class="text-muted">{{ $total ?? 0 }} total entries</p>
+  <p class="text-muted">{{ __(':value1 total entries', ['value1' => $total ?? 0]) }}</p>
 
   {{-- Filters --}}
   <div class="card mb-4">

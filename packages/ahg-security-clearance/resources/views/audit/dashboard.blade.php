@@ -22,7 +22,7 @@
         </select>
       </div>
       <div class="col-md-4">
-        <small class="text-muted">Since: {{ $stats['since'] ?? '' }}</small>
+        <small class="text-muted">{{ __('Since: :value1', ['value1' => $stats['since'] ?? '']) }}</small>
       </div>
     </div>
   </form>

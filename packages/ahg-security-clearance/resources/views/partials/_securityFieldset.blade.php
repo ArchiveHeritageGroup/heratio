@@ -4,7 +4,7 @@
   <div class="accordion-item">
     <h2 class="accordion-header">
       <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#securityFieldsetBody">
-        <i class="fas fa-shield-alt me-2"></i> Security Classification
+        <i class="fas fa-shield-alt me-2"></i> {{ __('Security Classification') }}
         @if(!empty($currentClassification))
           <span class="badge ms-2" style="background-color: {{ $currentClassification->color ?? '#666' }}">{{ e($currentClassification->name ?? '') }}</span>
         @else
@@ -21,7 +21,7 @@
             @foreach($classifications ?? [] as $cl)
               <option value="{{ $cl->id }}" {{ ($currentClassification->id ?? 0) == $cl->id ? 'selected' : '' }}
                       style="color: {{ $cl->color ?? '#333' }}">
-                {{ e($cl->name) }} (Level {{ $cl->level }})
+                {{ __(':name (Level :level)', ['name' => $cl->name, 'level' => $cl->level]) }}
               </option>
             @endforeach
           </select>

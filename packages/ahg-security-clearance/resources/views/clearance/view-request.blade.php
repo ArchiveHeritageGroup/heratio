@@ -71,10 +71,10 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Duration') }}</label>
               <select name="duration" class="form-select">
-                <option value="24h">24 hours</option>
-                <option value="7d">7 days</option>
-                <option value="30d" selected>30 days</option>
-                <option value="90d">90 days</option>
+                <option value="24h">{{ __('24 hours') }}</option>
+                <option value="7d">{{ __('7 days') }}</option>
+                <option value="30d" selected>{{ __('30 days') }}</option>
+                <option value="90d">{{ __('90 days') }}</option>
                 <option value="permanent">{{ __('Permanent') }}</option>
               </select>
             </div>

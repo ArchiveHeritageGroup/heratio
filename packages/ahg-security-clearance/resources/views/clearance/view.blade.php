@@ -55,11 +55,11 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Classification Level') }}</label>
               <select name="classification_id" class="form-select" required>
-                <option value="0">- Revoke -</option>
+                <option value="0">{{ __('- Revoke -') }}</option>
                 @foreach($classifications ?? [] as $cl)
                   <option value="{{ $cl->id }}" {{ ($clearance->classification_id ?? 0) == $cl->id ? 'selected' : '' }}
                           style="color: {{ $cl->color ?? '#333' }}">
-                    {{ e($cl->name) }} (Level {{ $cl->level }})
+                    {{ __(':name (Level :level)', ['name' => $cl->name, 'level' => $cl->level]) }}
                   </option>
                 @endforeach
               </select>

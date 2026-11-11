@@ -6,11 +6,11 @@
   <i class="fas fa-{{ ($classification->level ?? 0) >= 4 ? 'exclamation-triangle' : 'info-circle' }} me-2 fa-lg"></i>
   <div>
     <strong>{{ e($classification->name ?? 'Classified') }}</strong>
-    - This record is classified.
+    {{ __('- This record is classified.') }}
     @if(!empty($classification->handling_instructions))
       {{ e($classification->handling_instructions) }}
     @else
-      Handle according to security policy.
+      {{ __('Handle according to security policy.') }}
     @endif
   </div>
 </div>

@@ -1817,37 +1817,6 @@ packages/ahg-search/resources/views/global-replace.blade.php	text	record(s). Thi
 packages/ahg-search/resources/views/search.blade.php	text	No results matched your search. Try different keywords or broaden your search terms.
 packages/ahg-search/resources/views/search.blade.php	text	to see more results.
 packages/ahg-search/src/Controllers/SearchController.php	flash	Successfully replaced {$updatedCount} record(s). Column: {$columns[$column]}.
-packages/ahg-security-clearance/resources/views/audit/dashboard.blade.php	text	Since: {{…}}
-packages/ahg-security-clearance/resources/views/audit/index.blade.php	text	{{…}} total entries
-packages/ahg-security-clearance/resources/views/clearance/classify.blade.php	text	Level {{…}}
-packages/ahg-security-clearance/resources/views/clearance/declassification.blade.php	text	{{…}} (Level {{…}})
-packages/ahg-security-clearance/resources/views/clearance/index.blade.php	text	- Revoke -
-packages/ahg-security-clearance/resources/views/clearance/index.blade.php	text	{{…}} (Level {{…}})
-packages/ahg-security-clearance/resources/views/clearance/user.blade.php	text	{{…}} (Level {{…}})
-packages/ahg-security-clearance/resources/views/clearance/view-request.blade.php	text	24 hours
-packages/ahg-security-clearance/resources/views/clearance/view-request.blade.php	text	30 days
-packages/ahg-security-clearance/resources/views/clearance/view-request.blade.php	text	7 days
-packages/ahg-security-clearance/resources/views/clearance/view-request.blade.php	text	90 days
-packages/ahg-security-clearance/resources/views/clearance/view.blade.php	text	- Revoke -
-packages/ahg-security-clearance/resources/views/clearance/view.blade.php	text	{{…}} (Level {{…}})
-packages/ahg-security-clearance/resources/views/emails/af/otp-code.blade.php	heading	U verifikasie-kode
-packages/ahg-security-clearance/resources/views/emails/af/otp-code.blade.php	text	Bestemming:
-packages/ahg-security-clearance/resources/views/emails/af/otp-code.blade.php	text	Gebruik die kode hieronder om u aanmelding by {{…}} te voltooi:
-packages/ahg-security-clearance/resources/views/emails/af/otp-code.blade.php	text	Hallo,
-packages/ahg-security-clearance/resources/views/emails/af/otp-code.blade.php	text	Hierdie kode verval oor {{…}} minute. As u dit nie aangevra het nie, kan u hierdie boodskap veilig ignoreer - u rekening is steeds veilig.
-packages/ahg-security-clearance/resources/views/emails/en/otp-code.blade.php	text	This code expires in {{…}} minutes. If you did not request it, you can ignore this message - your account is still safe.
-packages/ahg-security-clearance/resources/views/emails/en/otp-code.blade.php	text	Use the code below to complete your sign-in to {{…}}:
-packages/ahg-security-clearance/resources/views/partials/_securityFieldset.blade.php	text	Security Classification
-packages/ahg-security-clearance/resources/views/partials/_securityFieldset.blade.php	text	{{…}} (Level {{…}})
-packages/ahg-security-clearance/resources/views/partials/_warningBanner.blade.php	text	- This record is classified.
-packages/ahg-security-clearance/resources/views/partials/_warningBanner.blade.php	text	Handle according to security policy.
-packages/ahg-security-clearance/src/Controllers/SecurityClearanceController.php	flash	Access request approved.
-packages/ahg-security-clearance/src/Controllers/SecurityClearanceController.php	flash	Access request denied.
-packages/ahg-security-clearance/src/Controllers/SecurityClearanceController.php	flash	Clearance granted to {$count} users.
-packages/ahg-security-clearance/src/Controllers/SecurityClearanceController.php	flash	Clearance revoked.
-packages/ahg-security-clearance/src/Controllers/SecurityClearanceController.php	flash	Clearance updated.
-packages/ahg-security-clearance/src/Controllers/SecurityClearanceController.php	flash	Object not found.
-packages/ahg-security-clearance/src/Controllers/SecurityClearanceController.php	flash	Watermark settings saved.
 packages/ahg-semantic-search/resources/views/admin-template-edit.blade.php	text	Example:
 packages/ahg-semantic-search/resources/views/emails/repatriation/registered.blade.php	text	and awaiting review. We will be in touch as the dialogue progresses, and you will receive an update whenever its status changes.
 packages/ahg-semantic-search/resources/views/emails/repatriation/registered.blade.php	text	registered

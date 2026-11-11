@@ -201,7 +201,7 @@ class SecurityClearanceController extends Controller
         );
 
         return redirect()->route('security-clearance.index')
-            ->with('success', "Clearance granted to {$count} users.");
+            ->with('success', __('Clearance granted to :count users.', ['count' => $count]));
     }
 
     /**
@@ -624,13 +624,13 @@ class SecurityClearanceController extends Controller
             }
 
             return redirect()->route('security-clearance.user', ['slug' => $slug])
-                ->with('success', 'Clearance updated.');
+                ->with('success', __('Clearance updated.'));
         } elseif ($actionType === 'revoke') {
             $reason = $request->input('revoke_reason', 'Revoked by administrator');
             $this->service->revokeClearance($targetUser->id, $currentUserId, $reason);
 
             return redirect()->route('security-clearance.user', ['slug' => $slug])
-                ->with('success', 'Clearance revoked.');
+                ->with('success', __('Clearance revoked.'));
         }
 
         return redirect()->route('security-clearance.user', ['slug' => $slug]);
@@ -725,7 +725,7 @@ class SecurityClearanceController extends Controller
         }
 
         return redirect()->route('security-clearance.watermark-settings')
-            ->with('success', 'Watermark settings saved.');
+            ->with('success', __('Watermark settings saved.'));
     }
 
     // =========================================================================
@@ -829,7 +829,7 @@ class SecurityClearanceController extends Controller
         $this->service->reviewAccessRequest($id, 'approved', $reviewerId, $notes, $durationHours);
 
         return redirect()->route('security-clearance.access-requests')
-            ->with('success', 'Access request approved.');
+            ->with('success', __('Access request approved.'));
     }
 
     /**
@@ -844,7 +844,7 @@ class SecurityClearanceController extends Controller
         $this->service->reviewAccessRequest($id, 'denied', $reviewerId, $notes);
 
         return redirect()->route('security-clearance.access-requests')
-            ->with('success', 'Access request denied.');
+            ->with('success', __('Access request denied.'));
     }
 
     /**
@@ -1126,7 +1126,7 @@ class SecurityClearanceController extends Controller
 
         if (! $object && $objectId) {
             return redirect()->route('security-clearance.audit-dashboard')
-                ->with('error', 'Object not found.');
+                ->with('error', __('Object not found.'));
         }
 
         $accessLogs = collect();
