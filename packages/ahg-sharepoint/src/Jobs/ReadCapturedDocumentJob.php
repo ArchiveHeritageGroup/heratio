@@ -58,6 +58,6 @@ class ReadCapturedDocumentJob implements ShouldQueue
             Log::info('SharePoint auto-redact of '.$this->informationObjectId.': '.($red['error'] ?? ($red['findings'].' finding(s)'.($red['uploaded'] ? ', redacted copy uploaded' : ', nothing to redact'))));
         }
         Log::info('SharePoint auto-read of '.$this->informationObjectId.': '
-            .($r === null ? 'not a SharePoint capture' : ($r['error'] ?? (($r['saved'] ?? 0).' field(s), columns: '.implode(', ', array_keys($out['written']))))));
+            .($r === null ? 'not a SharePoint capture' : (isset($r['error']) ? $r['error'].($out['written'] ? ' - filed from its name: '.implode(', ', array_keys($out['written'])) : '') : (($r['saved'] ?? 0).' field(s), columns: '.implode(', ', array_keys($out['written']))))));
     }
 }

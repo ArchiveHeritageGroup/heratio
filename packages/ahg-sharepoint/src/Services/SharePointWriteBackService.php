@@ -81,8 +81,20 @@ class SharePointWriteBackService
         }
         $x = app(\AhgAiServices\Services\DocumentFieldExtractor::class);
         $r = $x->extract($ioId, null);
+        if (isset($r['error']) && stripos((string) $r['error'], 'json') !== false) {
+            $r = $x->extract($ioId, null);   // an unreadable model reply is usually a one-off: try once more
+        }
         if (isset($r['error'])) {
-            return ['result' => $r, 'written' => []];
+            // Still file it from its name, marked Incomplete, so it shows in the
+            // views as needing attention instead of sitting blank.
+            $written = [];
+            try {
+                $written = $this->writeRecordColumns($ioId, [], [], false);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('SharePoint records columns for '.$ioId.' failed: '.substr($e->getMessage(), 0, 300));
+            }
+
+            return ['result' => $r, 'written' => $written];
         }
         $m = $x->match($ioId);
         $matchText = match ($m['status'] ?? null) {
@@ -139,7 +151,7 @@ class SharePointWriteBackService
      *
      * @return array<string,string> column written => value
      */
-    public function writeRecordColumns(int $ioId, array $fields, array $match): array
+    public function writeRecordColumns(int $ioId, array $fields, array $match, bool $readOk = true): array
     {
         $at = $this->locate($ioId);
         if (! $at) {
@@ -151,7 +163,7 @@ class SharePointWriteBackService
             return [];
         }
         $date = ! empty($fields['date']) && ($ts = strtotime((string) $fields['date'])) ? gmdate('Y-m-d\T00:00:00\Z', $ts) : null;
-        $status = SharePointRecordsClassifier::status(true, $match['status'] ?? null, $type, ! empty($fields['po_number']));
+        $status = SharePointRecordsClassifier::status($readOk, $match['status'] ?? null, $type, ! empty($fields['po_number']));
         $values = SharePointRecordsClassifier::columnsFor($type, $date, $status);
 
         $base = "/sites/{$at['site']}/drives/{$at['drive']}";
