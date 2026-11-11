@@ -65,7 +65,7 @@
                         </div>
                     </div>
                     <div class="mt-2 small">
-                        <span class="badge bg-info">{{ $stats['active_terms'] ?? 0 }} active</span>
+                        <span class="badge bg-info">{{ __(':value1 active', ['value1' => $stats['active_terms'] ?? 0]) }}</span>
                     </div>
                 </div>
                 <div class="card-footer bg-transparent">
@@ -140,7 +140,7 @@
                         </div>
                     </div>
                     <div class="mt-2 small">
-                        active sources
+                        {{ __('active sources') }}
                     </div>
                 </div>
             </div>

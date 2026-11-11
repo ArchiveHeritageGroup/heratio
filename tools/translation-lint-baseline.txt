@@ -1848,20 +1848,6 @@ packages/ahg-security-clearance/src/Controllers/SecurityClearanceController.php	
 packages/ahg-security-clearance/src/Controllers/SecurityClearanceController.php	flash	Clearance updated.
 packages/ahg-security-clearance/src/Controllers/SecurityClearanceController.php	flash	Object not found.
 packages/ahg-security-clearance/src/Controllers/SecurityClearanceController.php	flash	Watermark settings saved.
-packages/ahg-semantic-search/resources/views/admin-template-edit.blade.php	text	Example:
-packages/ahg-semantic-search/resources/views/emails/repatriation/registered.blade.php	text	and awaiting review. We will be in touch as the dialogue progresses, and you will receive an update whenever its status changes.
-packages/ahg-semantic-search/resources/views/emails/repatriation/registered.blade.php	text	registered
-packages/ahg-semantic-search/resources/views/index.blade.php	text	active sources
-packages/ahg-semantic-search/resources/views/index.blade.php	text	{{…}} active
-packages/ahg-semantic-search/resources/views/term-add.blade.php	text	Relevance weight (0.0 - 1.0). Higher = more relevant.
-packages/ahg-semantic-search/resources/views/terms.blade.php	text	Showing {{…}} - {{…}} of {{…}} terms
-packages/ahg-semantic-search/src/Controllers/SemanticSearchController.php	flash	Configuration saved
-packages/ahg-semantic-search/src/Controllers/SemanticSearchController.php	flash	Invalid action.
-packages/ahg-semantic-search/src/Controllers/SemanticSearchController.php	flash	Search history cleared.
-packages/ahg-semantic-search/src/Controllers/SemanticSearchController.php	flash	Template saved
-packages/ahg-semantic-search/src/Controllers/SemanticSearchController.php	flash	Term added
-packages/ahg-semantic-search/src/Controllers/SemanticSearchController.php	flash	Term deleted.
-packages/ahg-semantic-search/src/Controllers/SemanticSearchController.php	flash	Terms synced.
 packages/ahg-settings/resources/views/ahg-integration.blade.php	text	#67 - AHG Central settings (closed: client wired in v1.53.10)
 packages/ahg-settings/resources/views/encryption-settings.blade.php	text	-- California Consumer Privacy Act, reasonable security measures
 packages/ahg-settings/resources/views/encryption-settings.blade.php	text	-- General Data Protection Regulation (EU), Article 32
