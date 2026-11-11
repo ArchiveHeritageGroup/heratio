@@ -10,8 +10,7 @@
   </h1>
   <p class="text-muted small mb-4">
     {{ __('Convert bibliographic catalogue records to/from') }}
-    <a href="https://www.loc.gov/standards/bibframe/" target="_blank" rel="noopener">{{ __('BIBFRAME 2.0 (Library of Congress)') }}</a>.
-    All round-trips go through the OpenRiC RiC-O service layer.
+    <a href="https://www.loc.gov/standards/bibframe/" target="_blank" rel="noopener">{{ __('BIBFRAME 2.0 (Library of Congress)') }}</a>. {{ __('All round-trips go through the OpenRiC RiC-O service layer.') }}
   </p>
 
   {{-- Stats row --}}
@@ -105,11 +104,11 @@
   <div class="row mt-4">
     <div class="col-lg-8">
       <div class="alert alert-info small mb-0">
-        <strong>{{ __('BIBFRAME 2.0 model') }}</strong> - Work (intellectual creation) &rarr; Instance (edition/format) &rarr; Item (copy).
-        Conversion reads the live catalogue: a Work is a <code>library_item</code> work-key cluster,
-        each <code>library_item</code> is an Instance, each <code>library_copy</code> an Item, and
-        <code>library_item_creator</code> supplies the Agents. All RDF round-trips are proxied through the OpenRiC RiC-O service.
-        See <a href="https://www.loc.gov/standards/bibframe/docs/" target="_blank" rel="noopener">{{ __('LoC BIBFRAME docs') }}</a>.
+        <strong>{{ __('BIBFRAME 2.0 model') }}</strong> {{ __('- Work (intellectual creation)') }} &rarr; {{ __('Instance (edition/format)') }} &rarr; {{ __('Item (copy).') }}
+        {{ __('Conversion reads the live catalogue: a Work is a') }} <code>library_item</code> {{ __('work-key cluster, and each') }}
+        <code>library_item</code> {{ __('is an Instance, each') }} <code>library_copy</code> {{ __('an Item, and') }}
+        <code>library_item_creator</code> {{ __('supplies the Agents. All RDF round-trips are proxied through the OpenRiC RiC-O service.') }}
+        {{ __('See') }} <a href="https://www.loc.gov/standards/bibframe/docs/" target="_blank" rel="noopener">{{ __('LoC BIBFRAME docs') }}</a>.
       </div>
     </div>
   </div>

@@ -10,7 +10,7 @@
       <p class="small text-muted mb-0">{{ __('Convert catalogue works to BIBFRAME 2.0 RDF') }}</p>
     </div>
     <a href="{{ route('bibframe.index') }}" class="btn btn-outline-secondary btn-sm">
-      &larr; Back
+      {{ __('← Back') }}
     </a>
   </div>
 
@@ -23,7 +23,7 @@
         <div class="mb-3">
           <label for="work_id" class="form-label">{{ __('Single work') }}</label>
           <select class="form-select" name="work_id" id="work_id">
-            <option value="">- Select a work -</option>
+            <option value="">{{ __('- Select a work -') }}</option>
             @foreach($works as $w)
               <option value="{{ $w->id }}">{{ $w->title }} ({{ $w->author ?? 'no author' }})</option>
             @endforeach

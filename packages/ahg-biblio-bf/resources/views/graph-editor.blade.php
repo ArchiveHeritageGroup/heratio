@@ -14,9 +14,9 @@
     @endif
 
     <ul class="nav nav-tabs mb-3" role="tablist">
-        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-work">bf:Work + bf:Instance</a></li>
-        <li class="nav-item"><a class="nav-link"        data-bs-toggle="tab" href="#tab-contributors">bf:Contribution</a></li>
-        <li class="nav-item"><a class="nav-link"        data-bs-toggle="tab" href="#tab-subjects">bf:Topic (Subjects)</a></li>
+        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-work">{{ __('bf:Work + bf:Instance') }}</a></li>
+        <li class="nav-item"><a class="nav-link"        data-bs-toggle="tab" href="#tab-contributors">{{ __('bf:Contribution') }}</a></li>
+        <li class="nav-item"><a class="nav-link"        data-bs-toggle="tab" href="#tab-subjects">{{ __('bf:Topic (Subjects)') }}</a></li>
         <li class="nav-item"><a class="nav-link"        data-bs-toggle="tab" href="#tab-rdf">{{ __('RDF preview') }}</a></li>
     </ul>
 
@@ -28,39 +28,39 @@
                 @csrf
                 <div class="row g-3">
                     <div class="col-md-8">
-                        <label class="form-label">bf:title / dcterms:title</label>
+                        <label class="form-label">{{ __('bf:title / dcterms:title') }}</label>
                         <input type="text" name="title" class="form-control" required value="{{ old('title', $item->title) }}">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">bf:identifiedBy &raquo; bf:Isbn</label>
+                        <label class="form-label">{{ __('bf:identifiedBy » bf:Isbn') }}</label>
                         <input type="text" name="isbn" class="form-control" value="{{ old('isbn', $item->isbn) }}">
                     </div>
                     <div class="col-md-8">
-                        <label class="form-label">bflc:Subtitle</label>
+                        <label class="form-label">{{ __('bflc:Subtitle') }}</label>
                         <input type="text" name="subtitle" class="form-control" value="{{ old('subtitle', $item->subtitle) }}">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">bf:identifiedBy &raquo; bf:Issn</label>
+                        <label class="form-label">{{ __('bf:identifiedBy » bf:Issn') }}</label>
                         <input type="text" name="issn" class="form-control" value="{{ old('issn', $item->issn) }}">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">bf:provisionActivity &raquo; bf:Publication &raquo; bf:agent</label>
+                        <label class="form-label">{{ __('bf:provisionActivity » bf:Publication » bf:agent') }}</label>
                         <input type="text" name="publisher" class="form-control" value="{{ old('publisher', $item->publisher) }}">
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">bf:provisionActivity &raquo; bf:Publication &raquo; bf:place</label>
+                        <label class="form-label">{{ __('bf:provisionActivity » bf:Publication » bf:place') }}</label>
                         <input type="text" name="publication_place" class="form-control" value="{{ old('publication_place', $item->publication_place) }}">
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">bf:provisionActivity &raquo; bf:Publication &raquo; bf:date</label>
+                        <label class="form-label">{{ __('bf:provisionActivity » bf:Publication » bf:date') }}</label>
                         <input type="text" name="publication_date" class="form-control" value="{{ old('publication_date', $item->publication_date) }}">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">bf:language</label>
+                        <label class="form-label">{{ __('bf:language') }}</label>
                         <input type="text" name="language" class="form-control" value="{{ old('language', $item->language) }}">
                     </div>
                     <div class="col-md-8">
-                        <label class="form-label">bf:editionStatement</label>
+                        <label class="form-label">{{ __('bf:editionStatement') }}</label>
                         <input type="text" name="edition" class="form-control" value="{{ old('edition', $item->edition) }}">
                     </div>
                 </div>

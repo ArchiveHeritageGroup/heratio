@@ -370,27 +370,6 @@ packages/ahg-backup/resources/views/settings.blade.php	text	Email address to rec
 packages/ahg-backup/resources/views/settings.blade.php	text	Workbench username for backup bell/toast notifications (drops a JSON file into ). Defaults to .
 packages/ahg-backup/src/Controllers/BackupController.php	flash	Backup path may not be inside a web-served directory (/uploads or public/).
 packages/ahg-backup/src/Controllers/BackupController.php	flash	Backup settings saved successfully.
-packages/ahg-biblio-bf/resources/views/agent.blade.php	text	&larr; Back
-packages/ahg-biblio-bf/resources/views/export.blade.php	text	&larr; Back
-packages/ahg-biblio-bf/resources/views/export.blade.php	text	- Select a work -
-packages/ahg-biblio-bf/resources/views/graph-editor.blade.php	text	bf:Contribution
-packages/ahg-biblio-bf/resources/views/graph-editor.blade.php	text	bf:Topic (Subjects)
-packages/ahg-biblio-bf/resources/views/graph-editor.blade.php	text	bf:Work + bf:Instance
-packages/ahg-biblio-bf/resources/views/graph-editor.blade.php	text	bf:editionStatement
-packages/ahg-biblio-bf/resources/views/graph-editor.blade.php	text	bf:identifiedBy &raquo; bf:Isbn
-packages/ahg-biblio-bf/resources/views/graph-editor.blade.php	text	bf:identifiedBy &raquo; bf:Issn
-packages/ahg-biblio-bf/resources/views/graph-editor.blade.php	text	bf:language
-packages/ahg-biblio-bf/resources/views/graph-editor.blade.php	text	bf:provisionActivity &raquo; bf:Publication &raquo; bf:agent
-packages/ahg-biblio-bf/resources/views/graph-editor.blade.php	text	bf:provisionActivity &raquo; bf:Publication &raquo; bf:date
-packages/ahg-biblio-bf/resources/views/graph-editor.blade.php	text	bf:provisionActivity &raquo; bf:Publication &raquo; bf:place
-packages/ahg-biblio-bf/resources/views/graph-editor.blade.php	text	bf:title / dcterms:title
-packages/ahg-biblio-bf/resources/views/graph-editor.blade.php	text	bflc:Subtitle
-packages/ahg-biblio-bf/resources/views/import.blade.php	text	&larr; Back
-packages/ahg-biblio-bf/resources/views/index.blade.php	text	- Work (intellectual creation) &rarr; Instance (edition/format) &rarr; Item (copy). Conversion reads the live catalogue: a Work is a work-key cluster, each is an Instance, each an Item, and supplies the Agents. All RDF round-trips are proxied through the OpenRiC RiC-O service. See
-packages/ahg-biblio-bf/resources/views/index.blade.php	text	. All round-trips go through the OpenRiC RiC-O service layer.
-packages/ahg-biblio-bf/resources/views/validate.blade.php	text	&larr; Back
-packages/ahg-biblio-bf/src/Controllers/BibframeController.php	flash	No RDF content provided.
-packages/ahg-biblio-bf/src/Controllers/BibframeController.php	flash	No work selected.
 packages/ahg-biblio-frbr/resources/views/agent.blade.php	text	Agent Authority - {{…}} total
 packages/ahg-biblio-frbr/resources/views/export.blade.php	text	-- Select a work --
 packages/ahg-biblio-frbr/resources/views/export.blade.php	text	Heratio maps Expression/Manifestation to and Item to .

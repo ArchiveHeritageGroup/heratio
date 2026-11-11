@@ -9,7 +9,7 @@
       <h1 class="h4 mb-0"><i class="bi bi-person"></i> {{ __('BIBFRAME Agents') }}</h1>
       <p class="small text-muted mb-0">{{ __('Authority records for persons and corporate bodies linked to BIBFRAME works') }}</p>
     </div>
-    <a href="{{ route('bibframe.index') }}" class="btn btn-outline-secondary btn-sm">&larr; Back</a>
+    <a href="{{ route('bibframe.index') }}" class="btn btn-outline-secondary btn-sm">{{ __('← Back') }}</a>
   </div>
 
   @if($agents->isEmpty())
