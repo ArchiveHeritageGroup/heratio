@@ -42,19 +42,19 @@
       <div id="mods-core" class="accordion-collapse collapse show">
         <div class="accordion-body">
           <div class="mb-3">
-            <label class="form-label">identifier</label>
+            <label class="form-label">{{ __('identifier') }}</label>
             <input type="text" name="identifier" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" data-lpignore="true" data-1p-ignore="true" data-form-type="other" class="form-control" value="{{ old('identifier', $io->identifier ?? '') }}">
           </div>
           <div class="mb-3">
-            <label class="form-label">titleInfo <span class="text-danger">*</span></label>
+            <label class="form-label">{{ __('titleInfo') }} <span class="text-danger">*</span></label>
             <input type="text" name="title" class="form-control" required value="{{ old('title', $io->title ?? '') }}">
           </div>
           <div class="mb-3">
-            <label class="form-label">abstract (scope and content)</label>
+            <label class="form-label">{{ __('abstract (scope and content)') }}</label>
             <textarea name="scope_and_content" class="form-control" rows="4">{{ old('scope_and_content', $io->scope_and_content ?? '') }}</textarea>
           </div>
           <div class="mb-3">
-            <label class="form-label">accessCondition</label>
+            <label class="form-label">{{ __('accessCondition') }}</label>
             <textarea name="access_conditions" class="form-control" rows="2">{{ old('access_conditions', $io->access_conditions ?? '') }}</textarea>
           </div>
         </div>
@@ -63,7 +63,7 @@
 
     <div class="accordion-item">
       <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mods-type">typeOfResource</button>
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mods-type">{{ __('typeOfResource') }}</button>
       </h2>
       <div id="mods-type" class="accordion-collapse collapse">
         <div class="accordion-body">
@@ -82,7 +82,7 @@
          mods:publisher serialized property). --}}
     <div class="accordion-item">
       <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mods-origin">originInfo</button>
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mods-origin">{{ __('originInfo') }}</button>
       </h2>
       <div id="mods-origin" class="accordion-collapse collapse">
         <div class="accordion-body">
@@ -184,7 +184,7 @@
 
     <div class="accordion-item">
       <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mods-note">note</button>
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mods-note">{{ __('note') }}</button>
       </h2>
       <div id="mods-note" class="accordion-collapse collapse">
         <div class="accordion-body">
@@ -198,7 +198,7 @@
 
     <div class="accordion-item">
       <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mods-language">language</button>
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mods-language">{{ __('language') }}</button>
       </h2>
       <div id="mods-language" class="accordion-collapse collapse">
         <div class="accordion-body">

@@ -55,7 +55,7 @@
 @endphp
 
 <h1>{{ __('Edit archival description') }}
-  <small class="text-muted">(MODS version 3.3)</small>
+  <small class="text-muted">{{ __('(MODS version 3.3)') }}</small>
 </h1>
 
 @if($parentTitle)
