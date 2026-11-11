@@ -962,28 +962,34 @@ class SettingsController extends Controller
               .'--bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ahg-success); --bs-btn-active-border-color: var(--ahg-success);'
               .'filter: none;'
             ."}\n"
+            // Anything that is text on, or in, the success colour uses
+            // --ahg-success-strong (60% toward black, as .alert-success text does),
+            // so it stays readable whatever colour an admin picks: Bootstrap's
+            // #28a745 is only 3.1:1 against white, WCAG AA needs 4.5:1
+            // (heratio#1532 a11y baseline). Borders keep the chosen colour.
+            .":root { --ahg-success-strong: color-mix(in srgb, var(--ahg-success) 60%, #000); }\n"
             .'.btn-outline-success, .atom-btn-outline-success {'
-              .'--bs-btn-color: var(--ahg-success); --bs-btn-border-color: var(--ahg-success);'
-              .'--bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ahg-success); --bs-btn-hover-border-color: var(--ahg-success);'
-              .'--bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ahg-success); --bs-btn-active-border-color: var(--ahg-success);'
-              .'color: var(--ahg-success) !important; border-color: var(--ahg-success) !important;'
+              .'--bs-btn-color: var(--ahg-success-strong); --bs-btn-border-color: var(--ahg-success);'
+              .'--bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ahg-success-strong); --bs-btn-hover-border-color: var(--ahg-success-strong);'
+              .'--bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ahg-success-strong); --bs-btn-active-border-color: var(--ahg-success-strong);'
+              .'color: var(--ahg-success-strong) !important; border-color: var(--ahg-success) !important;'
               // An outline button is an outline: the theme's .btn gradient left
               // green text on dark green (heratio#1589).
               .'background: transparent !important;'
             ."}\n"
             .'.btn-outline-success:hover, .btn-outline-success:focus, .atom-btn-outline-success:hover, .atom-btn-outline-success:focus {'
-              .'background-color: var(--ahg-success) !important; color: #fff !important; border-color: var(--ahg-success) !important;'
+              .'background-color: var(--ahg-success-strong) !important; color: #fff !important; border-color: var(--ahg-success) !important;'
             ."}\n"
             .'.atom-btn-success, .btn.atom-btn-success {'
-              .'--bs-btn-color: #fff; --bs-btn-bg: var(--ahg-success); --bs-btn-border-color: var(--ahg-success);'
-              .'--bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ahg-success); --bs-btn-hover-border-color: var(--ahg-success);'
-              .'--bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ahg-success); --bs-btn-active-border-color: var(--ahg-success);'
-              .'background-color: var(--ahg-success) !important; color: #fff !important; border-color: var(--ahg-success) !important;'
+              .'--bs-btn-color: #fff; --bs-btn-bg: var(--ahg-success-strong); --bs-btn-border-color: var(--ahg-success);'
+              .'--bs-btn-hover-color: #fff; --bs-btn-hover-bg: var(--ahg-success-strong); --bs-btn-hover-border-color: var(--ahg-success-strong);'
+              .'--bs-btn-active-color: #fff; --bs-btn-active-bg: var(--ahg-success-strong); --bs-btn-active-border-color: var(--ahg-success-strong);'
+              .'background-color: var(--ahg-success-strong) !important; color: #fff !important; border-color: var(--ahg-success) !important;'
             ."}\n"
-            .".bg-success { background-color: var(--ahg-success) !important; color: #fff !important; }\n"
-            .".text-success { color: var(--ahg-success) !important; }\n"
+            .".bg-success { background-color: var(--ahg-success-strong) !important; color: #fff !important; }\n"
+            .".text-success { color: var(--ahg-success-strong) !important; }\n"
             .".border-success { border-color: var(--ahg-success) !important; }\n"
-            .".badge.bg-success { background-color: var(--ahg-success) !important; color: #fff !important; }\n"
+            .".badge.bg-success { background-color: var(--ahg-success-strong) !important; color: #fff !important; }\n"
 
             // Dropdown headers inherit the primary tint
             .".dropdown-header { color: var(--ahg-primary) !important; font-weight: 600; }\n";
