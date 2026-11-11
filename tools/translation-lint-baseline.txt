@@ -1012,14 +1012,6 @@ packages/ahg-iiif-collection/resources/views/threeDReports/thumbnails.blade.php	
 packages/ahg-iiif-collection/src/Controllers/IiifCollectionController.php	flash	Carousel settings saved.
 packages/ahg-iiif-collection/src/Controllers/IiifCollectionController.php	flash	Item ID and collection ID are required.
 packages/ahg-iiif-collection/src/Controllers/IiifCollectionController.php	flash	Settings table not found.
-packages/ahg-image-ar/resources/views/settings.blade.php	text	&middot; {{…}} GB free / {{…}} GB total
-packages/ahg-image-ar/resources/views/settings.blade.php	text	0 = random per call
-packages/ahg-image-ar/resources/views/settings.blade.php	text	AI image-to-video. Default: Stable Video Diffusion (works on the 8&nbsp;GB card with CPU offload). Swap to CogVideoX/WAN once the 24&nbsp;GB card is in.
-packages/ahg-image-ar/resources/views/settings.blade.php	text	Check the server is running: on the AI host. Install steps in .
-packages/ahg-image-ar/resources/views/settings.blade.php	text	Could not reach .
-packages/ahg-image-ar/resources/views/settings.blade.php	text	SVD canonical = 7
-packages/ahg-image-ar/resources/views/settings.blade.php	text	SVD only · 1=still · 255=wild
-packages/ahg-image-ar/resources/views/settings.blade.php	text	button on IO show pages
 packages/ahg-information-object-manage/resources/views/add-digital-object.blade.php	placeholder	https://example.com/file.pdf, ftp://host/path/file.tif, https://sketchfab.com/3d-models/...
 packages/ahg-information-object-manage/resources/views/partials/_upload-form.blade.php	placeholder	https://example.com/file.pdf, ftp://host/path/file.tif, https://sketchfab.com/3d-models/...
 packages/ahg-information-object-manage/resources/views/show-ric.blade.php	text	rico:hasCreator
