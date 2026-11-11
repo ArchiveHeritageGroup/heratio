@@ -45,7 +45,7 @@
 @endphp
 
 <h1>{{ __('Edit archival description') }}
-  <small class="text-muted">(DACS 2nd edition)</small>
+  <small class="text-muted">{{ __('(DACS 2nd edition)') }}</small>
 </h1>
 
 @if($parentTitle)
