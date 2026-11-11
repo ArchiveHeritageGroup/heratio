@@ -1277,19 +1277,6 @@ packages/ahg-menu-manage/src/Controllers/MenuController.php	flash	Menu item dele
 packages/ahg-menu-manage/src/Controllers/MenuController.php	flash	Menu item updated successfully.
 packages/ahg-metadata-export/resources/views/bulk.blade.php	text	Limit hierarchy depth (0 = unlimited).
 packages/ahg-metadata-export/resources/views/index.blade.php	text	({{…}} formats)
-packages/ahg-metadata-extraction/resources/views/index.blade.php	text	ExifTool is not installed on this system. Install it with:
-packages/ahg-metadata-extraction/resources/views/index.blade.php	text	ExifTool{{…}}
-packages/ahg-metadata-extraction/resources/views/index.blade.php	text	Showing {{…}} of {{…}} digital objects
-packages/ahg-metadata-extraction/resources/views/index.blade.php	text	ffprobe{{…}}
-packages/ahg-metadata-extraction/resources/views/index.blade.php	text	pdfinfo
-packages/ahg-metadata-extraction/resources/views/index.blade.php	text	{{…}} fields
-packages/ahg-metadata-extraction/resources/views/status.blade.php	text	ffprobe is required for video/audio metadata. Install with:
-packages/ahg-metadata-extraction/resources/views/status.blade.php	text	pdfinfo is required for PDF metadata. Install with:
-packages/ahg-metadata-extraction/resources/views/view.blade.php	text	{{…}} metadata fields extracted
-packages/ahg-metadata-extraction/src/Controllers/MetadataExtractionController.php	flash	ExifTool is not installed on this system
-packages/ahg-metadata-extraction/src/Controllers/MetadataExtractionController.php	flash	Extracted {$count} metadata fields.
-packages/ahg-metadata-extraction/src/Controllers/MetadataExtractionController.php	flash	Extraction failed:
-packages/ahg-metadata-extraction/src/Controllers/MetadataExtractionController.php	flash	Metadata deleted.
 packages/ahg-mods-manage/resources/views/_fields.blade.php	text	abstract (scope and content)
 packages/ahg-mods-manage/resources/views/_fields.blade.php	text	accessCondition
 packages/ahg-mods-manage/resources/views/_fields.blade.php	text	identifier

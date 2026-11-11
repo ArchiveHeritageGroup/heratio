@@ -237,14 +237,14 @@ class MetadataExtractionController extends Controller
             }
 
             return redirect()->route('metadata-extraction.view', $id)
-                ->with('success', "Extracted {$count} metadata fields.");
+                ->with('success', __('Extracted :count metadata fields.', ['count' => $count]));
         } catch (\Throwable $e) {
             if ($request->expectsJson()) {
                 return response()->json(['error' => $e->getMessage()], 500);
             }
 
             return redirect()->route('metadata-extraction.index')
-                ->with('error', 'Extraction failed: '.$e->getMessage());
+                ->with('error', __('Extraction failed: :message', ['message' => $e->getMessage()]));
         }
     }
 
@@ -263,7 +263,7 @@ class MetadataExtractionController extends Controller
         }
 
         return redirect()->route('metadata-extraction.view', $id)
-            ->with('success', 'Metadata deleted.');
+            ->with('success', __('Metadata deleted.'));
     }
 
     /**
@@ -273,7 +273,7 @@ class MetadataExtractionController extends Controller
     {
         if (! $this->service->isExifToolAvailable()) {
             return redirect()->route('metadata-extraction.index')
-                ->with('error', 'ExifTool is not installed on this system');
+                ->with('error', __('ExifTool is not installed on this system'));
         }
 
         $result = $this->service->batchExtract(50, app()->getLocale());

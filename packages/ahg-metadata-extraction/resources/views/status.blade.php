@@ -64,7 +64,7 @@
         @if(!$ffprobeAvailable)
           <div class="alert alert-warning">
             <h6>{{ __('ffprobe Installation') }}</h6>
-            <p class="mb-2">ffprobe is required for video/audio metadata. Install with:</p>
+            <p class="mb-2">{{ __('ffprobe is required for video/audio metadata. Install with:') }}</p>
             <code>sudo apt install ffmpeg</code>
           </div>
         @endif
@@ -72,7 +72,7 @@
         @if(!$pdfinfoAvailable)
           <div class="alert alert-warning">
             <h6>{{ __('pdfinfo Installation') }}</h6>
-            <p class="mb-2">pdfinfo is required for PDF metadata. Install with:</p>
+            <p class="mb-2">{{ __('pdfinfo is required for PDF metadata. Install with:') }}</p>
             <code>sudo apt install poppler-utils</code>
           </div>
         @endif
