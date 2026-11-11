@@ -79,7 +79,7 @@
                         {{ __('Source mention') }}:
                         <strong>{{ $mention->entity_value }}</strong>
                         {{ __('from') }}
-                        <em>Object #{{ (int) $mention->object_id }}</em>
+                        <em>{{ __('Object #:value1', ['value1' => (int) $mention->object_id]) }}</em>
                     </p>
 
                     <form method="POST"

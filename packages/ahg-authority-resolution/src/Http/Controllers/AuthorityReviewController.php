@@ -608,7 +608,7 @@ class AuthorityReviewController extends Controller
         }
 
         return redirect()->route('auth-res.settings.show')
-            ->with('notice', "Saved {$writes} lookup setting(s).");
+            ->with('notice', __('Saved :count lookup setting(s).', ['count' => $writes]));
     }
 
     /**

@@ -335,19 +335,6 @@ packages/ahg-audit-trail/resources/views/statistics.blade.php	text	Last {{…}} 
 packages/ahg-audit-trail/src/Controllers/AuditTrailController.php	flash	Audit prune complete: {$rows} row(s) removed (last run {$when}).
 packages/ahg-audit-trail/src/Controllers/AuditTrailController.php	flash	Audit prune failed:
 packages/ahg-audit-trail/src/Controllers/AuditTrailController.php	flash	Audit settings saved.
-packages/ahg-authority-resolution/resources/views/_candidate-card.blade.php	text	No evidence signals computed (run ).
-packages/ahg-authority-resolution/resources/views/_candidate-card.blade.php	text	authority #{{…}}
-packages/ahg-authority-resolution/resources/views/_candidate-card.blade.php	text	name sim: {{…}}
-packages/ahg-authority-resolution/resources/views/_candidate-card.blade.php	text	no score
-packages/ahg-authority-resolution/resources/views/_candidate-card.blade.php	text	rank #{{…}}
-packages/ahg-authority-resolution/resources/views/_candidate-card.blade.php	text	top
-packages/ahg-authority-resolution/resources/views/_park-row.blade.php	text	Object #{{…}}
-packages/ahg-authority-resolution/resources/views/_prefill-field.blade.php	text	link
-packages/ahg-authority-resolution/resources/views/_prefill-field.blade.php	text	pre-filled / {{…}}
-packages/ahg-authority-resolution/resources/views/create-new.blade.php	text	Object #{{…}}
-packages/ahg-authority-resolution/resources/views/review.blade.php	text	{{…}}: actor #{{…}}
-packages/ahg-authority-resolution/resources/views/settings.blade.php	text	geonames.org/login
-packages/ahg-authority-resolution/src/Http/Controllers/AuthorityReviewController.php	flash	Saved {$writes} lookup setting(s).
 packages/ahg-backup/resources/views/emails/backup-completed.blade.php	text	A Heratio backup run has completed
 packages/ahg-backup/resources/views/emails/backup-completed.blade.php	text	successfully
 packages/ahg-backup/resources/views/emails/backup-completed.blade.php	text	to review or download artefacts.

@@ -126,7 +126,7 @@
 
                     @if($mention->linked_actor_id)
                         <p class="small mb-0 text-muted">
-                            {{ __('Previously linked') }}: actor #{{ (int) $mention->linked_actor_id }}
+                            {{ __(':value1: actor #:value2', ['value1' => __('Previously linked'), 'value2' => (int) $mention->linked_actor_id]) }}
                         </p>
                     @endif
 

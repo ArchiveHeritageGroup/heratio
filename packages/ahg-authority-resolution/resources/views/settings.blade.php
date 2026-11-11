@@ -135,7 +135,7 @@
                                                placeholder="{{ __('archivist123') }}">
                                         <div class="form-text">
                                             {{ __("Register at geonames.org and replace 'demo'.") }}
-                                            <a href="https://www.geonames.org/login" target="_blank" rel="noopener">geonames.org/login</a>
+                                            <a href="https://www.geonames.org/login" target="_blank" rel="noopener">{{ __('geonames.org/login') }}</a>
                                         </div>
                                     </div>
                                 @endif

@@ -59,10 +59,10 @@
         @if($sourceLabel)
             <span class="badge {{ $badgeColour }} ms-1"
                   title="{{ $tooltip }}">
-                <i class="bi bi-link-45deg me-1"></i>pre-filled / {{ $sourceLabel }}
+                <i class="bi bi-link-45deg me-1"></i>{{ __('pre-filled / :value1', ['value1' => $sourceLabel]) }}
                 @if($sourceUri)
                     <a href="{{ $sourceUri }}" target="_blank" rel="noopener noreferrer"
-                       class="ms-1 text-white text-decoration-underline">link</a>
+                       class="ms-1 text-white text-decoration-underline">{{ __('link') }}</a>
                 @endif
             </span>
         @endif
