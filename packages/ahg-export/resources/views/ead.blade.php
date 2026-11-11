@@ -42,7 +42,7 @@
       <div class="mb-3">
         <label class="form-label">{{ __('Select Record to Export') }}</label>
         <select name="object_id" class="form-select" required>
-          <option value="">-- Select a fonds or collection --</option>
+          <option value="">{{ __('-- Select a fonds or collection --') }}</option>
           @foreach ($fonds as $f)
             <option value="{{ $f->id }}">
               {{ ($f->identifier ? $f->identifier . ' - ' : '') . $f->title }}

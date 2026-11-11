@@ -46,10 +46,10 @@
                                 <label class="form-label">{{ __('Limit') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <select name="limit" class="form-select">
                                     <option value="0">{{ __('No limit (all records)') }}</option>
-                                    <option value="100">100 records</option>
-                                    <option value="500">500 records</option>
-                                    <option value="1000">1,000 records</option>
-                                    <option value="5000">5,000 records</option>
+                                    <option value="100">{{ __('100 records') }}</option>
+                                    <option value="500">{{ __('500 records') }}</option>
+                                    <option value="1000">{{ __('1,000 records') }}</option>
+                                    <option value="5000">{{ __('5,000 records') }}</option>
                                 </select>
                             </div>
                         </div>
@@ -87,7 +87,7 @@
                     <h6 class="mb-0"><i class="bi bi-question-circle me-2"></i>{{ __('About EAC-CPF') }}</h6>
                 </div>
                 <div class="card-body small">
-                    <p><strong>{{ __('EAC-CPF') }}</strong> (Encoded Archival Context - Corporate Bodies, Persons, and Families) is an XML standard for encoding contextual information about the creators of archival materials.</p>
+                    <p><strong>{{ __('EAC-CPF') }}</strong> {{ __('(Encoded Archival Context - Corporate Bodies, Persons, and Families) is an XML standard for encoding contextual information about the creators of archival materials.') }}</p>
                     <p class="mb-0">{{ __('Use this format for exchanging authority records with other archival systems or for backup purposes.') }}</p>
                 </div>
             </div>

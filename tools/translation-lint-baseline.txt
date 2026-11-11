@@ -688,24 +688,6 @@ packages/ahg-exhibition/src/Controllers/ExhibitionSpaceController.php	flash	Wall
 packages/ahg-exhibition/src/Controllers/ExhibitionSpaceController.php	flash	Wall colour saved.
 packages/ahg-exhibition/src/Controllers/ExhibitionSpaceController.php	flash	Wall image cleared.
 packages/ahg-exhibition/src/Controllers/ExhibitionSpaceController.php	flash	Wall image uploaded.
-packages/ahg-export/resources/views/accession-csv.blade.php	text	-- All repositories --
-packages/ahg-export/resources/views/accession-csv.blade.php	text	The exported CSV can be re-imported using the Ingest wizard (Admin &gt; Ingest &gt; New &gt; Accessions) or the command:
-packages/ahg-export/resources/views/accession-csv.blade.php	text	accessionNumber, title, acquisitionDate, sourceOfAcquisition, locationInformation, receivedExtentUnits, scopeAndContent, appraisal, archivalHistory, processingNotes, acquisitionType, resourceType, processingStatus, processingPriority, donorName, donorStreetAddress, donorCity, donorRegion, donorCountry, donorPostalCode, donorTelephone, donorFax, donorEmail, donorContactPerson, donorNote, accessionEventTypes, accessionEventDates, accessionEventAgents, alternativeIdentifiers, alternativeIdentifierNotes, intakeNotes, intakePriority, culture
-packages/ahg-export/resources/views/archival.blade.php	text	1,000 records
-packages/ahg-export/resources/views/archival.blade.php	text	10,000 records
-packages/ahg-export/resources/views/archival.blade.php	text	100 records
-packages/ahg-export/resources/views/archival.blade.php	text	5,000 records
-packages/ahg-export/resources/views/archival.blade.php	text	500 records
-packages/ahg-export/resources/views/authority.blade.php	text	(Encoded Archival Context - Corporate Bodies, Persons, and Families) is an XML standard for encoding contextual information about the creators of archival materials.
-packages/ahg-export/resources/views/authority.blade.php	text	1,000 records
-packages/ahg-export/resources/views/authority.blade.php	text	100 records
-packages/ahg-export/resources/views/authority.blade.php	text	5,000 records
-packages/ahg-export/resources/views/authority.blade.php	text	500 records
-packages/ahg-export/resources/views/ead.blade.php	text	-- Select a fonds or collection --
-packages/ahg-export/resources/views/index.blade.php	text	For bulk exports, use the command line tools:
-packages/ahg-export/resources/views/repository.blade.php	text	100 records
-packages/ahg-export/resources/views/repository.blade.php	text	50 records
-packages/ahg-export/resources/views/repository.blade.php	text	500 records
 packages/ahg-extended-rights/resources/views/admin/embargoes.blade.php	text	{{…}} days left
 packages/ahg-extended-rights/resources/views/admin/expiring-embargoes.blade.php	text	No embargoes expiring within {{…}} days.
 packages/ahg-extended-rights/resources/views/admin/report.blade.php	text	Embargoes Report
