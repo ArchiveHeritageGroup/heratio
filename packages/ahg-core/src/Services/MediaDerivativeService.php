@@ -40,7 +40,15 @@ class MediaDerivativeService
         $uploadDir = config('heratio.uploads_path', DigitalObjectService::UPLOAD_DIR).'/'.$master->object_id;
         $masterPath = $uploadDir.'/'.$master->name;
         if (! is_file($masterPath)) {
-            return 0;
+            // Other layouts (uploads/r/<id>/, imported hashed folders such as
+            // r/null/9/0/2/...): find the file from its stored path and write the
+            // derivatives beside it, so these videos get their playable MP4 too.
+            $resolved = DigitalObjectService::resolveDiskPath($master);
+            if (! $resolved || ! is_file($resolved)) {
+                return 0;
+            }
+            $masterPath = $resolved;
+            $uploadDir = dirname($resolved);
         }
 
         $mime = (string) ($master->mime_type ?? '');
