@@ -1931,25 +1931,6 @@ packages/ahg-statistics/src/Controllers/StatisticsController.php	flash	Events ol
 packages/ahg-statistics/src/Controllers/StatisticsController.php	flash	Invalid action.
 packages/ahg-statistics/src/Controllers/StatisticsController.php	flash	Settings saved
 packages/ahg-statistics/src/Controllers/StatisticsController.php	flash	Statistics aggregated.
-packages/ahg-storage-manage/resources/views/box-list.blade.php	text	Print preview
-packages/ahg-storage-manage/resources/views/browse.blade.php	text	Browse {{…}}
-packages/ahg-storage-manage/resources/views/delete.blade.php	text	Are you sure you want to delete {{…}}?
-packages/ahg-storage-manage/resources/views/edit.blade.php	text	{{…}} physical storage
-packages/ahg-storage-manage/resources/views/link-to.blade.php	text	-- None --
-packages/ahg-storage-manage/resources/views/link-to.blade.php	text	-- Select --
-packages/ahg-storage-manage/resources/views/link-to.blade.php	text	Linked Containers ({{…}})
-packages/ahg-storage-manage/resources/views/show.blade.php	text	Unit: {{…}}
-packages/ahg-storage-manage/resources/views/show.blade.php	text	View {{…}}
-packages/ahg-storage-manage/resources/views/show.blade.php	text	{{…}}% used
-packages/ahg-storage-manage/resources/views/show.blade.php	text	{{…}}% used
-packages/ahg-storage-manage/src/Controllers/StorageController.php	flash	Container unlinked.
-packages/ahg-storage-manage/src/Controllers/StorageController.php	flash	Physical storage created successfully.
-packages/ahg-storage-manage/src/Controllers/StorageController.php	flash	Physical storage deleted successfully.
-packages/ahg-storage-manage/src/Controllers/StorageController.php	flash	Physical storage updated successfully.
-packages/ahg-storage-manage/src/Controllers/StorageController.php	flash	Physical storage updated.
-packages/ahg-storage-manage/src/Controllers/StrongroomController.php	flash	Strongroom created.
-packages/ahg-storage-manage/src/Controllers/StrongroomController.php	flash	Strongroom deleted.
-packages/ahg-storage-manage/src/Controllers/StrongroomController.php	flash	Strongroom updated.
 packages/ahg-term-taxonomy/resources/views/browse.blade.php	text	"Use for" labels
 packages/ahg-term-taxonomy/resources/views/browse.blade.php	text	Browse {{…}}:
 packages/ahg-term-taxonomy/resources/views/browse.blade.php	text	Direction: {{…}}

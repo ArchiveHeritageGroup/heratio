@@ -88,7 +88,7 @@ class StrongroomController extends Controller
 
         return redirect()
             ->route('strongroom.show', ['slug' => $room->slug])
-            ->with('success', 'Strongroom created.');
+            ->with('success', __('Strongroom created.'));
     }
 
     public function edit(string $slug)
@@ -116,7 +116,7 @@ class StrongroomController extends Controller
 
         return redirect()
             ->route('strongroom.show', ['slug' => $room->slug])
-            ->with('success', 'Strongroom updated.');
+            ->with('success', __('Strongroom updated.'));
     }
 
     public function confirmDelete(string $slug)
@@ -149,7 +149,7 @@ class StrongroomController extends Controller
 
         return redirect()
             ->route('strongroom.browse')
-            ->with('success', 'Strongroom deleted.');
+            ->with('success', __('Strongroom deleted.'));
     }
 
     private function validated(Request $request): array
