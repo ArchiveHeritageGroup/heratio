@@ -45,15 +45,15 @@
     <div id="ric-identity" class="accordion-collapse collapse show">
       <div class="accordion-body">
         <div class="mb-3">
-          <label class="form-label">{{ __('Identifier') }} <span class="text-muted small">(rico:identifier)</span></label>
+          <label class="form-label">{{ __('Identifier') }} <span class="text-muted small">{{ __('(rico:identifier)') }}</span></label>
           <input type="text" name="identifier" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" data-lpignore="true" data-1p-ignore="true" data-form-type="other" class="form-control" value="{{ old('identifier', $io->identifier ?? '') }}">
         </div>
         <div class="mb-3">
-          <label class="form-label">{{ __('Title') }} <span class="text-danger">*</span> <span class="text-muted small">(rico:title)</span></label>
+          <label class="form-label">{{ __('Title') }} <span class="text-danger">*</span> <span class="text-muted small">{{ __('(rico:title)') }}</span></label>
           <input type="text" name="title" class="form-control" required value="{{ old('title', $io->title ?? '') }}">
         </div>
         <div class="mb-3">
-          <label class="form-label">{{ __('Level / RecordSet type') }} <span class="text-muted small">(rico:hasRecordSetType)</span></label>
+          <label class="form-label">{{ __('Level / RecordSet type') }} <span class="text-muted small">{{ __('(rico:hasRecordSetType)') }}</span></label>
           <select name="level_of_description_id" class="form-select">
             <option value="">-</option>
             @foreach($levels as $lvl)
@@ -62,7 +62,7 @@
           </select>
         </div>
         <div class="mb-3">
-          <label class="form-label">{{ __('Repository / holder') }} <span class="text-muted small">(rico:hasOrHadHolder)</span></label>
+          <label class="form-label">{{ __('Repository / holder') }} <span class="text-muted small">{{ __('(rico:hasOrHadHolder)') }}</span></label>
           <select name="repository_id" class="form-select">
             <option value="">-</option>
             @foreach($repositories as $repo)
@@ -144,7 +144,7 @@
        driven by document-level delegation in the host form (survives the
        standard-swap, which re-inserts this markup via innerHTML). --}}
   <div class="accordion-item">
-    <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#ric-instantiations">{{ __('Instantiations') }} <span class="text-muted small ms-1">(rico:hasInstantiation)</span></button></h2>
+    <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#ric-instantiations">{{ __('Instantiations') }} <span class="text-muted small ms-1">{{ __('(rico:hasInstantiation)') }}</span></button></h2>
     <div id="ric-instantiations" class="accordion-collapse collapse show">
       <div class="accordion-body">
         <p class="text-muted small">{{ __('Physical or digital manifestations of this record (the original holding, copies, surrogates). Auto-generated instantiations from uploaded digital objects are managed separately and not shown here.') }}</p>
@@ -235,7 +235,7 @@
        date widgets and is excluded here). Persisted as AtoM event rows by
        RicManageController::persist; the RiC serializer already emits them. --}}
   <div class="accordion-item">
-    <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#ric-events">{{ __('Events') }} <span class="text-muted small ms-1">(rico:Event)</span></button></h2>
+    <h2 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#ric-events">{{ __('Events') }} <span class="text-muted small ms-1">{{ __('(rico:Event)') }}</span></button></h2>
     <div id="ric-events" class="accordion-collapse collapse show">
       <div class="accordion-body">
         <p class="text-muted small">{{ __('Datable happenings in the record\'s life - custody transfer, publication, accumulation, reproduction. Creation dates and creators are captured in the Identity / creators area.') }}</p>
@@ -368,15 +368,15 @@
     <div id="ric-control" class="accordion-collapse collapse show">
       <div class="accordion-body">
         <div class="mb-3">
-          <label class="form-label">{{ __('Description identifier') }} <span class="text-muted small">(rico:identifier)</span></label>
+          <label class="form-label">{{ __('Description identifier') }} <span class="text-muted small">{{ __('(rico:identifier)') }}</span></label>
           <input type="text" name="description_identifier" class="form-control" value="{{ old('description_identifier', $io->description_identifier ?? '') }}">
         </div>
         <div class="mb-3">
-          <label class="form-label">{{ __('Rules or conventions') }} <span class="text-muted small">(rico:descriptiveNote)</span></label>
+          <label class="form-label">{{ __('Rules or conventions') }} <span class="text-muted small">{{ __('(rico:descriptiveNote)') }}</span></label>
           <textarea name="rules" class="form-control" rows="2">{{ old('rules', $io->rules ?? '') }}</textarea>
         </div>
         <div class="mb-3">
-          <label class="form-label">{{ __('Sources') }} <span class="text-muted small">(rico:hasSource)</span></label>
+          <label class="form-label">{{ __('Sources') }} <span class="text-muted small">{{ __('(rico:hasSource)') }}</span></label>
           <textarea name="sources" class="form-control" rows="2">{{ old('sources', $io->sources ?? '') }}</textarea>
         </div>
         {{-- Publication status is owned by the host Administration area during a standard swap (#1425); hide it here so it is not duplicated. --}}
