@@ -101,8 +101,14 @@ class ServicesCheckCommand extends Command
         try {
             $resp = Http::timeout($timeout)->get($endpoint);
 
+            $extra = ['http_code' => $resp->status()];
+            if ($name === 'elasticsearch' && $resp->successful()) {
+                // OpenSearch and Elasticsearch answer the same API; say which one this is.
+                $extra['engine'] = ($resp->json('version.distribution') ?: 'elasticsearch').' '.$resp->json('version.number');
+            }
+
             return $resp->successful()
-                ? $this->ok($name, $endpoint, $t0, ['http_code' => $resp->status()])
+                ? $this->ok($name, $endpoint, $t0, $extra)
                 : $this->down($name, $endpoint, 'HTTP '.$resp->status(), $t0);
         } catch (\Throwable $e) {
             return $this->down($name, $endpoint, $e->getMessage(), $t0);

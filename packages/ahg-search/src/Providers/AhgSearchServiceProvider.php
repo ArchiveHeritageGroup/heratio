@@ -25,6 +25,13 @@ class AhgSearchServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Credentials and TLS for a secured search server (OpenSearch security
+        // plugin), applied only to requests aimed at the configured search host.
+        $searchCfg = (array) config('services.elasticsearch', []);
+        if (\AhgSearch\Support\SearchHostAuth::needed($searchCfg)) {
+            \Illuminate\Support\Facades\Http::globalMiddleware(\AhgSearch\Support\SearchHostAuth::middleware($searchCfg));
+        }
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \AhgSearch\Commands\EsReindexCommand::class,

@@ -35,9 +35,17 @@ return [
         ],
     ],
 
+    // Search engine: OpenSearch (recommended) or Elasticsearch, same HTTP API.
+    // With the OpenSearch security plugin on, set a user and password, and use
+    // https in the host. CA: path to the server's CA certificate (self-signed
+    // installs); VERIFY_TLS=false only for local testing.
     'elasticsearch' => [
         'host' => env('ELASTICSEARCH_HOST', 'http://localhost:9200'),
         'prefix' => env('ELASTICSEARCH_PREFIX', 'heratio_'),
+        'username' => env('ELASTICSEARCH_USERNAME'),
+        'password' => env('ELASTICSEARCH_PASSWORD'),
+        'ca' => env('ELASTICSEARCH_CA'),
+        'verify' => env('ELASTICSEARCH_VERIFY_TLS', true),
     ],
 
 ];

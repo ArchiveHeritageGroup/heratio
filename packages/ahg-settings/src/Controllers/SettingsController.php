@@ -639,22 +639,21 @@ class SettingsController extends Controller
             $serviceChecks['MySQL'] = ['status' => 'error', 'message' => $e->getMessage()];
         }
 
-        // Check Elasticsearch
+        // Check the search engine (OpenSearch or Elasticsearch). Through the HTTP
+        // client so a secured server gets its credentials (SearchHostAuth); the
+        // host setting already carries its scheme.
         try {
-            $esHost = config('services.elasticsearch.host', 'localhost:9200');
-            $ch = curl_init("http://{$esHost}/_cluster/health");
-            curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 3]);
-            $response = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-            if ($httpCode === 200) {
-                $health = json_decode($response, true);
-                $serviceChecks['Elasticsearch'] = ['status' => $health['status'] ?? 'ok', 'message' => 'Cluster: '.($health['cluster_name'] ?? 'unknown').' ('.($health['status'] ?? 'unknown').')'];
+            $esHost = rtrim((string) config('services.elasticsearch.host', 'http://localhost:9200'), '/');
+            $info = \Illuminate\Support\Facades\Http::timeout(3)->get($esHost);
+            $health = \Illuminate\Support\Facades\Http::timeout(3)->get($esHost.'/_cluster/health');
+            if ($health->successful()) {
+                $engine = ($info->json('version.distribution') === 'opensearch' ? 'OpenSearch' : 'Elasticsearch').' '.$info->json('version.number');
+                $serviceChecks['Search engine'] = ['status' => $health->json('status') ?? 'ok', 'message' => $engine.' - cluster '.($health->json('cluster_name') ?? 'unknown').' ('.($health->json('status') ?? 'unknown').')'];
             } else {
-                $serviceChecks['Elasticsearch'] = ['status' => 'warning', 'message' => "HTTP {$httpCode}"];
+                $serviceChecks['Search engine'] = ['status' => 'warning', 'message' => 'HTTP '.$health->status()];
             }
         } catch (\Exception $e) {
-            $serviceChecks['Elasticsearch'] = ['status' => 'error', 'message' => 'Not available'];
+            $serviceChecks['Search engine'] = ['status' => 'error', 'message' => 'Not available'];
         }
 
         // Check disk space

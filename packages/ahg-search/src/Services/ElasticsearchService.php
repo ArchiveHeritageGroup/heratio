@@ -86,7 +86,7 @@ class ElasticsearchService
         $url = "{$this->host}/{$this->indexPrefix}{$index}/_search";
         $response = Http::post($url, array_merge($body, ['from' => $from, 'size' => $size]));
 
-        return $response->json();
+        return $this->jsonOrEmpty($response); // a 401/5xx from the search server is not a crash
     }
 
     /**
@@ -342,7 +342,7 @@ class ElasticsearchService
 
         $response = Http::post($url, $body);
 
-        return $response->json();
+        return $this->jsonOrEmpty($response); // a 401/5xx from the search server is not a crash
     }
 
     /**
@@ -511,7 +511,7 @@ class ElasticsearchService
 
         $response = Http::post($url, $body);
 
-        return $response->json();
+        return $this->jsonOrEmpty($response); // a 401/5xx from the search server is not a crash
     }
 
     // ──────────────────────────────────────────────────────────────────────
@@ -1808,4 +1808,20 @@ class ElasticsearchService
 
         return strtoupper($code);
     }
+
+    /**
+     * The decoded body, or [] when the search server answered with an error that is
+     * not JSON (OpenSearch's security plugin returns plain-text "Unauthorized").
+     * The failure is logged so a wrong password or a down server shows in the log
+     * instead of as a 500 page.
+     */
+    private function jsonOrEmpty(\Illuminate\Http\Client\Response $response): array
+    {
+        if (! $response->successful()) {
+            \Illuminate\Support\Facades\Log::warning('Search server returned HTTP '.$response->status().': '.mb_substr((string) $response->body(), 0, 200));
+        }
+
+        return is_array($json = $response->json()) ? $json : [];
+    }
+
 }
