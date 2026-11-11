@@ -45,12 +45,14 @@ jobs:
           --health-timeout=5s
           --health-retries=10
 
-      elasticsearch:
-        image: elasticsearch:8.13.4
+      # Search engine: OpenSearch (Apache-2.0), the supported default.
+      opensearch:
+        image: opensearchproject/opensearch:3.4.0
         env:
           discovery.type: single-node
-          xpack.security.enabled: 'false'
-          ES_JAVA_OPTS: '-Xms512m -Xmx512m'
+          DISABLE_SECURITY_PLUGIN: 'true'
+          DISABLE_INSTALL_DEMO_CONFIG: 'true'
+          OPENSEARCH_JAVA_OPTS: '-Xms512m -Xmx512m'
         ports: ['9200:9200']
         options: >-
           --health-cmd="curl -sf http://localhost:9200/_cluster/health || exit 1"

@@ -7,7 +7,7 @@ Docker installed. Three services come up via Compose:
 |---|---|---|
 | `heratio` | built from `docker/Dockerfile` | PHP 8.3 + nginx + Heratio app, supervised |
 | `mysql`   | `mysql:8.0` | persistent MySQL 8, utf8mb4, native auth |
-| `elasticsearch` | `elasticsearch:8.13.4` | single-node, security off |
+| `opensearch` | `opensearchproject/opensearch:3.4.0` | single-node, private network only, security plugin off |
 
 Cantaloupe (IIIF) and Ollama (AI) are intentionally **not** included - those
 are remote-only on production, and not needed to test the app itself.

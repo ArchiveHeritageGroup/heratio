@@ -161,7 +161,7 @@ fi
 
 # ── Pull + up ────────────────────────────────────────────────────────────────
 echo
-echo "[4/5] pulling image (Heratio + MySQL + Elasticsearch)"
+echo "[4/5] pulling image (Heratio + MySQL + OpenSearch)"
 docker compose --env-file .env.docker pull
 
 echo

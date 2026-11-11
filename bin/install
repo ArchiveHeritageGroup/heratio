@@ -33,7 +33,9 @@
 #   9. Admin user    - create admin (user row + admin ACL group 100)
 #   9b. Migrations   - php artisan migrate --force (after seeds+admin; idempotent)
 #   10. Storage      - mkdir HERATIO_UPLOADS_PATH/HERATIO_BACKUPS_PATH
-#   11. Elasticsearch - php artisan ahg:es-reindex --drop  (--skip-es to skip)
+#   11. Search index - php artisan ahg:es-reindex --drop  (--skip-es to skip)
+#       Search engine: OpenSearch (recommended, Apache-2.0) or Elasticsearch.
+#       Secured server: --es-host=https://... --es-user= --es-pass= [--es-ca=/path/ca.pem | --es-insecure]
 #   11b. Facet cache - php artisan ahg:display-reindex (GLAM browse facets)
 #   12. Nginx        - render config/nginx/heratio.conf.template, link, reload
 #                       (--skip-nginx to skip)
@@ -61,6 +63,10 @@ DB_PASS=""
 DB_HOST="127.0.0.1"
 STORAGE_PATH=""
 ES_HOST="http://localhost:9200"
+ES_USER=""
+ES_PASS=""
+ES_CA=""
+ES_INSECURE=0
 ES_PREFIX="heratio_"
 PHP_FPM_SOCK="/run/php/php8.3-fpm.sock"
 SKIP_ES=0
@@ -88,6 +94,10 @@ while [[ $# -gt 0 ]]; do
         --db-host=*)        DB_HOST="${1#*=}" ;;
         --storage-path=*)   STORAGE_PATH="${1#*=}" ;;
         --es-host=*)        ES_HOST="${1#*=}" ;;
+        --es-user=*)        ES_USER="${1#*=}" ;;
+        --es-pass=*)        ES_PASS="${1#*=}" ;;
+        --es-ca=*)          ES_CA="${1#*=}" ;;
+        --es-insecure)      ES_INSECURE=1 ;;
         --php-fpm-sock=*)   PHP_FPM_SOCK="${1#*=}" ;;
         --skip-es)          SKIP_ES=1 ;;
         --skip-nginx)       SKIP_NGINX=1 ;;
@@ -210,12 +220,21 @@ else
     die "cannot reach MySQL: no login for $DB_USER@$DB_HOST and no local socket. Install mysql-server, or pass --db-pass for an existing server."
 fi
 
+# curl against the search server with its login / CA, when given.
+es_curl() {
+    local a=(-sf)
+    [[ -n "$ES_USER" ]] && a+=(-u "${ES_USER}:${ES_PASS}")
+    [[ -n "$ES_CA" ]] && a+=(--cacert "$ES_CA")
+    [[ "$ES_INSECURE" -eq 1 ]] && a+=(-k)
+    curl "${a[@]}" "$@"
+}
+
 if [[ "$SKIP_ES" -eq 0 ]]; then
-    if curl -sf "$ES_HOST" &>/dev/null; then
-        ok "Elasticsearch reachable at $ES_HOST"
+    if es_curl "$ES_HOST" &>/dev/null; then
+        ok "Search engine reachable at $ES_HOST ($(es_curl "$ES_HOST" | grep -o '"distribution" *: *"[a-z]*"' | grep -o '[a-z]*"$' | tr -d '"' || true))"
     else
-        warn "Elasticsearch unreachable at $ES_HOST - pass --skip-es to bypass or set --es-host"
-        die  "cannot reach ES (see warning above)"
+        warn "Search engine (OpenSearch or Elasticsearch) unreachable at $ES_HOST - pass --skip-es to bypass, or set --es-host (and --es-user/--es-pass for a secured server)"
+        die  "cannot reach the search engine (see warning above)"
     fi
 fi
 
@@ -326,6 +345,10 @@ else
     ensure_env HERATIO_BACKUPS_PATH  "${STORAGE_PATH}/backups"
     ensure_env ELASTICSEARCH_HOST    "${ES_HOST}"
     ensure_env ELASTICSEARCH_PREFIX  "${ES_PREFIX}"
+    [[ -n "$ES_USER" ]] && ensure_env ELASTICSEARCH_USERNAME "${ES_USER}"
+    [[ -n "$ES_PASS" ]] && ensure_env ELASTICSEARCH_PASSWORD "${ES_PASS}"
+    [[ -n "$ES_CA" ]] && ensure_env ELASTICSEARCH_CA "${ES_CA}"
+    [[ "$ES_INSECURE" -eq 1 ]] && ensure_env ELASTICSEARCH_VERIFY_TLS false
     ensure_env SESSION_SECURE_COOKIE "${SECURE_COOKIE}"
     ensure_env SESSION_HTTP_ONLY     true
     ensure_env SESSION_SAME_SITE     lax
@@ -574,15 +597,15 @@ fi
 # ============================================================================
 # 11. Elasticsearch
 # ============================================================================
-say "Stage 11/14 - Elasticsearch"
+say "Stage 11/14 - Search index (OpenSearch / Elasticsearch)"
 if [[ "$SKIP_ES" -eq 1 ]]; then
     warn "skipped (--skip-es)"
 else
-    if curl -sf "$ES_HOST" &>/dev/null; then
+    if es_curl "$ES_HOST" &>/dev/null; then
         php artisan ahg:es-reindex --drop --quiet 2>&1 | tail -5 || warn "reindex returned non-zero - check logs"
-        ok "ES indices created/reindexed"
+        ok "search indices created/reindexed"
     else
-        warn "ES not reachable at $ES_HOST - skipping reindex"
+        warn "search engine not reachable at $ES_HOST - skipping reindex"
     fi
 fi
 
@@ -655,7 +678,7 @@ cat <<REPORT
     Password   : ${ADMIN_PASSWORD}    ← printed once. Save it now.
   Database     : ${DB_NAME}@${DB_HOST}
   Storage      : ${STORAGE_PATH}
-  Elasticsearch: ${ES_HOST}  (prefix: ${ES_PREFIX})
+  Search engine: ${ES_HOST}  (prefix: ${ES_PREFIX})
 
   Optional sub-installers (run when ready):
     sudo bin/install-cantaloupe   IIIF service for OpenSeadragon/Mirador (supported raster formats)

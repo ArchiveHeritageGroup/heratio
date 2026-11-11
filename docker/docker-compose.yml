@@ -1,7 +1,7 @@
 # =============================================================================
 # Heratio - full test stack
 #
-# Brings up: app (php-fpm + nginx via supervisor) + mysql 8 + elasticsearch 8.
+# Brings up: app (php-fpm + nginx via supervisor) + mysql 8 + OpenSearch 3.
 # Cantaloupe IIIF and Ollama are intentionally NOT included - they're
 # remote-only on production (per project policy) and not needed for app tests.
 #
@@ -30,7 +30,7 @@ services:
     container_name: heratio-app
     depends_on:
       mysql:        { condition: service_healthy }
-      elasticsearch: { condition: service_healthy }
+      opensearch: { condition: service_healthy }
     environment:
       APP_ENV:                 ${APP_ENV:-local}
       APP_DEBUG:               ${APP_DEBUG:-true}
@@ -45,7 +45,7 @@ services:
       DB_DATABASE:             ${DB_DATABASE:-heratio}
       DB_USERNAME:             ${DB_USERNAME:-heratio}
       DB_PASSWORD:             ${DB_PASSWORD:-heratio-test}
-      ELASTICSEARCH_HOST:      http://elasticsearch:9200
+      ELASTICSEARCH_HOST:      http://opensearch:9200
       ELASTICSEARCH_PREFIX:    heratio_
       HERATIO_STORAGE_PATH:    /var/www/heratio/storage/uploads
       HERATIO_UPLOADS_PATH:    /var/www/heratio/storage/uploads
@@ -94,16 +94,23 @@ services:
       retries: 10
     restart: unless-stopped
 
-  elasticsearch:
-    image: elasticsearch:8.13.4
-    container_name: heratio-es
+  # Search engine: OpenSearch (Apache-2.0). Only reachable on this stack's
+  # private network (no published port), so the security plugin is off here.
+  # If the search server is ever exposed, turn security on and set
+  # ELASTICSEARCH_USERNAME / ELASTICSEARCH_PASSWORD / ELASTICSEARCH_CA for the
+  # heratio service (docs/opensearch-install.md). The indices are rebuilt from
+  # MySQL on first boot, so switching from the old Elasticsearch volume is safe.
+  opensearch:
+    image: opensearchproject/opensearch:3.4.0
+    container_name: heratio-opensearch
     environment:
       discovery.type:            single-node
-      xpack.security.enabled:    'false'
-      ES_JAVA_OPTS:              '-Xms512m -Xmx512m'
+      DISABLE_SECURITY_PLUGIN:   'true'
+      DISABLE_INSTALL_DEMO_CONFIG: 'true'
+      OPENSEARCH_JAVA_OPTS:      '-Xms512m -Xmx512m'
       cluster.routing.allocation.disk.threshold_enabled: 'false'
     volumes:
-      - heratio-es:/usr/share/elasticsearch/data
+      - heratio-opensearch:/usr/share/opensearch/data
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:9200/_cluster/health | grep -qE 'green|yellow'"]
       interval: 15s
@@ -117,4 +124,4 @@ volumes:
   heratio-backups:
   heratio-state:
   heratio-mysql:
-  heratio-es:
+  heratio-opensearch:
