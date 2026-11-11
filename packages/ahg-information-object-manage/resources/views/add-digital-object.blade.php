@@ -139,7 +139,7 @@
             <input type="url" id="external_url" name="external_url"
                    class="form-control @error('external_url') is-invalid @enderror"
                    value="{{ old('external_url') }}"
-                   placeholder="https://example.com/file.pdf, ftp://host/path/file.tif, https://sketchfab.com/3d-models/...">
+                   placeholder="{{ __('https://example.com/file.pdf, ftp://host/path/file.tif, https://sketchfab.com/3d-models/...') }}">
             @error('external_url')
               <div class="invalid-feedback">{{ $message }}</div>
             @enderror
