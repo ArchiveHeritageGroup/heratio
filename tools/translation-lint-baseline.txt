@@ -2104,42 +2104,6 @@ packages/ahg-user-manage/src/Controllers/UserController.php	flash	User created s
 packages/ahg-user-manage/src/Controllers/UserController.php	flash	User deleted successfully.
 packages/ahg-user-manage/src/Controllers/UserController.php	flash	User updated successfully.
 packages/ahg-user-manage/src/Controllers/UserController.php	flash	Your plugin preferences have been saved.
-packages/ahg-vendor/resources/views/browse.blade.php	text	Overdue Transactions ({{…}})
-packages/ahg-vendor/resources/views/browse.blade.php	text	View all transactions &rarr;
-packages/ahg-vendor/resources/views/browse.blade.php	text	{{…}} days
-packages/ahg-vendor/resources/views/edit-transaction.blade.php	text	Edit Transaction: {{…}}
-packages/ahg-vendor/resources/views/edit.blade.php	text	Edit Vendor: {{…}}
-packages/ahg-vendor/resources/views/index.blade.php	text	Overdue Transactions ({{…}})
-packages/ahg-vendor/resources/views/index.blade.php	text	View all transactions &rarr;
-packages/ahg-vendor/resources/views/index.blade.php	text	{{…}} days
-packages/ahg-vendor/resources/views/list.blade.php	text	{{…}} active
-packages/ahg-vendor/resources/views/view-transaction.blade.php	text	Created: {{…}}
-packages/ahg-vendor/resources/views/view-transaction.blade.php	text	Updated: {{…}}
-packages/ahg-vendor/resources/views/view.blade.php	text	Created: {{…}}
-packages/ahg-vendor/resources/views/view.blade.php	text	Updated: {{…}}
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Cannot delete vendor with active transactions
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Contact added successfully
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Contact deleted
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Contact name is required
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Contact updated
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Error:
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Information object is required
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Invalid request.
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Invalid request.
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Invalid status
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Item added to transaction
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Item removed from transaction
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Item updated
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Name is required.
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Service type added successfully.
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Service type deleted successfully.
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Service type updated successfully.
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Status updated successfully
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Transaction created successfully
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Transaction updated successfully
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Vendor created successfully
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Vendor deleted successfully
-packages/ahg-vendor/src/Controllers/VendorController.php	flash	Vendor updated successfully
 packages/ahg-version-control/resources/views/diff.blade.php	text	field_definition_id={{…}}
 packages/ahg-version-control/resources/views/diff.blade.php	text	· seq {{…}}
 packages/ahg-workflow/resources/views/admin.blade.php	text	No workflows configured yet. Create your first workflow to get started.

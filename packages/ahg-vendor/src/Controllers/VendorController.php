@@ -301,7 +301,7 @@ class VendorController extends Controller
 
                     return redirect()
                         ->route('ahgvendor.view', ['slug' => $vendor->slug])
-                        ->with('notice', 'Vendor created successfully');
+                        ->with('notice', __('Vendor created successfully'));
                 } catch (\Exception $e) {
                     $errors['general'] = $e->getMessage();
                 }
@@ -377,7 +377,7 @@ class VendorController extends Controller
 
                     return redirect()
                         ->route('ahgvendor.view', ['slug' => $vendor->slug])
-                        ->with('notice', 'Vendor updated successfully');
+                        ->with('notice', __('Vendor updated successfully'));
                 } catch (\Exception $e) {
                     $errors['general'] = $e->getMessage();
                 }
@@ -413,7 +413,7 @@ class VendorController extends Controller
         if ($activeTransactions > 0) {
             return redirect()
                 ->route('ahgvendor.list')
-                ->with('error', 'Cannot delete vendor with active transactions');
+                ->with('error', __('Cannot delete vendor with active transactions'));
         }
 
         // #1263 audit delete (before the row is gone) + cascade, via the service.
@@ -421,7 +421,7 @@ class VendorController extends Controller
 
         return redirect()
             ->route('ahgvendor.list')
-            ->with('notice', 'Vendor deleted successfully');
+            ->with('notice', __('Vendor deleted successfully'));
     }
 
     // =========================================================================
@@ -455,7 +455,7 @@ class VendorController extends Controller
         if (empty($data['name'])) {
             return redirect()
                 ->route('ahgvendor.view', ['slug' => $slug])
-                ->with('error', 'Contact name is required');
+                ->with('error', __('Contact name is required'));
         }
 
         // If marking as primary, clear other primary flags
@@ -470,7 +470,7 @@ class VendorController extends Controller
 
         return redirect()
             ->route('ahgvendor.view', ['slug' => $slug])
-            ->with('notice', 'Contact added successfully');
+            ->with('notice', __('Contact added successfully'));
     }
 
     /**
@@ -507,7 +507,7 @@ class VendorController extends Controller
 
         return redirect()
             ->route('ahgvendor.view', ['slug' => $slug])
-            ->with('notice', 'Contact updated');
+            ->with('notice', __('Contact updated'));
     }
 
     /**
@@ -520,7 +520,7 @@ class VendorController extends Controller
 
         return redirect()
             ->route('ahgvendor.view', ['slug' => $slug])
-            ->with('notice', 'Contact deleted');
+            ->with('notice', __('Contact deleted'));
     }
 
     // =========================================================================
@@ -769,7 +769,7 @@ class VendorController extends Controller
 
                     return redirect()
                         ->route('ahgvendor.view-transaction', ['id' => $transactionId])
-                        ->with('notice', 'Transaction created successfully');
+                        ->with('notice', __('Transaction created successfully'));
                 } catch (\Exception $e) {
                     $errors['general'] = $e->getMessage();
                 }
@@ -840,7 +840,7 @@ class VendorController extends Controller
 
                 return redirect()
                     ->route('ahgvendor.view-transaction', ['id' => $id])
-                    ->with('notice', 'Transaction updated successfully');
+                    ->with('notice', __('Transaction updated successfully'));
             } catch (\Exception $e) {
                 $errors['general'] = $e->getMessage();
             }
@@ -874,7 +874,7 @@ class VendorController extends Controller
         if (! in_array($status, $validStatuses)) {
             return redirect()
                 ->route('ahgvendor.view-transaction', ['id' => $id])
-                ->with('error', 'Invalid status');
+                ->with('error', __('Invalid status'));
         }
 
         $updateData = [
@@ -903,7 +903,7 @@ class VendorController extends Controller
 
         return redirect()
             ->route('ahgvendor.view-transaction', ['id' => $id])
-            ->with('notice', 'Status updated successfully');
+            ->with('notice', __('Status updated successfully'));
     }
 
     // =========================================================================
@@ -920,7 +920,7 @@ class VendorController extends Controller
         if (empty($ioId)) {
             return redirect()
                 ->route('ahgvendor.view-transaction', ['id' => $transactionId])
-                ->with('error', 'Information object is required');
+                ->with('error', __('Information object is required'));
         }
 
         $this->addTransactionItemRecord(
@@ -934,7 +934,7 @@ class VendorController extends Controller
 
         return redirect()
             ->route('ahgvendor.view-transaction', ['id' => $transactionId])
-            ->with('notice', 'Item added to transaction');
+            ->with('notice', __('Item added to transaction'));
     }
 
     /**
@@ -955,7 +955,7 @@ class VendorController extends Controller
 
         return redirect()
             ->route('ahgvendor.view-transaction', ['id' => $transactionId])
-            ->with('notice', 'Item updated');
+            ->with('notice', __('Item updated'));
     }
 
     /**
@@ -967,7 +967,7 @@ class VendorController extends Controller
 
         return redirect()
             ->route('ahgvendor.view-transaction', ['id' => $transactionId])
-            ->with('notice', 'Item removed from transaction');
+            ->with('notice', __('Item removed from transaction'));
     }
 
     // =========================================================================
@@ -992,7 +992,7 @@ class VendorController extends Controller
                         if (empty($name)) {
                             return redirect()
                                 ->route('ahgvendor.service-types')
-                                ->with('error', 'Name is required.');
+                                ->with('error', __('Name is required.'));
                         }
                         $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '-', $name));
                         $maxOrder = DB::table('ahg_vendor_service_types')->max('display_order') ?? 0;
@@ -1008,13 +1008,13 @@ class VendorController extends Controller
 
                         return redirect()
                             ->route('ahgvendor.service-types')
-                            ->with('success', 'Service type added successfully.');
+                            ->with('success', __('Service type added successfully.'));
 
                     case 'edit':
                         if (empty($id) || empty($name)) {
                             return redirect()
                                 ->route('ahgvendor.service-types')
-                                ->with('error', 'Invalid request.');
+                                ->with('error', __('Invalid request.'));
                         }
                         $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '-', $name));
                         DB::table('ahg_vendor_service_types')->where('id', $id)->update([
@@ -1027,24 +1027,24 @@ class VendorController extends Controller
 
                         return redirect()
                             ->route('ahgvendor.service-types')
-                            ->with('success', 'Service type updated successfully.');
+                            ->with('success', __('Service type updated successfully.'));
 
                     case 'delete':
                         if (empty($id)) {
                             return redirect()
                                 ->route('ahgvendor.service-types')
-                                ->with('error', 'Invalid request.');
+                                ->with('error', __('Invalid request.'));
                         }
                         DB::table('ahg_vendor_service_types')->where('id', $id)->delete();
 
                         return redirect()
                             ->route('ahgvendor.service-types')
-                            ->with('success', 'Service type deleted successfully.');
+                            ->with('success', __('Service type deleted successfully.'));
                 }
             } catch (\Exception $e) {
                 return redirect()
                     ->route('ahgvendor.service-types')
-                    ->with('error', 'Error: '.$e->getMessage());
+                    ->with('error', __('Error: :message', ['message' => $e->getMessage()]));
             }
 
             return redirect()->route('ahgvendor.service-types');
