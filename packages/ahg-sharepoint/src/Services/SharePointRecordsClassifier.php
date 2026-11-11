@@ -47,9 +47,9 @@ class SharePointRecordsClassifier
         'overtime' => 'claim', 'travel claim' => 'claim', 'incident report' => 'incident_report',
         'visitor register' => 'register', 'site access' => 'site_access', 'induction' => 'site_access',
         'credit note' => 'credit_note', 'statement' => 'statement', 'quotation' => 'quotation',
-        'goods received' => 'goods_received_note', 'grn-' => 'goods_received_note',
+        'goods received' => 'goods_received_note', ' grn ' => 'goods_received_note',
         'purchase order' => 'purchase_order', 'delivery note' => 'delivery_note',
-        'bank confirmation' => 'bank_letter', 'bank details' => 'bank_letter',
+        'bank confirmation' => 'bank_letter', 'bank account' => 'bank_letter', 'bank details' => 'bank_letter',
         'supplier registration' => 'supplier_record', 'affidavit' => 'supplier_record',
         'invoice' => 'invoice',
     ];
@@ -57,7 +57,8 @@ class SharePointRecordsClassifier
     /** The type for a read document: its title first (more specific), then what the reader said. */
     public static function typeFor(?string $readerType, string $title): ?string
     {
-        $t = mb_strtolower($title);
+        // File names often use _ - or . for spaces ("01_Bank_Account_Confirmation").
+        $t = ' '.preg_replace('/\s+/u', ' ', str_replace(['_', '-', '.'], ' ', mb_strtolower($title))).' ';
         foreach (self::TITLE as $needle => $type) {
             if (str_contains($t, $needle)) {
                 return $type;

@@ -29,6 +29,8 @@ class SharePointRecordsClassifierTest extends TestCase
             ['invoice', 'SAMPLE - Sworn affidavit, B-BBEE status (supplier director) - ID number', '5/1 Supplier registration and vetting'],
             ['invoice', 'SAMPLE - Overtime and travel claim (employee) - ID and bank details', '2/3 Leave overtime and travel claims'],
             ['invoice', 'SAMPLE - Incident report IR-2026-077 - injury and medical information', '3/1 Incident reports'],
+            ['invoice', '01_Bank_Account_Confirmation_SAMPLE', '4/2/1 Bank account changes and confirmations'],
+            ['invoice', 'Delivery-Note-DN_4471', '5/3/1 Delivery notes'],
             ['invoice', 'SAMPLE - Visitor register, Gate 2, 10 November 2026 - personal information - SCANNED', '3/2 Site access and visitor registers'],
         ];
         foreach ($cases as [$reader, $title, $fileplan]) {
