@@ -74,6 +74,35 @@ class SharePointRecordsColumnsCommand extends Command
             }
         }
 
+        // 1b. File plan as a Choice column on both libraries (Graph cannot write
+        // Managed Metadata). An existing File plan column that is not a Choice
+        // (e.g. Managed Metadata) is left alone - delete it first to switch.
+        foreach ([[$model['id'], $this->option('model'), false], [$targetId, $drive->drive_name, true]] as [$listId, $listName, $supplierOnly]) {
+            $cols = $listId === $model['id'] ? $modelCols : $this->columns($graph, $t, $site, $listId);
+            $entries = SharePointRecordsClassifier::fileplanEntries($supplierOnly);
+            $fp = $cols['File plan'] ?? null;
+            if ($fp && ! isset($fp['choice'])) {
+                $this->warn("  {$listName} / File plan is not a Choice column (Managed Metadata?) - delete it to let Heratio create the Choice version");
+
+                continue;
+            }
+            if (! $fp) {
+                $this->line("  + {$listName} / File plan (".count($entries).' entries)');
+                if (! $check) {
+                    $graph->post($t, "/sites/{$site}/lists/{$listId}/columns", ['name' => 'FilePlan', 'displayName' => 'File plan',
+                        'choice' => ['allowTextEntry' => false, 'choices' => $entries, 'displayAs' => 'dropDownMenu']]);
+                }
+            } elseif (array_diff($entries, $fp['choice']['choices'] ?? [])) {
+                $this->line("  {$listName} / File plan: ".count($entries).' entries');
+                if (! $check) {
+                    $graph->patch($t, "/sites/{$site}/lists/{$listId}/columns/{$fp['id']}", ['choice' => array_merge($fp['choice'], ['choices' => array_values(array_unique(array_merge($fp['choice']['choices'] ?? [], $entries)))])]);
+                }
+            }
+            if ($listId === $targetId && $targetId === $model['id']) {
+                break;
+            }
+        }
+
         // 2. The target library (Supplier invoices): only the columns relevant to
         // supplier documents - Record Type (supplier types only), Record Date,
         // Status. Record Class and Function/Directorate would always read

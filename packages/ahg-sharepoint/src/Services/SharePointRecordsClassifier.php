@@ -119,7 +119,36 @@ class SharePointRecordsClassifier
             $out['Record Class'] = array_values(array_unique(array_column($rows, 2)));
             $out['Function/Directorate'] = array_values(array_unique(array_column($rows, 3)));
         }
+        $out['File plan'] = self::fileplanEntries($supplierOnly);
 
         return $out;
+    }
+
+    /**
+     * The file plan entries ("5/2/2 Purchase orders") from the sample file plan,
+     * in code order. $supplierOnly: series 4 and 5 (finance, supply chain).
+     * ponytail: a Choice column stands in for Managed Metadata, which Graph
+     * cannot write; move to the term set once SharePoint REST (certificate
+     * app-only sign-in) is in place.
+     *
+     * @return string[]
+     */
+    public static function fileplanEntries(bool $supplierOnly = false): array
+    {
+        $path = base_path('packages/ahg-sharepoint/resources/fileplans/kopano-sample-file-plan.csv');
+        if (! is_file($path) || ! ($fh = fopen($path, 'r'))) {
+            return [];
+        }
+        fgetcsv($fh);
+        $rows = [];
+        while (($r = fgetcsv($fh)) !== false) {
+            if (! empty($r[0]) && (! $supplierOnly || in_array(explode('/', $r[0])[0], ['4', '5'], true))) {
+                $rows[$r[0]] = $r[0].' '.$r[1];
+            }
+        }
+        fclose($fh);
+        uksort($rows, fn ($a, $b) => version_compare(str_replace('/', '.', $a), str_replace('/', '.', $b)));   // 4 < 4/1 < 4/2/1 < 5
+
+        return array_values($rows);
     }
 }
