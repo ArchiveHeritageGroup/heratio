@@ -23,7 +23,7 @@ $entityData = $entityData ?? (object)[];
               <h1 class="h2 mb-2">{{ $entityData->display_label ?? $entityData->canonical_value ?? 'Entity' }}</h1>
               <div class="d-flex flex-wrap gap-2 mb-3">
                 <span class="badge fs-6" style="background-color:{{ $typeColors[$entityData->entity_type ?? ''] ?? '#999' }}">{{ ucfirst($entityData->entity_type ?? 'Unknown') }}</span>
-                <span class="badge bg-light text-dark fs-6"><i class="fas fa-file me-1"></i>{{ number_format($entityData->occurrence_count ?? 0) }} records</span>
+        <span class="badge bg-light text-dark fs-6"><i class="fas fa-file me-1"></i>{{ __(':count records', ['count' => number_format($entityData->occurrence_count ?? 0)]) }}</span>
                 @if(($entityData->confidence_avg ?? 0) >= 0.9)<span class="badge bg-success fs-6"><i class="fas fa-check-circle me-1"></i>{{ __('High Confidence') }}</span>
                 @elseif(($entityData->confidence_avg ?? 0) >= 0.7)<span class="badge bg-warning text-dark fs-6">{{ __('Medium Confidence') }}</span>@endif
               </div>
@@ -39,7 +39,7 @@ $entityData = $entityData ?? (object)[];
             <div class="list-group list-group-flush">
               @foreach(array_slice($objectsArray,0,10) as $obj)
               <a href="{{ route('informationobject.show', $obj->slug ?? '#') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                <div><h6 class="mb-1">{{ $obj->title ?? 'Untitled' }}</h6>@if(($obj->mention_count ?? 0) > 1)<small class="text-muted">Mentioned {{ $obj->mention_count }} times</small>@endif</div>
+        <div><h6 class="mb-1">{{ $obj->title ?? 'Untitled' }}</h6>@if(($obj->mention_count ?? 0) > 1)<small class="text-muted">{{ __('Mentioned :count times', ['count' => $obj->mention_count]) }}</small>@endif</div>
                 <span class="badge bg-primary rounded-pill">{{ round(($obj->confidence ?? 0) * 100) }}%</span>
               </a>
               @endforeach

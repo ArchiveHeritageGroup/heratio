@@ -68,7 +68,7 @@ $summary = (array)($contentData['summary'] ?? ['total_items'=>0,'total_views'=>0
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>{{ __('Quality Issues') }}</h5>
-        <span class="badge bg-warning text-dark">{{ count($qualityIssues) }} items</span>
+        <span class="badge bg-warning text-dark">{{ __(':count items', ['count' => count($qualityIssues)]) }}</span>
       </div>
       <div class="card-body p-0">
         @if(!empty($qualityIssues))

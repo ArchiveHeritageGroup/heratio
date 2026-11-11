@@ -31,10 +31,10 @@ $total = $requestData['total'] ?? 0;
           @php $color = ['pending'=>'warning','approved'=>'success','denied'=>'danger','expired'=>'secondary'][$request->status] ?? 'secondary'; @endphp
           <div class="list-group-item">
             <div class="d-flex justify-content-between align-items-start">
-              <div><h6 class="mb-1">{{ $request->object_title ?? $request->slug ?? 'Item' }}</h6><small class="text-muted">Purpose: {{ $request->purpose_name ?? 'Not specified' }}</small></div>
+        <div><h6 class="mb-1">{{ $request->object_title ?? $request->slug ?? 'Item' }}</h6><small class="text-muted">{{ __('Purpose: :purpose', ['purpose' => $request->purpose_name ?? 'Not specified']) }}</small></div>
               <div class="text-end"><span class="badge bg-{{ $color }}">{{ ucfirst($request->status) }}</span><br><small class="text-muted">{{ date('M d, Y', strtotime($request->created_at)) }}</small></div>
             </div>
-            @if($request->status === 'approved' && $request->valid_until)<div class="mt-2"><small class="text-success"><i class="fas fa-check-circle me-1"></i>Access valid until {{ date('M d, Y', strtotime($request->valid_until)) }}</small></div>
+        @if($request->status === 'approved' && $request->valid_until)<div class="mt-2"><small class="text-success"><i class="fas fa-check-circle me-1"></i>{{ __('Access valid until :date', ['date' => date('M d, Y', strtotime($request->valid_until))]) }}</small></div>
             @elseif($request->status === 'denied' && $request->decision_notes)<div class="mt-2"><small class="text-danger"><i class="fas fa-info-circle me-1"></i>{{ $request->decision_notes }}</small></div>@endif
           </div>
           @endforeach

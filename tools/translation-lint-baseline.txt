@@ -876,64 +876,7 @@ packages/ahg-help/resources/views/search.blade.php	text	No results found for "{{
 packages/ahg-help/src/Controllers/HelpController.php	flash	Could not find that article - pick one from the list or paste its /help/article/… URL.
 packages/ahg-help/src/Controllers/HelpController.php	flash	Link added.
 packages/ahg-help/src/Controllers/HelpController.php	flash	Link removed.
-packages/ahg-heritage-manage/resources/views/admin-access-requests.blade.php	text	{{…}} pending
-packages/ahg-heritage-manage/resources/views/admin-config.blade.php	text	{{…}} stories
-packages/ahg-heritage-manage/resources/views/admin-embargoes.blade.php	text	{{…}} active
-packages/ahg-heritage-manage/resources/views/admin-featured-collections.blade.php	text	{{…}} collections
-packages/ahg-heritage-manage/resources/views/admin-hero-slides.blade.php	text	Hero Image {{…}}
-packages/ahg-heritage-manage/resources/views/admin-hero-slides.blade.php	text	{{…}} slides
-packages/ahg-heritage-manage/resources/views/admin-popia.blade.php	text	{{…}} flags
-packages/ahg-heritage-manage/resources/views/admin-users.blade.php	text	{{…}} (Level {{…}})
-packages/ahg-heritage-manage/resources/views/admin-users.blade.php	text	{{…}} total
-packages/ahg-heritage-manage/resources/views/analytics-content.blade.php	text	{{…}} items
-packages/ahg-heritage-manage/resources/views/analytics-dashboard.blade.php	text	30 Days
-packages/ahg-heritage-manage/resources/views/analytics-dashboard.blade.php	text	7 Days
-packages/ahg-heritage-manage/resources/views/analytics-dashboard.blade.php	text	90 Days
-packages/ahg-heritage-manage/resources/views/collections.blade.php	text	{{…}} images
-packages/ahg-heritage-manage/resources/views/collections.blade.php	text	{{…}} items
-packages/ahg-heritage-manage/resources/views/contribute.blade.php	text	Earn {{…}} points
 packages/ahg-heritage-manage/resources/views/contribute.blade.php	title-attr	'.e($opp['reason']).'
-packages/ahg-heritage-manage/resources/views/contributor-profile.blade.php	text	Member since {{…}}
-packages/ahg-heritage-manage/resources/views/contributor-profile.blade.php	text	{{…}} Contributor
-packages/ahg-heritage-manage/resources/views/contributor-register.blade.php	text	and understand that my contributions will be reviewed before publication
-packages/ahg-heritage-manage/resources/views/custodian-batch.blade.php	text	{{…}} failed
-packages/ahg-heritage-manage/resources/views/custodian-batch.blade.php	text	{{…}} jobs
-packages/ahg-heritage-manage/resources/views/custodian-batch.blade.php	text	{{…}}/{{…}} items
-packages/ahg-heritage-manage/resources/views/custodian-history.blade.php	text	{{…}} entries
-packages/ahg-heritage-manage/resources/views/entity.blade.php	text	Mentioned {{…}} times
-packages/ahg-heritage-manage/resources/views/entity.blade.php	text	{{…}} records
-packages/ahg-heritage-manage/resources/views/explore.blade.php	text	{{…}} items
-packages/ahg-heritage-manage/resources/views/explore.blade.php	text	{{…}} items found
-packages/ahg-heritage-manage/resources/views/landing.blade.php	text	&copy; {{…}} {{…}}. All rights reserved.
-packages/ahg-heritage-manage/resources/views/landing.blade.php	text	{{…}} items
-packages/ahg-heritage-manage/resources/views/landing.blade.php	text	{{…}} items
-packages/ahg-heritage-manage/resources/views/landing.blade.php	text	{{…}} points
-packages/ahg-heritage-manage/resources/views/my-access-requests.blade.php	text	Access valid until {{…}}
-packages/ahg-heritage-manage/resources/views/my-access-requests.blade.php	text	Purpose: {{…}}
-packages/ahg-heritage-manage/resources/views/my-contributions.blade.php	text	+{{…}} pts
-packages/ahg-heritage-manage/resources/views/request-access.blade.php	text	(Requires Approval)
-packages/ahg-heritage-manage/resources/views/review-contribution.blade.php	text	+{{…}} pts
-packages/ahg-heritage-manage/resources/views/review-queue.blade.php	text	+{{…}} pts
-packages/ahg-heritage-manage/resources/views/review-queue.blade.php	text	{{…}} &middot; Submitted {{…}}
-packages/ahg-heritage-manage/resources/views/review-queue.blade.php	text	{{…}} approved
-packages/ahg-heritage-manage/resources/views/review-queue.blade.php	text	{{…}} pending
-packages/ahg-heritage-manage/resources/views/search.blade.php	text	Browse Collections
-packages/ahg-heritage-manage/resources/views/search.blade.php	text	Search: "{{…}}"
-packages/ahg-heritage-manage/resources/views/search.blade.php	text	Show all {{…}} options
-packages/ahg-heritage-manage/resources/views/search.blade.php	text	Showing results matching:
-packages/ahg-heritage-manage/resources/views/search.blade.php	text	Try adjusting your filters or search terms.
-packages/ahg-heritage-manage/resources/views/search.blade.php	text	We couldn't find anything matching "{{…}}".
-packages/ahg-heritage-manage/resources/views/search.blade.php	text	{{…}} results
-packages/ahg-heritage-manage/resources/views/timeline.blade.php	text	{{…}} items
-packages/ahg-heritage-manage/resources/views/timeline.blade.php	text	{{…}} items from this period
-packages/ahg-heritage-manage/resources/views/trending.blade.php	text	{{…}} views
-packages/ahg-heritage-manage/src/Controllers/HeritageController.php	flash	Access request submitted successfully
-packages/ahg-heritage-manage/src/Controllers/HeritageController.php	flash	Contribution submitted successfully
-packages/ahg-heritage-manage/src/Controllers/HeritageController.php	flash	Failed to submit contribution:
-packages/ahg-heritage-manage/src/Controllers/HeritageController.php	flash	Failed to submit request
-packages/ahg-heritage-manage/src/Controllers/HeritageController.php	flash	Registration failed:
-packages/ahg-heritage-manage/src/Controllers/HeritageController.php	flash	You have been logged out
-packages/ahg-heritage-manage/src/Controllers/HeritageController.php	flash	heritage_landing_config table not installed; run migrations first.
 packages/ahg-icip/resources/views/communities.blade.php	text	communities found
 packages/ahg-icip/resources/views/community-edit.blade.php	text	{{…}} Community
 packages/ahg-icip/resources/views/consent-edit.blade.php	text	{{…}} Consent

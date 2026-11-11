@@ -32,8 +32,8 @@
           </div>
           <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
             <div>
-              @if(($collection['item_count'] ?? 0) > 0)<span class="badge bg-secondary me-2">{{ number_format($collection['item_count']) }} items</span>@endif
-              @if(($collection['image_count'] ?? 0) > 0)<span class="badge bg-info">{{ number_format($collection['image_count']) }} images</span>@endif
+              @if(($collection['item_count'] ?? 0) > 0)<span class="badge bg-secondary me-2">{{ __(':count items', ['count' => number_format($collection['item_count'])]) }}</span>@endif
+              @if(($collection['image_count'] ?? 0) > 0)<span class="badge bg-info">{{ __(':count images', ['count' => number_format($collection['image_count'])]) }}</span>@endif
             </div>
             @if(($collection['link_type'] ?? '') === 'search' && ($collection['link_reference'] ?? ''))
             <a href="{{ route('heritage.search', ['q' => $collection['link_reference']]) }}" class="btn btn-outline-primary btn-sm">{{ __('Explore') }} <i class="fas fa-arrow-right"></i></a>

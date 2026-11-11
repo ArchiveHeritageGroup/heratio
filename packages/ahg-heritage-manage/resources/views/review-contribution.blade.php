@@ -49,7 +49,7 @@ $versions = $contribution['versions'] ?? [];
         <div class="row mb-4">
           <div class="col-md-4"><small class="text-muted d-block">{{ __('Submitted') }}</small><strong>{{ date('M d, Y H:i', strtotime($contribution['created_at'] ?? 'now')) }}</strong></div>
           <div class="col-md-4"><small class="text-muted d-block">{{ __('Version') }}</small><strong>v{{ $contribution['version_number'] ?? 1 }}</strong></div>
-          <div class="col-md-4"><small class="text-muted d-block">{{ __('Points Value') }}</small><strong class="text-success">+{{ $type['points_value'] ?? 0 }} pts</strong></div>
+          <div class="col-md-4"><small class="text-muted d-block">{{ __('Points Value') }}</small><strong class="text-success">{{ __('+:count pts', ['count' => $type['points_value'] ?? 0]) }}</strong></div>
         </div>
         <hr>
         <h6 class="text-muted mb-3">{{ __('Contribution Content') }}</h6>

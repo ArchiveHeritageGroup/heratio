@@ -96,7 +96,7 @@ $heroImagesArray = $heroImages ?? [];
       <div class="card border-0 shadow-sm mb-4" id="section-stories">
         <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
           <h2 class="h5 mb-0">{{ __('Featured Stories') }}</h2>
-          <span class="badge bg-secondary">{{ count($stories ?? []) }} stories</span>
+          <span class="badge bg-secondary">{{ __(':count stories', ['count' => count($stories ?? [])]) }}</span>
         </div>
         <div class="card-body">
           @if(empty($stories ?? []))

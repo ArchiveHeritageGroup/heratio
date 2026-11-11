@@ -47,7 +47,7 @@ $pages = $requestData['pages'] ?? 1;
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">{{ __('Pending Requests') }}</h5>
-        <span class="badge bg-warning text-dark">{{ number_format($total) }} pending</span>
+        <span class="badge bg-warning text-dark">{{ __(':count pending', ['count' => number_format($total)]) }}</span>
       </div>
       <div class="card-body p-0">
         @if(empty($requests))

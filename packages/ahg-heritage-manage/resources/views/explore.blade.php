@@ -25,7 +25,7 @@
     <div class="row mb-4"><div class="col-12">
       <h1 class="display-5 fw-bold mb-2"><i class="{{ $currentCategory['icon'] ?? 'fas fa-compass' }} me-2"></i>{{ $currentCategory['name'] }}</h1>
       @if($currentCategory['description'] ?? false)<p class="lead text-muted">{{ $currentCategory['description'] }}</p>@endif
-      @if(isset($totalItems))<p class="text-muted">{{ number_format($totalItems) }} items found</p>@endif
+      @if(isset($totalItems))<p class="text-muted">{{ __(':count items found', ['count' => number_format($totalItems)]) }}</p>@endif
     </div></div>
 
     @if(!empty($items))
@@ -39,7 +39,7 @@
       <div class="row g-3">
         @foreach($items as $item)
         <div class="col-6 col-md-4 col-lg-3">
-          <a href="{{ route('heritage.search', [$currentCategory['source_reference'] ?? 'q' => $item['name']]) }}" class="card h-100 text-decoration-none"><div class="card-body text-center"><h5 class="card-title">{{ $item['name'] }}</h5>@if(isset($item['count']))<span class="badge bg-secondary">{{ number_format($item['count']) }} items</span>@endif</div></a>
+      <a href="{{ route('heritage.search', [$currentCategory['source_reference'] ?? 'q' => $item['name']]) }}" class="card h-100 text-decoration-none"><div class="card-body text-center"><h5 class="card-title">{{ $item['name'] }}</h5>@if(isset($item['count']))<span class="badge bg-secondary">{{ __(':count items', ['count' => number_format($item['count'])]) }}</span>@endif</div></a>
         </div>
         @endforeach
       </div>

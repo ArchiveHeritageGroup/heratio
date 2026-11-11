@@ -38,7 +38,7 @@ $pages = $userData['pages'] ?? 1;
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">{{ __('Users') }}</h5>
-        <span class="badge bg-secondary">{{ number_format($total) }} total</span>
+        <span class="badge bg-secondary">{{ __(':count total', ['count' => number_format($total)]) }}</span>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">
@@ -90,7 +90,7 @@ $pages = $userData['pages'] ?? 1;
               <label for="trust_level_id" class="form-label">{{ __('Trust Level') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select class="form-select" name="trust_level_id" id="trust_level_id" required>
                 @foreach($trustLevels ?? [] as $level)
-                <option value="{{ $level->id }}">{{ $level->name }} (Level {{ $level->level }})</option>
+                <option value="{{ $level->id }}">{{ __(':name (Level :level)', ['name' => $level->name, 'level' => $level->level]) }}</option>
                 @endforeach
               </select>
             </div>

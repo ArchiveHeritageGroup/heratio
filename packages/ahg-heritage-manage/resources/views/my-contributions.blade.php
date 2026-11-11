@@ -55,7 +55,7 @@ $badges = $profile['badges'] ?? [];
               </div>
               <div class="text-end">
                 <span class="badge bg-{{ match($contrib['status']){'approved'=>'success','rejected'=>'danger','pending'=>'warning',default=>'secondary'} }}">{{ ucfirst($contrib['status']) }}</span>
-                @if(($contrib['points_awarded'] ?? 0) > 0)<div class="small text-success mt-1">+{{ $contrib['points_awarded'] }} pts</div>@endif
+                @if(($contrib['points_awarded'] ?? 0) > 0)<div class="small text-success mt-1">{{ __('+:count pts', ['count' => $contrib['points_awarded']]) }}</div>@endif
               </div>
             </div>
             <div class="bg-light rounded p-2 small mb-2">

@@ -1309,9 +1309,9 @@ class HeritageController extends Controller
                 }
 
                 return redirect()->route('heritage.my-contributions')
-                    ->with('success', 'Contribution submitted successfully');
+                    ->with('success', __('Contribution submitted successfully'));
             } catch (\Exception $e) {
-                return back()->with('error', 'Failed to submit contribution: ' . $e->getMessage());
+                return back()->with('error', __('Failed to submit contribution: :error', ['error' => $e->getMessage()]));
             }
         }
 
@@ -1414,9 +1414,9 @@ class HeritageController extends Controller
                 }
 
                 return redirect()->route('heritage.my-access-requests')
-                    ->with('success', 'Access request submitted successfully');
+                    ->with('success', __('Access request submitted successfully'));
             } catch (\Exception $e) {
-                return back()->with('error', 'Failed to submit request');
+                return back()->with('error', __('Failed to submit request'));
             }
         }
 
@@ -1463,7 +1463,7 @@ class HeritageController extends Controller
                     ]);
                 }
             } catch (\Exception $e) {
-                return back()->with('error', 'Registration failed: ' . $e->getMessage());
+                return back()->with('error', __('Registration failed: :error', ['error' => $e->getMessage()]));
             }
         }
 
@@ -1481,7 +1481,7 @@ class HeritageController extends Controller
         session()->forget(['contributor_id', 'contributor_token', 'contributor_name']);
 
         return redirect()->route('heritage.landing')
-            ->with('success', 'You have been logged out');
+            ->with('success', __('You have been logged out'));
     }
 
     /**
@@ -1605,7 +1605,7 @@ class HeritageController extends Controller
     {
         if (!Schema::hasTable('heritage_landing_config')) {
             return redirect()->route('heritage.admin-config')
-                ->with('error', 'heritage_landing_config table not installed; run migrations first.');
+                ->with('error', __('heritage_landing_config table not installed; run migrations first.'));
         }
         $validated = $request->validate([
             'hero_tagline'             => 'nullable|string|max:500',

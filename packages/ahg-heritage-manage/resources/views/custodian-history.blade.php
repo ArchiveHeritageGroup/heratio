@@ -37,7 +37,7 @@ $total = $historyData['total'] ?? 0;
 
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0">{{ __('Audit Log') }}</h5><span class="badge bg-secondary">{{ number_format($total) }} entries</span>
+        <h5 class="mb-0">{{ __('Audit Log') }}</h5><span class="badge bg-secondary">{{ __(':count entries', ['count' => number_format($total)]) }}</span>
       </div>
       <div class="card-body p-0">
         @if(empty($logs))

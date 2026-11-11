@@ -25,7 +25,7 @@
           @endif
           <div class="card-body">
             <h5 class="card-title h6">{{ substr($item['title'],0,60) }}</h5>
-            @if(isset($item['view_count']))<small class="text-muted"><i class="fas fa-eye me-1"></i>{{ number_format($item['view_count']) }} views</small>@endif
+            @if(isset($item['view_count']))<small class="text-muted"><i class="fas fa-eye me-1"></i>{{ __(':count views', ['count' => number_format($item['view_count'])]) }}</small>@endif
           </div>
         </a>
       </div>

@@ -18,7 +18,7 @@
             <h3 class="card-title h5">{{ $period->name }}</h3>
             <p class="card-subtitle mb-2" style="color:var(--ahg-primary)">{{ $period->year_label ?? '' }}</p>
             @if($period->description ?? false)<p class="card-text small text-muted">{{ substr($period->description,0,150) }}...</p>@endif
-            @if(($period->item_count ?? 0) > 0)<span class="badge bg-secondary">{{ number_format($period->item_count) }} items</span>@endif
+            @if(($period->item_count ?? 0) > 0)<span class="badge bg-secondary">{{ __(':count items', ['count' => number_format($period->item_count)]) }}</span>@endif
           </div>
         </a>
       </div>
@@ -33,7 +33,7 @@
       <h1 class="display-5 fw-bold mb-2">{{ $currentPeriod->name ?? '' }}</h1>
       <p class="h4 mb-3" style="color:var(--ahg-primary)">{{ $currentPeriod->year_label ?? '' }}</p>
       @if($currentPeriod->description ?? false)<p class="lead text-muted">{{ $currentPeriod->description }}</p>@endif
-      @if(isset($totalItems))<p class="text-muted">{{ number_format($totalItems) }} items from this period</p>@endif
+      @if(isset($totalItems))<p class="text-muted">{{ __(':count items from this period', ['count' => number_format($totalItems)]) }}</p>@endif
     </div></div>
 
     @if(!empty($periods ?? []))

@@ -37,7 +37,7 @@ $archivalCollections = (array) ($archivalCollections ?? []);
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0"><i class="fas fa-layer-group me-2"></i>{{ __('Current Featured Collections') }}</h5>
-        <span class="badge bg-light text-dark">{{ count($featured) }} collections</span>
+        <span class="badge bg-light text-dark">{{ __(':count collections', ['count' => count($featured)]) }}</span>
       </div>
       <div class="card-body p-0">
         @if(empty($featured))

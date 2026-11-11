@@ -4,19 +4,19 @@
 <div class="d-flex justify-content-between align-items-center">
     <h1 class="h3 mb-0">
         @if ($query)
-            Search: "{{ $query }}"
+            {{ __('Search: ":query"', ['query' => $query]) }}
         @else
-            Browse Collections
+            {{ __('Browse Collections') }}
         @endif
     </h1>
-    <span class="badge bg-secondary">{{ number_format($totalResults) }} results</span>
+    <span class="badge bg-secondary">{{ __(':count results', ['count' => number_format($totalResults)]) }}</span>
 </div>
 @if (!empty($unmatchedTerms))
 <div class="alert alert-info mt-3 mb-0 py-2 small">
     <i class="fas fa-info-circle me-1"></i>
     {{ __('No results found for') }} <strong>{{ implode(', ', $unmatchedTerms) }}</strong>.
     @if (!empty($matchedTerms))
-        Showing results matching: <strong>{{ implode(', ', $matchedTerms) }}</strong>
+        {{ __('Showing results matching:') }} <strong>{{ implode(', ', $matchedTerms) }}</strong>
     @endif
 </div>
 @endif
@@ -141,7 +141,7 @@
             </ul>
             @if (count($filterOption['values']) > 6)
             <span class="small text-muted">
-                Show all {{ count($filterOption['values']) }} options
+                {{ __('Show all :count options', ['count' => count($filterOption['values'])]) }}
             </span>
             @endif
         </div>
@@ -170,9 +170,9 @@
         <h2 class="h4">{{ __('No results found') }}</h2>
         <p class="text-muted">
             @if ($query)
-                We couldn't find anything matching "{{ $query }}".
+                {{ __('We couldn\'t find anything matching ":query".', ['query' => $query]) }}
             @else
-                Try adjusting your filters or search terms.
+                {{ __('Try adjusting your filters or search terms.') }}
             @endif
         </p>
 

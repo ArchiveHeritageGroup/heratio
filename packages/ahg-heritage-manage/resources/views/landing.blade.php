@@ -224,7 +224,7 @@
                         <p class="heritage-card-subtitle">{{ substr($collection['description'] ?? '', 0, 60) }}{{ strlen($collection['description'] ?? '') > 60 ? '...' : '' }}</p>
                         <span class="heritage-card-count">
                             <i class="fas {{ $collectionIcon }} me-1" style="font-size: 0.75em;"></i>
-                            {{ number_format($collection['item_count'] ?? 0) }} items
+                            {{ __(':count items', ['count' => number_format($collection['item_count'] ?? 0)]) }}
                         </span>
                     </div>
                 </a>
@@ -264,7 +264,7 @@
                          src="{{ $avatarSvg }}"
                          alt="{{ $creator->name }}">
                     <div class="heritage-creator-name">{{ $creator->name }}</div>
-                    <div class="heritage-creator-count">{{ number_format($creator->item_count) }} items</div>
+                    <div class="heritage-creator-count">{{ __(':count items', ['count' => number_format($creator->item_count)]) }}</div>
                 </a>
                 @endforeach
             @else
@@ -399,7 +399,7 @@
                                  onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 40 40%22><rect fill=%22%23fff3%22 width=%2240%22 height=%2240%22 rx=%2220%22/></svg>';">
                             <div>
                                 <div class="heritage-leaderboard-name">{{ $contributor->display_name }}</div>
-                                <div class="heritage-leaderboard-points">{{ number_format($contributor->points) }} points</div>
+                                <div class="heritage-leaderboard-points">{{ __(':count points', ['count' => number_format($contributor->points)]) }}</div>
                             </div>
                         </div>
                         @endforeach
@@ -423,7 +423,7 @@
                 <a href="{{ url('/terms') }}">{{ __('Terms') }}</a>
             </div>
             <div class="heritage-footer-copyright">
-                &copy; {{ date('Y') }} {{ $themeData['siteTitle'] ?? config('app.name', 'Heratio') }}. All rights reserved.
+                {{ __('© :year :site. All rights reserved.', ['year' => date('Y'), 'site' => $themeData['siteTitle'] ?? config('app.name', 'Heratio')]) }}
             </div>
         </div>
     </footer>
