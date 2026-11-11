@@ -116,10 +116,10 @@ class WorkflowController extends Controller
         $result = $this->service->claimTask($id, $userId);
 
         if ($result) {
-            return redirect()->route('workflow.task', $id)->with('success', 'Task claimed successfully.');
+            return redirect()->route('workflow.task', $id)->with('success', __('Task claimed successfully.'));
         }
 
-        return redirect()->route('workflow.pool')->with('error', 'Unable to claim task. It may have already been claimed.');
+        return redirect()->route('workflow.pool')->with('error', __('Unable to claim task. It may have already been claimed.'));
     }
 
     /**
@@ -132,10 +132,10 @@ class WorkflowController extends Controller
         $result = $this->service->releaseTask($id, $userId, $comment);
 
         if ($result) {
-            return redirect()->route('workflow.pool')->with('success', 'Task released back to pool.');
+            return redirect()->route('workflow.pool')->with('success', __('Task released back to pool.'));
         }
 
-        return redirect()->route('workflow.task', $id)->with('error', 'Unable to release task.');
+        return redirect()->route('workflow.task', $id)->with('error', __('Unable to release task.'));
     }
 
     /**
@@ -156,16 +156,16 @@ class WorkflowController extends Controller
                 $svc = new SpectrumComplianceService;
                 $chain = $svc->applyChainOnTaskApproved($id);
                 if (($chain['spawned'] ?? 0) > 0) {
-                    return redirect()->route('workflow.my-tasks')->with('success', "Task approved. Spectrum chain spawned {$chain['spawned']} downstream task(s).");
+                    return redirect()->route('workflow.my-tasks')->with('success', __('Task approved. Spectrum chain spawned downstream tasks: :count.', ['count' => $chain['spawned']]));
                 }
             } catch (\Throwable $e) {
                 // chain spawn is best-effort - don't block approval
             }
 
-            return redirect()->route('workflow.my-tasks')->with('success', 'Task approved successfully.');
+            return redirect()->route('workflow.my-tasks')->with('success', __('Task approved successfully.'));
         }
 
-        return redirect()->route('workflow.task', $id)->with('error', 'Unable to approve task.');
+        return redirect()->route('workflow.task', $id)->with('error', __('Unable to approve task.'));
     }
 
     /**
@@ -181,10 +181,10 @@ class WorkflowController extends Controller
         $result = $this->service->rejectTask($id, $userId, $request->input('comment'));
 
         if ($result) {
-            return redirect()->route('workflow.my-tasks')->with('success', 'Task rejected.');
+            return redirect()->route('workflow.my-tasks')->with('success', __('Task rejected.'));
         }
 
-        return redirect()->route('workflow.task', $id)->with('error', 'Unable to reject task.');
+        return redirect()->route('workflow.task', $id)->with('error', __('Unable to reject task.'));
     }
 
     /**
@@ -260,7 +260,7 @@ class WorkflowController extends Controller
             ['setting_value' => $enabled, 'setting_group' => 'workflow']
         );
 
-        return redirect()->route('workflow.admin')->with('success', 'Workflow settings saved.');
+        return redirect()->route('workflow.admin')->with('success', __('Workflow settings saved.'));
     }
 
     /**
@@ -291,7 +291,7 @@ class WorkflowController extends Controller
 
             $id = $this->service->createWorkflow($data);
 
-            return redirect()->route('workflow.admin.edit', $id)->with('success', 'Workflow created. Now add steps.');
+            return redirect()->route('workflow.admin.edit', $id)->with('success', __('Workflow created. Now add steps.'));
         }
 
         return view('ahg-workflow::create-workflow');
@@ -329,7 +329,7 @@ class WorkflowController extends Controller
 
             $this->service->updateWorkflow($id, $data);
 
-            return redirect()->route('workflow.admin.edit', $id)->with('success', 'Workflow updated.');
+            return redirect()->route('workflow.admin.edit', $id)->with('success', __('Workflow updated.'));
         }
 
         return view('ahg-workflow::edit-workflow', [
@@ -375,9 +375,9 @@ class WorkflowController extends Controller
             \Illuminate\Support\Facades\Artisan::call('workflow:seed-spectrum', $args);
             $output = \Illuminate\Support\Facades\Artisan::output();
 
-            return redirect()->route('workflow.admin')->with('success', 'Spectrum procedure pack installed. '.trim(strrchr($output, "\n") ?: $output));
+            return redirect()->route('workflow.admin')->with('success', __('Spectrum procedure pack installed. :output', ['output' => trim(strrchr($output, "\n") ?: $output)]));
         } catch (\Throwable $e) {
-            return redirect()->route('workflow.admin')->with('error', 'Install failed: '.$e->getMessage());
+            return redirect()->route('workflow.admin')->with('error', __('Install failed: :error', ['error' => $e->getMessage()]));
         }
     }
 
@@ -470,7 +470,7 @@ class WorkflowController extends Controller
     {
         $this->service->deleteWorkflow($id);
 
-        return redirect()->route('workflow.admin')->with('success', 'Workflow deleted.');
+        return redirect()->route('workflow.admin')->with('success', __('Workflow deleted.'));
     }
 
     /**
@@ -497,7 +497,7 @@ class WorkflowController extends Controller
 
         $this->service->addStep($workflowId, $data);
 
-        return redirect()->route('workflow.admin.edit', $workflowId)->with('success', 'Step added.');
+        return redirect()->route('workflow.admin.edit', $workflowId)->with('success', __('Step added.'));
     }
 
     /**
@@ -513,7 +513,7 @@ class WorkflowController extends Controller
 
         $this->service->deleteStep($id);
 
-        return redirect()->route('workflow.admin.edit', $step->workflow_id)->with('success', 'Step deleted.');
+        return redirect()->route('workflow.admin.edit', $step->workflow_id)->with('success', __('Step deleted.'));
     }
 
     /**
@@ -584,7 +584,7 @@ class WorkflowController extends Controller
     {
         $this->service->deleteGateRule($id);
 
-        return redirect()->route('workflow.gates.admin')->with('success', 'Gate rule deleted.');
+        return redirect()->route('workflow.gates.admin')->with('success', __('Gate rule deleted.'));
     }
 
     public function addStepForm(Request $request, int $workflowId)
@@ -774,7 +774,7 @@ class WorkflowController extends Controller
                 'notes' => $request->input('notes'),
             ]);
 
-            return redirect()->route('workflow.spectrum.chain')->with('success', 'Chain rule saved.');
+            return redirect()->route('workflow.spectrum.chain')->with('success', __('Chain rule saved.'));
         } catch (\Throwable $e) {
             return redirect()->route('workflow.spectrum.chain')->with('error', $e->getMessage());
         }
@@ -785,6 +785,6 @@ class WorkflowController extends Controller
         $svc = new SpectrumComplianceService;
         $svc->deleteChainRule($id);
 
-        return redirect()->route('workflow.spectrum.chain')->with('success', 'Chain rule deleted.');
+        return redirect()->route('workflow.spectrum.chain')->with('success', __('Chain rule deleted.'));
     }
 }

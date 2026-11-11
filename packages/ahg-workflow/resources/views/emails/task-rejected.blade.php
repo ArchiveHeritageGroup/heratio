@@ -7,9 +7,9 @@
 <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #222;">
     <h2 style="color: #dc2626;">{{ __('Workflow task rejected') }}</h2>
 
-    <p>Hello {{ $context['recipient_name'] ?? 'colleague' }},</p>
+    <p>{{ __('Hello :name,', ['name' => $context['recipient_name'] ?? __('colleague')]) }}</p>
 
-    <p>{{ __('Your task') }} <strong>{{ $context['step_name'] ?? '-' }}</strong> in the workflow <strong>{{ $context['workflow_name'] ?? '-' }}</strong> has been rejected by {{ $context['decision_by_name'] ?? 'a reviewer' }}. Please review the comment below and resubmit if appropriate.</p>
+    <p>{{ __('Your task :step in the workflow :workflow has been rejected by :reviewer. Please review the comment below and resubmit if appropriate.', ['step' => $context['step_name'] ?? '-', 'workflow' => $context['workflow_name'] ?? '-', 'reviewer' => $context['decision_by_name'] ?? __('a reviewer')]) }}</p>
 
     <table style="width: 100%; border-collapse: collapse; background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0;">
         <tr><td style="padding: 6px 10px; width: 35%; color: #666;">{{ __('Task') }}</td><td style="padding: 6px 10px;">#{{ $context['task_id'] ?? '-' }}</td></tr>
@@ -24,6 +24,6 @@
         <tr><td style="padding: 6px 10px; color: #666; vertical-align: top;">{{ __('Reviewer comment') }}</td><td style="padding: 6px 10px;">{{ $context['comment'] ?? '-' }}</td></tr>
     </table>
 
-    <p style="color: #888; font-size: 12px; margin-top: 30px;">Sent by {{ config('app.name', 'Heratio') }}.</p>
+    <p style="color: #888; font-size: 12px; margin-top: 30px;">{{ __('Sent by :app.', ['app' => config('app.name', 'Heratio')]) }}</p>
 </body>
 </html>

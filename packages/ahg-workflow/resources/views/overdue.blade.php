@@ -13,7 +13,7 @@
     <div class="alert alert-success"><i class="fas fa-check-circle"></i> {{ __('No overdue tasks found.') }}</div>
   @else
     <div class="alert alert-warning">
-      <strong>{{ count($tasks) }}</strong> task(s) are past their due date.
+      {{ __('Overdue tasks: :count', ['count' => count($tasks)]) }}
     </div>
 
     <div class="card">
@@ -50,11 +50,11 @@
                   <td class="text-danger fw-bold">{{ $task->due_date }}</td>
                   <td>
                     @if($daysOverdue > 7)
-                      <span class="badge bg-danger">{{ $daysOverdue }} days</span>
+                      <span class="badge bg-danger">{{ __(':count days', ['count' => $daysOverdue]) }}</span>
                     @elseif($daysOverdue > 3)
-                      <span class="badge bg-warning text-dark">{{ $daysOverdue }} days</span>
+                      <span class="badge bg-warning text-dark">{{ __(':count days', ['count' => $daysOverdue]) }}</span>
                     @else
-                      <span class="badge bg-info">{{ $daysOverdue }} days</span>
+                      <span class="badge bg-info">{{ __(':count days', ['count' => $daysOverdue]) }}</span>
                     @endif
                   </td>
                   <td>

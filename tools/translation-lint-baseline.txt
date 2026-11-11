@@ -2142,54 +2142,6 @@ packages/ahg-vendor/src/Controllers/VendorController.php	flash	Vendor deleted su
 packages/ahg-vendor/src/Controllers/VendorController.php	flash	Vendor updated successfully
 packages/ahg-version-control/resources/views/diff.blade.php	text	field_definition_id={{…}}
 packages/ahg-version-control/resources/views/diff.blade.php	text	· seq {{…}}
-packages/ahg-workflow/resources/views/admin.blade.php	text	No workflows configured yet. Create your first workflow to get started.
-packages/ahg-workflow/resources/views/edit-workflow.blade.php	text	Edit Workflow: {{…}}
-packages/ahg-workflow/resources/views/emails/task-approved.blade.php	text	Hello {{…}},
-packages/ahg-workflow/resources/views/emails/task-approved.blade.php	text	Sent by {{…}}.
-packages/ahg-workflow/resources/views/emails/task-approved.blade.php	text	has been approved by {{…}}.
-packages/ahg-workflow/resources/views/emails/task-approved.blade.php	text	in the workflow
-packages/ahg-workflow/resources/views/emails/task-rejected.blade.php	text	Hello {{…}},
-packages/ahg-workflow/resources/views/emails/task-rejected.blade.php	text	Sent by {{…}}.
-packages/ahg-workflow/resources/views/emails/task-rejected.blade.php	text	has been rejected by {{…}}. Please review the comment below and resubmit if appropriate.
-packages/ahg-workflow/resources/views/emails/task-rejected.blade.php	text	in the workflow
-packages/ahg-workflow/resources/views/gate-admin.blade.php	text	Gate rules define the criteria an object must meet before it can be published. Blockers prevent publishing; warnings are advisory.
-packages/ahg-workflow/resources/views/gate-edit.blade.php	text	{{…}} Gate Rule
-packages/ahg-workflow/resources/views/gate-edit.blade.php	text	{{…}} Rule
-packages/ahg-workflow/resources/views/my-tasks.blade.php	text	task pool
-packages/ahg-workflow/resources/views/my-tasks.blade.php	text	to claim available tasks.
-packages/ahg-workflow/resources/views/overdue.blade.php	text	task(s) are past their due date.
-packages/ahg-workflow/resources/views/overdue.blade.php	text	{{…}} days
-packages/ahg-workflow/resources/views/overdue.blade.php	text	{{…}} days
-packages/ahg-workflow/resources/views/overdue.blade.php	text	{{…}} days
-packages/ahg-workflow/resources/views/publish-readiness.blade.php	text	All gate rules passed.
-packages/ahg-workflow/resources/views/publish-readiness.blade.php	text	Object: {{…}} (#{{…}})
-packages/ahg-workflow/resources/views/publish-readiness.blade.php	text	There {{…}} {{…}} warning(s) to review.
-packages/ahg-workflow/resources/views/publish-readiness.blade.php	text	{{…}} blocker(s) must be resolved before publishing.
-packages/ahg-workflow/resources/views/queues.blade.php	text	Due: {{…}}d |
-packages/ahg-workflow/resources/views/queues.blade.php	text	Escalate: {{…}}d
-packages/ahg-workflow/resources/views/queues.blade.php	text	Warning: {{…}}d |
-packages/ahg-workflow/resources/views/view-task.blade.php	text	Task #{{…}}: {{…}}
-packages/ahg-workflow/resources/views/view-task.blade.php	text	{{…}} (Overdue)
-packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Chain rule deleted.
-packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Chain rule saved.
-packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Gate rule deleted.
-packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Install failed:
-packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Spectrum procedure pack installed.
-packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Step added.
-packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Step deleted.
-packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Task approved successfully.
-packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Task approved. Spectrum chain spawned {$chain['spawned']} downstream task(s).
-packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Task claimed successfully.
-packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Task rejected.
-packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Task released back to pool.
-packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Unable to approve task.
-packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Unable to claim task. It may have already been claimed.
-packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Unable to reject task.
-packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Unable to release task.
-packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Workflow created. Now add steps.
-packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Workflow deleted.
-packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Workflow settings saved.
-packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Workflow updated.
 packages/ahg-z3950/resources/views/admin.blade.php	text	+ Add target
 packages/ahg-z3950/resources/views/index.blade.php	text	Z39.50 is a client-server protocol for information retrieval (ANSI/NISO Z39.50, ISO 23950). It uses the bib-1 attribute set to define query operators (title, author, ISBN, subject, etc.). Records are returned in USmarc/MARC21 format. Common targets include national libraries (Library of Congress, BL), union catalogues (WorldCat via OCLC), and SRU/Z39.50 gateways.
 packages/ahg-z3950/resources/views/index.blade.php	text	extension loaded - Z39.50 client is ready.

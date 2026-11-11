@@ -11,7 +11,7 @@
 
   <div class="card mb-4">
     <div class="card-header">
-      <h5 class="mb-0">Object: {{ $evaluation['object']->title ?? 'Untitled' }} (#{{ $objectId }})</h5>
+      <h5 class="mb-0">{{ __('Object: :title (#:id)', ['title' => $evaluation['object']->title ?? __('Untitled'), 'id' => $objectId]) }}</h5>
     </div>
     <div class="card-body">
       {{-- Summary --}}
@@ -39,15 +39,15 @@
       {{-- Overall verdict --}}
       @if($evaluation['summary']['fail'] === 0)
         <div class="alert alert-success">
-          <i class="fas fa-check-circle"></i> <strong>{{ __('Ready to publish.') }}</strong> All gate rules passed.
+          <i class="fas fa-check-circle"></i> <strong>{{ __('Ready to publish.') }}</strong> {{ __('All gate rules passed.') }}
           @if($evaluation['summary']['warning'] > 0)
-            There {{ $evaluation['summary']['warning'] === 1 ? 'is' : 'are' }} {{ $evaluation['summary']['warning'] }} warning(s) to review.
+            {{ __('Warnings to review: :count', ['count' => $evaluation['summary']['warning']]) }}
           @endif
         </div>
       @else
         <div class="alert alert-danger">
           <i class="fas fa-times-circle"></i> <strong>{{ __('Not ready to publish.') }}</strong>
-          {{ $evaluation['summary']['fail'] }} blocker(s) must be resolved before publishing.
+          {{ __('Publishing blockers to resolve: :count', ['count' => $evaluation['summary']['fail']]) }}
         </div>
       @endif
 

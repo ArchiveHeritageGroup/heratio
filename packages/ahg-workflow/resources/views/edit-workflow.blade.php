@@ -1,11 +1,11 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Edit Workflow: ' . $workflow->name)
+@section('title', __('Edit Workflow: :name', ['name' => $workflow->name]))
 @section('body-class', 'admin workflow')
 
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="mb-0"><i class="fas fa-edit"></i> Edit Workflow: {{ $workflow->name }}</h1>
+    <h1 class="mb-0"><i class="fas fa-edit"></i> {{ __('Edit Workflow: :name', ['name' => $workflow->name]) }}</h1>
     <div class="d-flex gap-2">
       <a href="{{ route('workflow.diagram', $workflow->id) }}" class="btn btn-outline-info"><i class="fas fa-project-diagram me-1"></i>{{ __('View diagram') }}</a>
       <a href="{{ route('workflow.designer', $workflow->id) }}" class="btn btn-outline-primary"><i class="fas fa-pencil-ruler me-1"></i>{{ __('Designer') }}</a>

@@ -28,7 +28,7 @@
     <div class="text-center text-muted py-5">
       <i class="fas fa-inbox fa-4x mb-3 opacity-50" aria-hidden="true"></i>
       <h4>{{ __('No tasks assigned to you') }}</h4>
-      <p>{{ __('Browse the') }} <a href="{{ route('workflow.pool') }}">task pool</a> to claim available tasks.</p>
+      <p>{{ __('Browse the') }} <a href="{{ route('workflow.pool') }}">{{ __('task pool') }}</a> {{ __('to claim available tasks.') }}</p>
     </div>
   @else
     <div class="card">
