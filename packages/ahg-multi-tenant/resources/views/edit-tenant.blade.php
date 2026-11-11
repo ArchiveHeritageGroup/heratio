@@ -29,7 +29,7 @@
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">
           <i class="fas fa-edit me-2"></i>
-          Edit Tenant: {{ $tenant->name ?? '' }}
+          {{ __('Edit Tenant: :value1', ['value1' => $tenant->name ?? '']) }}
         </h1>
         <a href="{{ route('tenant.index') }}" class="btn btn-outline-secondary">
           <i class="fas fa-arrow-left me-2"></i>{{ __('Back to List') }}
@@ -141,7 +141,7 @@
           <div class="card mb-4">
             <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
               <h5 class="mb-0"><i class="fas fa-users me-2"></i>{{ __('Tenant Users') }}</h5>
-              <span class="badge bg-light text-dark">{{ is_countable($users) ? count($users) : 0 }} users</span>
+              <span class="badge bg-light text-dark">{{ __(':value1 users', ['value1' => is_countable($users) ? count($users) : 0]) }}</span>
             </div>
             <div class="card-body p-0">
               <table class="table table-striped table-hover mb-0">

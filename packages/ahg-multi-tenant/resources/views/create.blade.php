@@ -76,7 +76,7 @@
               <div class="col-md-6 mb-3">
                 <label for="repository_id" class="form-label">{{ __('Link to Repository') }}</label>
                 <select class="form-select" id="repository_id" name="repository_id">
-                  <option value="">-- None --</option>
+                  <option value="">{{ __('-- None --') }}</option>
                   @foreach($repositories as $repo)
                     <option value="{{ $repo->id ?? '' }}">
                       {{ $repo->name ?? ($repo->identifier ?? ('Repository #' . ($repo->id ?? ''))) }}

@@ -160,7 +160,7 @@
                     @elseif($status === 'trial')
                       <span class="badge bg-info">{{ __('Trial') }}</span>
                       @if(!empty($tenant->trial_ends_at))
-                        <br><small class="text-muted">Ends: {{ \Carbon\Carbon::parse($tenant->trial_ends_at)->format('M j, Y') }}</small>
+                        <br><small class="text-muted">{{ __('Ends: :value1', ['value1' => \Carbon\Carbon::parse($tenant->trial_ends_at)->format('M j, Y')]) }}</small>
                       @endif
                     @else
                       <span class="badge bg-danger">{{ __('Suspended') }}</span>
@@ -221,11 +221,11 @@
             <ul class="mb-0 small">
               <li><strong>{{ __('Tenant:') }}</strong> {{ __('An organization or customer with their own settings, users, and access controls') }}</li>
               <li><strong>{{ __('Status:') }}</strong>
-                <span class="badge bg-success">{{ __('Active') }}</span> Full access |
-                <span class="badge bg-info">{{ __('Trial') }}</span> Limited time access |
+                <span class="badge bg-success">{{ __('Active') }}</span> {{ __('Full access |') }}
+                <span class="badge bg-info">{{ __('Trial') }}</span> {{ __('Limited time access |') }}
                 <span class="badge bg-danger">{{ __('Suspended') }}</span> {{ __('No access') }}
               </li>
-              <li><strong>{{ __('Roles:') }}</strong> Owner &gt; Super User &gt; Editor &gt; Contributor &gt; Viewer</li>
+              <li><strong>{{ __('Roles:') }}</strong> {{ __('Owner > Super User > Editor > Contributor > Viewer') }}</li>
             </ul>
           </div>
         </div>
