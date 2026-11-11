@@ -247,7 +247,7 @@
                     @elseif(str_starts_with($section, 'events'))
                         {!! $renderEvent($r) !!}
                     @elseif($section === 'custom_fields_changes')
-                        <span class="field-name">field_definition_id={{ (int) ($r['field_definition_id'] ?? 0) }}</span>
+                        <span class="field-name">{{ __('field_definition_id=:value1', ['value1' => (int) ($r['field_definition_id'] ?? 0)]) }}</span>
                         @if(!empty($r['sequence'])) · seq {{ (int) $r['sequence'] }}@endif:
                         <code class="ms-1">{{ json_encode($r['old'] ?? null, JSON_UNESCAPED_SLASHES) }}</code>
                         <span class="text-muted">→</span>
