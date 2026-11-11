@@ -107,11 +107,11 @@ class FeedbackController extends Controller
 
             if ($slug) {
                 return redirect('/'.$slug)
-                    ->with('success', 'Thank you for your feedback. We will review it shortly.');
+                    ->with('success', __('Thank you for your feedback. We will review it shortly.'));
             }
 
             return redirect()->route('feedback.general')
-                ->with('success', 'Thank you for your feedback. We will review it shortly.');
+                ->with('success', __('Thank you for your feedback. We will review it shortly.'));
         }
 
         return view('ahg-feedback::general', [
@@ -312,7 +312,7 @@ class FeedbackController extends Controller
             ->update($data);
 
         return redirect()->route('feedback.browse')
-            ->with('success', 'Feedback updated successfully.');
+            ->with('success', __('Feedback updated successfully.'));
     }
 
     /**
@@ -332,7 +332,7 @@ class FeedbackController extends Controller
         DB::table('object')->where('id', '=', $id)->delete();
 
         return redirect()->route('feedback.browse')
-            ->with('success', 'Feedback deleted successfully.');
+            ->with('success', __('Feedback deleted successfully.'));
     }
 
     public function view(int $id)

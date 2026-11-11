@@ -36,7 +36,7 @@
           </div>
           <div class="card-body">
             <a href="{{ url('/' . $feedback->parent_id) }}" class="btn atom-btn-white w-100">
-              <i class="fas fa-file me-2"></i>View information object: {{ $feedback->parent_id }}
+              <i class="fas fa-file me-2"></i>{{ __('View information object: :value1', ['value1' => $feedback->parent_id]) }}
             </a>
           </div>
         </div>
