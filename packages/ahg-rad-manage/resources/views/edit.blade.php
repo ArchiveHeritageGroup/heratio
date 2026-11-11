@@ -47,7 +47,7 @@
 @endphp
 
 <h1>{{ __('Edit archival description') }}
-  <small class="text-muted">(RAD Jul 2008)</small>
+  <small class="text-muted">{{ __('(RAD Jul 2008)') }}</small>
 </h1>
 
 @if($parentTitle)

@@ -127,7 +127,7 @@ class RadManageController extends Controller
             \AhgCustomFields\Services\CustomFieldService::saveFromRequest((int) $io->id, $request); // heratio#1530
 
             return redirect()->route('ahgradmanage.edit', ['slug' => $slug])
-                ->with('success', 'Description saved (RAD).');
+                ->with('success', __('Description saved (RAD).'));
         }
 
         // ── GET: load related data for the form ──
