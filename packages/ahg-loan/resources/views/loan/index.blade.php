@@ -34,9 +34,9 @@
           <h1 class="mb-0">{{ __('Loan Management') }}</h1>
           <span class="small text-muted">
             @if($loans->total())
-              Showing {{ number_format($loans->total()) }} loan{{ $loans->total() !== 1 ? 's' : '' }}
+              {{ trans_choice('{1} Showing :count loan|[0,*] Showing :count loans', $loans->total(), ['count' => number_format($loans->total())]) }}
             @else
-              No loans found
+              {{ __('No loans found') }}
             @endif
           </span>
         </div>
@@ -268,14 +268,14 @@
               <a href="{{ route('loan.show', $ol->id) }}" class="list-group-item list-group-item-action list-group-item-danger">
                 <div class="fw-bold">{{ $ol->loan_number }}</div>
                 <small>{{ $ol->partner_institution }}</small>
-                <br><small class="text-muted">Due: {{ \Carbon\Carbon::parse($ol->end_date)->format('Y-m-d') }}</small>
+                <br><small class="text-muted">{{ __('Due: :value1', ['value1' => \Carbon\Carbon::parse($ol->end_date)->format('Y-m-d')]) }}</small>
               </a>
             @endforeach
           </ul>
           @if($stats['overdue'] > 5)
             <div class="card-footer text-center">
               <a href="{{ route('loan.index', ['overdue' => 1]) }}" class="text-danger">
-                View all {{ $stats['overdue'] }} overdue <i class="fas fa-arrow-right ms-1"></i>
+                {{ __('View all :count overdue', ['count' => $stats['overdue']]) }} <i class="fas fa-arrow-right ms-1"></i>
               </a>
             </div>
           @endif
@@ -293,14 +293,14 @@
               <a href="{{ route('loan.show', $dl->id) }}" class="list-group-item list-group-item-action">
                 <div class="fw-bold">{{ $dl->loan_number }}</div>
                 <small>{{ $dl->partner_institution }}</small>
-                <br><small class="text-muted">Due: {{ \Carbon\Carbon::parse($dl->end_date)->format('Y-m-d') }}</small>
+                <br><small class="text-muted">{{ __('Due: :value1', ['value1' => \Carbon\Carbon::parse($dl->end_date)->format('Y-m-d')]) }}</small>
               </a>
             @endforeach
           </ul>
           @if($stats['due_this_month'] > 5)
             <div class="card-footer text-center">
               <a href="{{ route('loan.index', ['status' => 'on_loan']) }}" class="text-warning">
-                View all {{ $stats['due_this_month'] }} due soon <i class="fas fa-arrow-right ms-1"></i>
+                {{ __('View all :count due soon', ['count' => $stats['due_this_month']]) }} <i class="fas fa-arrow-right ms-1"></i>
               </a>
             </div>
           @endif

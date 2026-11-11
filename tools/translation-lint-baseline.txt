@@ -1166,36 +1166,6 @@ packages/ahg-landing-page/resources/views/index.blade.php	text	Block template no
 packages/ahg-landing-page/resources/views/list.blade.php	text	Updated {{…}}
 packages/ahg-landing-page/resources/views/list.blade.php	text	{{…}} blocks
 packages/ahg-landing-page/resources/views/my-dashboard-list.blade.php	text	Updated {{…}}
-packages/ahg-loan/resources/views/loan/create.blade.php	text	-- Select sector --
-packages/ahg-loan/resources/views/loan/index.blade.php	text	Due: {{…}}
-packages/ahg-loan/resources/views/loan/index.blade.php	text	Due: {{…}}
-packages/ahg-loan/resources/views/loan/index.blade.php	text	No loans found
-packages/ahg-loan/resources/views/loan/index.blade.php	text	Showing {{…}} loan{{…}}
-packages/ahg-loan/resources/views/loan/index.blade.php	text	View all {{…}} due soon
-packages/ahg-loan/resources/views/loan/index.blade.php	text	View all {{…}} overdue
-packages/ahg-loan/resources/views/loan/show.blade.php	text	Condition Reports ({{…}})
-packages/ahg-loan/resources/views/loan/show.blade.php	text	Costs ({{…}})
-packages/ahg-loan/resources/views/loan/show.blade.php	text	Documents ({{…}})
-packages/ahg-loan/resources/views/loan/show.blade.php	text	Extensions ({{…}})
-packages/ahg-loan/resources/views/loan/show.blade.php	text	Facility Reports ({{…}})
-packages/ahg-loan/resources/views/loan/show.blade.php	text	Loan Objects ({{…}})
-packages/ahg-loan/resources/views/loan/show.blade.php	text	Shipments ({{…}})
-packages/ahg-loan/resources/views/loan/show.blade.php	text	The end date was {{…}}.
-packages/ahg-loan/resources/views/tour/object-schedule.blade.php	text	{{…}} conflict(s) - this object is already committed:
-packages/ahg-loan/src/Controllers/LoanController.php	flash	Document uploaded successfully.
-packages/ahg-loan/src/Controllers/LoanController.php	flash	Invalid status transition.
-packages/ahg-loan/src/Controllers/LoanController.php	flash	Loan created successfully.
-packages/ahg-loan/src/Controllers/LoanController.php	flash	Loan created successfully.
-packages/ahg-loan/src/Controllers/LoanController.php	flash	Loan deleted successfully.
-packages/ahg-loan/src/Controllers/LoanController.php	flash	Loan extended successfully.
-packages/ahg-loan/src/Controllers/LoanController.php	flash	Loan return recorded.
-packages/ahg-loan/src/Controllers/LoanController.php	flash	Loan status updated to:
-packages/ahg-loan/src/Controllers/LoanController.php	flash	Loan updated successfully.
-packages/ahg-loan/src/Controllers/LoanController.php	flash	Object added to loan.
-packages/ahg-loan/src/Controllers/LoanController.php	flash	Object removed from loan.
-packages/ahg-loan/src/Controllers/TourController.php	flash	Cannot book:
-packages/ahg-loan/src/Controllers/TourController.php	flash	Tour booking cancelled - the window is now free.
-packages/ahg-loan/src/Controllers/TourController.php	flash	Venue booked - the window is clear. Booking #
 packages/ahg-marketing/resources/views/compare/atom.blade.php	text	(HTR, NER), and a modern
 packages/ahg-marketing/resources/views/compare/atom.blade.php	text	(OCFL, BagIt, OAIS/PREMIS) plus a portable dark-archive export that reconstructs a browsable collection with no server or database.
 packages/ahg-marketing/resources/views/compare/atom.blade.php	text	(Symfony) installation, over the same AtoM database. Your original AtoM stays intact and fully functional, and the overlay is

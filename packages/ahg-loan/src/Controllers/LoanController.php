@@ -241,12 +241,12 @@ class LoanController extends Controller
 
             $slug = DB::table('slug')->where('object_id', $objectId)->value('slug');
             if ($slug) {
-                return redirect('/'.$slug)->with('success', 'Loan created successfully.');
+                return redirect('/'.$slug)->with('success', __('Loan created successfully.'));
             }
         }
 
         return redirect()->route('loan.show', $id)
-            ->with('success', 'Loan created successfully.');
+            ->with('success', __('Loan created successfully.'));
     }
 
     /**
@@ -302,7 +302,7 @@ class LoanController extends Controller
         $this->service->update($id, $validated);
 
         return redirect()->route('loan.show', $id)
-            ->with('success', 'Loan updated successfully.');
+            ->with('success', __('Loan updated successfully.'));
     }
 
     /**
@@ -313,7 +313,7 @@ class LoanController extends Controller
         $this->service->delete($id);
 
         return redirect()->route('loan.index')
-            ->with('success', 'Loan deleted successfully.');
+            ->with('success', __('Loan deleted successfully.'));
     }
 
     /**
@@ -333,7 +333,7 @@ class LoanController extends Controller
         ]));
 
         return redirect()->route('loan.show', $id)
-            ->with('success', 'Object added to loan.');
+            ->with('success', __('Object added to loan.'));
     }
 
     /**
@@ -344,7 +344,7 @@ class LoanController extends Controller
         $this->service->removeObject($id, $objectId);
 
         return redirect()->route('loan.show', $id)
-            ->with('success', 'Object removed from loan.');
+            ->with('success', __('Object removed from loan.'));
     }
 
     /**
@@ -366,11 +366,11 @@ class LoanController extends Controller
 
         if (! $result) {
             return redirect()->route('loan.show', $id)
-                ->with('error', 'Invalid status transition.');
+                ->with('error', __('Invalid status transition.'));
         }
 
         return redirect()->route('loan.show', $id)
-            ->with('success', 'Loan status updated to: '.str_replace('_', ' ', $request->input('new_status')));
+            ->with('success', __('Loan status updated to: :status', ['status' => str_replace('_', ' ', $request->input('new_status'))]));
     }
 
     /**
@@ -391,7 +391,7 @@ class LoanController extends Controller
         );
 
         return redirect()->route('loan.show', $id)
-            ->with('success', 'Loan extended successfully.');
+            ->with('success', __('Loan extended successfully.'));
     }
 
     /**
@@ -412,7 +412,7 @@ class LoanController extends Controller
         );
 
         return redirect()->route('loan.show', $id)
-            ->with('success', 'Loan return recorded.');
+            ->with('success', __('Loan return recorded.'));
     }
 
     /**
@@ -433,7 +433,7 @@ class LoanController extends Controller
         );
 
         return redirect()->route('loan.show', $id)
-            ->with('success', 'Document uploaded successfully.');
+            ->with('success', __('Document uploaded successfully.'));
     }
 
     /**

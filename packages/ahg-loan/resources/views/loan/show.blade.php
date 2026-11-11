@@ -136,7 +136,7 @@
   @if($isOverdue)
     <div class="alert alert-danger">
       <i class="fas fa-exclamation-triangle me-2"></i>
-      <strong>{{ __('This loan is overdue!') }}</strong> The end date was {{ \Carbon\Carbon::parse($loan->end_date)->format('Y-m-d') }}.
+      <strong>{{ __('This loan is overdue!') }}</strong> {{ __('The end date was :value1.', ['value1' => \Carbon\Carbon::parse($loan->end_date)->format('Y-m-d')]) }}
     </div>
   @endif
 
@@ -316,7 +316,7 @@
   {{-- Objects --}}
   <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-      <h5 class="mb-0"><i class="fas fa-cubes me-2"></i>Loan Objects ({{ count($loan->objects) }})</h5>
+      <h5 class="mb-0"><i class="fas fa-cubes me-2"></i>{{ __('Loan Objects (:value1)', ['value1' => count($loan->objects)]) }}</h5>
     </div>
     <div class="card-body">
       @auth
@@ -402,7 +402,7 @@
   {{-- Documents --}}
   <div class="card mb-4">
     <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-      <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Documents ({{ count($loan->documents) }})</h5>
+      <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>{{ __('Documents (:value1)', ['value1' => count($loan->documents)]) }}</h5>
     </div>
     <div class="card-body">
       @auth
@@ -471,7 +471,7 @@
   {{-- Extensions --}}
   <div class="card mb-4">
     <div class="card-header text-dark" style="background:var(--ahg-primary);color:#fff">
-      <h5 class="mb-0"><i class="fas fa-calendar-plus me-2"></i>Extensions ({{ count($loan->extensions) }})</h5>
+      <h5 class="mb-0"><i class="fas fa-calendar-plus me-2"></i>{{ __('Extensions (:value1)', ['value1' => count($loan->extensions)]) }}</h5>
     </div>
     <div class="card-body">
       @if(count($loan->extensions))
@@ -509,7 +509,7 @@
   @if(count($loan->condition_reports))
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Condition Reports ({{ count($loan->condition_reports) }})</h5>
+        <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>{{ __('Condition Reports (:value1)', ['value1' => count($loan->condition_reports)]) }}</h5>
       </div>
       <div class="card-body">
         <div class="table-responsive">
@@ -557,7 +557,7 @@
   @if(count($loan->facility_reports))
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fas fa-building me-2"></i>Facility Reports ({{ count($loan->facility_reports) }})</h5>
+        <h5 class="mb-0"><i class="fas fa-building me-2"></i>{{ __('Facility Reports (:value1)', ['value1' => count($loan->facility_reports)]) }}</h5>
       </div>
       <div class="card-body">
         <div class="table-responsive">
@@ -611,7 +611,7 @@
   @if(count($loan->shipments))
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fas fa-truck me-2"></i>Shipments ({{ count($loan->shipments) }})</h5>
+        <h5 class="mb-0"><i class="fas fa-truck me-2"></i>{{ __('Shipments (:value1)', ['value1' => count($loan->shipments)]) }}</h5>
       </div>
       <div class="card-body">
         @foreach($loan->shipments as $shipment)
@@ -657,7 +657,7 @@
   @if(count($loan->costs))
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0"><i class="fas fa-money-bill-wave me-2"></i>Costs ({{ count($loan->costs) }})</h5>
+        <h5 class="mb-0"><i class="fas fa-money-bill-wave me-2"></i>{{ __('Costs (:value1)', ['value1' => count($loan->costs)]) }}</h5>
       </div>
       <div class="card-body">
         <div class="table-responsive">

@@ -110,7 +110,7 @@
             <div class="alert alert-danger">
               <div class="fw-semibold mb-2">
                 <i class="bi bi-exclamation-triangle me-1"></i>
-                {{ count($conflicts) }} conflict(s) - this object is already committed:
+                {{ __(':value1 conflict(s) - this object is already committed:', ['value1' => count($conflicts)]) }}
               </div>
               <ul class="mb-0 ps-3">
                 @foreach($conflicts as $c)
