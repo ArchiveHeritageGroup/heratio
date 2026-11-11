@@ -1213,9 +1213,16 @@ class EsReindexCommand extends Command
             $this->createIndexFromMapping($sourceIndex, $targetIndex);
         } else {
             $shards = $this->option('shards') ? (int) $this->option('shards') : 4;
-            Http::put("{$this->host}/{$targetIndex}", [
+            $resp = Http::put("{$this->host}/{$targetIndex}", [
                 'settings' => ['number_of_shards' => $shards, 'number_of_replicas' => 1],
             ]);
+            if (! $resp->successful()) {
+                // Without this the documents auto-create the index with guessed
+                // field types (gis as an object, workKey as text). A common cause on
+                // OpenSearch is the disk high watermark blocking index creation.
+                throw new \RuntimeException("Could not create {$targetIndex} (HTTP {$resp->status()}): ".mb_substr($resp->body(), 0, 300)
+                    .' - if this says "create-index blocked", the search server\'s disk is above its high watermark.');
+            }
             $this->info("  Created {$targetIndex} (dynamic mapping, {$shards} shards)");
         }
     }

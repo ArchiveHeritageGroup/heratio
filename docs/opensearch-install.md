@@ -48,4 +48,6 @@ No data is migrated: the index is rebuilt from the database, which stays the sou
 
 - **Searches return nothing and the log says "Search server returned HTTP 401"**: wrong user or password.
 - **cURL error 60 (certificate)**: set `ELASTICSEARCH_CA`, or for a local test server only, `ELASTICSEARCH_VERIFY_TLS=false`.
+- **Reindex stops with "create-index blocked"** (or, before v1.165.14, said "Created" and then "no such index" and "MAPPING IS WRONG"): the disk under the search server is above OpenSearch's high watermark (90% by default), so it refuses to create indices even with plenty of space left in absolute terms. On a large shared disk, switch the check off: `PUT _cluster/settings {"persistent":{"cluster.routing.allocation.disk.threshold_enabled":false,"cluster.blocks.create_index":null}}`, or start the container with `-e cluster.routing.allocation.disk.threshold_enabled=false`. The Docker stacks already do this. Then reindex with `--drop`.
+- **Reindex reports "Cannot connect"** right after starting OpenSearch: it takes about a minute to start; wait for `curl` to return 401 (secured) or 200.
 - **Reindex reports "Cannot connect"**: check `ELASTICSEARCH_HOST` includes the scheme (`https://`) and port.
