@@ -46,7 +46,7 @@
                   @if($disabled)
                     <div class="form-text text-muted small">
                       {{ __('This feature will not work until a Google Maps API key is specified on the') }}
-                      <a href="{{ route('settings.global') }}">global</a> settings page.
+                      <a href="{{ route('settings.global') }}">{{ __('Global settings page') }}</a>
                     </div>
                   @endif
                 </div>

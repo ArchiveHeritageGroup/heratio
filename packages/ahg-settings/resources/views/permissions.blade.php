@@ -162,7 +162,7 @@
               <div class="mb-3">
                 <label class="form-label">{{ __('Copyright statement') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <textarea name="copyrightStatement" class="form-control" rows="5">{{ e($copyrightStatement) }}</textarea>
-                <small class="text-muted">When enabled the following text will appear whenever a user tries to download a digital object master with an associated rights statement where the Basis = copyright and the Restriction = conditional. You can style and customize the text as in a static page.</small>
+                <small class="text-muted">{{ __('When enabled the following text will appear whenever a user tries to download a digital object master with an associated rights statement where the Basis = copyright and the Restriction = conditional. You can style and customize the text as in a static page.') }}</small>
               </div>
 
               <input class="btn atom-btn-white mb-3" type="submit" name="preview" value="Preview">
@@ -211,7 +211,7 @@
               <div class="mb-3">
                 <label class="form-label">{{ __('Access statement') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                 <textarea name="preservationStatement" class="form-control" rows="5">{{ e($preservationStatement) }}</textarea>
-                <small class="text-muted">When enabled the text above will appear in the digital object metadata section to describe how a user may access the original and preservation copy of the file stored in a linked digital preservation system. The text appears in the "Permissions" field. When disabled, the "Permissions" field is not displayed.</small>
+                <small class="text-muted">{{ __('When enabled the text above will appear in the digital object metadata section to describe how a user may access the original and preservation copy of the file stored in a linked digital preservation system. The text appears in the "Permissions" field. When disabled, the "Permissions" field is not displayed.') }}</small>
               </div>
             </div>
           </div>

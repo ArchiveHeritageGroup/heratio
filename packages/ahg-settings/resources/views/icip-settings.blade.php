@@ -86,7 +86,7 @@
             <div class="accordion-body">
               <div class="alert alert-info">
                 <i class="fas fa-info-circle me-2"></i>
-                {{ __('Local Contexts Hub provides TK Labels for Indigenous communities. Visit') }} <a href="https://localcontexts.org/" target="_blank">localcontexts.org</a> for more information.
+                {!! __('Local Contexts Hub provides TK Labels for Indigenous communities. Visit :link for more information.', ['link' => '<a href="'.e('https://localcontexts.org/').'" target="_blank">'.e('localcontexts.org').'</a>']) !!}
               </div>
               <div class="form-check form-switch mb-3">
                 <input type="hidden" name="settings[local_contexts_hub_enabled]" value="0">

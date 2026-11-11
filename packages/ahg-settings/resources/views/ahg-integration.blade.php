@@ -52,12 +52,15 @@
       <div class="card-body">
         <p class="mb-2">{{ __('AHG Central is a cloud service from The Archive and Heritage Digital Commons Group that enhances your instance with:') }}</p>
         <ul class="mb-3">
-          <li><strong>{{ __('Fleet Monitoring') }}</strong> - A heartbeat + version + error-log view of every connected instance</li>
-          <li><strong>{{ __('Shared NER Training') }}</strong> - Contribute and benefit from a community-trained Named Entity Recognition model</li>
-          <li><strong>{{ __('Future AI Services') }}</strong> - Access to upcoming cloud-based AI features</li>
-          <li><strong>{{ __('Usage Analytics') }}</strong> - Optional aggregate statistics to improve the platform</li>
+          <li><strong>{{ __('Fleet Monitoring') }}</strong> - {{ __('A heartbeat + version + error-log view of every connected instance') }}</li>
+          <li><strong>{{ __('Shared NER Training') }}</strong> - {{ __('Contribute and benefit from a community-trained Named Entity Recognition model') }}</li>
+          <li><strong>{{ __('Future AI Services') }}</strong> - {{ __('Access to upcoming cloud-based AI features') }}</li>
+          <li><strong>{{ __('Usage Analytics') }}</strong> - {{ __('Optional aggregate statistics to improve the platform') }}</li>
         </ul>
-        <div class="alert alert-success small mb-2 mt-3"><i class="fas fa-check-circle me-1"></i><strong>{{ __('Status (May 2026):') }}</strong> {{ __('AHG Central is') }} <strong>live at central.theahg.co.za</strong>. The client integration - this form, the <code>AhgCentralService</code> class, and the <code>ahg:central-ping</code> / <code>ahg:central-heartbeat</code> / <code>ahg:central-sync-errors</code> artisan commands - is wired to it. Onboarding is automatic: a fresh install carrying the fleet key auto-enrols on its first heartbeat, with no registration step. Error-log sync (below) is opt-in.</div>
+        <div class="alert alert-success small mb-2 mt-3"><i class="fas fa-check-circle me-1"></i><strong>{{ __('Status (May 2026):') }}</strong> {{ __('AHG Central is live at :url.', ['url' => 'central.theahg.co.za']) }} {!! __('The client integration, including this form, the :service class and the :commands artisan commands, is connected to it. Onboarding is automatic: a fresh install with the fleet key enrolls on its first heartbeat without a registration step. Error-log sync is optional.', [
+            'service' => '<code>'.e('AhgCentralService').'</code>',
+            'commands' => '<code>'.e('ahg:central-ping').'</code> / <code>'.e('ahg:central-heartbeat').'</code> / <code>'.e('ahg:central-sync-errors').'</code>',
+        ]) !!}</div>
         <p class="text-muted small mb-0"><i class="fas fa-info-circle me-1"></i>{{ __('Note: This is separate from local AI services configured in the AI Services settings. Local AI services run on your own infrastructure while AHG Central is a cloud service.') }}</p>
       </div>
     </div>

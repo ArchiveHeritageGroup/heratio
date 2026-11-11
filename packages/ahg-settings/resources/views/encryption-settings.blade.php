@@ -49,20 +49,23 @@
           $algoName = $hasSodium ? 'XChaCha20-Poly1305 (libsodium)' : 'AES-256-GCM (OpenSSL)';
         @endphp
 
-        <p class="text-muted mb-3">{{ __('Encryption for digital object files and sensitive database fields using') }} <strong>{{ $algoName }}</strong>. Requires an encryption key at <code>{{ $keyPath }}</code>.</p>
+        <p class="text-muted mb-3">{!! __('Encryption for digital object files and sensitive database fields using :algorithm. Requires an encryption key at :path.', [
+          'algorithm' => '<strong>'.e($algoName).'</strong>',
+          'path' => '<code>'.e($keyPath).'</code>',
+        ]) !!}</p>
 
         {{-- Key Status --}}
         <div class="alert {{ $keyExists ? 'alert-success' : 'alert-warning' }} mb-3">
           <i class="fas {{ $keyExists ? 'fa-check-circle' : 'fa-exclamation-triangle' }} me-2"></i>
           @if ($keyExists)
             <strong>{{ __('Encryption key found') }}</strong>
-            <span class="ms-2 text-muted">Path: <code>{{ $keyPath }}</code> | Permissions: <code>{{ $keyPerms }}</code> | Algorithm: <code>{{ $algoName }}</code></span>
+            <span class="ms-2 text-muted">{{ __('Path:') }} <code>{{ $keyPath }}</code> | {{ __('Permissions:') }} <code>{{ $keyPerms }}</code> | {{ __('Algorithm:') }} <code>{{ $algoName }}</code></span>
             @if ($keyPerms !== '0600')
               <br><small class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>{{ __('Permissions should be 0600 for security.') }}</small>
             @endif
           @else
             <strong>{{ __('No encryption key found') }}</strong>
-            <br><small>Generate with: <code>php artisan encryption:key --generate</code></small>
+            <br><small>{{ __('Generate with:') }} <code>php artisan encryption:key --generate</code></small>
           @endif
         </div>
 
@@ -84,7 +87,7 @@
         <h5 class="mb-0"><i class="fas fa-file-shield me-2"></i>{{ __('Layer 1: Digital Object Encryption') }}</h5>
       </div>
       <div class="card-body">
-        <p class="text-muted mb-3">Encrypts uploaded files (masters and derivatives) on disk using {{ $algoName }}.</p>
+        <p class="text-muted mb-3">{{ __('Encrypts uploaded files (masters and derivatives) on disk using :algorithm.', ['algorithm' => $algoName]) }}</p>
 
         <div class="form-check form-switch mb-3">
           <input class="form-check-input" type="checkbox" id="encryption_encrypt_derivatives"
@@ -103,8 +106,8 @@
 
         <div class="alert alert-info mb-0">
           <i class="fas fa-info-circle me-2"></i>
-          <strong>{{ $totalDOs }}</strong> digital objects on disk.
-          <br><small>To encrypt existing files: <code>php artisan encryption:encrypt-files --limit=100</code></small>
+          {{ __('Digital objects on disk: :count', ['count' => (int) $totalDOs]) }}
+          <br><small>{{ __('To encrypt existing files:') }} <code>php artisan encryption:encrypt-files --limit=100</code></small>
         </div>
       </div>
     </div>
@@ -178,10 +181,10 @@
         <div class="alert alert-secondary mt-3 mb-0">
           <i class="fas fa-terminal me-2"></i>
           <strong>{{ __('CLI Commands') }}</strong>
-          <br><code>php artisan encryption:encrypt-fields --category=contact_details</code> -- Encrypt a category
-          <br><code>php artisan encryption:encrypt-fields --category=contact_details --reverse</code> -- Decrypt a category
-          <br><code>php artisan encryption:encrypt-fields --list</code> -- Show category status
-          <br><code>php artisan encryption:status</code> -- Full encryption dashboard
+          <br><code>php artisan encryption:encrypt-fields --category=contact_details</code> -- {{ __('Encrypt a category') }}
+          <br><code>php artisan encryption:encrypt-fields --category=contact_details --reverse</code> -- {{ __('Decrypt a category') }}
+          <br><code>php artisan encryption:encrypt-fields --list</code> -- {{ __('Show category status') }}
+          <br><code>php artisan encryption:status</code> -- {{ __('Full encryption dashboard') }}
         </div>
       </div>
     </div>

@@ -64,7 +64,7 @@
               <input type="number" class="form-control" id="spectrum_valuation_reminder_days"
                      name="settings[spectrum_valuation_reminder_days]"
                      value="{{ $settings['spectrum_valuation_reminder_days'] ?? 365 }}" min="30" max="1825">
-              <span class="input-group-text">days</span>
+              <span class="input-group-text">{{ __('days') }}</span>
             </div>
             <div class="form-text">{{ __('Remind to re-value after this many days') }}</div>
           </div>
@@ -77,7 +77,7 @@
               <input type="number" class="form-control" id="spectrum_loan_default_period"
                      name="settings[spectrum_loan_default_period]"
                      value="{{ $settings['spectrum_loan_default_period'] ?? 90 }}" min="1" max="365">
-              <span class="input-group-text">days</span>
+              <span class="input-group-text">{{ __('days') }}</span>
             </div>
           </div>
         </div>
@@ -89,7 +89,7 @@
               <input type="number" class="form-control" id="spectrum_condition_check_interval"
                      name="settings[spectrum_condition_check_interval]"
                      value="{{ $settings['spectrum_condition_check_interval'] ?? 180 }}" min="30" max="730">
-              <span class="input-group-text">days</span>
+              <span class="input-group-text">{{ __('days') }}</span>
             </div>
             <div class="form-text">{{ __('Recommended interval between condition checks') }}</div>
           </div>

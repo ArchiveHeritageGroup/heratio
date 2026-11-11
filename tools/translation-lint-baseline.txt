@@ -2206,193 +2206,20 @@ packages/ahg-semantic-search/src/Controllers/SemanticSearchController.php	flash	
 packages/ahg-semantic-search/src/Controllers/SemanticSearchController.php	flash	Term added
 packages/ahg-semantic-search/src/Controllers/SemanticSearchController.php	flash	Term deleted.
 packages/ahg-semantic-search/src/Controllers/SemanticSearchController.php	flash	Terms synced.
-packages/ahg-settings/resources/views/accession-settings.blade.php	text	Pattern for auto-generated accession numbers. Use {YYYY} for year and {####} for sequence.
 packages/ahg-settings/resources/views/ahg-integration.blade.php	text	#67 - AHG Central settings (closed: client wired in v1.53.10)
-packages/ahg-settings/resources/views/ahg-integration.blade.php	text	- A heartbeat + version + error-log view of every connected instance
-packages/ahg-settings/resources/views/ahg-integration.blade.php	text	- Access to upcoming cloud-based AI features
-packages/ahg-settings/resources/views/ahg-integration.blade.php	text	- Contribute and benefit from a community-trained Named Entity Recognition model
-packages/ahg-settings/resources/views/ahg-integration.blade.php	text	- Optional aggregate statistics to improve the platform
-packages/ahg-settings/resources/views/ahg-integration.blade.php	text	. The client integration - this form, the class, and the / / artisan commands - is wired to it. Onboarding is automatic: a fresh install carrying the fleet key auto-enrols on its first heartbeat, with no registration step. Error-log sync (below) is opt-in.
-packages/ahg-settings/resources/views/ahg-integration.blade.php	text	live at central.theahg.co.za
-packages/ahg-settings/resources/views/ahg-section.blade.php	text	AHG settings - {{…}} {{…}}
-packages/ahg-settings/resources/views/ahgDropdown/edit.blade.php	text	{{…}} Dropdown
-packages/ahg-settings/resources/views/ai-services.blade.php	text	- Always queue (recommended for production)
-packages/ahg-settings/resources/views/ai-services.blade.php	text	- Immediately save translations to target language
-packages/ahg-settings/resources/views/ai-services.blade.php	text	- Interactive for small docs, background for large
-packages/ahg-settings/resources/views/ai-services.blade.php	text	- Save as draft for review before applying
-packages/ahg-settings/resources/views/ai-services.blade.php	text	Cosine similarity threshold (0-1). Lower = more results, higher = stricter match.
-packages/ahg-settings/resources/views/ai-services.blade.php	text	Cron Jobs
-packages/ahg-settings/resources/views/ai-services.blade.php	text	Run the Qdrant indexer from the CLI or cron. See
-packages/ahg-settings/resources/views/ai-services.blade.php	text	Start it with:
-packages/ahg-settings/resources/views/ai-services.blade.php	text	When enabled, translations will be saved in the table with the language culture code (e.g., , , ). This allows multi-language support where users can switch between languages.
-packages/ahg-settings/resources/views/ai-services.blade.php	text	all-MiniLM-L6-v2 (384d, fast)
-packages/ahg-settings/resources/views/ai-services.blade.php	text	all-mpnet-base-v2 (768d, higher quality)
-packages/ahg-settings/resources/views/ai-services.blade.php	text	for the scheduled command.
-packages/ahg-settings/resources/views/ai-services.blade.php	text	multi-qa-MiniLM-L6-cos-v1 (384d, QA optimized)
-packages/ahg-settings/resources/views/compliance-settings.blade.php	text	Audit log pruner runs daily at 03:30. 0 disables pruning.
-packages/ahg-settings/resources/views/compliance-settings.blade.php	text	Configure regulatory compliance features. For detailed compliance management (DSARs, breaches, ROPA), see the
-packages/ahg-settings/resources/views/compliance-settings.blade.php	text	Last run: {{…}} - {{…}} row(s) removed.
-packages/ahg-settings/resources/views/compliance-settings.blade.php	text	No compliance settings configured yet. Settings will appear here once they are added to the table with group .
-packages/ahg-settings/resources/views/compliance-settings.blade.php	text	Privacy Compliance module
-packages/ahg-settings/resources/views/cron-jobs.blade.php	text	1st of month at 8:00 AM
-packages/ahg-settings/resources/views/cron-jobs.blade.php	text	Edit: {{…}}
-packages/ahg-settings/resources/views/cron-jobs.blade.php	text	Output: {{…}}
-packages/ahg-settings/resources/views/cron-jobs.blade.php	text	Total failures: {{…}}
-packages/ahg-settings/resources/views/cron-jobs.blade.php	text	Total runs: {{…}}
-packages/ahg-settings/resources/views/cron-jobs.blade.php	text	e.g. = every 5 min, = daily 2am
-packages/ahg-settings/resources/views/csv-validator.blade.php	text	Permissive - validation is run; warnings are ignored
-packages/ahg-settings/resources/views/csv-validator.blade.php	text	Strict - validation is run; warnings will halt import from running
-packages/ahg-settings/resources/views/data-protection-settings.blade.php	text	days
-packages/ahg-settings/resources/views/email.blade.php	text	Recipient name, Recipient email, Institution, Login URL, Reset URL, / Booking details
 packages/ahg-settings/resources/views/encryption-settings.blade.php	text	-- California Consumer Privacy Act, reasonable security measures
-packages/ahg-settings/resources/views/encryption-settings.blade.php	text	-- Decrypt a category
-packages/ahg-settings/resources/views/encryption-settings.blade.php	text	-- Encrypt a category
-packages/ahg-settings/resources/views/encryption-settings.blade.php	text	-- Full encryption dashboard
 packages/ahg-settings/resources/views/encryption-settings.blade.php	text	-- General Data Protection Regulation (EU), Article 32
 packages/ahg-settings/resources/views/encryption-settings.blade.php	text	-- National Archives and Record Service of South Africa
 packages/ahg-settings/resources/views/encryption-settings.blade.php	text	-- Promotion of Access to Information Act, secure record keeping
 packages/ahg-settings/resources/views/encryption-settings.blade.php	text	-- Protection of Personal Information Act (South Africa), Section 19
-packages/ahg-settings/resources/views/encryption-settings.blade.php	text	-- Show category status
-packages/ahg-settings/resources/views/encryption-settings.blade.php	text	. Requires an encryption key at .
-packages/ahg-settings/resources/views/encryption-settings.blade.php	text	Encrypts uploaded files (masters and derivatives) on disk using {{…}}.
-packages/ahg-settings/resources/views/encryption-settings.blade.php	text	Generate with:
-packages/ahg-settings/resources/views/encryption-settings.blade.php	text	Path: | Permissions: | Algorithm:
-packages/ahg-settings/resources/views/encryption-settings.blade.php	text	To encrypt existing files:
-packages/ahg-settings/resources/views/encryption-settings.blade.php	text	digital objects on disk.
-packages/ahg-settings/resources/views/errorLog.blade.php	text	Page {{…}} / {{…}} ({{…}} total)
-packages/ahg-settings/resources/views/errorLog.blade.php	text	Resolved {{…}}
-packages/ahg-settings/resources/views/errorLog.blade.php	text	user:{{…}}
-packages/ahg-settings/resources/views/finding-aid.blade.php	text	- Full details: includes full lower-level descriptions in the same format used throughout the finding aid
-packages/ahg-settings/resources/views/finding-aid.blade.php	text	- Inventory summary: will include only key details for lower-level descriptions (file, item, part) in a table
-packages/ahg-settings/resources/views/finding-aid.blade.php	text	When disabled: Finding Aid links are not displayed, Finding Aid generation is disabled, and the 'Advanced Search &gt; Finding Aid' filter is hidden
-packages/ahg-settings/resources/views/fuseki-settings.blade.php	text	Full URL to Fuseki SPARQL endpoint (e.g., http://localhost:3030/ric)
-packages/ahg-settings/resources/views/icip-settings.blade.php	text	for more information.
-packages/ahg-settings/resources/views/icip-settings.blade.php	text	localcontexts.org
-packages/ahg-settings/resources/views/integrity-settings.blade.php	text	Objects per run (0 = unlimited).
-packages/ahg-settings/resources/views/inventory.blade.php	text	Select the levels of description to be included in the inventory list. If no levels are selected, the inventory list link will not be displayed. You can use the control (Mac &#8984;) and/or shift keys to multi-select values from the Levels of description menu.
-packages/ahg-settings/resources/views/jobs-settings.blade.php	text	days
-packages/ahg-settings/resources/views/jobs-settings.blade.php	text	seconds
-packages/ahg-settings/resources/views/language.blade.php	text	i18n language settings
-packages/ahg-settings/resources/views/levels.blade.php	text	sector:
-packages/ahg-settings/resources/views/levels.blade.php	text	{{…}} Levels
-packages/ahg-settings/resources/views/page-elements.blade.php	text	global
-packages/ahg-settings/resources/views/page-elements.blade.php	text	settings page.
-packages/ahg-settings/resources/views/permissions.blade.php	text	When enabled the following text will appear whenever a user tries to download a digital object master with an associated rights statement where the Basis = copyright and the Restriction = conditional. You can style and customize the text as in a static page.
-packages/ahg-settings/resources/views/permissions.blade.php	text	When enabled the text above will appear in the digital object metadata section to describe how a user may access the original and preservation copy of the file stored in a linked digital preservation system. The text appears in the "Permissions" field. When disabled, the "Permissions" field is not displayed.
-packages/ahg-settings/resources/views/plugins.blade.php	text	{{…}} Disabled
-packages/ahg-settings/resources/views/plugins.blade.php	text	{{…}} Enabled
-packages/ahg-settings/resources/views/plugins.blade.php	text	{{…}} Total
-packages/ahg-settings/resources/views/section.blade.php	text	{{…}} settings
-packages/ahg-settings/resources/views/sector-numbering.blade.php	text	{{…}} - Identifier Numbering
-packages/ahg-settings/resources/views/security-settings.blade.php	text	- DNS pre-resolution, private IP blocking
-packages/ahg-settings/resources/views/security-settings.blade.php	text	- Enforced on all state-changing requests
-packages/ahg-settings/resources/views/security-settings.blade.php	text	- HSTS, X-Frame-Options, Permissions-Policy
-packages/ahg-settings/resources/views/security-settings.blade.php	text	- LIBXML_NONET on all XML parsing
-packages/ahg-settings/resources/views/security-settings.blade.php	text	- Session ID regenerated on login
-packages/ahg-settings/resources/views/security-settings.blade.php	text	- Session cookies inaccessible to JavaScript
-packages/ahg-settings/resources/views/security-settings.blade.php	text	- Simple Security + Star Property
-packages/ahg-settings/resources/views/spectrum-settings.blade.php	text	days
-packages/ahg-settings/resources/views/spectrum-settings.blade.php	text	days
-packages/ahg-settings/resources/views/spectrum-settings.blade.php	text	days
-packages/ahg-settings/resources/views/storage-service.blade.php	text	-- Select --
-packages/ahg-settings/resources/views/system-info.blade.php	text	PHP extensions ({{…}})
-packages/ahg-settings/resources/views/themes.blade.php	text	One per line:
-packages/ahg-settings/resources/views/themes.blade.php	text	One per line:
 packages/ahg-settings/resources/views/themes.blade.php	text	rem
 packages/ahg-settings/resources/views/themes.blade.php	text	rem
 packages/ahg-settings/resources/views/themes.blade.php	text	rem
 packages/ahg-settings/resources/views/themes.blade.php	text	{{…}}rem
 packages/ahg-settings/resources/views/themes.blade.php	text	{{…}}rem
 packages/ahg-settings/resources/views/themes.blade.php	text	{{…}}rem
-packages/ahg-settings/resources/views/tts.blade.php	text	Playback speed (0.5 = slow, 2.0 = fast).
-packages/ahg-settings/resources/views/voice-ai-settings.blade.php	text	Maximum cloud API calls per day (0 = unlimited).
-packages/ahg-settings/resources/views/voice-ai-settings.blade.php	text	Milliseconds to wait before reading (100 = instant, 1000 = slow). Lower values are more responsive.
-packages/ahg-settings/resources/views/voice-ai-settings.blade.php	text	Minimum confidence score for voice recognition (0.3 = lenient, 0.95 = strict).
-packages/ahg-settings/resources/views/voice-ai-settings.blade.php	text	Text-to-speech playback rate (0.5 = slow, 2.0 = fast).
 packages/ahg-settings/resources/views/voice-ai-settings.blade.php	text	isiXhosa
 packages/ahg-settings/resources/views/voice-ai-settings.blade.php	text	isiZulu
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	AHG Central integration settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	AHG Central is under construction - settings are locked and cannot be changed.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	AI Condition settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	AI Services settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	AI condition client table not provisioned.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	API client created. Key:
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Accession settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	All errors marked as read.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	All open errors resolved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Audit Trail settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Authority Records settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Background Jobs settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	CSV Validator settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Cannot disable '{$pluginName}':
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Cannot enable '{$pluginName}': {$err}
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Clipboard settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	DIP upload settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Data protection settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Default logo not found.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Default page elements saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Default templates saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Diacritics settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Digital object settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Display order updated.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Dropdown saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Email settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Encryption settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Error deleted.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Error reopened.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Error resolved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Errors older than {$days} days cleared.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	FTP/SFTP settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Face detection settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Failed to create client:
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Finding aid settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Fuseki settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Global settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Header customizations settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	ICIP settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Identifier settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Interface labels saved for {$culture}.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Invalid JSON file.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Inventory settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Job \"{$schedule->name}\" completed in {$result['duration_ms']}ms.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Job \"{$schedule->name}\" failed after {$result['duration_ms']}ms.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Job \"{$schedule->name}\" updated.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Job \"{$schedule->name}\" {$state}.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	LDAP settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Language '{$code}' added.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Language '{$code}' already exists.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Language removed.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Markdown settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Name and email are required.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Numbering scheme saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	OAI repository settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Paths saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Permissions saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Plugin '{$pluginName}' disabled.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Plugin '{$pluginName}' enabled.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Plugin '{$pluginName}' is {$msg}.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Privacy notification settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Schedule not found.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Schedule not found.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Schedule not found.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Sector levels updated successfully.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Sector numbering saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Security settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Settings imported successfully.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	SharePoint settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Site information saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Storage service settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Text-to-Speech settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Theme settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Theme settings were saved, but the generated CSS file(s) could not be written (
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	This language cannot be deleted.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Treeview settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Unable to upload diacritics mapping yaml file.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Uploads settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Visible elements saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Web analytics settings saved.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	Webhook created.
-packages/ahg-settings/src/Controllers/SettingsController.php	flash	{$title} settings saved.
 packages/ahg-share-link/resources/views/recipient.blade.php	text	Reference code:
 packages/ahg-share-link/resources/views/recipient.blade.php	text	This is a time-limited share link. The link will stop working on {{…}}. All accesses are logged for audit purposes.
 packages/ahg-share-link/resources/views/recipient.blade.php	text	{{…}} · Shared record

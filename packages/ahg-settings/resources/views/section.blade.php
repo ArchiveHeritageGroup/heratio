@@ -21,7 +21,7 @@
           <div class="accordion-item">
             <h2 class="accordion-header" id="section-heading">
               <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#section-collapse" aria-expanded="true" aria-controls="section-collapse">
-                {{ $sectionLabel }} settings
+                {{ __(':section settings', ['section' => $sectionLabel]) }}
               </button>
             </h2>
             <div id="section-collapse" class="accordion-collapse collapse show" aria-labelledby="section-heading">

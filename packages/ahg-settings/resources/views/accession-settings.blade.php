@@ -42,7 +42,7 @@
                    name="accession_numbering_mask"
                    value="{{ e($settings['accession_numbering_mask'] ?? 'ACC-{YYYY}-{####}') }}"
                    placeholder="ACC-{YYYY}-{####}">
-            <div class="form-text">Pattern for auto-generated accession numbers. Use {YYYY} for year and {####} for sequence.</div>
+            <div class="form-text">{{ __('Pattern for auto-generated accession numbers. Use {YYYY} for year and {####} for sequence.') }}</div>
           </div>
           <div class="col-md-6">
             <label class="form-label" for="accession_default_priority">{{ __('Default Priority') }}</label>

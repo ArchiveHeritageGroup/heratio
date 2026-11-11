@@ -198,7 +198,7 @@
                       @csrf
                       <div class="modal-content">
                         <div class="modal-header">
-                          <h5 class="modal-title">Edit: {{ $job->name }}</h5>
+                          <h5 class="modal-title">{{ __('Edit: :name', ['name' => $job->name]) }}</h5>
                           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
@@ -209,7 +209,7 @@
                           <div class="mb-3">
                             <label class="form-label fw-bold">{{ __('Cron Expression') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <input type="text" name="cron_expression" class="form-control font-monospace" value="{{ $job->cron_expression }}" required>
-                            <small class="text-muted">e.g. <code>*/5 * * * *</code> = every 5 min, <code>0 2 * * *</code> = daily 2am</small>
+                            <small class="text-muted">{!! __('For example, :frequent runs every five minutes, while :daily runs every day at 2:00 a.m.', ['frequent' => '<code>'.e('*/5 * * * *').'</code>', 'daily' => '<code>'.e('0 2 * * *').'</code>']) !!}</small>
                           </div>
                           <div class="mb-3">
                             <label class="form-label fw-bold">{{ __('Timeout (minutes)') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
@@ -226,8 +226,8 @@
                             <input type="email" name="notify_email" class="form-control" value="{{ $job->notify_email }}" placeholder="{{ __('admin@example.com') }}">
                           </div>
                           <div class="row text-muted small">
-                            <div class="col">Total runs: {{ $job->total_runs }}</div>
-                            <div class="col">Total failures: {{ $job->total_failures }}</div>
+                            <div class="col">{{ __('Total runs: :count', ['count' => $job->total_runs]) }}</div>
+                            <div class="col">{{ __('Total failures: :count', ['count' => $job->total_failures]) }}</div>
                           </div>
                         </div>
                         <div class="modal-footer">
@@ -245,7 +245,7 @@
                   <div class="modal-dialog modal-lg">
                     <div class="modal-content">
                       <div class="modal-header">
-                        <h5 class="modal-title">Output: {{ $job->name }}</h5>
+                        <h5 class="modal-title">{{ __('Output: :name', ['name' => $job->name]) }}</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                       </div>
                       <div class="modal-body">
@@ -296,7 +296,7 @@
                   <tr><td><code>0 2 * * *</code></td><td>{{ __('Daily at 2:00 AM') }}</td></tr>
                   <tr><td><code>0 3 * * 0</code></td><td>{{ __('Sunday at 3:00 AM') }}</td></tr>
                   <tr><td><code>0 7 * * 1</code></td><td>{{ __('Monday at 7:00 AM') }}</td></tr>
-                  <tr><td><code>0 8 1 * *</code></td><td>1st of month at 8:00 AM</td></tr>
+                  <tr><td><code>0 8 1 * *</code></td><td>{{ __('1st of month at 8:00 AM') }}</td></tr>
                 </tbody>
               </table>
             </div>

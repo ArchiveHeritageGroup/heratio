@@ -42,7 +42,7 @@
     </div>
 
     <div class="card mb-4">
-      <div class="card-header">PHP extensions ({{ count($info['extensions']) }})</div>
+      <div class="card-header">{{ __('PHP extensions (:count)', ['count' => count($info['extensions'])]) }}</div>
       <div class="card-body">
         <div class="row">
           @foreach(array_chunk($info['extensions'], (int) ceil(count($info['extensions']) / 4)) as $chunk)

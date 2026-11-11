@@ -8,7 +8,7 @@
     @include('ahg-settings::_menu')
   </div>
   <div class="col-md-9">
-    <h1><i class="fas fa-list me-2"></i>{{ isset($dropdown) && $dropdown->id ? 'Edit' : 'Add' }} Dropdown</h1>
+    <h1><i class="fas fa-list me-2"></i>{{ __(':action Dropdown', ['action' => __(isset($dropdown) && $dropdown->id ? 'Edit' : 'Add')]) }}</h1>
 
     <form method="post" action="{{ route('settings.dropdown.store', ['id' => $dropdown->id ?? null]) }}" autocomplete="off">
       @csrf

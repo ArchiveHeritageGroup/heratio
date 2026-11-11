@@ -48,9 +48,9 @@
       </div>
       <div class="col-auto ms-auto">
         @php $enabledCount = $plugins->where('is_enabled', 1)->count(); $disabledCount = $plugins->where('is_enabled', 0)->count(); @endphp
-        <span class="badge bg-success">{{ $enabledCount }} Enabled</span>
-        <span class="badge bg-secondary">{{ $disabledCount }} Disabled</span>
-        <span class="badge bg-primary">{{ $plugins->count() }} Total</span>
+        <span class="badge bg-success">{{ __(':count Enabled', ['count' => $enabledCount]) }}</span>
+        <span class="badge bg-secondary">{{ __(':count Disabled', ['count' => $disabledCount]) }}</span>
+        <span class="badge bg-primary">{{ __(':count Total', ['count' => $plugins->count()]) }}</span>
       </div>
     </div>
   </div>

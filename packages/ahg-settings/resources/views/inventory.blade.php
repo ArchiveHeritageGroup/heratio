@@ -30,7 +30,7 @@
                     <option value="{{ $level->id }}" {{ in_array($level->id, $selectedLevels) ? 'selected' : '' }}>{{ $level->name }}</option>
                   @endforeach
                 </select>
-                <small class="text-muted">Select the levels of description to be included in the inventory list. If no levels are selected, the inventory list link will not be displayed. You can use the control (Mac &#8984;) and/or shift keys to multi-select values from the Levels of description menu.</small>
+                <small class="text-muted">{{ __('Select the levels of description to be included in the inventory list. If no levels are selected, the inventory list link will not be displayed. You can use the control (Mac ⌘) and/or shift keys to multi-select values from the Levels of description menu.') }}</small>
               </div>
 
               <br>

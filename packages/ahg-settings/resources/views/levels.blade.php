@@ -61,7 +61,7 @@ function levelsGetSectorIcon(string $sector): string {
       <div class="card-header" style="background:var(--ahg-primary);color:#fff;">
         <h5 class="mb-0">
           <i class="fas fa-{{ levelsGetSectorIcon($currentSector) }} me-2"></i>
-          {{ ucfirst($currentSector) }} Levels
+          {{ __(':sector Levels', ['sector' => ucfirst($currentSector)]) }}
         </h5>
       </div>
       <div class="card-body">
@@ -70,7 +70,7 @@ function levelsGetSectorIcon(string $sector): string {
           <input type="hidden" name="action_type" value="update_sector">
           <input type="hidden" name="sector" value="{{ $currentSector }}">
 
-          <p class="text-muted mb-3">{{ __('Select which levels appear in the') }} <strong>{{ ucfirst($currentSector) }}</strong> sector:</p>
+          <p class="text-muted mb-3">{{ __('Select which levels appear in the :sector sector:', ['sector' => ucfirst($currentSector)]) }}</p>
 
           @if ($sectorAvailableLevels->isEmpty())
             <div class="alert alert-warning">
