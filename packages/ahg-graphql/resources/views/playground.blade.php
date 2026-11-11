@@ -15,14 +15,14 @@
           <button class="btn btn-sm btn-primary" id="runQuery"><i class="fas fa-play"></i> {{ __('Run') }}</button>
         </div>
         <div class="card-body p-0">
-          <textarea id="queryEditor" class="form-control" rows="15" style="font-family: monospace; font-size: 0.85em; border: none; resize: vertical;">{
+          <textarea id="queryEditor" class="form-control" rows="15" style="font-family: monospace; font-size: 0.85em; border: none; resize: vertical;">{{ __('{
   informationObjects(limit: 10, offset: 0) {
     id
     identifier
     title
     slug
   }
-}</textarea>
+}') }}</textarea>
         </div>
       </div>
 
