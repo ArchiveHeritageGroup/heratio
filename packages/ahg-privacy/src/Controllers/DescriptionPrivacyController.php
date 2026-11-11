@@ -67,7 +67,7 @@ class DescriptionPrivacyController extends Controller
 
         $this->service->logAccess($id, (int) auth()->id(), 'profile_saved', null, $data['legal_basis_reference'] ?? null);
 
-        return back()->with('success', 'Privacy profile saved for description #' . $id . '.');
+        return back()->with('success', __('Privacy profile saved for description #:id.', ['id' => $id]));
     }
 
     /** Add a per-field redaction to the profile. */
@@ -98,7 +98,7 @@ class DescriptionPrivacyController extends Controller
 
         $this->service->logAccess($id, (int) auth()->id(), 'field_redacted', $data['field_name'], $data['reason'], $field->id);
 
-        return back()->with('success', 'Field "' . $data['field_name'] . '" marked for redaction.');
+        return back()->with('success', __('Field ":field" marked for redaction.', ['field' => $data['field_name']]));
     }
 
     /** Remove a per-field redaction. */
@@ -111,7 +111,7 @@ class DescriptionPrivacyController extends Controller
             $this->service->logAccess($id, (int) auth()->id(), 'field_unredacted', $name);
         }
 
-        return back()->with('success', 'Field redaction removed.');
+        return back()->with('success', __('Field redaction removed.'));
     }
 
     /** Metadata fields that may carry personal data (from the spec). */

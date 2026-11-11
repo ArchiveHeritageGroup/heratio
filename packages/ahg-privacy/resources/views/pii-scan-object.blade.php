@@ -120,7 +120,7 @@ if ($scanResult['risk_score'] >= 70) echo 'bg-danger';
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-list me-2"></i>{{ __('Detected Entities') }}</h5>
                     @if(!empty($scanResult['entities']))
-                    <span class="badge bg-light text-dark">{{ count($scanResult['entities']) }} found</span>
+                    <span class="badge bg-light text-dark">{{ __(':count found', ['count' => count($scanResult['entities'])]) }}</span>
                     @endif
                 </div>
                 <div class="card-body p-0">

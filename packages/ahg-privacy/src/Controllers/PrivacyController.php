@@ -219,7 +219,7 @@ class PrivacyController extends Controller
         return redirect()
             ->route('ahgprivacy.dsar-confirmation')
             ->with('reference_number', $this->fetchReferenceNumber($dsarId))
-            ->with('success', 'Your request has been received. Please save the reference number for tracking.');
+            ->with('success', __('Your request has been received. Please save the reference number for tracking.'));
     }
 
     public function dsarStatus(Request $request)
@@ -261,10 +261,10 @@ class PrivacyController extends Controller
                 } else {
                     return view('privacy::dsar-status', [
                         'myDsars' => $myDsars,
-                    ])->with('error', 'Reference / email did not match a request you own.');
+                    ])->with('error', __('Reference / email did not match a request you own.'));
                 }
             } else {
-                session()->flash('error', 'No request found with reference '.$reference.'.');
+                session()->flash('error', __('No request found with reference :reference.', ['reference' => $reference]));
             }
         }
 
@@ -1130,7 +1130,7 @@ class PrivacyController extends Controller
             ]);
         }
 
-        session()->flash('success', 'Entity updated successfully');
+        session()->flash('success', __('Entity updated successfully'));
 
         return redirect()->route('ahgprivacy.pii-review');
     }
@@ -1548,7 +1548,7 @@ class PrivacyController extends Controller
             $this->prepopulateDsarScope($id);
         }
 
-        session()->flash('success', 'DSAR updated successfully');
+        session()->flash('success', __('DSAR updated successfully'));
 
         return redirect()->route('ahgprivacy.dsar-view', ['id' => $id]);
     }
@@ -1582,7 +1582,7 @@ class PrivacyController extends Controller
 
         $ioId = $this->resolveIoIdentifier($data['io']);
         if ($ioId === null) {
-            return back()->with('error', 'No archival description found for "' . $data['io'] . '".');
+            return back()->with('error', __('No archival description found for ":identifier".', ['identifier' => $data['io']]));
         }
 
         DB::table('privacy_dsar_object')->updateOrInsert(
@@ -1595,7 +1595,7 @@ class PrivacyController extends Controller
             ->where('dsar_id', $id)->where('information_object_id', $ioId)
             ->update(['privacy_id' => $profile->id]);
 
-        return back()->with('success', 'Added description #' . $ioId . ' to scope and pre-populated its privacy profile.');
+        return back()->with('success', __('Added description #:id to scope and pre-populated its privacy profile.', ['id' => $ioId]));
     }
 
     public function dsarScopeRemove(int $id, int $ioId)
@@ -1604,7 +1604,7 @@ class PrivacyController extends Controller
             ->where('dsar_id', $id)->where('information_object_id', $ioId)
             ->delete();
 
-        return back()->with('success', 'Removed description #' . $ioId . ' from scope.');
+        return back()->with('success', __('Removed description #:id from scope.', ['id' => $ioId]));
     }
 
     /** Pre-populate privacy profiles for every IO currently in a DSAR's scope. */
@@ -1670,7 +1670,7 @@ class PrivacyController extends Controller
 
         $id = (int) $request->input('id');
         $this->service->updateBreach($id, $request->all(), (int) Auth::id());
-        session()->flash('success', 'Breach updated successfully');
+        session()->flash('success', __('Breach updated successfully'));
 
         return redirect()->route('ahgprivacy.breach-view', ['id' => $id]);
     }
@@ -1684,7 +1684,7 @@ class PrivacyController extends Controller
 
         $id = (int) $request->input('id');
         $this->service->withdrawConsent($id, $request->input('reason'), (int) Auth::id());
-        session()->flash('success', 'Consent withdrawn successfully');
+        session()->flash('success', __('Consent withdrawn successfully'));
 
         return redirect()->route('ahgprivacy.consent-list');
     }
@@ -1701,9 +1701,9 @@ class PrivacyController extends Controller
         $officerId = $officerId !== null && $officerId !== '' ? (int) $officerId : null;
 
         if ($this->service->submitRopaForApproval($id, (int) Auth::id(), $officerId)) {
-            session()->flash('success', 'Processing activity submitted for review');
+            session()->flash('success', __('Processing activity submitted for review'));
         } else {
-            session()->flash('error', 'Unable to submit for review. Only draft items can be submitted.');
+            session()->flash('error', __('Unable to submit for review. Only draft items can be submitted.'));
         }
 
         return redirect()->route('ahgprivacy.ropa-view', ['id' => $id]);
@@ -1721,15 +1721,15 @@ class PrivacyController extends Controller
         $userId = (int) Auth::id();
 
         if (! $this->service->isPrivacyOfficer($userId) && ! ($user && ($user->is_admin ?? false))) {
-            session()->flash('error', 'Only Privacy Officers can approve records');
+            session()->flash('error', __('Only Privacy Officers can approve records'));
 
             return redirect()->route('ahgprivacy.ropa-view', ['id' => $id]);
         }
 
         if ($this->service->approveRopa($id, $userId, $request->input('comment'))) {
-            session()->flash('success', 'Processing activity approved');
+            session()->flash('success', __('Processing activity approved'));
         } else {
-            session()->flash('error', 'Unable to approve. Only pending review items can be approved.');
+            session()->flash('error', __('Unable to approve. Only pending review items can be approved.'));
         }
 
         return redirect()->route('ahgprivacy.ropa-view', ['id' => $id]);
@@ -1747,22 +1747,22 @@ class PrivacyController extends Controller
         $userId = (int) Auth::id();
 
         if (! $this->service->isPrivacyOfficer($userId) && ! ($user && ($user->is_admin ?? false))) {
-            session()->flash('error', 'Only Privacy Officers can reject records');
+            session()->flash('error', __('Only Privacy Officers can reject records'));
 
             return redirect()->route('ahgprivacy.ropa-view', ['id' => $id]);
         }
 
         $reason = trim((string) $request->input('reason'));
         if ($reason === '') {
-            session()->flash('error', 'Please provide a reason for rejection');
+            session()->flash('error', __('Please provide a reason for rejection'));
 
             return redirect()->route('ahgprivacy.ropa-view', ['id' => $id]);
         }
 
         if ($this->service->rejectRopa($id, $userId, $reason)) {
-            session()->flash('success', 'Processing activity returned for changes');
+            session()->flash('success', __('Processing activity returned for changes'));
         } else {
-            session()->flash('error', 'Unable to reject. Only pending review items can be rejected.');
+            session()->flash('error', __('Unable to reject. Only pending review items can be rejected.'));
         }
 
         return redirect()->route('ahgprivacy.ropa-view', ['id' => $id]);

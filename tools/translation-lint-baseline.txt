@@ -1463,61 +1463,6 @@ packages/ahg-preservation/src/Controllers/PreservationController.php	flash	Rule 
 packages/ahg-preservation/src/Controllers/PreservationController.php	flash	Rule updated.
 packages/ahg-preservation/src/Controllers/PreservationController.php	flash	Validation failed:
 packages/ahg-preservation/src/Controllers/TiffPdfMergeController.php	flash	Merge failed:
-packages/ahg-privacy/resources/views/description-privacy-panel.blade.php	text	full
-packages/ahg-privacy/resources/views/description-privacy-panel.blade.php	text	partial
-packages/ahg-privacy/resources/views/description-privacy-panel.blade.php	text	pseudonymised
-packages/ahg-privacy/resources/views/officer-list.blade.php	text	Appointed: {{…}}
-packages/ahg-privacy/resources/views/officer-list.blade.php	text	Reg: {{…}}
-packages/ahg-privacy/resources/views/paia-list.blade.php	text	30 days
-packages/ahg-privacy/resources/views/paia-list.blade.php	text	from receipt (extendable by 30 days with notice)
-packages/ahg-privacy/resources/views/pii-review.blade.php	text	- False positive, not actually PII
-packages/ahg-privacy/resources/views/pii-review.blade.php	text	- Is PII, should be masked/restricted in metadata and PDFs
-packages/ahg-privacy/resources/views/pii-review.blade.php	text	- Not sensitive PII, can remain visible
-packages/ahg-privacy/resources/views/pii-scan-object.blade.php	text	{{…}} found
-packages/ahg-privacy/resources/views/pii-scan.blade.php	text	- Bank Account Numbers
-packages/ahg-privacy/resources/views/pii-scan.blade.php	text	- Dates (via NER)
-packages/ahg-privacy/resources/views/pii-scan.blade.php	text	- Email Addresses
-packages/ahg-privacy/resources/views/pii-scan.blade.php	text	- International Phones
-packages/ahg-privacy/resources/views/pii-scan.blade.php	text	- Names (via NER)
-packages/ahg-privacy/resources/views/pii-scan.blade.php	text	- Nigerian National ID
-packages/ahg-privacy/resources/views/pii-scan.blade.php	text	- Organizations (via NER)
-packages/ahg-privacy/resources/views/pii-scan.blade.php	text	- Passport Numbers
-packages/ahg-privacy/resources/views/pii-scan.blade.php	text	- Places (via NER)
-packages/ahg-privacy/resources/views/pii-scan.blade.php	text	- SA Phone Numbers
-packages/ahg-privacy/resources/views/pii-scan.blade.php	text	- South African ID Numbers
-packages/ahg-privacy/resources/views/pii-scan.blade.php	text	- Tax Reference Numbers
-packages/ahg-privacy/resources/views/pii-scan.blade.php	text	100 objects
-packages/ahg-privacy/resources/views/pii-scan.blade.php	text	25 objects
-packages/ahg-privacy/resources/views/pii-scan.blade.php	text	250 objects
-packages/ahg-privacy/resources/views/pii-scan.blade.php	text	50 objects
-packages/ahg-privacy/resources/views/pii-scan.blade.php	text	Review Pending ({{…}})
-packages/ahg-privacy/src/Controllers/ComplianceAutopilotController.php	flash	ROPA entry "
-packages/ahg-privacy/src/Controllers/DescriptionPrivacyController.php	flash	Field "
-packages/ahg-privacy/src/Controllers/DescriptionPrivacyController.php	flash	Field redaction removed.
-packages/ahg-privacy/src/Controllers/DescriptionPrivacyController.php	flash	Privacy profile saved for description #
-packages/ahg-privacy/src/Controllers/DpiaController.php	flash	Moved to review.
-packages/ahg-privacy/src/Controllers/DpiaController.php	flash	Saved. Continue to the next step.
-packages/ahg-privacy/src/Controllers/DpiaController.php	flash	Saved. Ready for sign-off.
-packages/ahg-privacy/src/Controllers/DpiaController.php	flash	Sign-off requires an authenticated user.
-packages/ahg-privacy/src/Controllers/PrivacyController.php	flash	Added description #
-packages/ahg-privacy/src/Controllers/PrivacyController.php	flash	Breach updated successfully
-packages/ahg-privacy/src/Controllers/PrivacyController.php	flash	Consent withdrawn successfully
-packages/ahg-privacy/src/Controllers/PrivacyController.php	flash	DSAR updated successfully
-packages/ahg-privacy/src/Controllers/PrivacyController.php	flash	Entity updated successfully
-packages/ahg-privacy/src/Controllers/PrivacyController.php	flash	No archival description found for "
-packages/ahg-privacy/src/Controllers/PrivacyController.php	flash	No request found with reference
-packages/ahg-privacy/src/Controllers/PrivacyController.php	flash	Only Privacy Officers can approve records
-packages/ahg-privacy/src/Controllers/PrivacyController.php	flash	Only Privacy Officers can reject records
-packages/ahg-privacy/src/Controllers/PrivacyController.php	flash	Please provide a reason for rejection
-packages/ahg-privacy/src/Controllers/PrivacyController.php	flash	Processing activity approved
-packages/ahg-privacy/src/Controllers/PrivacyController.php	flash	Processing activity returned for changes
-packages/ahg-privacy/src/Controllers/PrivacyController.php	flash	Processing activity submitted for review
-packages/ahg-privacy/src/Controllers/PrivacyController.php	flash	Reference / email did not match a request you own.
-packages/ahg-privacy/src/Controllers/PrivacyController.php	flash	Removed description #
-packages/ahg-privacy/src/Controllers/PrivacyController.php	flash	Unable to approve. Only pending review items can be approved.
-packages/ahg-privacy/src/Controllers/PrivacyController.php	flash	Unable to reject. Only pending review items can be rejected.
-packages/ahg-privacy/src/Controllers/PrivacyController.php	flash	Unable to submit for review. Only draft items can be submitted.
-packages/ahg-privacy/src/Controllers/PrivacyController.php	flash	Your request has been received. Please save the reference number for tracking.
 packages/ahg-rad-manage/resources/views/edit.blade.php	text	(RAD Jul 2008)
 packages/ahg-rad-manage/src/Controllers/RadManageController.php	flash	Description saved (RAD).
 packages/ahg-rdm/src/Controllers/DatasetController.php	flash	Data Management Plan unlinked.

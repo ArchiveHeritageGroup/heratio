@@ -74,7 +74,7 @@ class ComplianceAutopilotController extends Controller
         ]);
 
         return redirect()->route('ahgprivacy.article-30.index')
-            ->with('success', 'ROPA entry "'.$activity->name.'" created from the compliance autopilot draft. Review and complete it.');
+            ->with('success', __('ROPA entry ":name" created from the compliance autopilot draft. Review and complete it.', ['name' => $activity->name]));
     }
 
     /**
