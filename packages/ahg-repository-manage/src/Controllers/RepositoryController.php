@@ -332,7 +332,7 @@ class RepositoryController extends Controller
 
         return redirect()
             ->route('repository.show', $slug)
-            ->with('success', 'Repository created successfully.');
+            ->with('success', __('Repository created successfully.'));
     }
 
     public function update(Request $request, string $slug)
@@ -355,7 +355,7 @@ class RepositoryController extends Controller
 
         return redirect()
             ->route('repository.show', $slug)
-            ->with('success', 'Repository updated successfully.');
+            ->with('success', __('Repository updated successfully.'));
     }
 
     public function confirmDelete(string $slug)
@@ -384,7 +384,7 @@ class RepositoryController extends Controller
 
         return redirect()
             ->route('repository.browse')
-            ->with('success', 'Repository deleted successfully.');
+            ->with('success', __('Repository deleted successfully.'));
     }
 
     /**
@@ -425,7 +425,7 @@ class RepositoryController extends Controller
 
         return redirect()
             ->route('repository.show', $slug)
-            ->with('success', 'Theme updated successfully.');
+            ->with('success', __('Theme updated successfully.'));
     }
 
     /**
@@ -460,7 +460,7 @@ class RepositoryController extends Controller
 
         return redirect()
             ->route('repository.show', $slug)
-            ->with('success', 'Upload limit updated successfully.');
+            ->with('success', __('Upload limit updated successfully.'));
     }
 
     /**

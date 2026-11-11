@@ -24,7 +24,7 @@
   // Pre-build the GB abbreviation. It must NOT be a nested {{ }} inside the
   // {!! !!} lines below - Blade compiles a nested echo into the outer string
   // arg, producing invalid PHP ("unexpected integer 1" from 1 000 000 000).
-  $gbAbbr = '<abbr title="' . e(__('1 GB = 1 000 000 000 bytes')) . '">' . e(__('GB')) . '</abbr>';
+  $gbAbbr = '<abbr title="{{ __('\' . e(__(\'1 GB = 1 000 000 000 bytes\')) . \'') }}">' . e(__('GB')) . '</abbr>';
 @endphp
 
 <section class="card mb-3" id="upload-limit-card">

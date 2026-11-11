@@ -316,7 +316,7 @@
       @endphp
       <div class="dropdown d-inline-block">
         <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sortDir-button" data-bs-toggle="dropdown" aria-expanded="false">
-          Direction: {{ $currentDir === 'desc' ? 'Descending' : 'Ascending' }}
+          {{ __('Direction: :value1', ['value1' => $currentDir === 'desc' ? 'Descending' : 'Ascending']) }}
         </button>
         <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sortDir-button">
           <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'asc'])) }}" class="dropdown-item {{ $currentDir === 'asc' ? 'active' : '' }}">{{ __('Ascending') }}</a></li>

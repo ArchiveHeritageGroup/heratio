@@ -1563,24 +1563,6 @@ packages/ahg-reports/src/Controllers/ReportBuilderController.php	flash	Report up
 packages/ahg-reports/src/Controllers/ReportBuilderController.php	flash	Schedule removed.
 packages/ahg-reports/src/Controllers/ReportBuilderController.php	flash	Schedule saved.
 packages/ahg-reports/src/Controllers/ReportBuilderController.php	flash	Template deleted successfully.
-packages/ahg-repository-manage/resources/views/_upload-limit.blade.php	title-attr	' . e(__('1 GB = 1 000 000 000 bytes')) . '
-packages/ahg-repository-manage/resources/views/browse.blade.php	text	Direction: {{…}}
-packages/ahg-repository-manage/resources/views/delete.blade.php	text	Are you sure you want to delete {{…}}?
-packages/ahg-repository-manage/resources/views/delete.blade.php	text	archival description(s) associated with it. Deleting the repository will not delete the descriptions, but they will no longer be linked to a repository.
-packages/ahg-repository-manage/resources/views/edit.blade.php	text	-- Select --
-packages/ahg-repository-manage/resources/views/edit.blade.php	text	-- Select --
-packages/ahg-repository-manage/resources/views/edit.blade.php	text	= disabled, any positive number = limit in MB
-packages/ahg-repository-manage/resources/views/edit.blade.php	text	= unlimited,
-packages/ahg-repository-manage/resources/views/edit.blade.php	text	Add new archival institution - ISDIAH
-packages/ahg-repository-manage/resources/views/edit.blade.php	text	Edit archival institution - ISDIAH
-packages/ahg-repository-manage/resources/views/print.blade.php	text	{{…}} description{{…}}
-packages/ahg-repository-manage/resources/views/show.blade.php	text	{{…}} (Geographic subregion)
-packages/ahg-repository-manage/resources/views/show.blade.php	text	{{…}} (Thematic area)
-packages/ahg-repository-manage/src/Controllers/RepositoryController.php	flash	Repository created successfully.
-packages/ahg-repository-manage/src/Controllers/RepositoryController.php	flash	Repository deleted successfully.
-packages/ahg-repository-manage/src/Controllers/RepositoryController.php	flash	Repository updated successfully.
-packages/ahg-repository-manage/src/Controllers/RepositoryController.php	flash	Theme updated successfully.
-packages/ahg-repository-manage/src/Controllers/RepositoryController.php	flash	Upload limit updated successfully.
 packages/ahg-request-publish/resources/views/browse.blade.php	text	Object #{{…}}
 packages/ahg-request-publish/resources/views/browse.blade.php	text	The Request to Publish feature is not configured. The required database tables ( and ) do not exist. Please contact your system administrator.
 packages/ahg-request-publish/resources/views/edit.blade.php	text	Identifier: {{…}}

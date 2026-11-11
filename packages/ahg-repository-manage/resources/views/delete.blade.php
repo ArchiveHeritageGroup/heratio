@@ -1,15 +1,14 @@
 @extends('theme::layouts.1col')
 
 @section('title')
-  <h1>Are you sure you want to delete {{ $repository->authorized_form_of_name }}?</h1>
+  <h1>{{ __('Are you sure you want to delete :value1?', ['value1' => $repository->authorized_form_of_name]) }}</h1>
 @endsection
 
 @section('content')
 
   @if($holdingsCount > 0)
     <div class="alert alert-warning">
-      {{ __('This repository has') }} <strong>{{ $holdingsCount }}</strong> archival description(s) associated with it.
-      Deleting the repository will not delete the descriptions, but they will no longer be linked to a repository.
+      {{ __('This repository has') }} <strong>{{ $holdingsCount }}</strong> {{ __('archival description(s) associated with it. Deleting the repository will not delete the descriptions, but they will no longer be linked to a repository.') }}
     </div>
   @endif
 

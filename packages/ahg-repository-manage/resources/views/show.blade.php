@@ -411,10 +411,10 @@
       <div class="col-9 p-2">
         <ul class="m-0 ms-1 ps-3">
           @foreach($thematicAreas ?? [] as $area)
-            <li>{{ $area->name }} (Thematic area)</li>
+            <li>{{ __(':value1 (Thematic area)', ['value1' => $area->name]) }}</li>
           @endforeach
           @foreach($geographicSubregions ?? [] as $region)
-            <li>{{ $region->name }} (Geographic subregion)</li>
+            <li>{{ __(':value1 (Geographic subregion)', ['value1' => $region->name]) }}</li>
           @endforeach
         </ul>
       </div>
