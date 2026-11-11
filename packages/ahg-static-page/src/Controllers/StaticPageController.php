@@ -174,7 +174,7 @@ class StaticPageController extends Controller
         });
 
         return redirect()->route('staticpage.show', $request->input('slug'))
-            ->with('success', 'Page created.');
+            ->with('success', __('Page created.'));
     }
 
     public function edit(string $slug)
@@ -264,7 +264,7 @@ class StaticPageController extends Controller
         }
 
         return redirect()->route('staticpage.show', $finalSlug)
-            ->with('success', 'Page updated.');
+            ->with('success', __('Page updated.'));
     }
 
     public function show(string $slug)
