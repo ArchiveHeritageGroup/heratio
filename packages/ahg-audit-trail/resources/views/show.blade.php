@@ -7,7 +7,7 @@
   <div class="multiline-header d-flex align-items-center mb-3">
     <i class="fas fa-3x fa-clipboard-check me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
-      <h1 class="mb-0">Audit entry #{{ $entry->id }}</h1>
+      <h1 class="mb-0">{{ __('Audit entry #:value1', ['value1' => $entry->id]) }}</h1>
       <span class="small text-muted">{{ __('Audit trail details') }}</span>
     </div>
   </div>
