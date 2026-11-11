@@ -12,7 +12,7 @@
           <div class="col-md-4 mb-2">
             <label class="form-label small">{{ __('Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="other_names[{{ $index }}][type_id]" class="form-select form-select-sm">
-              <option value="">-- Select --</option>
+              <option value="">{{ __('-- Select --') }}</option>
               @foreach($nameTypes as $type)
                 <option value="{{ $type->id }}" @selected(($name->type_id ?? '') == $type->id)>{{ $type->name }}</option>
               @endforeach
@@ -36,7 +36,7 @@
   <button type="button" id="add-other-name" class="btn btn-sm atom-btn-white">
     <i class="bi bi-plus-circle me-1"></i>{{ __('Add other name') }}
   </button>
-  <div class="form-text">"Record parallel, standardized, or other forms of name." (ISAAR 5.1.3-5.1.5)</div>
+  <div class="form-text">{{ __('"Record parallel, standardized, or other forms of name." (ISAAR 5.1.3-5.1.5)') }}</div>
 </div>
 
 <template id="other-name-template">
@@ -50,7 +50,7 @@
         <div class="col-md-4 mb-2">
           <label class="form-label small">{{ __('Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="other_names[__INDEX__][type_id]" class="form-select form-select-sm">
-            <option value="">-- Select --</option>
+            <option value="">{{ __('-- Select --') }}</option>
             @foreach($nameTypes as $type)
               <option value="{{ $type->id }}">{{ $type->name }}</option>
             @endforeach

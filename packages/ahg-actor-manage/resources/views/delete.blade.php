@@ -1,7 +1,7 @@
 @extends('theme::layouts.1col')
 
 @section('title')
-  <h1>Are you sure you want to delete {{ $actor->authorized_form_of_name }}?</h1>
+  <h1>{{ __('Are you sure you want to delete :name?', ['name' => $actor->authorized_form_of_name]) }}</h1>
 @endsection
 
 @section('content')

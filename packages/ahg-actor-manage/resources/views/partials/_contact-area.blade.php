@@ -73,7 +73,7 @@
           <div class="col-md-4 mb-3">
             <label class="form-label">{{ __('Language preference') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="contacts[{{ $index }}][language_preference]" class="form-select">
-              <option value="">-- Select --</option>
+              <option value="">{{ __('-- Select --') }}</option>
               @foreach($formChoices['languages'] ?? ['en' => 'English', 'fr' => 'French', 'af' => 'Afrikaans', 'de' => 'German', 'nl' => 'Dutch', 'pt' => 'Portuguese', 'es' => 'Spanish', 'it' => 'Italian', 'zu' => 'Zulu', 'xh' => 'Xhosa', 'st' => 'Sotho'] as $code => $name)
                 <option value="{{ $code }}" @selected(($contact->language_preference ?? '') == $code)>{{ $name }}</option>
               @endforeach
@@ -260,7 +260,7 @@
           <div class="col-md-4 mb-3">
             <label class="form-label">{{ __('Language preference') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="contacts[__INDEX__][language_preference]" class="form-select">
-              <option value="">-- Select --</option>
+              <option value="">{{ __('-- Select --') }}</option>
               @foreach($formChoices['languages'] ?? ['en' => 'English', 'fr' => 'French', 'af' => 'Afrikaans', 'de' => 'German', 'nl' => 'Dutch', 'pt' => 'Portuguese', 'es' => 'Spanish', 'it' => 'Italian', 'zu' => 'Zulu', 'xh' => 'Xhosa', 'st' => 'Sotho'] as $code => $name)
                 <option value="{{ $code }}">{{ $name }}</option>
               @endforeach

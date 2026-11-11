@@ -22,7 +22,7 @@
 
   <div class="card mb-3">
     <div class="card-header">
-      <i class="fas fa-address-book me-1"></i>Contact details for {{ $actor->name ?? '' }}
+      <i class="fas fa-address-book me-1"></i>{{ __('Contact details for :name', ['name' => $actor->name ?? '']) }}
     </div>
     <div class="card-body">
       @if($contacts->isEmpty())

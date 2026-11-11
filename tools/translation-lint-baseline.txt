@@ -202,62 +202,6 @@ packages/ahg-acl/src/Controllers/AclController.php	flash	Two-factor verified.
 packages/ahg-acl/src/Controllers/AclController.php	flash	User clearance revoked.
 packages/ahg-acl/src/Controllers/AclController.php	flash	User clearance updated successfully.
 packages/ahg-acl/src/Controllers/AclController.php	flash	Watermark settings saved successfully.
-packages/ahg-actor-manage/resources/views/authority/contact.blade.php	text	Contact details for {{…}}
-packages/ahg-actor-manage/resources/views/authority/dedup-compare.blade.php	text	Primary: {{…}}
-packages/ahg-actor-manage/resources/views/authority/dedup-compare.blade.php	text	Secondary: {{…}}
-packages/ahg-actor-manage/resources/views/authority/dedup-scan.blade.php	text	{{…}} potential duplicate pair(s)
-packages/ahg-actor-manage/resources/views/authority/merge.blade.php	text	Merge into: {{…}}
-packages/ahg-actor-manage/resources/views/authority/merge.blade.php	text	Relations: {{…}}, Resources: {{…}}, Contacts: {{…}}, IDs: {{…}}
-packages/ahg-actor-manage/resources/views/authority/partials/_completeness-panel.blade.php	text	Last scored: {{…}}
-packages/ahg-actor-manage/resources/views/authority/split.blade.php	text	Split: {{…}}
-packages/ahg-actor-manage/resources/views/authority/workqueue.blade.php	text	{{…}} record(s)
-packages/ahg-actor-manage/resources/views/browse.blade.php	text	, {{…}} results
-packages/ahg-actor-manage/resources/views/browse.blade.php	text	, {{…}} results
-packages/ahg-actor-manage/resources/views/browse.blade.php	text	, {{…}} results
-packages/ahg-actor-manage/resources/views/browse.blade.php	text	, {{…}} results
-packages/ahg-actor-manage/resources/views/browse.blade.php	text	, {{…}} results
-packages/ahg-actor-manage/resources/views/browse.blade.php	text	, {{…}} results
-packages/ahg-actor-manage/resources/views/browse.blade.php	text	, {{…}} results
-packages/ahg-actor-manage/resources/views/browse.blade.php	text	Direction: {{…}}
-packages/ahg-actor-manage/resources/views/browse.blade.php	text	and
-packages/ahg-actor-manage/resources/views/browse.blade.php	text	and
-packages/ahg-actor-manage/resources/views/browse.blade.php	text	not
-packages/ahg-actor-manage/resources/views/browse.blade.php	text	not
-packages/ahg-actor-manage/resources/views/delete.blade.php	text	Are you sure you want to delete {{…}}?
-packages/ahg-actor-manage/resources/views/partials/_contact-area.blade.php	text	-- Select --
-packages/ahg-actor-manage/resources/views/partials/_contact-area.blade.php	text	-- Select --
-packages/ahg-actor-manage/resources/views/partials/_other-names.blade.php	text	"Record parallel, standardized, or other forms of name." (ISAAR 5.1.3-5.1.5)
-packages/ahg-actor-manage/resources/views/partials/_other-names.blade.php	text	-- Select --
-packages/ahg-actor-manage/resources/views/partials/_other-names.blade.php	text	-- Select --
-packages/ahg-actor-manage/resources/views/print.blade.php	text	[Primary contact]
-packages/ahg-actor-manage/resources/views/show.blade.php	text	&laquo; Previous
-packages/ahg-actor-manage/resources/views/show.blade.php	text	&laquo; Previous
-packages/ahg-actor-manage/resources/views/show.blade.php	text	&laquo; Previous
-packages/ahg-actor-manage/resources/views/show.blade.php	text	&laquo; Previous
-packages/ahg-actor-manage/resources/views/show.blade.php	text	(converse: {{…}})
-packages/ahg-actor-manage/resources/views/show.blade.php	text	Access points area
-packages/ahg-actor-manage/resources/views/show.blade.php	text	Browse {{…}} result{{…}}
-packages/ahg-actor-manage/resources/views/show.blade.php	text	Browse {{…}} result{{…}}
-packages/ahg-actor-manage/resources/views/show.blade.php	text	Category: {{…}}
-packages/ahg-actor-manage/resources/views/show.blade.php	text	Contact information
-packages/ahg-actor-manage/resources/views/show.blade.php	text	Control area
-packages/ahg-actor-manage/resources/views/show.blade.php	text	Dates: {{…}}
-packages/ahg-actor-manage/resources/views/show.blade.php	text	Dates: {{…}} - {{…}}
-packages/ahg-actor-manage/resources/views/show.blade.php	text	Description area
-packages/ahg-actor-manage/resources/views/show.blade.php	text	Fax: {{…}}
-packages/ahg-actor-manage/resources/views/show.blade.php	text	Identifier: {{…}}
-packages/ahg-actor-manage/resources/views/show.blade.php	text	Identity area
-packages/ahg-actor-manage/resources/views/show.blade.php	text	Next &raquo;
-packages/ahg-actor-manage/resources/views/show.blade.php	text	Next &raquo;
-packages/ahg-actor-manage/resources/views/show.blade.php	text	Page {{…}} of {{…}}
-packages/ahg-actor-manage/resources/views/show.blade.php	text	Page {{…}} of {{…}}
-packages/ahg-actor-manage/resources/views/show.blade.php	text	Relationships area
-packages/ahg-actor-manage/resources/views/show.blade.php	text	Type: {{…}}
-packages/ahg-actor-manage/src/Controllers/ActorController.php	flash	Authority record created successfully.
-packages/ahg-actor-manage/src/Controllers/ActorController.php	flash	Authority record deleted successfully.
-packages/ahg-actor-manage/src/Controllers/ActorController.php	flash	Authority record renamed successfully.
-packages/ahg-actor-manage/src/Controllers/ActorController.php	flash	Authority record updated successfully.
-packages/ahg-actor-manage/src/Controllers/ActorController.php	flash	Configuration saved.
 packages/ahg-ai-chatbot/resources/views/admin.blade.php	text	Responses below the grounding threshold ({{…}}).
 packages/ahg-ai-chatbot/resources/views/admin.blade.php	text	Review Queue
 packages/ahg-ai-chatbot/resources/views/index.blade.php	text	Assistant
