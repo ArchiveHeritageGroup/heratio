@@ -89,15 +89,15 @@ class CartController extends Controller
                 'added' => $added,
                 'already' => ! $added,
                 'cart_count' => $count,
-                'message' => $added ? 'Listing added to your cart.' : 'Already in your cart (or no longer active).',
+                'message' => $added ? __('Listing added to your cart.') : 'Already in your cart (or no longer active).',
             ]);
         }
 
         if ($added) {
-            return redirect()->route('cart.browse')->with('success', 'Listing added to your cart.');
+            return redirect()->route('cart.browse')->with('success', __('Listing added to your cart.'));
         }
 
-        return redirect()->route('cart.browse')->with('info', 'That listing is already in your cart (or no longer active).');
+        return redirect()->route('cart.browse')->with('info', __('That listing is already in your cart (or no longer active.'));
     }
 
     /**
@@ -119,7 +119,7 @@ class CartController extends Controller
 
         $cart = $this->cartService->getMarketplaceCart($userId, null);
         if ($cart['items']->isEmpty()) {
-            return redirect()->route('cart.browse')->with('error', 'Your marketplace cart is empty.');
+            return redirect()->route('cart.browse')->with('error', __('Your marketplace cart is empty.'));
         }
 
         $payments = app(\AhgMarketplace\Services\MarketplacePaymentService::class);
@@ -162,7 +162,7 @@ class CartController extends Controller
         }
 
         if (empty($createdTxnIds)) {
-            return redirect()->route('cart.browse')->with('error', 'No payable items in your cart.');
+            return redirect()->route('cart.browse')->with('error', __('No payable items in your cart.'));
         }
 
         $grandTotal = (float) DB::table('marketplace_transaction')
@@ -194,7 +194,7 @@ class CartController extends Controller
         try {
             $url = $payments->buildProcessUrl($syntheticTxn, $syntheticListing, $name, $email);
         } catch (\Throwable $e) {
-            return redirect()->route('cart.browse')->with('error', 'Payment gateway is not configured: '.$e->getMessage());
+            return redirect()->route('cart.browse')->with('error', __('Payment gateway is not configured: :message', ['message' => $e->getMessage()]));
         }
 
         return redirect()->away($url);
@@ -216,14 +216,14 @@ class CartController extends Controller
 
         $ecommerce = app(\AhgCart\Services\EcommerceService::class);
         if ($ecommerce->isEcommerceEnabled()) {
-            session()->flash('error', 'E-commerce is enabled - use the real PayFast checkout.');
+            session()->flash('error', __('E-commerce is enabled - use the real PayFast checkout.'));
 
             return redirect()->route('cart.browse');
         }
 
         $cart = $this->cartService->getMarketplaceCart($userId, null);
         if ($cart['items']->isEmpty()) {
-            return redirect()->route('cart.browse')->with('error', 'Your marketplace cart is empty.');
+            return redirect()->route('cart.browse')->with('error', __('Your marketplace cart is empty.'));
         }
 
         $marketplace = app(\AhgMarketplace\Services\MarketplaceService::class);
@@ -329,7 +329,7 @@ class CartController extends Controller
         // Resolve object from slug
         $slugRow = DB::table('slug')->where('slug', $slug)->first();
         if (! $slugRow) {
-            return redirect()->back()->with('error', 'Item not found.');
+            return redirect()->back()->with('error', __('Item not found.'));
         }
 
         $title = DB::table('information_object_i18n')
@@ -343,17 +343,17 @@ class CartController extends Controller
         $added = $this->cartService->addToCart($userId, $userId ? null : $sessionId, $slugRow->object_id, $title, $slug);
 
         if ($added) {
-            return redirect()->back()->with('success', 'Item added to cart.');
+            return redirect()->back()->with('success', __('Item added to cart.'));
         }
 
-        return redirect()->back()->with('info', 'Item is already in your cart.');
+        return redirect()->back()->with('info', __('Item is already in your cart.'));
     }
 
     public function remove(Request $request, int $id)
     {
         $this->cartService->removeItem($id, Auth::id(), session()->getId());
 
-        return redirect()->route('cart.browse')->with('success', 'Item removed from cart.');
+        return redirect()->route('cart.browse')->with('success', __('Item removed from cart.'));
     }
 
     /**
@@ -382,14 +382,14 @@ class CartController extends Controller
             ]);
         }
 
-        return redirect()->route('cart.browse')->with('success', 'Listing removed from cart.');
+        return redirect()->route('cart.browse')->with('success', __('Listing removed from cart.'));
     }
 
     public function clear(Request $request)
     {
         $this->cartService->clearAll(Auth::id(), $request->session()->getId());
 
-        return redirect()->route('cart.browse')->with('success', 'Cart cleared.');
+        return redirect()->route('cart.browse')->with('success', __('Cart cleared.'));
     }
 
     public function checkout(Request $request)
@@ -399,7 +399,7 @@ class CartController extends Controller
         $items = $this->cartService->getCart($userId, $userId ? null : $sessionId);
 
         if ($items->isEmpty()) {
-            return redirect()->route('cart.browse')->with('error', 'Your cart is empty.');
+            return redirect()->route('cart.browse')->with('error', __('Your cart is empty.'));
         }
 
         $isEcommerce = $this->ecommerceService->isEcommerceEnabled();
@@ -430,7 +430,7 @@ class CartController extends Controller
             'rtp_institution', 'rtp_planned_use', 'rtp_motivation', 'rtp_need_image_by',
         ]), $items);
 
-        return redirect()->route('cart.thankyou')->with('success', 'Your request has been submitted.');
+        return redirect()->route('cart.thankyou')->with('success', __('Your request has been submitted.'));
     }
 
     private function processEcommerceCheckout(Request $request, $items): \Illuminate\Http\RedirectResponse
@@ -456,7 +456,7 @@ class CartController extends Controller
             'notes' => $request->input('notes', ''),
         ], $totals['items']);
 
-        return redirect()->route('cart.order-confirmation', $orderId)->with('success', 'Order placed successfully.');
+        return redirect()->route('cart.order-confirmation', $orderId)->with('success', __('Order placed successfully.'));
     }
 
     public function orders()
@@ -524,7 +524,7 @@ class CartController extends Controller
             if ($actionType === 'save_pricing') {
                 $this->savePricing($request);
 
-                return redirect()->route('cart.admin.settings', ['tab' => 'pricing'])->with('success', 'Product pricing updated.');
+                return redirect()->route('cart.admin.settings', ['tab' => 'pricing'])->with('success', __('Product pricing updated.'));
             }
 
             // save_settings (General + Payment tabs)
@@ -547,7 +547,7 @@ class CartController extends Controller
                     ]);
             }
 
-            return redirect()->route('cart.admin.settings')->with('success', 'E-commerce settings saved.');
+            return redirect()->route('cart.admin.settings')->with('success', __('E-commerce settings saved.'));
         }
 
         $settings = $this->ecommerceService->getSettings();

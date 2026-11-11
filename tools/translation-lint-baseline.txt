@@ -407,37 +407,6 @@ packages/ahg-biblio-frbr/resources/views/work-cluster.blade.php	text	work-key {{
 packages/ahg-biblio-frbr/src/Controllers/FrbrController.php	flash	No FRBR content provided.
 packages/ahg-biblio-frbr/src/Controllers/FrbrController.php	flash	No work selected.
 packages/ahg-c2pa/src/Controllers/ProvenanceController.php	flash	Provenance record created.
-packages/ahg-cart/resources/views/_dummy-sale-modal.blade.php	text	. No payment is being charged - this is a preview of what a real sale would look like.
-packages/ahg-cart/resources/views/_dummy-sale-modal.blade.php	text	Placing your order&hellip;
-packages/ahg-cart/resources/views/_dummy-sale-modal.blade.php	text	Redirecting to PayFast&hellip;
-packages/ahg-cart/resources/views/_dummy-sale-modal.blade.php	text	disabled
-packages/ahg-cart/resources/views/_dummy-sale-modal.blade.php	text	paid
-packages/ahg-cart/resources/views/admin/settings.blade.php	text	Price ({{…}})
-packages/ahg-cart/resources/views/admin/settings.blade.php	text	www.payfast.co.za
-packages/ahg-cart/resources/views/browse.blade.php	text	Added {{…}}
-packages/ahg-cart/resources/views/browse.blade.php	text	Marketplace purchases ({{…}})
-packages/ahg-cart/resources/views/browse.blade.php	text	Pay {{…}} {{…}} via PayFast
-packages/ahg-cart/resources/views/browse.blade.php	text	Reproduction requests ({{…}})
-packages/ahg-cart/resources/views/checkout.blade.php	text	{{…}} {{…}} selected
-packages/ahg-cart/resources/views/order-confirmation.blade.php	text	Order {{…}}
-packages/ahg-cart/src/Controllers/CartController.php	flash	Cart cleared.
-packages/ahg-cart/src/Controllers/CartController.php	flash	E-commerce is enabled - use the real PayFast checkout.
-packages/ahg-cart/src/Controllers/CartController.php	flash	E-commerce settings saved.
-packages/ahg-cart/src/Controllers/CartController.php	flash	Item added to cart.
-packages/ahg-cart/src/Controllers/CartController.php	flash	Item is already in your cart.
-packages/ahg-cart/src/Controllers/CartController.php	flash	Item not found.
-packages/ahg-cart/src/Controllers/CartController.php	flash	Item removed from cart.
-packages/ahg-cart/src/Controllers/CartController.php	flash	Listing added to your cart.
-packages/ahg-cart/src/Controllers/CartController.php	flash	Listing removed from cart.
-packages/ahg-cart/src/Controllers/CartController.php	flash	No payable items in your cart.
-packages/ahg-cart/src/Controllers/CartController.php	flash	Order placed successfully.
-packages/ahg-cart/src/Controllers/CartController.php	flash	Payment gateway is not configured:
-packages/ahg-cart/src/Controllers/CartController.php	flash	Product pricing updated.
-packages/ahg-cart/src/Controllers/CartController.php	flash	That listing is already in your cart (or no longer active).
-packages/ahg-cart/src/Controllers/CartController.php	flash	Your cart is empty.
-packages/ahg-cart/src/Controllers/CartController.php	flash	Your marketplace cart is empty.
-packages/ahg-cart/src/Controllers/CartController.php	flash	Your marketplace cart is empty.
-packages/ahg-cart/src/Controllers/CartController.php	flash	Your request has been submitted.
 packages/ahg-cdpa/resources/views/breach-create.blade.php	text	72-Hour Notification Requirement
 packages/ahg-cdpa/resources/views/dpo-edit.blade.php	text	{{…}} Data Protection Officer
 packages/ahg-cdpa/resources/views/index.blade.php	text	Breach Register

@@ -1,9 +1,9 @@
 @extends('theme::layouts.1col')
-@section('title', 'Order ' . $order->order_number)
+@section('title', __('Order :number', ['number' => $order->order_number]))
 @section('body-class', 'cart order-confirmation')
 
 @section('content')
-<h1><i class="fas fa-receipt me-2"></i>Order {{ $order->order_number }}</h1>
+<h1><i class="fas fa-receipt me-2"></i>{{ __('Order :number', ['number' => $order->order_number]) }}</h1>
 <div class="row">
   <div class="col-md-8">
     <div class="card mb-4">

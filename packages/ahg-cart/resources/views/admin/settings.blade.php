@@ -143,7 +143,7 @@
           <div class="alert alert-info">
             <i class="fas fa-info-circle me-2"></i>
             {{ __('PayFast is a South African payment gateway. Sign up at') }}
-            <a href="https://www.payfast.co.za" target="_blank">www.payfast.co.za</a>
+            <a href="https://{{ __('www.payfast.co.za') }}" target="_blank">{{ __('www.payfast.co.za') }}</a>
           </div>
 
           <div class="row">
@@ -221,7 +221,7 @@
                   <th>{{ __('Product Type') }}</th>
                   <th>{{ __('Type') }}</th>
                   <th class="text-center" style="width:100px">{{ __('Active') }}</th>
-                  <th style="width:150px">Price ({{ $settings->currency ?? 'ZAR' }})</th>
+                  <th style="width:150px">{{ __('Price (:currency)', ['currency' => $settings->currency ?? 'ZAR']) }}</th>
                 </tr>
               </thead>
               <tbody>
