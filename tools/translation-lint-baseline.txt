@@ -1357,30 +1357,6 @@ packages/ahg-naz/src/Controllers/NazController.php	flash	Retention schedule upda
 packages/ahg-naz/src/Controllers/NazController.php	flash	Settings saved.
 packages/ahg-naz/src/Controllers/NazController.php	flash	Transfer created.
 packages/ahg-naz/src/Controllers/NazController.php	flash	Transfer updated.
-packages/ahg-nmmz/resources/views/index.blade.php	text	Compliance Status: {{…}}
-packages/ahg-nmmz/resources/views/index.blade.php	text	Export Permits
-packages/ahg-nmmz/resources/views/index.blade.php	text	Heritage Impact Assessments
-packages/ahg-nmmz/resources/views/index.blade.php	text	UNESCO World Heritage Sites: {{…}}
-packages/ahg-nmmz/resources/views/index.blade.php	text	{{…}} at risk
-packages/ahg-nmmz/resources/views/index.blade.php	text	{{…}} at risk
-packages/ahg-nmmz/resources/views/index.blade.php	text	{{…}} gazetted
-packages/ahg-nmmz/resources/views/index.blade.php	text	{{…}} in collection
-packages/ahg-nmmz/resources/views/index.blade.php	text	{{…}} issue(s) require attention
-packages/ahg-nmmz/resources/views/index.blade.php	text	{{…}} pending
-packages/ahg-nmmz/resources/views/index.blade.php	text	{{…}} this year
-packages/ahg-nmmz/resources/views/index.blade.php	text	{{…}} warning(s)
-packages/ahg-nmmz/resources/views/permit-view.blade.php	text	Export Permit {{…}}
-packages/ahg-nmmz/src/Controllers/NmmzController.php	flash	Antiquity deleted.
-packages/ahg-nmmz/src/Controllers/NmmzController.php	flash	Antiquity registered
-packages/ahg-nmmz/src/Controllers/NmmzController.php	flash	Configuration saved
-packages/ahg-nmmz/src/Controllers/NmmzController.php	flash	HIA submitted
-packages/ahg-nmmz/src/Controllers/NmmzController.php	flash	Invalid action.
-packages/ahg-nmmz/src/Controllers/NmmzController.php	flash	Monument deleted.
-packages/ahg-nmmz/src/Controllers/NmmzController.php	flash	Monument registered
-packages/ahg-nmmz/src/Controllers/NmmzController.php	flash	Permit application submitted
-packages/ahg-nmmz/src/Controllers/NmmzController.php	flash	Permit updated
-packages/ahg-nmmz/src/Controllers/NmmzController.php	flash	Site deleted.
-packages/ahg-nmmz/src/Controllers/NmmzController.php	flash	Site registered
 packages/ahg-oai/resources/views/docs.blade.php	text	- formats available for harvesting
 packages/ahg-oai/resources/views/docs.blade.php	text	- full records in the selected format
 packages/ahg-oai/resources/views/docs.blade.php	text	- record identifiers + datestamps

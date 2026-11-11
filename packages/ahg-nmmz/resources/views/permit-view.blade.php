@@ -29,7 +29,7 @@
           <li class="breadcrumb-item active">{{ $permit->permit_number ?? 'EXP-'.$permit->id }}</li>
         </ol>
       </nav>
-      <h1><i class="fas fa-file-export me-2"></i>Export Permit {{ $permit->permit_number ?? 'EXP-'.$permit->id }}</h1>
+      <h1><i class="fas fa-file-export me-2"></i>{{ __('Export Permit :value1', ['value1' => $permit->permit_number ?? 'EXP-'.$permit->id]) }}</h1>
     </div>
     <div class="col-auto">
       <a href="{{ route('nmmz.permits') }}" class="btn btn-outline-secondary">

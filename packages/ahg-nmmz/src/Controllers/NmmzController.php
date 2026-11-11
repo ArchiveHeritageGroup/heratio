@@ -81,7 +81,7 @@ class NmmzController extends Controller
                 'legal_status', 'ownership_type', 'condition_rating',
             ]) + ['user_id' => auth()->id()]);
 
-            return redirect()->route('nmmz.monument.view', $id)->with('notice', 'Monument registered');
+            return redirect()->route('nmmz.monument.view', $id)->with('notice', __('Monument registered'));
         }
 
         return view('ahg-nmmz::monument-create', compact('categories'));
@@ -120,7 +120,7 @@ class NmmzController extends Controller
                 'dimensions', 'condition_rating', 'current_location', 'estimated_value',
             ]) + ['user_id' => auth()->id()]);
 
-            return redirect()->route('nmmz.antiquity.view', $id)->with('notice', 'Antiquity registered');
+            return redirect()->route('nmmz.antiquity.view', $id)->with('notice', __('Antiquity registered'));
         }
 
         return view('ahg-nmmz::antiquity-create');
@@ -154,7 +154,7 @@ class NmmzController extends Controller
                 'destination_institution', 'export_date_proposed', 'return_date',
             ]) + ['user_id' => auth()->id()]);
 
-            return redirect()->route('nmmz.permit.view', $id)->with('notice', 'Permit application submitted');
+            return redirect()->route('nmmz.permit.view', $id)->with('notice', __('Permit application submitted'));
         }
 
         return view('ahg-nmmz::permit-create');
@@ -174,7 +174,7 @@ class NmmzController extends Controller
                 $this->service->rejectPermit($id, auth()->id(), $request->get('rejection_reason'));
             }
 
-            return redirect()->route('nmmz.permit.view', $id)->with('notice', 'Permit updated');
+            return redirect()->route('nmmz.permit.view', $id)->with('notice', __('Permit updated'));
         }
 
         return view('ahg-nmmz::permit-view', compact('permit'));
@@ -202,7 +202,7 @@ class NmmzController extends Controller
                 'protection_status', 'research_potential',
             ]) + ['user_id' => auth()->id()]);
 
-            return redirect()->route('nmmz.site.view', $id)->with('notice', 'Site registered');
+            return redirect()->route('nmmz.site.view', $id)->with('notice', __('Site registered'));
         }
 
         return view('ahg-nmmz::site-create');
@@ -239,7 +239,7 @@ class NmmzController extends Controller
                 'impact_level', 'impact_description', 'mitigation_measures',
             ]) + ['user_id' => auth()->id()]);
 
-            return redirect()->route('nmmz.hia')->with('notice', 'HIA submitted');
+            return redirect()->route('nmmz.hia')->with('notice', __('HIA submitted'));
         }
 
         return view('ahg-nmmz::hia-create');
@@ -268,7 +268,7 @@ class NmmzController extends Controller
                 }
             }
 
-            return redirect()->route('nmmz.config')->with('notice', 'Configuration saved');
+            return redirect()->route('nmmz.config')->with('notice', __('Configuration saved'));
         }
 
         $config = $this->service->getAllConfig();
@@ -298,21 +298,21 @@ class NmmzController extends Controller
         if ($action === 'delete_monument' && $id) {
             $this->service->deleteMonument($id);
 
-            return redirect()->route('nmmz.monuments')->with('notice', 'Monument deleted.');
+            return redirect()->route('nmmz.monuments')->with('notice', __('Monument deleted.'));
         }
 
         if ($action === 'delete_antiquity' && $id) {
             $this->service->deleteAntiquity($id);
 
-            return redirect()->route('nmmz.antiquities')->with('notice', 'Antiquity deleted.');
+            return redirect()->route('nmmz.antiquities')->with('notice', __('Antiquity deleted.'));
         }
 
         if ($action === 'delete_site' && $id) {
             $this->service->deleteSite($id);
 
-            return redirect()->route('nmmz.sites')->with('notice', 'Site deleted.');
+            return redirect()->route('nmmz.sites')->with('notice', __('Site deleted.'));
         }
 
-        return redirect()->back()->with('error', 'Invalid action.');
+        return redirect()->back()->with('error', __('Invalid action.'));
     }
 }

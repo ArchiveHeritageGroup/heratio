@@ -58,11 +58,11 @@
         <div class="d-flex align-items-center">
             <i class="fas fa-{{ $complianceStatusValue === 'compliant' ? 'check-circle' : 'exclamation-triangle' }} fa-2x me-3"></i>
             <div>
-                <h5 class="mb-1">Compliance Status: {{ ucfirst($complianceStatusValue) }}</h5>
+                <h5 class="mb-1">{{ __('Compliance Status: :value1', ['value1' => ucfirst($complianceStatusValue)]) }}</h5>
                 @if(!empty($compliance['issues']))
-                    <p class="mb-0">{{ count($compliance['issues']) }} issue(s) require attention</p>
+                    <p class="mb-0">{{ __(':value1 issue(s) require attention', ['value1' => count($compliance['issues'])]) }}</p>
                 @elseif(!empty($compliance['warnings']))
-                    <p class="mb-0">{{ count($compliance['warnings']) }} warning(s)</p>
+                    <p class="mb-0">{{ __(':value1 warning(s)', ['value1' => count($compliance['warnings'])]) }}</p>
                 @else
                     <p class="mb-0">{{ __('Heritage protection requirements met') }}</p>
                 @endif
@@ -77,9 +77,9 @@
                 <div class="card-body text-center">
                     <h3>{{ $statsMonuments['total'] ?? 0 }}</h3>
                     <p class="text-muted mb-0">{{ __('National Monuments') }}</p>
-                    <small class="text-success">{{ $statsMonuments['gazetted'] ?? 0 }} gazetted</small>
+                    <small class="text-success">{{ __(':value1 gazetted', ['value1' => $statsMonuments['gazetted'] ?? 0]) }}</small>
                     @if(($statsMonuments['at_risk'] ?? 0) > 0)
-                        <small class="text-danger ms-2">{{ $statsMonuments['at_risk'] }} at risk</small>
+                        <small class="text-danger ms-2">{{ __(':value1 at risk', ['value1' => $statsMonuments['at_risk']]) }}</small>
                     @endif
                 </div>
             </div>
@@ -89,7 +89,7 @@
                 <div class="card-body text-center">
                     <h3>{{ $statsAntiquities['total'] ?? 0 }}</h3>
                     <p class="text-muted mb-0">{{ __('Antiquities') }}</p>
-                    <small class="text-muted">{{ $statsAntiquities['in_collection'] ?? 0 }} in collection</small>
+                    <small class="text-muted">{{ __(':value1 in collection', ['value1' => $statsAntiquities['in_collection'] ?? 0]) }}</small>
                 </div>
             </div>
         </div>
@@ -98,7 +98,7 @@
                 <div class="card-body text-center">
                     <h3>{{ $statsPermits['pending'] ?? 0 }}</h3>
                     <p class="text-muted mb-0">{{ __('Pending Permits') }}</p>
-                    <small class="text-muted">{{ $statsPermits['this_year'] ?? 0 }} this year</small>
+                    <small class="text-muted">{{ __(':value1 this year', ['value1' => $statsPermits['this_year'] ?? 0]) }}</small>
                 </div>
             </div>
         </div>
@@ -108,7 +108,7 @@
                     <h3>{{ $statsSites['total'] ?? 0 }}</h3>
                     <p class="text-muted mb-0">{{ __('Archaeological Sites') }}</p>
                     @if(($statsSites['at_risk'] ?? 0) > 0)
-                        <small class="text-danger">{{ $statsSites['at_risk'] }} at risk</small>
+                        <small class="text-danger">{{ __(':value1 at risk', ['value1' => $statsSites['at_risk']]) }}</small>
                     @endif
                 </div>
             </div>
@@ -132,16 +132,16 @@
                         <span class="badge bg-secondary float-end">{{ $statsAntiquities['total'] ?? 0 }}</span>
                     </a>
                     <a href="{{ route('nmmz.permits') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-file-export me-2"></i> Export Permits
+                        <i class="fas fa-file-export me-2"></i> {{ __('Export Permits') }}
                         @if(($statsPermits['pending'] ?? 0) > 0)
-                            <span class="badge bg-warning text-dark float-end">{{ $statsPermits['pending'] }} pending</span>
+                            <span class="badge bg-warning text-dark float-end">{{ __(':value1 pending', ['value1' => $statsPermits['pending']]) }}</span>
                         @endif
                     </a>
                     <a href="{{ route('nmmz.sites') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-map-marker-alt me-2"></i> {{ __('Archaeological Sites') }}
                     </a>
                     <a href="{{ route('nmmz.hia') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-clipboard-check me-2"></i> Heritage Impact Assessments
+                        <i class="fas fa-clipboard-check me-2"></i> {{ __('Heritage Impact Assessments') }}
                         @if(($statsHia['pending'] ?? 0) > 0)
                             <span class="badge bg-info float-end">{{ $statsHia['pending'] }}</span>
                         @endif
@@ -251,7 +251,7 @@
             <div class="col-12">
                 <div class="card bg-light">
                     <div class="card-body">
-                        <h6><i class="fas fa-globe me-2"></i>UNESCO World Heritage Sites: {{ $statsMonuments['world_heritage'] }}</h6>
+                        <h6><i class="fas fa-globe me-2"></i>{{ __('UNESCO World Heritage Sites: :value1', ['value1' => $statsMonuments['world_heritage']]) }}</h6>
                         <p class="mb-0 small text-muted">{{ __('Zimbabwe has 5 inscribed World Heritage Sites including Great Zimbabwe, Khami Ruins, and Mana Pools.') }}</p>
                     </div>
                 </div>
