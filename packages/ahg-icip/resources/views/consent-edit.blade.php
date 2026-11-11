@@ -12,7 +12,7 @@
 --}}
 @extends('theme::layouts.1col')
 
-@section('title', ($id ? 'Edit' : 'Add') . ' Consent Record')
+@section('title', $id ? __('Edit Consent Record') : __('Add Consent Record'))
 
 @section('content')
 @php
@@ -26,13 +26,13 @@
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.dashboard') }}">ICIP</a></li>
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.consent-list') }}">{{ __('Consent Records') }}</a></li>
-      <li class="breadcrumb-item active">{{ $id ? 'Edit' : 'Add' }} Consent</li>
+      <li class="breadcrumb-item active">{{ $id ? __('Edit Consent') : __('Add Consent') }}</li>
     </ol>
   </nav>
 
   <h1 class="mb-4">
     <i class="bi bi-{{ $id ? 'pencil' : 'plus-circle' }} me-2"></i>
-    {{ $id ? 'Edit Consent Record' : 'Add Consent Record' }}
+    {{ $id ? __('Edit Consent Record') : __('Add Consent Record') }}
   </h1>
 
   @if($object)
@@ -153,7 +153,7 @@
           <div class="card-body">
             <button type="submit" class="btn btn-primary w-100 mb-2">
               <i class="bi bi-check-circle me-1"></i>
-              {{ $id ? 'Save Changes' : 'Create Consent Record' }}
+              {{ $id ? __('Save Changes') : __('Create Consent Record') }}
             </button>
             <a href="{{ route('ahgicip.consent-list') }}" class="btn btn-outline-secondary w-100">{{ __('Cancel') }}</a>
           </div>

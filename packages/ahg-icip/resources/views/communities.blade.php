@@ -65,7 +65,7 @@
   </div>
 
   <div class="card">
-    <div class="card-header"><strong>{{ $communities->count() }}</strong> communities found</div>
+    <div class="card-header">{{ trans_choice(':count community found|:count communities found', $communities->count(), ['count' => $communities->count()]) }}</div>
     <div class="card-body p-0">
       @if($communities->isEmpty())
         <div class="p-4 text-center text-muted">

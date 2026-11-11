@@ -73,7 +73,7 @@
   </div>
 
   <div class="card">
-    <div class="card-header"><strong>{{ $consultations->count() }}</strong> consultations found</div>
+    <div class="card-header">{{ trans_choice(':count consultation found|:count consultations found', $consultations->count(), ['count' => $consultations->count()]) }}</div>
     <div class="card-body p-0">
       @if($consultations->isEmpty())
         <div class="p-4 text-center text-muted">

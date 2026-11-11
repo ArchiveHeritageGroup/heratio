@@ -62,7 +62,7 @@
                     @endif
                     <p class="mb-1 mt-1">{{ $notice->custom_text ?? $notice->default_text ?? '' }}</p>
                     @if(!empty($notice->community_name))
-                      <small class="text-muted">Community: {{ $notice->community_name }}</small>
+                      <small class="text-muted">{{ __('Community: :name', ['name' => $notice->community_name]) }}</small>
                     @endif
                   </div>
                 </div>

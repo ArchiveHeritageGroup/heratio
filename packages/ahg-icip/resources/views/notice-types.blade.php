@@ -184,15 +184,15 @@
         <div class="card-body small">
           <p><strong>{{ __('Severity Levels:') }}</strong></p>
           <ul>
-            <li><span class="badge bg-info">{{ __('Info') }}</span> - General information</li>
-            <li><span class="badge bg-warning text-dark">{{ __('Warning') }}</span> - Cultural sensitivity</li>
-            <li><span class="badge bg-danger">{{ __('Critical') }}</span> - Restricted content</li>
+            <li><span class="badge bg-info">{{ __('Info') }}</span> - {{ __('General information') }}</li>
+            <li><span class="badge bg-warning text-dark">{{ __('Warning') }}</span> - {{ __('Cultural sensitivity') }}</li>
+            <li><span class="badge bg-danger">{{ __('Critical') }}</span> - {{ __('Restricted content') }}</li>
           </ul>
           <p><strong>{{ __('Options:') }}</strong></p>
           <ul>
-            <li><span class="badge bg-secondary">{{ __('ACK') }}</span> - Requires user acknowledgement</li>
-            <li><span class="badge bg-dark">{{ __('BLOCK') }}</span> - Blocks access until acknowledged</li>
-            <li><span class="badge bg-light text-dark">{{ __('PUB') }}</span> - Visible to public users</li>
+            <li><span class="badge bg-secondary">{{ __('ACK') }}</span> - {{ __('Requires user acknowledgement') }}</li>
+            <li><span class="badge bg-dark">{{ __('BLOCK') }}</span> - {{ __('Blocks access until acknowledged') }}</li>
+            <li><span class="badge bg-light text-dark">{{ __('PUB') }}</span> - {{ __('Visible to public users') }}</li>
           </ul>
         </div>
       </div>

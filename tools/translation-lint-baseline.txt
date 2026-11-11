@@ -934,50 +934,6 @@ packages/ahg-heritage-manage/src/Controllers/HeritageController.php	flash	Failed
 packages/ahg-heritage-manage/src/Controllers/HeritageController.php	flash	Registration failed:
 packages/ahg-heritage-manage/src/Controllers/HeritageController.php	flash	You have been logged out
 packages/ahg-heritage-manage/src/Controllers/HeritageController.php	flash	heritage_landing_config table not installed; run migrations first.
-packages/ahg-icip/resources/views/communities.blade.php	text	communities found
-packages/ahg-icip/resources/views/community-edit.blade.php	text	{{…}} Community
-packages/ahg-icip/resources/views/consent-edit.blade.php	text	{{…}} Consent
-packages/ahg-icip/resources/views/consent-list.blade.php	text	consent records found
-packages/ahg-icip/resources/views/consultation-edit.blade.php	text	{{…}} Consultation
-packages/ahg-icip/resources/views/consultations.blade.php	text	consultations found
-packages/ahg-icip/resources/views/notice-types.blade.php	text	- Blocks access until acknowledged
-packages/ahg-icip/resources/views/notice-types.blade.php	text	- Cultural sensitivity
-packages/ahg-icip/resources/views/notice-types.blade.php	text	- General information
-packages/ahg-icip/resources/views/notice-types.blade.php	text	- Requires user acknowledgement
-packages/ahg-icip/resources/views/notice-types.blade.php	text	- Restricted content
-packages/ahg-icip/resources/views/notice-types.blade.php	text	- Visible to public users
-packages/ahg-icip/resources/views/object-labels.blade.php	text	(brown) relate to Traditional Knowledge.
-packages/ahg-icip/resources/views/object-labels.blade.php	text	(green) relate to Biocultural heritage.
-packages/ahg-icip/resources/views/object-labels.blade.php	text	Applied by: {{…}}
-packages/ahg-icip/resources/views/object-labels.blade.php	text	Community: {{…}}
-packages/ahg-icip/resources/views/object-labels.blade.php	text	to help Indigenous communities manage their cultural heritage.
-packages/ahg-icip/resources/views/object-notices.blade.php	text	Community: {{…}}
-packages/ahg-icip/resources/views/object-restrictions.blade.php	text	Community: {{…}}
-packages/ahg-icip/resources/views/object-restrictions.blade.php	text	Period: {{…}} - {{…}}
-packages/ahg-icip/resources/views/partials/ocap-badges.blade.php	title-attr	OCAP: ' . e($label) . '
-packages/ahg-icip/src/Controllers/IcipController.php	flash	A community and a username or email are required.
-packages/ahg-icip/src/Controllers/IcipController.php	flash	Acknowledgement recorded.
-packages/ahg-icip/src/Controllers/IcipController.php	flash	Cannot delete community with linked records. Deactivate instead.
-packages/ahg-icip/src/Controllers/IcipController.php	flash	Community created successfully.
-packages/ahg-icip/src/Controllers/IcipController.php	flash	Community deleted successfully.
-packages/ahg-icip/src/Controllers/IcipController.php	flash	Community updated successfully.
-packages/ahg-icip/src/Controllers/IcipController.php	flash	Consent record added.
-packages/ahg-icip/src/Controllers/IcipController.php	flash	Consent record saved successfully.
-packages/ahg-icip/src/Controllers/IcipController.php	flash	Consent record saved successfully.
-packages/ahg-icip/src/Controllers/IcipController.php	flash	Consultation saved successfully.
-packages/ahg-icip/src/Controllers/IcipController.php	flash	Cultural notice added.
-packages/ahg-icip/src/Controllers/IcipController.php	flash	Cultural notice removed.
-packages/ahg-icip/src/Controllers/IcipController.php	flash	No user found for "
-packages/ahg-icip/src/Controllers/IcipController.php	flash	Notice type added.
-packages/ahg-icip/src/Controllers/IcipController.php	flash	Notice type toggled.
-packages/ahg-icip/src/Controllers/IcipController.php	flash	OCAP overlay
-packages/ahg-icip/src/Controllers/IcipController.php	flash	Possession assertion updated.
-packages/ahg-icip/src/Controllers/IcipController.php	flash	Restriction added.
-packages/ahg-icip/src/Controllers/IcipController.php	flash	Restriction removed.
-packages/ahg-icip/src/Controllers/IcipController.php	flash	Steward
-packages/ahg-icip/src/Controllers/IcipController.php	flash	Steward removed.
-packages/ahg-icip/src/Controllers/IcipController.php	flash	TK Label added.
-packages/ahg-icip/src/Controllers/IcipController.php	flash	TK Label removed.
 packages/ahg-iiif-collection/resources/views/iiif-collection/add-items.blade.php	text	Current Items ({{…}})
 packages/ahg-iiif-collection/resources/views/iiif-collection/create.blade.php	text	- None (Top Level) -
 packages/ahg-iiif-collection/resources/views/iiif-collection/edit.blade.php	text	- None (Top Level) -

@@ -56,14 +56,15 @@
 
                   <div class="mt-1">
                     @if(!empty($restriction->community_name))
-                      <small class="text-muted">Community: {{ $restriction->community_name }}</small>
+                      <small class="text-muted">{{ __('Community: :name', ['name' => $restriction->community_name]) }}</small>
                     @endif
                     @if(!empty($restriction->start_date) || !empty($restriction->end_date))
                       <br>
                       <small class="text-muted">
-                        Period: {{ !empty($restriction->start_date) ? \Carbon\Carbon::parse($restriction->start_date)->format('j M Y') : 'Start' }}
-                        -
-                        {{ !empty($restriction->end_date) ? \Carbon\Carbon::parse($restriction->end_date)->format('j M Y') : 'Indefinite' }}
+                        {{ __('Period: :start - :end', [
+                            'start' => !empty($restriction->start_date) ? \Carbon\Carbon::parse($restriction->start_date)->format('j M Y') : __('Start'),
+                            'end' => !empty($restriction->end_date) ? \Carbon\Carbon::parse($restriction->end_date)->format('j M Y') : __('Indefinite'),
+                        ]) }}
                       </small>
                     @endif
                   </div>
