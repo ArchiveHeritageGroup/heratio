@@ -26,7 +26,7 @@
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1><i class="fas fa-clock me-2"></i>{{ __('Recent Updates') }}</h1>
-      <span class="badge bg-primary fs-6">{{ number_format($total) }} results</span>
+      <span class="badge bg-primary fs-6">{{ __(':count results', ['count' => number_format($total)]) }}</span>
     </div>
     <div class="table-responsive">
       <table class="table table-bordered table-striped table-sm">

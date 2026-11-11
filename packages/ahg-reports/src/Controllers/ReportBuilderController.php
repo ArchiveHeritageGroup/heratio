@@ -98,11 +98,11 @@ class ReportBuilderController extends Controller
             }
         } catch (\Exception $e) {
             return redirect()->route('reports.builder.index')
-                ->with('error', 'Failed to create report: ' . $e->getMessage());
+                ->with('error', __('Failed to create report: :message', ['message' => $e->getMessage()]));
         }
 
         return redirect()->route('reports.builder.index')
-            ->with('success', 'Report created successfully.');
+            ->with('success', __('Report created successfully.'));
     }
 
     /**
@@ -143,7 +143,7 @@ class ReportBuilderController extends Controller
         }
 
         return redirect()->route('reports.builder.edit', $id)
-            ->with('success', 'Report updated successfully.');
+            ->with('success', __('Report updated successfully.'));
     }
 
     /**
@@ -250,7 +250,7 @@ class ReportBuilderController extends Controller
         }
 
         return redirect()->route('reports.builder.templates')
-            ->with('success', 'Template deleted successfully.');
+            ->with('success', __('Template deleted successfully.'));
     }
 
     // ── Report Builder API Actions (AJAX) ─────────────────────────
@@ -1289,11 +1289,11 @@ class ReportBuilderController extends Controller
                 ]);
 
                 return redirect()->route('reports.builder.edit', $newId)
-                    ->with('success', 'Report cloned successfully.');
+                    ->with('success', __('Report cloned successfully.'));
             }
         } catch (\Exception $e) {
             return redirect()->route('reports.builder.index')
-                ->with('error', 'Failed to clone report: ' . $e->getMessage());
+                ->with('error', __('Failed to clone report: :message', ['message' => $e->getMessage()]));
         }
 
         return redirect()->route('reports.builder.index');
@@ -1366,11 +1366,11 @@ class ReportBuilderController extends Controller
             }
         } catch (\Exception $e) {
             return redirect()->route('reports.builder.schedule', $id)
-                ->with('error', 'Failed to delete schedule: ' . $e->getMessage());
+                ->with('error', __('Failed to delete schedule: :message', ['message' => $e->getMessage()]));
         }
 
         return redirect()->route('reports.builder.schedule', $id)
-            ->with('success', 'Schedule removed.');
+            ->with('success', __('Schedule removed.'));
     }
 
     /**
@@ -1411,11 +1411,11 @@ class ReportBuilderController extends Controller
             }
         } catch (\Exception $e) {
             return redirect()->route('reports.builder.schedule', $id)
-                ->with('error', 'Failed to save schedule: ' . $e->getMessage());
+                ->with('error', __('Failed to save schedule: :message', ['message' => $e->getMessage()]));
         }
 
         return redirect()->route('reports.builder.schedule', $id)
-            ->with('success', 'Schedule saved.');
+            ->with('success', __('Schedule saved.'));
     }
 
     /**

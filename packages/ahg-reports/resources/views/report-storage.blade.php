@@ -59,7 +59,7 @@
 
 @section('content')
 @if(isset($results) && count($results) > 0)
-  <div class="alert alert-info">Found {{ number_format($total) }} results</div>
+  <div class="alert alert-info">{{ __('Found :count results', ['count' => number_format($total)]) }}</div>
 
   <div class="mb-3" style="font-size:0.85rem">
     <strong>{{ __('Show/Hide Columns:') }}</strong><br>
