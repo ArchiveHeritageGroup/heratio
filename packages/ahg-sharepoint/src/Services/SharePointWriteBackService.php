@@ -105,6 +105,33 @@ class SharePointWriteBackService
     }
 
     /**
+     * Find the personal information in a captured document and, if any is
+     * found, put the redacted copy in the library's Redacted copies folder -
+     * what "Find personal information" does, run without a click.
+     * ponytail: mirrors POST /privacy/redaction/{slug}/suggest-pii; fold that
+     * route onto this method after the 12 Nov stand.
+     *
+     * @return array{findings:int, added:int, uploaded:?string}|null null when not a capture or the tools are missing
+     */
+    public function autoRedact(int $ioId): ?array
+    {
+        if (! $this->locate($ioId) || ! class_exists(\AhgPrivacy\Services\PiiRedactionSuggester::class)
+            || ! class_exists(\AhgInformationObjectManage\Services\RedactionRenderService::class)) {
+            return null;
+        }
+        $r = app(\AhgPrivacy\Services\PiiRedactionSuggester::class)->suggest($ioId, null);
+        if (isset($r['error'])) {
+            return ['findings' => 0, 'added' => 0, 'uploaded' => null, 'error' => (string) $r['error']];
+        }
+        $uploaded = null;
+        if (($r['findings'] ?? 0) > 0 && ($out = app(\AhgInformationObjectManage\Services\RedactionRenderService::class)->render($ioId))) {
+            $uploaded = $this->uploadRedacted($ioId, $out);
+        }
+
+        return ['findings' => (int) ($r['findings'] ?? 0), 'added' => (int) ($r['added'] ?? 0), 'uploaded' => $uploaded];
+    }
+
+    /**
      * Records metadata after a read: Record Type, Record Class,
      * Function/Directorate, Record Date, Status, and the File plan term
      * (Managed Metadata). Only the columns the item's library has are written,

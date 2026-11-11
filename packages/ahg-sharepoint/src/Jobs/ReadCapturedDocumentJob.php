@@ -27,7 +27,7 @@ class ReadCapturedDocumentJob implements ShouldQueue
 
     public int $backoff = 60;
 
-    public int $timeout = 300;
+    public int $timeout = 600;   // read plus personal-information scan (OCR for scans)
 
     public function __construct(public int $informationObjectId) {}
 
@@ -43,6 +43,20 @@ class ReadCapturedDocumentJob implements ShouldQueue
             return;
         }
         $r = $out['result'];
+
+        // Then the personal information: redacted copy to SharePoint if any is
+        // found. Off with sharepoint_auto_redact = 0.
+        $red = null;
+        if ($r !== null && \AhgCore\Services\AhgSettingsService::getBool('sharepoint_auto_redact', true)) {
+            try {
+                $red = $writeBack->autoRedact($this->informationObjectId);
+            } catch (\Throwable $e) {
+                Log::warning('SharePoint auto-redact of '.$this->informationObjectId.' failed: '.substr($e->getMessage(), 0, 300));
+            }
+        }
+        if ($red !== null) {
+            Log::info('SharePoint auto-redact of '.$this->informationObjectId.': '.($red['error'] ?? ($red['findings'].' finding(s)'.($red['uploaded'] ? ', redacted copy uploaded' : ', nothing to redact'))));
+        }
         Log::info('SharePoint auto-read of '.$this->informationObjectId.': '
             .($r === null ? 'not a SharePoint capture' : ($r['error'] ?? (($r['saved'] ?? 0).' field(s), columns: '.implode(', ', array_keys($out['written']))))));
     }
