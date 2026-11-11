@@ -18,7 +18,7 @@
 @section('title-block')<h1><i class="fas fa-file me-2"></i>{{ __('Assets Report') }}</h1>@endsection
 @section('content')
 @php if (!function_exists('damFormatBytes2')) { function damFormatBytes2($b,$p=2){$u=['B','KB','MB','GB','TB'];$b=max($b,0);$w=floor(($b?log($b):0)/log(1024));$w=min($w,count($u)-1);return round($b/pow(1024,$w),$p).' '.$u[$w];} } @endphp
-<div class="alert alert-info"><strong>{{ count($rows) }}</strong> assets found</div>
+<div class="alert alert-info"><strong>{{ count($rows) }}</strong> {{ __('assets found') }}</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
     <thead class="table-dark"><tr><th>{{ __('Filename') }}</th><th>{{ __('Record') }}</th><th>{{ __('Type') }}</th><th>{{ __('Size') }}</th></tr></thead>

@@ -17,7 +17,7 @@
 @endsection
 @section('title-block')<h1><i class="fas fa-info-circle me-2"></i>{{ __('Metadata Report') }}</h1>@endsection
 @section('content')
-<div class="alert alert-info"><strong>{{ count($rows) }}</strong> assets found</div>
+<div class="alert alert-info"><strong>{{ count($rows) }}</strong> {{ __('assets found') }}</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
     <thead class="table-dark"><tr><th>{{ __('File') }}</th><th>{{ __('Type') }}</th><th>{{ __('Size') }}</th><th>{{ __('Created') }}</th></tr></thead>
