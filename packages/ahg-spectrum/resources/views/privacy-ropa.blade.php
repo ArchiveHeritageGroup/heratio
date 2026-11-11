@@ -65,7 +65,7 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label">{{ __('Lawful Basis (POPIA S11)') }}</label>
                             <select name="lawful_basis" class="form-select">
-                                <option value="">-- Select --</option>
+                                <option value="">{{ __('-- Select --') }}</option>
                                 <option value="consent">{{ __('Consent (S11(1)(a))') }}</option>
                                 <option value="contract">{{ __('Contract (S11(1)(b))') }}</option>
                                 <option value="legal_obligation">{{ __('Legal Obligation (S11(1)(c))') }}</option>

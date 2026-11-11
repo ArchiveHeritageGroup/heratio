@@ -33,7 +33,7 @@ class ProcedureEvidenceController extends Controller
 
         $objectId = $this->objectIdFromSlug($data['slug']);
         if (! $objectId) {
-            return back()->with('error', 'Object not found.');
+            return back()->with('error', __('Object not found.'));
         }
 
         $this->service->storeUpload(
@@ -64,7 +64,7 @@ class ProcedureEvidenceController extends Controller
 
         $objectId = $this->objectIdFromSlug($data['slug']);
         if (! $objectId) {
-            return back()->with('error', 'Object not found.');
+            return back()->with('error', __('Object not found.'));
         }
 
         $id = $this->service->storeLink(
@@ -79,7 +79,7 @@ class ProcedureEvidenceController extends Controller
         );
 
         if ($id === null) {
-            return back()->with('error', 'That digital object does not exist.');
+            return back()->with('error', __('That digital object does not exist.'));
         }
 
         return $this->backToProcedure($data['slug'], $data['procedure_type'], 'Evidence linked.');
@@ -114,15 +114,15 @@ class ProcedureEvidenceController extends Controller
         $row = $this->service->find($id);
         $ok = $this->service->delete($id, auth()->id());
         if (! $ok) {
-            return back()->with('error', 'Evidence not found.');
+            return back()->with('error', __('Evidence not found.'));
         }
 
         $slug = $request->input('slug');
         if ($slug && $row) {
-            return $this->backToProcedure($slug, (string) $row->procedure_type, 'Evidence removed.');
+            return $this->backToProcedure($slug, (string) $row->procedure_type, __('Evidence removed.'));
         }
 
-        return back()->with('success', 'Evidence removed.');
+        return back()->with('success', __('Evidence removed.'));
     }
 
     private function objectIdFromSlug(string $slug): ?int

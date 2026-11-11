@@ -92,7 +92,7 @@ $objectSlug = $resource->slug ?? '';
                     {{ $resource->title ?? $resource->slug ?? '' }}
                 </a>
                 &raquo;
-                Condition Check: {{ $conditionCheck['condition_check_reference'] ?? '' }}
+                {{ __('Condition Check: :reference (:condition)', ['reference' => $conditionCheck['condition_check_reference'] ?? '', 'condition' => $conditionCheck['condition'] ?? '']) }}
                 ({{ isset($conditionCheck['check_date']) ? date('d M Y', strtotime($conditionCheck['check_date'])) : '' }})
             </p>
         </div>

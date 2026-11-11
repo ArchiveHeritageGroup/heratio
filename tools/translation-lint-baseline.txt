@@ -1881,38 +1881,6 @@ packages/ahg-share-link/resources/views/recipient.blade.php	text	This is a time-
 packages/ahg-share-link/resources/views/recipient.blade.php	text	{{…}} · Shared record
 packages/ahg-share-link/resources/views/recipient.blade.php	text	· Shared by {{…}} · Link expires {{…}}
 packages/ahg-share-link/resources/views/recipient.blade.php	text	🔗 Shared record
-packages/ahg-spectrum/resources/views/_procedure-evidence.blade.php	text	linked
-packages/ahg-spectrum/resources/views/condition-photos.blade.php	text	&raquo; Condition Check: {{…}} ({{…}})
-packages/ahg-spectrum/resources/views/privacy-admin.blade.php	text	30 days (POPIA S25)
-packages/ahg-spectrum/resources/views/privacy-admin.blade.php	text	72 hours to regulator (POPIA S22)
-packages/ahg-spectrum/resources/views/privacy-admin.blade.php	text	justice.gov.za/inforeg
-packages/ahg-spectrum/resources/views/privacy-breaches.blade.php	text	72 hours
-packages/ahg-spectrum/resources/views/privacy-breaches.blade.php	text	if the breach poses a risk to data subjects.
-packages/ahg-spectrum/resources/views/privacy-dsar.blade.php	text	-- Select --
-packages/ahg-spectrum/resources/views/privacy-dsar.blade.php	text	. Deadline will be calculated automatically.
-packages/ahg-spectrum/resources/views/privacy-dsar.blade.php	text	30 days
-packages/ahg-spectrum/resources/views/privacy-ropa.blade.php	text	-- Select --
-packages/ahg-spectrum/resources/views/privacy-templates.blade.php	text	-- Select --
-packages/ahg-spectrum/resources/views/reports/acquisitions.blade.php	text	acquisitions found
-packages/ahg-spectrum/resources/views/reports/conditions.blade.php	text	condition checks found
-packages/ahg-spectrum/resources/views/reports/conservation.blade.php	text	conservation treatments found
-packages/ahg-spectrum/resources/views/reports/movements.blade.php	text	movements found
-packages/ahg-spectrum/resources/views/reports/object-entry.blade.php	text	entries found
-packages/ahg-spectrum/resources/views/reports/valuations.blade.php	text	valuations found
-packages/ahg-spectrum/resources/views/spectrum-export.blade.php	text	- Compatible with Excel, suitable for AGSA audit submissions
-packages/ahg-spectrum/resources/views/spectrum-export.blade.php	text	- Machine-readable, suitable for system integrations
-packages/ahg-spectrum/src/Controllers/HeritageBridgeController.php	flash	Heritage Accounting (ahg-heritage-manage) is not installed on this instance.
-packages/ahg-spectrum/src/Controllers/HeritageBridgeController.php	flash	Object not found.
-packages/ahg-spectrum/src/Controllers/LoanBridgeController.php	flash	Invalid loan request.
-packages/ahg-spectrum/src/Controllers/LoanBridgeController.php	flash	The Loans module (ahg-loan) is not installed on this instance.
-packages/ahg-spectrum/src/Controllers/ProcedureEvidenceController.php	flash	Evidence not found.
-packages/ahg-spectrum/src/Controllers/ProcedureEvidenceController.php	flash	Evidence removed.
-packages/ahg-spectrum/src/Controllers/ProcedureEvidenceController.php	flash	Object not found.
-packages/ahg-spectrum/src/Controllers/ProcedureEvidenceController.php	flash	Object not found.
-packages/ahg-spectrum/src/Controllers/ProcedureEvidenceController.php	flash	That digital object does not exist.
-packages/ahg-spectrum/src/Controllers/SpectrumController.php	flash	Barcode assigned (id
-packages/ahg-spectrum/src/Controllers/ValuationBridgeController.php	flash	Heritage Accounting (ahg-heritage-manage) is not installed on this instance.
-packages/ahg-spectrum/src/Controllers/ValuationBridgeController.php	flash	Object not found.
 packages/ahg-static-page/resources/views/browse.blade.php	text	, and
 packages/ahg-static-page/resources/views/browse.blade.php	text	about
 packages/ahg-static-page/resources/views/browse.blade.php	text	are protected and cannot be deleted as they are core to the site.
