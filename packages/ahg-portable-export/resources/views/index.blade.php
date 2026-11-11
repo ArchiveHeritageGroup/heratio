@@ -87,7 +87,7 @@
             <div class="col-md-6">
               <label for="export-repository" class="form-label fw-bold">{{ __('Repository') }}</label>
               <select class="form-select" id="export-repository" name="repository_id">
-                <option value="">-- Select --</option>
+                <option value="">{{ __('-- Select --') }}</option>
                 @foreach($repositories as $repo)
                   <option value="{{ $repo->id }}">{{ $repo->name }}</option>
                 @endforeach
@@ -316,7 +316,7 @@
               <i class="fas fa-arrow-left me-1"></i> {{ __('Back') }}
             </button>
             <button type="button" class="btn btn-primary wizard-next" data-next="4">
-              Next: Review &amp; Generate <i class="fas fa-arrow-right ms-1"></i>
+              {{ __('Next: Review & Generate') }} <i class="fas fa-arrow-right ms-1"></i>
             </button>
           </div>
         </div>
