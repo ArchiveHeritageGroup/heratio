@@ -1307,19 +1307,6 @@ packages/ahg-multi-tenant/resources/views/index.blade.php	text	Ends: {{…}}
 packages/ahg-multi-tenant/resources/views/index.blade.php	text	Full access |
 packages/ahg-multi-tenant/resources/views/index.blade.php	text	Limited time access |
 packages/ahg-multi-tenant/resources/views/index.blade.php	text	Owner &gt; Super User &gt; Editor &gt; Contributor &gt; Viewer
-packages/ahg-museum/resources/views/dashboard/missing-field.blade.php	text	Missing Field: {{…}}
-packages/ahg-museum/resources/views/reports/condition.blade.php	text	condition records found
-packages/ahg-museum/resources/views/reports/creators.blade.php	text	creators found
-packages/ahg-museum/resources/views/reports/materials.blade.php	text	records with materials/techniques
-packages/ahg-museum/resources/views/reports/objects.blade.php	text	objects found
-packages/ahg-museum/resources/views/reports/provenance.blade.php	text	records with provenance
-packages/ahg-museum/src/Controllers/MuseumController.php	flash	Authority linked.
-packages/ahg-museum/src/Controllers/MuseumController.php	flash	Authority unlinked.
-packages/ahg-museum/src/Controllers/MuseumController.php	flash	Files uploaded.
-packages/ahg-museum/src/Controllers/MuseumController.php	flash	Museum object created successfully.
-packages/ahg-museum/src/Controllers/MuseumController.php	flash	Museum object deleted successfully.
-packages/ahg-museum/src/Controllers/MuseumController.php	flash	Museum object updated successfully.
-packages/ahg-museum/src/Controllers/MuseumController.php	flash	No museum objects available to export in culture
 packages/ahg-naz/resources/views/audit-log.blade.php	text	{{…}} entries found.
 packages/ahg-naz/resources/views/index.blade.php	text	25-year closure periods
 packages/ahg-naz/resources/views/index.blade.php	text	Closure Periods

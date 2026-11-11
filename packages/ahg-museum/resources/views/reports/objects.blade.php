@@ -19,7 +19,7 @@
 @endsection
 @section('title-block')<h1><i class="fas fa-cube me-2"></i>{{ __('Objects Report') }}</h1>@endsection
 @section('content')
-<div class="alert alert-info"><strong>{{ count($objects) }}</strong> objects found</div>
+<div class="alert alert-info"><strong>{{ count($objects) }}</strong> {{ __('objects found') }}</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
     <thead class="table-dark"><tr><th>{{ __('Title') }}</th><th>{{ __('Work Type') }}</th><th>{{ __('Classification') }}</th><th>{{ __('Materials') }}</th><th>{{ __('Condition') }}</th></tr></thead>
