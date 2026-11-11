@@ -153,7 +153,7 @@ class StatisticsController extends Controller
                 $this->service->setConfig($key, $value);
             }
 
-            return redirect()->route('statistics.admin')->with('notice', 'Settings saved');
+            return redirect()->route('statistics.admin')->with('notice', __('Settings saved'));
         }
 
         $config = [
@@ -186,7 +186,7 @@ class StatisticsController extends Controller
                 $this->service->deleteBot((int) $request->get('id'));
             }
 
-            return redirect()->route('statistics.bots')->with('notice', 'Bot list updated');
+            return redirect()->route('statistics.bots')->with('notice', __('Bot list updated'));
         }
 
         $bots = $this->service->getBotList();
@@ -223,15 +223,15 @@ class StatisticsController extends Controller
                 ->where('created_at', '<', $cutoff)
                 ->delete();
 
-            return redirect()->route('statistics.admin')->with('notice', "Events older than {$days} days purged.");
+            return redirect()->route('statistics.admin')->with('notice', __('Events older than :days days purged.', ['days' => $days]));
         }
 
         if ($action === 'aggregate') {
             $this->service->aggregateStats();
 
-            return redirect()->route('statistics.admin')->with('notice', 'Statistics aggregated.');
+            return redirect()->route('statistics.admin')->with('notice', __('Statistics aggregated.'));
         }
 
-        return redirect()->back()->with('error', 'Invalid action.');
+        return redirect()->back()->with('error', __('Invalid action.'));
     }
 }

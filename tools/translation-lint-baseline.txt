@@ -1920,17 +1920,6 @@ packages/ahg-static-page/resources/views/browse.blade.php	text	contact
 packages/ahg-static-page/resources/views/browse.blade.php	text	home
 packages/ahg-static-page/src/Controllers/StaticPageController.php	flash	Page created.
 packages/ahg-static-page/src/Controllers/StaticPageController.php	flash	Page updated.
-packages/ahg-statistics/resources/views/admin.blade.php	text	bot patterns configured
-packages/ahg-statistics/resources/views/dashboard.blade.php	text	30 days
-packages/ahg-statistics/resources/views/dashboard.blade.php	text	7 days
-packages/ahg-statistics/resources/views/dashboard.blade.php	text	90 days
-packages/ahg-statistics/resources/views/top-items.blade.php	text	Top {{…}} Items
-packages/ahg-statistics/resources/views/top-items.blade.php	text	Top {{…}}s
-packages/ahg-statistics/src/Controllers/StatisticsController.php	flash	Bot list updated
-packages/ahg-statistics/src/Controllers/StatisticsController.php	flash	Events older than {$days} days purged.
-packages/ahg-statistics/src/Controllers/StatisticsController.php	flash	Invalid action.
-packages/ahg-statistics/src/Controllers/StatisticsController.php	flash	Settings saved
-packages/ahg-statistics/src/Controllers/StatisticsController.php	flash	Statistics aggregated.
 packages/ahg-storage-manage/resources/views/box-list.blade.php	text	Print preview
 packages/ahg-storage-manage/resources/views/browse.blade.php	text	Browse {{…}}
 packages/ahg-storage-manage/resources/views/delete.blade.php	text	Are you sure you want to delete {{…}}?
