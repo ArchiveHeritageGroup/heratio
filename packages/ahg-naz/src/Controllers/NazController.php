@@ -288,7 +288,7 @@ class NazController extends Controller
             }
         }
 
-        return redirect()->route('ahgnaz.config')->with('success', 'Settings saved.');
+        return redirect()->route('ahgnaz.config')->with('success', __('Settings saved.'));
     }
 
     // ─── Closure Periods ────────────────────────────────────────────
@@ -364,7 +364,7 @@ class NazController extends Controller
 
         $this->audit('create', 'closure_period', $id, null, $data);
 
-        return redirect()->route('ahgnaz.closures')->with('success', 'Closure period created.');
+        return redirect()->route('ahgnaz.closures')->with('success', __('Closure period created.'));
     }
 
     public function closureEdit(int $id)
@@ -403,7 +403,7 @@ class NazController extends Controller
 
         $this->audit('update', 'closure_period', $id, (array) $old, $data);
 
-        return redirect()->route('ahgnaz.closure-edit', $id)->with('success', 'Closure period updated.');
+        return redirect()->route('ahgnaz.closure-edit', $id)->with('success', __('Closure period updated.'));
     }
 
     // ─── Protected Records ──────────────────────────────────────────
@@ -521,7 +521,7 @@ class NazController extends Controller
 
         $this->audit('create', 'records_schedule', $id, null, $data);
 
-        return redirect()->route('ahgnaz.schedule-view', $id)->with('success', 'Retention schedule created.');
+        return redirect()->route('ahgnaz.schedule-view', $id)->with('success', __('Retention schedule created.'));
     }
 
     public function scheduleView(int $id)
@@ -565,7 +565,7 @@ class NazController extends Controller
 
         $this->audit('update', 'records_schedule', $id, (array) $old, $data);
 
-        return redirect()->route('ahgnaz.schedule-view', $id)->with('success', 'Retention schedule updated.');
+        return redirect()->route('ahgnaz.schedule-view', $id)->with('success', __('Retention schedule updated.'));
     }
 
     // ─── Research Permits ───────────────────────────────────────────
@@ -656,7 +656,7 @@ class NazController extends Controller
 
         $this->audit('create', 'research_permit', $id, null, $data);
 
-        return redirect()->route('ahgnaz.permit-view', $id)->with('success', 'Research permit created.');
+        return redirect()->route('ahgnaz.permit-view', $id)->with('success', __('Research permit created.'));
     }
 
     public function permitView(int $id)
@@ -708,7 +708,7 @@ class NazController extends Controller
 
         $this->audit('update', 'research_permit', $id, (array) $old, $data);
 
-        return redirect()->route('ahgnaz.permit-view', $id)->with('success', 'Research permit updated.');
+        return redirect()->route('ahgnaz.permit-view', $id)->with('success', __('Research permit updated.'));
     }
 
     // ─── Researchers ────────────────────────────────────────────────
@@ -816,7 +816,7 @@ class NazController extends Controller
 
         $this->audit('create', 'researcher', $id, null, $data);
 
-        return redirect()->route('ahgnaz.researcher-view', $id)->with('success', 'Researcher registered.');
+        return redirect()->route('ahgnaz.researcher-view', $id)->with('success', __('Researcher registered.'));
     }
 
     public function researcherView(int $id)
@@ -896,7 +896,7 @@ class NazController extends Controller
 
         $this->audit('update', 'researcher', $id, (array) $old, $data);
 
-        return redirect()->route('ahgnaz.researcher-view', $id)->with('success', 'Researcher updated.');
+        return redirect()->route('ahgnaz.researcher-view', $id)->with('success', __('Researcher updated.'));
     }
 
     // ─── Transfers ──────────────────────────────────────────────────
@@ -1008,7 +1008,7 @@ class NazController extends Controller
 
         $this->audit('create', 'transfer', $id, null, $data);
 
-        return redirect()->route('ahgnaz.transfer-view', $id)->with('success', 'Transfer created.');
+        return redirect()->route('ahgnaz.transfer-view', $id)->with('success', __('Transfer created.'));
     }
 
     public function transferView(int $id)
@@ -1063,7 +1063,7 @@ class NazController extends Controller
 
         $this->audit('update', 'transfer', $id, (array) $old, $data);
 
-        return redirect()->route('ahgnaz.transfer-view', $id)->with('success', 'Transfer updated.');
+        return redirect()->route('ahgnaz.transfer-view', $id)->with('success', __('Transfer updated.'));
     }
 
     // ─── Reports ───────────────────────────────────────────────────

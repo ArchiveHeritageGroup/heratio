@@ -1320,43 +1320,6 @@ packages/ahg-museum/src/Controllers/MuseumController.php	flash	Museum object cre
 packages/ahg-museum/src/Controllers/MuseumController.php	flash	Museum object deleted successfully.
 packages/ahg-museum/src/Controllers/MuseumController.php	flash	Museum object updated successfully.
 packages/ahg-museum/src/Controllers/MuseumController.php	flash	No museum objects available to export in culture
-packages/ahg-naz/resources/views/audit-log.blade.php	text	{{…}} entries found.
-packages/ahg-naz/resources/views/index.blade.php	text	25-year closure periods
-packages/ahg-naz/resources/views/index.blade.php	text	Closure Periods
-packages/ahg-naz/resources/views/index.blade.php	text	Compliance Status: {{…}}
-packages/ahg-naz/resources/views/index.blade.php	text	Foreign researchers: US${{…}}
-packages/ahg-naz/resources/views/index.blade.php	text	Protected Records
-packages/ahg-naz/resources/views/index.blade.php	text	Records Transfers
-packages/ahg-naz/resources/views/index.blade.php	text	Records closed for {{…}} years from date of creation
-packages/ahg-naz/resources/views/index.blade.php	text	Research Permits
-packages/ahg-naz/resources/views/index.blade.php	text	{{…}} accessioned this year
-packages/ahg-naz/resources/views/index.blade.php	text	{{…}} days
-packages/ahg-naz/resources/views/index.blade.php	text	{{…}} expiring
-packages/ahg-naz/resources/views/index.blade.php	text	{{…}} expiring within 1 year
-packages/ahg-naz/resources/views/index.blade.php	text	{{…}} issue(s) require attention
-packages/ahg-naz/resources/views/index.blade.php	text	{{…}} local, {{…}} foreign
-packages/ahg-naz/resources/views/index.blade.php	text	{{…}} months from approval
-packages/ahg-naz/resources/views/index.blade.php	text	{{…}} pending
-packages/ahg-naz/resources/views/index.blade.php	text	{{…}} pending approval
-packages/ahg-naz/resources/views/index.blade.php	text	{{…}} warning(s) to review
-packages/ahg-naz/resources/views/permit-create.blade.php	text	Foreign researchers: US$200
-packages/ahg-naz/resources/views/permit-view.blade.php	text	Research Permit {{…}}
-packages/ahg-naz/resources/views/permit-view.blade.php	text	{{…}} days remaining
-packages/ahg-naz/resources/views/researcher-create.blade.php	text	Foreign researchers: US$200
-packages/ahg-naz/resources/views/researcher-view.blade.php	text	Permits ({{…}})
-packages/ahg-naz/resources/views/researcher-view.blade.php	text	Recent Visits ({{…}} total)
-packages/ahg-naz/resources/views/transfers.blade.php	text	/ {{…}} boxes
-packages/ahg-naz/src/Controllers/NazController.php	flash	Closure period created.
-packages/ahg-naz/src/Controllers/NazController.php	flash	Closure period updated.
-packages/ahg-naz/src/Controllers/NazController.php	flash	Research permit created.
-packages/ahg-naz/src/Controllers/NazController.php	flash	Research permit updated.
-packages/ahg-naz/src/Controllers/NazController.php	flash	Researcher registered.
-packages/ahg-naz/src/Controllers/NazController.php	flash	Researcher updated.
-packages/ahg-naz/src/Controllers/NazController.php	flash	Retention schedule created.
-packages/ahg-naz/src/Controllers/NazController.php	flash	Retention schedule updated.
-packages/ahg-naz/src/Controllers/NazController.php	flash	Settings saved.
-packages/ahg-naz/src/Controllers/NazController.php	flash	Transfer created.
-packages/ahg-naz/src/Controllers/NazController.php	flash	Transfer updated.
 packages/ahg-nmmz/resources/views/index.blade.php	text	Compliance Status: {{…}}
 packages/ahg-nmmz/resources/views/index.blade.php	text	Export Permits
 packages/ahg-nmmz/resources/views/index.blade.php	text	Heritage Impact Assessments

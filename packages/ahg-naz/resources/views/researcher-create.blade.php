@@ -138,7 +138,7 @@
         <div class="col-lg-4">
             <div class="alert alert-info">
                 <h6><i class="fas fa-info-circle"></i> {{ __('Permit Fees') }}</h6>
-                <p class="small mb-0">Foreign researchers: US$200<br>{{ __('Local researchers: Free') }}</p>
+                <p class="small mb-0">{{ __('Foreign researchers: :fee', ['fee' => 'US$200']) }}<br>{{ __('Local researchers: Free') }}</p>
             </div>
             <div class="card">
                 <div class="card-body d-grid gap-2">

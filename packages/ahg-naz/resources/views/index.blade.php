@@ -32,11 +32,11 @@
         <div class="d-flex align-items-center">
             <i class="fas fa-{{ $statusIcon }} fa-2x me-3"></i>
             <div>
-                <h5 class="mb-1">Compliance Status: {{ ucfirst(str_replace('_', ' ', $compliance['status'])) }}</h5>
+                <h5 class="mb-1">{{ __('Compliance Status: :status', ['status' => ucfirst(str_replace('_', ' ', $compliance['status']))]) }}</h5>
                 @if (!empty($compliance['issues']))
-                    <p class="mb-0">{{ count($compliance['issues']) }} issue(s) require attention</p>
+                    <p class="mb-0">{{ __('Issues requiring attention: :count', ['count' => count($compliance['issues'])]) }}</p>
                 @elseif (!empty($compliance['warnings']))
-                    <p class="mb-0">{{ count($compliance['warnings']) }} warning(s) to review</p>
+                    <p class="mb-0">{{ __('Warnings to review: :count', ['count' => count($compliance['warnings'])]) }}</p>
                 @else
                     <p class="mb-0">{{ __('All compliance requirements met') }}</p>
                 @endif
@@ -51,9 +51,9 @@
                     <h3>{{ $stats['closures']['active'] }}</h3>
                     <p class="text-muted mb-0">{{ __('Active Closures') }}</p>
                     @if ($stats['closures']['expiring_soon'] > 0)
-                        <small class="text-warning">{{ $stats['closures']['expiring_soon'] }} expiring within 1 year</small>
+                        <small class="text-warning">{{ __('Expiring within one year: :count', ['count' => $stats['closures']['expiring_soon']]) }}</small>
                     @else
-                        <small class="text-muted">25-year closure periods</small>
+                        <small class="text-muted">{{ __('25-year closure periods') }}</small>
                     @endif
                 </div>
             </div>
@@ -64,7 +64,7 @@
                     <h3>{{ $stats['permits']['active'] }}</h3>
                     <p class="text-muted mb-0">{{ __('Active Permits') }}</p>
                     @if ($stats['permits']['pending'] > 0)
-                        <small class="text-warning">{{ $stats['permits']['pending'] }} pending approval</small>
+                        <small class="text-warning">{{ __('Pending approval: :count', ['count' => $stats['permits']['pending']]) }}</small>
                     @else
                         <small class="text-muted">{{ __('Research permits') }}</small>
                     @endif
@@ -76,7 +76,7 @@
                 <div class="card-body text-center">
                     <h3>{{ $stats['researchers']['total'] }}</h3>
                     <p class="text-muted mb-0">{{ __('Registered Researchers') }}</p>
-                    <small class="text-muted">{{ $stats['researchers']['local'] }} local, {{ $stats['researchers']['foreign'] }} foreign</small>
+                    <small class="text-muted">{{ __('Local: :local; foreign: :foreign', ['local' => $stats['researchers']['local'], 'foreign' => $stats['researchers']['foreign']]) }}</small>
                 </div>
             </div>
         </div>
@@ -85,7 +85,7 @@
                 <div class="card-body text-center">
                     <h3>{{ $stats['transfers']['pending'] }}</h3>
                     <p class="text-muted mb-0">{{ __('Pending Transfers') }}</p>
-                    <small class="text-muted">{{ $stats['transfers']['this_year'] }} accessioned this year</small>
+                    <small class="text-muted">{{ __('Accessioned this year: :count', ['count' => $stats['transfers']['this_year']]) }}</small>
                 </div>
             </div>
         </div>
@@ -99,15 +99,15 @@
                 </div>
                 <div class="list-group list-group-flush">
                     <a href="{{ route('ahgnaz.closures') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-lock me-2"></i> Closure Periods
+                        <i class="fas fa-lock me-2"></i> {{ __('Closure Periods') }}
                         @if ($stats['closures']['expiring_soon'] > 0)
-                            <span class="badge bg-warning text-dark float-end">{{ $stats['closures']['expiring_soon'] }} expiring</span>
+                            <span class="badge bg-warning text-dark float-end">{{ __('Expiring: :count', ['count' => $stats['closures']['expiring_soon']]) }}</span>
                         @endif
                     </a>
                     <a href="{{ route('ahgnaz.permits') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-id-card me-2"></i> Research Permits
+                        <i class="fas fa-id-card me-2"></i> {{ __('Research Permits') }}
                         @if ($stats['permits']['pending'] > 0)
-                            <span class="badge bg-warning text-dark float-end">{{ $stats['permits']['pending'] }} pending</span>
+                            <span class="badge bg-warning text-dark float-end">{{ __('Pending: :count', ['count' => $stats['permits']['pending']]) }}</span>
                         @endif
                     </a>
                     <a href="{{ route('ahgnaz.researchers') }}" class="list-group-item list-group-item-action">
@@ -118,13 +118,13 @@
                         <span class="badge bg-secondary float-end">{{ $stats['schedules'] }}</span>
                     </a>
                     <a href="{{ route('ahgnaz.transfers') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-truck me-2"></i> Records Transfers
+                        <i class="fas fa-truck me-2"></i> {{ __('Records Transfers') }}
                         @if ($stats['transfers']['pending'] > 0)
                             <span class="badge bg-info float-end">{{ $stats['transfers']['pending'] }}</span>
                         @endif
                     </a>
                     <a href="{{ route('ahgnaz.protected-records') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-shield-alt me-2"></i> Protected Records
+                        <i class="fas fa-shield-alt me-2"></i> {{ __('Protected Records') }}
                         @if ($stats['protected'] > 0)
                             <span class="badge bg-danger float-end">{{ $stats['protected'] }}</span>
                         @endif
@@ -205,7 +205,7 @@
                                             <strong>{{ $closure->record_title ?? ('Record #' . $closure->information_object_id) }}</strong>
                                             <br><small class="text-muted">{{ ucfirst($closure->closure_type) }}</small>
                                         </div>
-                                        <span class="badge bg-{{ $urgency }}">{{ $daysLeft }} days</span>
+                                        <span class="badge bg-{{ $urgency }}">{{ __(':count days', ['count' => $daysLeft]) }}</span>
                                     </div>
                                 </li>
                             @endforeach
@@ -259,15 +259,15 @@
                     <div class="row">
                         <div class="col-md-4">
                             <strong>{{ __('Section 10 - Closure Period:') }}</strong>
-                            <p class="mb-0 small text-muted">Records closed for {{ $config['closure_period_years'] }} years from date of creation</p>
+                            <p class="mb-0 small text-muted">{{ __('Records closed for :years years from date of creation', ['years' => $config['closure_period_years']]) }}</p>
                         </div>
                         <div class="col-md-4">
                             <strong>{{ __('Research Permit Fees:') }}</strong>
-                            <p class="mb-0 small text-muted">Foreign researchers: US${{ $config['foreign_permit_fee_usd'] }}</p>
+                            <p class="mb-0 small text-muted">{{ __('Foreign researchers: :fee', ['fee' => 'US$' . $config['foreign_permit_fee_usd']]) }}</p>
                         </div>
                         <div class="col-md-4">
                             <strong>{{ __('Permit Validity:') }}</strong>
-                            <p class="mb-0 small text-muted">{{ $config['permit_validity_months'] }} months from approval</p>
+                            <p class="mb-0 small text-muted">{{ __(':count months from approval', ['count' => $config['permit_validity_months']]) }}</p>
                         </div>
                     </div>
                 </div>
