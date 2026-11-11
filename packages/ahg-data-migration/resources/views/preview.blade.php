@@ -23,8 +23,8 @@
   <div class="alert alert-info">
     <i class="fas fa-info-circle"></i>
     {{ __('Target type:') }} <strong>{{ $targetType }}</strong> |
-    Total rows in file: <strong>{{ number_format($totalRows) }}</strong> |
-    Showing first <strong>{{ count($transformedRows) }}</strong> rows after mapping
+    {{ __('Total rows in file:') }} <strong>{{ number_format($totalRows) }}</strong> |
+    {{ __('Showing first :count rows after mapping', ['count' => count($transformedRows)]) }}
   </div>
 
   @if(count($transformedRows) > 0)
@@ -73,7 +73,7 @@
         <input type="hidden" name="mapping" value="{{ json_encode($mapping) }}">
         <input type="hidden" name="name" value="CSV Import {{ now()->format('Y-m-d H:i:s') }}">
         <button type="submit" class="btn atom-btn-outline-success">
-          <i class="fas fa-play"></i> Execute Import ({{ number_format($totalRows) }} rows)
+          <i class="fas fa-play"></i> {{ __('Execute Import (:count rows)', ['count' => number_format($totalRows)]) }}
         </button>
       </form>
     @endif

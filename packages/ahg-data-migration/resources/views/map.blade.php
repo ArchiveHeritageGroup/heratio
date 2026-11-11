@@ -30,9 +30,9 @@
   <div class="alert alert-info">
     <i class="fas fa-info-circle"></i>
     {{ __('File:') }} <strong>{{ $fileName }}</strong> |
-    Target: <strong>{{ $targetType }}</strong> |
-    Rows: <strong>{{ number_format($totalRows) }}</strong> |
-    Columns: <strong>{{ count($sourceColumns) }}</strong>
+    {{ __('Target:') }} <strong>{{ $targetType }}</strong> |
+    {{ __('Rows:') }} <strong>{{ number_format($totalRows) }}</strong> |
+    {{ __('Columns:') }} <strong>{{ count($sourceColumns) }}</strong>
   </div>
 
   {{-- Load saved mapping --}}
@@ -87,7 +87,7 @@
                 <td class="text-center text-muted"><i class="fas fa-long-arrow-alt-right"></i></td>
                 <td>
                   <select class="form-select form-select-sm target-field-select" data-source="{{ $col }}">
-                    <option value="">-- Skip this column --</option>
+                    <option value="">{{ __('-- Skip this column --') }}</option>
                     @foreach($targetFields as $fieldKey => $fieldLabel)
                       <option value="{{ $fieldKey }}">{{ $fieldLabel }}</option>
                     @endforeach
@@ -105,7 +105,7 @@
   @if(count($previewRows) > 0)
     <div class="card mb-3">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h6 class="mb-0"><i class="fas fa-table"></i> Source Data Preview (first {{ count($previewRows) }} rows)</h6>
+        <h6 class="mb-0"><i class="fas fa-table"></i> {{ __('Source Data Preview (first :count rows)', ['count' => count($previewRows)]) }}</h6>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive">

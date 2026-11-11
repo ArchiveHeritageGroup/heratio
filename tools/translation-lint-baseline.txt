@@ -504,38 +504,6 @@ packages/ahg-dam/resources/views/report-storage.blade.php	text	orphaned files
 packages/ahg-dam/src/Controllers/DamController.php	flash	DAM asset created successfully.
 packages/ahg-dam/src/Controllers/DamController.php	flash	DAM asset deleted successfully.
 packages/ahg-dam/src/Controllers/DamController.php	flash	DAM asset updated successfully.
-packages/ahg-data-migration/resources/views/batch-export.blade.php	text	to sector-specific CSV format for backup, reporting, or migration to another system.
-packages/ahg-data-migration/resources/views/export.blade.php	text	-- All repositories --
-packages/ahg-data-migration/resources/views/export.blade.php	text	-- Select record type --
-packages/ahg-data-migration/resources/views/import-results.blade.php	text	Errors ({{…}})
-packages/ahg-data-migration/resources/views/import-results.blade.php	text	Import encountered issues. {{…}}
-packages/ahg-data-migration/resources/views/job-status.blade.php	text	Error Log ({{…}} errors)
-packages/ahg-data-migration/resources/views/job-status.blade.php	text	Job #{{…}}
-packages/ahg-data-migration/resources/views/map.blade.php	text	-- Skip this column --
-packages/ahg-data-migration/resources/views/map.blade.php	text	Source Data Preview (first {{…}} rows)
-packages/ahg-data-migration/resources/views/map.blade.php	text	| Columns:
-packages/ahg-data-migration/resources/views/map.blade.php	text	| Rows:
-packages/ahg-data-migration/resources/views/map.blade.php	text	| Target:
-packages/ahg-data-migration/resources/views/preview.blade.php	text	Execute Import ({{…}} rows)
-packages/ahg-data-migration/resources/views/preview.blade.php	text	rows after mapping
-packages/ahg-data-migration/resources/views/preview.blade.php	text	| Showing first
-packages/ahg-data-migration/resources/views/preview.blade.php	text	| Total rows in file:
-packages/ahg-data-migration/resources/views/upload.blade.php	text	-- None (map manually) --
-packages/ahg-data-migration/resources/views/upload.blade.php	text	-- Select target type --
-packages/ahg-data-migration/resources/views/upload.blade.php	text	browse
-packages/ahg-data-migration/resources/views/upload.blade.php	text	{{…}} ({{…}} fields)
-packages/ahg-data-migration/resources/views/upload.blade.php	text	{{…}} rows &bull; {{…}}
-packages/ahg-data-migration/src/Controllers/DataMigrationController.php	flash	Import job queued. It runs in the background; this page shows its progress. Job ID:
-packages/ahg-data-migration/src/Controllers/DataMigrationController.php	flash	Invalid mapping file format.
-packages/ahg-data-migration/src/Controllers/DataMigrationController.php	flash	Job cancelled.
-packages/ahg-data-migration/src/Controllers/DataMigrationController.php	flash	Map at least one column before importing.
-packages/ahg-data-migration/src/Controllers/DataMigrationController.php	flash	Mapping deleted.
-packages/ahg-data-migration/src/Controllers/DataMigrationController.php	flash	Mapping imported successfully.
-packages/ahg-data-migration/src/Controllers/DataMigrationController.php	flash	No file uploaded. Please upload a file first.
-packages/ahg-data-migration/src/Controllers/DataMigrationController.php	flash	Preservica OPEX/PAX export is not available yet. Nothing was queued.
-packages/ahg-data-migration/src/Controllers/DataMigrationController.php	flash	Preservica OPEX/PAX import is not available yet. Nothing was queued.
-packages/ahg-data-migration/src/Controllers/DataMigrationController.php	flash	The file could not be read:
-packages/ahg-data-migration/src/Controllers/DataMigrationController.php	flash	The uploaded file is no longer available. Please upload it again.
 packages/ahg-dc-manage/resources/views/_fields.blade.php	text	dc:description (scope and content)
 packages/ahg-dc-manage/resources/views/_fields.blade.php	text	dc:format (extent and medium)
 packages/ahg-dc-manage/resources/views/_fields.blade.php	text	dc:identifier

@@ -67,7 +67,7 @@
                    accept=".csv,.txt,.xls,.xlsx">
             <div id="dropText">
               <p class="mb-2"><i class="fas fa-file-upload" style="font-size: 3rem;"></i></p>
-              <p class="mb-2">{{ __('Drag & drop file here or') }} <a href="#" onclick="document.getElementById('importFile').click(); return false;">browse</a></p>
+              <p class="mb-2">{{ __('Drag & drop file here or') }} <a href="#" onclick="document.getElementById('importFile').click(); return false;">{{ __('browse') }}</a></p>
               <small class="text-muted">{{ __('Supported: CSV or Excel (XLS/XLSX), with a header row') }}</small>
             </div>
             <div id="fileInfo" class="d-none">
@@ -128,7 +128,7 @@
             <div class="col-md-6">
               <label for="target_type" class="form-label">{{ __('Target Record Type') }} <span class="text-danger">*</span></label>
               <select class="form-select @error('target_type') is-invalid @enderror" id="target_type" name="target_type" required>
-                <option value="">-- Select target type --</option>
+                <option value="">{{ __('-- Select target type --') }}</option>
                 <option value="archives" {{ old('target_type') === 'archives' ? 'selected' : '' }}>{{ __('Archives (ISAD-G)') }}</option>
                 <option value="accession" {{ old('target_type') === 'accession' ? 'selected' : '' }}>{{ __('Accession Records') }}</option>
                 <option value="actor" {{ old('target_type') === 'actor' ? 'selected' : '' }}>{{ __('Authority Records (ISAAR)') }}</option>
@@ -141,9 +141,9 @@
             <div class="col-md-6">
               <label for="saved_mapping" class="form-label">{{ __('Load Saved Mapping (Optional)') }}</label>
               <select name="saved_mapping" id="savedMapping" class="form-select">
-                <option value="">-- None (map manually) --</option>
+                <option value="">{{ __('-- None (map manually) --') }}</option>
                 @foreach($savedMappings as $mapping)
-                  <option value="{{ $mapping['id'] }}">{{ htmlspecialchars($mapping['name']) }} ({{ $mapping['field_count'] ?? count(json_decode($mapping['field_mappings'] ?? '{}', true)) }} fields)</option>
+                  <option value="{{ $mapping['id'] }}">{{ __(':name (:count fields)', ['name' => htmlspecialchars($mapping['name']), 'count' => $mapping['field_count'] ?? count(json_decode($mapping['field_mappings'] ?? '{}', true))]) }}</option>
                 @endforeach
               </select>
               <small class="text-muted">{{ __('Pre-load field mappings from a saved template') }}</small>
@@ -207,7 +207,7 @@
         <div class="list-group-item d-flex justify-content-between align-items-center">
           <div>
             <strong>{{ htmlspecialchars($import['filename'] ?? $import->filename ?? '') }}</strong>
-            <br><small class="text-muted">{{ $import['row_count'] ?? $import->row_count ?? 0 }} rows &bull; {{ isset($import['created_at']) ? \Carbon\Carbon::parse($import['created_at'])->format('Y-m-d H:i') : '' }}</small>
+            <br><small class="text-muted">{{ __(':count rows • :date', ['count' => $import['row_count'] ?? $import->row_count ?? 0, 'date' => isset($import['created_at']) ? \Carbon\Carbon::parse($import['created_at'])->format('Y-m-d H:i') : '']) }}</small>
           </div>
           <span class="badge bg-{{ ($import['status'] ?? $import->status ?? '') === 'completed' ? 'success' : 'warning' }}">
             {{ $import['status'] ?? $import->status ?? 'queued' }}

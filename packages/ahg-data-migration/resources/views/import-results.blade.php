@@ -26,7 +26,7 @@
       </div>
     @else
       <div class="alert alert-danger">
-        <i class="fas fa-times-circle"></i> Import encountered issues. {{ $result['message'] ?? '' }}
+        <i class="fas fa-times-circle"></i> {{ __('Import encountered issues. :message', ['message' => $result['message'] ?? '']) }}
       </div>
     @endif
 
@@ -118,7 +118,7 @@
     @if(!empty($job['error_log']) && count($job['error_log']) > 0)
       <div class="card mb-4">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0 text-danger"><i class="fas fa-exclamation-triangle"></i> Errors ({{ count($job['error_log']) }})</h5>
+          <h5 class="mb-0 text-danger"><i class="fas fa-exclamation-triangle"></i> {{ __('Errors (:count)', ['count' => count($job['error_log'])]) }}</h5>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
