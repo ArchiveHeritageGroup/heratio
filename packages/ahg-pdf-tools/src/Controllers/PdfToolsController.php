@@ -118,7 +118,7 @@ class PdfToolsController extends Controller
 
                 if (! in_array($ext, $allowed)) {
                     return redirect()->route('pdf-tools.merge')
-                        ->with('error', "Unsupported file format: {$ext}");
+                        ->with('error', __('Unsupported file format: :extension', ['extension' => $ext]));
                 }
 
                 $tmpPath = sys_get_temp_dir().'/heratio_merge_in_'.uniqid().'.'.$ext;
@@ -142,7 +142,7 @@ class PdfToolsController extends Controller
 
             if (! file_exists($outputPath)) {
                 return redirect()->route('pdf-tools.merge')
-                    ->with('error', 'Merge completed but output file was not created.');
+                    ->with('error', __('Merge completed but output file was not created.'));
             }
 
             // Stream download and clean up
@@ -152,7 +152,7 @@ class PdfToolsController extends Controller
 
         } catch (\Throwable $e) {
             return redirect()->route('pdf-tools.merge')
-                ->with('error', 'Merge failed: '.$e->getMessage());
+                ->with('error', __('Merge failed: :message', ['message' => $e->getMessage()]));
         } finally {
             // Clean up input temp files
             foreach ($tmpInputPaths as $tmp) {
@@ -186,7 +186,7 @@ class PdfToolsController extends Controller
                 $extractedText = $this->textService->extractText($tmpPath);
             } catch (\Throwable $e) {
                 return redirect()->route('pdf-tools.index')
-                    ->with('error', 'Text extraction failed: '.$e->getMessage());
+                    ->with('error', __('Text extraction failed: :message', ['message' => $e->getMessage()]));
             } finally {
                 if (file_exists($tmpPath)) {
                     @unlink($tmpPath);
@@ -201,7 +201,7 @@ class PdfToolsController extends Controller
 
             if (! $digitalObject) {
                 return redirect()->route('pdf-tools.index')
-                    ->with('error', "Digital object {$doId} not found.");
+                    ->with('error', __('Digital object :id not found.', ['id' => $doId]));
             }
 
             $uploadsPath = config('heratio.uploads_path');
@@ -222,18 +222,18 @@ class PdfToolsController extends Controller
                 }
             } catch (\Throwable $e) {
                 return redirect()->route('pdf-tools.index')
-                    ->with('error', 'Text extraction failed: '.$e->getMessage());
+                    ->with('error', __('Text extraction failed: :message', ['message' => $e->getMessage()]));
             }
         }
 
         if ($extractedText === null && $filename !== null) {
             return redirect()->route('pdf-tools.index')
-                ->with('error', 'No text could be extracted from the PDF. It may contain only images (scanned document).');
+                ->with('error', __('No text could be extracted from the PDF. It may contain only images (scanned document).'));
         }
 
         if ($extractedText === null) {
             return redirect()->route('pdf-tools.index')
-                ->with('error', 'No PDF file provided.');
+                ->with('error', __('No PDF file provided.'));
         }
 
         return view('ahg-pdf-tools::extract-result', compact('extractedText', 'filename'));
@@ -246,7 +246,7 @@ class PdfToolsController extends Controller
     {
         if (! $this->textService->isPdftotextAvailable()) {
             return redirect()->route('pdf-tools.index')
-                ->with('error', 'pdftotext is not installed.');
+                ->with('error', __('pdftotext is not installed.'));
         }
 
         try {
@@ -265,7 +265,7 @@ class PdfToolsController extends Controller
                 ->with('success', $msg);
         } catch (\Throwable $e) {
             return redirect()->route('pdf-tools.index')
-                ->with('error', 'Batch extraction failed: '.$e->getMessage());
+                ->with('error', __('Batch extraction failed: :message', ['message' => $e->getMessage()]));
         }
     }
 }

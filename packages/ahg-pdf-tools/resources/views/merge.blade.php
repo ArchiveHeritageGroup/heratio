@@ -21,7 +21,7 @@
       <div class="alert alert-danger">
         <i class="bi bi-exclamation-triangle me-2"></i>
         <strong>{{ __('ImageMagick Not Available') }}</strong>
-        <p class="mb-0 mt-2">ImageMagick is required for file merging. Install with: <code>sudo apt install imagemagick</code></p>
+        <p class="mb-0 mt-2">{{ __('ImageMagick is required for file merging. Install with:') }} <code>sudo apt install imagemagick</code></p>
       </div>
     @else
 
@@ -35,8 +35,7 @@
                accept=".{{ implode(',.', $formats) }},.pdf"
                id="fileInput">
         <div class="form-text">
-          Supported formats: {{ strtoupper(implode(', ', $formats)) }}, PDF. Maximum 100 MB per file.
-          Select files in the order you want them merged.
+          {{ __('Supported formats: :formats, PDF. Maximum 100 MB per file. Select files in the order you want them merged.', ['formats' => strtoupper(implode(', ', $formats))]) }}
         </div>
 
         @error('files')
@@ -65,7 +64,7 @@
                    min="0" max="100" value="90" step="5">
             <span class="badge bg-secondary" id="qualityValue">90</span>
           </div>
-          <div class="form-text">JPEG compression quality (0 = lowest, 100 = highest)</div>
+          <div class="form-text">{{ __('JPEG compression quality (0 = lowest, 100 = highest)') }}</div>
         </div>
 
         {{-- DPI --}}
@@ -122,7 +121,7 @@
           </div>
           @if(!$ghostscriptAvailable)
             <div class="form-text text-warning">
-              <i class="bi bi-exclamation-triangle me-1"></i>Ghostscript required for PDF/A. Install with: <code>sudo apt install ghostscript</code>
+              <i class="bi bi-exclamation-triangle me-1"></i>{{ __('Ghostscript required for PDF/A. Install with:') }} <code>sudo apt install ghostscript</code>
             </div>
           @endif
         </div>

@@ -1398,23 +1398,6 @@ packages/ahg-oai/resources/views/docs.blade.php	text	ead3.xsd
 packages/ahg-oai/resources/views/docs.blade.php	text	mods-3-5.xsd
 packages/ahg-oai/resources/views/docs.blade.php	text	oai_dc.xsd
 packages/ahg-oai/resources/views/docs.blade.php	text	protocol. Use this page to test the endpoint or build a harvester.
-packages/ahg-pdf-tools/resources/views/extract-result.blade.php	text	{{…}} characters
-packages/ahg-pdf-tools/resources/views/extract-result.blade.php	text	{{…}} words
-packages/ahg-pdf-tools/resources/views/index.blade.php	text	.pdf
-packages/ahg-pdf-tools/resources/views/merge.blade.php	text	Ghostscript required for PDF/A. Install with:
-packages/ahg-pdf-tools/resources/views/merge.blade.php	text	ImageMagick is required for file merging. Install with:
-packages/ahg-pdf-tools/resources/views/merge.blade.php	text	JPEG compression quality (0 = lowest, 100 = highest)
-packages/ahg-pdf-tools/resources/views/merge.blade.php	text	Supported formats: {{…}}, PDF. Maximum 100 MB per file. Select files in the order you want them merged.
-packages/ahg-pdf-tools/src/Controllers/PdfToolsController.php	flash	Batch extraction failed:
-packages/ahg-pdf-tools/src/Controllers/PdfToolsController.php	flash	Digital object {$doId} not found.
-packages/ahg-pdf-tools/src/Controllers/PdfToolsController.php	flash	Merge completed but output file was not created.
-packages/ahg-pdf-tools/src/Controllers/PdfToolsController.php	flash	Merge failed:
-packages/ahg-pdf-tools/src/Controllers/PdfToolsController.php	flash	No PDF file provided.
-packages/ahg-pdf-tools/src/Controllers/PdfToolsController.php	flash	No text could be extracted from the PDF. It may contain only images (scanned document).
-packages/ahg-pdf-tools/src/Controllers/PdfToolsController.php	flash	Text extraction failed:
-packages/ahg-pdf-tools/src/Controllers/PdfToolsController.php	flash	Text extraction failed:
-packages/ahg-pdf-tools/src/Controllers/PdfToolsController.php	flash	Unsupported file format: {$ext}
-packages/ahg-pdf-tools/src/Controllers/PdfToolsController.php	flash	pdftotext is not installed.
 packages/ahg-portable-export/resources/views/index.blade.php	text	-- Select --
 packages/ahg-portable-export/resources/views/index.blade.php	text	Next: Review &amp; Generate
 packages/ahg-portable-export/src/Controllers/PortableExportController.php	flash	This export was written to a folder on the server:
