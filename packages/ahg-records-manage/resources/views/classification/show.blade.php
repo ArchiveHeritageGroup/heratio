@@ -11,7 +11,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="mb-0">
     <i class="fas fa-magic me-2"></i> {{ $rule->name }}
-    @if($rule->is_active)<span class="badge bg-success ms-2">active</span>@else<span class="badge bg-secondary ms-2">inactive</span>@endif
+    @if($rule->is_active)<span class="badge bg-success ms-2">{{ __('active') }}</span>@else<span class="badge bg-secondary ms-2">{{ __('inactive') }}</span>@endif
   </h1>
   <div>
     <a href="{{ route('records.classification.edit', $rule->id) }}" class="btn btn-sm btn-primary"><i class="fas fa-pencil-alt me-1"></i>{{ __('Edit') }}</a>
@@ -32,14 +32,14 @@
         <tr><th class="text-muted">{{ __('Priority') }}</th><td>{{ $rule->priority }}</td></tr>
         <tr><th class="text-muted">{{ __('Apply on') }}</th><td>{{ $rule->apply_on }}</td></tr>
         <tr><th class="text-muted">{{ __('File plan node') }}</th><td>{{ $rule->fileplan_code ?? '?' }} - {{ $rule->fileplan_title ?? '?' }}</td></tr>
-        <tr><th class="text-muted">{{ __('Disposal class') }}</th><td>@if($rule->disposal_class_ref){{ $rule->disposal_class_ref }} - {{ $rule->disposal_class_title }}@else<em class="text-muted">inherit from node</em>@endif</td></tr>
+        <tr><th class="text-muted">{{ __('Disposal class') }}</th><td>@if($rule->disposal_class_ref){{ $rule->disposal_class_ref }} - {{ $rule->disposal_class_title }}@else<em class="text-muted">{{ __('inherit from node') }}</em>@endif</td></tr>
         @if($rule->description)<tr><th class="text-muted">{{ __('Description') }}</th><td><small>{!! nl2br(e($rule->description)) !!}</small></td></tr>@endif
         <tr><th class="text-muted">{{ __('Created') }}</th><td><small>{{ $rule->created_at }}</small></td></tr>
       </table>
     </div>
 
     <div class="card">
-      <div class="card-header bg-light"><i class="fas fa-history me-1"></i> Recent matches ({{ $logCount }} total)</div>
+      <div class="card-header bg-light"><i class="fas fa-history me-1"></i> {{ __('Recent matches (:count total)', ['count' => $logCount]) }}</div>
       <table class="table table-sm mb-0">
         <thead class="table-light"><tr><th>{{ __('Record') }}</th><th>{{ __('Match detail') }}</th><th>{{ __('When') }}</th></tr></thead>
         <tbody>
@@ -66,7 +66,7 @@
     <div class="card border-info mb-3">
       <div class="card-header bg-info text-white"><i class="fas fa-vial me-1"></i> {{ __('Dry-run test') }}</div>
       <div class="card-body">
-        <p class="text-muted small mb-2">Enter sample metadata; the engine returns whether this rule alone would fire (without consulting other rules and without writing anything).</p>
+        <p class="text-muted small mb-2">{{ __('Enter sample metadata; the engine returns whether this rule alone would fire (without consulting other rules and without writing anything).') }}</p>
         @if($tr !== null)
           <div class="alert alert-{{ $tr['matched'] ? 'success' : 'warning' }}">
             @if($tr['matched'])
@@ -84,11 +84,11 @@
             <input type="text" name="folder_path" class="form-control form-control-sm" value="{{ $tm['folder_path'] ?? '' }}" placeholder="{{ __('/Projects/Bridge Construction') }}">
           </div>
           <div class="mb-2">
-            <label class="form-label small mb-1">workspace</label>
+            <label class="form-label small mb-1">{{ __('workspace') }}</label>
             <input type="text" name="workspace" class="form-control form-control-sm" value="{{ $tm['workspace'] ?? '' }}">
           </div>
           <div class="mb-2">
-            <label class="form-label small mb-1">department</label>
+            <label class="form-label small mb-1">{{ __('department') }}</label>
             <input type="text" name="department" class="form-control form-control-sm" value="{{ $tm['department'] ?? '' }}">
           </div>
           <div class="mb-2">
@@ -96,12 +96,12 @@
             <input type="text" name="mime_type" class="form-control form-control-sm" value="{{ $tm['mime_type'] ?? '' }}" placeholder="{{ __('application/pdf') }}">
           </div>
           <div class="mb-2">
-            <label class="form-label small mb-1">tags (comma-separated)</label>
+            <label class="form-label small mb-1">{{ __('tags (comma-separated)') }}</label>
             <input type="text" name="tags" class="form-control form-control-sm" value="{{ isset($tm['tags']) ? implode(',', $tm['tags']) : '' }}">
           </div>
           <div class="row g-2 mb-2">
-            <div class="col"><label class="form-label small mb-1">custom key</label><input type="text" name="custom_key" class="form-control form-control-sm"></div>
-            <div class="col"><label class="form-label small mb-1">custom value</label><input type="text" name="custom_value" class="form-control form-control-sm"></div>
+            <div class="col"><label class="form-label small mb-1">{{ __('custom key') }}</label><input type="text" name="custom_key" class="form-control form-control-sm"></div>
+            <div class="col"><label class="form-label small mb-1">{{ __('custom value') }}</label><input type="text" name="custom_value" class="form-control form-control-sm"></div>
           </div>
           <button type="submit" class="btn btn-info btn-sm"><i class="fas fa-vial me-1"></i>{{ __('Test rule') }}</button>
         </form>

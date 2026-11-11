@@ -57,12 +57,12 @@ class EmailCaptureController extends Controller
             $result = $this->emails->captureFromEml($request->file('eml_file'), auth()->id() ?? 0);
         } catch (\Throwable $e) {
             return redirect()->route('records.emails.upload-form')
-                ->with('error', 'Could not parse EML: '.$e->getMessage());
+                ->with('error', __('Could not parse EML: :message', ['message' => $e->getMessage()]));
         }
 
         $msg = $result['duplicate']
-            ? 'This message was already captured (Message-ID match) - opened existing record.'
-            : 'Email captured.';
+            ? __('This message was already captured (Message-ID match) - opened existing record.')
+            : __('Email captured.');
 
         return redirect()->route('records.emails.show', $result['id'])->with('success', $msg);
     }
@@ -104,7 +104,7 @@ class EmailCaptureController extends Controller
         $ok = $this->emails->classify($id, $data['fileplan_node_id'], $data['disposal_class_id'] ?? null, auth()->id() ?? 0);
 
         return redirect()->route('records.emails.show', $id)
-            ->with($ok ? 'success' : 'error', $ok ? 'Email classified.' : 'Could not classify this email.');
+            ->with($ok ? 'success' : 'error', $ok ? __('Email classified.') : __('Could not classify this email.'));
     }
 
     /** POST /admin/records/emails/{id}/declare */
@@ -112,9 +112,9 @@ class EmailCaptureController extends Controller
     {
         $ioId = $this->emails->declareAsRecord($id, auth()->id() ?? 0);
         if ($ioId === null) {
-            return redirect()->route('records.emails.show', $id)->with('error', 'Could not declare this email as a record.');
+            return redirect()->route('records.emails.show', $id)->with('error', __('Could not declare this email as a record.'));
         }
 
-        return redirect()->route('records.emails.show', $id)->with('success', "Declared as information_object #{$ioId}.");
+        return redirect()->route('records.emails.show', $id)->with('success', __('Declared as information_object #:id.', ['id' => $ioId]));
     }
 }

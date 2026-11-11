@@ -17,9 +17,9 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="mb-0">
-    <i class="fas fa-eye me-2"></i> Review #{{ $review->id }}
+    <i class="fas fa-eye me-2"></i> {{ __('Review #:id', ['id' => $review->id]) }}
     <span class="badge bg-{{ $review->status === 'completed' ? 'success' : ($overdue ? 'danger' : 'warning text-dark') }} ms-2">
-      {{ $review->status }}{{ $overdue ? ' (overdue)' : '' }}
+      {{ $review->status }}{{ $overdue ? ' ('.__('overdue').')' : '' }}
     </span>
   </h1>
   <div>
@@ -51,9 +51,9 @@
           <td>
             @if($review->disposal_class_ref)
               <code>{{ $review->disposal_class_ref }}</code> - {{ $review->disposal_class_title }}
-              <br><small class="text-muted">Action on disposal: {{ $review->disposal_class_action ?? '-' }} after {{ $review->disposal_class_years ? $review->disposal_class_years . ' year(s)' : 'n/a' }}</small>
+              <br><small class="text-muted">{{ __('Action on disposal: :action after :years', ['action' => $review->disposal_class_action ?? '-', 'years' => $review->disposal_class_years ? $review->disposal_class_years . ' ' . __('year(s)') : __('n/a')]) }}</small>
             @else
-              <em class="text-muted">none</em>
+              <em class="text-muted">{{ __('none') }}</em>
             @endif
           </td>
         </tr>
@@ -73,7 +73,7 @@
         @endif
         @if($review->triggered_disposal_action_id)
           <tr><th class="text-muted">{{ __('Triggered disposal') }}</th>
-              <td><a href="{{ url('/admin/records/disposal/' . $review->triggered_disposal_action_id) }}">action #{{ $review->triggered_disposal_action_id }}</a></td>
+              <td><a href="{{ url('/admin/records/disposal/' . $review->triggered_disposal_action_id) }}">{{ __('Action #:id', ['id' => $review->triggered_disposal_action_id]) }}</a></td>
           </tr>
         @endif
       </table>
@@ -90,15 +90,15 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Decision') }}</label>
               <select name="decision" class="form-select" required>
-                <option value="">- pick a decision -</option>
+                <option value="">{{ __('- pick a decision -') }}</option>
                 @foreach($decisions as $d)
                   <option value="{{ $d->code }}">{{ $d->label }}</option>
                 @endforeach
               </select>
               <div class="form-text small">
-                <strong>retain_extend / retain_review / no_change</strong> - record stays retained.<br>
-                <strong>dispose</strong> - creates a destruction action in the disposal queue.<br>
-                <strong>transfer</strong> - creates a transfer-to-archives action in the disposal queue.
+                <strong>retain_extend / retain_review / no_change</strong> - {{ __('the record remains in retention.') }}<br>
+                <strong>{{ __('dispose') }}</strong> - {{ __('creates a destruction action in the disposal queue.') }}<br>
+                <strong>{{ __('transfer') }}</strong> - {{ __('creates a transfer-to-archives action in the disposal queue.') }}
               </div>
             </div>
             <div class="mb-3">
@@ -116,7 +116,7 @@
       </div>
     @else
       <div class="alert alert-secondary">
-        <i class="fas fa-lock me-1"></i> Review closed - completed on {{ $review->review_completed_date }}.
+        <i class="fas fa-lock me-1"></i> {{ __('Review closed; completed on :date.', ['date' => $review->review_completed_date]) }}
       </div>
     @endif
   </div>

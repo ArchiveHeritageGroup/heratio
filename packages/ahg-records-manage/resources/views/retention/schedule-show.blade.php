@@ -59,7 +59,7 @@
 
 <div class="card mb-4">
   <div class="card-header d-flex justify-content-between align-items-center" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-    <h5 class="mb-0">Disposal Classes ({{ count($classes) }})</h5>
+    <h5 class="mb-0">{{ __('Disposal Classes (:count)', ['count' => count($classes)]) }}</h5>
     <a href="{{ route('records.classes.create', $schedule->id) }}" class="btn btn-sm btn-light"><i class="fas fa-plus me-1"></i>{{ __('Add Class') }}</a>
   </div>
   <div class="card-body p-0">

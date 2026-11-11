@@ -84,7 +84,7 @@ class ReviewController extends Controller
 
         return redirect()
             ->route('records.reviews.show', $id)
-            ->with('success', 'Review scheduled.');
+            ->with('success', __('Review scheduled.'));
     }
 
     /**
@@ -102,7 +102,7 @@ class ReviewController extends Controller
 
         return redirect()
             ->route('records.reviews.show', $id)
-            ->with($ok ? 'success' : 'error', $ok ? 'Review marked complete.' : 'Could not complete this review.');
+            ->with($ok ? 'success' : 'error', $ok ? __('Review marked complete.') : __('Could not complete this review.'));
     }
 
     /**
@@ -113,6 +113,6 @@ class ReviewController extends Controller
         $data = $request->validate(['assigned_to' => 'required|integer']);
         $this->reviews->assign($id, $data['assigned_to']);
 
-        return redirect()->route('records.reviews.show', $id)->with('success', 'Reviewer assigned.');
+        return redirect()->route('records.reviews.show', $id)->with('success', __('Reviewer assigned.'));
     }
 }

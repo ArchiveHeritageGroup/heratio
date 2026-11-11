@@ -86,7 +86,7 @@
         </div>
 
         <div class="card mb-3">
-            <div class="card-header">Retention &amp; Disposal</div>
+            <div class="card-header">{{ __('Retention & Disposal') }}</div>
             <div class="card-body">
                 <table class="table table-sm mb-0">
                     <tbody>
@@ -132,9 +132,9 @@
         <div class="card mb-3">
             <div class="card-header">{{ __('Summary') }}</div>
             <div class="card-body">
-                <p class="mb-1"><strong>{{ $node->child_count }}</strong> child node(s)</p>
-                <p class="mb-1"><strong>{{ $node->record_count }}</strong> linked record(s)</p>
-                <p class="mb-0 text-muted small">Created: {{ $node->created_at }}</p>
+                <p class="mb-1"><strong>{{ $node->child_count }}</strong> {{ __('child node(s)') }}</p>
+                <p class="mb-1"><strong>{{ $node->record_count }}</strong> {{ __('linked record(s)') }}</p>
+                <p class="mb-0 text-muted small">{{ __('Created: :date', ['date' => $node->created_at]) }}</p>
             </div>
         </div>
     </div>
@@ -142,7 +142,7 @@
 
 @if(!empty($children))
 <div class="card mb-3">
-    <div class="card-header">Child Nodes ({{ count($children) }})</div>
+    <div class="card-header">{{ __('Child Nodes (:count)', ['count' => count($children)]) }}</div>
     <div class="card-body p-0">
         <table class="table table-sm table-striped mb-0">
             <thead>
@@ -170,7 +170,7 @@
 
 @if(!empty($records['data']))
 <div class="card mb-3">
-    <div class="card-header">Linked Records ({{ $records['total'] }})</div>
+    <div class="card-header">{{ __('Linked Records (:count)', ['count' => $records['total']]) }}</div>
     <div class="card-body p-0">
         <table class="table table-sm table-striped mb-0">
             <thead>

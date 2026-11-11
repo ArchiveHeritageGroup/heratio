@@ -3,7 +3,7 @@
 @section('body-class', 'admin records')
 
 @section('title-block')
-<h1>Edit File Plan Node: {{ $node->code }}</h1>
+<h1>{{ __('Edit File Plan Node: :code', ['code' => $node->code]) }}</h1>
 @endsection
 
 @section('content')
@@ -33,7 +33,7 @@
                 <div class="col-md-6 mb-3">
                     <label for="parent_id" class="form-label">{{ __('Parent Node') }}</label>
                     <select name="parent_id" id="parent_id" class="form-select">
-                        <option value="">-- Root (no parent) --</option>
+                        <option value="">{{ __('-- Root (no parent) --') }}</option>
                         @foreach($parentNodes as $pn)
                             @if($pn->id !== $node->id)
                                 <option value="{{ $pn->id }}" {{ (old('parent_id', $node->parent_id) == $pn->id) ? 'selected' : '' }}>
@@ -85,7 +85,7 @@
     </div>
 
     <div class="card mb-3">
-        <div class="card-header">Retention &amp; Disposal</div>
+        <div class="card-header">{{ __('Retention & Disposal') }}</div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4 mb-3">
@@ -101,7 +101,7 @@
                 <div class="col-md-4 mb-3">
                     <label for="disposal_action" class="form-label">{{ __('Disposal Action') }}</label>
                     <select name="disposal_action" id="disposal_action" class="form-select">
-                        <option value="">-- Select --</option>
+                        <option value="">{{ __('-- Select --') }}</option>
                         <option value="destroy" {{ old('disposal_action', $node->disposal_action) === 'destroy' ? 'selected' : '' }}>{{ __('Destroy') }}</option>
                         <option value="transfer" {{ old('disposal_action', $node->disposal_action) === 'transfer' ? 'selected' : '' }}>{{ __('Transfer') }}</option>
                         <option value="archive" {{ old('disposal_action', $node->disposal_action) === 'archive' ? 'selected' : '' }}>{{ __('Archive') }}</option>

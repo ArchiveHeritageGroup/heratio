@@ -22,7 +22,7 @@
 </div>
 
 <p class="text-muted small">
-  Auto-classification rules. Higher priority evaluated first; first match wins. Each match writes to <code>rm_classification_log</code> for audit and (when the rule supplies a disposal class) creates an <code>rm_record_disposal_class</code> binding.
+  {!! __('Auto-classification rules are evaluated in priority order; the first match wins. Each match is recorded in :log for audit and, when a disposal class is supplied, creates a :binding.', ['log' => '<code>rm_classification_log</code>', 'binding' => '<code>rm_record_disposal_class</code>']) !!}
 </p>
 
 @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
@@ -75,7 +75,7 @@
         </td>
       </tr>
     @empty
-      <tr><td colspan="8" class="text-muted text-center py-4">{{ __('No classification rules yet. Use') }} <strong>{{ __('New rule') }}</strong> to add the first one.</td></tr>
+      <tr><td colspan="8" class="text-muted text-center py-4">{{ __('No classification rules yet. Use :action to add the first one.', ['action' => __('New rule')]) }}</td></tr>
     @endforelse
     </tbody>
   </table>

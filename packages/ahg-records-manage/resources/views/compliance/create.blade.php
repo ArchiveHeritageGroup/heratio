@@ -20,7 +20,7 @@
   <div class="col-md-6">
     <label class="form-label">{{ __('Framework') }}</label>
     <select name="framework" class="form-select" required>
-      <option value="">- pick a framework -</option>
+      <option value="">{{ __('- pick a framework -') }}</option>
       @foreach($frameworks as $f)<option value="{{ $f->code }}" @selected(old('framework')===$f->code)>{{ $f->label }}</option>@endforeach
     </select>
   </div>
@@ -53,6 +53,6 @@
 
 <div class="alert alert-info mt-4 small">
   <i class="fas fa-info-circle me-1"></i>
-  On submit, the chosen framework's automated checks run against the live RM data plane. You can re-run them any time afterwards from the assessment detail page. Results are stored as JSON findings + recommendations and a scored percentage. Final sign-off (witness name + timestamp) locks the assessment.
+  {{ __('On submit, the chosen framework’s automated checks run against live records management data. You can run them again from the assessment detail page. Results are stored as JSON findings and recommendations with a score percentage. Final sign-off, including the witness name and timestamp, locks the assessment.') }}
 </div>
 @endsection

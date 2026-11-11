@@ -58,7 +58,7 @@ class ClassificationController extends Controller
         $id = $this->svc->createRule($data, auth()->id() ?? 0);
 
         return redirect()->route('records.classification.show', $id)
-            ->with('success', 'Classification rule created.');
+            ->with('success', __('Classification rule created.'));
     }
 
     /** GET /admin/records/classification/{id} */
@@ -112,7 +112,7 @@ class ClassificationController extends Controller
         $this->svc->updateRule($id, $data);
 
         return redirect()->route('records.classification.show', $id)
-            ->with('success', 'Rule updated.');
+            ->with('success', __('Rule updated.'));
     }
 
     /** DELETE /admin/records/classification/{id} */
@@ -121,7 +121,7 @@ class ClassificationController extends Controller
         $this->svc->deleteRule($id);
 
         return redirect()->route('records.classification.index')
-            ->with('success', 'Rule deleted.');
+            ->with('success', __('Rule deleted.'));
     }
 
     /** POST /admin/records/classification/{id}/test */
@@ -153,7 +153,11 @@ class ClassificationController extends Controller
         $r = $this->svc->classifyBatch(max(1, min($limit, 5000)));
 
         return redirect()->route('records.classification.index')
-            ->with('success', "Batch run: classified={$r['classified']}, skipped={$r['skipped']}, failed={$r['failed']}");
+            ->with('success', __('Batch run: :classified classified, :skipped skipped, :failed failed.', [
+                'classified' => $r['classified'],
+                'skipped' => $r['skipped'],
+                'failed' => $r['failed'],
+            ]));
     }
 
     /** POST /admin/records/classification/classify-io/{ioId} */
@@ -161,11 +165,14 @@ class ClassificationController extends Controller
     {
         $r = $this->svc->classifyIO($ioId);
         if ($r) {
-            return redirect()->back()->with('success',
-                "Classified IO #{$ioId} via rule #{$r['rule_id']} → file plan node #{$r['fileplan_node_id']}");
+            return redirect()->back()->with('success', __('Classified IO #:io via rule #:rule → file plan node #:node', [
+                'io' => $ioId,
+                'rule' => $r['rule_id'],
+                'node' => $r['fileplan_node_id'],
+            ]));
         }
 
-        return redirect()->back()->with('error', "No rule matched IO #{$ioId}.");
+        return redirect()->back()->with('error', __('No rule matched IO #:io.', ['io' => $ioId]));
     }
 
     /* -------------------------------------------------------------------- */

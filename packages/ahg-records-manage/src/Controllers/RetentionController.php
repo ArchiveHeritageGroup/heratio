@@ -113,7 +113,7 @@ class RetentionController extends Controller
         $id = $this->scheduleService->create($validated);
 
         return redirect()->route('records.schedules.show', $id)
-            ->with('success', 'Retention schedule created successfully.');
+            ->with('success', __('Retention schedule created successfully.'));
     }
 
     /**
@@ -173,7 +173,7 @@ class RetentionController extends Controller
         $this->scheduleService->update($id, $validated);
 
         return redirect()->route('records.schedules.show', $id)
-            ->with('success', 'Retention schedule updated successfully.');
+            ->with('success', __('Retention schedule updated successfully.'));
     }
 
     /**
@@ -192,11 +192,11 @@ class RetentionController extends Controller
 
         if ($result) {
             return redirect()->route('records.schedules.show', $id)
-                ->with('success', 'Schedule approved and activated.');
+                ->with('success', __('Schedule approved and activated.'));
         }
 
         return redirect()->route('records.schedules.show', $id)
-            ->with('error', 'Schedule could not be approved. Only draft schedules can be approved.');
+            ->with('error', __('Schedule could not be approved. Only draft schedules can be approved.'));
     }
 
     /**
@@ -245,7 +245,7 @@ class RetentionController extends Controller
         $this->classService->create($id, $validated);
 
         return redirect()->route('records.schedules.show', $id)
-            ->with('success', 'Disposal class created successfully.');
+            ->with('success', __('Disposal class created successfully.'));
     }
 
     /**
@@ -306,7 +306,7 @@ class RetentionController extends Controller
         $this->classService->update($classId, $validated);
 
         return redirect()->route('records.schedules.show', $id)
-            ->with('success', 'Disposal class updated successfully.');
+            ->with('success', __('Disposal class updated successfully.'));
     }
 
     /**
@@ -323,11 +323,11 @@ class RetentionController extends Controller
 
         if ($result) {
             return redirect()->route('records.schedules.show', $id)
-                ->with('success', 'Disposal class deleted.');
+                ->with('success', __('Disposal class deleted.'));
         }
 
         return redirect()->route('records.schedules.show', $id)
-            ->with('error', 'Cannot delete disposal class - records are still assigned to it.');
+            ->with('error', __('Cannot delete disposal class - records are still assigned to it.'));
     }
 
     /**
@@ -349,7 +349,7 @@ class RetentionController extends Controller
         );
 
         return redirect()->route('records.record-class', $validated['information_object_id'])
-            ->with('success', 'Disposal class assigned to record.');
+            ->with('success', __('Disposal class assigned to record.'));
     }
 
     /**

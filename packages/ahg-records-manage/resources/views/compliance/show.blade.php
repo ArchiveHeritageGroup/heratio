@@ -44,7 +44,7 @@
       <div class="card-body text-center">
         @if($pct !== null)
           <div class="display-4 text-{{ $bandClass }}">{{ $pct }}%</div>
-          <div class="text-muted small">{{ rtrim(rtrim((string) $assessment->score_total, '0'), '.') }} / {{ rtrim(rtrim((string) $assessment->score_max, '0'), '.') }} weighted</div>
+          <div class="text-muted small">{{ __(':score / :maximum weighted', ['score' => rtrim(rtrim((string) $assessment->score_total, '0'), '.'), 'maximum' => rtrim(rtrim((string) $assessment->score_max, '0'), '.')]) }}</div>
         @else
           <div class="text-muted">{{ __('No score yet') }}</div>
         @endif
@@ -61,7 +61,7 @@
 </div>
 
 <div class="card mb-3">
-  <div class="card-header bg-light">Findings ({{ count($checks) }})</div>
+  <div class="card-header bg-light">{{ __('Findings (:count)', ['count' => count($checks)]) }}</div>
   <table class="table table-sm mb-0">
     <thead class="table-light"><tr>
       <th style="width:8%">{{ __('Status') }}</th><th style="width:12%">{{ __('Ref') }}</th><th>{{ __('Check') }}</th><th class="text-end" style="width:6%">{{ __('Weight') }}</th><th>{{ __('Finding') }}</th>
@@ -90,7 +90,7 @@
 
 @if(! empty($recommendations))
   <div class="card mb-3 border-warning">
-    <div class="card-header bg-warning text-dark"><i class="fas fa-bolt me-1"></i> Recommendations ({{ count($recommendations) }})</div>
+    <div class="card-header bg-warning text-dark"><i class="fas fa-bolt me-1"></i> {{ __('Recommendations (:count)', ['count' => count($recommendations)]) }}</div>
     <ul class="list-group list-group-flush">
       @foreach($recommendations as $r)
         <li class="list-group-item small"><code>{{ $r['ref'] }}</code> - {{ $r['recommendation'] }}</li>

@@ -34,7 +34,7 @@
         <tr><th class="text-muted">{{ __('Attachments') }}</th><td>{{ $email->attachment_count }}</td></tr>
         <tr><th class="text-muted">{{ __('Source') }}</th><td>{{ $email->capture_source }}</td></tr>
         @if($email->information_object_id)
-          <tr><th class="text-muted">{{ __('Declared as') }}</th><td><a href="/admin/information-object/{{ $email->information_object_id }}">information_object #{{ $email->information_object_id }}</a></td></tr>
+          <tr><th class="text-muted">{{ __('Declared as') }}</th><td><a href="/admin/information-object/{{ $email->information_object_id }}">{{ __('Information object #:id', ['id' => $email->information_object_id]) }}</a></td></tr>
         @endif
         @if($email->eml_storage_path)
           <tr><th class="text-muted">{{ __('EML on disk') }}</th><td><code class="small">{{ $email->eml_storage_path }}</code></td></tr>
@@ -44,7 +44,7 @@
 
     <div class="card mb-3">
       <div class="card-header bg-light">{{ __('Body') }}</div>
-      <div class="card-body small" style="max-height:400px;overflow-y:auto;white-space:pre-wrap;font-family:ui-monospace,monospace;">@if($email->body_text){{ $email->body_text }}@elseif($email->body_html){!! strip_tags($email->body_html) !!}@else<em class="text-muted">(empty body)</em>@endif</div>
+      <div class="card-body small" style="max-height:400px;overflow-y:auto;white-space:pre-wrap;font-family:ui-monospace,monospace;">@if($email->body_text){{ $email->body_text }}@elseif($email->body_html){!! strip_tags($email->body_html) !!}@else<em class="text-muted">{{ __('(empty body)') }}</em>@endif</div>
     </div>
   </div>
 
@@ -53,21 +53,21 @@
       <div class="card-header bg-primary text-white"><i class="fas fa-tags me-1"></i> {{ __('Classify') }}</div>
       <div class="card-body">
         @if($email->fileplan_code)
-          <div class="mb-2 small text-muted">{{ __('Currently classified to') }} <strong>{{ $email->fileplan_code }} - {{ $email->fileplan_title }}</strong>@if($email->disposal_class_ref) under disposal class <code>{{ $email->disposal_class_ref }}</code>@endif</div>
+          <div class="mb-2 small text-muted">{{ __('Currently classified to') }} <strong>{{ $email->fileplan_code }} - {{ $email->fileplan_title }}</strong>@if($email->disposal_class_ref) {{ __('under disposal class') }} <code>{{ $email->disposal_class_ref }}</code>@endif</div>
         @endif
         <form method="POST" action="{{ route('records.emails.classify', $email->id) }}">
           @csrf
           <div class="mb-2">
             <label class="form-label small mb-1">{{ __('File plan node') }}</label>
             <select name="fileplan_node_id" class="form-select form-select-sm" required>
-              <option value="">- pick a node -</option>
+              <option value="">{{ __('- pick a node -') }}</option>
               @foreach($fileplanNodes as $n)<option value="{{ $n->id }}" @selected($email->fileplan_node_id == $n->id)>{{ str_repeat('- ', $n->depth) }}{{ $n->code }} - {{ $n->title }}</option>@endforeach
             </select>
           </div>
           <div class="mb-2">
             <label class="form-label small mb-1">{{ __('Disposal class (optional)') }}</label>
             <select name="disposal_class_id" class="form-select form-select-sm">
-              <option value="">- inherit from node -</option>
+              <option value="">{{ __('- inherit from node -') }}</option>
               @foreach($disposalClasses as $dc)<option value="{{ $dc->id }}" @selected($email->disposal_class_id == $dc->id)>{{ $dc->class_ref }} - {{ $dc->title }}</option>@endforeach
             </select>
           </div>
@@ -80,7 +80,7 @@
     <div class="card border-success">
       <div class="card-header bg-success text-white"><i class="fas fa-flag me-1"></i> {{ __('Declare as record') }}</div>
       <div class="card-body small">
-        <p>Declares this email as an <code>information_object</code>. The record becomes part of the archival catalogue and the disposal class (if classified) is applied. The <em>{{ __('Declare') }}</em> action is irreversible without admin intervention.</p>
+        {!! __('Declares this email as an :record. The record becomes part of the archival catalogue and the disposal class (if classified) is applied. The :action action is irreversible without admin intervention.', ['record' => '<code>information_object</code>', 'action' => '<em>'.e(__('Declare')).'</em>']) !!}
         <form method="POST" action="{{ route('records.emails.declare', $email->id) }}" onsubmit="return confirm('Declare this email as a record? It will become part of the archival catalogue.');">
           @csrf
           <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-flag me-1"></i>{{ __('Declare as record') }}</button>

@@ -47,7 +47,7 @@
                             <td>{{ $fieldInfo['label'] }}</td>
                             <td>
                                 <select name="mapping[{{ $fieldKey }}]" class="form-select form-select-sm">
-                                    <option value="">-- Skip --</option>
+                                    <option value="">{{ __('-- Skip --') }}</option>
                                     @foreach($headers as $colLetter => $headerName)
                                         @if(!empty($headerName))
                                             <option value="{{ $colLetter }}" {{ (($detectedMapping[$fieldKey] ?? '') === $colLetter) ? 'selected' : '' }}>

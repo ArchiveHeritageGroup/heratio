@@ -77,10 +77,10 @@
         <td class="text-end"><a href="{{ route('records.emails.show', $r->id) }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-arrow-right"></i></a></td>
       </tr>
       @empty
-      <tr><td colspan="7" class="text-center text-muted py-4">{{ __('No captured emails. Use') }} <strong>{{ __('Upload .eml') }}</strong> to capture one.</td></tr>
+      <tr><td colspan="7" class="text-center text-muted py-4">{{ __('No captured emails. Use :action to capture one.', ['action' => __('Upload .eml')]) }}</td></tr>
       @endforelse
     </tbody>
   </table>
 </div>
-<div class="text-muted small mt-2">{{ $total }} email(s) total. Showing {{ count($rows) }}.</div>
+<div class="text-muted small mt-2">{{ __(':total email(s) total. Showing :shown.', ['total' => $total, 'shown' => count($rows)]) }}</div>
 @endsection

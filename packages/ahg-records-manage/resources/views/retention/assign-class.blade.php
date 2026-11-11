@@ -40,7 +40,7 @@
 @endif
 
 <div class="card mb-4">
-  <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ $assignment ? 'Reassign' : 'Assign' }} Disposal Class</h5></div>
+  <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ $assignment ? __('Reassign') : __('Assign') }} {{ __('Disposal Class') }}</h5></div>
   <div class="card-body">
     <form method="post" action="{{ route('records.assign-class') }}">@csrf
       <input type="hidden" name="information_object_id" value="{{ $ioId }}">
@@ -48,7 +48,7 @@
         <div class="col-md-6 mb-3">
           <label for="disposal_class_id" class="form-label">{{ __('Disposal Class') }} <span class="badge bg-secondary ms-1">{{ __('Required') }}</span></label>
           <select name="disposal_class_id" id="disposal_class_id" class="form-select" required>
-            <option value="">-- Select a disposal class --</option>
+            <option value="">{{ __('-- Select a disposal class --') }}</option>
             @foreach($activeClasses as $cls)
               <option value="{{ $cls->id }}" {{ ($assignment && $assignment->disposal_class_id == $cls->id) ? 'selected' : '' }}>
                 {{ $cls->schedule_title }} / {{ $cls->class_ref }} - {{ $cls->title }} ({{ ucfirst($cls->disposal_action) }})
@@ -61,7 +61,7 @@
           <input type="date" name="retention_start_date" id="retention_start_date" class="form-control" value="{{ $assignment->retention_start_date ?? '' }}">
         </div>
         <div class="col-md-3 mb-3 d-flex align-items-end">
-          <button type="submit" class="btn atom-btn-white w-100"><i class="fas fa-save me-1"></i>{{ $assignment ? 'Reassign' : 'Assign' }}</button>
+          <button type="submit" class="btn atom-btn-white w-100"><i class="fas fa-save me-1"></i>{{ $assignment ? __('Reassign') : __('Assign') }}</button>
         </div>
       </div>
     </form>
