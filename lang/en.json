@@ -8298,6 +8298,9 @@
     "Evidence layer (optional)": "Evidence layer (optional)",
     "Evidence metadata cleared.": "Evidence metadata cleared.",
     "Evidence metadata saved.": "Evidence metadata saved.",
+    "Evidence set created": "Evidence set created",
+    "Evidence set deleted": "Evidence set deleted",
+    "Evidence set updated": "Evidence set updated",
     "Evidence strength": "Evidence strength",
     "Evidence summary": "Evidence summary",
     "Evidence type": "Evidence type",
@@ -13380,6 +13383,7 @@
     "New End Date": "New End Date",
     "New Entry": "New Entry",
     "New Ethics Record": "New Ethics Record",
+    "New Evidence Set": "New Evidence Set",
     "New Exhibition": "New Exhibition",
     "New Extraction Job": "New Extraction Job",
     "New Folder": "New Folder",
@@ -23082,6 +23086,7 @@
     "Transfer View": "Transfer View",
     "Transfer and accessioning events": "Transfer and accessioning events",
     "Transfer defaults & matching": "Transfer defaults & matching",
+    "Transfer sent to Archivematica (job #": "Transfer sent to Archivematica (job #",
     "Transfer source path": "Transfer source path",
     "Transfer to NAZ": "Transfer to NAZ",
     "Transfer to archives": "Transfer to archives",
@@ -26326,9 +26331,5 @@
     "…or paste ONIX XML": "…or paste ONIX XML",
     "← Back to Evidence Set": "← Back to Evidence Set",
     "← Back to Notes": "← Back to Notes",
-    "← Back to Report": "← Back to Report",
-    "New Evidence Set": "New Evidence Set",
-    "Evidence set created": "Evidence set created",
-    "Evidence set updated": "Evidence set updated",
-    "Evidence set deleted": "Evidence set deleted"
+    "← Back to Report": "← Back to Report"
 }
