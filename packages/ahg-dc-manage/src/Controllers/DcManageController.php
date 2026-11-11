@@ -108,7 +108,7 @@ class DcManageController extends Controller
             \AhgCustomFields\Services\CustomFieldService::saveFromRequest((int) $io->id, $request); // heratio#1530
 
             return redirect()->route('ahgdcmanage.edit', ['slug' => $slug])
-                ->with('success', 'Description saved (Dublin Core).');
+                ->with('success', __('Description saved (Dublin Core).'));
         }
 
         // ── GET: load related data for the form ──
