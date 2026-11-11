@@ -145,11 +145,11 @@ class BlogAdminController extends Controller
         }
         $targetId = \AhgArticles\Services\BlogLinkService::resolveId((string) $request->input('target', ''));
         if (! $targetId) {
-            return back()->with('error', 'Could not find that article - pick one from the list or paste its /articles/… URL.');
+            return back()->with('error', __('Could not find that article - pick one from the list or paste its /articles/… URL.'));
         }
         \AhgArticles\Services\BlogLinkService::add($id, $targetId, (string) $request->input('description', ''));
 
-        return redirect()->route('admin.articles.edit', $id)->with('success', 'Link added.');
+        return redirect()->route('admin.articles.edit', $id)->with('success', __('Link added.'));
     }
 
     /** heratio#1399 - remove a link between two articles. */
@@ -161,7 +161,7 @@ class BlogAdminController extends Controller
         }
         \AhgArticles\Services\BlogLinkService::remove($id, $targetId);
 
-        return redirect()->route('admin.articles.edit', $id)->with('success', 'Link removed.');
+        return redirect()->route('admin.articles.edit', $id)->with('success', __('Link removed.'));
     }
 
     /** heratio#1399 - persist a drag/arrow-reordered linked-articles order. */
@@ -177,7 +177,7 @@ class BlogAdminController extends Controller
         }
         \AhgArticles\Services\BlogLinkService::reorder($id, (array) $order);
 
-        return redirect()->route('admin.articles.edit', $id)->with('success', 'Order saved.');
+        return redirect()->route('admin.articles.edit', $id)->with('success', __('Order saved.'));
     }
 
     public function update(Request $request, int $id)
