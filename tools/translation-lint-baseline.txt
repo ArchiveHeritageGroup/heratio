@@ -1418,51 +1418,6 @@ packages/ahg-pdf-tools/src/Controllers/PdfToolsController.php	flash	pdftotext is
 packages/ahg-portable-export/resources/views/index.blade.php	text	-- Select --
 packages/ahg-portable-export/resources/views/index.blade.php	text	Next: Review &amp; Generate
 packages/ahg-portable-export/src/Controllers/PortableExportController.php	flash	This export was written to a folder on the server:
-packages/ahg-preservation/resources/views/_tiff-pdf-merge-jobs.blade.php	text	TIFF/PDF Merge Jobs
-packages/ahg-preservation/resources/views/conversion.blade.php	text	DOC, DOCX, XLS, PPT &rarr; PDF/A (LibreOffice)
-packages/ahg-preservation/resources/views/conversion.blade.php	text	JPEG, PNG, BMP, GIF &rarr; TIFF (uncompressed)
-packages/ahg-preservation/resources/views/conversion.blade.php	text	PDF &rarr; PDF/A (Ghostscript)
-packages/ahg-preservation/resources/views/conversion.blade.php	text	Various &rarr; MKV/FFV1 (lossless)
-packages/ahg-preservation/resources/views/events.blade.php	text	Filtered to digital object #{{…}}
-packages/ahg-preservation/resources/views/index.blade.php	text	{{…}} failures
-packages/ahg-preservation/resources/views/index.blade.php	text	{{…}} objects
-packages/ahg-preservation/resources/views/index.blade.php	text	{{…}} virus scans ({{…}} clean)
-packages/ahg-preservation/resources/views/normalization-rules.blade.php	text	access
-packages/ahg-preservation/resources/views/normalization-rules.blade.php	text	preservation
-packages/ahg-preservation/resources/views/object.blade.php	text	{{…}} bytes
-packages/ahg-preservation/resources/views/package-edit.blade.php	text	{{…}} objects
-packages/ahg-preservation/resources/views/package-view.blade.php	text	Archival Information Package
-packages/ahg-preservation/resources/views/package-view.blade.php	text	Dissemination Information Package
-packages/ahg-preservation/resources/views/package-view.blade.php	text	Package Events ({{…}})
-packages/ahg-preservation/resources/views/package-view.blade.php	text	Package Objects ({{…}})
-packages/ahg-preservation/resources/views/package-view.blade.php	text	Submission Information Package
-packages/ahg-preservation/resources/views/reports.blade.php	text	90 days)
-packages/ahg-preservation/resources/views/reports.blade.php	text	{{…}} found
-packages/ahg-preservation/resources/views/reports.blade.php	text	{{…}} found
-packages/ahg-preservation/resources/views/reports.blade.php	text	{{…}} found
-packages/ahg-preservation/resources/views/schedule-edit.blade.php	text	- 1st of each month
-packages/ahg-preservation/resources/views/schedule-edit.blade.php	text	- Daily at 2:00 AM
-packages/ahg-preservation/resources/views/schedule-edit.blade.php	text	- Every 4 hours
-packages/ahg-preservation/resources/views/schedule-edit.blade.php	text	- Sundays at 3:00 AM
-packages/ahg-preservation/resources/views/schedule-edit.blade.php	text	- Weekdays at 6:00 AM
-packages/ahg-preservation/resources/views/tiffpdfmerge/index.blade.php	text	(record #{{…}})
-packages/ahg-preservation/resources/views/tiffpdfmerge/view.blade.php	text	Job #{{…}}
-packages/ahg-preservation/resources/views/tiffpdfmerge/view.blade.php	text	Merge Job #{{…}}
-packages/ahg-preservation/resources/views/tiffpdfmerge/view.blade.php	text	{{…}} bytes
-packages/ahg-preservation/resources/views/virus-scan.blade.php	text	Install with:
-packages/ahg-preservation/resources/views/virus-scan.blade.php	text	Scanner: {{…}} | Version: {{…}} | Database: {{…}}
-packages/ahg-preservation/src/Controllers/PreservationController.php	flash	BagIt build failed:
-packages/ahg-preservation/src/Controllers/PreservationController.php	flash	Convert to AIP failed:
-packages/ahg-preservation/src/Controllers/PreservationController.php	flash	Create DIP failed:
-packages/ahg-preservation/src/Controllers/PreservationController.php	flash	Export service unavailable.
-packages/ahg-preservation/src/Controllers/PreservationController.php	flash	Package #
-packages/ahg-preservation/src/Controllers/PreservationController.php	flash	Package #
-packages/ahg-preservation/src/Controllers/PreservationController.php	flash	Rule added.
-packages/ahg-preservation/src/Controllers/PreservationController.php	flash	Rule deleted.
-packages/ahg-preservation/src/Controllers/PreservationController.php	flash	Rule toggled.
-packages/ahg-preservation/src/Controllers/PreservationController.php	flash	Rule updated.
-packages/ahg-preservation/src/Controllers/PreservationController.php	flash	Validation failed:
-packages/ahg-preservation/src/Controllers/TiffPdfMergeController.php	flash	Merge failed:
 packages/ahg-privacy/resources/views/description-privacy-panel.blade.php	text	full
 packages/ahg-privacy/resources/views/description-privacy-panel.blade.php	text	partial
 packages/ahg-privacy/resources/views/description-privacy-panel.blade.php	text	pseudonymised

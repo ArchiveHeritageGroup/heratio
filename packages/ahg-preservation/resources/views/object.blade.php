@@ -28,7 +28,7 @@
                 @if($digitalObject->slug ?? null) <a href="{{ route('informationobject.show', $digitalObject->slug) }}">{{ $digitalObject->object_title ?? 'View' }}</a>
                 @else - @endif
               </td></tr>
-              <tr><th>{{ __('File Size') }}</th><td>{{ number_format($digitalObject->byte_size ?? 0) }} bytes</td></tr>
+              <tr><th>{{ __('File Size') }}</th><td>{{ __(':count bytes', ['count' => number_format($digitalObject->byte_size ?? 0)]) }}</td></tr>
               <tr><th>{{ __('MIME Type') }}</th><td>{{ $digitalObject->mime_type ?? 'Unknown' }}</td></tr>
             </table>
           </div>

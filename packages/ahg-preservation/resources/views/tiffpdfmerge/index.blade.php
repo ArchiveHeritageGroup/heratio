@@ -46,7 +46,7 @@
                 <input class="form-check-input" type="checkbox" name="attach_to_record" value="1" id="attachToRecord" checked>
                 <label class="form-check-label" for="attachToRecord">
                   {{ __('Attach the merged file to the archival record as a digital object') }}
-                  <span class="text-muted">(record #{{ $ioId }})</span>
+                  <span class="text-muted">{{ __('(record #:id)', ['id' => $ioId]) }}</span>
                 </label>
               </div>
             </div>

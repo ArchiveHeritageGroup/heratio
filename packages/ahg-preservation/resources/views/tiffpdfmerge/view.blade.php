@@ -10,11 +10,11 @@
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('preservation.index') }}">{{ __('Preservation') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('preservation.tiffpdfmerge.browse') }}">{{ __('Merge Jobs') }}</a></li>
-        <li class="breadcrumb-item active">Job #{{ $job->id ?? '' }}</li>
+        <li class="breadcrumb-item active">{{ __('Job #:id', ['id' => $job->id ?? '']) }}</li>
       </ol>
     </nav>
 
-    <h1><i class="fas fa-file-pdf me-2"></i>Merge Job #{{ $job->id ?? '' }}</h1>
+    <h1><i class="fas fa-file-pdf me-2"></i>{{ __('Merge Job #:id', ['id' => $job->id ?? '']) }}</h1>
 
     @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
     @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
@@ -67,7 +67,7 @@
               <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $file->filename ?? '-' }}</td>
-                <td>{{ number_format($file->size ?? 0) }} bytes</td>
+                <td>{{ __(':count bytes', ['count' => number_format($file->size ?? 0)]) }}</td>
                 <td>{{ $file->mime_type ?? '-' }}</td>
               </tr>
               @empty

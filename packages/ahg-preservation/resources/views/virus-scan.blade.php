@@ -27,14 +27,12 @@
                         <strong>{{ __('ClamAV is installed and available') }}</strong>
                         @if($clamAvVersion)
                         <br><small class="text-muted">
-                            Scanner: {{ $clamAvVersion['scanner'] ?? '' }} |
-                            Version: {{ $clamAvVersion['version'] ?? '' }} |
-                            Database: {{ $clamAvVersion['database'] ?? '' }}
+                            {{ __('Scanner: :scanner | Version: :version | Database: :database', ['scanner' => $clamAvVersion['scanner'] ?? '', 'version' => $clamAvVersion['version'] ?? '', 'database' => $clamAvVersion['database'] ?? '']) }}
                         </small>
                         @endif
                     @else
                         <strong>{{ __('ClamAV is not installed') }}</strong>
-                        <br><small>Install with: <code>sudo apt install clamav clamav-daemon && sudo freshclam</code></small>
+                        <br><small>{{ __('Install with:') }} <code>sudo apt install clamav clamav-daemon && sudo freshclam</code></small>
                     @endif
                 </div>
             </div>
