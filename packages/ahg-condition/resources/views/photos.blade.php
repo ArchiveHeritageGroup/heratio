@@ -94,7 +94,7 @@
 
         <div class="dropzone-area text-center p-4 border border-dashed rounded mb-3" id="dropzone">
           <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-2"></i>
-          <p class="mb-0">Drag &amp; drop a photo here, or click to select</p>
+          <p class="mb-0">{{ __('Drag & drop a photo here, or click to select') }}</p>
         </div>
 
         <button type="submit" class="btn btn-success" id="upload-btn">
