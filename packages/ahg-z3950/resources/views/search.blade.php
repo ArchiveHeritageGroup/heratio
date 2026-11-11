@@ -12,8 +12,8 @@
 
         <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ __('Search a Z39.50 Target') }}</h1>
         <p class="text-sm text-gray-500 mb-8">
-            Build a CQL query using field prefixes (<code>title=</code>, <code>author=</code>, <code>isbn=</code>, <code>subject=</code>).
-            Use <code>AND</code> / <code>OR</code> to combine terms. Append <code>*</code> for right truncation.
+            {{ __('Build a CQL query using field prefixes') }} (<code>title=</code>, <code>author=</code>, <code>isbn=</code>, <code>subject=</code>).
+            {{ __('Use') }} <code>AND</code> / <code>OR</code> {{ __('to combine terms. Append') }} <code>*</code> {{ __('for right truncation.') }}
         </p>
 
         {{-- Target selector --}}
@@ -94,10 +94,10 @@
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-6">
                 <h3 class="font-medium text-gray-700 text-sm mb-2">{{ __('Query examples') }}</h3>
                 <div class="space-y-1 text-xs font-mono text-gray-500">
-                    <div><code>title=preservation</code> - works with "preservation" in the title</div>
-                    <div><code>author=pieterse AND isbn=978*</code> - by author with ISBN starting 978</div>
-                    <div><code>subject=archives AND subject=digitization</code> - both subject terms</div>
-                    <div><code>subject=metadata*</code> - right truncation (metadata, metadatamanagement, etc.)</div>
+                    <div><code>title=preservation</code> {{ __('- works with "preservation" in the title') }}</div>
+                    <div><code>author=pieterse AND isbn=978*</code> {{ __('- by author with ISBN starting 978') }}</div>
+                    <div><code>subject=archives AND subject=digitization</code> {{ __('- both subject terms') }}</div>
+                    <div><code>subject=metadata*</code> {{ __('- right truncation (metadata, metadatamanagement, etc.)') }}</div>
                 </div>
             </div>
 

@@ -2190,28 +2190,6 @@ packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Workflow crea
 packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Workflow deleted.
 packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Workflow settings saved.
 packages/ahg-workflow/src/Controllers/WorkflowController.php	flash	Workflow updated.
-packages/ahg-z3950/resources/views/admin.blade.php	text	+ Add target
-packages/ahg-z3950/resources/views/index.blade.php	text	Z39.50 is a client-server protocol for information retrieval (ANSI/NISO Z39.50, ISO 23950). It uses the bib-1 attribute set to define query operators (title, author, ISBN, subject, etc.). Records are returned in USmarc/MARC21 format. Common targets include national libraries (Library of Congress, BL), union catalogues (WorldCat via OCLC), and SRU/Z39.50 gateways.
-packages/ahg-z3950/resources/views/index.blade.php	text	extension loaded - Z39.50 client is ready.
-packages/ahg-z3950/resources/views/index.blade.php	text	extension not installed. Install with or .
-packages/ahg-z3950/resources/views/index.blade.php	text	yaz
-packages/ahg-z3950/resources/views/index.blade.php	text	yaz
-packages/ahg-z3950/resources/views/result.blade.php	text	{{…}} records retrieved - {{…}} / {{…}}
-packages/ahg-z3950/resources/views/search.blade.php	text	- both subject terms
-packages/ahg-z3950/resources/views/search.blade.php	text	- by author with ISBN starting 978
-packages/ahg-z3950/resources/views/search.blade.php	text	- right truncation (metadata, metadatamanagement, etc.)
-packages/ahg-z3950/resources/views/search.blade.php	text	- works with "preservation" in the title
-packages/ahg-z3950/resources/views/search.blade.php	text	Build a CQL query using field prefixes (, , , ). Use / to combine terms. Append for right truncation.
-packages/ahg-z3950/src/Controllers/Z3950Controller.php	flash	Import failed - the record could not be catalogued. See the log for detail.
-packages/ahg-z3950/src/Controllers/Z3950Controller.php	flash	Record not found in result set.
-packages/ahg-z3950/src/Controllers/Z3950Controller.php	flash	Result set expired or not found.
-packages/ahg-z3950/src/Controllers/Z3950Controller.php	flash	Result set expired or not found. Run a new search.
-packages/ahg-z3950/src/Controllers/Z3950Controller.php	flash	Search failed: {$result['error']}
-packages/ahg-z3950/src/Controllers/Z3950Controller.php	flash	Target '{$target->name}' removed.
-packages/ahg-z3950/src/Controllers/Z3950Controller.php	flash	Target '{$validated['name']}' added.
-packages/ahg-z3950/src/Controllers/Z3950Controller.php	flash	Target not found.
-packages/ahg-z3950/src/Controllers/Z3950Controller.php	flash	Target not found.
-packages/ahg-z3950/src/Controllers/Z3950Controller.php	flash	The yaz extension is not installed on this server.
 resources/views/admin/email-branding.blade.php	placeholder	#0d6efd
 resources/views/admin/email-branding.blade.php	placeholder	#6c757d
 resources/views/admin/email-branding.blade.php	placeholder	https://...
