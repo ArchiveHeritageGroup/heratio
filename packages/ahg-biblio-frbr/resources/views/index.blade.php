@@ -11,8 +11,7 @@
   <p class="text-muted small mb-4">
     {{ __('Convert bibliographic catalogue records to/from the') }}
     <a href="https://www.ifla.org/publications/united-for-recommendations-2/" target="_blank" rel="noopener">{{ __('IFLA FRBR conceptual model') }}</a>
-    - Work, Expression, Item, Manifestation.
-    All round-trips go through the OpenRiC RiC-O service layer.
+    {{ __('- Work, Expression, Item, Manifestation. All round-trips go through the OpenRiC RiC-O service layer.') }}
   </p>
 
   {{-- Stats row --}}
@@ -106,12 +105,11 @@
   <div class="row mt-4">
     <div class="col-lg-8">
       <div class="alert alert-info small mb-0">
-        <strong>{{ __('IFLA FRBR model') }}</strong> - Work (intellectual creation) &rarr; Expression (text, translation, edition)
-        &rarr; Manifestation (carrier, format) &rarr; Item (concrete copy).
-        Conversion reads the live catalogue: a Work is a <code>library_item</code> work-key cluster,
-        each <code>library_item</code> is an Expression/Manifestation, each <code>library_copy</code> an Item,
-        and <code>library_item_creator</code> supplies the Agents.
-        All XML round-trips are proxied through the OpenRiC RiC-O service.
+        <strong>{{ __('IFLA FRBR model') }}</strong> {{ __('- Work (intellectual creation)') }} &rarr; {{ __('Expression (text, translation, edition)') }}
+        &rarr; {{ __('Manifestation (carrier, format)') }} &rarr; {{ __('Item (concrete copy).') }}
+        {{ __('Conversion reads the live catalogue: a Work is a') }} <code>library_item</code> {{ __('work-key cluster, and each') }}
+        <code>library_item</code> {{ __('is an Expression/Manifestation, each') }} <code>library_copy</code> {{ __('an Item, and') }}
+        <code>library_item_creator</code> {{ __('supplies the Agents. All XML round-trips are proxied through the OpenRiC RiC-O service.') }}
       </div>
     </div>
   </div>

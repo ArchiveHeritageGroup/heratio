@@ -391,21 +391,6 @@ packages/ahg-biblio-bf/resources/views/index.blade.php	text	. All round-trips go
 packages/ahg-biblio-bf/resources/views/validate.blade.php	text	&larr; Back
 packages/ahg-biblio-bf/src/Controllers/BibframeController.php	flash	No RDF content provided.
 packages/ahg-biblio-bf/src/Controllers/BibframeController.php	flash	No work selected.
-packages/ahg-biblio-frbr/resources/views/agent.blade.php	text	Agent Authority - {{…}} total
-packages/ahg-biblio-frbr/resources/views/export.blade.php	text	-- Select a work --
-packages/ahg-biblio-frbr/resources/views/export.blade.php	text	Heratio maps Expression/Manifestation to and Item to .
-packages/ahg-biblio-frbr/resources/views/import.blade.php	text	&rarr; a catalogue record (), matched on title so a re-import does not duplicate
-packages/ahg-biblio-frbr/resources/views/import.blade.php	text	&rarr; a physical copy ()
-packages/ahg-biblio-frbr/resources/views/import.blade.php	text	&rarr; publication fields applied to that record
-packages/ahg-biblio-frbr/resources/views/import.blade.php	text	Maximum file size: 10 MB. Accepts files with FRBR namespace.
-packages/ahg-biblio-frbr/resources/views/import.blade.php	text	Upload an FRBR XML document to import works, expressions, and items into the catalogue. Existing works are updated; new works are inserted.
-packages/ahg-biblio-frbr/resources/views/index.blade.php	text	- Work (intellectual creation) &rarr; Expression (text, translation, edition) &rarr; Manifestation (carrier, format) &rarr; Item (concrete copy). Conversion reads the live catalogue: a Work is a work-key cluster, each is an Expression/Manifestation, each an Item, and supplies the Agents. All XML round-trips are proxied through the OpenRiC RiC-O service.
-packages/ahg-biblio-frbr/resources/views/index.blade.php	text	- Work, Expression, Item, Manifestation. All round-trips go through the OpenRiC RiC-O service layer.
-packages/ahg-biblio-frbr/resources/views/validate.blade.php	text	At least one or
-packages/ahg-biblio-frbr/resources/views/validate.blade.php	text	Paste or upload an FRBR document to check for structural correctness. Errors block import; warnings are advisory.
-packages/ahg-biblio-frbr/resources/views/work-cluster.blade.php	text	work-key {{…}}
-packages/ahg-biblio-frbr/src/Controllers/FrbrController.php	flash	No FRBR content provided.
-packages/ahg-biblio-frbr/src/Controllers/FrbrController.php	flash	No work selected.
 packages/ahg-c2pa/src/Controllers/ProvenanceController.php	flash	Provenance record created.
 packages/ahg-cart/resources/views/_dummy-sale-modal.blade.php	text	. No payment is being charged - this is a preview of what a real sale would look like.
 packages/ahg-cart/resources/views/_dummy-sale-modal.blade.php	text	Placing your order&hellip;

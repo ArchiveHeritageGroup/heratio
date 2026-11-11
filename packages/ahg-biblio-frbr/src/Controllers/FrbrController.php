@@ -116,7 +116,7 @@ class FrbrController extends Controller
         $format = $validated['format'] ?? 'xml';
 
         if (! $workId) {
-            return redirect()->back()->with('info', 'No work selected.');
+            return redirect()->back()->with('info', __('No work selected.'));
         }
 
         $xml = $this->service->catalogToXml((int) $workId, $format);
@@ -185,7 +185,7 @@ class FrbrController extends Controller
                 : '');
 
         if (empty(trim($content))) {
-            return redirect()->back()->with('error', 'No FRBR content provided.');
+            return redirect()->back()->with('error', __('No FRBR content provided.'));
         }
 
         $result = $this->service->validateXml($content);
