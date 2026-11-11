@@ -21,7 +21,7 @@
       <input type="text" name="title" class="form-control form-control-sm" placeholder="{{ __('e.g. Shelter 3 - main painted panel') }}" maxlength="200">
     </div>
     <div class="mb-2">
-      <label class="form-label small mb-1">{{ __('Point cloud file') }} <span class="text-muted">(.las, .laz, .ply)</span></label>
+      <label class="form-label small mb-1">{{ __('Point cloud file') }} <span class="text-muted">{{ __('(.las, .laz, .ply)') }}</span></label>
       <input type="file" name="cloud" class="form-control form-control-sm" accept=".las,.laz,.ply" required>
     </div>
     <div><button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-upload me-1"></i>{{ __('Upload & convert') }}</button></div>

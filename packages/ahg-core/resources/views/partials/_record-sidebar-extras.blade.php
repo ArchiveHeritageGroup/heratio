@@ -26,7 +26,7 @@
 @if($__activeLoans->isNotEmpty())
   <div class="card mb-3 border-warning">
     <div class="card-header bg-warning text-dark fw-bold">
-      <i class="fas fa-exchange-alt me-1"></i> Active Loans ({{ $__activeLoans->count() }})
+      <i class="fas fa-exchange-alt me-1"></i> {{ __('Active Loans (:value1)', ['value1' => $__activeLoans->count()]) }}
     </div>
     <div class="list-group list-group-flush">
       @foreach($__activeLoans as $__al)
@@ -91,7 +91,7 @@
     </div>
     <div class="list-group list-group-flush">
       <a href="{{ route('io.rights.extended', $__slug) }}" class="list-group-item list-group-item-action small">
-        <i class="fas fa-copyright me-1"></i> {{ $__hasExtRights ? 'Edit' : 'Add' }} extended rights
+        <i class="fas fa-copyright me-1"></i> {{ __(':value1 extended rights', ['value1' => $__hasExtRights ? 'Edit' : 'Add']) }}
       </a>
       @if($__activeEmbargo)
         <a href="{{ route('io.rights.embargo', $__slug) }}" class="list-group-item list-group-item-action small">

@@ -470,25 +470,6 @@ packages/ahg-cdpa/src/Controllers/CdpaController.php	flash	Processing activity n
 packages/ahg-cdpa/src/Controllers/CdpaController.php	flash	Processing activity updated.
 packages/ahg-cdpa/src/Controllers/CdpaController.php	flash	Request updated.
 packages/ahg-condition/resources/views/photos.blade.php	text	Drag &amp; drop a photo here, or click to select
-packages/ahg-core/resources/views/challenge.blade.php	text	seconds...
-packages/ahg-core/resources/views/clipboard/index.blade.php	text	Clear {{…}} clipboard
-packages/ahg-core/resources/views/clipboard/index.blade.php	text	Entity type: {{…}}
-packages/ahg-core/resources/views/clipboard/index.blade.php	text	Total: {{…}}
-packages/ahg-core/resources/views/clipboard/index.blade.php	text	results
-packages/ahg-core/resources/views/clipboard/load.blade.php	text	(overwrite) the current clipboard with the saved one.
-packages/ahg-core/resources/views/clipboard/load.blade.php	text	Enter the ID of the saved clipboard you would like to load. In the &ldquo;Action&rdquo; selector, indicate whether you want to
-packages/ahg-core/resources/views/clipboard/load.blade.php	text	merge
-packages/ahg-core/resources/views/clipboard/load.blade.php	text	replace
-packages/ahg-core/resources/views/clipboard/load.blade.php	text	the saved clipboard with the entries on the current clipboard or
-packages/ahg-core/resources/views/components/sort-pickers.blade.php	text	Sort by: {{…}}
-packages/ahg-core/resources/views/partials/_record-sidebar-extras.blade.php	text	Active Loans ({{…}})
-packages/ahg-core/resources/views/partials/_record-sidebar-extras.blade.php	text	{{…}} extended rights
-packages/ahg-core/resources/views/pointcloud-manage.blade.php	text	(.las, .laz, .ply)
-packages/ahg-core/src/Commands/TranslationLintCommand.php	flash	Not found.
-packages/ahg-core/src/Controllers/ClipboardController.php	flash	Clipboard ID is required.
-packages/ahg-core/src/Controllers/ClipboardController.php	flash	Clipboard cleared.
-packages/ahg-core/src/Controllers/ClipboardController.php	flash	No items in clipboard to export.
-packages/ahg-core/src/Controllers/SectorProfileController.php	flash	Unknown sector.
 packages/ahg-custom-fields/resources/views/admin/_field-form.blade.php	placeholder	max:255
 packages/ahg-custom-fields/src/Controllers/CustomFieldAdminController.php	flash	Custom field deleted.
 packages/ahg-dacs-manage/resources/views/_fields.blade.php	text	Attach existing creator actor IDs via .
