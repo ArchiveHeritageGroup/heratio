@@ -16,7 +16,7 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb mb-1">
                     <li class="breadcrumb-item"><a href="{{ route('federation.index') }}">{{ __('Federation') }}</a></li>
-                    <li class="breadcrumb-item active">Governance &amp; Discovery</li>
+                    <li class="breadcrumb-item active">{{ __('Governance & Discovery') }}</li>
                 </ol>
             </nav>
             <h4 class="mb-0"><i class="bi bi-shield-check me-2"></i>{{ __('Federation Governance & Discovery') }}</h4>
@@ -202,7 +202,7 @@
                                         <div class="col-auto">
                                             <select name="trust_level" class="form-select form-select-sm" @disabled(! $hasGovernance)>
                                                 @if(empty($trustLevels))
-                                                    <option value="basic">basic</option>
+                                                    <option value="basic">{{ __('basic') }}</option>
                                                 @else
                                                     @foreach($trustLevels as $tl)
                                                         <option value="{{ $tl->code }}" @selected(($peer->trust_level ?? 'basic') === $tl->code)>{{ $tl->label }}</option>

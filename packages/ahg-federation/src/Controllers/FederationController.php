@@ -231,11 +231,11 @@ class FederationController extends Controller
 
         if ($peerId) {
             DB::table('federation_peer')->where('id', $peerId)->update($data);
-            session()->flash('success', 'Peer updated successfully.');
+            session()->flash('success', __('Peer updated successfully.'));
         } else {
             $data['created_at'] = now();
             DB::table('federation_peer')->insert($data);
-            session()->flash('success', 'Peer created successfully.');
+            session()->flash('success', __('Peer created successfully.'));
         }
 
         return redirect()->route('federation.peers');

@@ -38,7 +38,7 @@
                     <div class="col-md-6 mb-3">
                         <label for="peer_id" class="form-label">{{ __('Select Peer') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                         <select class="form-select" id="peer_id" name="peer_id" required>
-                            <option value="">-- Select peer --</option>
+                            <option value="">{{ __('-- Select peer --') }}</option>
                             <option value="all">{{ __('All active peers') }}</option>
                             @foreach($peers as $peer)
                                 @if($peer->is_active ?? false)

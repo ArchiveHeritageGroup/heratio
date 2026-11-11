@@ -788,20 +788,6 @@ packages/ahg-favorites/src/Controllers/FavoritesController.php	flash	Sharing rev
 packages/ahg-federation/resources/views/edit-peer.blade.php	text	oai_dc (Dublin Core)
 packages/ahg-federation/resources/views/edit-peer.blade.php	text	oai_eac (EAC-CPF)
 packages/ahg-federation/resources/views/edit-peer.blade.php	text	oai_ead (EAD)
-packages/ahg-federation/resources/views/governance.blade.php	text	Governance &amp; Discovery
-packages/ahg-federation/resources/views/governance.blade.php	text	basic
-packages/ahg-federation/resources/views/harvest.blade.php	text	-- Select peer --
-packages/ahg-federation/src/Controllers/FederationController.php	flash	Peer created successfully.
-packages/ahg-federation/src/Controllers/FederationController.php	flash	Peer updated successfully.
-packages/ahg-federation/src/Controllers/FederationGovernanceController.php	flash	Could not clear the key pin:
-packages/ahg-federation/src/Controllers/FederationGovernanceController.php	flash	Could not save governance:
-packages/ahg-federation/src/Controllers/FederationGovernanceController.php	flash	Could not save the trust policy:
-packages/ahg-federation/src/Controllers/FederationGovernanceController.php	flash	Discovery failed:
-packages/ahg-federation/src/Controllers/FederationGovernanceController.php	flash	Federation governance columns are not installed yet.
-packages/ahg-federation/src/Controllers/FederationGovernanceController.php	flash	Federation trust columns are not installed yet.
-packages/ahg-federation/src/Controllers/FederationGovernanceController.php	flash	Key pin cleared. The next verified fetch will re-pin the peer key.
-packages/ahg-federation/src/Controllers/FederationGovernanceController.php	flash	No discoverable peers (a peer needs an http(s) base_url).
-packages/ahg-federation/src/Controllers/FederationGovernanceController.php	flash	Peer governance updated.
 packages/ahg-feedback/resources/views/edit.blade.php	text	View information object: {{…}}
 packages/ahg-feedback/resources/views/general.blade.php	text	-- Select --
 packages/ahg-feedback/src/Controllers/FeedbackController.php	flash	Feedback deleted successfully.
