@@ -1118,16 +1118,6 @@ packages/ahg-jobs-manage/resources/views/browse.blade.php	text	off
 packages/ahg-jobs-manage/src/Controllers/JobController.php	flash	Job deleted successfully.
 packages/ahg-jobs-manage/src/Controllers/JobController.php	flash	Only completed or failed jobs can be deleted.
 packages/ahg-jobs-manage/src/Controllers/JobController.php	flash	{$count} inactive job(s) cleared.
-packages/ahg-jobs/resources/views/browse.blade.php	text	Showing {{…}} of {{…}} jobs
-packages/ahg-jobs/resources/views/show.blade.php	text	Cancelled
-packages/ahg-jobs/resources/views/show.blade.php	text	Completed
-packages/ahg-jobs/resources/views/show.blade.php	text	Failed
-packages/ahg-jobs/resources/views/show.blade.php	text	Job #{{…}}
-packages/ahg-jobs/resources/views/show.blade.php	text	Pending
-packages/ahg-jobs/resources/views/show.blade.php	text	Running
-packages/ahg-jobs/resources/views/show.blade.php	text	Unknown
-packages/ahg-jobs/resources/views/show.blade.php	text	{{…}} seconds
-packages/ahg-jobs/src/Http/Controllers/JobsController.php	flash	Cleared {$count} inactive job(s).
 packages/ahg-label/resources/views/index.blade.php	text	Print Labels: {{…}}
 packages/ahg-label/resources/views/templates/index.blade.php	text	barcode:{{…}}
 packages/ahg-label/resources/views/templates/index.blade.php	text	title

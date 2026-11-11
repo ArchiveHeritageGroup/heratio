@@ -33,7 +33,7 @@
                 <a href="{{ route('jobs.browse') }}" class="text-decoration-none">
                     <i class="bi bi-arrow-left"></i>
                 </a>
-                Job #{{ $job->id }}
+                {{ __('Job #:value1', ['value1' => $job->id]) }}
             </h1>
         </div>
         <div class="col-md-6 text-end">
@@ -48,12 +48,12 @@
                 @endswitch
             ">
                 @switch($job->status_id)
-                    @case(183) Pending @break
-                    @case(182) Running @break
-                    @case(184) Completed @break
-                    @case(185) Failed @break
-                    @case(186) Cancelled @break
-                    @default Unknown
+                    @case(183) {{ __('Pending') }} @break
+                    @case(182) {{ __('Running') }} @break
+                    @case(184) {{ __('Completed') }} @break
+                    @case(185) {{ __('Failed') }} @break
+                    @case(186) {{ __('Cancelled') }} @break
+                    @default {{ __('Unknown') }}
                 @endswitch
             </span>
         </div>
@@ -109,7 +109,7 @@
                             <th>{{ __('Duration:') }}</th>
                             <td>
                                 @if(!empty($job->duration))
-                                    {{ $job->duration }} seconds
+                                    {{ trans_choice('{1}:count second|[0,*]:count seconds', $job->duration, ['count' => $job->duration]) }}
                                 @else
                                     -
                                 @endif
