@@ -66,10 +66,10 @@
             <div class="mb-3">
               <label class="form-label">{{ __('Select Collection to Feature') }}</label>
               <select name="homepage_collection_id" class="form-select">
-                <option value="">-- Select a collection --</option>
+                <option value="">{{ __('-- Select a collection --') }}</option>
                 @foreach($collections ?? [] as $col)
                   <option value="{{ $col->id }}" {{ ($settings['homepage_collection_id'] ?? '') == $col->id ? 'selected' : '' }}>
-                    {{ $col->name }} ({{ $col->item_count ?? 0 }} items){{ !empty($col->is_public) ? '' : ' [Private]' }}
+                    {{ __(':name (:count items):privacy', ['name' => $col->name, 'count' => $col->item_count ?? 0, 'privacy' => !empty($col->is_public) ? '' : __(' [Private]')]) }}
                   </option>
                 @endforeach
               </select>

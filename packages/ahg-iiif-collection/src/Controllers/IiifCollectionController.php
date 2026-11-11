@@ -242,7 +242,7 @@ class IiifCollectionController extends Controller
 
         if ($itemId <= 0 || $collectionId <= 0) {
             return redirect()->route('iiif-collection.index')
-                ->with('error', 'Item ID and collection ID are required.');
+                ->with('error', __('Item ID and collection ID are required.'));
         }
 
         $this->service->removeItem($itemId);
@@ -363,7 +363,7 @@ class IiifCollectionController extends Controller
     public function settingsUpdate(Request $request)
     {
         if (!Schema::hasTable('iiif_viewer_settings')) {
-            return redirect()->route('iiif.settings')->with('error', 'Settings table not found.');
+            return redirect()->route('iiif.settings')->with('error', __('Settings table not found.'));
         }
 
         // Checkboxes: unchecked won't be in POST, so explicitly set them to '0'
@@ -391,7 +391,7 @@ class IiifCollectionController extends Controller
             }
         }
 
-        return redirect()->route('iiif.settings')->with('success', 'Carousel settings saved.');
+        return redirect()->route('iiif.settings')->with('success', __('Carousel settings saved.'));
     }
 
     /** IIIF Validation Dashboard. */

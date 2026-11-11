@@ -5,7 +5,7 @@
 @section('sidebar')<div class="sidebar-content"><a href="{{ route('iiif.three-d-reports.index') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back') }}</a></div>@endsection
 @section('title-block')<h1><i class="fas fa-map-pin me-2"></i>{{ __('Hotspots Report') }}</h1>@endsection
 @section('content')
-<div class="alert alert-info"><strong>{{ count($items) }}</strong> hotspots found</div>
+<div class="alert alert-info"><strong>{{ count($items) }}</strong> {{ __(':count hotspots found', ['count' => count($items)]) }}</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
     <thead class="table-dark"><tr><th>{{ __('Title') }}</th><th>{{ __('Type') }}</th><th>{{ __('Model') }}</th><th>{{ __('Object') }}</th><th>{{ __('Position') }}</th><th>{{ __('Visible') }}</th></tr></thead>
@@ -20,7 +20,7 @@
         <td class="text-center">@if($h->is_visible ?? true)<i class="fas fa-check text-success"></i>@else<i class="fas fa-times text-muted"></i>@endif</td>
       </tr>
       @empty
-      <tr><td colspan="6" class="text-muted text-center py-4">{{ __('No hotspots found.') }}</td></tr>
+      <tr><td colspan="6" class="text-muted text-center py-4">{{ __('No {{ __(':count hotspots found', ['count' => count($items)]) }}.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

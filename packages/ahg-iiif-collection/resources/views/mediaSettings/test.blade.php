@@ -10,7 +10,7 @@
     <button type="submit" class="btn atom-btn-white"><i class="fas fa-play me-1"></i>{{ __('Run Test') }}</button>
   </form>
   @if(isset($result))
-  <div class="mt-4 alert alert-{{ ($result['status'] ?? '') === 'success' ? 'success' : 'danger' }}"><h6>Result: {{ ucfirst($result['status'] ?? '') }}</h6><pre>{{ json_encode($result, JSON_PRETTY_PRINT) }}</pre></div>
+  <div class="mt-4 alert alert-{{ ($result['status'] ?? '') === 'success' ? 'success' : 'danger' }}"><h6>{{ __('Result: :status', ['status' => ucfirst($result['status'] ?? '')]) }}</h6><pre>{{ json_encode($result, JSON_PRETTY_PRINT) }}</pre></div>
   @endif
 </div></div>
 @endsection

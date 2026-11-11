@@ -978,40 +978,6 @@ packages/ahg-icip/src/Controllers/IcipController.php	flash	Steward
 packages/ahg-icip/src/Controllers/IcipController.php	flash	Steward removed.
 packages/ahg-icip/src/Controllers/IcipController.php	flash	TK Label added.
 packages/ahg-icip/src/Controllers/IcipController.php	flash	TK Label removed.
-packages/ahg-iiif-collection/resources/views/iiif-collection/add-items.blade.php	text	Current Items ({{…}})
-packages/ahg-iiif-collection/resources/views/iiif-collection/create.blade.php	text	- None (Top Level) -
-packages/ahg-iiif-collection/resources/views/iiif-collection/edit.blade.php	text	- None (Top Level) -
-packages/ahg-iiif-collection/resources/views/iiif-collection/index.blade.php	text	IIIF Collections
-packages/ahg-iiif-collection/resources/views/iiif-collection/index.blade.php	text	No collections found.
-packages/ahg-iiif-collection/resources/views/iiif-collection/index.blade.php	text	{{…}} items
-packages/ahg-iiif-collection/resources/views/iiif-collection/view.blade.php	text	Items ({{…}})
-packages/ahg-iiif-collection/resources/views/iiif-collection/view.blade.php	text	No items in this collection yet.
-packages/ahg-iiif-collection/resources/views/iiif-collection/view.blade.php	text	{{…}} item(s) will not display in carousels/galleries.
-packages/ahg-iiif-collection/resources/views/iiif-collection/view.blade.php	text	{{…}} items
-packages/ahg-iiif-collection/resources/views/iiif-collection/view.blade.php	text	{{…}} with issues
-packages/ahg-iiif-collection/resources/views/iiif/settings.blade.php	text	-- Select a collection --
-packages/ahg-iiif-collection/resources/views/iiif/settings.blade.php	text	{{…}} ({{…}} items){{…}}
-packages/ahg-iiif-collection/resources/views/iiif/viewer.blade.php	text	IIIF Viewer - {{…}}
-packages/ahg-iiif-collection/resources/views/iiifCollection/new.blade.php	text	-- None (top level) --
-packages/ahg-iiif-collection/resources/views/mediaSettings/test.blade.php	text	Result: {{…}}
-packages/ahg-iiif-collection/resources/views/threeDReports/digital-objects.blade.php	text	3D Files Report
-packages/ahg-iiif-collection/resources/views/threeDReports/digital-objects.blade.php	text	3D files found
-packages/ahg-iiif-collection/resources/views/threeDReports/hotspots.blade.php	text	hotspots found
-packages/ahg-iiif-collection/resources/views/threeDReports/index.blade.php	text	3D Files
-packages/ahg-iiif-collection/resources/views/threeDReports/index.blade.php	text	3D Files
-packages/ahg-iiif-collection/resources/views/threeDReports/index.blade.php	text	3D Models
-packages/ahg-iiif-collection/resources/views/threeDReports/index.blade.php	text	3D Models
-packages/ahg-iiif-collection/resources/views/threeDReports/index.blade.php	text	3D Object Reports Dashboard
-packages/ahg-iiif-collection/resources/views/threeDReports/models.blade.php	text	3D Files
-packages/ahg-iiif-collection/resources/views/threeDReports/models.blade.php	text	3D Models
-packages/ahg-iiif-collection/resources/views/threeDReports/models.blade.php	text	3D Models Report
-packages/ahg-iiif-collection/resources/views/threeDReports/models.blade.php	text	models found
-packages/ahg-iiif-collection/resources/views/threeDReports/settings.blade.php	text	3D Settings
-packages/ahg-iiif-collection/resources/views/threeDReports/thumbnails.blade.php	text	3D Thumbnails Report
-packages/ahg-iiif-collection/resources/views/threeDReports/thumbnails.blade.php	text	models with thumbnails
-packages/ahg-iiif-collection/src/Controllers/IiifCollectionController.php	flash	Carousel settings saved.
-packages/ahg-iiif-collection/src/Controllers/IiifCollectionController.php	flash	Item ID and collection ID are required.
-packages/ahg-iiif-collection/src/Controllers/IiifCollectionController.php	flash	Settings table not found.
 packages/ahg-image-ar/resources/views/settings.blade.php	text	&middot; {{…}} GB free / {{…}} GB total
 packages/ahg-image-ar/resources/views/settings.blade.php	text	0 = random per call
 packages/ahg-image-ar/resources/views/settings.blade.php	text	AI image-to-video. Default: Stable Video Diffusion (works on the 8&nbsp;GB card with CPU offload). Swap to CogVideoX/WAN once the 24&nbsp;GB card is in.

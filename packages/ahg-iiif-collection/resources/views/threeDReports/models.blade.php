@@ -1,23 +1,23 @@
-{{-- 3D Models Report - cloned from AtoM. @copyright Johan Pieterse / Plain Sailing @license AGPL-3.0-or-later --}}
+{{-- {{ __('3D Models Report') }} - cloned from AtoM. @copyright Johan Pieterse / Plain Sailing @license AGPL-3.0-or-later --}}
 @extends('theme::layouts.2col')
-@section('title', '3D Models Report')
+@section('title', '{{ __('3D Models Report') }}')
 @section('body-class', 'admin three-d-reports models')
 @section('sidebar')
 <div class="sidebar-content">
   <h4>{{ __('3D Reports') }}</h4>
   <ul class="list-unstyled">
-    <li><a href="{{ route('iiif.three-d-reports.models') }}"><i class="fas fa-cube me-2"></i>3D Models</a></li>
+    <li><a href="{{ route('iiif.three-d-reports.models') }}"><i class="fas fa-cube me-2"></i>{{ __('3D Models') }}</a></li>
     <li><a href="{{ route('iiif.three-d-reports.hotspots') }}"><i class="fas fa-map-pin me-2"></i>{{ __('Hotspots') }}</a></li>
     <li><a href="{{ route('iiif.three-d-reports.thumbnails') }}"><i class="fas fa-image me-2"></i>{{ __('Thumbnails') }}</a></li>
-    <li><a href="{{ route('iiif.three-d-reports.digital-objects') }}"><i class="fas fa-file me-2"></i>3D Files</a></li>
+    <li><a href="{{ route('iiif.three-d-reports.digital-objects') }}"><i class="fas fa-file me-2"></i>{{ __('3D Files') }}</a></li>
   </ul>
   <hr>
   <a href="{{ route('iiif.three-d-reports.index') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back to Dashboard') }}</a>
 </div>
 @endsection
-@section('title-block')<h1><i class="fas fa-cube me-2"></i>3D Models Report</h1>@endsection
+@section('title-block')<h1><i class="fas fa-cube me-2"></i>{{ __('3D Models Report') }}</h1>@endsection
 @section('content')
-<div class="alert alert-info"><strong>{{ count($items) }}</strong> models found</div>
+<div class="alert alert-info"><strong>{{ count($items) }}</strong> {{ __(':count models found', ['count' => count($items)]) }}</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
     <thead class="table-dark"><tr><th>{{ __('Model') }}</th><th>{{ __('Object') }}</th><th>{{ __('Format') }}</th><th>{{ __('Size') }}</th><th>{{ __('Thumb') }}</th><th>{{ __('AR') }}</th><th>{{ __('Public') }}</th></tr></thead>
@@ -33,7 +33,7 @@
         <td class="text-center">@if($m->is_public ?? true)<i class="fas fa-check text-success"></i>@else<i class="fas fa-times text-muted"></i>@endif</td>
       </tr>
       @empty
-      <tr><td colspan="7" class="text-muted text-center py-4">{{ __('No 3D models found.') }}</td></tr>
+      <tr><td colspan="7" class="text-muted text-center py-4">{{ __('No 3D {{ __(':count models found', ['count' => count($items)]) }}.') }}</td></tr>
       @endforelse
     </tbody>
   </table>

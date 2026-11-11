@@ -24,7 +24,7 @@
     @if($parentCollection)
         {{ e($parentCollection->display_name) }}
     @else
-        IIIF Collections
+        {{ __('IIIF Collections') }}
     @endif
 </h1>
 @endsection
@@ -43,7 +43,7 @@
     @if(empty($collections))
     <div class="alert alert-info">
         <i class="fas fa-info-circle me-2"></i>
-        No collections found.
+        {{ __('No collections found.') }}
         @auth
         <a href="{{ route('iiif-collection.create') }}">{{ __('Create your first collection') }}</a>
         @endauth
@@ -72,7 +72,7 @@
                 </div>
                 <div class="card-footer bg-transparent d-flex justify-content-between align-items-center">
                     <span class="badge bg-secondary">
-                        <i class="fas fa-images me-1"></i>{{ $collection->item_count }} items
+                        <i class="fas fa-images me-1"></i>{{ __(':count items', ['count' => $collection->item_count]) }}
                     </span>
                     <div class="btn-group btn-group-sm">
                         <a href="{{ route('iiif-collection.manifest', $collection->slug) }}" class="btn atom-btn-white" title="{{ __('IIIF Manifest') }}" target="_blank">
