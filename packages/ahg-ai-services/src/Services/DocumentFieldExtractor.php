@@ -237,6 +237,12 @@ TXT;
     {
         if (preg_match('/\{.*\}/s', $text, $m)) {
             $d = json_decode($m[0], true);
+            if (! is_array($d)) {
+                // Models often leave a trailing comma before } or ] ("line_items": [],}),
+                // which strict JSON rejects: drop it and try again. ponytail: a value
+                // containing ", }" would lose its comma too - only on this fallback path.
+                $d = json_decode((string) preg_replace('/,(\s*[}\]])/', '$1', $m[0]), true);
+            }
 
             return is_array($d) ? $d : null;
         }
