@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', ($model->model_title ?: ($model->original_filename ?? '3D Model')) . ' - 3D Model')
+@section('title', ($model->model_title ?: ($model->original_filename ?? __('3D Model'))) . ' - ' . __('3D Model'))
 @section('body-class', 'show model3d')
 
 @push('styles')
@@ -48,7 +48,7 @@
       @if($object ?? null)
         <li class="breadcrumb-item"><a href="{{ url($object->slug ?? '') }}">{{ e($object->title ?? '') }}</a></li>
       @endif
-      <li class="breadcrumb-item active">3D Model</li>
+      <li class="breadcrumb-item active">{{ __('3D Model') }}</li>
     </ol>
   </nav>
 
@@ -98,7 +98,7 @@
           id="main-viewer"
           src="/uploads/{{ $model->file_path }}"
           @if(!empty($model->poster_image)) poster="/uploads/{{ $model->poster_image }}" @endif
-          alt="{{ e($model->alt_text ?: ($model->model_title ?? '3D Model')) }}"
+          alt="{{ e($model->alt_text ?: ($model->model_title ?? __('3D Model'))) }}"
           camera-controls
           touch-action="pan-y"
           @if(!empty($model->ar_enabled)) ar ar-modes="{{ $__arModes }}" @if($__usdz) ios-src="{{ $__usdz }}" @endif @endif
@@ -219,7 +219,7 @@
     <div class="col-md-6">
       <div class="card">
         <div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff;">
-          <i class="fas fa-map-marker-alt me-2"></i>Hotspots ({{ count($hotspots) }})
+          <i class="fas fa-map-marker-alt me-2"></i>{{ __('Hotspots (:count)', ['count' => count($hotspots)]) }}
         </div>
         <div class="card-body">
           @if(count($hotspots) === 0)

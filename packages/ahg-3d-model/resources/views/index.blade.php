@@ -1,13 +1,13 @@
 @extends('theme::layouts.1col')
 
-@section('title', '3D Models')
+@section('title', __('3D Models'))
 @section('body-class', 'browse model3d')
 
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h1><i class="fas fa-cubes me-2"></i>3D Models</h1>
-      <p class="text-muted mb-0">{{ number_format($total ?? 0) }} models in the archive</p>
+      <h1><i class="fas fa-cubes me-2"></i>{{ __('3D Models') }}</h1>
+      <p class="text-muted mb-0">{{ __(':count models in the archive', ['count' => number_format($total ?? 0)]) }}</p>
     </div>
     <div>
       <a href="{{ route('admin.3d-models.settings') }}" class="btn atom-btn-white">
@@ -105,7 +105,7 @@
         <ul class="pagination justify-content-center">
           @if($page > 1)
             <li class="page-item">
-              <a class="page-link" href="{{ route('admin.3d-models.index', ['page' => $page - 1]) }}">&laquo; Previous</a>
+              <a class="page-link" href="{{ route('admin.3d-models.index', ['page' => $page - 1]) }}">&laquo; {{ __('Previous') }}</a>
             </li>
           @endif
           @for($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++)
@@ -115,7 +115,7 @@
           @endfor
           @if($page < $totalPages)
             <li class="page-item">
-              <a class="page-link" href="{{ route('admin.3d-models.index', ['page' => $page + 1]) }}">Next &raquo;</a>
+              <a class="page-link" href="{{ route('admin.3d-models.index', ['page' => $page + 1]) }}">{{ __('Next') }} &raquo;</a>
             </li>
           @endif
         </ul>

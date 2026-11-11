@@ -49,15 +49,15 @@
           <div class="col-md-8">
             {{-- File Upload --}}
             <div class="mb-4">
-              <label class="form-label"><strong>3D Model File</strong> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+              <label class="form-label"><strong>{{ __('3D Model File') }}</strong> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <div class="upload-zone" id="upload-zone">
                 <input type="file" name="model_file" id="model_file" accept=".glb,.gltf,.obj,.stl,.ply,.usdz" required>
                 <div class="upload-content">
                   <i class="fas fa-cube fa-3x text-muted mb-3"></i>
                   <p class="mb-1">{{ __('Drag and drop your 3D model here') }}</p>
-                  <p class="text-muted small mb-2">or click to browse</p>
+                  <p class="text-muted small mb-2">{{ __('or click to browse') }}</p>
                   <p class="text-muted small">
-                    Supported formats: {{ strtoupper(implode(', ', $allowedFormats ?? ['GLB','GLTF','USDZ','OBJ','STL','PLY'])) }}
+                    {{ __('Supported formats: :formats', ['formats' => strtoupper(implode(', ', $allowedFormats ?? ['GLB','GLTF','USDZ','OBJ','STL','PLY']))]) }}
                   </p>
                 </div>
                 <div class="upload-preview" id="upload-preview" style="display:none;">
@@ -117,17 +117,17 @@
 
                 <h6 class="mb-2">{{ __('Supported Formats') }}</h6>
                 <ul class="list-unstyled small">
-                  <li><strong>.glb</strong> - glTF Binary (recommended)</li>
-                  <li><strong>.gltf</strong> - glTF JSON</li>
-                  <li><strong>.usdz</strong> - Apple AR format</li>
-                  <li><strong>.obj</strong> - Wavefront OBJ</li>
-                  <li><strong>.stl</strong> - Stereolithography</li>
-                  <li><strong>.ply</strong> - Polygon File Format</li>
+                  <li><strong>.glb</strong> - {{ __('glTF Binary (recommended)') }}</li>
+                  <li><strong>.gltf</strong> - {{ __('glTF JSON') }}</li>
+                  <li><strong>.usdz</strong> - {{ __('Apple AR format') }}</li>
+                  <li><strong>.obj</strong> - {{ __('Wavefront OBJ') }}</li>
+                  <li><strong>.stl</strong> - {{ __('Stereolithography') }}</li>
+                  <li><strong>.ply</strong> - {{ __('Polygon File Format') }}</li>
                 </ul>
 
                 <div class="alert alert-info small mb-0">
                   <i class="fas fa-info-circle me-1"></i>
-                  {{ __('For best results, use') }} <strong>GLB</strong> format with embedded textures.
+                  {{ __('For best results, use') }} <strong>GLB</strong> {{ __('format with embedded textures.') }}
                 </div>
               </div>
             </div>

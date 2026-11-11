@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Model Viewer</title>
+  <title>{{ __('3D Model Viewer') }}</title>
   <script type="module" src="{{ asset('vendor/model-viewer/3.3.0/model-viewer.min.js') }}"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -54,7 +54,7 @@
     id="embed-viewer"
     src="/uploads/{{ $model->file_path }}"
     @if(!empty($model->poster_image)) poster="/uploads/{{ $model->poster_image }}" @endif
-    alt="{{ e($model->alt_text ?: ($model->model_title ?: '3D Model')) }}"
+    alt="{{ e($model->alt_text ?: ($model->model_title ?: __('3D Model'))) }}"
     camera-controls
     touch-action="pan-y"
     @if(!empty($model->ar_enabled)) ar ar-modes="{{ $__arModes }}" @if($__usdz) ios-src="{{ $__usdz }}" @endif @endif

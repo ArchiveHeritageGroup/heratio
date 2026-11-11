@@ -43,7 +43,7 @@
         <i class="fas {{ $isOnline ? 'fa-check-circle' : 'fa-times-circle' }} me-2"></i>
         <strong>{{ __('TripoSR Service:') }}</strong>
         @if($isOnline)
-          Online - {{ $health['device'] ?? 'unknown' }} ({{ $health['mode'] ?? 'local' }} mode)
+          {{ __('Online - :device (:mode mode)', ['device' => $health['device'] ?? 'unknown', 'mode' => $health['mode'] ?? 'local']) }}
           @if($health['cuda_available'] ?? false)
             <span class="badge bg-success ms-2">{{ __('CUDA Available') }}</span>
           @endif
@@ -51,7 +51,7 @@
             <span class="badge bg-info ms-2">{{ __('Model Loaded') }}</span>
           @endif
         @else
-          Offline - {{ $health['message'] ?? 'Service not responding' }}
+          {{ __('Offline - :message', ['message' => $health['message'] ?? __('Service not responding')]) }}
         @endif
       </div>
       @if($isOnline && ($health['remote_configured'] ?? false))
@@ -122,7 +122,7 @@
                   <label class="form-label">{{ __('Local API URL') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <input type="text" class="form-control" name="triposr_api_url"
                          value="{{ e(getTripoSetting3d($settings, 'triposr_api_url', 'http://127.0.0.1:5050')) }}">
-                  <div class="form-text">Default: http://127.0.0.1:5050</div>
+                  <div class="form-text">{{ __('Default: :url', ['url' => 'http://127.0.0.1:5050']) }}</div>
                 </div>
               </div>
             </div>
@@ -175,7 +175,7 @@
                   <input type="url" class="form-control" name="triposr_remote_url"
                          value="{{ e(getTripoSetting3d($settings, 'triposr_remote_url')) }}"
                          placeholder="{{ __('https://gpu-server.example.com:5050') }}">
-                  <div class="form-text">Full URL including port (e.g., https://gpu.example.com:5050)</div>
+                  <div class="form-text">{{ __('Full URL including port (e.g., :example)', ['example' => 'https://gpu.example.com:5050']) }}</div>
                 </div>
               </div>
               <div class="col-md-4">
@@ -221,13 +221,13 @@
                   <label class="form-label">{{ __('Mesh Resolution') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select class="form-select" name="triposr_mc_resolution">
                     <option value="128" {{ getTripoSetting3d($settings, 'triposr_mc_resolution', '256') == '128' ? 'selected' : '' }}>
-                      128 - Fast (lower quality)
+                      {{ __('128 - Fast (lower quality)') }}
                     </option>
                     <option value="256" {{ getTripoSetting3d($settings, 'triposr_mc_resolution', '256') == '256' ? 'selected' : '' }}>
-                      256 - Balanced (recommended)
+                      {{ __('256 - Balanced (recommended)') }}
                     </option>
                     <option value="512" {{ getTripoSetting3d($settings, 'triposr_mc_resolution', '256') == '512' ? 'selected' : '' }}>
-                      512 - High Quality (slower)
+                      {{ __('512 - High Quality (slower)') }}
                     </option>
                   </select>
                 </div>

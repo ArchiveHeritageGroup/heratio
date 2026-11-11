@@ -4,78 +4,12 @@ app/Http/Controllers/Auth/LoginController.php	flash	Password changed successfull
 app/Http/Controllers/Auth/LoginController.php	flash	Profile updated successfully.
 app/Http/Controllers/Auth/LoginController.php	flash	Your password has been reset successfully. Please log in with your new password.
 app/Http/Controllers/EmailBrandingController.php	flash	Email branding table is not installed; run migrations.
-packages/ahg-3d-model/resources/views/_model3d-viewer.blade.php	text	3D Model{{…}}
-packages/ahg-3d-model/resources/views/_splat-viewer.blade.php	text	Drag to rotate |
-packages/ahg-3d-model/resources/views/_splat-viewer.blade.php	text	{{…}} (Gaussian Splat)
-packages/ahg-3d-model/resources/views/browse.blade.php	text	&laquo; Previous
-packages/ahg-3d-model/resources/views/browse.blade.php	text	3D Models
-packages/ahg-3d-model/resources/views/browse.blade.php	text	Generate all missing thumbnails ({{…}})
-packages/ahg-3d-model/resources/views/browse.blade.php	text	Next &raquo;
-packages/ahg-3d-model/resources/views/browse.blade.php	text	{{…}} models in the archive
-packages/ahg-3d-model/resources/views/edit.blade.php	text	3D Models
-packages/ahg-3d-model/resources/views/embed.blade.php	text	3D Model Viewer
-packages/ahg-3d-model/resources/views/index.blade.php	text	&laquo; Previous
-packages/ahg-3d-model/resources/views/index.blade.php	text	3D Models
-packages/ahg-3d-model/resources/views/index.blade.php	text	Next &raquo;
-packages/ahg-3d-model/resources/views/index.blade.php	text	{{…}} models in the archive
-packages/ahg-3d-model/resources/views/settings.blade.php	text	128 (Fast)
-packages/ahg-3d-model/resources/views/settings.blade.php	text	256 (Balanced)
-packages/ahg-3d-model/resources/views/settings.blade.php	text	3D Viewer Settings
-packages/ahg-3d-model/resources/views/settings.blade.php	text	512 (High Quality)
-packages/ahg-3d-model/resources/views/settings.blade.php	text	Available
-packages/ahg-3d-model/resources/views/settings.blade.php	text	Online |
-packages/ahg-3d-model/resources/views/settings.blade.php	text	iOS 12+ (Safari with Quick Look)
-packages/ahg-3d-model/resources/views/triposr.blade.php	text	128 - Fast (lower quality)
-packages/ahg-3d-model/resources/views/triposr.blade.php	text	256 - Balanced (recommended)
-packages/ahg-3d-model/resources/views/triposr.blade.php	text	512 - High Quality (slower)
-packages/ahg-3d-model/resources/views/triposr.blade.php	text	Default: http://127.0.0.1:5050
-packages/ahg-3d-model/resources/views/triposr.blade.php	text	Full URL including port (e.g., https://gpu.example.com:5050)
-packages/ahg-3d-model/resources/views/triposr.blade.php	text	Offline - {{…}}
-packages/ahg-3d-model/resources/views/triposr.blade.php	text	Online - {{…}} ({{…}} mode)
-packages/ahg-3d-model/resources/views/upload.blade.php	text	- Apple AR format
-packages/ahg-3d-model/resources/views/upload.blade.php	text	- Polygon File Format
-packages/ahg-3d-model/resources/views/upload.blade.php	text	- Stereolithography
-packages/ahg-3d-model/resources/views/upload.blade.php	text	- Wavefront OBJ
-packages/ahg-3d-model/resources/views/upload.blade.php	text	- glTF Binary (recommended)
 packages/ahg-3d-model/resources/views/upload.blade.php	text	.glb
 packages/ahg-3d-model/resources/views/upload.blade.php	text	.gltf
 packages/ahg-3d-model/resources/views/upload.blade.php	text	.obj
 packages/ahg-3d-model/resources/views/upload.blade.php	text	.ply
 packages/ahg-3d-model/resources/views/upload.blade.php	text	.stl
 packages/ahg-3d-model/resources/views/upload.blade.php	text	.usdz
-packages/ahg-3d-model/resources/views/upload.blade.php	text	3D Model File
-packages/ahg-3d-model/resources/views/upload.blade.php	text	Supported formats: {{…}}
-packages/ahg-3d-model/resources/views/upload.blade.php	text	format with embedded textures.
-packages/ahg-3d-model/resources/views/upload.blade.php	text	or click to browse
-packages/ahg-3d-model/resources/views/view.blade.php	text	3D Model
-packages/ahg-3d-model/resources/views/view.blade.php	text	Hotspots ({{…}})
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	3D generation completed but the staged file is missing.
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	3D generation failed:
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	3D generation failed:
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	3D generation is currently disabled by the administrator.
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	3D model attached to this object.
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	3D model deleted.
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	3D model uploaded successfully.
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	3D preview discarded.
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	Could not locate the source image on disk.
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	Could not save the 3D model:
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	Digital object not found.
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	Digital object not found.
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	File too large. Maximum: {$maxFileSize} MB
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	Invalid file format. Allowed:
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	Model settings updated.
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	Multi-angle generation failed for: {$digitalObject->name}. Check storage/logs/3d-thumbnail.log for details.
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	Multi-angle renders generated (
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	No 3D objects are missing thumbnails.
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	No image found for this object. Upload an image first.
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	No matching 3D preview to save.
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	Not a recognised 3D model file.
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	Not a recognised 3D model file.
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	Settings saved successfully.
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	This object already has a 3D model.
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	Thumbnail generated for: {$digitalObject->name}
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	Thumbnail generation failed for: {$digitalObject->name}. Check storage/logs/3d-thumbnail.log for details.
-packages/ahg-3d-model/src/Controllers/Model3dController.php	flash	TripoSR settings saved successfully.
 packages/ahg-access-request/resources/views/approvers.blade.php	text	-- Select user --
 packages/ahg-access-request/resources/views/emails/approved.blade.php	text	approved
 packages/ahg-access-request/resources/views/emails/approved.blade.php	text	has been
