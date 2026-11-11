@@ -66,6 +66,37 @@ class SharePointWriteBackService
      * @param array<string,string> $fields extracted field => value
      * @return array<string,string> column written => value
      */
+    /**
+     * Read a captured document and write its fields, plus the purchase-order
+     * match, back to its SharePoint columns - what "Read the document" does,
+     * run without a click so a file dropped in the library fills its columns
+     * by itself. Returns the reader's result and the columns written.
+     * ponytail: mirrors the POST /admin/ai/document-fields/{slug} handler (a
+     * locked path); fold that handler onto this method after the 12 Nov stand.
+     */
+    public function readAndWriteBack(int $ioId): array
+    {
+        if (! class_exists(\AhgAiServices\Services\DocumentFieldExtractor::class) || ! $this->locate($ioId)) {
+            return ['result' => null, 'written' => []];
+        }
+        $x = app(\AhgAiServices\Services\DocumentFieldExtractor::class);
+        $r = $x->extract($ioId, null);
+        if (isset($r['error'])) {
+            return ['result' => $r, 'written' => []];
+        }
+        $m = $x->match($ioId);
+        $matchText = match ($m['status'] ?? null) {
+            'matched' => 'Matches '.$m['po_number'].' ('.$m['invoice_total'].')',
+            'totals_differ' => 'Differs from '.$m['po_number'].': invoice '.$m['invoice_total'].', order '.$m['po_total'],
+            'po_not_found' => $m['po_number'].' not found',
+            'delivered' => 'Delivered against '.$m['po_number'],
+            'delivered_po_not_found' => 'Delivered against '.$m['po_number'].' (order not found)',
+            default => null,
+        };
+
+        return ['result' => $r, 'written' => $this->writeFields($ioId, $r['fields'] ?? [], $matchText)];
+    }
+
     public function writeFields(int $ioId, array $fields, ?string $matchText = null): array
     {
         $at = $this->locate($ioId);

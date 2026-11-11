@@ -122,6 +122,13 @@ class SharePointIngestAdapter
             $this->events->markStatus($eventId, self::STATUS_COMPLETED);
             $this->auditIngest($eventId, $informationObjectId, $event, $drive);
 
+            // Read it straight away so its SharePoint columns fill without a click
+            // (heratio.org live demo, 12 Nov). Its own job: a slow read never
+            // delays the next capture. Off with sharepoint_auto_read = 0.
+            if ($informationObjectId && \AhgCore\Services\AhgSettingsService::getBool('sharepoint_auto_read', true)) {
+                \AhgSharePoint\Jobs\ReadCapturedDocumentJob::dispatch((int) $informationObjectId);
+            }
+
             return self::STATUS_COMPLETED;
         } catch (\Throwable $e) {
             $this->events->markStatus($eventId, self::STATUS_FAILED, $e->getMessage());
