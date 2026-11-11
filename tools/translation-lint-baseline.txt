@@ -934,6 +934,7 @@ packages/ahg-heritage-manage/src/Controllers/HeritageController.php	flash	Failed
 packages/ahg-heritage-manage/src/Controllers/HeritageController.php	flash	Registration failed:
 packages/ahg-heritage-manage/src/Controllers/HeritageController.php	flash	You have been logged out
 packages/ahg-heritage-manage/src/Controllers/HeritageController.php	flash	heritage_landing_config table not installed; run migrations first.
+packages/ahg-icip/resources/views/partials/ocap-badges.blade.php	title-attr	' . e(__('OCAP: :label', ['label' => $label])) . '
 packages/ahg-iiif-collection/resources/views/iiif-collection/add-items.blade.php	text	Current Items ({{…}})
 packages/ahg-iiif-collection/resources/views/iiif-collection/create.blade.php	text	- None (Top Level) -
 packages/ahg-iiif-collection/resources/views/iiif-collection/edit.blade.php	text	- None (Top Level) -
