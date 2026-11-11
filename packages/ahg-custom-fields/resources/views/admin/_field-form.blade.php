@@ -82,7 +82,7 @@
 
             <div class="mb-3">
                 <label for="cf-validation-rule" class="form-label">{{ __('Validation rule') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-                <input type="text" class="form-control @error('validation_rule') is-invalid @enderror" id="cf-validation-rule" name="validation_rule" value="{{ $val('validation_rule') }}" maxlength="255" placeholder="max:255">
+                <input type="text" class="form-control @error('validation_rule') is-invalid @enderror" id="cf-validation-rule" name="validation_rule" value="{{ $val('validation_rule') }}" maxlength="255" placeholder="{{ __('max:255') }}">
                 <div class="form-text">{{ __('max:N for a length limit, or regex:/pattern/ for a format.') }}</div>
             </div>
         </div>
