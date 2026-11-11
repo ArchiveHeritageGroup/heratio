@@ -33,7 +33,7 @@
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgcdpa.license-edit') }}" class="btn btn-primary">
-                <i class="fas fa-edit me-1"></i> {{ $license ? 'Edit' : 'Register' }} License
+                <i class="fas fa-edit me-1"></i> {{ __(':value1 License', ['value1' => $license ? 'Edit' : 'Register']) }}
             </a>
         </div>
     </div>
@@ -88,11 +88,11 @@
                         @if ($license->expiry_date)
                             <p class="mt-3 mb-0">
                                 @if ($daysRemaining > 0)
-                                    <strong>{{ $daysRemaining }}</strong> days remaining
+                                    <strong>{{ $daysRemaining }}</strong> {{ __('days remaining') }}
                                 @elseif ($daysRemaining === 0)
                                     <span class="text-danger">{{ __('Expires today') }}</span>
                                 @else
-                                    <span class="text-danger">Expired {{ abs($daysRemaining) }} days ago</span>
+                                    <span class="text-danger">{{ __('Expired :value1 days ago', ['value1' => abs($daysRemaining)]) }}</span>
                                 @endif
                             </p>
                         @endif
@@ -102,9 +102,9 @@
                 <div class="card">
                     <div class="card-header"><h5 class="mb-0">{{ __('License Tiers') }}</h5></div>
                     <div class="card-body small">
-                        <p class="mb-2"><strong>{{ __('Tier 1:') }}</strong> Small Scale (&lt;1,000 subjects)</p>
+                        <p class="mb-2"><strong>{{ __('Tier 1:') }}</strong> {{ __('Small Scale (<1,000 subjects)') }}</p>
                         <p class="mb-2"><strong>{{ __('Tier 2:') }}</strong> {{ __('Medium Scale (1,000-10,000)') }}</p>
-                        <p class="mb-0"><strong>{{ __('Tier 3:') }}</strong> Large Scale (&gt;10,000 subjects)</p>
+                        <p class="mb-0"><strong>{{ __('Tier 3:') }}</strong> {{ __('Large Scale (>10,000 subjects)') }}</p>
                     </div>
                 </div>
             </div>

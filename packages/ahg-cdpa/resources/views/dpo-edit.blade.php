@@ -25,7 +25,7 @@
                     <li class="breadcrumb-item active">{{ ($dpo ?? null) ? 'Edit' : 'Appoint' }}</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-user-shield me-2"></i>{{ ($dpo ?? null) ? 'Edit' : 'Appoint' }} Data Protection Officer</h1>
+            <h1><i class="fas fa-user-shield me-2"></i>{{ __(':value1 Data Protection Officer', ['value1' => ($dpo ?? null) ? 'Edit' : 'Appoint']) }}</h1>
         </div>
     </div>
 

@@ -438,37 +438,6 @@ packages/ahg-cart/src/Controllers/CartController.php	flash	Your cart is empty.
 packages/ahg-cart/src/Controllers/CartController.php	flash	Your marketplace cart is empty.
 packages/ahg-cart/src/Controllers/CartController.php	flash	Your marketplace cart is empty.
 packages/ahg-cart/src/Controllers/CartController.php	flash	Your request has been submitted.
-packages/ahg-cdpa/resources/views/breach-create.blade.php	text	72-Hour Notification Requirement
-packages/ahg-cdpa/resources/views/dpo-edit.blade.php	text	{{…}} Data Protection Officer
-packages/ahg-cdpa/resources/views/index.blade.php	text	Breach Register
-packages/ahg-cdpa/resources/views/index.blade.php	text	Compliance Status: {{…}}
-packages/ahg-cdpa/resources/views/index.blade.php	text	Controller License
-packages/ahg-cdpa/resources/views/index.blade.php	text	Data Protection Officer
-packages/ahg-cdpa/resources/views/index.blade.php	text	Data Subject Requests
-packages/ahg-cdpa/resources/views/index.blade.php	text	{{…}} active consents
-packages/ahg-cdpa/resources/views/index.blade.php	text	{{…}} issue(s) require attention
-packages/ahg-cdpa/resources/views/index.blade.php	text	{{…}} overdue
-packages/ahg-cdpa/resources/views/index.blade.php	text	{{…}} this year
-packages/ahg-cdpa/resources/views/index.blade.php	text	{{…}} warning(s) to review
-packages/ahg-cdpa/resources/views/license-edit.blade.php	text	{{…}} Controller License
-packages/ahg-cdpa/resources/views/license.blade.php	text	Expired {{…}} days ago
-packages/ahg-cdpa/resources/views/license.blade.php	text	Large Scale (&gt;10,000 subjects)
-packages/ahg-cdpa/resources/views/license.blade.php	text	Small Scale (&lt;1,000 subjects)
-packages/ahg-cdpa/resources/views/license.blade.php	text	days remaining
-packages/ahg-cdpa/resources/views/license.blade.php	text	{{…}} License
-packages/ahg-cdpa/src/Controllers/CdpaController.php	flash	Breach record not found.
-packages/ahg-cdpa/src/Controllers/CdpaController.php	flash	Breach record updated.
-packages/ahg-cdpa/src/Controllers/CdpaController.php	flash	Breach reported. Ref:
-packages/ahg-cdpa/src/Controllers/CdpaController.php	flash	CDPA configuration saved.
-packages/ahg-cdpa/src/Controllers/CdpaController.php	flash	DPIA created.
-packages/ahg-cdpa/src/Controllers/CdpaController.php	flash	DPIA not found.
-packages/ahg-cdpa/src/Controllers/CdpaController.php	flash	DPIA updated.
-packages/ahg-cdpa/src/Controllers/CdpaController.php	flash	Data subject request created. Ref:
-packages/ahg-cdpa/src/Controllers/CdpaController.php	flash	Data subject request not found.
-packages/ahg-cdpa/src/Controllers/CdpaController.php	flash	Processing activity created.
-packages/ahg-cdpa/src/Controllers/CdpaController.php	flash	Processing activity not found.
-packages/ahg-cdpa/src/Controllers/CdpaController.php	flash	Processing activity updated.
-packages/ahg-cdpa/src/Controllers/CdpaController.php	flash	Request updated.
 packages/ahg-condition/resources/views/photos.blade.php	text	Drag &amp; drop a photo here, or click to select
 packages/ahg-core/resources/views/challenge.blade.php	text	seconds...
 packages/ahg-core/resources/views/clipboard/index.blade.php	text	Clear {{…}} clipboard
