@@ -20,7 +20,7 @@
   </div>
 
   @if(!empty($query))
-  <p class="text-muted">{{ $total }} result(s) for "{{ e($query) }}"</p>
+  <p class="text-muted">{{ __(':value1 result(s) for ":value2"', ['value1' => $total, 'value2' => e($query)]) }}</p>
 
   <div class="card">
     <div class="card-body table-responsive">
