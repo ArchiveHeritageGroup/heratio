@@ -181,9 +181,7 @@
                 <small class="text-muted">{{ \Carbon\Carbon::parse($scan->created_at)->format('Y-m-d H:i') }}</small>
               </div>
               <small>
-                {{ number_format($scan->processed_records) }}/{{ number_format($scan->total_records) }} records
-                &middot;
-                {{ number_format($scan->duplicates_found) }} duplicates found
+                {{ __(':processed/:total records · :duplicates duplicates found', ['processed' => number_format($scan->processed_records), 'total' => number_format($scan->total_records), 'duplicates' => number_format($scan->duplicates_found)]) }}
               </small>
             </li>
           @empty

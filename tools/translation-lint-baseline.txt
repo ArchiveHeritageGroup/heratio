@@ -546,24 +546,6 @@ packages/ahg-dc-manage/resources/views/_fields.blade.php	text	dc:title
 packages/ahg-dc-manage/resources/views/_fields.blade.php	text	dc:type
 packages/ahg-dc-manage/resources/views/edit.blade.php	text	(Dublin Core Simple 1.1)
 packages/ahg-dc-manage/src/Controllers/DcManageController.php	flash	Description saved (Dublin Core).
-packages/ahg-dedupe/resources/views/_completeness-panel.blade.php	text	Level: {{…}}
-packages/ahg-dedupe/resources/views/_relation-graph-panel.blade.php	text	Relation graph for actor #{{…}}
-packages/ahg-dedupe/resources/views/browse.blade.php	text	duplicate pairs found
-packages/ahg-dedupe/resources/views/compare.blade.php	text	&middot; Method: {{…}} &middot; Status: {{…}}
-packages/ahg-dedupe/resources/views/compare.blade.php	text	Record not found (ID: {{…}})
-packages/ahg-dedupe/resources/views/compare.blade.php	text	Record not found (ID: {{…}})
-packages/ahg-dedupe/resources/views/compare.blade.php	text	Reviewed at {{…}}.
-packages/ahg-dedupe/resources/views/compare.blade.php	text	Similarity score:
-packages/ahg-dedupe/resources/views/compare.blade.php	text	indicate differing values between records.
-packages/ahg-dedupe/resources/views/compare.blade.php	text	indicate matching values.
-packages/ahg-dedupe/resources/views/index.blade.php	text	{{…}}/{{…}} records &middot; {{…}} duplicates found
-packages/ahg-dedupe/resources/views/not-configured.blade.php	text	The required database tables (, , ) do not exist. Please run the appropriate migrations to set up duplicate detection.
-packages/ahg-dedupe/resources/views/rule-create.blade.php	text	-- Select Type --
-packages/ahg-dedupe/resources/views/scan.blade.php	text	-- Select Repository --
-packages/ahg-dedupe/src/Controllers/DedupeController.php	flash	Detection rule created.
-packages/ahg-dedupe/src/Controllers/DedupeController.php	flash	Detection rule deleted.
-packages/ahg-dedupe/src/Controllers/DedupeController.php	flash	Detection rule updated.
-packages/ahg-dedupe/src/Controllers/DedupeController.php	flash	Scan job created. Run the CLI command to process it.
 packages/ahg-discovery/resources/views/build.blade.php	text	Identifier: {{…}}
 packages/ahg-discovery/resources/views/build.blade.php	text	Object ID: {{…}}
 packages/ahg-discovery/resources/views/index.blade.php	text	{{…}} result(s) for "{{…}}"

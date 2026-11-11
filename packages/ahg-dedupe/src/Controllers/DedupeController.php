@@ -413,7 +413,7 @@ class DedupeController extends Controller
             'updated_at' => now(),
         ]);
 
-        return redirect()->route('dedupe.index')->with('notice', 'Scan job created. Run the CLI command to process it.');
+        return redirect()->route('dedupe.index')->with('notice', __('Scan job created. Run the CLI command to process it.'));
     }
 
     /**
@@ -583,7 +583,7 @@ class DedupeController extends Controller
             'updated_at' => now(),
         ]);
 
-        return redirect()->route('dedupe.rules')->with('notice', 'Detection rule created.');
+        return redirect()->route('dedupe.rules')->with('notice', __('Detection rule created.'));
     }
 
     /**
@@ -645,7 +645,7 @@ class DedupeController extends Controller
             'updated_at' => now(),
         ]);
 
-        return redirect()->route('dedupe.rules')->with('notice', 'Detection rule updated.');
+        return redirect()->route('dedupe.rules')->with('notice', __('Detection rule updated.'));
     }
 
     /**
@@ -659,7 +659,7 @@ class DedupeController extends Controller
 
         DB::table('ahg_duplicate_rule')->where('id', $id)->delete();
 
-        return redirect()->route('dedupe.rules')->with('notice', 'Detection rule deleted.');
+        return redirect()->route('dedupe.rules')->with('notice', __('Detection rule deleted.'));
     }
 
     /**

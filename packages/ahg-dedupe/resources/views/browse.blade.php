@@ -63,7 +63,7 @@
   @if($pager->getNbResults())
     <div class="card mb-3">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <span><strong>{{ number_format($pager->getNbResults()) }}</strong> duplicate pairs found</span>
+        <span><strong>{{ number_format($pager->getNbResults()) }}</strong> {{ __('duplicate pairs found') }}</span>
         <div class="btn-group btn-group-sm">
           <button type="button" class="btn btn-outline-light" id="selectAll">
             <i class="fas fa-check-square me-1"></i> {{ __('Select All') }}
