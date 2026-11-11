@@ -33,7 +33,7 @@
 <body>
 
   <div class="head">
-    <h1>Context {{ $context->context_number }}
+    <h1>{{ __('Context :value1', ['value1' => $context->context_number]) }}
       @if($context->type_name)<span class="badge">{{ $context->type_name }}</span>@endif
     </h1>
     <div class="sub">{{ $context->site->title ?? 'Site' }} &middot; {{ $context->site->site_number ?? '' }}</div>
@@ -70,13 +70,13 @@
     <ul class="rels">
       @foreach($relTypes as $code => $meta)
         @foreach(($byType[$code] ?? []) as $r)
-          <li>{{ __('This context') }} <strong>{{ $meta['label'] }}</strong> context {{ $r->related_number }}@if($r->note) <span class="muted">- {{ $r->note }}</span>@endif</li>
+          <li>{{ __('This context') }} <strong>{{ $meta['label'] }}</strong> {{ __('context :value1', ['value1' => $r->related_number]) }}@if($r->note) <span class="muted">- {{ $r->note }}</span>@endif</li>
         @endforeach
       @endforeach
     </ul>
   @endif
 
-  <h2>Finds in this context ({{ collect($context->finds)->count() }})</h2>
+  <h2>{{ __('Finds in this context (:value1)', ['value1' => collect($context->finds)->count()]) }}</h2>
   @if(collect($context->finds)->isEmpty())
     <p class="muted">{{ __('No finds catalogued to this context.') }}</p>
   @else
@@ -91,8 +91,8 @@
   @endif
 
   <div class="foot">
-    {{ $context->site->title ?? 'Site' }} &middot; Context {{ $context->context_number }} &middot;
-    Generated {{ $generatedAt }}
+    {{ __(':value1 · Context :value2 ·
+    Generated :value3', ['value1' => $context->site->title ?? 'Site', 'value2' => $context->context_number, 'value3' => $generatedAt]) }}
   </div>
 
 </body>
