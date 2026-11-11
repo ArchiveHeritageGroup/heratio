@@ -34,7 +34,7 @@
       <table class="table mb-0 align-middle">
         <thead class="table-light">
           <tr>
-            <th style="width:80px;">{{ __('&nbsp;') }}</th>
+            <th style="width:80px;">&nbsp;</th>
             <th>{{ __('Listing') }}</th>
             <th>{{ __('Seller') }}</th>
             <th class="text-end">{{ __('Price') }}</th>

@@ -60,7 +60,7 @@
             {{-- Contact person with primary badge --}}
             @if($contactItem->contact_person)
               <div class="field row g-0">
-                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('&nbsp;') }}</h3>
+                <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">&nbsp;</h3>
                 <div class="col-9 p-2">
                   <span class="text-primary">{{ $contactItem->contact_person }}</span>
                   @if($contactItem->primary_contact)
