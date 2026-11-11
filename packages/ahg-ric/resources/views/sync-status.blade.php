@@ -67,13 +67,13 @@
               <td>{{ $item->entity_id }}</td>
               <td>
                 @if($item->sync_status === 'synced')
-                  <span class="badge bg-success">synced</span>
+                  <span class="badge bg-success">{{ __('Synced') }}</span>
                 @elseif($item->sync_status === 'pending')
-                  <span class="badge bg-warning text-dark">pending</span>
+                  <span class="badge bg-warning text-dark">{{ __('Pending') }}</span>
                 @elseif($item->sync_status === 'failed')
-                  <span class="badge bg-danger">failed</span>
+                  <span class="badge bg-danger">{{ __('Failed') }}</span>
                 @elseif($item->sync_status === 'error')
-                  <span class="badge bg-danger">error</span>
+                  <span class="badge bg-danger">{{ __('Error') }}</span>
                 @else
                   <span class="badge bg-secondary">{{ $item->sync_status }}</span>
                 @endif

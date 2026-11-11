@@ -1641,80 +1641,14 @@ packages/ahg-ric-manage/resources/views/edit.blade.php	text	(RiC-O 1.0 - Records
 packages/ahg-ric-manage/src/Controllers/RicManageController.php	flash	Description saved (RiC-O).
 packages/ahg-ric/resources/views/_ric-view-actor.blade.php	text	isCreatorOf / isAccumulatorOf
 packages/ahg-ric/resources/views/_ric-view-actor.blade.php	text	rico:{{…}}
-packages/ahg-ric/resources/views/_ric-view-dam.blade.php	text	Information object #{{…}}
-packages/ahg-ric/resources/views/_ric-view-dam.blade.php	text	{{…}} bytes
 packages/ahg-ric/resources/views/_ric-view-gallery.blade.php	text	rico:hasCreator
-packages/ahg-ric/resources/views/_ric-view-io.blade.php	text	Instantiations ({{…}})
 packages/ahg-ric/resources/views/_ric-view-io.blade.php	text	rico:{{…}}
-packages/ahg-ric/resources/views/_ric-view-io.blade.php	text	until {{…}}
-packages/ahg-ric/resources/views/_ric-view-io.blade.php	text	{{…}} - present
-packages/ahg-ric/resources/views/_ric-view-io.blade.php	text	{{…}} file
 packages/ahg-ric/resources/views/_ric-view-library.blade.php	text	rico:hasCreator
-packages/ahg-ric/resources/views/_ric-view-loan.blade.php	text	A loan is modelled as - an event that links one or more instances to a borrowing for a bounded time. Open the explorer to see the full graph of items, borrower, and lender.
 packages/ahg-ric/resources/views/_ric-view-museum.blade.php	text	rico:hasCreator
 packages/ahg-ric/resources/views/_ric-view-repository.blade.php	text	isHolderOf (Top-level holdings)
-packages/ahg-ric/resources/views/_ric-view-repository.blade.php	text	{{…}} descriptions
-packages/ahg-ric/resources/views/capture-studio.blade.php	text	&nbsp;·&nbsp; Live viewer:
-packages/ahg-ric/resources/views/capture-studio.blade.php	text	API base: &nbsp;·&nbsp; Spec:
 packages/ahg-ric/resources/views/capture-studio.blade.php	text	openric.org
 packages/ahg-ric/resources/views/capture-studio.blade.php	text	viewer.openric.org
-packages/ahg-ric/resources/views/capture-studio.blade.php	text	{{…}} canonical relations across the triple store.
-packages/ahg-ric/resources/views/capture-studio.blade.php	text	{{…}} existing
 packages/ahg-ric/resources/views/components/type-pill.blade.php	text	rico:{{…}}
-packages/ahg-ric/resources/views/entities/_hierarchy.blade.php	text	(this {{…}})
-packages/ahg-ric/resources/views/entities/_sidebar.blade.php	text	Browse {{…}}
-packages/ahg-ric/resources/views/entities/activities/browse.blade.php	text	{{…}} activit{{…}} total
-packages/ahg-ric/resources/views/entities/activities/edit.blade.php	text	-- No place --
-packages/ahg-ric/resources/views/entities/activities/edit.blade.php	text	-- Select --
-packages/ahg-ric/resources/views/entities/activities/edit.blade.php	text	Where the activity took place. Creates a link in the graph.
-packages/ahg-ric/resources/views/entities/activities/edit.blade.php	text	{{…}} Activity
-packages/ahg-ric/resources/views/entities/instantiations/browse.blade.php	text	{{…}} instantiation{{…}} total
-packages/ahg-ric/resources/views/entities/instantiations/edit.blade.php	text	-- Select --
-packages/ahg-ric/resources/views/entities/instantiations/edit.blade.php	text	{{…}} Instantiation
-packages/ahg-ric/resources/views/entities/places/browse.blade.php	text	{{…}} place{{…}} total
-packages/ahg-ric/resources/views/entities/places/edit.blade.php	text	-- None (top-level) --
-packages/ahg-ric/resources/views/entities/places/edit.blade.php	text	-- Select --
-packages/ahg-ric/resources/views/entities/places/edit.blade.php	text	{{…}} Place
-packages/ahg-ric/resources/views/entities/rules/browse.blade.php	text	{{…}} rule{{…}} total
-packages/ahg-ric/resources/views/entities/rules/edit.blade.php	text	-- Select --
-packages/ahg-ric/resources/views/entities/rules/edit.blade.php	text	External IRI identifying the mandate or authority (emitted as in RiC-O).
-packages/ahg-ric/resources/views/entities/rules/edit.blade.php	text	{{…}} Rule
-packages/ahg-ric/resources/views/explorer.blade.php	text	(link to existing entity)
-packages/ahg-ric/resources/views/explorer.blade.php	text	0 nodes
-packages/ahg-ric/resources/views/import.blade.php	text	(or paste below)
-packages/ahg-ric/resources/views/import.blade.php	text	New IO IDs: {{…}}
-packages/ahg-ric/resources/views/import.blade.php	text	create rows in the database (leave unchecked for a dry-run)
-packages/ahg-ric/resources/views/import.blade.php	text	rdf:type values seen
-packages/ahg-ric/resources/views/import.blade.php	text	subjects had no recognisable rdf:type and would be skipped. Add a , , , or other supported type, or extend the type map.
-packages/ahg-ric/resources/views/import.blade.php	text	→ Actors
-packages/ahg-ric/resources/views/import.blade.php	text	→ Records
-packages/ahg-ric/resources/views/index.blade.php	text	Connected
-packages/ahg-ric/resources/views/index.blade.php	text	Connected with data
-packages/ahg-ric/resources/views/index.blade.php	text	{{…}} triples
-packages/ahg-ric/resources/views/orphans.blade.php	text	cleaned
-packages/ahg-ric/resources/views/orphans.blade.php	text	detected
-packages/ahg-ric/resources/views/orphans.blade.php	text	reviewed
-packages/ahg-ric/resources/views/queue.blade.php	text	completed
-packages/ahg-ric/resources/views/queue.blade.php	text	failed
-packages/ahg-ric/resources/views/queue.blade.php	text	processing
-packages/ahg-ric/resources/views/queue.blade.php	text	queued
-packages/ahg-ric/resources/views/relations/browse.blade.php	text	{{…}} relation{{…}} total.
-packages/ahg-ric/resources/views/semantic-search.blade.php	text	0 results
-packages/ahg-ric/resources/views/sync-status.blade.php	text	error
-packages/ahg-ric/resources/views/sync-status.blade.php	text	failed
-packages/ahg-ric/resources/views/sync-status.blade.php	text	pending
-packages/ahg-ric/resources/views/sync-status.blade.php	text	synced
-packages/ahg-ric/resources/views/validate-entity.blade.php	text	Could not load entity {{…}}#{{…}} - the serializer returned an empty result.
-packages/ahg-ric/resources/views/validate-entity.blade.php	text	Full SHACL graph-shape validation requires the + Python packages on the host. Without them, only mandatory-fields and referential-integrity checks run. See
-packages/ahg-ric/resources/views/validate-entity.blade.php	text	SHACL shape set () and the ISAD/ISAAR/ISDIAH/ISDF mandatory-fields list.
-packages/ahg-ric/resources/views/validate-entity.blade.php	text	SHACL validation - how to install &amp; extend
-packages/ahg-ric/resources/views/validate-entity.blade.php	text	against the
-packages/ahg-ric/resources/views/validate-entity.blade.php	text	{{…}} error(s)
-packages/ahg-ric/resources/views/validate-entity.blade.php	text	{{…}} warning(s)
-packages/ahg-ric/src/Controllers/RdfImportController.php	flash	Commit failed:
-packages/ahg-ric/src/Controllers/RdfImportController.php	flash	Parse error:
-packages/ahg-ric/src/Controllers/RdfImportController.php	flash	Provide a file upload or paste an RDF document.
-packages/ahg-ric/src/Controllers/RicController.php	flash	Configuration saved successfully.
 packages/ahg-rights-holder-manage/resources/views/browse.blade.php	text	Direction: {{…}}
 packages/ahg-rights-holder-manage/resources/views/browse.blade.php	text	Sort by: {{…}}
 packages/ahg-rights-holder-manage/resources/views/delete.blade.php	text	Are you sure you want to delete {{…}}?

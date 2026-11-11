@@ -56,7 +56,7 @@ class RdfImportController extends Controller
         }
 
         if (trim($payload) === '') {
-            return back()->with('error', 'Provide a file upload or paste an RDF document.')->withInput();
+            return back()->with('error', __('Provide a file upload or paste an RDF document.'))->withInput();
         }
 
         $svc = new RdfImportService();
@@ -64,7 +64,7 @@ class RdfImportController extends Controller
         try {
             $result = $svc->dryRun($payload, $request->input('format'));
         } catch (\Throwable $e) {
-            return back()->with('error', 'Parse error: ' . $e->getMessage())->withInput();
+            return back()->with('error', __('Parse error: :message', ['message' => $e->getMessage()]))->withInput();
         }
 
         $committed = null;
@@ -73,7 +73,7 @@ class RdfImportController extends Controller
                 $committed = $svc->commit($payload, $request->input('format'), app()->getLocale());
             } catch (\Throwable $e) {
                 return back()
-                    ->with('error', 'Commit failed: ' . $e->getMessage())
+                    ->with('error', __('Commit failed: :message', ['message' => $e->getMessage()]))
                     ->with('result', $result)
                     ->withInput();
             }

@@ -64,5 +64,5 @@
     </ul>
 </nav>
 @endif
-<p class="text-muted small">{{ $total }} relation{{ $total !== 1 ? 's' : '' }} total.</p>
+<p class="text-muted small">{{ trans_choice('{1} :count relation total.|[2,*] :count relations total.', $total, ['count' => $total]) }}</p>
 @endsection

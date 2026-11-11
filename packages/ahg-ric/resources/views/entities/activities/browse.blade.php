@@ -57,5 +57,5 @@
 </nav>
 @endif
 
-<p class="text-muted small">{{ $result->total }} activit{{ $result->total === 1 ? 'y' : 'ies' }} total</p>
+<p class="text-muted small">{{ trans_choice('{1} :count activity total|[2,*] :count activities total', $result->total, ['count' => $result->total]) }}</p>
 @endsection

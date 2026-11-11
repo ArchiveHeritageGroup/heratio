@@ -237,9 +237,9 @@
                     @if($entry->start_date && $entry->end_date)
                       {{ $entry->start_date }} - {{ $entry->end_date }}
                     @elseif($entry->start_date)
-                      {{ $entry->start_date }} - present
+                      {{ __(':date - present', ['date' => $entry->start_date]) }}
                     @elseif($entry->end_date)
-                      until {{ $entry->end_date }}
+                      {{ __('until :date', ['date' => $entry->end_date]) }}
                     @endif
                   </small>
                   @if($entry->owner_location)
@@ -263,7 +263,7 @@
       {{-- Instantiations - digital object metadata --}}
       <div class="card mb-3">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-          <i class="fas fa-file-image me-1"></i> Instantiations ({{ $digitalObjects->count() }})
+          <i class="fas fa-file-image me-1"></i> {{ __('Instantiations (:count)', ['count' => $digitalObjects->count()]) }}
         </div>
         <div class="card-body px-3 py-2">
           @if($digitalObjects->count())
@@ -281,7 +281,7 @@
                     ->get();
               @endphp
               <div class="mb-3">
-                <h6 class="small fw-bold mb-1">{{ $usageLabel }} file</h6>
+                <h6 class="small fw-bold mb-1">{{ __(':label file', ['label' => $usageLabel]) }}</h6>
                 <table class="table table-sm table-borderless mb-1 small">
                   <tr><td class="text-muted" style="width:80px">{{ __('Filename') }}</td><td class="text-break">{{ $dobj->name ?? '-' }}</td></tr>
                   <tr><td class="text-muted">{{ __('Media type') }}</td><td>{{ ucfirst($dobjMediaType) }}</td></tr>

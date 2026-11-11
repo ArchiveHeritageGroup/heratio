@@ -38,7 +38,7 @@
           </select>
         </div>
         <div class="col-md-9">
-          <label class="form-label">{{ __('Upload file') }} <small class="text-muted">(or paste below)</small></label>
+          <label class="form-label">{{ __('Upload file') }} <small class="text-muted">{{ __('(or paste below)') }}</small></label>
           <input type="file" name="file" class="form-control" accept=".ttl,.jsonld,.json,.rdf,.xml,.n3">
         </div>
         <div class="col-12">
@@ -51,8 +51,7 @@
             <input class="form-check-input" type="checkbox" name="commit" value="1" id="commit"
                    {{ old('commit') === '1' ? 'checked' : '' }}>
             <label class="form-check-label" for="commit">
-              <strong>{{ __('Commit:') }}</strong> create rows in the database
-              (leave unchecked for a dry-run)
+              <strong>{{ __('Commit:') }}</strong> {{ __('Create rows in the database (leave unchecked for a dry-run)') }}
             </label>
           </div>
         </div>
@@ -70,14 +69,13 @@
         <div class="row g-3">
           <div class="col-md-3"><div class="border rounded p-2 text-center"><div class="h4 mb-0">{{ number_format($result['triples']) }}</div><small class="text-muted">{{ __('Triples') }}</small></div></div>
           <div class="col-md-3"><div class="border rounded p-2 text-center"><div class="h4 mb-0">{{ number_format($result['subjects']) }}</div><small class="text-muted">{{ __('Subjects') }}</small></div></div>
-          <div class="col-md-3"><div class="border rounded p-2 text-center"><div class="h4 mb-0 text-success">{{ number_format($result['would_create']['information_object']) }}</div><small class="text-muted">→ Records</small></div></div>
-          <div class="col-md-3"><div class="border rounded p-2 text-center"><div class="h4 mb-0 text-info">{{ number_format($result['would_create']['actor']) }}</div><small class="text-muted">→ Actors</small></div></div>
+          <div class="col-md-3"><div class="border rounded p-2 text-center"><div class="h4 mb-0 text-success">{{ number_format($result['would_create']['information_object']) }}</div><small class="text-muted">→ {{ __('Records') }}</small></div></div>
+          <div class="col-md-3"><div class="border rounded p-2 text-center"><div class="h4 mb-0 text-info">{{ number_format($result['would_create']['actor']) }}</div><small class="text-muted">→ {{ __('Actors') }}</small></div></div>
         </div>
 
         @if($result['would_create']['unknown'] > 0)
           <div class="alert alert-warning mt-3 mb-0">
-            <strong>{{ $result['would_create']['unknown'] }}</strong> subjects had no recognisable rdf:type and would be skipped.
-            Add a <code>rico:Record</code>, <code>rico:Agent</code>, <code>rico:CorporateBody</code>, or other supported type, or extend the type map.
+            {{ __(':count subjects had no recognisable :type and would be skipped. Add a :record, :agent, :corporate_body, or other supported type, or extend the type map.', ['count' => $result['would_create']['unknown'], 'type' => 'rdf:type', 'record' => 'rico:Record', 'agent' => 'rico:Agent', 'corporate_body' => 'rico:CorporateBody']) }}
           </div>
         @endif
       </div>
@@ -117,7 +115,7 @@
     </div>
 
     <div class="card mb-3">
-      <div class="card-header bg-light"><strong>rdf:type values seen</strong></div>
+      <div class="card-header bg-light"><strong>{{ __('rdf:type values seen') }}</strong></div>
       <div class="card-body">
         @forelse($result['classes_seen'] as $c => $n)
           <span class="badge bg-secondary me-1 mb-1"><code class="text-white">{{ $c }}</code> × {{ $n }}</span>
@@ -156,7 +154,7 @@
           <div class="alert alert-danger mb-2">{{ $err }}</div>
         @endforeach
         @if($committed['created_io'])
-          <small class="text-muted">New IO IDs: {{ implode(', ', array_slice($committed['created_io'], 0, 50)) }}@if(count($committed['created_io']) > 50) …@endif</small>
+          <small class="text-muted">{{ __('New IO IDs: :ids', ['ids' => implode(', ', array_slice($committed['created_io'], 0, 50))]) }}@if(count($committed['created_io']) > 50) …@endif</small>
         @endif
       </div>
     </div>

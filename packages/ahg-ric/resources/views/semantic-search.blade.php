@@ -63,7 +63,7 @@
   {{-- Results --}}
   <div id="ric-results-container" class="card" style="display: none;">
     <div class="card-header d-flex justify-content-between align-items-center">
-      <span id="ric-result-count">0 results</span>
+      <span id="ric-result-count">{{ __('0 results') }}</span>
       <button type="button" id="ric-clear-btn" class="btn btn-sm btn-outline-secondary">
         <i class="fas fa-times me-1"></i>{{ __('Clear') }}
       </button>

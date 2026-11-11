@@ -38,7 +38,7 @@
         <div class="mb-2 ps-3 border-start border-3 border-primary">
             <span class="badge bg-primary me-1">{{ ucfirst($entityType) }}</span>
             <strong>{{ $entity->name ?? $entity->title ?? 'Current' }}</strong>
-            <small class="text-muted">(this {{ $entityType }})</small>
+            <small class="text-muted">{{ __('(this :type)', ['type' => $entityType]) }}</small>
         </div>
 
         {{-- Children --}}

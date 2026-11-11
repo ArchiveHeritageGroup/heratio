@@ -32,11 +32,11 @@
           @if($fusekiStatus['online'] ?? false)
             <p class="mb-0 mt-2 text-muted small">
               @if(isset($fusekiStatus['triple_count']))
-                <i class="fas fa-database"></i> {{ number_format($fusekiStatus['triple_count']) }} triples
+                <i class="fas fa-database"></i> {{ __(':count triples', ['count' => number_format($fusekiStatus['triple_count'])]) }}
               @elseif(!empty($fusekiStatus['has_data']))
-                <i class="fas fa-check"></i> Connected with data
+                <i class="fas fa-check"></i> {{ __('Connected with data') }}
               @else
-                <i class="fas fa-check"></i> Connected
+                <i class="fas fa-check"></i> {{ __('Connected') }}
               @endif
             </p>
           @endif

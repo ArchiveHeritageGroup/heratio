@@ -1,8 +1,8 @@
 @extends('theme::layouts.1col')
-@section('title', ($entity ? 'Edit' : 'Create') . ' Instantiation')
+@section('title', __(':action Instantiation', ['action' => $entity ? __('Edit') : __('Create')]))
 @section('body-class', 'admin ric')
 @section('content')
-<h1 class="mb-3"><i class="fas fa-file-alt me-2"></i>{{ $entity ? 'Edit' : 'Create' }} Instantiation</h1>
+<h1 class="mb-3"><i class="fas fa-file-alt me-2"></i>{{ __(':action Instantiation', ['action' => $entity ? __('Edit') : __('Create')]) }}</h1>
 <form method="post" action="{{ $entity ? route('ric.entities.update-form', ['instantiations', $entity->slug]) : route('ric.entities.store-form', ['instantiations']) }}">
     @csrf
     @if($entity) @method('PUT') @endif
@@ -14,7 +14,7 @@
         <div class="col-md-4">
             <label class="form-label">{{ __('Carrier Type') }}</label>
             <select name="carrier_type" class="form-select">
-                <option value="">-- Select --</option>
+                <option value="">{{ __('-- Select --') }}</option>
                 @foreach($typeChoices as $c)<option value="{{ $c->code }}" {{ ($entity->carrier_type ?? '') === $c->code ? 'selected' : '' }}>{{ $c->label }}</option>@endforeach
             </select>
         </div>

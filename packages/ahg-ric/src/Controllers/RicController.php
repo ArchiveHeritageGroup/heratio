@@ -482,7 +482,7 @@ class RicController extends Controller
                 }
             }
 
-            return redirect()->route('ric.config')->with('notice', 'Configuration saved successfully.');
+            return redirect()->route('ric.config')->with('notice', __('Configuration saved successfully.'));
         }
 
         return view('ahg-ric::config', compact('config'));

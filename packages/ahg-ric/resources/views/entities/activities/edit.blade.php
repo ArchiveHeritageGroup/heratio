@@ -1,8 +1,8 @@
 @extends('theme::layouts.1col')
-@section('title', ($entity ? 'Edit' : 'Create') . ' Activity')
+@section('title', __(':action Activity', ['action' => $entity ? __('Edit') : __('Create')]))
 @section('body-class', 'admin ric')
 @section('content')
-<h1 class="mb-3"><i class="fas fa-running me-2"></i>{{ $entity ? 'Edit' : 'Create' }} Activity</h1>
+<h1 class="mb-3"><i class="fas fa-running me-2"></i>{{ __(':action Activity', ['action' => $entity ? __('Edit') : __('Create')]) }}</h1>
 <form method="post" action="{{ $entity ? route('ric.entities.update-form', ['activities', $entity->slug]) : route('ric.entities.store-form', ['activities']) }}">
     @csrf
     @if($entity) @method('PUT') @endif
@@ -17,7 +17,7 @@
         <div class="col-md-4">
             <label class="form-label">{{ __('Type') }}</label>
             <select name="type_id" class="form-select">
-                <option value="">-- Select --</option>
+                <option value="">{{ __('-- Select --') }}</option>
                 @foreach($typeChoices as $c)
                 <option value="{{ $c->code }}" {{ ($entity->type_id ?? '') === $c->code ? 'selected' : '' }}>{{ $c->label }}</option>
                 @endforeach
@@ -32,12 +32,12 @@
     <div class="mb-3">
         <label class="form-label">{{ __('Place') }}</label>
         <select name="place_id" class="form-select">
-            <option value="">-- No place --</option>
+            <option value="">{{ __('-- No place --') }}</option>
             @foreach(($placeChoices ?? []) as $p)
                 <option value="{{ $p->id }}" {{ (string)($entity->place_id ?? '') === (string)$p->id ? 'selected' : '' }}>{{ $p->name ?: '(unnamed)' }}</option>
             @endforeach
         </select>
-        <div class="form-text">Where the activity took place. Creates a <code>rico:tookPlaceAt</code> link in the graph.</div>
+        <div class="form-text">{{ __('Where the activity took place. Creates a :predicate link in the graph.', ['predicate' => 'rico:tookPlaceAt']) }}</div>
     </div>
     <div class="mb-3"><label class="form-label">{{ __('Description') }}</label><textarea name="description" class="form-control" rows="4">{{ $entity->description ?? '' }}</textarea></div>
     <div class="d-flex gap-2">

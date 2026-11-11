@@ -26,9 +26,9 @@
 </script>
 
 <p class="text-muted small">
-  {{ __('Validating') }} <strong>{{ $typeLabel }} #{{ $id }}</strong> against the
-  <a href="https://openric.org/spec/mapping.html" target="_blank" rel="noopener">{{ __('OpenRiC') }}</a> SHACL shape set
-  (<code>packages/ahg-ric/tools/ric_shacl_shapes.ttl</code>) and the ISAD/ISAAR/ISDIAH/ISDF mandatory-fields list.
+  {{ __('Validating') }} <strong>{{ $typeLabel }} #{{ $id }}</strong> {{ __('against the') }}
+  <a href="https://openric.org/spec/mapping.html" target="_blank" rel="noopener">{{ __('OpenRiC') }}</a>
+  {{ __('SHACL shape set (:file) and the :standards mandatory-fields list.', ['file' => 'packages/ahg-ric/tools/ric_shacl_shapes.ttl', 'standards' => 'ISAD/ISAAR/ISDIAH/ISDF']) }}
 </p>
 
 @if($errorMessage)
@@ -39,7 +39,7 @@
 @elseif(! $entity)
   <div class="alert alert-warning">
     <i class="fas fa-question-circle me-2"></i>
-    Could not load entity {{ $type }}#{{ $id }} - the serializer returned an empty result.
+    {{ __('Could not load entity :type#:id - the serializer returned an empty result.', ['type' => $type, 'id' => $id]) }}
   </div>
 @elseif($result['valid'] && empty($result['errors']) && empty($result['warnings']))
   <div class="card border-success mb-3">
@@ -54,7 +54,7 @@
   @if(! empty($result['errors']))
     <div class="card border-danger mb-3">
       <div class="card-header bg-danger text-white">
-        <i class="fas fa-times-circle me-2"></i>{{ count($result['errors']) }} error(s)
+        <i class="fas fa-times-circle me-2"></i>{{ trans_choice('{1} :count error|[2,*] :count errors', count($result['errors']), ['count' => count($result['errors'])]) }}
       </div>
       <ul class="list-group list-group-flush">
         @foreach($result['errors'] as $err)
@@ -74,7 +74,7 @@
   @if(! empty($result['warnings']))
     <div class="card border-warning mb-3">
       <div class="card-header bg-warning text-dark">
-        <i class="fas fa-exclamation-triangle me-2"></i>{{ count($result['warnings']) }} warning(s)
+        <i class="fas fa-exclamation-triangle me-2"></i>{{ trans_choice('{1} :count warning|[2,*] :count warnings', count($result['warnings']), ['count' => count($result['warnings'])]) }}
       </div>
       <ul class="list-group list-group-flush">
         @foreach($result['warnings'] as $w)
@@ -100,8 +100,7 @@
 @endif
 
 <div class="mt-4 small text-muted">
-  Full SHACL graph-shape validation requires the <code>pyshacl</code> + <code>rdflib</code> Python packages on the host.
-  Without them, only mandatory-fields and referential-integrity checks run. See
-  <a href="{{ url('/help/article/shacl-validation-howto') }}">SHACL validation - how to install &amp; extend</a>.
+  {{ __('Full SHACL graph-shape validation requires the :packages Python packages on the host. Without them, only mandatory-fields and referential-integrity checks run. See', ['packages' => 'pyshacl + rdflib']) }}
+  <a href="{{ url('/help/article/shacl-validation-howto') }}">{{ __('SHACL validation - how to install & extend') }}</a>.
 </div>
 @endsection

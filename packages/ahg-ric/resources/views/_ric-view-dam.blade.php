@@ -37,9 +37,9 @@
       <table class="table table-sm mb-0">
         <tr><th class="text-muted" style="width:35%">{{ __('RiC Role') }}</th><td>{{ __('Digital embodiment / file carrier') }}</td></tr>
         @if($mime)<tr><th class="text-muted">{{ __('Media format') }}</th><td><code>{{ $mime }}</code></td></tr>@endif
-        @if($byteSize)<tr><th class="text-muted">{{ __('Byte size') }}</th><td>{{ number_format((int) $byteSize) }} bytes</td></tr>@endif
+        @if($byteSize)<tr><th class="text-muted">{{ __('Byte size') }}</th><td>{{ trans_choice('{1} :count byte|[2,*] :count bytes', (int) $byteSize, ['count' => number_format((int) $byteSize)]) }}</td></tr>@endif
         @if(! empty($asset->object_id))
-          <tr><th class="text-muted">{{ __('rico:isInstantiationOf') }}</th><td>Information object #{{ $asset->object_id }}</td></tr>
+          <tr><th class="text-muted">{{ __('rico:isInstantiationOf') }}</th><td>{{ __('Information object #:id', ['id' => $asset->object_id]) }}</td></tr>
         @endif
       </table>
     </div>

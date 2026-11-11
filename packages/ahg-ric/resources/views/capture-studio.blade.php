@@ -61,9 +61,9 @@
     <h1><i class="fas fa-cube me-2"></i>{{ __('OpenRiC Capture Studio') }}</h1>
     <p>{{ __('Focused workspace for creating Records-in-Contexts entities: Places, Rules, Activities, Instantiations, and the relations between them. Every entity you create here is immediately served through the OpenRiC API and visible to external clients.') }}</p>
     <div class="hero-meta">
-        API base: <code>{{ $ricApiBase }}</code>
-        &nbsp;·&nbsp; Spec: <a href="https://openric.org" target="_blank" rel="noopener" style="color:#fff; text-decoration: underline;">openric.org</a>
-        &nbsp;·&nbsp; Live viewer: <a href="https://viewer.openric.org" target="_blank" rel="noopener" style="color:#fff; text-decoration: underline;">viewer.openric.org</a>
+        {{ __('API base:') }} <code>{{ $ricApiBase }}</code>
+        &nbsp;·&nbsp; {{ __('Spec:') }} <a href="https://openric.org" target="_blank" rel="noopener" style="color:#fff; text-decoration: underline;">openric.org</a>
+        &nbsp;·&nbsp; {{ __('Live viewer:') }} <a href="https://viewer.openric.org" target="_blank" rel="noopener" style="color:#fff; text-decoration: underline;">viewer.openric.org</a>
     </div>
 </section>
 
@@ -82,7 +82,7 @@
             <div class="entity-icon"><i class="fas {{ $t['icon'] }}"></i></div>
             <h3>{{ $t['title'] }}</h3>
             <p class="entity-desc">{{ $t['description'] }}</p>
-            <div class="entity-count">{{ number_format($t['count']) }} existing</div>
+            <div class="entity-count">{{ __(':count existing', ['count' => number_format($t['count'])]) }}</div>
             <div class="entity-actions">
                 <a href="{{ route('ric.entities.create', [$t['key']]) }}" class="btn btn-primary btn-sm">
                     <i class="fas fa-plus"></i> {{ __('Create') }}
@@ -100,7 +100,7 @@
     <div class="relation-icon"><i class="fas fa-link"></i></div>
     <div class="relation-text">
         <h4>{{ __('Relations between entities') }}</h4>
-        <div class="rel-count">{{ number_format($relationCount) }} canonical <code>rico:*</code> relations across the triple store.</div>
+        <div class="rel-count">{{ __(':count canonical :predicate relations across the triple store.', ['count' => number_format($relationCount), 'predicate' => 'rico:*']) }}</div>
     </div>
     <a href="{{ route('ric.relations.browse') }}" class="btn btn-outline-primary btn-sm">{{ __('Browse all relations') }}</a>
     <span class="text-muted small">{{ __("Create relations inline on any entity's show page via the relation editor.") }}</span>
