@@ -8,7 +8,7 @@
   <p class="lead">
     {{ __('Heratio exposes archival metadata for harvesting via the') }}
     <a href="https://www.openarchives.org/OAI/openarchivesprotocol.html" target="_blank" rel="noopener">OAI-PMH 2.0</a>
-    protocol. Use this page to test the endpoint or build a harvester.
+    {{ __('protocol. Use this page to test the endpoint or build a harvester.') }}
   </p>
   <p>
     <strong>{{ __('Base URL:') }}</strong>
@@ -17,12 +17,12 @@
 
   <h2 class="h4 mt-4">{{ __('Supported verbs') }}</h2>
   <ul>
-    <li><code>Identify</code> - repository identification + admin contacts + linked friends</li>
-    <li><code>ListMetadataFormats</code> - formats available for harvesting</li>
-    <li><code>ListSets</code> - top-level archival collections offered as sets</li>
-    <li><code>ListIdentifiers</code> - record identifiers + datestamps</li>
-    <li><code>ListRecords</code> - full records in the selected format</li>
-    <li><code>GetRecord</code> - single record by identifier</li>
+    <li><code>Identify</code> {{ __('- repository identification + admin contacts + linked friends') }}</li>
+    <li><code>ListMetadataFormats</code> {{ __('- formats available for harvesting') }}</li>
+    <li><code>ListSets</code> {{ __('- top-level archival collections offered as sets') }}</li>
+    <li><code>ListIdentifiers</code> {{ __('- record identifiers + datestamps') }}</li>
+    <li><code>ListRecords</code> {{ __('- full records in the selected format') }}</li>
+    <li><code>GetRecord</code> {{ __('- single record by identifier') }}</li>
   </ul>
   <p class="small text-muted">{{ __('Each verb accepts both GET and POST as required by the OAI-PMH spec.') }}</p>
 
@@ -33,22 +33,22 @@
       <tr>
         <td><code>oai_dc</code></td>
         <td>{{ __('Dublin Core (simple)') }}</td>
-        <td><a href="http://www.openarchives.org/OAI/2.0/oai_dc.xsd" target="_blank" rel="noopener">oai_dc.xsd</a></td>
+        <td><a href="http://www.openarchives.org/OAI/2.0/oai_dc.xsd" target="_blank" rel="noopener">{{ __('oai_dc.xsd') }}</a></td>
       </tr>
       <tr>
         <td><code>oai_ead</code></td>
         <td>{{ __('EAD 2002 (full hierarchy with descendants)') }}</td>
-        <td><a href="http://www.loc.gov/ead/ead.xsd" target="_blank" rel="noopener">ead.xsd</a></td>
+        <td><a href="http://www.loc.gov/ead/ead.xsd" target="_blank" rel="noopener">{{ __('ead.xsd') }}</a></td>
       </tr>
       <tr>
         <td><code>oai_ead3</code></td>
         <td>EAD 3</td>
-        <td><a href="https://www.loc.gov/ead/ead3.xsd" target="_blank" rel="noopener">ead3.xsd</a></td>
+        <td><a href="https://www.loc.gov/ead/ead3.xsd" target="_blank" rel="noopener">{{ __('ead3.xsd') }}</a></td>
       </tr>
       <tr>
         <td><code>mods</code></td>
         <td>MODS 3.5</td>
-        <td><a href="http://www.loc.gov/standards/mods/v3/mods-3-5.xsd" target="_blank" rel="noopener">mods-3-5.xsd</a></td>
+        <td><a href="http://www.loc.gov/standards/mods/v3/mods-3-5.xsd" target="_blank" rel="noopener">{{ __('mods-3-5.xsd') }}</a></td>
       </tr>
       <tr>
         <td><code>marcxml</code></td>
@@ -69,28 +69,28 @@
 
   <h2 class="h4 mt-4">{{ __('Deleted records') }}</h2>
   <p>
-    The endpoint advertises <code>&lt;deletedRecord&gt;transient&lt;/deletedRecord&gt;</code>.
-    Records that have been deleted or permanently unpublished are returned
-    with <code>&lt;header status="deleted"&gt;</code> so harvesters can purge their copy.
+    {{ __('The endpoint advertises') }} <code>&lt;deletedRecord&gt;transient&lt;/deletedRecord&gt;</code>.
+    {{ __('Records that have been deleted or permanently unpublished are returned with') }}
+    <code>&lt;header status="deleted"&gt;</code> {{ __('so harvesters can purge their copy.') }}
   </p>
 
   <h2 class="h4 mt-4">{{ __('Rate limiting') }}</h2>
   <p>
-    {{ __('The endpoint is rate-limited to') }} <strong>120 requests per minute per IP</strong>.
-    Harvesters honouring <code>resumptionToken</code> pagination will not normally hit the limit.
+    {{ __('The endpoint is rate-limited to') }} <strong>{{ __('120 requests per minute per IP') }}</strong>.
+    {{ __('Harvesters honouring') }} <code>resumptionToken</code> {{ __('pagination will not normally hit the limit.') }}
   </p>
 
   <h2 class="h4 mt-4">{{ __('Compression') }}</h2>
   <p>
-    Responses are gzipped at the nginx layer when the harvester sends
-    <code>Accept-Encoding: gzip</code>. Set this header on your client to roughly halve transferred bytes.
+    {{ __('Responses are gzipped at the nginx layer when the harvester sends') }}
+    <code>Accept-Encoding: gzip</code>. {{ __('Set this header on your client to roughly halve transferred bytes.') }}
   </p>
 
   <h2 class="h4 mt-4">{{ __('Authentication') }}</h2>
   <p>
-    Anonymous harvesting is on by default. Operators can require API-key
-    authentication by enabling <code>oai_authentication_enabled</code> in
-    <em>{{ __('Admin → AHG Settings → OAI-PMH') }}</em>; clients then supply
+    {{ __('Anonymous harvesting is on by default. Operators can require API-key authentication by enabling') }}
+    <code>oai_authentication_enabled</code> {{ __('in') }}
+    <em>{{ __('Admin → AHG Settings → OAI-PMH') }}</em>; {{ __('clients then supply') }}
     <code>X-API-Key</code> / <code>Authorization: Bearer</code> / <code>?api=</code>.
   </p>
 

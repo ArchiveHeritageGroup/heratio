@@ -1381,23 +1381,6 @@ packages/ahg-nmmz/src/Controllers/NmmzController.php	flash	Permit application su
 packages/ahg-nmmz/src/Controllers/NmmzController.php	flash	Permit updated
 packages/ahg-nmmz/src/Controllers/NmmzController.php	flash	Site deleted.
 packages/ahg-nmmz/src/Controllers/NmmzController.php	flash	Site registered
-packages/ahg-oai/resources/views/docs.blade.php	text	- formats available for harvesting
-packages/ahg-oai/resources/views/docs.blade.php	text	- full records in the selected format
-packages/ahg-oai/resources/views/docs.blade.php	text	- record identifiers + datestamps
-packages/ahg-oai/resources/views/docs.blade.php	text	- repository identification + admin contacts + linked friends
-packages/ahg-oai/resources/views/docs.blade.php	text	- single record by identifier
-packages/ahg-oai/resources/views/docs.blade.php	text	- top-level archival collections offered as sets
-packages/ahg-oai/resources/views/docs.blade.php	text	. Harvesters honouring pagination will not normally hit the limit.
-packages/ahg-oai/resources/views/docs.blade.php	text	120 requests per minute per IP
-packages/ahg-oai/resources/views/docs.blade.php	text	; clients then supply / / .
-packages/ahg-oai/resources/views/docs.blade.php	text	Anonymous harvesting is on by default. Operators can require API-key authentication by enabling in
-packages/ahg-oai/resources/views/docs.blade.php	text	Responses are gzipped at the nginx layer when the harvester sends . Set this header on your client to roughly halve transferred bytes.
-packages/ahg-oai/resources/views/docs.blade.php	text	The endpoint advertises . Records that have been deleted or permanently unpublished are returned with so harvesters can purge their copy.
-packages/ahg-oai/resources/views/docs.blade.php	text	ead.xsd
-packages/ahg-oai/resources/views/docs.blade.php	text	ead3.xsd
-packages/ahg-oai/resources/views/docs.blade.php	text	mods-3-5.xsd
-packages/ahg-oai/resources/views/docs.blade.php	text	oai_dc.xsd
-packages/ahg-oai/resources/views/docs.blade.php	text	protocol. Use this page to test the endpoint or build a harvester.
 packages/ahg-pdf-tools/resources/views/extract-result.blade.php	text	{{…}} characters
 packages/ahg-pdf-tools/resources/views/extract-result.blade.php	text	{{…}} words
 packages/ahg-pdf-tools/resources/views/index.blade.php	text	.pdf
