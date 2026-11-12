@@ -396,6 +396,12 @@ class VectorSearchService
 
     protected function curl(string $method, string $url, ?string $body, int $timeoutMs, ?string $key = null): ?string
     {
+        if (! function_exists('curl_init')) {
+            Log::debug('VectorSearchService cURL extension unavailable');
+
+            return null;
+        }
+
         $headers = ['Content-Type: application/json', 'Accept: application/json'];
         if ($key !== null && $key !== '') {
             $headers[] = 'Authorization: Bearer '.$key;
