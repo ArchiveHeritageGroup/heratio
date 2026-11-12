@@ -28,6 +28,25 @@ trait InformationObjectFetcher
 
     protected function fetchIo(int $objectId, string $culture)
     {
+        // The record in the requested language; if it has no text there (a visitor
+        // or crawler browsing in fr/af/zu...), fall back to the record's own source
+        // language, then the site default. Before this the export was empty and the
+        // MARC binary encoder crashed with "invalid MARCXML input" (500).
+        $row = $this->fetchIoIn($objectId, $culture);
+        if ($row === null) {
+            $source = (string) DB::table('information_object')->where('id', $objectId)->value('source_culture');
+            foreach (array_unique(array_filter([$source, (string) config('app.fallback_locale', 'en'), 'en'])) as $c) {
+                if ($c !== $culture && ($row = $this->fetchIoIn($objectId, $c)) !== null) {
+                    break;
+                }
+            }
+        }
+
+        return $row;
+    }
+
+    private function fetchIoIn(int $objectId, string $culture)
+    {
         return DB::table('information_object as io')
             ->join('information_object_i18n as i18n', function ($j) use ($culture) {
                 $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $culture);
