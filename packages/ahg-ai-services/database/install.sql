@@ -120,7 +120,11 @@ CREATE TABLE IF NOT EXISTS ahg_ner_entity_evidence (
     entity_id BIGINT UNSIGNED NOT NULL PRIMARY KEY,
     evidence TEXT DEFAULT NULL COMMENT 'where in the record or which source supports it',
     sources JSON DEFAULT NULL COMMENT 'list of source URLs',
-    authority JSON DEFAULT NULL COMMENT 'person/organisation details for a new authority record: dates_of_existence, history, places;
+    authority JSON DEFAULT NULL COMMENT 'person/organisation details for a new authority record: dates_of_existence, history, places, or a link to the proposed existing record',
+    created_by INT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (entity_id) REFERENCES ahg_ner_entity(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Relationships between people or organisations proposed through the API
 -- (AHG Archives MCP, heratio#1563), e.g. "is the spouse of" read from a family register. Each side is
@@ -153,11 +157,6 @@ CREATE TABLE IF NOT EXISTS ahg_relationship_proposal (
     INDEX idx_relprop_object (object_id),
     INDEX idx_relprop_status (status),
     INDEX idx_relprop_created_by (created_by)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
- link: the proposed existing record',
-    created_by INT DEFAULT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (entity_id) REFERENCES ahg_ner_entity(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
