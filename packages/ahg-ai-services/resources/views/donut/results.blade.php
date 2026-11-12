@@ -9,7 +9,7 @@
   <div class="card-header" style="background: var(--ahg-primary); color: white;">
     <i class="fas fa-file me-2"></i>{{ $filename }}
     <span class="float-end badge {{ ($result['confidence'] ?? 0) >= 0.7 ? 'bg-success' : 'bg-warning text-dark' }}">
-      Confidence: {{ number_format(($result['confidence'] ?? 0) * 100, 1) }}%
+      {{ __('Confidence: :percent%', ['percent' => number_format(($result['confidence'] ?? 0) * 100, 1)]) }}
     </span>
   </div>
   <div class="card-body">

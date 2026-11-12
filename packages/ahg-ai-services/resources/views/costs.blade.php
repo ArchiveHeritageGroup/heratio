@@ -22,7 +22,7 @@
   </a>
 </div>
 
-<p class="text-muted">Per-call inference cost, summed by service. Costs in USD computed from <code>ahg_ai_pricing</code> at insert time; local / amortised models record 0.</p>
+<p class="text-muted">{{ __('Per-call inference cost, summed by service. Costs in USD are computed from') }} <code>ahg_ai_pricing</code> {{ __('at insert time; local or amortised models record 0.') }}</p>
 
 <form method="get" class="row g-2 mb-4">
   <div class="col-auto">
@@ -66,7 +66,7 @@
       <div class="card-body">
         <div class="text-muted small text-uppercase">{{ __('Tokens') }}</div>
         <div class="h3 mb-0">{{ number_format((int) ($overall['tokens_in'] ?? 0) + (int) ($overall['tokens_out'] ?? 0)) }}</div>
-        <div class="text-muted small">in {{ number_format((int) ($overall['tokens_in'] ?? 0)) }} / out {{ number_format((int) ($overall['tokens_out'] ?? 0)) }}</div>
+        <div class="text-muted small">{{ __('in :input / out :output', ['input' => number_format((int) ($overall['tokens_in'] ?? 0)), 'output' => number_format((int) ($overall['tokens_out'] ?? 0))]) }}</div>
       </div>
     </div>
   </div>

@@ -67,7 +67,7 @@ final class PhaseOneController extends Controller
             ],
         );
 
-        return redirect()->route('admin.ai-services.quotas')->with('status', 'Quota saved.');
+        return redirect()->route('admin.ai-services.quotas')->with('status', __('Quota saved.'));
     }
 
     /**
@@ -186,7 +186,7 @@ final class PhaseOneController extends Controller
             DB::table('ahg_ner_custom_entity')->insert($payload);
         }
 
-        return redirect()->route('admin.ai-services.ner-entities')->with('status', 'Custom entity saved.');
+        return redirect()->route('admin.ai-services.ner-entities')->with('status', __('Custom entity saved.'));
     }
 
     /**
@@ -198,7 +198,7 @@ final class PhaseOneController extends Controller
         if ($id > 0) {
             DB::table('ahg_ner_custom_entity')->where('id', $id)->delete();
         }
-        return redirect()->route('admin.ai-services.ner-entities')->with('status', 'Custom entity deleted.');
+        return redirect()->route('admin.ai-services.ner-entities')->with('status', __('Custom entity deleted.'));
     }
 
     /**
@@ -210,7 +210,7 @@ final class PhaseOneController extends Controller
         if ($id > 0) {
             DB::table('ahg_translation_memory')->where('id', $id)->delete();
         }
-        return redirect()->route('admin.ai-services.tm')->with('status', 'Translation memory entry deleted.');
+        return redirect()->route('admin.ai-services.tm')->with('status', __('Translation memory entry deleted.'));
     }
 
     /**

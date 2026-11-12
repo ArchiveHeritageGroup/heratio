@@ -295,86 +295,8 @@ packages/ahg-ai-compliance/src/Controllers/SystemInventoryController.php	flash	A
 packages/ahg-ai-compliance/src/Controllers/SystemInventoryController.php	flash	System not found.
 packages/ahg-ai-compliance/src/Controllers/SystemInventoryController.php	flash	System not found.
 packages/ahg-ai-services/resources/views/condition-bulk.blade.php	text	php artisan ahg:ai-condition-bulk-scan --limit=50 --confidence=0.25
-packages/ahg-ai-services/resources/views/condition-manual-assess.blade.php	text	-- Select grade --
-packages/ahg-ai-services/resources/views/costs.blade.php	text	Per-call inference cost, summed by service. Costs in USD computed from at insert time; local / amortised models record 0.
-packages/ahg-ai-services/resources/views/costs.blade.php	text	in {{…}} / out {{…}}
-packages/ahg-ai-services/resources/views/donut/batch-results.blade.php	text	Batch Results ({{…}} images)
-packages/ahg-ai-services/resources/views/donut/dashboard.blade.php	text	Extracts: , ,
-packages/ahg-ai-services/resources/views/donut/dashboard.blade.php	text	Fine-tuned on your {{…}} annotated SA vital records
-packages/ahg-ai-services/resources/views/donut/dashboard.blade.php	text	classifies document type and extracts typed metadata fields
-packages/ahg-ai-services/resources/views/donut/dashboard.blade.php	text	combines both into FamilySearch ILM output
-packages/ahg-ai-services/resources/views/donut/dashboard.blade.php	text	for the full combined pipeline.
-packages/ahg-ai-services/resources/views/donut/dashboard.blade.php	text	reads handwritten genealogical content
-packages/ahg-ai-services/resources/views/donut/results.blade.php	text	Confidence: {{…}}%
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	(set row count first)
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	(top-right)
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	- Custom path -
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	Box 1 =
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	H=pan, R=draw, V=select/move, Space=hold-to-pan, +/-=zoom, Tab=cycle, Del=delete, Ctrl+Z=undo
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	done
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	empty rows,
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	event place
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	event year
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	from Doc Type
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	server folder
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	to add missed ones
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	to drag/resize row boxes to fit entries
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	to save → auto-advances
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	todo
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	| Box 2 =
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	| Record Type = document level
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	→ click
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	→ crops each row
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	→ draw box around
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	→ draw box around
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	→ type place
-packages/ahg-ai-services/resources/views/htr/annotate.blade.php	text	→ type year
-packages/ahg-ai-services/resources/views/htr/bulk-annotate.blade.php	text	box around field ·
-packages/ahg-ai-services/resources/views/htr/bulk-annotate.blade.php	text	confirm & next ·
-packages/ahg-ai-services/resources/views/htr/bulk-annotate.blade.php	text	save & next image · Click
-packages/ahg-ai-services/resources/views/htr/bulk-annotate.blade.php	text	skip field (not on form) ·
-packages/ahg-ai-services/resources/views/htr/bulk-annotate.blade.php	text	to toggle skip
-packages/ahg-ai-services/resources/views/htr/bulk-annotate.blade.php	text	undo ·
-packages/ahg-ai-services/resources/views/htr/fs-overlay.blade.php	text	(optional)
-packages/ahg-ai-services/resources/views/htr/fs-overlay.blade.php	text	draw new box ·
-packages/ahg-ai-services/resources/views/htr/fs-overlay.blade.php	text	for next images ·
-packages/ahg-ai-services/resources/views/htr/fs-overlay.blade.php	text	remembered
-packages/ahg-ai-services/resources/views/htr/fs-overlay.blade.php	text	save & next
-packages/ahg-ai-services/resources/views/htr/fs-overlay.blade.php	text	select & drag boxes to correct positions · Positions are
-packages/ahg-ai-services/resources/views/htr/results.blade.php	text	Original: {{…}}
-packages/ahg-ai-services/resources/views/htr/results.blade.php	text	false
 packages/ahg-ai-services/resources/views/htr/results.blade.php	text	non_genealogical
-packages/ahg-ai-services/resources/views/htr/results.blade.php	text	{{…}},{{…}} {{…}}×{{…}}px - {{…}} samples
-packages/ahg-ai-services/resources/views/htr/sources.blade.php	text	FamilySearch credentials not yet configured. Add to on the server:
-packages/ahg-ai-services/resources/views/htr/sources.blade.php	text	Need {{…}} more
-packages/ahg-ai-services/resources/views/htr/sources.blade.php	text	images
-packages/ahg-ai-services/resources/views/htr/sources.blade.php	text	images
-packages/ahg-ai-services/resources/views/htr/sources.blade.php	text	{{…}} images
 packages/ahg-ai-services/resources/views/index.blade.php	text	The National Archives of South Africa in Pretoria holds the records of Jan van Riebeeck from 1652. The Dutch East India Company (VOC) established a refreshment station at the Cape of Good Hope on 6 April 1652.
-packages/ahg-ai-services/resources/views/index.blade.php	text	{{…}} available
-packages/ahg-ai-services/resources/views/quotas.blade.php	text	Per-tenant daily and monthly call limits across the seven gated AI services. A limit of means unlimited. Tenant is the global default.
-packages/ahg-ai-services/resources/views/translation-memory.blade.php	text	. A lookup hit skips the inference dispatch entirely; tracks reuse and shows recency. Delete an entry to force a fresh translation.
-packages/ahg-ai-services/resources/views/translation-memory.blade.php	text	source + langs
-packages/ahg-ai-services/src/Controllers/AiController.php	flash	AI settings saved.
-packages/ahg-ai-services/src/Controllers/AiController.php	flash	Batch processing failed. The service may be offline.
-packages/ahg-ai-services/src/Controllers/AiController.php	flash	Could not start Donut training. Check service status.
-packages/ahg-ai-services/src/Controllers/AiController.php	flash	Could not start LLM fine-tune. Check service status.
-packages/ahg-ai-services/src/Controllers/AiController.php	flash	Donut batch processing failed.
-packages/ahg-ai-services/src/Controllers/AiController.php	flash	Donut extraction failed:
-packages/ahg-ai-services/src/Controllers/AiController.php	flash	Donut service unavailable. Check that the service is running on port 5008.
-packages/ahg-ai-services/src/Controllers/AiController.php	flash	Download failed.
-packages/ahg-ai-services/src/Controllers/AiController.php	flash	Failed to start training. The service may be offline.
-packages/ahg-ai-services/src/Controllers/AiController.php	flash	FamilySearch credentials saved to .env. Restart the HTR service to apply.
-packages/ahg-ai-services/src/Controllers/AiController.php	flash	Fine-tuning started successfully.
-packages/ahg-ai-services/src/Controllers/AiController.php	flash	HTR extraction failed.
-packages/ahg-ai-services/src/Controllers/AiController.php	flash	LLM configuration created.
-packages/ahg-ai-services/src/Controllers/AiController.php	flash	LLM configuration deleted.
-packages/ahg-ai-services/src/Controllers/AiController.php	flash	LLM configuration updated.
-packages/ahg-ai-services/src/Controllers/AiController.php	flash	Unknown action.
-packages/ahg-ai-services/src/Controllers/PhaseOneController.php	flash	Custom entity deleted.
-packages/ahg-ai-services/src/Controllers/PhaseOneController.php	flash	Custom entity saved.
-packages/ahg-ai-services/src/Controllers/PhaseOneController.php	flash	Quota saved.
-packages/ahg-ai-services/src/Controllers/PhaseOneController.php	flash	Translation memory entry deleted.
 packages/ahg-api-plugin/resources/views/search-information-objects.blade.php	text	{{…}} result(s) for "{{…}}"
 packages/ahg-api/resources/views/graph-explorer/index.blade.php	text	{{…}} ( - JSON-LD, Turtle, RDF/XML).
 packages/ahg-api/resources/views/stats/dashboard.blade.php	text	. Part of the {{…}} open memory protocol (#1204).

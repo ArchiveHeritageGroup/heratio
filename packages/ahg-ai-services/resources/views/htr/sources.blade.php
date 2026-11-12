@@ -19,11 +19,11 @@
       <div class="card">
         <div class="card-body text-center">
           <h5 class="mb-1">{{ $trainingStats[$type] ?? 0 }}</h5>
-          <small class="text-muted">{{ $label }} images</small>
+          <small class="text-muted">{{ $label }} {{ __('images') }}</small>
           @if(($trainingStats[$type] ?? 0) >= 50)
             <span class="badge bg-success ms-2">{{ __('Ready') }}</span>
           @else
-            <span class="badge bg-warning ms-2">Need {{ 50 - ($trainingStats[$type] ?? 0) }} more</span>
+            <span class="badge bg-warning ms-2">{{ __('Need :count more', ['count' => 50 - ($trainingStats[$type] ?? 0)]) }}</span>
           @endif
         </div>
       </div>
@@ -43,8 +43,7 @@
       </div>
     @else
       <div class="alert alert-warning mb-3">
-        <i class="fas fa-exclamation-triangle me-2"></i>FamilySearch credentials not yet configured.
-        Add to <code>.env</code> on the server:
+        <i class="fas fa-exclamation-triangle me-2"></i>{{ __('FamilySearch credentials not yet configured. Add to') }} <code>.env</code> {{ __('on the server:') }}
       </div>
       <form action="{{ route('admin.ai.htr.saveFsConfig') }}" method="POST">
         @csrf
@@ -104,7 +103,7 @@
                 @endif
               </td>
               <td>
-                <span class="fw-bold">{{ $src['downloaded'] ?? 0 }}</span> images
+                <span class="fw-bold">{{ $src['downloaded'] ?? 0 }}</span> {{ __('images') }}
               </td>
               <td class="text-end">
                 <div class="input-group input-group-sm justify-content-end" style="max-width:240px; margin-left:auto;">
@@ -147,7 +146,7 @@
                 <code class="small">ID: {{ $src['collection_id'] }}</code>
               </td>
               <td><span class="badge bg-info">{{ __('Type C - Narrative') }}</span></td>
-              <td><span class="fw-bold">{{ $src['downloaded'] ?? 0 }}</span> images</td>
+              <td><span class="fw-bold">{{ $src['downloaded'] ?? 0 }}</span> {{ __('images') }}</td>
               <td class="text-end">
                 <div class="input-group input-group-sm justify-content-end" style="max-width:240px; margin-left:auto;">
                   <input type="number" class="form-control download-count" value="50" min="1" max="1000" data-collection="{{ $src['collection_id'] }}" data-doctype="{{ $src['doc_type'] }}">

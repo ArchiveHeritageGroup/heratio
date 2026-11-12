@@ -47,7 +47,7 @@
       <div class="mb-3">
         <label class="form-label">{{ __('Condition Grade') }} <span class="text-danger">*</span></label>
         <select class="form-select form-select-sm" id="conditionGrade" name="condition_grade" required>
-          <option value="">-- Select grade --</option>
+          <option value="">{{ __('-- Select grade --') }}</option>
           @foreach(['excellent', 'good', 'fair', 'poor', 'critical'] as $g)
             <option value="{{ $g }}">{{ ucfirst($g) }}</option>
           @endforeach

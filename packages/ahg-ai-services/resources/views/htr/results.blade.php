@@ -52,7 +52,7 @@
           <tr><td class="fw-bold">FS_RECORD_TYPE</td><td>{{ $rt[0] }}</td></tr>
           <tr><td class="fw-bold">FS_RECORD_TYPE_ID</td><td>{{ $rt[1] }}</td></tr>
           <tr><td class="fw-bold">EVENT_PLACE_ORIG</td><td>{{ $place ?: '-' }}</td></tr>
-          <tr><td class="fw-bold">non_genealogical</td><td><span class="badge bg-success">false</span></td></tr>
+          <tr><td class="fw-bold">non_genealogical</td><td><span class="badge bg-success">{{ __('false') }}</span></td></tr>
         </table>
       </div>
     </div>
@@ -76,11 +76,11 @@
             <div class="small">
               <strong>{{ $field['text'] ?? '-' }}</strong>
               @if(!empty($field['text_original']) && ($field['text_original'] ?? '') !== ($field['text'] ?? ''))
-                <br><span class="text-muted">Original: {{ $field['text_original'] }}</span>
+                <br><span class="text-muted">{{ __('Original: :text', ['text' => $field['text_original']]) }}</span>
               @endif
             </div>
             @if(!empty($field['bbox']))
-              <span class="text-muted" style="font-size:.65rem;">{{ $field['bbox']['x'] ?? 0 }},{{ $field['bbox']['y'] ?? 0 }} {{ $field['bbox']['w'] ?? $field['bbox']['width'] ?? 0 }}×{{ $field['bbox']['h'] ?? $field['bbox']['height'] ?? 0 }}px - {{ $field['sample_count'] ?? 0 }} samples</span>
+              <span class="text-muted" style="font-size:.65rem;">{{ $field['bbox']['x'] ?? 0 }},{{ $field['bbox']['y'] ?? 0 }} {{ $field['bbox']['w'] ?? $field['bbox']['width'] ?? 0 }}×{{ $field['bbox']['h'] ?? $field['bbox']['height'] ?? 0 }}px - {{ __(':count samples', ['count' => $field['sample_count'] ?? 0]) }}</span>
             @endif
           </div>
         @empty

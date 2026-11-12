@@ -81,18 +81,18 @@
         <ul>
           <li>{{ __('End-to-end: image in, structured JSON out') }}</li>
           <li>{{ __('No separate OCR step - the model reads and understands form layout') }}</li>
-          <li>Fine-tuned on your {{ $health['total_annotations'] ?? 0 }} annotated SA vital records</li>
-          <li>Extracts: <code>FS_RECORD_TYPE</code>, <code>EVENT_YEAR_ORIG</code>, <code>EVENT_PLACE_ORIG</code></li>
+          <li>{{ __('Fine-tuned on your :count annotated SA vital records', ['count' => $health['total_annotations'] ?? 0]) }}</li>
+          <li>{{ __('Extracts:') }} <code>FS_RECORD_TYPE</code>, <code>EVENT_YEAR_ORIG</code>, <code>EVENT_PLACE_ORIG</code></li>
         </ul>
       </div>
       <div class="col-md-6">
         <h5>{{ __('Combined Pipeline (Donut + HTR)') }}</h5>
         <ol>
-          <li><strong>{{ __('Donut') }}</strong> classifies document type and extracts typed metadata fields</li>
-          <li><strong>{{ __('TrOCR (HTR)') }}</strong> reads handwritten genealogical content</li>
-          <li><strong>{{ __('ILM Formatter') }}</strong> combines both into FamilySearch ILM output</li>
+          <li><strong>{{ __('Donut') }}</strong> {{ __('classifies document type and extracts typed metadata fields') }}</li>
+          <li><strong>{{ __('TrOCR (HTR)') }}</strong> {{ __('reads handwritten genealogical content') }}</li>
+          <li><strong>{{ __('ILM Formatter') }}</strong> {{ __('combines both into FamilySearch ILM output') }}</li>
         </ol>
-        <p class="text-muted">{{ __('Use') }} <a href="{{ route('admin.ai.htr.extract') }}">{{ __('HTR Extract') }}</a> for the full combined pipeline.</p>
+        <p class="text-muted">{{ __('Use') }} <a href="{{ route('admin.ai.htr.extract') }}">{{ __('HTR Extract') }}</a> {{ __('for the full combined pipeline.') }}</p>
       </div>
     </div>
   </div>

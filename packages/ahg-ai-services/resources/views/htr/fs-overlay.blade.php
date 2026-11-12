@@ -52,7 +52,7 @@
         <input type="text" id="ba-folder" class="form-control form-control-sm" value="/usr/share/nginx/heratio/FamilySearch/" placeholder="{{ __('/path/to/images') }}">
       </div>
       <div class="col-md-5">
-        <label class="form-label small fw-bold">{{ __('Spreadsheet') }} <span class="text-muted fw-normal">(optional)</span></label>
+        <label class="form-label small fw-bold">{{ __('Spreadsheet') }} <span class="text-muted fw-normal">({{ __('optional') }})</span></label>
         <select id="ba-spreadsheet" class="form-select form-select-sm">
           <option value="__none__">{{ __('No spreadsheet (images only)') }}</option>
         </select>
@@ -177,7 +177,7 @@
       <div class="progress-bar bg-success" id="ba-progress" style="width:0%"></div>
     </div>
     <div class="mt-2 small text-muted">
-      <kbd>V</kbd> select & drag boxes to correct positions · Positions are <strong>remembered</strong> for next images · <kbd>R</kbd> draw new box · <kbd>{{ __('Ctrl+S') }}</kbd> save & next
+      <kbd>V</kbd> {{ __('select and drag boxes to correct positions') }} · {{ __('Positions are') }} <strong>{{ __('remembered') }}</strong> {{ __('for next images') }} · <kbd>R</kbd> {{ __('draw a new box') }} · <kbd>{{ __('Ctrl+S') }}</kbd> {{ __('save and move to the next image') }}
     </div>
 
     {{-- Session stats --}}
