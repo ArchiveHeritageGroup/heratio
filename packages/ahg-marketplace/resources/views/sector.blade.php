@@ -39,7 +39,7 @@
   <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
     <div>
       <h1 class="h3 mb-1">
-        <i class="fas {{ $meta['icon'] }} me-2"></i>{{ $meta['label'] }} Marketplace
+        <i class="fas {{ $meta['icon'] }} me-2"></i>{{ __(':sector Marketplace', ['sector' => __($meta['label'])]) }}
       </h1>
       @if(!empty($meta['tagline']))
         <p class="mb-0 lh-base">{{ $meta['tagline'] }}</p>
@@ -105,7 +105,7 @@
           <div class="card-body">
             <h6 class="card-title mb-1">
               <a href="{{ route('ahgmarketplace.listing', ['slug' => $listing->slug ?? '']) }}" class="text-decoration-none">
-                {{ \Illuminate\Support\Str::limit($listing->title ?? 'Untitled', 60) }}
+                {{ \Illuminate\Support\Str::limit($listing->title ?? __('Untitled'), 60) }}
               </a>
             </h6>
             @if(!empty($listing->artist_name))

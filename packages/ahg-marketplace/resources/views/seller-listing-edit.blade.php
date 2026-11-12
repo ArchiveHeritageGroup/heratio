@@ -258,7 +258,7 @@
             <div class="col-md-4">
               <label class="form-label">{{ __('Territory') }}</label>
               <input type="text" name="licence_template_territory" class="form-control"
-                     value="{{ old('licence_template_territory', $listing->licence_template_territory ?? 'Worldwide') }}" maxlength="100">
+                     value="{{ old('licence_template_territory', $listing->licence_template_territory ?? __('Worldwide')) }}" maxlength="100">
             </div>
             <div class="col-md-4">
               <label class="form-label">{{ __('Exclusivity') }}</label>
