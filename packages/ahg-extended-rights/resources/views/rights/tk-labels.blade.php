@@ -33,7 +33,7 @@
               <br>
               <small class="text-muted">{{ $label->description ?? '' }}</small>
               @if($label->community_name ?? null)
-                <br><small>Community: {{ $label->community_name }}</small>
+                <br><small>{{ __('Community: :community', ['community' => $label->community_name]) }}</small>
               @endif
             </div>
           </div>
@@ -57,7 +57,7 @@
           <div class="col-md-6 mb-3">
             <label class="form-label">{{ __('TK Label') }} <span class="text-danger">*</span></label>
             <select name="tk_label_id" class="form-select" required>
-              <option value="">- Select Label -</option>
+              <option value="">{{ __('- Select Label -') }}</option>
               @foreach($availableLabels as $label)
               <option value="{{ $label->id }}">{{ ($label->code ?? '') . ' - ' . ($label->name ?? '') }}</option>
               @endforeach

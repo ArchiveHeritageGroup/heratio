@@ -24,8 +24,7 @@
     </div>
     <div class="card-body">
       <p class="text-muted mb-3">
-        {{ __('Traditional Knowledge Labels are part of the') }} <a href="https://localcontexts.org" target="_blank">{{ __('Local Contexts') }}</a> initiative
-        to support Indigenous communities in the management of their cultural heritage and intellectual property.
+        {{ __('Traditional Knowledge Labels are part of the') }} <a href="https://localcontexts.org" target="_blank">{{ __('Local Contexts') }}</a> {{ __('initiative to support Indigenous communities in the management of their cultural heritage and intellectual property.') }}
       </p>
 
       <div class="row">
@@ -36,9 +35,9 @@
             <div class="col-12 mt-3 mb-2">
               <h6 class="text-uppercase text-muted">
                 @switch($currentCategory)
-                  @case('tk') Traditional Knowledge Labels @break
-                  @case('bc') Biocultural Labels @break
-                  @case('attribution') Attribution Labels @break
+                  @case('tk') {{ __('Traditional Knowledge Labels') }} @break
+                  @case('bc') {{ __('Biocultural Labels') }} @break
+                  @case('attribution') {{ __('Attribution Labels') }} @break
                   @default {{ $currentCategory }}
                 @endswitch
               </h6>
@@ -102,7 +101,7 @@
                   <small class="text-muted">{{ $assign->verified_by }}</small>
                 @endif
               @else
-                <i class="fas fa-clock text-warning"></i> Pending
+                <i class="fas fa-clock text-warning"></i> {{ __('Pending') }}
               @endif
             </td>
             <td>{{ $assign->created_at ? \Carbon\Carbon::parse($assign->created_at)->format('d M Y') : '-' }}</td>
@@ -149,7 +148,7 @@
             <div class="col-md-6 mb-3">
               <label class="form-label">{{ __('TK Label') }} <span class="text-danger">*</span></label>
               <select name="tk_label_id" class="form-select" required>
-                <option value="">- Select Label -</option>
+                <option value="">{{ __('- Select Label -') }}</option>
                 @foreach($tkLabels as $label)
                 <option value="{{ $label->id }}">{{ $label->code ?? '' }} - {{ $label->name ?? '' }}</option>
                 @endforeach

@@ -95,7 +95,7 @@ class JobsController extends Controller
         $count = $this->jobsService->clearInactive($daysOld);
 
         return redirect()->route('jobs.browse')
-            ->with('success', "Cleared {$count} inactive job(s).");
+            ->with('success', trans_choice('{1}:count inactive job cleared.|[0,*]:count inactive jobs cleared.', $count, ['count' => $count]));
     }
 
     /**

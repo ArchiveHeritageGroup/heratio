@@ -64,7 +64,7 @@
           <div class="col-md-8">
             <label for="repository_id" class="form-label">{{ __('Filter by Repository') }}</label>
             <select class="form-select" id="repository_id" name="repository_id">
-              <option value="">-- All Repositories --</option>
+              <option value="">{{ __('-- All Repositories --') }}</option>
               @foreach($repositories as $repo)
               <option value="{{ $repo->id }}" {{ $repositoryId == $repo->id ? 'selected' : '' }}>{{ $repo->name }}</option>
               @endforeach
@@ -101,7 +101,7 @@
           <td><a href="{{ url('/informationobject/show/' . $rec->information_object_id) }}">#{{ $rec->information_object_id }}</a></td>
           <td>{{ $rec->io_title ?? '-' }}</td>
           <td>{{ \Illuminate\Support\Str::limit($rec->reason, 50) }}</td>
-          <td>{{ $rec->review_cycle_days }} days</td>
+          <td>{{ __(':count days', ['count' => $rec->review_cycle_days]) }}</td>
           <td>
             @if($isOverdue)
               <span class="badge bg-danger">{{ $rec->next_review_date }}</span>

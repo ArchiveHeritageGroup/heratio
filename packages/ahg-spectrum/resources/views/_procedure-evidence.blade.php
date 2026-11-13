@@ -34,7 +34,7 @@
                                     <i class="fas fa-{{ $ev->evidence_kind === 'link' ? 'link' : 'file' }} me-1 text-muted"></i>
                                     <a href="{{ route('ahgspectrum.evidence.download', ['id' => $ev->id]) }}" target="_blank" rel="noopener">
                                         {{ $ev->original_name ?: ($ev->do_name ?? ('#'.$ev->id)) }}</a>
-                                    @if ($ev->evidence_kind === 'link')<span class="badge bg-info text-dark ms-1">linked</span>@endif
+                                    @if ($ev->evidence_kind === 'link')<span class="badge bg-info text-dark ms-1">{{ __('linked') }}</span>@endif
                                     @if ($ev->description)<div class="small text-muted">{{ $ev->description }}</div>@endif
                                 </td>
                                 <td>@if ($ev->category)<span class="badge bg-light text-dark">{{ $ev->category }}</span>@endif</td>

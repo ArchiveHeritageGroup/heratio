@@ -62,7 +62,7 @@
             </td>
           </tr>
           @empty
-          <tr><td colspan="6" class="text-muted">No embargoes expiring within {{ $days ?? 30 }} days.</td></tr>
+          <tr><td colspan="6" class="text-muted">{{ __('No embargoes expiring within :days days.', ['days' => $days ?? 30]) }}</td></tr>
           @endforelse
         </tbody>
       </table>

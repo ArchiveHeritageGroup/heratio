@@ -17,7 +17,7 @@
             </div>
             <a href="{{ route('z3950.target.create') }}"
                class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition">
-                + Add target
+                {{ __('+ Add target') }}
             </a>
         </div>
 

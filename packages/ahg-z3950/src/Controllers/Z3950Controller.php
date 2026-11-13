@@ -108,13 +108,13 @@ class Z3950Controller extends Controller
             ->find($validated['target_id']);
 
         if (! $target) {
-            return redirect()->back()->with('error', 'Target not found.');
+            return redirect()->back()->with('error', __('Target not found.'));
         }
 
         if (! extension_loaded('yaz')) {
             Log::error('[Z39.50] yaz extension not loaded');
             return redirect()->back()
-                ->with('error', 'The yaz extension is not installed on this server.');
+                ->with('error', __('The yaz extension is not installed on this server.'));
         }
 
         $syntax     = $validated['syntax'] ?? $target->syntax ?? 'USmarc';
@@ -150,7 +150,7 @@ class Z3950Controller extends Controller
             ]);
             return redirect()->back()
                 ->withInput()
-                ->with('error', "Search failed: {$result['error']}");
+                ->with('error', __('Search failed: :error', ['error' => $result['error']]));
         }
 
         $resultSet = bin2hex(random_bytes(16));
@@ -175,7 +175,7 @@ class Z3950Controller extends Controller
 
         if (! $data) {
             return redirect()->route('z3950.search')
-                ->with('error', 'Result set expired or not found. Run a new search.');
+                ->with('error', __('Result set expired or not found. Run a new search.'));
         }
 
         $parsed = [];
@@ -201,7 +201,7 @@ class Z3950Controller extends Controller
         $data = session()->get("z3950_rs_{$resultSet}");
 
         if (! $data || ! isset($data['records'][$recordNumber])) {
-            return redirect()->back()->with('error', 'Record not found in result set.');
+            return redirect()->back()->with('error', __('Record not found in result set.'));
         }
 
         $marcRecord = $data['records'][$recordNumber];
@@ -218,7 +218,7 @@ class Z3950Controller extends Controller
         ]);
 
         if (($stats['errors'] ?? 0) > 0) {
-            return redirect()->back()->with('error', 'Import failed - the record could not be catalogued. See the log for detail.');
+            return redirect()->back()->with('error', __('Import failed - the record could not be catalogued. See the log for detail.'));
         }
 
         return redirect()->back()->with('success', sprintf(
@@ -240,7 +240,7 @@ class Z3950Controller extends Controller
         $data = session()->get("z3950_rs_{$validated['result_set']}");
 
         if (! $data) {
-            return redirect()->back()->with('error', 'Result set expired or not found.');
+            return redirect()->back()->with('error', __('Result set expired or not found.'));
         }
 
         $numbers = $validated['record_numbers'] === 'all'
@@ -363,7 +363,7 @@ class Z3950Controller extends Controller
         ]);
 
         return redirect()->route('z3950.admin')
-            ->with('success', "Target '{$validated['name']}' added.");
+            ->with('success', __('Target :name added.', ['name' => $validated['name']]));
     }
 
     /**
@@ -376,7 +376,7 @@ class Z3950Controller extends Controller
             ->find($id);
 
         if (! $target) {
-            return redirect()->back()->with('error', 'Target not found.');
+            return redirect()->back()->with('error', __('Target not found.'));
         }
 
         DB::connection('heratio')
@@ -385,6 +385,6 @@ class Z3950Controller extends Controller
             ->delete();
 
         return redirect()->route('z3950.admin')
-            ->with('success', "Target '{$target->name}' removed.");
+            ->with('success', __('Target :name removed.', ['name' => $target->name]));
     }
 }

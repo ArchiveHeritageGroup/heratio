@@ -66,11 +66,11 @@
         <div class="d-flex align-items-center">
             <i class="fas fa-{{ $complianceStatusValue === 'compliant' ? 'check-circle' : 'exclamation-triangle' }} fa-2x me-3"></i>
             <div>
-                <h5 class="mb-1">IPSAS Compliance: {{ ucfirst($complianceStatusValue) }}</h5>
+                <h5 class="mb-1">{{ __('IPSAS Compliance: :value1', ['value1' => ucfirst($complianceStatusValue)]) }}</h5>
                 @if(!empty($compliance['issues']))
-                    <p class="mb-0">{{ count($compliance['issues']) }} issue(s) require attention</p>
+                    <p class="mb-0">{{ __(':value1 issue(s) require attention', ['value1' => count($compliance['issues'])]) }}</p>
                 @elseif(!empty($compliance['warnings']))
-                    <p class="mb-0">{{ count($compliance['warnings']) }} warning(s) to review</p>
+                    <p class="mb-0">{{ __(':value1 warning(s) to review', ['value1' => count($compliance['warnings'])]) }}</p>
                 @else
                     <p class="mb-0">{{ __('All IPSAS requirements met') }}</p>
                 @endif
@@ -85,7 +85,7 @@
                 <div class="card-body text-center">
                     <h3>{{ number_format($statsAssets['total'] ?? 0) }}</h3>
                     <p class="text-muted mb-0">{{ __('Total Assets') }}</p>
-                    <small class="text-muted">{{ $statsAssets['active'] ?? 0 }} active</small>
+                    <small class="text-muted">{{ __(':value1 active', ['value1' => $statsAssets['active'] ?? 0]) }}</small>
                 </div>
             </div>
         </div>
@@ -135,15 +135,15 @@
                     </a>
                     <a href="{{ route('ipsas.valuations') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-calculator me-2"></i> {{ __('Valuations') }}
-                        <span class="badge bg-info float-end">{{ $statsRecentValuations }} this year</span>
+                        <span class="badge bg-info float-end">{{ __(':value1 this year', ['value1' => $statsRecentValuations]) }}</span>
                     </a>
                     <a href="{{ route('ipsas.impairments') }}" class="list-group-item list-group-item-action">
                         <i class="fas fa-chart-line me-2"></i> {{ __('Impairment Reviews') }}
                     </a>
                     <a href="{{ route('ipsas.insurance') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-shield-alt me-2"></i> Insurance Policies
+                        <i class="fas fa-shield-alt me-2"></i> {{ __('Insurance Policies') }}
                         @if(($statsInsurance['expiring_soon'] ?? 0) > 0)
-                            <span class="badge bg-warning text-dark float-end">{{ $statsInsurance['expiring_soon'] }} expiring</span>
+                            <span class="badge bg-warning text-dark float-end">{{ __(':value1 expiring', ['value1' => $statsInsurance['expiring_soon']]) }}</span>
                         @endif
                     </a>
                     <a href="{{ route('ipsas.financialYear') }}" class="list-group-item list-group-item-action">
@@ -263,7 +263,7 @@
                                         </div>
                                         <div class="text-end">
                                             <span class="badge bg-{{ $daysLeft < 7 ? 'danger' : 'warning' }}">
-                                                {{ $daysLeft }} days
+                                                {{ __(':value1 days', ['value1' => $daysLeft]) }}
                                             </span>
                                         </div>
                                     </div>
@@ -320,7 +320,7 @@
                         </div>
                         <div class="col-md-4">
                             <strong>{{ __('Valuation Policy:') }}</strong>
-                            <p class="mb-0 small text-muted">Fair value revaluations every {{ $config['valuation_frequency_years'] ?? 5 }} years</p>
+                            <p class="mb-0 small text-muted">{{ __('Fair value revaluations every :value1 years', ['value1' => $config['valuation_frequency_years'] ?? 5]) }}</p>
                         </div>
                         <div class="col-md-4">
                             <strong>{{ __('Current Standard:') }}</strong>

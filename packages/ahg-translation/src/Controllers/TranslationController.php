@@ -177,7 +177,7 @@ class TranslationController extends Controller
             }
 
             return redirect()->route('ahgtranslation.settings')
-                ->with('notice', 'Settings updated');
+                ->with('notice', __('Settings updated'));
         }
 
         $endpoint = $this->getSetting('mt.endpoint', 'https://ai.theahg.co.za/ai/v1/translate');
@@ -735,7 +735,7 @@ class TranslationController extends Controller
         }
 
         return redirect()->route('ahgtranslation.languages')
-            ->with('notice', 'Language "' . e($code) . '" added.');
+            ->with('notice', __('Language "') . e($code) . '" added.');
     }
 
     // ── Private helpers (migrated from AhgTranslationService) ────────
@@ -1090,10 +1090,10 @@ class TranslationController extends Controller
     {
         $draft = DB::table('ahg_translation_draft')->where('id', $id)->first();
         if (!$draft) {
-            return back()->with('error', 'Draft not found');
+            return back()->with('error', __('Draft not found'));
         }
         if ($draft->status === 'applied') {
-            return back()->with('notice', 'Draft already applied');
+            return back()->with('notice', __('Draft already applied'));
         }
 
         // Issue #59 Phase 3 - dropdown-source drafts (ahg_dropdown / term /
@@ -1116,7 +1116,7 @@ class TranslationController extends Controller
                 ->where('id', $id)
                 ->update(['status' => 'rejected']);
             return back()->with('notice',
-                "Draft #{$id} discarded - original record (object #{$draft->object_id}) was deleted before approval.");
+                __('Draft #:id discarded - original record (object #:object_id) was deleted before approval.', ['id' => $id, 'object_id' => $draft->object_id]));
         }
 
         // Re-use save() logic by invoking it with the draft's payload. For
@@ -1140,9 +1140,9 @@ class TranslationController extends Controller
             DB::table('ahg_translation_draft')
                 ->where('id', $id)
                 ->update(['status' => 'applied', 'applied_at' => now()]);
-            return back()->with('success', "Draft #{$id} applied to {$draft->target_culture}.");
+            return back()->with('success', __('Draft #:id applied to :culture.', ['id' => $id, 'culture' => $draft->target_culture]));
         }
-        return back()->with('error', 'Apply failed: ' . ($payload['error'] ?? 'unknown'));
+        return back()->with('error', __('Apply failed: :error', ['error' => $payload['error'] ?? 'unknown']));
     }
 
     /**
@@ -1164,7 +1164,7 @@ class TranslationController extends Controller
         ];
         $parentTable = $parents[$source] ?? null;
         if (!$parentTable) {
-            return back()->with('error', "Unknown dropdown source '{$source}' on draft #{$draft->id}");
+            return back()->with('error', __('Unknown dropdown source :source on draft #:id', ['source' => $source, 'id' => $draft->id]));
         }
 
         // Source-aware orphan check - parent row may have been deleted between
@@ -1181,20 +1181,20 @@ class TranslationController extends Controller
                 ->where('id', $draft->id)
                 ->update(['status' => 'rejected']);
             return back()->with('notice',
-                "Draft #{$draft->id} discarded - parent {$source} row #{$rowId} was deleted before approval.");
+                __('Draft #:id discarded - parent :source row #:row_id was deleted before approval.', ['id' => $draft->id, 'source' => $source, 'row_id' => $rowId]));
         }
 
         try {
             \AhgDropdownManage\Controllers\DropdownController::applyI18nSave($source, $rowId, $culture, $label);
         } catch (\Throwable $e) {
-            return back()->with('error', "Apply failed for draft #{$draft->id}: " . $e->getMessage());
+            return back()->with('error', __('Apply failed for draft #:id: :error', ['id' => $draft->id, 'error' => $e->getMessage()]));
         }
 
         DB::table('ahg_translation_draft')
             ->where('id', $draft->id)
             ->update(['status' => 'applied', 'applied_at' => now()]);
 
-        return back()->with('success', "Draft #{$draft->id} applied to {$source}.{$rowId} ({$culture}).");
+        return back()->with('success', __('Draft #:id applied to :source.:row_id (:culture).', ['id' => $draft->id, 'source' => $source, 'row_id' => $rowId, 'culture' => $culture]));
     }
 
     /**
@@ -1204,7 +1204,7 @@ class TranslationController extends Controller
     public function draftCleanupOrphans(Request $request)
     {
         if (!\AhgCore\Services\AclService::isAdministrator()) {
-            return back()->with('error', 'Admin only');
+            return back()->with('error', __('Admin only'));
         }
         $orphanIds = DB::table('ahg_translation_draft as d')
             ->leftJoin('object as o', 'o.id', '=', 'd.object_id')
@@ -1213,7 +1213,7 @@ class TranslationController extends Controller
             ->pluck('d.id')
             ->all();
         if (empty($orphanIds)) {
-            return back()->with('notice', 'No orphaned drafts to clean up.');
+            return back()->with('notice', __('No orphaned drafts to clean up.'));
         }
         DB::table('ahg_translation_draft')->whereIn('id', $orphanIds)
             ->update(['status' => 'rejected']);
@@ -1266,7 +1266,7 @@ class TranslationController extends Controller
         $ids = array_filter(array_map('intval', (array) $request->input('ids', [])));
         $action = (string) $request->input('action');
         if (empty($ids) || ! in_array($action, ['approve', 'reject'], true)) {
-            return back()->with('error', 'No drafts selected or invalid action.');
+            return back()->with('error', __('No drafts selected or invalid action.'));
         }
 
         $ok = 0;
@@ -1286,7 +1286,7 @@ class TranslationController extends Controller
                 session()->forget('notice');
             }
         }
-        return back()->with('success', "Batch {$action}: {$ok} ok, {$fail} failed.");
+        return back()->with('success', __('Batch :action: :ok ok, :fail failed.', ['action' => $action, 'ok' => $ok, 'fail' => $fail]));
     }
 
     // ─── UI string editor (issue #54 MVP) ──────────────────────────────────

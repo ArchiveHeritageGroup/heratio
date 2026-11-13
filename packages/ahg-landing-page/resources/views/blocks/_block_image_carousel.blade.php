@@ -42,7 +42,7 @@ $carouselId = 'carousel-' . uniqid();
           <div class="d-flex align-items-center justify-content-center h-100 bg-light">
             <div class="text-center text-muted">
               <i class="bi bi-images display-1"></i>
-              <p class="mt-2">Collection: {{ e($collectionSlug) }}</p>
+              <p class="mt-2">{{ __('Collection: :value1', ['value1' => e($collectionSlug)]) }}</p>
             </div>
           </div>
         </div>

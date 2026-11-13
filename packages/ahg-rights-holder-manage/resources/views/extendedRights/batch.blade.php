@@ -81,7 +81,7 @@
         <div class="col-md-6 mb-3">
           <label for="rights_statement_id" class="form-label">{{ __('Rights Statement') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="rights_statement_id" id="rights_statement_id" class="form-select">
-            <option value="">-- Select --</option>
+            <option value="">{{ __('-- Select --') }}</option>
             @foreach($rightsStatements ?? [] as $rs)
               <option value="{{ $rs->id }}">[{{ $rs->code }}] {{ $rs->name }}</option>
             @endforeach
@@ -90,7 +90,7 @@
         <div class="col-md-6 mb-3">
           <label for="creative_commons_id" class="form-label">{{ __('Creative Commons License') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="creative_commons_id" id="creative_commons_id" class="form-select">
-            <option value="">-- Select --</option>
+            <option value="">{{ __('-- Select --') }}</option>
             @foreach($ccLicenses ?? [] as $cc)
               <option value="{{ $cc->id }}">[{{ $cc->code }}] {{ $cc->name }}</option>
             @endforeach
@@ -101,7 +101,7 @@
         <div class="col-md-6 mb-3">
           <label for="rights_holder_id" class="form-label">{{ __('Rights Holder') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
           <select name="rights_holder_id" id="rights_holder_id" class="form-select">
-            <option value="">-- Select --</option>
+            <option value="">{{ __('-- Select --') }}</option>
             @foreach($donors ?? [] as $donor)
               <option value="{{ $donor->id }}">{{ $donor->name ?? 'Unknown' }}</option>
             @endforeach

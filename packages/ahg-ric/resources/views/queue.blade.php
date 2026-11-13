@@ -64,13 +64,13 @@
               <td>{{ $item->scheduled_at ? \Carbon\Carbon::parse($item->scheduled_at)->format('Y-m-d H:i') : '' }}</td>
               <td>
                 @if($item->status === 'queued')
-                  <span class="badge bg-primary">queued</span>
+                  <span class="badge bg-primary">{{ __('Queued') }}</span>
                 @elseif($item->status === 'processing')
-                  <span class="badge bg-info">processing</span>
+                  <span class="badge bg-info">{{ __('Processing') }}</span>
                 @elseif($item->status === 'completed')
-                  <span class="badge bg-success">completed</span>
+                  <span class="badge bg-success">{{ __('Completed') }}</span>
                 @elseif($item->status === 'failed')
-                  <span class="badge bg-danger">failed</span>
+                  <span class="badge bg-danger">{{ __('Failed') }}</span>
                 @else
                   <span class="badge bg-secondary">{{ $item->status }}</span>
                 @endif

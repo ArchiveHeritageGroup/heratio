@@ -1,11 +1,11 @@
 {{-- BackupCompletedMail HTML body --}}
 <p>{{ __('Hi,') }}</p>
 
-<p>A Heratio backup run has completed
+<p>{{ __('A Heratio backup run has completed') }}
 @if(($backup['status'] ?? 'success') === 'success_with_warnings')
-<strong>with warnings</strong>
+<strong>{{ __('with warnings') }}</strong>
 @else
-<strong>successfully</strong>
+<strong>{{ __('successfully') }}</strong>
 @endif
 .</p>
 
@@ -55,7 +55,7 @@
 @endif
 
 <p>
-  <a href="{{ url('/admin/backup') }}">{{ __('Open the backup dashboard') }}</a> to review or download artefacts.
+  <a href="{{ url('/admin/backup') }}">{{ __('Open the backup dashboard') }}</a> {{ __('to review or download artefacts.') }}
 </p>
 
 <p>{{ __('Thanks,') }}<br>{{ config('app.name', 'Heratio') }}</p>

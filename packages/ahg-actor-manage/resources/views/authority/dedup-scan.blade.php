@@ -25,7 +25,7 @@
 
 <div class="card">
   <div class="card-header d-flex justify-content-between" style="background: var(--ahg-primary); color: #fff;">
-    <span>{{ count($pairs) }} potential duplicate pair(s)</span>
+    <span>{{ trans_choice(':count potential duplicate pair|:count potential duplicate pairs', count($pairs), ['count' => count($pairs)]) }}</span>
   </div>
   <div class="card-body p-0">
     <table class="table table-hover mb-0">

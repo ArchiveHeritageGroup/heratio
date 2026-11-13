@@ -42,7 +42,7 @@ $showHoldingsCount = $config['show_holdings_count'] ?? true;
         <div class="d-flex flex-wrap gap-3">
           @if ($showHoldingsCount && isset($repo['holdings_count']))
             <span class="badge bg-primary fs-6">
-              <i class="bi bi-archive"></i> {{ number_format($repo['holdings_count']) }} Holdings
+              <i class="bi bi-archive"></i> {{ __(':value1 Holdings', ['value1' => number_format($repo['holdings_count'])]) }}
             </span>
           @endif
 

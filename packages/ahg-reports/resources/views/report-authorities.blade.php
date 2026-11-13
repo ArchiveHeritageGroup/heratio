@@ -67,7 +67,7 @@
 @section('content')
 @if(!empty($results) && count($results) > 0)
   <div class="alert alert-info">
-    Showing {{ count($results) }} of {{ number_format($total) }} results (Page {{ $page }} of {{ $lastPage }})
+    {{ __('Showing :shown of :total results (Page :page of :last)', ['shown' => count($results), 'total' => number_format($total), 'page' => $page, 'last' => $lastPage]) }}
   </div>
 
   <table id="reportTable" class="table table-striped table-sm">

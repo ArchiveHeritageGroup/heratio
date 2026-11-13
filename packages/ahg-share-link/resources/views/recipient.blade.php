@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
-<title>{{ $title }} · Shared record</title>
+<title>{{ __(':value1 · Shared record', ['value1' => $title]) }}</title>
 <style>
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; background: #f7f7f8; color: #212529; }
   .sl-banner { background: #0d6efd; color: white; padding: .75rem 1.25rem; }
@@ -19,15 +19,15 @@
 <body>
 
 <div class="sl-banner">
-    <strong>🔗 Shared record</strong> ·
-    Shared by {{ $issuerName }} ·
-    Link expires {{ $expiresAt }}
+    <strong>{{ __('🔗 Shared record') }}</strong> {{ __('·
+    Shared by :value1 ·
+    Link expires :value2', ['value1' => $issuerName, 'value2' => $expiresAt]) }}
 </div>
 
 <div class="sl-content">
     <h1>{{ $title }}</h1>
     @if($identifier)
-        <div class="sl-meta">Reference code: <code>{{ $identifier }}</code></div>
+        <div class="sl-meta">{{ __('Reference code:') }} <code>{{ $identifier }}</code></div>
     @endif
 
     @if($scopeAndContent)
@@ -39,8 +39,8 @@
 </div>
 
 <div class="sl-footer">
-    This is a time-limited share link. The link will stop working on {{ $expiresAt }}.
-    All accesses are logged for audit purposes.
+    {{ __('This is a time-limited share link. The link will stop working on :value1.
+    All accesses are logged for audit purposes.', ['value1' => $expiresAt]) }}
 </div>
 
 </body>

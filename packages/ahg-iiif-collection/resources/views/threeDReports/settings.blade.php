@@ -1,7 +1,7 @@
 @extends('theme::layouts.1col')
 @section('title', '3D Reports - Settings')
 @section('body-class', 'admin three-d-reports settings')
-@section('title-block')<h1 class="mb-0"><i class="fas fa-cube me-2"></i>3D Settings</h1>@endsection
+@section('title-block')<h1 class="mb-0"><i class="fas fa-cube me-2"></i>{{ __('3D Settings') }}</h1>@endsection
 @section('content')
 <div class="card"><div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Settings') }}</h5></div>
 <div class="card-body p-0">

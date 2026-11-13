@@ -36,9 +36,9 @@
                                 <label class="form-label">{{ __('Limit') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <select name="limit" class="form-select">
                                     <option value="0">{{ __('No limit (all records)') }}</option>
-                                    <option value="50">50 records</option>
-                                    <option value="100">100 records</option>
-                                    <option value="500">500 records</option>
+                                    <option value="50">{{ __('50 records') }}</option>
+                                    <option value="100">{{ __('100 records') }}</option>
+                                    <option value="500">{{ __('500 records') }}</option>
                                 </select>
                             </div>
                         </div>

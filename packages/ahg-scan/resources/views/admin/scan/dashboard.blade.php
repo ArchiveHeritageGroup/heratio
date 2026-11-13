@@ -57,8 +57,8 @@
         <div class="card">
             <div class="card-body">
                 <h6 class="text-muted mb-1">{{ __('Last 24 hours') }}</h6>
-                <h3 class="mb-0">{{ number_format($last24h) }} arrival(s)</h3>
-                <small class="text-muted">{{ number_format($doneLast24h) }} completed</small>
+                <h3 class="mb-0">{{ __(':count arrivals', ['count' => number_format($last24h)]) }}</h3>
+                <small class="text-muted">{{ __(':count completed', ['count' => number_format($doneLast24h)]) }}</small>
             </div>
         </div>
     </div>

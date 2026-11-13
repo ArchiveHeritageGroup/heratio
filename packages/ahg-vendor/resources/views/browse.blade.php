@@ -126,7 +126,7 @@
         <div class="col-12 mb-4">
             <div class="card border-danger">
                 <div class="card-header bg-danger text-white">
-                    <i class="fas fa-exclamation-triangle me-2"></i>Overdue Transactions ({{ $overdueTransactions->count() }})
+                    <i class="fas fa-exclamation-triangle me-2"></i>{{ __('Overdue Transactions (:count)', ['count' => $overdueTransactions->count()]) }}
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -154,7 +154,7 @@
                                     <td>{{ \Carbon\Carbon::parse($trans->expected_return_date)->format('j M Y') }}</td>
                                     <td>
                                         <span class="badge bg-danger">
-                                            {{ (new DateTime())->diff(new DateTime($trans->expected_return_date))->days }} days
+                                            {{ __(':count days', ['count' => (new DateTime())->diff(new DateTime($trans->expected_return_date))->days]) }}
                                         </span>
                                     </td>
                                     <td>
@@ -231,7 +231,7 @@
                     @endif
                 </div>
                 <div class="card-footer">
-                    <a href="{{ route('ahgvendor.transactions') }}">View all transactions &rarr;</a>
+                    <a href="{{ route('ahgvendor.transactions') }}">{{ __('View all transactions') }} &rarr;</a>
                 </div>
             </div>
         </div>

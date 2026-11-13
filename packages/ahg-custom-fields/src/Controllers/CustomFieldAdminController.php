@@ -104,7 +104,7 @@ class CustomFieldAdminController extends Controller
     {
         $this->service->deleteDefinition($id);
 
-        return redirect()->route('customFields.index')->with('notice', 'Custom field deleted.');
+        return redirect()->route('customFields.index')->with('notice', __('Custom field deleted.'));
     }
 
     /**

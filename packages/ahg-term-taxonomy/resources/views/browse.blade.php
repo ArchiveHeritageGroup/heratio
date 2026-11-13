@@ -6,7 +6,7 @@
 @section('sidebar')
   <h2 class="d-grid">
     <button class="btn btn-lg atom-btn-white text-wrap" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-treeview" aria-expanded="true" aria-controls="collapse-treeview">
-      Browse {{ $taxonomyName ?? 'Terms' }}:
+      {{ __('Browse :taxonomy:', ['taxonomy' => $taxonomyName ?? __('Terms')]) }}
     </button>
   </h2>
   <div class="collapse show" id="collapse-treeview">
@@ -71,7 +71,7 @@
               </div>
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="subqueryField" id="qf-usefor" value="useForLabels" {{ request('subqueryField') === 'useForLabels' ? 'checked' : '' }}>
-                <label class="form-check-label" for="qf-usefor">"Use for" labels</label>
+                <label class="form-check-label" for="qf-usefor">{{ __('Use for labels') }}</label>
               </div>
             </div>
           </div>
@@ -99,7 +99,7 @@
         @endphp
         <div class="dropdown d-inline-block">
           <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sort-button" data-bs-toggle="dropdown" aria-expanded="false">
-            Sort by: {{ $sortOptions[$activeSort] ?? 'Name' }}
+            {{ __('Sort by: :label', ['label' => $sortOptions[$activeSort] ?? __('Name')]) }}
           </button>
           <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sort-button">
             @foreach($sortOptions as $key => $label)
@@ -109,7 +109,7 @@
         </div>
         <div class="dropdown d-inline-block">
           <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sortdir-button" data-bs-toggle="dropdown" aria-expanded="false">
-            Direction: {{ $activeDir === 'desc' ? 'Descending' : 'Ascending' }}
+            {{ __('Direction: :direction', ['direction' => $activeDir === 'desc' ? __('Descending') : __('Ascending')]) }}
           </button>
           <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sortdir-button">
             <li><a class="dropdown-item {{ $activeDir === 'asc' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sortDir' => 'asc', 'page' => 1]) }}"><i class="fas fa-sort-alpha-down me-1"></i>{{ __('Ascending') }}</a></li>
@@ -166,10 +166,10 @@
         <table class="table table-bordered mb-0">
           <thead>
             <tr>
-              <th>{{ $taxonomyName ?? 'Term' }} term</th>
+              <th>{{ __(':taxonomy term', ['taxonomy' => $taxonomyName ?? __('Term')]) }}</th>
               <th>{{ __('Scope note') }}</th>
-              <th class="text-end">{{ config('app.ui_label_informationobject', 'Archival description') }} count</th>
-              <th class="text-end">{{ config('app.ui_label_actor', 'Authority record') }} count</th>
+              <th class="text-end">{{ __(':label count', ['label' => config('app.ui_label_informationobject', __('Archival description'))]) }}</th>
+              <th class="text-end">{{ __(':label count', ['label' => config('app.ui_label_actor', __('Authority record'))]) }}</th>
             </tr>
           </thead>
           <tbody>
@@ -187,7 +187,7 @@
                   @endif
                   @if(!empty($doc['useFor']))
                     <p class="small text-muted mb-0">
-                      Use for: {{ implode(', ', $doc['useFor']) }}
+                      {{ __('Use for: :labels', ['labels' => implode(', ', $doc['useFor'])]) }}
                     </p>
                   @endif
                 </td>

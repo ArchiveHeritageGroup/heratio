@@ -60,7 +60,7 @@
                 <strong>{{ $candidate->candidate_display_name }}</strong>
             </label>
             @if($isFirst)
-                <span class="badge bg-success ms-1"><i class="bi bi-star-fill me-1"></i>top</span>
+                <span class="badge bg-success ms-1"><i class="bi bi-star-fill me-1"></i>{{ __('top') }}</span>
             @endif
             <span class="badge bg-{{ $srcCfg['cls'] }} ms-1">{{ $srcCfg['label'] }}</span>
             @if(! empty($candidate->evidence_data_decoded['proposed']))
@@ -68,11 +68,11 @@
             @endif
         </div>
         <div class="text-end">
-            <small class="text-muted d-block">rank #{{ (int) $candidate->rank_position }}</small>
+            <small class="text-muted d-block">{{ __('rank #:value1', ['value1' => (int) $candidate->rank_position]) }}</small>
             @if($compositeScore !== null)
                 <strong class="text-success">{{ number_format($compositeScore, 3) }}</strong>
             @else
-                <small class="text-muted">no score</small>
+                <small class="text-muted">{{ __('no score') }}</small>
             @endif
         </div>
     </div>
@@ -90,7 +90,7 @@
                     @elseif($authorityName)
                         {{ $authorityName }}
                     @else
-                        authority #{{ (int) $candidate->candidate_authority_id }}
+                        {{ __('authority #:value1', ['value1' => (int) $candidate->candidate_authority_id]) }}
                     @endif
                 @elseif($candidate->candidate_fuseki_uri)
                     <i class="bi bi-link-45deg text-muted me-1"></i>
@@ -98,7 +98,7 @@
                 @endif
             </span>
             <span class="text-muted">
-                name sim: {{ number_format((float) $candidate->name_similarity_score, 3) }}
+                {{ __('name sim: :value1', ['value1' => number_format((float) $candidate->name_similarity_score, 3)]) }}
             </span>
         </div>
 
@@ -120,7 +120,7 @@
                 </tbody>
             </table>
         @else
-            <p class="text-muted small mb-2 fst-italic">No evidence signals computed (run <code>auth-res:score-evidence</code>).</p>
+            <p class="text-muted small mb-2 fst-italic">{{ __('No evidence signals computed (run') }} <code>auth-res:score-evidence</code>{{ __(').') }}</p>
         @endif
 
         @if($authorityUrl)

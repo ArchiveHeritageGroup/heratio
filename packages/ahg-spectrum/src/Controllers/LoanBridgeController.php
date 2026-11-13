@@ -27,10 +27,10 @@ class LoanBridgeController extends Controller
         $objectId = (int) (DB::table('slug')->where('slug', $slug)->value('object_id') ?? 0);
 
         if (! $objectId || ! in_array($direction, ['loan_in', 'loan_out'], true)) {
-            return back()->with('error', 'Invalid loan request.');
+            return back()->with('error', __('Invalid loan request.'));
         }
         if (! $this->bridge->available()) {
-            return back()->with('error', 'The Loans module (ahg-loan) is not installed on this instance.');
+            return back()->with('error', __('The Loans module (ahg-loan) is not installed on this instance.'));
         }
 
         $result = $this->bridge->syncObject($objectId, $direction, true);

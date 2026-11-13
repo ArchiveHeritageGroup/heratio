@@ -9,12 +9,12 @@
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('settings.index') }}">{{ __('Admin') }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('acl.groups') }}">{{ __('ACL Groups') }}</a></li>
-      <li class="breadcrumb-item active" aria-current="page">{{ $group->name ?? 'Unnamed' }}</li>
+      <li class="breadcrumb-item active" aria-current="page">{{ $group->name ?? __('Unnamed') }}</li>
     </ol>
   </nav>
 
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-users-cog me-2"></i> {{ $group->name ?? 'Unnamed' }}</h2>
+    <h2><i class="fas fa-users-cog me-2"></i> {{ $group->name ?? __('Unnamed') }}</h2>
     <a href="{{ route('acl.groups') }}" class="btn atom-btn-white">
       <i class="fas fa-arrow-left me-1"></i> {{ __('Back to Groups') }}
     </a>
@@ -40,7 +40,7 @@
     <div class="col-lg-6 mb-4">
       <div class="card h-100">
         <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0"><i class="fas fa-users me-2"></i> Members ({{ $group->members->count() }})</h5>
+          <h5 class="mb-0"><i class="fas fa-users me-2"></i> {{ __('Members (:count)', ['count' => $group->members->count()]) }}</h5>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">
@@ -81,7 +81,7 @@
             <div class="col">
               <label for="user_id" class="form-label form-label-sm">{{ __('Add Member') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select name="user_id" id="user_id" class="form-select form-select-sm" required>
-                <option value="">-- Select User --</option>
+                <option value="">{{ __('-- Select User --') }}</option>
                 @foreach($allUsers as $user)
                   <option value="{{ $user->id }}">{{ $user->display_name ?: $user->username }} ({{ $user->username }})</option>
                 @endforeach
@@ -101,7 +101,7 @@
     <div class="col-lg-6 mb-4">
       <div class="card h-100">
         <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-          <h5 class="mb-0"><i class="fas fa-lock me-2"></i> Permissions ({{ $group->permissions->count() }})</h5>
+          <h5 class="mb-0"><i class="fas fa-lock me-2"></i> {{ __('Permissions (:count)', ['count' => $group->permissions->count()]) }}</h5>
         </div>
         <div class="card-body p-0">
           <div class="table-responsive">

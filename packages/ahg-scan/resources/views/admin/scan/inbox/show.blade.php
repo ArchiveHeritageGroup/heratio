@@ -2,7 +2,7 @@
 @section('title', 'Scan inbox - file #' . $file->id)
 
 @section('content')
-<h1>Scan file #{{ $file->id }}</h1>
+<h1>{{ __('Scan file #:id', ['id' => $file->id]) }}</h1>
 
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
@@ -29,7 +29,7 @@
                     <dt class="col-sm-4">MIME</dt><dd class="col-sm-8">{{ $file->mime_type ?? '-' }}</dd>
                     <dt class="col-sm-4">SHA-256</dt><dd class="col-sm-8"><small><code>{{ $file->source_hash ?? '-' }}</code></small></dd>
                     <dt class="col-sm-4">{{ __('Folder') }}</dt><dd class="col-sm-8"><code>{{ $file->folder_code ?? '-' }}</code> ({{ $file->folder_label ?? '-' }})</dd>
-                    <dt class="col-sm-4">{{ __('Session') }}</dt><dd class="col-sm-8">{{ $file->session_title ?? '-' }} - sector {{ $file->sector ?? '-' }}, standard {{ $file->standard ?? '-' }}</dd>
+                    <dt class="col-sm-4">{{ __('Session') }}</dt><dd class="col-sm-8">{{ __(':session - sector :sector, standard :standard', ['session' => $file->session_title ?? '-', 'sector' => $file->sector ?? '-', 'standard' => $file->standard ?? '-']) }}</dd>
                 </dl>
             </div>
         </div>

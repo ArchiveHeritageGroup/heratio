@@ -12,10 +12,10 @@
     <h1 class="mb-0">
       <i class="fas fa-chart-bar me-2"></i>
       @switch($type ?? 'summary')
-        @case('embargoes') Embargoes Report @break
-        @case('orphan_works') Orphan Works Report @break
-        @case('tk_labels') TK Labels Report @break
-        @default Rights Summary Report
+        @case('embargoes') {{ __('Embargoes Report') }} @break
+        @case('orphan_works') {{ __('Orphan Works Report') }} @break
+        @case('tk_labels') {{ __('TK Labels Report') }} @break
+        @default {{ __('Rights Summary Report') }}
       @endswitch
     </h1>
     @if(($type ?? 'summary') !== 'summary')

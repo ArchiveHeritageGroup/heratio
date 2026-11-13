@@ -19,16 +19,16 @@ $config = is_array($block->config) ? $block->config : (is_string($block->config)
         {{ e(\Illuminate\Support\Str::limit(strip_tags($config['content'] ?? ''), 40)) }}...
         @break
       @case('search_box')
-        <i class="bi bi-search"></i> Search Box
+        <i class="bi bi-search"></i> {{ __('Search Box') }}
         @break
       @case('statistics')
-        <i class="bi bi-bar-chart"></i> {{ count($config['stats'] ?? []) }} stats
+        <i class="bi bi-bar-chart"></i> {{ __(':value1 stats', ['value1' => count($config['stats'] ?? [])]) }}
         @break
       @case('recent_items')
-        <i class="bi bi-clock-history"></i> Recent Items
+        <i class="bi bi-clock-history"></i> {{ __('Recent Items') }}
         @break
       @case('quick_links')
-        <i class="bi bi-link-45deg"></i> {{ count($config['links'] ?? []) }} links
+        <i class="bi bi-link-45deg"></i> {{ __(':value1 links', ['value1' => count($config['links'] ?? [])]) }}
         @break
       @default
         {{ $block->type_label }}

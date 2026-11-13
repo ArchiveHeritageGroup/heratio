@@ -30,7 +30,7 @@
           'red'   => 'bg-danger',
           default => 'bg-secondary',
       };
-      return '<span class="badge ' . $cls . ' me-1" title="OCAP: ' . e($label) . '">'
+      return '<span class="badge ' . $cls . ' me-1" title="' . e(__('OCAP: :label', ['label' => $label])) . '">'
            . '<i class="fas fa-shield-alt me-1"></i>' . $label . '</span>';
   };
 @endphp

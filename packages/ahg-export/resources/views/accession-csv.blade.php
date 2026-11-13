@@ -28,7 +28,7 @@
                         <div class="mb-3">
                             <label for="repository_id" class="form-label">{{ __('Repository (optional)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select class="form-select" id="repository_id" name="repository_id">
-                                <option value="">-- All repositories --</option>
+                                <option value="">{{ __('-- All repositories --') }}</option>
                                 @foreach($repositories as $repo)
                                     <option value="{{ $repo->id }}">{{ e($repo->name) }}</option>
                                 @endforeach
@@ -64,7 +64,7 @@
                     <hr>
                     <h6>{{ __('Exported Columns') }}</h6>
                     <small class="text-muted">
-                        accessionNumber, title, acquisitionDate, sourceOfAcquisition,
+                        <code class="d-block">accessionNumber, title, acquisitionDate, sourceOfAcquisition,
                         locationInformation, receivedExtentUnits, scopeAndContent,
                         appraisal, archivalHistory, processingNotes,
                         acquisitionType, resourceType, processingStatus, processingPriority,
@@ -73,7 +73,7 @@
                         donorEmail, donorContactPerson, donorNote,
                         accessionEventTypes, accessionEventDates, accessionEventAgents,
                         alternativeIdentifiers, alternativeIdentifierNotes,
-                        intakeNotes, intakePriority, culture
+                        intakeNotes, intakePriority, culture</code>
                     </small>
                 </div>
             </div>
@@ -82,7 +82,7 @@
                 <div class="card-body">
                     <h6>{{ __('Re-import') }}</h6>
                     <p class="text-muted mb-0">
-                        The exported CSV can be re-imported using the Ingest wizard (Admin &gt; Ingest &gt; New &gt; Accessions) or the command:
+                        {{ __('The exported CSV can be re-imported using the Ingest wizard (Admin > Ingest > New > Accessions) or the command:') }}
                         <br><code>php artisan csv:accession-import filename.csv</code>
                     </p>
                 </div>

@@ -36,7 +36,7 @@
             <div class="mb-3">
               <label for="rule_type" class="form-label">{{ __('Rule Type') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select class="form-select" id="rule_type" name="rule_type" required>
-                <option value="">-- Select Type --</option>
+                <option value="">{{ __('-- Select Type --') }}</option>
                 @foreach($ruleTypes as $value => $label)
                   <option value="{{ $value }}" {{ old('rule_type') == $value ? 'selected' : '' }}>{{ $label }}</option>
                 @endforeach

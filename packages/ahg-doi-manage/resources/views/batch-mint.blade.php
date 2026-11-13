@@ -78,7 +78,7 @@
                         </tbody>
                     </table>
                     <div class="text-muted p-3 small">
-                        Showing up to 100 records. Use CLI for larger batches: <code>php artisan doi:mint --all --limit=500</code>
+                        {{ __('Showing up to 100 records. Use CLI for larger batches:') }} <code>php artisan doi:mint --all --limit=500</code>
                     </div>
                 @endif
             </div>
@@ -96,7 +96,7 @@
                                 <option value="draft">{{ __('Draft') }}</option>
                             </select>
                             <div class="form-text">
-                                Findable = publicly discoverable, Registered = resolvable but not indexed, Draft = not yet active
+                                {{ __('Findable = publicly discoverable, Registered = resolvable but not indexed, Draft = not yet active') }}
                             </div>
                         </div>
                         <div class="col-auto">

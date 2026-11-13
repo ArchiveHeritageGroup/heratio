@@ -113,7 +113,7 @@
       <div class="canvas-header bg-light border-bottom p-2 d-flex align-items-center justify-content-between">
         <span class="small text-muted">
           <i class="bi bi-grid-3x3"></i> {{ __('Canvas') }}
-          <span id="block-count">({{ count($blocks) }} blocks)</span>
+          <span id="block-count">{{ __('(:value1 blocks)', ['value1' => count($blocks)]) }}</span>
         </span>
         <div>
           <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-collapse-all">
@@ -179,7 +179,7 @@
             <input type="text" name="slug" class="form-control"
                    value="{{ e($page->slug) }}" required>
           </div>
-          <div class="form-text">URL: {{ config('app.url') }}/landing/<span id="slug-preview">{{ $page->slug }}</span></div>
+          <div class="form-text">{{ __('URL: :value1/landing/', ['value1' => config('app.url')]) }}<span id="slug-preview">{{ $page->slug }}</span></div>
         </div>
 
         <div class="mb-3">

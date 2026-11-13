@@ -114,7 +114,7 @@ $categories = [
                     <div class="mb-3">
                         <label class="form-label">{{ __('Category *') }}</label>
                         <select name="category" class="form-select" required>
-                            <option value="">-- Select --</option>
+                            <option value="">{{ __('-- Select --') }}</option>
                             <option value="paia_manual">{{ __('PAIA Manual') }}</option>
                             <option value="privacy_notice">{{ __('Privacy Notice') }}</option>
                             <option value="dsar_response">{{ __('DSAR Response') }}</option>

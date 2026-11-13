@@ -27,7 +27,7 @@ $colClass = 'col-md-' . (12 / max(1, (int)$columns));
                 @endif
                 <h5 class="card-title mb-2">{{ e($panel['label'] ?? $panel['title'] ?? '') }}</h5>
                 @if ($showCounts && isset($panel['count']))
-                  <p class="card-text text-muted mb-0">{{ number_format($panel['count']) }} records</p>
+                  <p class="card-text text-muted mb-0">{{ __(':value1 records', ['value1' => number_format($panel['count'])]) }}</p>
                 @endif
               </div>
             </a>

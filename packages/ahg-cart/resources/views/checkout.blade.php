@@ -110,7 +110,7 @@
             <hr>
             <div class="d-flex justify-content-between fw-bold"><span>{{ __('Total') }}</span><span>{{ $totals['currency'] }} {{ number_format($totals['total'], 2) }}</span></div>
           @else
-            <p class="text-muted small">{{ $items->count() }} {{ Str::plural('item', $items->count()) }} selected</p>
+            <p class="text-muted small">{{ __(':count items selected', ['count' => $items->count()]) }}</p>
           @endif
         </div>
         <div class="card-footer">

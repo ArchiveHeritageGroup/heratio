@@ -59,7 +59,7 @@
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label for="password" class="form-label">
-                  Password
+                  {{ __('Password') }}
                   @if(!$user)<span class="text-danger">*</span>@endif
                  <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                 <input type="password" name="password" id="password" class="form-control"
@@ -68,7 +68,7 @@
                   <div class="progress-bar" role="progressbar" style="width: 0%;" id="passwordStrengthFill"></div>
                 </div>
                 <div class="form-text" id="passwordStrengthText">
-                  @if($user) Leave blank to keep current password. @endif
+                  @if($user) {{ __('Leave blank to keep current password.') }} @endif
                 </div>
               </div>
               <div class="col-md-6 mb-3">
@@ -254,7 +254,7 @@
                 <div class="form-text">{{ __('Hold Ctrl/Cmd to select multiple languages. User will be allowed to translate content into selected languages.') }}</div>
               </div>
             @else
-              <p class="text-muted mb-0">No languages configured. Add languages in Admin &gt; Settings &gt; I18n.</p>
+              <p class="text-muted mb-0">{{ __('No languages configured. Add languages in Admin > Settings > I18n.') }}</p>
             @endif
           </div>
         </div>

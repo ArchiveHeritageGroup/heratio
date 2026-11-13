@@ -5,7 +5,7 @@
 
 @section('content')
 
-<h1><i class="fas fa-users"></i> Compartment Access: {{ e($compartment->code ?? '') }}</h1>
+<h1><i class="fas fa-users"></i> {{ __('Compartment Access: :code', ['code' => $compartment->code ?? '']) }}</h1>
 
 <div class="mb-3">
   <a href="{{ route('acl.compartments') }}" class="btn btn-sm btn-outline-secondary">
@@ -32,7 +32,7 @@
 <div class="card mb-4">
   <div class="card-header d-flex justify-content-between">
     <h5 class="mb-0">{{ __('Users with Access') }}</h5>
-    <span class="badge bg-primary">{{ count($users ?? []) }} users</span>
+    <span class="badge bg-primary">{{ __(':count users', ['count' => count($users ?? [])]) }}</span>
   </div>
   <div class="card-body">
     @if(empty($users))

@@ -48,7 +48,7 @@ class SectorProfileController extends Controller
 
         $sector = strtolower(trim((string) $request->input('sector')));
         if (! SectorProfiles::has($sector)) {
-            return redirect()->route('admin.sector-profile')->with('error', 'Unknown sector.');
+            return redirect()->route('admin.sector-profile')->with('error', __('Unknown sector.'));
         }
 
         try {

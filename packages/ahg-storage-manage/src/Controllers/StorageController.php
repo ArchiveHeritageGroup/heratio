@@ -207,7 +207,7 @@ class StorageController extends Controller
 
         return redirect()
             ->route('physicalobject.show', $this->service->getSlug($id))
-            ->with('success', 'Physical storage created successfully.')
+            ->with('success', __('Physical storage created successfully.'))
             ->with('warning', $warning);
     }
 
@@ -225,7 +225,7 @@ class StorageController extends Controller
 
         return redirect()
             ->route('physicalobject.show', $slug)
-            ->with('success', 'Physical storage updated successfully.')
+            ->with('success', __('Physical storage updated successfully.'))
             ->with('warning', $warning);
     }
 
@@ -314,7 +314,7 @@ class StorageController extends Controller
 
         return redirect()
             ->route('physicalobject.browse')
-            ->with('success', 'Physical storage deleted successfully.');
+            ->with('success', __('Physical storage deleted successfully.'));
     }
 
     public function holdingsReportExport()
@@ -705,7 +705,7 @@ class StorageController extends Controller
             ]);
         }
 
-        return redirect()->route('physicalobject.link-to', $slug)->with('success', 'Physical storage updated.');
+        return redirect()->route('physicalobject.link-to', $slug)->with('success', __('Physical storage updated.'));
     }
 
     /**
@@ -726,6 +726,6 @@ class StorageController extends Controller
 
         DB::table('relation')->where('id', $relationId)->where('type_id', 151)->delete();
 
-        return redirect()->route('physicalobject.link-to', $slug ?? '')->with('success', 'Container unlinked.');
+        return redirect()->route('physicalobject.link-to', $slug ?? '')->with('success', __('Container unlinked.'));
     }
 }

@@ -116,7 +116,7 @@ class FederationGovernanceController extends Controller
                 \AhgFederation\Services\FederationGovernance::SETTINGS_GROUP
             );
         } catch (\Throwable $e) {
-            return back()->with('error', 'Could not save the trust policy: '.$e->getMessage());
+            return back()->with('error', __('Could not save the trust policy: :message', ['message' => $e->getMessage()]));
         }
 
         return back()->with('success', $request->boolean('federation_require_verified')
@@ -157,7 +157,7 @@ class FederationGovernanceController extends Controller
 
         try {
             if (! Schema::hasColumn('federation_peer', 'federation_enabled')) {
-                return back()->with('error', 'Federation governance columns are not installed yet.');
+                return back()->with('error', __('Federation governance columns are not installed yet.'));
             }
 
             $allowed = $validated['allowed_entity_types'] ?? [];
@@ -169,10 +169,10 @@ class FederationGovernanceController extends Controller
                 'allowed_entity_types' => ! empty($allowed) ? json_encode(array_values($allowed)) : null,
             ]);
         } catch (\Throwable $e) {
-            return back()->with('error', 'Could not save governance: '.$e->getMessage());
+            return back()->with('error', __('Could not save governance: :message', ['message' => $e->getMessage()]));
         }
 
-        return back()->with('success', 'Peer governance updated.');
+        return back()->with('success', __('Peer governance updated.'));
     }
 
     /**
@@ -185,7 +185,7 @@ class FederationGovernanceController extends Controller
     {
         try {
             if (! Schema::hasColumn('federation_peer', 'pinned_key_fingerprint')) {
-                return back()->with('error', 'Federation trust columns are not installed yet.');
+                return back()->with('error', __('Federation trust columns are not installed yet.'));
             }
 
             DB::table('federation_peer')->where('id', $id)->update([
@@ -193,10 +193,10 @@ class FederationGovernanceController extends Controller
                 'key_pinned_at' => null,
             ]);
         } catch (\Throwable $e) {
-            return back()->with('error', 'Could not clear the key pin: '.$e->getMessage());
+            return back()->with('error', __('Could not clear the key pin: :message', ['message' => $e->getMessage()]));
         }
 
-        return back()->with('success', 'Key pin cleared. The next verified fetch will re-pin the peer key.');
+        return back()->with('success', __('Key pin cleared. The next verified fetch will re-pin the peer key.'));
     }
 
     /** Run the discovery crawl now and report the summary. */
@@ -205,11 +205,11 @@ class FederationGovernanceController extends Controller
         try {
             $summary = $service->discoverAll(false);
         } catch (\Throwable $e) {
-            return back()->with('error', 'Discovery failed: '.$e->getMessage());
+            return back()->with('error', __('Discovery failed: :message', ['message' => $e->getMessage()]));
         }
 
         if (($summary['probed'] ?? 0) === 0) {
-            return back()->with('success', 'No discoverable peers (a peer needs an http(s) base_url).');
+            return back()->with('success', __('No discoverable peers (a peer needs an http(s) base_url).'));
         }
 
         return back()->with('success', sprintf(

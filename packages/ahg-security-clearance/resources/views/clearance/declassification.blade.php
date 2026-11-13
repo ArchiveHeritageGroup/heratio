@@ -33,7 +33,7 @@
             <option value="0">{{ __('Public (remove classification)') }}</option>
             @foreach($classifications ?? [] as $cl)
               @if(($cl->level ?? 0) < ($currentClassification->level ?? 99))
-              <option value="{{ $cl->id }}" style="color: {{ $cl->color ?? '#333' }}">{{ e($cl->name) }} (Level {{ $cl->level }})</option>
+              <option value="{{ $cl->id }}" style="color: {{ $cl->color ?? '#333' }}">{{ __(':name (Level :level)', ['name' => $cl->name, 'level' => $cl->level]) }}</option>
               @endif
             @endforeach
           </select>

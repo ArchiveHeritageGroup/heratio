@@ -59,7 +59,7 @@
         <div>
           <span class="text-muted">{{ __('Terms:') }}</span><br>
           <span id="termCountDisplay">{{ $terms->count() }}</span>
-          (<span id="activeCountDisplay">{{ $terms->where('is_active', 1)->count() }}</span> active)
+          (<span id="activeCountDisplay">{{ $terms->where('is_active', 1)->count() }}</span> {{ __('active)') }}
         </div>
       </div>
     </div>

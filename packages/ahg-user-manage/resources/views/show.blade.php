@@ -9,7 +9,7 @@
     <span class="small" id="heading-label">
       {{ $user->username ?? '[Unknown]' }}
       @if(auth()->check() && auth()->user()->id === $user->id)
-        <span class="badge bg-info">(you)</span>
+        <span class="badge bg-info">{{ __('(you)') }}</span>
       @endif
     </span>
   </div>
@@ -27,7 +27,7 @@
   <section class="section border-bottom" id="basicInfo">
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
-        @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">{{ __('Basic info') }}</a>@else Basic info @endauth
+        @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">{{ __('Basic info') }}</a>@else {{ __('Basic info') }} @endauth
       </div>
     </h2>
     <div>
@@ -63,7 +63,7 @@
     <section class="section border-bottom" id="profile">
       <h2 class="h5 mb-0 atom-section-header">
         <div class="d-flex p-3 border-bottom text-primary">
-          @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">{{ __('Profile') }}</a>@else Profile @endauth
+          @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">{{ __('Profile') }}</a>@else {{ __('Profile') }} @endauth
         </div>
       </h2>
       <div>
@@ -80,7 +80,7 @@
     <section class="section border-bottom" id="contactInfo">
       <h2 class="h5 mb-0 atom-section-header">
         <div class="d-flex p-3 border-bottom text-primary">
-          @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">{{ __('Contact information') }}</a>@else Contact information @endauth
+          @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">{{ __('Contact information') }}</a>@else {{ __('Contact information') }} @endauth
         </div>
       </h2>
       <div>
@@ -146,7 +146,7 @@
   <section class="section border-bottom" id="accessControl">
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
-        @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">{{ __('Access control') }}</a>@else Access control @endauth
+        @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">{{ __('Access control') }}</a>@else {{ __('Access control') }} @endauth
       </div>
     </h2>
     <div>
@@ -177,7 +177,7 @@
   <section class="section border-bottom" id="translate">
     <h2 class="h5 mb-0 atom-section-header">
       <div class="d-flex p-3 border-bottom text-primary">
-        @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">{{ __('Allowed languages for translation') }}</a>@else Allowed languages for translation @endauth
+        @auth<a href="{{ route('user.edit', $user->slug) }}" class="text-primary text-decoration-none">{{ __('Allowed languages for translation') }}</a>@else {{ __('Allowed languages for translation') }} @endauth
       </div>
     </h2>
     <div>

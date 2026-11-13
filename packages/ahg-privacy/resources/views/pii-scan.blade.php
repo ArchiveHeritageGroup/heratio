@@ -73,10 +73,10 @@
                         <div class="mb-3">
                             <label class="form-label">{{ __('Batch Size') }}</label>
                             <select name="limit" class="form-select">
-                                <option value="25">25 objects</option>
-                                <option value="50" selected>50 objects</option>
-                                <option value="100">100 objects</option>
-                                <option value="250">250 objects</option>
+                                <option value="25">{{ __(':count objects', ['count' => 25]) }}</option>
+                                <option value="50" selected>{{ __(':count objects', ['count' => 50]) }}</option>
+                                <option value="100">{{ __(':count objects', ['count' => 100]) }}</option>
+                                <option value="250">{{ __(':count objects', ['count' => 250]) }}</option>
                             </select>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">
@@ -128,7 +128,7 @@ $badges = [
                 </div>
                 <div class="card-body">
                     <a href="{{ route('ahgprivacy.pii-review') }}" class="btn btn-outline-warning w-100 mb-2">
-                        <i class="fas fa-tasks me-1"></i>Review Pending ({{ $stats['pending_review'] }})
+                        <i class="fas fa-tasks me-1"></i>{{ __('Review Pending (:count)', ['count' => $stats['pending_review']]) }}
                     </a>
                     <a href="{{ route('ahgprivacy.ropa-list') }}" class="btn btn-outline-secondary w-100">
                         <i class="fas fa-database me-1"></i>{{ __('Data Inventory') }}
@@ -200,28 +200,28 @@ $badges = [
                 <div class="col-md-4">
                     <h6 class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>{{ __('High Risk') }}</h6>
                     <ul class="list-unstyled small">
-                        <li><strong>{{ __('SA_ID') }}</strong> - South African ID Numbers</li>
-                        <li><strong>{{ __('NG_NIN') }}</strong> - Nigerian National ID</li>
-                        <li><strong>{{ __('PASSPORT') }}</strong> - Passport Numbers</li>
-                        <li><strong>{{ __('BANK_ACCOUNT') }}</strong> - Bank Account Numbers</li>
-                        <li><strong>{{ __('TAX_NUMBER') }}</strong> - Tax Reference Numbers</li>
+                        <li><strong>{{ __('SA_ID') }}</strong> {{ __('- South African ID Numbers') }}</li>
+                        <li><strong>{{ __('NG_NIN') }}</strong> {{ __('- Nigerian National ID') }}</li>
+                        <li><strong>{{ __('PASSPORT') }}</strong> {{ __('- Passport Numbers') }}</li>
+                        <li><strong>{{ __('BANK_ACCOUNT') }}</strong> {{ __('- Bank Account Numbers') }}</li>
+                        <li><strong>{{ __('TAX_NUMBER') }}</strong> {{ __('- Tax Reference Numbers') }}</li>
                     </ul>
                 </div>
                 <div class="col-md-4">
                     <h6 class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i>{{ __('Medium Risk') }}</h6>
                     <ul class="list-unstyled small">
-                        <li><strong>{{ __('PERSON') }}</strong> - Names (via NER)</li>
-                        <li><strong>{{ __('EMAIL') }}</strong> - Email Addresses</li>
-                        <li><strong>{{ __('PHONE_SA') }}</strong> - SA Phone Numbers</li>
-                        <li><strong>{{ __('PHONE_INTL') }}</strong> - International Phones</li>
+                        <li><strong>{{ __('PERSON') }}</strong> {{ __('- Names (via NER)') }}</li>
+                        <li><strong>{{ __('EMAIL') }}</strong> {{ __('- Email Addresses') }}</li>
+                        <li><strong>{{ __('PHONE_SA') }}</strong> {{ __('- SA Phone Numbers') }}</li>
+                        <li><strong>{{ __('PHONE_INTL') }}</strong> {{ __('- International Phones') }}</li>
                     </ul>
                 </div>
                 <div class="col-md-4">
                     <h6 class="text-secondary"><i class="fas fa-info-circle me-1"></i>{{ __('Low Risk') }}</h6>
                     <ul class="list-unstyled small">
-                        <li><strong>{{ __('ORG') }}</strong> - Organizations (via NER)</li>
-                        <li><strong>{{ __('GPE') }}</strong> - Places (via NER)</li>
-                        <li><strong>{{ __('DATE') }}</strong> - Dates (via NER)</li>
+                        <li><strong>{{ __('ORG') }}</strong> {{ __('- Organizations (via NER)') }}</li>
+                        <li><strong>{{ __('GPE') }}</strong> {{ __('- Places (via NER)') }}</li>
+                        <li><strong>{{ __('DATE') }}</strong> {{ __('- Dates (via NER)') }}</li>
                     </ul>
                 </div>
             </div>

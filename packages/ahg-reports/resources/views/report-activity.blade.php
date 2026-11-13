@@ -52,7 +52,7 @@
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1><i class="fas fa-history me-2"></i>{{ __('User Activity') }}</h1>
-      <span class="badge bg-primary fs-6">{{ number_format($total) }} results</span>
+      <span class="badge bg-primary fs-6">{{ __(':count results', ['count' => number_format($total)]) }}</span>
     </div>
     @if(!$auditTable)
       <div class="alert alert-warning">{{ __('No audit log table found.') }}</div>

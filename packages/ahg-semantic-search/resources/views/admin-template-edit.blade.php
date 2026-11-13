@@ -77,7 +77,7 @@
           <label class="form-label">{{ __('JSON Parameters') }}</label>
           <textarea name="search_params" class="form-control font-monospace" rows="6" required>{{ $template->search_params ?? '{}' }}</textarea>
           <div class="form-text">
-            Example: <code>{"sq0":"photographs","sf0":"title","onlyMedia":"1"}</code>
+            {{ __('Example:') }} <code>{"sq0":"photographs","sf0":"title","onlyMedia":"1"}</code>
           </div>
         </div>
       </div>

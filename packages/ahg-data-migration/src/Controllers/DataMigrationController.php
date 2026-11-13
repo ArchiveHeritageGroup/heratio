@@ -83,7 +83,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
             $path = $this->service->normaliseUpload($stored, $ext, (int) $req->input('sheet_index', 0),
                 (string) $req->input('delimiter', 'auto'), (string) $req->input('encoding', 'auto'));
         } catch (\Throwable $e) {
-            return back()->withInput()->with('error', 'The file could not be read: '.$e->getMessage());
+            return back()->withInput()->with('error', __('The file could not be read: :message', ['message' => $e->getMessage()]));
         }
         $target = $req->target_type === 'archives' ? 'informationObject' : $req->target_type;
         session(['dm_file' => $path, 'dm_filename' => $fileName, 'dm_target' => $target,
@@ -100,7 +100,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
         $targetType = session('dm_target', 'informationObject');
         if (! $filePath) {
             return redirect()->route('data-migration.upload')
-                ->with('error', 'No file uploaded. Please upload a file first.');
+                ->with('error', __('No file uploaded. Please upload a file first.'));
         }
         $parsed = file_exists($filePath) ? $this->service->parseCSV($filePath, 5) : ['headers' => [], 'rows' => [], 'totalRows' => 0];
         $sourceColumns = $parsed['headers'];
@@ -138,7 +138,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
         $this->repo->deleteMapping($id);
 
         return redirect()->route('data-migration.index')
-            ->with('success', 'Mapping deleted.');
+            ->with('success', __('Mapping deleted.'));
     }
 
     // ── Existing: preview ────────────────────────────────────
@@ -202,16 +202,16 @@ class DataMigrationController extends \App\Http\Controllers\Controller
         // The map page posts `mapping`; older callers send `mappings`.
         $mappings = json_decode((string) $req->input('mapping', $req->input('mappings', '{}')), true) ?: [];
         if (! $filePath || ! file_exists($filePath)) {
-            return redirect()->route('data-migration.upload')->with('error', 'The uploaded file is no longer available. Please upload it again.');
+            return redirect()->route('data-migration.upload')->with('error', __('The uploaded file is no longer available. Please upload it again.'));
         }
         if (! array_filter($mappings)) {
-            return back()->with('error', 'Map at least one column before importing.');
+            return back()->with('error', __('Map at least one column before importing.'));
         }
         $jobId = $this->repo->queueImportJob($filePath, $targetType, $mappings,
             ['import_type' => session('dm_import_type', 'create'), 'culture' => app()->getLocale()], $req->input('name'));
 
         return redirect()->route('data-migration.job', $jobId)
-            ->with('success', 'Import job queued. It runs in the background; this page shows its progress. Job ID: '.$jobId);
+            ->with('success', __('Import job queued. It runs in the background; this page shows its progress. Job ID: :id', ['id' => $jobId]));
     }
 
     // ── Existing: jobs ───────────────────────────────────────
@@ -357,13 +357,13 @@ class DataMigrationController extends \App\Http\Controllers\Controller
     public function preservicaImport(Request $req)
     {
         return redirect()->route('data-migration.index')
-            ->with('error', 'Preservica OPEX/PAX import is not available yet. Nothing was queued.');
+            ->with('error', __('Preservica OPEX/PAX import is not available yet. Nothing was queued.'));
     }
 
     public function preservicaExport(Request $req, ?int $id = null)
     {
         return redirect()->route('data-migration.index')
-            ->with('error', 'Preservica OPEX/PAX export is not available yet. Nothing was queued.');
+            ->with('error', __('Preservica OPEX/PAX export is not available yet. Nothing was queued.'));
     }
 
     /** GET /admin/data-migration/download - download a completed export file */
@@ -418,7 +418,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
         }
 
         return redirect()->route('data-migration.jobs')
-            ->with('success', 'Job cancelled.');
+            ->with('success', __('Job cancelled.'));
     }
 
     /** GET /dataMigration/exportCsv - export current result set as CSV */
@@ -493,7 +493,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
         $data = json_decode($content, true);
         if (! $data || ! isset($data['name'])) {
             return redirect()->route('data-migration.index')
-                ->with('error', 'Invalid mapping file format.');
+                ->with('error', __('Invalid mapping file format.'));
         }
         $this->repo->saveMapping([
             'name' => $data['name'].' (imported)',
@@ -503,7 +503,7 @@ class DataMigrationController extends \App\Http\Controllers\Controller
         ]);
 
         return redirect()->route('data-migration.index')
-            ->with('success', 'Mapping imported successfully.');
+            ->with('success', __('Mapping imported successfully.'));
     }
 
     /** POST /dataMigration/validate - validate file without executing */

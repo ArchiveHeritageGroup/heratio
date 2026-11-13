@@ -8,7 +8,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>{{ __('Chatbot Administration') }}</h2>
         <a href="{{ route('admin.chatbot.review') }}" class="btn btn-outline-warning">
-            <i class="fas fa-exclamation-triangle me-1"></i> Review Queue
+            <i class="fas fa-exclamation-triangle me-1"></i> {{ __('Review Queue') }}
             @if (count($reviewQueue ?? []) > 0)
                 <span class="badge bg-warning text-dark">{{ count($reviewQueue) }}</span>
             @endif
@@ -58,7 +58,7 @@
         <div class="card shadow-sm">
             <div class="card-header bg-warning bg-opacity-25">
                 <h5 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i> {{ __('Responses Needing Review') }}</h5>
-                <p class="small text-muted mb-0">Responses below the grounding threshold ({{ config('ahg-ai-chatbot.grounding_threshold') }}).</p>
+                <p class="small text-muted mb-0">{{ __('Responses below the grounding threshold (:value1).', ['value1' => config('ahg-ai-chatbot.grounding_threshold')]) }}</p>
             </div>
             <div class="table-responsive">
                 <table class="table table-hover mb-0">

@@ -63,7 +63,7 @@
             <form class="contribution-form">@csrf
               <input type="hidden" name="item_id" value="{{ $item->id ?? '' }}">
               <input type="hidden" name="type_code" value="{{ $opp['code'] }}">
-              <div class="mb-3"><p class="text-muted">{{ $opp['description'] }}</p><p class="small text-success"><i class="fas fa-gift me-1"></i>Earn {{ $opp['points_value'] }} points</p></div>
+        <div class="mb-3"><p class="text-muted">{{ $opp['description'] }}</p><p class="small text-success"><i class="fas fa-gift me-1"></i>{{ __('Earn :points points', ['points' => $opp['points_value']]) }}</p></div>
 
               @if($opp['code']==='transcription')
               <div class="mb-3"><label class="form-label">{{ __('Transcription') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label><textarea class="form-control font-monospace" name="content[text]" rows="12" required minlength="10" placeholder="{{ __('Type the text exactly as it appears...') }}"></textarea><div class="form-text">{{ __('Use [...] for unclear words and [illegible] for unreadable sections.') }}</div></div>

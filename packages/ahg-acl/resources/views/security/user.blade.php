@@ -23,9 +23,9 @@
     @if(request('success'))
       <div class="alert alert-success alert-dismissible fade show">
         @if(request('success') === 'updated')
-          Security clearance has been updated successfully.
+          {{ __('Security clearance has been updated successfully.') }}
         @elseif(request('success') === 'revoked')
-          Security clearance has been revoked.
+          {{ __('Security clearance has been revoked.') }}
         @endif
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
@@ -55,10 +55,9 @@
                       </span>
                       <br>
                       <small class="text-muted">
-                        Granted by {{ $clearance->granted_by_name ?? $clearance->granted_by_username ?? 'System' }}
-                        on {{ ($clearance->granted_at ?? null) ? date('F j, Y', strtotime($clearance->granted_at)) : 'Unknown' }}
+                        {{ __('Granted by :name on :date', ['name' => $clearance->granted_by_name ?? $clearance->granted_by_username ?? __('System'), 'date' => ($clearance->granted_at ?? null) ? date('F j, Y', strtotime($clearance->granted_at)) : __('Unknown')]) }}
                         @if($clearance->expires_at ?? null)
-                          | Expires: {{ date('F j, Y', strtotime($clearance->expires_at)) }}
+                          {{ __('| Expires: :date', ['date' => date('F j, Y', strtotime($clearance->expires_at))]) }}
                         @endif
                       </small>
                     </div>
@@ -80,12 +79,12 @@
                     <i class="fas fa-lock me-1"></i>{{ __('Clearance Level') }}
                   </label>
                   <select name="classification_id" id="classification_id" class="form-select form-select-lg">
-                    <option value="">-- Select Classification --</option>
+                    <option value="">{{ __('-- Select Classification --') }}</option>
                     @foreach($classifications ?? [] as $c)
                       <option value="{{ $c->id }}"
                               {{ ($clearance && ($clearance->classification_id ?? null) == $c->id) ? 'selected' : '' }}
                               style="background-color: {{ $c->color }}20;">
-                        {{ $c->name }} (Level {{ $c->level }})
+                        {{ __(':name (Level :level)', ['name' => $c->name, 'level' => $c->level]) }}
                       </option>
                     @endforeach
                   </select>
@@ -168,7 +167,7 @@
                       <small class="text-muted">{{ date('Y-m-d', strtotime($record->created_at ?? '')) }}</small>
                     </div>
                     @if($record->new_name ?? null)
-                      <small>{{ ($record->previous_name ?? 'None') }} &rarr; {{ $record->new_name }}</small>
+                      <small>{{ ($record->previous_name ?? __('None')) }} &rarr; {{ $record->new_name }}</small>
                     @endif
                   </li>
                 @endforeach

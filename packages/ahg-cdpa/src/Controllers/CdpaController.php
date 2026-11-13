@@ -142,7 +142,7 @@ class CdpaController extends Controller
             $this->audit('config_updated', 'cdpa_config', null, $settings);
 
             return redirect()->route('ahgcdpa.config')
-                ->with('success', 'CDPA configuration saved.');
+                ->with('success', __('CDPA configuration saved.'));
         }
 
         $settings = [];
@@ -269,7 +269,7 @@ class CdpaController extends Controller
             $this->audit('processing_created', 'cdpa_processing_activity', $newId, $validated);
 
             return redirect()->route('ahgcdpa.processing')
-                ->with('success', 'Processing activity created.');
+                ->with('success', __('Processing activity created.'));
         }
 
         return view('cdpa::processing-create');
@@ -282,7 +282,7 @@ class CdpaController extends Controller
 
         if (! $activity) {
             return redirect()->route('ahgcdpa.processing')
-                ->with('error', 'Processing activity not found.');
+                ->with('error', __('Processing activity not found.'));
         }
 
         if ($request->isMethod('post')) {
@@ -317,7 +317,7 @@ class CdpaController extends Controller
             $this->audit('processing_updated', 'cdpa_processing_activity', (int) $id, $validated);
 
             return redirect()->route('ahgcdpa.processing')
-                ->with('success', 'Processing activity updated.');
+                ->with('success', __('Processing activity updated.'));
         }
 
         return view('cdpa::processing-edit', compact('activity'));
@@ -411,7 +411,7 @@ class CdpaController extends Controller
             $this->audit('request_created', 'cdpa_data_subject_request', $newId, $validated);
 
             return redirect()->route('ahgcdpa.requests')
-                ->with('success', 'Data subject request created. Ref: '.$validated['reference_number']);
+                ->with('success', __('Data subject request created. Ref: :reference', ['reference' => $validated['reference_number']]));
         }
 
         return view('cdpa::request-create');
@@ -424,7 +424,7 @@ class CdpaController extends Controller
 
         if (! $dsr) {
             return redirect()->route('ahgcdpa.requests')
-                ->with('error', 'Data subject request not found.');
+                ->with('error', __('Data subject request not found.'));
         }
 
         // Handle status update via POST
@@ -447,7 +447,7 @@ class CdpaController extends Controller
             $this->audit('request_updated', 'cdpa_data_subject_request', (int) $id, $validated);
 
             return redirect()->route('ahgcdpa.request-view', ['id' => $id])
-                ->with('success', 'Request updated.');
+                ->with('success', __('Request updated.'));
         }
 
         $auditTrail = DB::table('cdpa_audit_log')
@@ -516,7 +516,7 @@ class CdpaController extends Controller
             $this->audit('dpia_created', 'cdpa_dpia', $newId, $validated);
 
             return redirect()->route('ahgcdpa.dpia')
-                ->with('success', 'DPIA created.');
+                ->with('success', __('DPIA created.'));
         }
 
         $activities = DB::table('cdpa_processing_activity')
@@ -538,7 +538,7 @@ class CdpaController extends Controller
 
         if (! $dpia) {
             return redirect()->route('ahgcdpa.dpia')
-                ->with('error', 'DPIA not found.');
+                ->with('error', __('DPIA not found.'));
         }
 
         // Handle status / approval update via POST
@@ -562,7 +562,7 @@ class CdpaController extends Controller
             $this->audit('dpia_updated', 'cdpa_dpia', (int) $id, $validated);
 
             return redirect()->route('ahgcdpa.dpia-view', ['id' => $id])
-                ->with('success', 'DPIA updated.');
+                ->with('success', __('DPIA updated.'));
         }
 
         $auditTrail = DB::table('cdpa_audit_log')
@@ -633,7 +633,7 @@ class CdpaController extends Controller
             $this->audit('breach_created', 'cdpa_breach', $newId, $validated);
 
             return redirect()->route('ahgcdpa.breaches')
-                ->with('success', 'Breach reported. Ref: '.$validated['reference_number']);
+                ->with('success', __('Breach reported. Ref: :reference', ['reference' => $validated['reference_number']]));
         }
 
         return view('cdpa::breach-create');
@@ -646,7 +646,7 @@ class CdpaController extends Controller
 
         if (! $breach) {
             return redirect()->route('ahgcdpa.breaches')
-                ->with('error', 'Breach record not found.');
+                ->with('error', __('Breach record not found.'));
         }
 
         // Handle status / notification update via POST
@@ -678,7 +678,7 @@ class CdpaController extends Controller
             $this->audit('breach_updated', 'cdpa_breach', (int) $id, $validated);
 
             return redirect()->route('ahgcdpa.breach-view', ['id' => $id])
-                ->with('success', 'Breach record updated.');
+                ->with('success', __('Breach record updated.'));
         }
 
         $auditTrail = DB::table('cdpa_audit_log')

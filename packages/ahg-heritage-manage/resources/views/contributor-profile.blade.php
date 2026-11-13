@@ -19,9 +19,9 @@ $statsByType = $profile['stats_by_type'] ?? [];
         @if(!empty($contributor['avatar_url']))<img src="{{ $contributor['avatar_url'] }}" class="rounded-circle mb-3" width="100" height="100" alt="{{ __('Avatar') }}">
         @else<div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:100px;height:100px;"><i class="fas fa-user display-3" style="color:var(--ahg-primary)"></i></div>@endif
         <h4 class="mb-1">{{ $contributor['display_name'] ?? 'Contributor' }}</h4>
-        <span class="badge bg-{{ match($contributor['trust_level'] ?? 'new') { 'expert'=>'primary','trusted'=>'success','contributor'=>'info',default=>'secondary' } }} mb-2">{{ ucfirst($contributor['trust_level'] ?? 'new') }} Contributor</span>
+      <span class="badge bg-{{ match($contributor['trust_level'] ?? 'new') { 'expert'=>'primary','trusted'=>'success','contributor'=>'info',default=>'secondary' } }} mb-2">{{ __(':level Contributor', ['level' => ucfirst($contributor['trust_level'] ?? 'new')]) }}</span>
         @if(!empty($contributor['bio']))<p class="text-muted small mt-3 mb-0">{!! nl2br(e($contributor['bio'])) !!}</p>@endif
-        <p class="text-muted small mt-3 mb-0">Member since {{ date('F Y', strtotime($contributor['created_at'] ?? 'now')) }}</p>
+      <p class="text-muted small mt-3 mb-0">{{ __('Member since :date', ['date' => date('F Y', strtotime($contributor['created_at'] ?? 'now'))]) }}</p>
       </div>
     </div>
 

@@ -53,7 +53,7 @@ class PreservationController extends Controller
         $cls = \AhgInformationObjectManage\Services\PreservationService::class;
         if (! class_exists($cls)) {
             return redirect()->route('preservation.package-view', $id)
-                ->with('error', 'Export service unavailable.');
+                ->with('error', __('Export service unavailable.'));
         }
         $result = app($cls)->exportPackage($id);
 
@@ -72,7 +72,7 @@ class PreservationController extends Controller
                 ->with('success', 'AIP #' . $newId . ' created from SIP #' . $id . '.');
         } catch (\Throwable $e) {
             return redirect()->route('preservation.package-view', $id)
-                ->with('error', 'Convert to AIP failed: ' . $e->getMessage());
+                ->with('error', __('Convert to AIP failed: :error', ['error' => $e->getMessage()]));
         }
     }
 
@@ -87,7 +87,7 @@ class PreservationController extends Controller
                 ->with('success', 'DIP #' . $newId . ' created from AIP #' . $id . '.');
         } catch (\Throwable $e) {
             return redirect()->route('preservation.package-view', $id)
-                ->with('error', 'Create DIP failed: ' . $e->getMessage());
+                ->with('error', __('Create DIP failed: :error', ['error' => $e->getMessage()]));
         }
     }
 
@@ -109,7 +109,7 @@ class PreservationController extends Controller
         DB::table('preservation_package')->where('id', $id)->delete();
 
         return redirect()->route('preservation.packages')
-            ->with('success', 'Package #' . $id . ' deleted.');
+            ->with('success', __('Package #:id deleted.', ['id' => $id]));
     }
 
     /**
@@ -145,7 +145,7 @@ class PreservationController extends Controller
             );
         } catch (\Throwable $e) {
             return redirect()->route('preservation.packages')
-                ->with('error', 'BagIt build failed: ' . $e->getMessage());
+                ->with('error', __('BagIt build failed: :error', ['error' => $e->getMessage()]));
         }
 
         return redirect()->route('preservation.package-view', $result['package_id'])
@@ -169,7 +169,7 @@ class PreservationController extends Controller
             $r = $this->bagit->validatePackage($id);
         } catch (\Throwable $e) {
             return redirect()->route('preservation.package-view', $id)
-                ->with('error', 'Validation failed: ' . $e->getMessage());
+                ->with('error', __('Validation failed: :error', ['error' => $e->getMessage()]));
         }
 
         $msg = sprintf(
@@ -346,7 +346,7 @@ class PreservationController extends Controller
         $path = $package->export_path ?? null;
         if (!$path || !is_file($path)) {
             return redirect()->route('preservation.package-view', $id)
-                ->with('error', 'Package #' . $id . ' has no exported file yet. Run the BagIt export job first.');
+                ->with('error', __('Package #:id has no exported file yet. Run the BagIt export job first.', ['id' => $id]));
         }
 
         return response()->download($path, basename($path));
@@ -542,7 +542,7 @@ class PreservationController extends Controller
         $data['created_at'] = now();
         DB::table('preservation_normalization_rule')->insert($data);
 
-        return redirect()->route('preservation.normalization-rules')->with('success', 'Rule added.');
+        return redirect()->route('preservation.normalization-rules')->with('success', __('Rule added.'));
     }
 
     public function updateNormalizationRule(Request $request, int $id)
@@ -551,7 +551,7 @@ class PreservationController extends Controller
         $data['updated_at'] = now();
         DB::table('preservation_normalization_rule')->where('id', $id)->update($data);
 
-        return redirect()->route('preservation.normalization-rules')->with('success', 'Rule updated.');
+        return redirect()->route('preservation.normalization-rules')->with('success', __('Rule updated.'));
     }
 
     public function toggleNormalizationRule(int $id)
@@ -559,14 +559,14 @@ class PreservationController extends Controller
         $cur = DB::table('preservation_normalization_rule')->where('id', $id)->value('is_active');
         DB::table('preservation_normalization_rule')->where('id', $id)->update(['is_active' => $cur ? 0 : 1, 'updated_at' => now()]);
 
-        return redirect()->route('preservation.normalization-rules')->with('success', 'Rule toggled.');
+        return redirect()->route('preservation.normalization-rules')->with('success', __('Rule toggled.'));
     }
 
     public function deleteNormalizationRule(int $id)
     {
         DB::table('preservation_normalization_rule')->where('id', $id)->delete();
 
-        return redirect()->route('preservation.normalization-rules')->with('success', 'Rule deleted.');
+        return redirect()->route('preservation.normalization-rules')->with('success', __('Rule deleted.'));
     }
 
     private function validateRule(Request $request): array

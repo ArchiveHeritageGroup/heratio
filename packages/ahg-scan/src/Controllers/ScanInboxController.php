@@ -92,7 +92,7 @@ class ScanInboxController extends Controller
 
         ProcessScanFile::dispatchSync($id);
 
-        return redirect()->route('scan.inbox.show', $id)->with('notice', 'Retry attempted.');
+        return redirect()->route('scan.inbox.show', $id)->with('notice', __('Retry attempted.'));
     }
 
     public function discard(int $id)
@@ -107,7 +107,7 @@ class ScanInboxController extends Controller
             'completed_at' => now(),
         ]);
 
-        return redirect()->route('scan.inbox.index')->with('notice', 'File discarded.');
+        return redirect()->route('scan.inbox.index')->with('notice', __('File discarded.'));
     }
 
     /**
@@ -121,7 +121,7 @@ class ScanInboxController extends Controller
         $file = DB::table('ingest_file')->where('id', $id)->first();
         abort_unless($file, 404);
         if ($file->status !== 'quarantined') {
-            return redirect()->back()->with('error', 'File is not quarantined.');
+            return redirect()->back()->with('error', __('File is not quarantined.'));
         }
         DB::table('ingest_file')->where('id', $id)->update([
             'status' => 'pending',
@@ -131,7 +131,7 @@ class ScanInboxController extends Controller
         ]);
         \AhgScan\Jobs\ProcessScanFile::dispatch($id, null);
 
-        return redirect()->route('scan.inbox.show', $id)->with('notice', 'File restored from quarantine; retry dispatched.');
+        return redirect()->route('scan.inbox.show', $id)->with('notice', __('File restored from quarantine; retry dispatched.'));
     }
 
     /**
@@ -143,7 +143,7 @@ class ScanInboxController extends Controller
         $ids = $request->input('ids', []);
         $action = $request->input('action', '');
         if (! is_array($ids) || empty($ids)) {
-            return redirect()->back()->with('error', 'No files selected.');
+            return redirect()->back()->with('error', __('No files selected.'));
         }
         $ids = array_values(array_filter(array_map('intval', $ids)));
         $count = 0;
@@ -163,7 +163,7 @@ class ScanInboxController extends Controller
                 }
 
                 return redirect()->route('scan.inbox.index', $request->except(['ids', 'action', '_token']))
-                    ->with('notice', "Dispatched {$count} retry(s).");
+                    ->with('notice', __('Dispatched :count retries.', ['count' => $count]));
 
             case 'discard':
                 $count = DB::table('ingest_file')
@@ -177,10 +177,10 @@ class ScanInboxController extends Controller
                     ]);
 
                 return redirect()->route('scan.inbox.index', $request->except(['ids', 'action', '_token']))
-                    ->with('notice', "Discarded {$count} file(s).");
+                    ->with('notice', __('Discarded :count files.', ['count' => $count]));
 
             default:
-                return redirect()->back()->with('error', 'Unknown bulk action: '.$action);
+                return redirect()->back()->with('error', __('Unknown bulk action: :action', ['action' => $action]));
         }
     }
 
@@ -193,7 +193,7 @@ class ScanInboxController extends Controller
         $file = DB::table('ingest_file')->where('id', $id)->first();
         abort_unless($file, 404);
         if ($file->status !== 'awaiting_rights') {
-            return redirect()->back()->with('error', 'File is not in awaiting_rights state.');
+            return redirect()->back()->with('error', __('File is not in awaiting_rights state.'));
         }
 
         DB::table('ingest_file')->where('id', $id)->update([
@@ -211,12 +211,12 @@ class ScanInboxController extends Controller
         } catch (\Throwable $e) {
             DB::table('ingest_file')->where('id', $id)->update([
                 'status' => 'failed',
-                'error_message' => 'Resume failed: '.$e->getMessage(),
+                'error_message' => __('Resume failed: :message', ['message' => $e->getMessage()]),
             ]);
 
-            return redirect()->route('scan.inbox.show', $id)->with('error', 'Resume failed: '.$e->getMessage());
+            return redirect()->route('scan.inbox.show', $id)->with('error', __('Resume failed: :message', ['message' => $e->getMessage()]));
         }
 
-        return redirect()->route('scan.inbox.show', $id)->with('notice', 'Rights released; pipeline resumed.');
+        return redirect()->route('scan.inbox.show', $id)->with('notice', __('Rights released; pipeline resumed.'));
     }
 }

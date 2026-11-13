@@ -97,7 +97,7 @@
             <div class="text-warning opacity-50"><i class="fas fa-exclamation-triangle fa-2x"></i></div>
           </div>
           <div class="small text-muted mt-1">
-            {{ number_format($stats['missing_thumbnails']) }} thumbs / {{ number_format($stats['missing_references']) }} refs
+            {{ __(':value1 thumbs / :value2 refs', ['value1' => number_format($stats['missing_thumbnails']), 'value2' => number_format($stats['missing_references'])]) }}
           </div>
         </div>
       </div>
@@ -134,7 +134,7 @@
               onclick="return confirm('Regenerate missing thumbnails for up to 100 objects?')">
               <i class="fas fa-th-large"></i> {{ __('Regenerate Thumbnails') }}
             </button>
-            <small class="text-muted d-block mt-1">{{ number_format($stats['missing_thumbnails']) }} masters missing thumbnails</small>
+            <small class="text-muted d-block mt-1">{{ __(':value1 masters missing thumbnails', ['value1' => number_format($stats['missing_thumbnails'])]) }}</small>
           </form>
         </div>
         <div class="col-md-4">
@@ -147,7 +147,7 @@
               onclick="return confirm('Regenerate missing reference images for up to 100 objects?')">
               <i class="fas fa-expand"></i> {{ __('Regenerate References') }}
             </button>
-            <small class="text-muted d-block mt-1">{{ number_format($stats['missing_references']) }} masters missing references</small>
+            <small class="text-muted d-block mt-1">{{ __(':value1 masters missing references', ['value1' => number_format($stats['missing_references'])]) }}</small>
           </form>
         </div>
       </div>
@@ -159,7 +159,7 @@
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-white d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-exclamation-circle text-warning"></i> {{ __('Masters Missing Derivatives') }}</h5>
-      <span class="badge bg-warning text-dark">{{ $missingDerivatives->count() }} shown</span>
+      <span class="badge bg-warning text-dark">{{ __(':value1 shown', ['value1' => $missingDerivatives->count()]) }}</span>
     </div>
     <div class="card-body p-0">
       <div class="table-responsive">
@@ -227,7 +227,7 @@
   <div class="card shadow-sm">
     <div class="card-header bg-white d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <h5 class="mb-0"><i class="fas fa-history"></i> {{ __('Recent Derivatives') }}</h5>
-      <span class="badge bg-secondary">{{ $recentDerivatives->count() }} shown</span>
+      <span class="badge bg-secondary">{{ __(':value1 shown', ['value1' => $recentDerivatives->count()]) }}</span>
     </div>
     <div class="card-body p-0">
       <div class="table-responsive">

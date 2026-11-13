@@ -13,7 +13,7 @@
           <span class="badge bg-success"><i class="fab fa-creative-commons"></i> {{ e($right->cc_license_name) }}</span>
         @endif
         @if(!empty($right->basis))
-          <small class="text-muted ms-2">Basis: {{ e($right->basis) }}</small>
+          <small class="text-muted ms-2">{{ __('Basis: :basis', ['basis' => $right->basis]) }}</small>
         @endif
       </div>
       @if(!empty($right->rights_date))

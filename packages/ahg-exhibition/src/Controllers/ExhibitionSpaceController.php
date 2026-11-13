@@ -96,7 +96,7 @@ class ExhibitionSpaceController extends Controller
             $space = $this->service->getById($id);
 
             return redirect()->route('exhibition-space.show', ['slug' => $space->slug])
-                ->with('success', 'Exhibition space created.');
+                ->with('success', __('Exhibition space created.'));
         } catch (\InvalidArgumentException $e) {
             return back()->withErrors(['name' => $e->getMessage()])->withInput();
         }
@@ -126,7 +126,7 @@ class ExhibitionSpaceController extends Controller
         $this->service->update((int) $space->id, $validated);
 
         return redirect()->route('exhibition-space.show', ['slug' => $space->slug])
-            ->with('success', 'Exhibition space updated.');
+            ->with('success', __('Exhibition space updated.'));
     }
 
     /** heratio#1195 - publish this space into the RiC graph as a rico:Activity + link its objects. */
@@ -183,7 +183,7 @@ class ExhibitionSpaceController extends Controller
         try {
             $this->service->delete((int) $space->id);
 
-            return redirect()->route('exhibition-space.browse')->with('success', 'Exhibition space deleted.');
+            return redirect()->route('exhibition-space.browse')->with('success', __('Exhibition space deleted.'));
         } catch (\RuntimeException $e) {
             return redirect()->route('exhibition-space.show', ['slug' => $slug])->with('error', $e->getMessage());
         }
@@ -214,7 +214,7 @@ class ExhibitionSpaceController extends Controller
             ]);
 
             return redirect()->route('exhibition-space.show', ['slug' => $slug])
-                ->with('success', 'Placement saved.');
+                ->with('success', __('Placement saved.'));
         } catch (\Throwable $e) {
             return redirect()->route('exhibition-space.show', ['slug' => $slug])
                 ->with('error', $e->getMessage());
@@ -232,7 +232,7 @@ class ExhibitionSpaceController extends Controller
         $slug = $space ? $space->slug : '';
 
         return redirect()->route('exhibition-space.show', ['slug' => $slug])
-            ->with('success', 'Placement removed.');
+            ->with('success', __('Placement removed.'));
     }
 
     private function validated(Request $request): array
@@ -479,7 +479,7 @@ class ExhibitionSpaceController extends Controller
             }
 
             return redirect()->route('exhibition-space.builder', ['slug' => $slug])
-                ->with('success', 'Borrowed object added.');
+                ->with('success', __('Borrowed object added.'));
         } catch (\Throwable $e) {
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['ok' => false, 'error' => $e->getMessage()], 422);
@@ -1426,7 +1426,7 @@ class ExhibitionSpaceController extends Controller
         $file->move($dir, $filename);
         $this->service->setBuildingPlanImage($space, '/uploads/exhibition-plans/'.$filename);
 
-        return redirect()->route('exhibition-space.plan', ['slug' => $slug])->with('success', 'Building plan uploaded.');
+        return redirect()->route('exhibition-space.plan', ['slug' => $slug])->with('success', __('Building plan uploaded.'));
     }
 
     /** Clear the building plan image. */
@@ -1438,7 +1438,7 @@ class ExhibitionSpaceController extends Controller
         }
         $this->service->setBuildingPlanImage($space, null);
 
-        return redirect()->route('exhibition-space.plan', ['slug' => $slug])->with('success', 'Building plan cleared.');
+        return redirect()->route('exhibition-space.plan', ['slug' => $slug])->with('success', __('Building plan cleared.'));
     }
 
     /** AJAX: persist interior wall segments for a space. */
@@ -1737,7 +1737,7 @@ class ExhibitionSpaceController extends Controller
         );
 
         return redirect()->route('exhibition-space.builder', ['slug' => $slug])
-            ->with('success', 'Floorplan uploaded.');
+            ->with('success', __('Floorplan uploaded.'));
     }
 
     /** Upload a ceiling image (painted ceiling) for the 3D room. */
@@ -1760,7 +1760,7 @@ class ExhibitionSpaceController extends Controller
         $this->service->setCeiling((int) $space->id, '/uploads/exhibition-ceilings/'.$filename);
 
         return redirect()->route('exhibition-space.builder', ['slug' => $slug])
-            ->with('success', 'Ceiling image uploaded.');
+            ->with('success', __('Ceiling image uploaded.'));
     }
 
     /** Clear the room ceiling image. */
@@ -1773,7 +1773,7 @@ class ExhibitionSpaceController extends Controller
         $this->service->setCeiling((int) $space->id, null);
 
         return redirect()->route('exhibition-space.builder', ['slug' => $slug])
-            ->with('success', 'Ceiling image cleared.');
+            ->with('success', __('Ceiling image cleared.'));
     }
 
     /** Upload a decorated/painted wall image (applied to the room's walls). */
@@ -1810,7 +1810,7 @@ class ExhibitionSpaceController extends Controller
             return response()->json(['ok' => true, 'path' => $path, 'filename' => $filename, 'all' => $allWalls, 'edge' => $allWalls ? null : (string) $request->input('edge')]);
         }
 
-        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Wall image uploaded.');
+        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', __('Wall image uploaded.'));
     }
 
     /** Clear the decorated wall image - the all-walls default, or one wall (edge). */
@@ -1830,7 +1830,7 @@ class ExhibitionSpaceController extends Controller
             return response()->json(['ok' => true, 'all' => $allWalls, 'edge' => $allWalls ? null : (string) $request->input('edge')]);
         }
 
-        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Wall image cleared.');
+        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', __('Wall image cleared.'));
     }
 
     /** Upload a decorative floor picture (stretched over the whole room floor). Mirrors uploadWallImage. */
@@ -1857,7 +1857,7 @@ class ExhibitionSpaceController extends Controller
             return response()->json(['ok' => true, 'path' => $path, 'filename' => $filename]);
         }
 
-        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Floor image uploaded.');
+        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', __('Floor image uploaded.'));
     }
 
     /** Set this room's floor tiling: grout grid on/off + tile size (m). */
@@ -1885,7 +1885,7 @@ class ExhibitionSpaceController extends Controller
             return response()->json(['ok' => true]);
         }
 
-        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Floor image cleared.');
+        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', __('Floor image cleared.'));
     }
 
     /**
@@ -1927,7 +1927,7 @@ class ExhibitionSpaceController extends Controller
             return response()->json(['ok' => true, 'path' => $path, 'filename' => $filename, 'ext' => $ext]);
         }
 
-        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Scan shell uploaded.');
+        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', __('Scan shell uploaded.'));
     }
 
     /** heratio#1156: remove the room's photoreal capture shell. */
@@ -1942,7 +1942,7 @@ class ExhibitionSpaceController extends Controller
             return response()->json(['ok' => true]);
         }
 
-        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Scan shell cleared.');
+        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', __('Scan shell cleared.'));
     }
 
     /** heratio#1156: persist the scan fit-scale + 360/Matterport embed URL. */
@@ -1965,7 +1965,7 @@ class ExhibitionSpaceController extends Controller
             return response()->json(['ok' => true]);
         }
 
-        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Scan settings saved.');
+        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', __('Scan settings saved.'));
     }
 
     /** Save a wall paint colour - the all-walls default, or one wall (edge). Used when no wall image is set. */
@@ -1991,7 +1991,7 @@ class ExhibitionSpaceController extends Controller
             return response()->json(['ok' => true, 'color' => $hex, 'all' => $allWalls, 'edge' => $allWalls ? null : (string) $request->input('edge')]);
         }
 
-        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Wall colour saved.');
+        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', __('Wall colour saved.'));
     }
 
     /** Clear a wall paint colour - the all-walls default, or one wall (edge). */
@@ -2011,7 +2011,7 @@ class ExhibitionSpaceController extends Controller
             return response()->json(['ok' => true, 'all' => $allWalls, 'edge' => $allWalls ? null : (string) $request->input('edge')]);
         }
 
-        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', 'Wall colour cleared.');
+        return redirect()->route('exhibition-space.builder', ['slug' => $slug])->with('success', __('Wall colour cleared.'));
     }
 
     /** AJAX: add a furniture/fitting item to this room at floor-fraction (fx,fy). */

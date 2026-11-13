@@ -95,7 +95,7 @@
             <ol class="mb-0">
                 <li>{{ __('Repository (if specified)') }}</li>
                 <li>{{ __('Level of Description (if specified)') }}</li>
-                <li>Priority (higher number = higher priority)</li>
+                <li>{{ __('Priority (higher number = higher priority)') }}</li>
             </ol>
         </div>
     </div>

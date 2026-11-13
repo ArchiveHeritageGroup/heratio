@@ -36,7 +36,7 @@
             {{ __('Record Type') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span>
           </label>
           <select class="form-select" id="target_type" name="target_type" required>
-            <option value="">-- Select record type --</option>
+            <option value="">{{ __('-- Select record type --') }}</option>
             <option value="informationObject">{{ __('Information Objects') }}</option>
             <option value="actor">{{ __('Authority Records') }}</option>
             <option value="repository">{{ __('Repositories') }}</option>
@@ -48,7 +48,7 @@
             {{ __('Limit to Repository') }} <span class="badge bg-warning text-dark ms-1">{{ __('Recommended') }}</span>
           </label>
           <select class="form-select" id="repository_id" name="repository_id">
-            <option value="">-- All repositories --</option>
+            <option value="">{{ __('-- All repositories --') }}</option>
             @foreach($repositories ?? [] as $repo)
               <option value="{{ $repo->id }}">{{ $repo->name ?? $repo->authorized_form_of_name ?? ('#' . $repo->id) }}</option>
             @endforeach

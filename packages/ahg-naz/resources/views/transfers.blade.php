@@ -87,7 +87,7 @@
                                         {{ number_format($transfer->quantity_linear_metres, 2) }}m
                                     @endif
                                     @if ($transfer->quantity_boxes)
-                                        / {{ $transfer->quantity_boxes }} boxes
+                                        / {{ __(':count boxes', ['count' => $transfer->quantity_boxes]) }}
                                     @endif
                                 </td>
                                 <td>

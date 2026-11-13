@@ -96,7 +96,7 @@ class CaptionTrackController extends Controller
 
         return redirect()
             ->route('caption-tracks.index', $digitalObjectId)
-            ->with('success', 'Caption track added successfully.');
+            ->with('success', __('Caption track added successfully.'));
     }
 
     /**
@@ -144,7 +144,7 @@ class CaptionTrackController extends Controller
 
         return redirect()
             ->route('caption-tracks.index', $digitalObjectId)
-            ->with('success', 'Caption track updated successfully.');
+            ->with('success', __('Caption track updated successfully.'));
     }
 
     /**
@@ -156,7 +156,7 @@ class CaptionTrackController extends Controller
 
         return redirect()
             ->route('caption-tracks.index', $digitalObjectId)
-            ->with('success', 'Caption track deleted.');
+            ->with('success', __('Caption track deleted.'));
     }
 
     /**
@@ -169,7 +169,7 @@ class CaptionTrackController extends Controller
 
         return redirect()
             ->route('caption-tracks.index', $digitalObjectId)
-            ->with('success', "Caption track {$stateLabel}.");
+            ->with('success', __('Caption track :state.', ['state' => $stateLabel]));
     }
 
     /**
@@ -184,12 +184,12 @@ class CaptionTrackController extends Controller
         if ($vttBlob === null) {
             return redirect()
                 ->route('caption-tracks.index', $digitalObjectId)
-                ->with('error', 'Failed to fetch remote VTT content. Check the URL and try again.');
+                ->with('error', __('Failed to fetch remote VTT content. Check the URL and try again.'));
         }
 
         return redirect()
             ->route('caption-tracks.index', $digitalObjectId)
-            ->with('success', 'Remote VTT content fetched and saved.');
+            ->with('success', __('Remote VTT content fetched and saved.'));
     }
 
     /**

@@ -24,7 +24,7 @@
  *                                    blanked first, so text that shares an
  *                                    element with an expression, spans lines,
  *                                    or sits in <p>/<span>/<a>/<td>/... is seen
- *   ->with('error', 'Not found.')  ← [flash] literal flash messages in PHP
+ *   ->with('error', __('Not found.'))  ← [flash] literal flash messages in PHP
  *                                    (each package's src/ and app/)
  *
  * Baseline (the same contract as tools/scan-form-fields.php): the backlog is

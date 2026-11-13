@@ -34,7 +34,7 @@
                 <input type="radio" name="classification_id" id="cl_{{ $cl->id }}" value="{{ $cl->id }}"
                        {{ ($currentClassification->id ?? 0) == $cl->id ? 'checked' : '' }} class="form-check-input">
                 <h5><span class="badge" style="background-color: {{ $cl->color ?? '#666' }}; font-size: 1em;">{{ e($cl->name) }}</span></h5>
-                <small class="text-muted">Level {{ $cl->level }}</small>
+                <small class="text-muted">{{ __('Level :value1', ['value1' => $cl->level]) }}</small>
                 @if(!empty($cl->description))
                   <p class="mt-2 small">{{ e($cl->description) }}</p>
                 @endif

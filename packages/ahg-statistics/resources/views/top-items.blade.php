@@ -19,13 +19,13 @@
     <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ route('statistics.dashboard') }}">{{ __('Statistics') }}</a></li>
-            <li class="breadcrumb-item active">Top {{ ucfirst($eventType) }}s</li>
+            <li class="breadcrumb-item active">{{ __('Top :value1s', ['value1' => ucfirst($eventType)]) }}</li>
         </ol>
     </nav>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0">
-            <i class="fas fa-trophy me-2"></i>Top {{ $eventType === 'view' ? 'Viewed' : 'Downloaded' }} Items
+            <i class="fas fa-trophy me-2"></i>{{ __('Top :value1 Items', ['value1' => $eventType === 'view' ? 'Viewed' : 'Downloaded']) }}
         </h1>
         <a href="{{ route('statistics.export', ['type' => 'top_items', 'start' => $startDate, 'end' => $endDate]) }}" class="btn btn-outline-secondary">
             <i class="fas fa-download me-1"></i>{{ __('Export CSV') }}

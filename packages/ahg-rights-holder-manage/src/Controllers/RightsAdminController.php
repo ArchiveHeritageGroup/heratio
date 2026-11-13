@@ -85,7 +85,7 @@ class RightsAdminController extends Controller
             ]);
         }
 
-        return redirect()->route('rights-admin.embargoes')->with('success', 'Embargo updated.');
+        return redirect()->route('rights-admin.embargoes')->with('success', __('Embargo updated.'));
     }
 
     public function orphanWorks()
@@ -118,7 +118,7 @@ class RightsAdminController extends Controller
             ]);
         }
 
-        return redirect()->route('rights-admin.orphan-works')->with('success', 'Orphan work updated.');
+        return redirect()->route('rights-admin.orphan-works')->with('success', __('Orphan work updated.'));
     }
 
     public function report()

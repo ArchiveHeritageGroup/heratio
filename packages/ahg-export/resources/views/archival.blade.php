@@ -50,11 +50,11 @@
                                 <label class="form-label">{{ __('Limit') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                                 <select name="limit" class="form-select">
                                     <option value="0">{{ __('No limit (all records)') }}</option>
-                                    <option value="100">100 records</option>
-                                    <option value="500">500 records</option>
-                                    <option value="1000">1,000 records</option>
-                                    <option value="5000">5,000 records</option>
-                                    <option value="10000">10,000 records</option>
+                                    <option value="100">{{ __('100 records') }}</option>
+                                    <option value="500">{{ __('500 records') }}</option>
+                                    <option value="1000">{{ __('1,000 records') }}</option>
+                                    <option value="5000">{{ __('5,000 records') }}</option>
+                                    <option value="10000">{{ __('10,000 records') }}</option>
                                 </select>
                             </div>
                         </div>

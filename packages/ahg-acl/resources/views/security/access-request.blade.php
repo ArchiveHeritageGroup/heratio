@@ -42,7 +42,7 @@
       <div class="card-body">
         <p>
           <strong>{{ __('Title:') }}</strong>
-          {{ e($object->title ?? 'Untitled') }}
+          {{ e($object->title ?? __('Untitled')) }}
         </p>
         @if($object->identifier ?? null)
         <p>
@@ -69,7 +69,7 @@
       <span class="badge" style="background-color: {{ $userClearance->color ?? '#666' }}">
         {{ e($userClearance->name ?? '') }}
       </span>
-      (Level {{ $userClearance->level ?? 0 }})
+      {{ __('(Level :level)', ['level' => $userClearance->level ?? 0]) }}
     </div>
     @else
     <div class="alert alert-warning">
@@ -111,13 +111,13 @@
           <div class="mb-3">
             <label class="form-label">{{ __('Duration Required (hours)') }}</label>
             <select name="duration_hours" class="form-select">
-              <option value="1">1 hour</option>
-              <option value="4">4 hours</option>
-              <option value="8">8 hours (1 day)</option>
-              <option value="24" selected>24 hours</option>
-              <option value="72">72 hours (3 days)</option>
-              <option value="168">168 hours (1 week)</option>
-              <option value="720">720 hours (30 days)</option>
+              <option value="1">{{ __('1 hour') }}</option>
+              <option value="4">{{ __('4 hours') }}</option>
+              <option value="8">{{ __('8 hours (1 day)') }}</option>
+              <option value="24" selected>{{ __('24 hours') }}</option>
+              <option value="72">{{ __('72 hours (3 days)') }}</option>
+              <option value="168">{{ __('168 hours (1 week)') }}</option>
+              <option value="720">{{ __('720 hours (30 days)') }}</option>
             </select>
           </div>
 

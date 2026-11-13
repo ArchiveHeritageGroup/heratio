@@ -50,13 +50,13 @@
               <div class="d-flex justify-content-between align-items-center">
                 <small class="text-muted">
                   @if($queue->warning_days)
-                    Warning: {{ $queue->warning_days }}d |
+                    {{ __('Warning: :count d |', ['count' => $queue->warning_days]) }}
                   @endif
                   @if($queue->due_days)
-                    Due: {{ $queue->due_days }}d |
+                    {{ __('Due: :count d |', ['count' => $queue->due_days]) }}
                   @endif
                   @if($queue->sla_escalation_days)
-                    Escalate: {{ $queue->sla_escalation_days }}d
+                    {{ __('Escalate: :count d', ['count' => $queue->sla_escalation_days]) }}
                   @endif
                 </small>
                 @if($queue->overdue_count > 0)

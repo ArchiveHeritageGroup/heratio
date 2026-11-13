@@ -15,7 +15,7 @@
   <div class="card">
     <div class="card-header">
       <i class="bi bi-person me-1"></i>
-      Agent Authority - {{ $agents->total() ?? $agents->count() }} total
+      {{ __('Agent Authority - :value1 total', ['value1' => $agents->total() ?? $agents->count()]) }}
     </div>
     <div class="table-responsive">
       <table class="table table-sm table-striped mb-0">

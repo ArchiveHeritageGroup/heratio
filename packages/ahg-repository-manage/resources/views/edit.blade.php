@@ -6,9 +6,9 @@
   <div class="multiline-header d-flex flex-column mb-3">
     <h1 class="mb-0" aria-describedby="heading-label">
       @if($repository)
-        Edit archival institution - ISDIAH
+        {{ __('Edit archival institution - ISDIAH') }}
       @else
-        Add new archival institution - ISDIAH
+        {{ __('Add new archival institution - ISDIAH') }}
       @endif
     </h1>
     @if($repository)
@@ -422,7 +422,7 @@
             <div class="mb-3">
               <label for="desc_status_id" class="form-label">{{ __('Status') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select name="desc_status_id" id="desc_status_id" class="form-select">
-                <option value="">-- Select --</option>
+                <option value="">{{ __('-- Select --') }}</option>
                 @foreach($formChoices['descriptionStatuses'] as $status)
                   <option value="{{ $status->id }}" @selected(old('desc_status_id', $repository->desc_status_id ?? '') == $status->id)>
                     {{ $status->name }}
@@ -435,7 +435,7 @@
             <div class="mb-3">
               <label for="desc_detail_id" class="form-label">{{ __('Level of detail') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select name="desc_detail_id" id="desc_detail_id" class="form-select">
-                <option value="">-- Select --</option>
+                <option value="">{{ __('-- Select --') }}</option>
                 @foreach($formChoices['descriptionDetails'] as $detail)
                   <option value="{{ $detail->id }}" @selected(old('desc_detail_id', $repository->desc_detail_id ?? '') == $detail->id)>
                     {{ $detail->name }}
@@ -551,7 +551,7 @@
               <label for="upload_limit" class="form-label">{{ __('Upload limit (MB)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <input type="number" name="upload_limit" id="upload_limit" class="form-control" min="-1" step="1"
                      value="{{ old('upload_limit', $repository->upload_limit ?? '') }}" placeholder="{{ __('-1 = unlimited, 0 = disabled') }}">
-              <div class="form-text"><strong>-1</strong> = unlimited, <strong>0</strong> = disabled, any positive number = limit in MB</div>
+              <div class="form-text"><strong>-1</strong> {{ __('= unlimited,') }} <strong>0</strong> {{ __('= disabled, any positive number = limit in MB') }}</div>
               <button type="button" class="btn btn-link btn-sm p-0 ms-1 text-muted ahg-field-help" data-bs-toggle="popover" data-bs-trigger="click" data-bs-placement="auto" data-bs-content="Set the maximum upload size in megabytes for digital objects associated with this repository. Set to 0 or leave blank to use the global default."><i class="fas fa-question-circle"></i></button>
             </div>
           </div>

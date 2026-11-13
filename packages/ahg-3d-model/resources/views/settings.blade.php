@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', '3D Viewer Settings')
+@section('title', __('3D Viewer Settings'))
 @section('body-class', 'settings model3d')
 
 @php
@@ -16,7 +16,7 @@
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h1><i class="fas fa-cog me-2"></i>3D Viewer Settings</h1>
+      <h1><i class="fas fa-cog me-2"></i>{{ __('3D Viewer Settings') }}</h1>
       <p class="text-muted mb-0">{{ __('Configure global settings for 3D model viewing') }}</p>
     </div>
     <a href="{{ route('admin.3d-models.index') }}" class="btn atom-btn-white">
@@ -186,7 +186,7 @@
               <i class="fas fa-info-circle me-1"></i>
               {{ __('AR requires HTTPS and is supported on:') }}
               <ul class="mb-0 mt-1">
-                <li>iOS 12+ (Safari with Quick Look)</li>
+                <li>{{ __('iOS 12+ (Safari with Quick Look)') }}</li>
                 <li>{{ __('Android 7+ (Chrome with Scene Viewer)') }}</li>
                 <li>{{ __('WebXR-capable browsers') }}</li>
               </ul>
@@ -287,7 +287,7 @@
           <div class="card-header fw-semibold d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff;">
             <span><i class="fas fa-magic me-2"></i>{{ __('TripoSR - Image to 3D') }}</span>
             <span class="badge {{ $triposrOnline ? 'bg-success' : 'bg-danger' }}">
-              {{ $triposrOnline ? 'Online' : 'Offline' }}
+              {{ $triposrOnline ? __('Online') : __('Offline') }}
             </span>
           </div>
           <div class="card-body">
@@ -298,11 +298,11 @@
             @if($triposrOnline)
               <div class="alert alert-success small mb-3">
                 <i class="fas fa-check-circle me-1"></i>
-                <strong>{{ __('API Status:') }}</strong> Online |
+                <strong>{{ __('API Status:') }}</strong> {{ __('Online') }} |
                 <strong>{{ __('Device:') }}</strong> {{ $triposrHealth['device'] ?? 'unknown' }} |
                 <strong>{{ __('Mode:') }}</strong> {{ $triposrHealth['mode'] ?? 'unknown' }}
                 @if($triposrHealth['cuda_available'] ?? false)
-                  | <strong>{{ __('CUDA:') }}</strong> Available
+                  | <strong>{{ __('CUDA:') }}</strong> {{ __('Available') }}
                 @endif
               </div>
             @else
@@ -398,9 +398,9 @@
                 <div class="mb-3">
                   <label class="form-label">{{ __('Resolution') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                   <select class="form-select" name="triposr_mc_resolution">
-                    <option value="128" {{ getSetting3d($settings, 'triposr_mc_resolution', '256') == '128' ? 'selected' : '' }}>128 (Fast)</option>
-                    <option value="256" {{ getSetting3d($settings, 'triposr_mc_resolution', '256') == '256' ? 'selected' : '' }}>256 (Balanced)</option>
-                    <option value="512" {{ getSetting3d($settings, 'triposr_mc_resolution', '256') == '512' ? 'selected' : '' }}>512 (High Quality)</option>
+                    <option value="128" {{ getSetting3d($settings, 'triposr_mc_resolution', '256') == '128' ? 'selected' : '' }}>{{ __('128 (Fast)') }}</option>
+                    <option value="256" {{ getSetting3d($settings, 'triposr_mc_resolution', '256') == '256' ? 'selected' : '' }}>{{ __('256 (Balanced)') }}</option>
+                    <option value="512" {{ getSetting3d($settings, 'triposr_mc_resolution', '256') == '512' ? 'selected' : '' }}>{{ __('512 (High Quality)') }}</option>
                   </select>
                 </div>
               </div>

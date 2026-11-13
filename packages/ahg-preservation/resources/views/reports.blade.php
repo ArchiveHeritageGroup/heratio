@@ -56,7 +56,7 @@
         <div class="card mb-4">
             <div class="card-header bg-danger bg-opacity-10">
                 <i class="fas fa-fingerprint text-danger"></i> {{ __('Objects Without Checksums') }}
-                <span class="badge bg-danger float-end">{{ count($noChecksums) }} found</span>
+                <span class="badge bg-danger float-end">{{ __(':count found', ['count' => count($noChecksums)]) }}</span>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -91,8 +91,8 @@
         {{-- Stale Fixity Checks (>90 days) --}}
         <div class="card mb-4">
             <div class="card-header bg-warning bg-opacity-10">
-                <i class="fas fa-clock text-warning"></i> Stale Fixity Checks (> 90 days)
-                <span class="badge bg-warning text-dark float-end">{{ count($staleFixity) }} found</span>
+                <i class="fas fa-clock text-warning"></i> {{ __('Stale Fixity Checks (> 90 days)') }}
+                <span class="badge bg-warning text-dark float-end">{{ __(':count found', ['count' => count($staleFixity)]) }}</span>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -146,7 +146,7 @@
         <div class="card mb-4">
             <div class="card-header bg-danger bg-opacity-10">
                 <i class="fas fa-exclamation-triangle text-danger"></i> {{ __('High-Risk Format Objects') }}
-                <span class="badge bg-danger float-end">{{ count($highRisk) }} found</span>
+                <span class="badge bg-danger float-end">{{ __(':count found', ['count' => count($highRisk)]) }}</span>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">

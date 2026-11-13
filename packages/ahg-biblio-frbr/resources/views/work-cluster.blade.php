@@ -7,7 +7,7 @@
     <h1 class="h3">{{ __('All editions') }}</h1>
     <h2 class="h5 text-muted">{{ $representative->title ?? '' }}</h2>
     <p class="small text-muted">
-        <span class="badge bg-light text-dark border">work-key {{ $workKey }}</span>
+        <span class="badge bg-light text-dark border">{{ __('work-key :value1', ['value1' => $workKey]) }}</span>
         - {{ __(':count manifestations', ['count' => $editionCount]) }}
     </p>
 

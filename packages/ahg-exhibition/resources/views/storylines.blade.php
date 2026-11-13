@@ -74,7 +74,7 @@
             @endif
             <div class="row">
               <div class="col-md-4">
-                <p class="small mb-1"><i class="fas fa-map-marker me-1"></i> <strong>{{ $sl->stop_count ?? 0 }}</strong> stops</p>
+                <p class="small mb-1"><i class="fas fa-map-marker me-1"></i> {{ __(':count stops', ['count' => $sl->stop_count ?? 0]) }}</p>
               </div>
               @if(!empty($sl->target_audience))
                 <div class="col-md-4">
@@ -83,7 +83,7 @@
               @endif
               @if(!empty($sl->duration_minutes))
                 <div class="col-md-4">
-                  <p class="small mb-1"><i class="fas fa-clock me-1"></i> {{ __('Duration:') }} <strong>{{ $sl->duration_minutes }} min</strong></p>
+                  <p class="small mb-1"><i class="fas fa-clock me-1"></i> {{ __('Duration:') }} <strong>{{ __(':count min', ['count' => $sl->duration_minutes]) }}</strong></p>
                 </div>
               @endif
             </div>
@@ -104,7 +104,7 @@
           <span class="badge bg-secondary">{{ $exhibition->status ?? '' }}</span>
         </p>
         <p class="small mb-0">
-          <strong>{{ is_countable($storylines) ? count($storylines) : 0 }}</strong> storylines
+          {{ __(':count storylines', ['count' => is_countable($storylines) ? count($storylines) : 0]) }}
         </p>
       </div>
     </div>
@@ -115,13 +115,13 @@
       </div>
       <div class="card-body">
         <ul class="list-unstyled small mb-0">
-          <li class="mb-2"><strong>{{ __('General') }}</strong> - Default visitor tour</li>
-          <li class="mb-2"><strong>{{ __('Guided Tour') }}</strong> - For docent-led visits</li>
-          <li class="mb-2"><strong>{{ __('Self-Guided') }}</strong> - Independent visitor path</li>
-          <li class="mb-2"><strong>{{ __('Educational') }}</strong> - School groups and learning</li>
-          <li class="mb-2"><strong>{{ __('Accessible') }}</strong> - Accessibility-focused route</li>
-          <li class="mb-2"><strong>{{ __('Highlights') }}</strong> - Quick overview tour</li>
-          <li><strong>{{ __('Thematic') }}</strong> - Topic-specific journey</li>
+          <li class="mb-2"><strong>{{ __('General') }}</strong> - {{ __('Default visitor tour') }}</li>
+          <li class="mb-2"><strong>{{ __('Guided Tour') }}</strong> - {{ __('For docent-led visits') }}</li>
+          <li class="mb-2"><strong>{{ __('Self-Guided') }}</strong> - {{ __('Independent visitor path') }}</li>
+          <li class="mb-2"><strong>{{ __('Educational') }}</strong> - {{ __('School groups and learning') }}</li>
+          <li class="mb-2"><strong>{{ __('Accessible') }}</strong> - {{ __('Accessibility-focused route') }}</li>
+          <li class="mb-2"><strong>{{ __('Highlights') }}</strong> - {{ __('Quick overview tour') }}</li>
+          <li><strong>{{ __('Thematic') }}</strong> - {{ __('Topic-specific journey') }}</li>
         </ul>
       </div>
     </div>
@@ -131,7 +131,7 @@
         <h5 class="mb-0">{{ __('Tips') }}</h5>
       </div>
       <div class="card-body">
-        <p class="small text-muted mb-2"><strong>{{ __('Storylines') }}</strong> create narrative paths through your exhibition.</p>
+        <p class="small text-muted mb-2">{{ __('Storylines create narrative paths through your exhibition.') }}</p>
         <ul class="small text-muted mb-0">
           <li>{{ __('Add stops to guide visitors') }}</li>
           <li>{{ __('Link stops to specific objects') }}</li>
@@ -176,7 +176,7 @@
           <div class="mb-3">
             <label class="form-label">{{ __('Target Audience') }}</label>
             <select name="target_audience" class="form-select">
-              <option value="">-- All visitors --</option>
+              <option value="">{{ __('-- All visitors --') }}</option>
               <option value="general">{{ __('General Public') }}</option>
               <option value="families">{{ __('Families with Children') }}</option>
               <option value="schools">{{ __('School Groups') }}</option>

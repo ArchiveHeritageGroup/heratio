@@ -398,10 +398,10 @@ $statsArr = is_object($stats ?? null) ? (array) $stats : ($stats ?? []);
                 <div class="card-body">
                     <small class="text-muted">
                         @if (!empty($vendor->created_at))
-                        Created: {{ \Carbon\Carbon::parse($vendor->created_at)->format('j M Y H:i') }}<br>
+                        {{ __('Created: :date', ['date' => \Carbon\Carbon::parse($vendor->created_at)->format('j M Y H:i')]) }}<br>
                         @endif
                         @if (!empty($vendor->updated_at))
-                        Updated: {{ \Carbon\Carbon::parse($vendor->updated_at)->format('j M Y H:i') }}
+                        {{ __('Updated: :date', ['date' => \Carbon\Carbon::parse($vendor->updated_at)->format('j M Y H:i')]) }}
                         @endif
                     </small>
                 </div>

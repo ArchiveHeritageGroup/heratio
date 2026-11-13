@@ -29,7 +29,7 @@
     @elseif(empty($articleResults) && empty($sectionResults))
       <div class="alert alert-info">
         <i class="fas fa-info-circle me-1"></i>
-        No results found for "{{ $query }}". Try different keywords.
+        {{ __('No results found for ":value1". Try different keywords.', ['value1' => $query]) }}
       </div>
     @else
       @if(!empty($articleResults))

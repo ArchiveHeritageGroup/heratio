@@ -155,7 +155,7 @@
       @endif
 
       <div class="{{ !empty($counts) ? 'col-md-9' : 'col-12' }}">
-        <p class="text-muted">{{ $total }} result(s) for "{{ e($query) }}"</p>
+        <p class="text-muted">{{ __(':value1 result(s) for ":value2"', ['value1' => $total, 'value2' => e($query)]) }}</p>
 
         @forelse ($results as $result)
         <div class="card mb-2">

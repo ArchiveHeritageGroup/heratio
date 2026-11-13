@@ -1,7 +1,7 @@
 {{-- TIFF/PDF Merge Jobs Partial --}}
 <div class="card mb-4">
   <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-    <i class="fas fa-file-pdf me-2"></i>TIFF/PDF Merge Jobs
+    <i class="fas fa-file-pdf me-2"></i>{{ __('TIFF/PDF Merge Jobs') }}
     @if(Route::has('preservation.tiffpdfmerge.browse'))
     <a href="{{ route('preservation.tiffpdfmerge.browse') }}" class="btn btn-sm atom-btn-white float-end">{{ __('View All') }}</a>
     @endif

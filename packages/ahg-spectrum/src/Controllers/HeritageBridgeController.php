@@ -44,10 +44,10 @@ class HeritageBridgeController extends Controller
         $objectId = (int) (DB::table('slug')->where('slug', $slug)->value('object_id') ?? 0);
 
         if (! $objectId) {
-            return back()->with('error', 'Object not found.');
+            return back()->with('error', __('Object not found.'));
         }
         if (! $bridge->available()) {
-            return back()->with('error', 'Heritage Accounting (ahg-heritage-manage) is not installed on this instance.');
+            return back()->with('error', __('Heritage Accounting (ahg-heritage-manage) is not installed on this instance.'));
         }
 
         $result = $bridge->syncObject($objectId, true);

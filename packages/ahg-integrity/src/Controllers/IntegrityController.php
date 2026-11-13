@@ -290,7 +290,7 @@ return view('ahg-integrity::integrity.policy-edit', compact('policy'));
             DB::table('integrity_policy')->where('id', $id)->update($request->only(['name', 'description', 'frequency']) + ['is_active' => $request->boolean('is_active'), 'updated_at' => now()]);
         }
 
-return redirect()->route('integrity.policies')->with('success', 'Policy updated.');
+return redirect()->route('integrity.policies')->with('success', __('Policy updated.'));
     }
 
     public function report()
@@ -340,7 +340,7 @@ return view('ahg-integrity::integrity.schedule-edit', compact('schedule'));
             DB::table('integrity_schedule')->where('id', $id)->update($request->only(['name', 'cron_expression']) + ['is_active' => $request->boolean('is_active'), 'updated_at' => now()]);
         }
 
-return redirect()->route('integrity.schedules')->with('success', 'Schedule updated.');
+return redirect()->route('integrity.schedules')->with('success', __('Schedule updated.'));
     }
 
     // ─── Legal Hold CRUD ─────────────────────────────────────────────
@@ -363,12 +363,12 @@ return redirect()->route('integrity.schedules')->with('success', 'Schedule updat
         // Verify IO exists
         $ioExists = DB::table('information_object')->where('id', $ioId)->exists();
         if (! $ioExists) {
-            return back()->withInput()->with('error', 'Information object #'.$ioId.' does not exist.');
+            return back()->withInput()->with('error', __('Information object #:id does not exist.', ['id' => $ioId]));
         }
 
         // Check if already under hold
         if ($this->legalHoldService->isUnderHold($ioId)) {
-            return back()->withInput()->with('error', 'Information object #'.$ioId.' is already under an active legal hold.');
+            return back()->withInput()->with('error', __('Information object #:id is already under an active legal hold.', ['id' => $ioId]));
         }
 
         $holdId = $this->legalHoldService->placeHold(
@@ -377,7 +377,7 @@ return redirect()->route('integrity.schedules')->with('success', 'Schedule updat
             $userId
         );
 
-        return redirect()->route('integrity.holds')->with('success', 'Legal hold #'.$holdId.' placed successfully.');
+        return redirect()->route('integrity.holds')->with('success', __('Legal hold #:id placed successfully.', ['id' => $holdId]));
     }
 
     public function holdRelease(Request $request, int $id)
@@ -391,10 +391,10 @@ return redirect()->route('integrity.schedules')->with('success', 'Schedule updat
         $released = $this->legalHoldService->releaseHold($id, $userId, $request->input('release_reason'));
 
         if (! $released) {
-            return back()->with('error', 'Could not release hold #'.$id.'. It may already be released.');
+            return back()->with('error', __('Could not release hold #:id. It may already be released.', ['id' => $id]));
         }
 
-        return redirect()->route('integrity.holds')->with('success', 'Legal hold #'.$id.' released.');
+        return redirect()->route('integrity.holds')->with('success', __('Legal hold #:id released.', ['id' => $id]));
     }
 
     public function holdHistory(int $ioId)
@@ -478,7 +478,7 @@ return redirect()->route('integrity.schedules')->with('success', 'Schedule updat
         );
 
         return redirect()->route('integrity.certificates.view', ['id' => $result['id']])
-            ->with('success', 'Destruction certificate '.$result['certificate_number'].' generated.');
+            ->with('success', __('Destruction certificate :number generated.', ['number' => $result['certificate_number']]));
     }
 
     public function certificateView(int $id)
@@ -530,7 +530,7 @@ return redirect()->route('integrity.schedules')->with('success', 'Schedule updat
         );
 
         return redirect()->route('integrity.retention-events')
-            ->with('success', 'Retention event recorded.');
+            ->with('success', __('Retention event recorded.'));
     }
 
     // ── P1.5: Record Declarations ───────────────────────────────────────
@@ -564,11 +564,11 @@ return redirect()->route('integrity.schedules')->with('success', 'Schedule updat
 
         if ($result) {
             return redirect()->route('integrity.declarations')
-                ->with('success', 'Record declaration submitted for approval.');
+                ->with('success', __('Record declaration submitted for approval.'));
         }
 
         return redirect()->route('integrity.declarations')
-            ->with('error', 'Could not submit record declaration. Table may not exist.');
+            ->with('error', __('Could not submit record declaration. Table may not exist.'));
     }
 
     public function approveDeclaration(Request $request, int $ioId)
@@ -578,11 +578,11 @@ return redirect()->route('integrity.schedules')->with('success', 'Schedule updat
 
         if ($approved) {
             return redirect()->route('integrity.declarations')
-                ->with('success', 'Record declaration approved.');
+                ->with('success', __('Record declaration approved.'));
         }
 
         return redirect()->route('integrity.declarations')
-            ->with('error', 'Could not approve declaration. It may not be in pending state.');
+            ->with('error', __('Could not approve declaration. It may not be in pending state.'));
     }
 
     // ── P1.6: Vital Records ────────────────────────────────────────────
@@ -632,7 +632,7 @@ return redirect()->route('integrity.schedules')->with('success', 'Schedule updat
         );
 
         return redirect()->route('integrity.vital-records')
-            ->with('success', 'Information object flagged as vital record.');
+            ->with('success', __('Information object flagged as vital record.'));
     }
 
     public function vitalRecordUnflag(int $ioId)
@@ -641,7 +641,7 @@ return redirect()->route('integrity.schedules')->with('success', 'Schedule updat
         $this->vitalRecordService->unflagVital($ioId, $userId);
 
         return redirect()->route('integrity.vital-records')
-            ->with('success', 'Vital record flag removed.');
+            ->with('success', __('Vital record flag removed.'));
     }
 
     public function vitalRecordReview(int $id)
@@ -650,10 +650,10 @@ return redirect()->route('integrity.schedules')->with('success', 'Schedule updat
         $reviewed = $this->vitalRecordService->reviewVitalRecord($id, $userId);
 
         if ($reviewed) {
-            return redirect()->back()->with('success', 'Vital record marked as reviewed.');
+            return redirect()->back()->with('success', __('Vital record marked as reviewed.'));
         }
 
-        return redirect()->back()->with('error', 'Could not mark vital record as reviewed.');
+        return redirect()->back()->with('error', __('Could not mark vital record as reviewed.'));
     }
 
     public function vitalRecordsOverdue()

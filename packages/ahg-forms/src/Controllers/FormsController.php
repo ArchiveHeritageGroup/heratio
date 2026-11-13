@@ -171,7 +171,7 @@ class FormsController extends Controller
                 'collection_id', 'priority', 'inherit_to_children',
             ]));
 
-            return redirect()->route('forms.assignments')->with('notice', 'Assignment created');
+            return redirect()->route('forms.assignments')->with('notice', __('Assignment created'));
         }
 
         $templates = $this->service->getTemplates();
@@ -279,7 +279,7 @@ class FormsController extends Controller
             \Illuminate\Support\Facades\DB::table('ahg_form_field')->where('template_id', $id)->delete();
             \Illuminate\Support\Facades\DB::table('ahg_form_template')->where('id', $id)->delete();
 
-            return redirect()->route('forms.index')->with('notice', 'Template deleted.');
+            return redirect()->route('forms.index')->with('notice', __('Template deleted.'));
         }
 
         if ($action === 'duplicate') {
@@ -294,11 +294,11 @@ class FormsController extends Controller
                     'config' => json_decode($template->config ?? '{}', true),
                 ]);
 
-                return redirect()->route('forms.builder', $newId)->with('notice', 'Template duplicated.');
+                return redirect()->route('forms.builder', $newId)->with('notice', __('Template duplicated.'));
             }
         }
 
-        return redirect()->back()->with('error', 'Invalid action.');
+        return redirect()->back()->with('error', __('Invalid action.'));
     }
 
     /**

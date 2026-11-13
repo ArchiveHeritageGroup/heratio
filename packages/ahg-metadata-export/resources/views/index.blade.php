@@ -41,7 +41,7 @@
     <div class="card mb-4">
       <div class="card-header">
         <h3 class="card-title mb-0">{{ __('Supported Formats') }}
-          <small class="text-muted">({{ count($formats ?? []) }} formats)</small>
+          <small class="text-muted">{{ __('(:value1 formats)', ['value1' => count($formats ?? [])]) }}</small>
         </h3>
       </div>
       <div class="card-body">

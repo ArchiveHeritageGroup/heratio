@@ -178,7 +178,7 @@ class TiffPdfMergeController extends Controller
             ]);
 
             return redirect()->route('preservation.tiffpdfmerge.view', $jobId)
-                ->with('error', 'Merge failed: '.$e->getMessage());
+                ->with('error', __('Merge failed: :error', ['error' => $e->getMessage()]));
         }
 
         $successMsg = 'Merge completed: '.$outName;

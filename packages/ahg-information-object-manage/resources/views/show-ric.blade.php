@@ -58,19 +58,19 @@
     @endphp
     @if($levelName)
       <div class="field text-break row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('RecordSet type') }} <span class="d-block small text-muted">rico:hasRecordSetType</span></h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('RecordSet type') }} <span class="d-block small text-muted">{{ __('rico:hasRecordSetType') }}</span></h3>
         <div class="col-9 p-2">{{ $levelName }}</div>
       </div>
     @endif
     @if($repository)
       <div class="field text-break row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Holder') }} <span class="d-block small text-muted">rico:hasOrHadHolder</span></h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Holder') }} <span class="d-block small text-muted">{{ __('rico:hasOrHadHolder') }}</span></h3>
         <div class="col-9 p-2"><a href="{{ route('repository.show', $repository->slug ?? '') }}">{{ $repository->authorized_form_of_name ?? $repository->name ?? '' }}</a></div>
       </div>
     @endif
     @if(isset($events) && $events->isNotEmpty())
       <div class="field text-break row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Dates') }} <span class="d-block small text-muted">rico:hasDateRangeSet</span></h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Dates') }} <span class="d-block small text-muted">{{ __('rico:hasDateRangeSet') }}</span></h3>
         <div class="col-9 p-2"><ul class="m-0 ms-1 ps-3">
           @foreach($events as $event)
             <li>{{ $event->date_display ?? '' }}@if(!$event->date_display && ($event->start_date || $event->end_date)) ({{ $event->start_date ?? '?' }} - {{ $event->end_date ?? '?' }})@endif</li>
@@ -80,7 +80,7 @@
     @endif
     @if(isset($creators) && $creators->isNotEmpty())
       <div class="field text-break row g-0">
-        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Creator(s)') }} <span class="d-block small text-muted">rico:hasCreator</span></h3>
+        <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Creator(s)') }} <span class="d-block small text-muted">{{ __('rico:hasCreator') }}</span></h3>
         <div class="col-9 p-2"><ul class="m-0 ms-1 ps-3">
           @foreach($creators as $creator)
             <li><a href="{{ route('actor.show', $creator->slug ?? '') }}">{{ $creator->authorized_form_of_name ?? '' }}</a></li>
@@ -134,7 +134,7 @@
   {{-- ===== Access points ===== --}}
   @if((isset($subjects) && $subjects->isNotEmpty()) || (isset($places) && $places->isNotEmpty()) || (isset($genres) && $genres->isNotEmpty()) || (isset($nameAccessPoints) && $nameAccessPoints->isNotEmpty()))
     <section class="border-bottom">
-      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg,#005837);color:var(--ahg-card-header-text,#fff);">{{ __('Access points') }} <span class="small">rico:isOrWasSubjectOf / rico:isAssociatedWithPlace</span></h2>
+      <h2 class="h6 mb-0 py-2 px-3" style="background-color:var(--ahg-card-header-bg,#005837);color:var(--ahg-card-header-text,#fff);">{{ __('Access points') }} <span class="small">{{ __('rico:isOrWasSubjectOf / rico:isAssociatedWithPlace') }}</span></h2>
       <div class="p-2">
         @foreach([['Subjects', $subjects ?? collect()], ['Places', $places ?? collect()], ['Genres', $genres ?? collect()]] as [$lbl, $coll])
           @if($coll->isNotEmpty())

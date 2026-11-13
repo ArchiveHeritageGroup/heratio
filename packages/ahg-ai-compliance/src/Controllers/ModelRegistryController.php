@@ -50,7 +50,7 @@ final class ModelRegistryController extends Controller
 
         return redirect()
             ->route('ai-compliance.models.index')
-            ->with('success', 'Model registry entry created.');
+            ->with('success', __('Model registry entry created.'));
     }
 
     public function edit(int $id): View
@@ -73,7 +73,7 @@ final class ModelRegistryController extends Controller
 
         return redirect()
             ->route('ai-compliance.models.index')
-            ->with('success', 'Model registry entry updated.');
+            ->with('success', __('Model registry entry updated.'));
     }
 
     public function destroy(int $id): RedirectResponse
@@ -84,7 +84,7 @@ final class ModelRegistryController extends Controller
 
         return redirect()
             ->route('ai-compliance.models.index')
-            ->with('success', 'Model registry entry deleted.');
+            ->with('success', __('Model registry entry deleted.'));
     }
 
     /**

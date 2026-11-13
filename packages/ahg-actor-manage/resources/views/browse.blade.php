@@ -36,9 +36,9 @@
           @foreach($languageFacets as $langCode => $facet)
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentLang == $langCode ? 'active text-decoration-underline' : '' }}"
                href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($langParams, ['languages' => $langCode])) }}"
-               title="{{ $facet['name'] }}, {{ $facet['count'] }} results">
+               title="{{ $facet['name'] }}, {{ __(':count results', ['count' => $facet['count']]) }}">
               {{ $facet['name'] }}
-              <span class="visually-hidden">, {{ $facet['count'] }} results</span>
+              <span class="visually-hidden">{{ ', ' . __(':count results', ['count' => $facet['count']]) }}</span>
               <span aria-hidden="true" class="ms-3 text-nowrap">{{ $facet['count'] }}</span>
             </a>
           @endforeach
@@ -68,9 +68,9 @@
           @foreach($entityTypeFacets as $typeId => $facet)
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentEntityType == $typeId ? 'active text-decoration-underline' : '' }}"
                href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($queryParams, ['entityType' => $typeId])) }}"
-               title="{{ $facet['name'] }}, {{ $facet['count'] }} results">
+               title="{{ $facet['name'] }}, {{ __(':count results', ['count' => $facet['count']]) }}">
               {{ $facet['name'] }}
-              <span class="visually-hidden">, {{ $facet['count'] }} results</span>
+              <span class="visually-hidden">{{ ', ' . __(':count results', ['count' => $facet['count']]) }}</span>
               <span aria-hidden="true" class="ms-3 text-nowrap">{{ $facet['count'] }}</span>
             </a>
           @endforeach
@@ -100,9 +100,9 @@
           @foreach($maintainedByFacets as $mbId => $facet)
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentMaintainedBy == $mbId ? 'active text-decoration-underline' : '' }}"
                href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($mbParams, ['maintainedBy' => $mbId])) }}"
-               title="{{ $facet['name'] }}, {{ $facet['count'] }} results">
+               title="{{ $facet['name'] }}, {{ __(':count results', ['count' => $facet['count']]) }}">
               {{ $facet['name'] }}
-              <span class="visually-hidden">, {{ $facet['count'] }} results</span>
+              <span class="visually-hidden">{{ ', ' . __(':count results', ['count' => $facet['count']]) }}</span>
               <span aria-hidden="true" class="ms-3 text-nowrap">{{ $facet['count'] }}</span>
             </a>
           @endforeach
@@ -133,9 +133,9 @@
           @foreach($occupationFacets as $occId => $facet)
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentOccupation == $occId ? 'active text-decoration-underline' : '' }}"
                href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($occParams, ['occupation' => $occId])) }}"
-               title="{{ $facet['name'] }}, {{ $facet['count'] }} results">
+               title="{{ $facet['name'] }}, {{ __(':count results', ['count' => $facet['count']]) }}">
               {{ $facet['name'] }}
-              <span class="visually-hidden">, {{ $facet['count'] }} results</span>
+              <span class="visually-hidden">{{ ', ' . __(':count results', ['count' => $facet['count']]) }}</span>
               <span aria-hidden="true" class="ms-3 text-nowrap">{{ $facet['count'] }}</span>
             </a>
           @endforeach
@@ -166,9 +166,9 @@
           @foreach($placeFacets as $placeId => $facet)
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentPlace == $placeId ? 'active text-decoration-underline' : '' }}"
                href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($placeParams, ['place' => $placeId])) }}"
-               title="{{ $facet['name'] }}, {{ $facet['count'] }} results">
+               title="{{ $facet['name'] }}, {{ __(':count results', ['count' => $facet['count']]) }}">
               {{ $facet['name'] }}
-              <span class="visually-hidden">, {{ $facet['count'] }} results</span>
+              <span class="visually-hidden">{{ ', ' . __(':count results', ['count' => $facet['count']]) }}</span>
               <span aria-hidden="true" class="ms-3 text-nowrap">{{ $facet['count'] }}</span>
             </a>
           @endforeach
@@ -199,9 +199,9 @@
           @foreach($subjectFacets as $subId => $facet)
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentSubject == $subId ? 'active text-decoration-underline' : '' }}"
                href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($subParams, ['subject' => $subId])) }}"
-               title="{{ $facet['name'] }}, {{ $facet['count'] }} results">
+               title="{{ $facet['name'] }}, {{ __(':count results', ['count' => $facet['count']]) }}">
               {{ $facet['name'] }}
-              <span class="visually-hidden">, {{ $facet['count'] }} results</span>
+              <span class="visually-hidden">{{ ', ' . __(':count results', ['count' => $facet['count']]) }}</span>
               <span aria-hidden="true" class="ms-3 text-nowrap">{{ $facet['count'] }}</span>
             </a>
           @endforeach
@@ -232,9 +232,9 @@
           @foreach($mediaTypeFacets as $mtId => $facet)
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center text-break {{ $currentMediaType == $mtId ? 'active text-decoration-underline' : '' }}"
                href="{{ url('/actor/browse') }}?{{ http_build_query(array_merge($mtParams, ['mediaType' => $mtId])) }}"
-               title="{{ $facet['name'] }}, {{ $facet['count'] }} results">
+               title="{{ $facet['name'] }}, {{ __(':count results', ['count' => $facet['count']]) }}">
               {{ $facet['name'] }}
-              <span class="visually-hidden">, {{ $facet['count'] }} results</span>
+              <span class="visually-hidden">{{ ', ' . __(':count results', ['count' => $facet['count']]) }}</span>
               <span aria-hidden="true" class="ms-3 text-nowrap">{{ $facet['count'] }}</span>
             </a>
           @endforeach
@@ -309,9 +309,9 @@
               <div class="criterion row align-items-center" id="criterion-0">
                 <div class="col-xl-auto mb-3 adv-search-boolean">
                   <select class="form-select" name="so0" aria-label="{{ __('Boolean') }}">
-                    <option value="and" {{ ($params['so0'] ?? '') === 'and' ? 'selected' : '' }}>and</option>
+                    <option value="and" {{ ($params['so0'] ?? '') === 'and' ? 'selected' : '' }}>{{ __('and') }}</option>
                     <option value="or" {{ ($params['so0'] ?? '') === 'or' ? 'selected' : '' }}>or</option>
-                    <option value="not" {{ ($params['so0'] ?? '') === 'not' ? 'selected' : '' }}>not</option>
+                    <option value="not" {{ ($params['so0'] ?? '') === 'not' ? 'selected' : '' }}>{{ __('not') }}</option>
                   </select>
                 </div>
                 <div class="col-xl-auto flex-grow-1 mb-3">
@@ -355,9 +355,9 @@
                 <div class="criterion row align-items-center">
                   <div class="col-xl-auto mb-3 adv-search-boolean">
                     <select class="form-select" aria-label="{{ __('Boolean') }}">
-                      <option value="and">and</option>
+                      <option value="and">{{ __('and') }}</option>
                       <option value="or">or</option>
-                      <option value="not">not</option>
+                      <option value="not">{{ __('not') }}</option>
                     </select>
                   </div>
                   <div class="col-xl-auto flex-grow-1 mb-3">
@@ -518,7 +518,7 @@
         @endphp
         <div class="dropdown d-inline-block">
           <button class="btn btn-sm atom-btn-white dropdown-toggle text-wrap" type="button" id="sortDir-button" data-bs-toggle="dropdown" aria-expanded="false">
-            Direction: {{ $currentDir === 'desc' ? 'Descending' : 'Ascending' }}
+            {{ __('Direction: :direction', ['direction' => $currentDir === 'desc' ? __('Descending') : __('Ascending')]) }}
           </button>
           <ul class="dropdown-menu dropdown-menu-end mt-2" aria-labelledby="sortDir-button">
             <li><a href="{{ request()->url() }}?{{ http_build_query(array_merge($dirQuery, ['sortDir' => 'asc'])) }}" class="dropdown-item {{ $currentDir === 'asc' ? 'active' : '' }}">{{ __('Ascending') }}</a></li>

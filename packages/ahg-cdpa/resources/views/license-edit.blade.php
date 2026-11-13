@@ -25,7 +25,7 @@
                     <li class="breadcrumb-item active">{{ ($license ?? null) ? 'Edit' : 'Register' }}</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-id-card me-2"></i>{{ ($license ?? null) ? 'Edit' : 'Register' }} Controller License</h1>
+            <h1><i class="fas fa-id-card me-2"></i>{{ __(':value1 Controller License', ['value1' => ($license ?? null) ? 'Edit' : 'Register']) }}</h1>
         </div>
     </div>
 

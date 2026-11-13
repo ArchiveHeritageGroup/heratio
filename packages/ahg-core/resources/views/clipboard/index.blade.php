@@ -35,7 +35,7 @@
     <i class="fas fa-3x fa-paperclip me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0" aria-describedby="heading-label">
-        {{ __('Showing') }} <span id="clipboard-result-count">{{ count($details) }}</span> results
+        {{ __('Showing') }} <span id="clipboard-result-count">{{ count($details) }}</span> {{ __('results') }}
       </h1>
       <span class="small" id="heading-label">{{ __('Clipboard') }}</span>
     </div>
@@ -46,7 +46,7 @@
     <div class="d-flex flex-wrap gap-2 ms-auto">
       <div class="dropdown">
         <button class="btn btn-sm atom-btn-white dropdown-toggle" type="button" data-bs-toggle="dropdown">
-          Entity type: {{ $uiLabels[$type] ?? 'All' }}
+          {{ __('Entity type: :value1', ['value1' => $uiLabels[$type] ?? 'All']) }}
         </button>
         <ul class="dropdown-menu">
           @foreach($uiLabels as $key => $label)
@@ -130,7 +130,7 @@
       <li>
         <button class="btn atom-btn-outline-danger" id="clipboard-clear-all"
                 data-clipboard-type="{{ $type }}">
-          Clear {{ strtolower($uiLabels[$type] ?? '') }} clipboard
+          {{ __('Clear :value1 clipboard', ['value1' => strtolower($uiLabels[$type] ?? '')]) }}
         </button>
       </li>
       <li>
@@ -175,7 +175,7 @@
       {{ config('app.ui_label_informationobject', 'Archival description') }}s: {{ $counts['informationObject'] ?? 0 }} |
       {{ config('app.ui_label_actor', 'Authority record') }}s: {{ $counts['actor'] ?? 0 }} |
       {{ config('app.ui_label_repository', 'Archival institution') }}s: {{ $counts['repository'] ?? 0 }} |
-      <strong>Total: {{ $totalCount }}</strong>
+      <strong>{{ __('Total: :value1', ['value1' => $totalCount]) }}</strong>
     </div>
   </div>
 

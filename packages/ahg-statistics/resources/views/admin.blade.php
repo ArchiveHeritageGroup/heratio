@@ -104,7 +104,7 @@
                 </div>
                 <div class="card-body">
                     <p class="text-muted">{{ __('Configure which bots and crawlers to filter from statistics.') }}</p>
-                    <p><strong>{{ $dbStats['bot_patterns'] ?? 0 }}</strong> bot patterns configured</p>
+                    <p><strong>{{ $dbStats['bot_patterns'] ?? 0 }}</strong> {{ __('bot patterns configured') }}</p>
                 </div>
             </div>
         </div>

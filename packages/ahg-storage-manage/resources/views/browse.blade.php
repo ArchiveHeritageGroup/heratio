@@ -4,7 +4,7 @@
 @section('body-class', 'browse physicalobject')
 
 @section('content')
-  <h1>Browse {{ config('app.ui_label_physicalobject', 'Physical storage') }}</h1>
+  <h1>{{ __('Browse :value1', ['value1' => config('app.ui_label_physicalobject', 'Physical storage')]) }}</h1>
 
   <div class="d-inline-block mb-3">
     @include('ahg-core::components.inline-search', [

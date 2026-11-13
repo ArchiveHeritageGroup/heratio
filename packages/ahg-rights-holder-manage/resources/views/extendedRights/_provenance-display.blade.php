@@ -18,7 +18,7 @@ $agreements = $agreements ?? [];
             <div>
               {{ $agreement->agreement_title ?? $agreement->agreement_number ?? '' }}
               <span class="badge bg-secondary ms-1">{{ ucfirst(str_replace('_', ' ', $agreement->relationship_type ?? '')) }}</span>
-              <br><small class="text-muted">Donor: {{ $agreement->donor_name ?? '' }}</small>
+              <br><small class="text-muted">{{ __('Donor: :name', ['name' => $agreement->donor_name ?? '']) }}</small>
             </div>
             <small class="text-muted">{{ $agreement->agreement_date ?? '' }}</small>
           </div>

@@ -47,7 +47,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{ $appName }} - the open heritage graph at a glance</title>
+<title>{{ __(':value1 - the open heritage graph at a glance', ['value1' => $appName]) }}</title>
 <style>
   :root { --ink:#1a1f29; --muted:#5a6472; --line:#e3e7ed; --bar:#2c6e8f; --bar2:#7aa9bf; --card:#f7f9fb; --accent:#1d3c5a; }
   * { box-sizing:border-box; }
@@ -83,7 +83,7 @@
   <h1>{{ __('The open heritage graph, at a glance') }}</h1>
   <p class="lede">A live snapshot of the size and shape of {{ $appName }}'s published open-data graph. Every figure
   is an aggregate count over published records only, served as open data under CC-BY-4.0. This is the human view of
-  <code>/data/stats</code>; a machine-readable version is at <a href="{{ $links['json'] ?? url('/data/stats.json') }}">/data/stats.json</a>.</p>
+  <code>/data/stats</code>; a machine-readable version is at <a href="{{ $links['json'] ?? url('/data/stats.json') }}">{{ __('/data/stats.json') }}</a>.</p>
 
   @if($isEmpty)
     <div class="empty">
@@ -94,8 +94,8 @@
   <h2>{{ __('Headline figures') }}</h2>
   <div class="grid">
     <div class="stat"><div class="num">{{ $fmt($s['published_records'] ?? 0) }}</div><div class="lab">{{ __('Published records') }}</div></div>
-    <div class="stat"><div class="num">{{ $fmt($s['actors_total'] ?? 0) }}</div><div class="lab">People &amp; organisations</div></div>
-    <div class="stat"><div class="num">{{ $fmt($s['terms_total'] ?? 0) }}</div><div class="lab">Subjects, places &amp; genres</div></div>
+    <div class="stat"><div class="num">{{ $fmt($s['actors_total'] ?? 0) }}</div><div class="lab">{{ __('People & organisations') }}</div></div>
+    <div class="stat"><div class="num">{{ $fmt($s['terms_total'] ?? 0) }}</div><div class="lab">{{ __('Subjects, places & genres') }}</div></div>
     <div class="stat"><div class="num">{{ $fmt($s['relation_edges_total'] ?? 0) }}</div><div class="lab">{{ __('Relation edges') }}</div></div>
     <div class="stat"><div class="num">{{ $fmt($s['repositories'] ?? 0) }}</div><div class="lab">{{ __('Holding repositories') }}</div></div>
     <div class="stat"><div class="num">~{{ $fmt($s['triple_estimate'] ?? 0) }}</div><div class="lab">{{ __('Triples (estimated)') }}</div></div>
@@ -192,8 +192,8 @@
 
   <p class="meta">
     {{ __('Figures are aggregate counts over published records only and refresh on every request. The triple count is an order-of-magnitude estimate for the VoID dataset description, not an exact statement count. Open data, licensed') }}
-    <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>. Part of the
-    {{ $appName }} open memory protocol (#1204).
+    <a href="https://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>{{ __('. Part of the
+    :value1 open memory protocol (#1204).', ['value1' => $appName]) }}
   </p>
 </div>
 </body>

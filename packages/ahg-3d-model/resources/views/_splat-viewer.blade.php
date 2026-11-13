@@ -2,14 +2,14 @@
   Gaussian Splat Viewer Partial
   Usage: @include('ahg-3d-model::_splat-viewer', ['splatUrl' => '/uploads/...', 'height' => '500px', 'title' => 'My Splat'])
 --}}
-@props(['splatUrl' => '', 'height' => '500px', 'title' => 'Gaussian Splat'])
+@props(['splatUrl' => '', 'height' => '500px', 'title' => __('Gaussian Splat')])
 
 @php $viewerId = 'splat-viewer-' . uniqid(); @endphp
 
 <div class="splat-viewer-container" id="{{ $viewerId }}-container">
   <div class="d-flex justify-content-between align-items-center mb-2">
     <span class="badge bg-info">
-      <i class="fas fa-cloud me-1"></i>{{ e($title) }} (Gaussian Splat)
+      <i class="fas fa-cloud me-1"></i>{{ e($title) }} ({{ __('Gaussian Splat') }})
     </span>
     <div class="btn-group btn-group-sm">
       <button type="button" class="btn atom-btn-white" id="{{ $viewerId }}-fullscreen" title="{{ __('Fullscreen') }}">
@@ -27,7 +27,7 @@
   </div>
 
   <small class="text-muted mt-2 d-block">
-    <i class="fas fa-mouse me-1"></i>Drag to rotate |
+    <i class="fas fa-mouse me-1"></i>{{ __('Drag to rotate') }} |
     <i class="fas fa-search-plus me-1"></i>{{ __('Scroll to zoom') }}
   </small>
 </div>

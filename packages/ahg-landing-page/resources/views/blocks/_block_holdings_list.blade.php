@@ -20,7 +20,7 @@ $showHits = $config['show_hits'] ?? false;
           {{ e($item->title ?? $item->slug) }}
         </a>
         @if ($showHits && isset($item->hits))
-          <small class="text-muted text-nowrap ms-2">{{ number_format($item->hits) }} visits</small>
+          <small class="text-muted text-nowrap ms-2">{{ __(':value1 visits', ['value1' => number_format($item->hits)]) }}</small>
         @endif
       </li>
     @endforeach

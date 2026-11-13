@@ -19,8 +19,7 @@
 
         <div class="alert alert-warning small mb-3">
           <i class="fas fa-info-circle me-1"></i>
-          {{ __('E-commerce mode is currently') }} <strong>disabled</strong>. No payment is being charged -
-          this is a preview of what a real sale would look like.
+          {{ __('E-commerce mode is currently') }} <strong>{{ __('disabled') }}</strong>{{ __('. No payment is being charged - this is a preview of what a real sale would look like.') }}
         </div>
 
         <div id="dummySaleStage1">
@@ -28,14 +27,14 @@
             <div class="spinner-border text-primary mb-3" role="status">
               <span class="visually-hidden">{{ __('Processing&hellip;') }}</span>
             </div>
-            <p class="mb-0">Placing your order&hellip;</p>
+            <p class="mb-0">{{ __('Placing your order&hellip;') }}</p>
           </div>
         </div>
 
         <div id="dummySaleStage2" style="display:none;">
           <div class="text-center py-3">
             <i class="fas fa-credit-card fa-3x text-info mb-3"></i>
-            <p class="mb-2">Redirecting to PayFast&hellip;</p>
+            <p class="mb-2">{{ __('Redirecting to PayFast&hellip;') }}</p>
             <div class="progress" style="height:6px;">
               <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width:60%"></div>
             </div>
@@ -60,7 +59,7 @@
               <dd class="col-7"><code id="dummySaleTxn">TXN-DEMO-0001</code></dd>
 
               <dt class="col-5 text-muted">{{ __('Status') }}</dt>
-              <dd class="col-7"><span class="badge bg-success">paid</span></dd>
+              <dd class="col-7"><span class="badge bg-success">{{ __('Paid') }}</span></dd>
             </dl>
             <p class="text-muted small mt-3 mb-0">
               {{ __('In live mode, the buyer is redirected to PayFast and the marketplace listing is automatically marked sold once the ITN webhook confirms the payment.') }}

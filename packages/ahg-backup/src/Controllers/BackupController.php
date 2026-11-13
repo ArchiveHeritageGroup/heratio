@@ -629,7 +629,7 @@ class BackupController extends Controller
         $newPath = rtrim((string) $request->input('backup_path'), '/');
         foreach (array_filter([rtrim((string) config('heratio.uploads_path'), '/'), rtrim(public_path(), '/')]) as $webRoot) {
             if ($newPath === $webRoot || str_starts_with($newPath.'/', $webRoot.'/') || str_contains($newPath, '/uploads/')) {
-                return back()->withInput()->with('error', 'Backup path may not be inside a web-served directory (/uploads or public/).');
+                return back()->withInput()->with('error', __('Backup path may not be inside a web-served directory (/uploads or public/).'));
             }
         }
 
@@ -643,7 +643,7 @@ class BackupController extends Controller
 
         AhgSettingsService::clearCache();
 
-        return redirect()->route('backup.settings')->with('success', 'Backup settings saved successfully.');
+        return redirect()->route('backup.settings')->with('success', __('Backup settings saved successfully.'));
     }
 
     /**

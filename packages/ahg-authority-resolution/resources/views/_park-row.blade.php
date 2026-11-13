@@ -32,7 +32,7 @@
                 <i class="bi bi-box-arrow-up-right ms-1 small text-muted"></i>
             </a>
         @else
-            <span class="text-muted">Object #{{ (int) $r->object_id }}</span>
+            <span class="text-muted">{{ __('Object #:value1', ['value1' => (int) $r->object_id]) }}</span>
         @endif
     </td>
     <td class="text-muted small">

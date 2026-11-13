@@ -9,7 +9,7 @@
       <h1 class="h4 mb-0"><i class="bi bi-check-circle"></i> {{ __('BIBFRAME Validation') }}</h1>
       <p class="small text-muted mb-0">{{ __('Check a BIBFRAME document for structural correctness') }}</p>
     </div>
-    <a href="{{ route('bibframe.index') }}" class="btn btn-outline-secondary btn-sm">&larr; Back</a>
+    <a href="{{ route('bibframe.index') }}" class="btn btn-outline-secondary btn-sm">{{ __('← Back') }}</a>
   </div>
 
   <form method="post" action="{{ route('bibframe.validate-run') }}">

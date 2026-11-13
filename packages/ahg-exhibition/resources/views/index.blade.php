@@ -116,14 +116,14 @@
               <a href="{{ route('exhibition.show', ['id' => $ex['id']]) }}" class="list-group-item list-group-item-action">
                 <div class="d-flex w-100 justify-content-between">
                   <h6 class="mb-1">{{ $ex['title'] ?? '' }}</h6>
-                  <small class="text-muted">{{ $ex['object_count'] ?? 0 }} objects</small>
+                  <small class="text-muted">{{ __(':count objects', ['count' => $ex['object_count'] ?? 0]) }}</small>
                 </div>
                 <p class="mb-1 small text-muted">
                   @if(!empty($ex['venue_name']))
                     <i class="fas fa-map-marker-alt me-1"></i> {{ $ex['venue_name'] }}
                   @endif
                   @if(!empty($ex['closing_date']))
-                    <span class="ms-2"><i class="fas fa-calendar me-1"></i> Closes: {{ $ex['closing_date'] }}</span>
+                    <span class="ms-2"><i class="fas fa-calendar me-1"></i> {{ __('Closes: :date', ['date' => $ex['closing_date']]) }}</span>
                   @endif
                 </p>
                 @if(!empty($ex['closing_date']))
@@ -134,7 +134,7 @@
                     } catch (\Throwable $e) { $daysLeft = null; }
                   @endphp
                   @if($daysLeft !== null && $daysLeft <= 30)
-                    <span class="badge bg-warning text-dark">{{ $daysLeft }} days remaining</span>
+                    <span class="badge bg-warning text-dark">{{ __(':count days remaining', ['count' => $daysLeft]) }}</span>
                   @endif
                 @endif
               </a>
@@ -167,7 +167,7 @@
                 </div>
                 <p class="mb-1 small text-muted">
                   @if(!empty($ex['opening_date']))
-                    <i class="fas fa-calendar me-1"></i> Opens: {{ $ex['opening_date'] }}
+                    <i class="fas fa-calendar me-1"></i> {{ __('Opens: :date', ['date' => $ex['opening_date']]) }}
                   @endif
                   @if(!empty($ex['venue_name']))
                     <span class="ms-2"><i class="fas fa-map-marker-alt me-1"></i> {{ $ex['venue_name'] }}</span>
@@ -211,7 +211,7 @@
       <div class="card-header bg-white">
         <div class="d-flex justify-content-between align-items-center mb-2">
           <h5 class="mb-0">{{ __('All Exhibitions') }}</h5>
-          <small class="text-muted">{{ $total ?? 0 }} total</small>
+          <small class="text-muted">{{ __(':count total', ['count' => $total ?? 0]) }}</small>
         </div>
         <form method="get" action="{{ route('exhibition.index') }}#all-exhibitions" class="row g-2 align-items-center">
           <div class="col-md-4">

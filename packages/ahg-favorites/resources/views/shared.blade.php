@@ -43,6 +43,6 @@
     </form>
   </div>
 @else
-  <div class="alert alert-info mt-3"><a href="{{ route('login') }}">{{ __('Log in') }}</a> to save these to your favorites.</div>
+  <div class="alert alert-info mt-3"><a href="{{ route('login') }}">{{ __('Log in') }}</a> {{ __('to save these to your favorites.') }}</div>
 @endauth
 @endsection

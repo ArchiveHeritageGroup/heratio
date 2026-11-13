@@ -10,7 +10,7 @@
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('homepage') }}">{{ __('Home') }}</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('accessRequest.myRequests') }}">{{ __('My Requests') }}</a></li>
-                    <li class="breadcrumb-item active">Request #{{ $accessRequest->id }}</li>
+                    <li class="breadcrumb-item active">{{ __('Request #:value1', ['value1' => $accessRequest->id]) }}</li>
                 </ol>
             </nav>
 
@@ -25,7 +25,7 @@
                 <div class="col-lg-8">
                     <div class="card mb-4">
                         <div class="card-header" style="background-color: var(--ahg-primary); color: #fff;">
-                            <h5 class="mb-0"><i class="fas fa-key me-2"></i>Access Request #{{ $accessRequest->id }}</h5>
+                            <h5 class="mb-0"><i class="fas fa-key me-2"></i>{{ __('Access Request #:value1', ['value1' => $accessRequest->id]) }}</h5>
                         </div>
                         <div class="card-body">
                             <table class="table table-borderless">

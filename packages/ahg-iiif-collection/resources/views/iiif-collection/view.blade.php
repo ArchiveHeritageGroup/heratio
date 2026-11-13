@@ -159,7 +159,7 @@ foreach ($collection->items as $item) {
                 <dd>
                     <span class="badge bg-success">{{ $displayableCount }}</span>
                     @if($warningCount > 0)
-                    <span class="badge bg-warning text-dark">{{ $warningCount }} with issues</span>
+                    <span class="badge bg-warning text-dark">{{ __(':count with issues', ['count' => $warningCount]) }}</span>
                     @endif
                 </dd>
 
@@ -218,7 +218,7 @@ foreach ($collection->items as $item) {
     <div class="alert alert-warning alert-dismissible fade show" role="alert">
         <i class="fas fa-exclamation-triangle me-2"></i>
         <strong>{{ __('Display Warning:') }}</strong>
-        {{ $warningCount }} item(s) will not display in carousels/galleries.
+        {{ __(':count items will not display in carousels/galleries.', ['count' => $warningCount]) }}
         <small class="d-block mt-1">{{ __('Audio/video files need thumbnails, and only image files can be displayed directly.') }}</small>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
     </div>
@@ -240,7 +240,7 @@ foreach ($collection->items as $item) {
                                     <i class="fas fa-folder me-1"></i>{{ e($sub->display_name) }}
                                 </a>
                             </h6>
-                            <span class="badge bg-secondary">{{ $sub->item_count }} items</span>
+                            <span class="badge bg-secondary">{{ __(':count items', ['count' => $sub->item_count]) }}</span>
                         </div>
                     </div>
                 </div>
@@ -252,7 +252,7 @@ foreach ($collection->items as $item) {
 
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-images me-2"></i>Items ({{ count($collection->items) }})</h5>
+            <h5 class="mb-0"><i class="fas fa-images me-2"></i>{{ __('Items (:count)', ['count' => count($collection->items)]) }}</h5>
             @auth
             @if($warningCount > 0)
             <div class="form-check form-switch">
@@ -266,7 +266,7 @@ foreach ($collection->items as $item) {
             @if(empty($collection->items))
             <div class="alert alert-info mb-0">
                 <i class="fas fa-info-circle me-2"></i>
-                No items in this collection yet.
+                {{ __('No items in this collection yet.') }}
                 @auth
                 <a href="{{ route('iiif-collection.add-items', $collection->id) }}">{{ __('Add items') }}</a>
                 @endauth

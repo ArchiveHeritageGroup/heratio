@@ -124,7 +124,7 @@
                       <span><i class="fas fa-map-marker me-1"></i> {{ $event->location }}</span>
                     @endif
                     @if(!empty($event->capacity))
-                      <span><i class="fas fa-users me-1"></i> Capacity: {{ $event->capacity }}</span>
+                      <span><i class="fas fa-users me-1"></i> {{ __('Capacity: :count', ['count' => $event->capacity]) }}</span>
                     @endif
                     @if(!empty($event->registration_required))
                       <span class="text-warning"><i class="fas fa-ticket me-1"></i> {{ __('Registration Required') }}</span>
@@ -170,14 +170,14 @@
       </div>
       <div class="card-body">
         <ul class="list-unstyled small mb-0">
-          <li class="mb-1"><strong>{{ __('Opening') }}</strong> - Exhibition launch event</li>
-          <li class="mb-1"><strong>{{ __('Closing') }}</strong> - Final day celebration</li>
-          <li class="mb-1"><strong>{{ __('Talk') }}</strong> - Lectures and presentations</li>
-          <li class="mb-1"><strong>{{ __('Tour') }}</strong> - Guided tours</li>
-          <li class="mb-1"><strong>{{ __('Workshop') }}</strong> - Hands-on activities</li>
-          <li class="mb-1"><strong>{{ __('Performance') }}</strong> - Live performances</li>
-          <li class="mb-1"><strong>{{ __('Private View') }}</strong> - VIP or members</li>
-          <li><strong>{{ __('Other') }}</strong> - General events</li>
+          <li class="mb-1"><strong>{{ __('Opening') }}</strong> - {{ __('Exhibition launch event') }}</li>
+          <li class="mb-1"><strong>{{ __('Closing') }}</strong> - {{ __('Final day celebration') }}</li>
+          <li class="mb-1"><strong>{{ __('Talk') }}</strong> - {{ __('Lectures and presentations') }}</li>
+          <li class="mb-1"><strong>{{ __('Tour') }}</strong> - {{ __('Guided tours') }}</li>
+          <li class="mb-1"><strong>{{ __('Workshop') }}</strong> - {{ __('Hands-on activities') }}</li>
+          <li class="mb-1"><strong>{{ __('Performance') }}</strong> - {{ __('Live performances') }}</li>
+          <li class="mb-1"><strong>{{ __('Private View') }}</strong> - {{ __('VIP or members') }}</li>
+          <li><strong>{{ __('Other') }}</strong> - {{ __('General events') }}</li>
         </ul>
       </div>
     </div>

@@ -57,11 +57,11 @@
               <td>{{ ucfirst(str_replace('_', ' ', $item->expected_entity_type ?? '')) }}</td>
               <td>
                 @if($item->status === 'detected')
-                  <span class="badge bg-danger">detected</span>
+                  <span class="badge bg-danger">{{ __('Detected') }}</span>
                 @elseif($item->status === 'reviewed')
-                  <span class="badge bg-warning text-dark">reviewed</span>
+                  <span class="badge bg-warning text-dark">{{ __('Reviewed') }}</span>
                 @elseif($item->status === 'cleaned')
-                  <span class="badge bg-success">cleaned</span>
+                  <span class="badge bg-success">{{ __('Cleaned') }}</span>
                 @else
                   <span class="badge bg-secondary">{{ $item->status }}</span>
                 @endif

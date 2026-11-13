@@ -1,28 +1,28 @@
 {{--
-  3D Object Reports Dashboard - cloned from PSIS (atom-ahg-plugins/ahgIiifPlugin/threeDReports/indexSuccess.php).
+  {{ __('3D Object Reports Dashboard') }} - cloned from PSIS (atom-ahg-plugins/ahgIiifPlugin/threeDReports/indexSuccess.php).
   @author Johan Pieterse
   @copyright Plain Sailing
   @license AGPL-3.0-or-later
 --}}
 @extends('theme::layouts.2col')
-@section('title', '3D Object Reports Dashboard')
+@section('title', __('3D Object Reports Dashboard'))
 @section('body-class', 'admin three-d-reports index')
 
 @section('sidebar')
 <div class="sidebar-content">
     <h4>{{ __('3D Reports') }}</h4>
     <ul class="list-unstyled">
-        <li><a href="{{ route('iiif.three-d-reports.models') }}"><i class="fas fa-cube me-2"></i>3D Models</a></li>
+        <li><a href="{{ route('iiif.three-d-reports.models') }}"><i class="fas fa-cube me-2"></i>{{ __('3D Models') }}</a></li>
         <li><a href="{{ route('iiif.three-d-reports.hotspots') }}"><i class="fas fa-map-pin me-2"></i>{{ __('Hotspots') }}</a></li>
         <li><a href="{{ route('iiif.three-d-reports.thumbnails') }}"><i class="fas fa-image me-2"></i>{{ __('Thumbnails') }}</a></li>
-        <li><a href="{{ route('iiif.three-d-reports.digital-objects') }}"><i class="fas fa-file me-2"></i>3D Files</a></li>
+        <li><a href="{{ route('iiif.three-d-reports.digital-objects') }}"><i class="fas fa-file me-2"></i>{{ __('3D Files') }}</a></li>
         <li><a href="{{ route('iiif.three-d-reports.settings') }}"><i class="fas fa-cog me-2"></i>{{ __('Viewer Settings') }}</a></li>
     </ul>
 </div>
 @endsection
 
 @section('title-block')
-<h1><i class="fas fa-cube"></i> 3D Object Reports Dashboard</h1>
+<h1><i class="fas fa-cube"></i> {{ __('3D Object Reports Dashboard') }}</h1>
 @endsection
 
 @php
@@ -44,7 +44,7 @@ if (!function_exists('threeDFmtBytes')) {
             <div class="card text-center bg-primary text-white">
                 <div class="card-body">
                     <h2>{{ number_format($stats['totalModels'] ?? 0) }}</h2>
-                    <p class="mb-0">3D Models</p>
+                    <p class="mb-0">{{ __('3D Models') }}</p>
                 </div>
             </div>
         </div>
@@ -52,7 +52,7 @@ if (!function_exists('threeDFmtBytes')) {
             <div class="card text-center bg-success text-white">
                 <div class="card-body">
                     <h2>{{ number_format($stats['digitalObjects3D'] ?? 0) }}</h2>
-                    <p class="mb-0">3D Files</p>
+                    <p class="mb-0">{{ __('3D Files') }}</p>
                 </div>
             </div>
         </div>

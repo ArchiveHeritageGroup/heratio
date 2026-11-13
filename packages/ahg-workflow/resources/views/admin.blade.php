@@ -87,7 +87,7 @@
       @if(!empty($spectrumFilter))
         {{ __('No workflows are tagged with that museum procedure yet.') }}
       @else
-        No workflows configured yet. Create your first workflow to get started.
+        {{ __('No workflows configured yet. Create your first workflow to get started.') }}
       @endif
     </div>
   @else

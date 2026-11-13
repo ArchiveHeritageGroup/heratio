@@ -56,15 +56,15 @@
         <div class="row">
           <div class="col-md-6">
             <h6><i class="fas fa-image me-2"></i>{{ __('Images (ImageMagick)') }}</h6>
-            <ul class="small mb-3"><li>JPEG, PNG, BMP, GIF &rarr; TIFF (uncompressed)</li></ul>
+            <ul class="small mb-3"><li>{{ __('JPEG, PNG, BMP, GIF → TIFF (uncompressed)') }}</li></ul>
             <h6><i class="fas fa-music me-2"></i>{{ __('Audio (FFmpeg)') }}</h6>
             <ul class="small mb-3"><li>MP3, AAC, OGG &rarr; WAV (PCM)</li></ul>
           </div>
           <div class="col-md-6">
             <h6><i class="fas fa-file-pdf me-2"></i>{{ __('Documents') }}</h6>
-            <ul class="small mb-3"><li>PDF &rarr; PDF/A (Ghostscript)</li><li>DOC, DOCX, XLS, PPT &rarr; PDF/A (LibreOffice)</li></ul>
+            <ul class="small mb-3"><li>{{ __('PDF → PDF/A (Ghostscript)') }}</li><li>{{ __('DOC, DOCX, XLS, PPT → PDF/A (LibreOffice)') }}</li></ul>
             <h6><i class="fas fa-film me-2"></i>{{ __('Video (FFmpeg)') }}</h6>
-            <ul class="small mb-0"><li>Various &rarr; MKV/FFV1 (lossless)</li></ul>
+            <ul class="small mb-0"><li>{{ __('Various → MKV/FFV1 (lossless)') }}</li></ul>
           </div>
         </div>
       </div>

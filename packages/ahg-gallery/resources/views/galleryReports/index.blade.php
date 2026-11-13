@@ -113,7 +113,7 @@
           </div>
           @if(($stats['loans']['pending'] ?? 0) > 0)
           <div class="alert alert-warning mt-3 mb-0 py-2">
-            <i class="fas fa-clock me-2"></i>{{ $stats['loans']['pending'] }} pending requests
+            <i class="fas fa-clock me-2"></i>{{ __(':value1 pending requests', ['value1' => $stats['loans']['pending']]) }}
           </div>
           @endif
           <div class="text-end mt-3">

@@ -9,14 +9,13 @@
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('Compare Duplicates') }}</h1>
       <span class="small text-muted">
-        Similarity score:
+        {{ __('Similarity score:') }}
         @php
           $score = (float) $duplicate->similarity_score;
           $badgeClass = $score >= 90 ? 'bg-danger' : ($score >= 75 ? 'bg-warning text-dark' : 'bg-info text-dark');
         @endphp
         <span class="badge {{ $badgeClass }}">{{ number_format($score, 0) }}%</span>
-        &middot; Method: {{ $duplicate->detection_method }}
-        &middot; Status: {{ ucfirst($duplicate->status) }}
+        {{ __('· Method: :method · Status: :status', ['method' => $duplicate->detection_method, 'status' => ucfirst($duplicate->status)]) }}
       </span>
     </div>
     <div class="ms-auto d-flex gap-2">
@@ -48,7 +47,7 @@
             <strong>{{ $recordA->title ?: '[Untitled]' }}</strong>
             <br><small class="text-muted">ID: {{ $recordA->id }} &middot; {{ $recordA->identifier ?? 'No identifier' }}</small>
           @else
-            <span class="text-danger">Record not found (ID: {{ $duplicate->record_a_id }})</span>
+            <span class="text-danger">{{ __('Record not found (ID: :value1)', ['value1' => $duplicate->record_a_id]) }}</span>
           @endif
         </div>
       </div>
@@ -68,7 +67,7 @@
             <strong>{{ $recordB->title ?: '[Untitled]' }}</strong>
             <br><small class="text-muted">ID: {{ $recordB->id }} &middot; {{ $recordB->identifier ?? 'No identifier' }}</small>
           @else
-            <span class="text-danger">Record not found (ID: {{ $duplicate->record_b_id }})</span>
+            <span class="text-danger">{{ __('Record not found (ID: :value1)', ['value1' => $duplicate->record_b_id]) }}</span>
           @endif
         </div>
       </div>
@@ -147,8 +146,8 @@
   <div class="alert alert-secondary mb-4">
     <i class="fas fa-info-circle me-2"></i>
     <strong>{{ __('Legend:') }}</strong>
-    <span class="badge bg-success">{{ __('Green rows') }}</span> indicate matching values.
-    <span class="badge bg-warning text-dark">{{ __('Yellow rows') }}</span> indicate differing values between records.
+    <span class="badge bg-success">{{ __('Green rows') }}</span> {{ __('indicate matching values.') }}
+    <span class="badge bg-warning text-dark">{{ __('Yellow rows') }}</span> {{ __('indicate differing values between records.') }}
   </div>
 
   {{-- Detection Details --}}
@@ -175,7 +174,7 @@
     <div class="alert alert-info">
       {{ __('This duplicate pair has been') }} <strong>{{ $duplicate->status }}</strong>.
       @if($duplicate->reviewed_at)
-        Reviewed at {{ \Carbon\Carbon::parse($duplicate->reviewed_at)->format('Y-m-d H:i') }}.
+        {{ __('Reviewed at :value1.', ['value1' => \Carbon\Carbon::parse($duplicate->reviewed_at)->format('Y-m-d H:i')]) }}
       @endif
     </div>
   @endif

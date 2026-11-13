@@ -94,12 +94,12 @@ class TourController extends Controller
                 ->route('loan.tour.object', $objectId)
                 ->with('tour_conflicts', $result['conflicts'])
                 ->with('tour_attempt', $validated)
-                ->with('error', 'Cannot book: '.count($result['conflicts']).' scheduling conflict(s) found for this object and window.');
+                ->with('error', __('Cannot book: :count scheduling conflict(s) found for this object and window.', ['count' => count($result['conflicts'])]));
         }
 
         return redirect()
             ->route('loan.tour.object', $objectId)
-            ->with('success', 'Venue booked - the window is clear. Booking #'.$result['booking_id'].'.');
+            ->with('success', __('Venue booked - the window is clear. Booking #').$result['booking_id'].'.');
     }
 
     /**
@@ -133,6 +133,6 @@ class TourController extends Controller
 
         return redirect()
             ->route('loan.tour.object', $objectId)
-            ->with('success', 'Tour booking cancelled - the window is now free.');
+            ->with('success', __('Tour booking cancelled - the window is now free.'));
     }
 }

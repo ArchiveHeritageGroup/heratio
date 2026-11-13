@@ -29,19 +29,19 @@
       <h5><i class="fa fa-info-circle me-2"></i>{{ __('Important: CSV Digital Object Path') }}</h5>
       <p class="mb-2">Files uploaded here are stored at the remote path shown below. In your CSV import file, set the <code>digitalObjectPath</code> column to:</p>
       <div class="bg-white border rounded p-3 mb-2">
-        <code id="path-prefix" class="fs-5 text-primary user-select-all">{{ $diskPath }}/</code><code class="fs-5 text-muted">your-filename.ext</code>
+        <code id="path-prefix" class="fs-5 text-primary user-select-all">{{ $diskPath }}/</code><code class="fs-5 text-muted">{{ __('your-filename.ext') }}</code>
         <button type="button" class="btn btn-sm atom-btn-white ms-3" id="copy-path-btn" title="{{ __('Copy path prefix') }}">
           <i class="fa fa-copy"></i>
         </button>
       </div>
-      <small class="text-muted">{{ __('Replace') }} <em>your-filename.ext</em> with the actual filename you upload.</small>
+      <small class="text-muted">{{ __('Replace') }} <em>{{ __('your-filename.ext') }}</em> {{ __('with the actual filename you upload.') }}</small>
     </div>
 
     <!-- Upload Zone -->
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0"><i class="fa fa-cloud-upload-alt me-2"></i>{{ __('Upload Files or Folders') }}
-          <small class="ms-2 opacity-75">(supports files up to 2 GB - chunked upload with resume)</small>
+          <small class="ms-2 opacity-75">{{ __('(supports files up to 2 GB - chunked upload with resume)') }}</small>
         </h5>
       </div>
       <div class="card-body">
@@ -68,7 +68,7 @@
             <small class="text-muted"><i class="fa fa-hdd me-1"></i>{{ __('Max file size: 2 GB per file') }}</small>
           </div>
           <div class="col-md-4 text-end">
-            <small class="text-muted"><i class="fa fa-server me-1"></i>Protocol: {{ strtoupper($protocol) }}</small>
+            <small class="text-muted"><i class="fa fa-server me-1"></i>{{ __('Protocol: :value1', ['value1' => strtoupper($protocol)]) }}</small>
           </div>
         </div>
         <div id="upload-progress" class="d-none mt-3">

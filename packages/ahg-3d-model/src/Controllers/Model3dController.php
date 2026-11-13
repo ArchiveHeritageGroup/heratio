@@ -157,23 +157,23 @@ class Model3dController extends Controller
 
         if (! $digitalObject) {
             return redirect()->route('admin.3d-models.browse')
-                ->with('error', 'Digital object not found.');
+                ->with('error', __('Digital object not found.'));
         }
 
         if (! $this->thumbnailService->is3DModel($digitalObject->name)) {
             return redirect()->route('admin.3d-models.browse')
-                ->with('error', 'Not a recognised 3D model file.');
+                ->with('error', __('Not a recognised 3D model file.'));
         }
 
         $success = $this->thumbnailService->createDerivatives($id);
 
         if ($success) {
             return redirect()->route('admin.3d-models.browse')
-                ->with('success', "Thumbnail generated for: {$digitalObject->name}");
+                ->with('success', __('Thumbnail generated for: :name', ['name' => $digitalObject->name]));
         }
 
         return redirect()->route('admin.3d-models.browse')
-            ->with('error', "Thumbnail generation failed for: {$digitalObject->name}. Check storage/logs/3d-thumbnail.log for details.");
+            ->with('error', __('Thumbnail generation failed for: :name. Check storage/logs/3d-thumbnail.log for details.', ['name' => $digitalObject->name]));
     }
 
     // ------------------------------------------------------------------
@@ -189,12 +189,12 @@ class Model3dController extends Controller
 
         if (! $digitalObject) {
             return redirect()->route('admin.3d-models.browse')
-                ->with('error', 'Digital object not found.');
+                ->with('error', __('Digital object not found.'));
         }
 
         if (! $this->thumbnailService->is3DModel($digitalObject->name)) {
             return redirect()->route('admin.3d-models.browse')
-                ->with('error', 'Not a recognised 3D model file.');
+                ->with('error', __('Not a recognised 3D model file.'));
         }
 
         $uploadsBase = config('heratio.uploads_path');
@@ -205,11 +205,11 @@ class Model3dController extends Controller
 
         if (count($results) > 0) {
             return redirect()->route('admin.3d-models.browse')
-                ->with('success', 'Multi-angle renders generated ('.count($results).'/6 views) for: '.$digitalObject->name);
+                ->with('success', __('Multi-angle renders generated (:count/6 views) for: :name', ['count' => count($results), 'name' => $digitalObject->name]));
         }
 
         return redirect()->route('admin.3d-models.browse')
-            ->with('error', "Multi-angle generation failed for: {$digitalObject->name}. Check storage/logs/3d-thumbnail.log for details.");
+            ->with('error', __('Multi-angle generation failed for: :name. Check storage/logs/3d-thumbnail.log for details.', ['name' => $digitalObject->name]));
     }
 
     // ------------------------------------------------------------------
@@ -220,12 +220,11 @@ class Model3dController extends Controller
     {
         $results = $this->thumbnailService->batchProcessExisting();
 
-        $message = sprintf(
-            'Batch thumbnail generation complete. Processed: %d, Success: %d, Failed: %d.',
-            $results['processed'],
-            $results['success'],
-            $results['failed'],
-        );
+        $message = __('Batch thumbnail generation complete. Processed: :processed, Success: :success, Failed: :failed.', [
+            'processed' => $results['processed'],
+            'success' => $results['success'],
+            'failed' => $results['failed'],
+        ]);
 
         if ($results['failed'] > 0) {
             return redirect()->route('admin.3d-models.browse')
@@ -234,7 +233,7 @@ class Model3dController extends Controller
 
         if ($results['processed'] === 0) {
             return redirect()->route('admin.3d-models.browse')
-                ->with('info', 'No 3D objects are missing thumbnails.');
+                ->with('info', __('No 3D objects are missing thumbnails.'));
         }
 
         return redirect()->route('admin.3d-models.browse')
@@ -426,7 +425,7 @@ class Model3dController extends Controller
             $this->logAction($id, 'update');
 
             return redirect()->route('admin.3d-models.edit', $id)
-                ->with('success', 'Model settings updated.');
+                ->with('success', __('Model settings updated.'));
         }
 
         // #1178 - paradata dropdown taxonomies (Dropdown Manager driven).
@@ -533,13 +532,13 @@ class Model3dController extends Controller
 
             if (! in_array($ext, $allowedFormats)) {
                 return redirect()->back()
-                    ->with('error', 'Invalid file format. Allowed: '.implode(', ', $allowedFormats));
+                    ->with('error', __('Invalid file format. Allowed: :formats', ['formats' => implode(', ', $allowedFormats)]));
             }
 
             $maxBytes = $maxFileSize * 1024 * 1024;
             if ($file->getSize() > $maxBytes) {
                 return redirect()->back()
-                    ->with('error', "File too large. Maximum: {$maxFileSize} MB");
+                    ->with('error', __('File too large. Maximum: :size MB', ['size' => $maxFileSize]));
             }
 
             $uploadDir = config('heratio.uploads_path').'/3d/'.$objectId;
@@ -606,7 +605,7 @@ class Model3dController extends Controller
             $this->logAction($modelId, 'upload');
 
             return redirect()->route('admin.3d-models.view', $modelId)
-                ->with('success', '3D model uploaded successfully.');
+                ->with('success', __('3D model uploaded successfully.'));
         }
 
         return view('ahg-3d-model::upload', [
@@ -659,7 +658,7 @@ class Model3dController extends Controller
         $slug = DB::table('slug')->where('object_id', $objectId)->value('slug');
 
         return redirect('/'.($slug ?: ''))
-            ->with('success', '3D model deleted.');
+            ->with('success', __('3D model deleted.'));
     }
 
     // ------------------------------------------------------------------
@@ -756,7 +755,7 @@ class Model3dController extends Controller
             }
 
             return redirect()->route('admin.3d-models.settings')
-                ->with('success', 'Settings saved successfully.');
+                ->with('success', __('Settings saved successfully.'));
         }
 
         return view('ahg-3d-model::settings', [
@@ -830,7 +829,7 @@ class Model3dController extends Controller
             }
 
             return redirect()->route('admin.3d-models.triposr')
-                ->with('success', 'TripoSR settings saved successfully.');
+                ->with('success', __('TripoSR settings saved successfully.'));
         }
 
         return view('ahg-3d-model::triposr', [
@@ -1112,7 +1111,7 @@ class Model3dController extends Controller
     public function userGenerate3d(Request $request, int $ioId)
     {
         if (! self::is2dTo3dUserButtonEnabled()) {
-            session()->flash('error', '3D generation is currently disabled by the administrator.');
+            session()->flash('error', __('3D generation is currently disabled by the administrator.'));
 
             return redirect()->back();
         }
@@ -1125,7 +1124,7 @@ class Model3dController extends Controller
         // Idempotency - refuse if a 3D model already exists for this IO
         $existing = DB::table('object_3d_model')->where('object_id', $ioId)->first(['id']);
         if ($existing) {
-            session()->flash('notice', 'This object already has a 3D model.');
+            session()->flash('notice', __('This object already has a 3D model.'));
 
             return redirect()->back();
         }
@@ -1138,7 +1137,7 @@ class Model3dController extends Controller
             ->first(['id', 'name', 'path']);
 
         if (! $sourceDo) {
-            session()->flash('error', 'No image found for this object. Upload an image first.');
+            session()->flash('error', __('No image found for this object. Upload an image first.'));
 
             return redirect()->back();
         }
@@ -1150,7 +1149,7 @@ class Model3dController extends Controller
             $sourcePath = $base.'/'.$ioId.'/'.$sourceDo->name;
         }
         if (! is_file($sourcePath)) {
-            session()->flash('error', 'Could not locate the source image on disk.');
+            session()->flash('error', __('Could not locate the source image on disk.'));
 
             return redirect()->back();
         }
@@ -1171,14 +1170,14 @@ class Model3dController extends Controller
                 if (preg_match('/^(?:.*\bTripoSR call failed:.+|.*\bERROR\b.*|.*failed.*)$/im', $output, $em)) {
                     $errLine = trim($em[0]);
                 }
-                $errLine = $errLine ?: 'TripoSR did not return a model. Check /admin/3d-models/settings.';
-                session()->flash('error', '3D generation failed: '.$errLine);
+                $errLine = $errLine ?: __('TripoSR did not return a model. Check /admin/3d-models/settings.');
+                session()->flash('error', __('3D generation failed: :message', ['message' => $errLine]));
 
                 return redirect()->back();
             }
             $stagedPath = trim($m[1]);
             if (! is_file($stagedPath)) {
-                session()->flash('error', '3D generation completed but the staged file is missing.');
+                session()->flash('error', __('3D generation completed but the staged file is missing.'));
 
                 return redirect()->back();
             }
@@ -1195,11 +1194,11 @@ class Model3dController extends Controller
                 'is_demo' => $isDemo,
             ]);
             session()->flash('notice', $isDemo
-                ? '3D demo placeholder ready - real GPU/AI generation is on its way.'
-                : '3D preview ready - review and click Save to attach it.');
+                ? __('3D demo placeholder ready - real GPU/AI generation is on its way.')
+                : __('3D preview ready - review and click Save to attach it.'));
         } catch (\Throwable $e) {
             Log::error('[userGenerate3d] failed', ['io' => $ioId, 'err' => $e->getMessage()]);
-            session()->flash('error', '3D generation failed: '.$e->getMessage());
+            session()->flash('error', __('3D generation failed: :message', ['message' => $e->getMessage()]));
         }
 
         return redirect()->back();
@@ -1210,7 +1209,7 @@ class Model3dController extends Controller
     {
         $preview = session('triposr_preview');
         if (! $preview || (int) ($preview['io_id'] ?? 0) !== $ioId) {
-            session()->flash('error', 'No matching 3D preview to save.');
+            session()->flash('error', __('No matching 3D preview to save.'));
 
             return redirect()->back();
         }
@@ -1220,9 +1219,9 @@ class Model3dController extends Controller
         @unlink((string) $preview['path']);
 
         if (! empty($result['success'])) {
-            session()->flash('notice', '3D model attached to this object.');
+            session()->flash('notice', __('3D model attached to this object.'));
         } else {
-            session()->flash('error', 'Could not save the 3D model: '.($result['error'] ?? 'unknown'));
+            session()->flash('error', __('Could not save the 3D model: :message', ['message' => $result['error'] ?? 'unknown']));
         }
 
         return redirect()->back();
@@ -1237,7 +1236,7 @@ class Model3dController extends Controller
             $importer->discardStaged((string) ($preview['path'] ?? ''));
         }
         session()->forget('triposr_preview');
-        session()->flash('notice', '3D preview discarded.');
+        session()->flash('notice', __('3D preview discarded.'));
 
         return redirect()->back();
     }

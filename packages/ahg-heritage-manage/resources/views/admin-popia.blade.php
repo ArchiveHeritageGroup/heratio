@@ -52,7 +52,7 @@ $total = $flagData['total'] ?? 0;
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">{{ __('Unresolved Flags') }}</h5>
-        <span class="badge bg-warning text-dark">{{ number_format($total) }} flags</span>
+        <span class="badge bg-warning text-dark">{{ __(':count flags', ['count' => number_format($total)]) }}</span>
       </div>
       <div class="card-body p-0">
         @if(empty($flags))

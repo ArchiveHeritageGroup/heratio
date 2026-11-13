@@ -27,7 +27,7 @@
         <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>{{ __('Import Complete') }}</h5>
       </div>
       <div class="card-body">
-        <p>{{ __('Your exchange file has been imported as a') }} <strong>draft submission</strong>. Review the items and submit for archivist approval.</p>
+        <p>{{ __('Your exchange file has been imported as a') }} <strong>{{ __('draft submission') }}</strong>{{ __('. Review the items and submit for archivist approval.') }}</p>
 
         <div class="row g-3 mb-3">
           @if(($result['notes'] ?? 0) > 0)
@@ -94,10 +94,7 @@
         <div class="card-body">
           <div class="alert alert-info mb-3">
             <i class="fas fa-info-circle me-2"></i>
-            <strong>{{ __('What is this?') }}</strong> When you use the Portable Export viewer in edit mode (offline),
-            you can add notes, import files, create new items, creators, and repositories.
-            The viewer exports a <code>researcher-exchange.json</code> file that you upload here.
-            It becomes a draft submission for archivist review.
+            <strong>{{ __('What is this?') }}</strong> {{ __('When you use the Portable Export viewer in edit mode (offline), you can add notes, import files, create new items, creators, and repositories. The viewer exports a') }} <code>researcher-exchange.json</code> {{ __('file that you upload here. It becomes a draft submission for archivist review.') }}
           </div>
 
           <form method="POST" action="{{ route('researcher.import.store') }}" enctype="multipart/form-data" id="importForm">
@@ -111,7 +108,7 @@
                      name="exchange_file"
                      accept=".json"
                      required>
-              <small class="text-muted">Select a <code>researcher-exchange.json</code> file exported from the Portable Viewer.</small>
+              <small class="text-muted">{{ __('Select a') }} <code>researcher-exchange.json</code> {{ __('file exported from the Portable Viewer.') }}</small>
               @error('exchange_file')
                 <div class="invalid-feedback">{{ $message }}</div>
               @enderror
@@ -122,7 +119,7 @@
               <select class="form-select @error('repository_id') is-invalid @enderror"
                       id="repository_id"
                       name="repository_id">
-                <option value="">-- Auto-detect or leave unset --</option>
+                <option value="">{{ __('-- Auto-detect or leave unset --') }}</option>
                 @foreach($repositories as $repo)
                   <option value="{{ $repo['id'] }}" {{ old('repository_id') == $repo['id'] ? 'selected' : '' }}>
                     {{ $repo['name'] ?: '[Unnamed repository #' . $repo['id'] . ']' }}
@@ -168,19 +165,19 @@
         </div>
         <div class="card-body small">
           <dl class="row mb-0">
-            <dt class="col-4"><span class="badge bg-info">notes</span></dt>
+            <dt class="col-4"><span class="badge bg-info">{{ __('notes') }}</span></dt>
             <dd class="col-8">{{ __('Research notes attached to existing records') }}</dd>
 
-            <dt class="col-4"><span class="badge bg-secondary">files</span></dt>
+            <dt class="col-4"><span class="badge bg-secondary">{{ __('files') }}</span></dt>
             <dd class="col-8">{{ __('Imported files with captions and metadata') }}</dd>
 
-            <dt class="col-4"><span class="badge bg-success">new_items</span></dt>
+            <dt class="col-4"><span class="badge bg-success">{{ __('new_items') }}</span></dt>
             <dd class="col-8">{{ __('New descriptive records with hierarchy, access points (subjects, places, genre, creators), extent and media') }}</dd>
 
-            <dt class="col-4"><span class="badge bg-primary">new_creators</span></dt>
+            <dt class="col-4"><span class="badge bg-primary">{{ __('new_creators') }}</span></dt>
             <dd class="col-8">{{ __('New creator/actor records (persons, organizations, families)') }}</dd>
 
-            <dt class="col-4"><span class="badge bg-warning text-dark">new_repositories</span></dt>
+            <dt class="col-4"><span class="badge bg-warning text-dark">{{ __('new_repositories') }}</span></dt>
             <dd class="col-8">{{ __('New repository/institution records') }}</dd>
           </dl>
         </div>

@@ -409,7 +409,7 @@ class DamController extends Controller
 
         return redirect()
             ->route('dam.show', $slug)
-            ->with('success', 'DAM asset created successfully.');
+            ->with('success', __('DAM asset created successfully.'));
     }
 
     public function update(Request $request, string $slug)
@@ -529,7 +529,7 @@ class DamController extends Controller
 
         return redirect()
             ->route('dam.show', $slug)
-            ->with('success', 'DAM asset updated successfully.');
+            ->with('success', __('DAM asset updated successfully.'));
     }
 
     public function destroy(string $slug)
@@ -543,7 +543,7 @@ class DamController extends Controller
 
         return redirect()
             ->route('dam.browse')
-            ->with('success', 'DAM asset deleted successfully.');
+            ->with('success', __('DAM asset deleted successfully.'));
     }
 
     public function bulkCreate(Request $request) { return view('ahg-dam::bulk-create'); }

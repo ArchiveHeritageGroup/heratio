@@ -137,7 +137,7 @@ class DatasetController extends Controller
         );
 
         return redirect()->route('rdm.datasets.show', $id)
-            ->with('success', 'Dataset created. Deposit files below.');
+            ->with('success', __('Dataset created. Deposit files below.'));
     }
 
     public function show(int $id)
@@ -203,7 +203,7 @@ class DatasetController extends Controller
         $this->authorizeDataset($id); // #1393 ownership gate
         app(DmpLinkService::class)->unlink($id);
 
-        return redirect()->route('rdm.datasets.show', $id)->with('success', 'Data Management Plan unlinked.');
+        return redirect()->route('rdm.datasets.show', $id)->with('success', __('Data Management Plan unlinked.'));
     }
 
     public function resolveFinding(Request $request, int $id, int $fid)
@@ -279,7 +279,7 @@ class DatasetController extends Controller
 
         return redirect()->route('rdm.datasets.show', $id)->with(
             'success',
-            'POPIA scan queued - deterministic PII first, then AI-suggested names. Refresh in a moment for the findings.'
+            __('POPIA scan queued - deterministic PII first, then AI-suggested names. Refresh in a moment for the findings.')
         );
     }
 

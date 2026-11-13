@@ -5,7 +5,7 @@
 
 @section('content')
 
-<h1><i class="fas fa-user-shield"></i> User Clearance: {{ e($targetUser->username ?? '') }}</h1>
+<h1><i class="fas fa-user-shield"></i> {{ __('User Clearance: :user', ['user' => $targetUser->username ?? '']) }}</h1>
 
 <div class="mb-3">
   <a href="{{ route('acl.security-index') }}" class="btn btn-sm btn-outline-secondary">
@@ -42,7 +42,7 @@
                 $class = $daysLeft <= 7 ? 'text-danger' : ($daysLeft <= 30 ? 'text-warning' : 'text-success');
                 @endphp
                 <span class="{{ $class }}">{{ $clearance->expiry_date }}</span>
-                ({{ round($daysLeft) }} days)
+                {{ __('(:count days)', ['count' => round($daysLeft)]) }}
               @else
                 <span class="text-muted">{{ __('No expiry') }}</span>
               @endif
@@ -65,7 +65,7 @@
                    not tracked at all. Absent and negative are different states.
                    The badge now says so; restore the yes/no the moment the
                    columns exist. --}}
-              <strong>2FA Verified:</strong><br>
+              <strong>{{ __('2FA Verified:') }}</strong><br>
               <span class="badge bg-secondary" title="{{ __('This installation does not record two-factor verification against a clearance.') }}">
                 {{ __('Not recorded') }}
               </span>
@@ -287,7 +287,7 @@
             @if($h->previous_name ?? null)
               {{ e($h->previous_name) }} &rarr;
             @endif
-            {{ e($h->new_name ?? 'None') }}
+            {{ e($h->new_name ?? __('None')) }}
             <br>
             <small>by {{ e($h->changed_by_name ?? '') }}</small>
             @if($h->reason ?? null)

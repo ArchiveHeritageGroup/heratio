@@ -125,7 +125,7 @@ class BibframeController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('info', 'No work selected.');
+        return redirect()->back()->with('info', __('No work selected.'));
     }
 
     /**
@@ -184,7 +184,7 @@ class BibframeController extends Controller
                 : '');
 
         if (empty(trim($content))) {
-            return redirect()->back()->with('error', 'No RDF content provided.');
+            return redirect()->back()->with('error', __('No RDF content provided.'));
         }
 
         $result = $this->service->validateRdf($content);

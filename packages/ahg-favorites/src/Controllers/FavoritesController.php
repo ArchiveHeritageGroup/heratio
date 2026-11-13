@@ -87,7 +87,7 @@ class FavoritesController extends Controller
         $culture = app()->getLocale();
         $slugRow = DB::table('slug')->where('slug', $slug)->first();
         if (! $slugRow) {
-            return redirect()->back()->with('error', 'Item not found.');
+            return redirect()->back()->with('error', __('Item not found.'));
         }
 
         $title = DB::table('information_object_i18n')
@@ -109,24 +109,24 @@ class FavoritesController extends Controller
         $added = $this->favoritesService->addToFavorites($userId, $slugRow->object_id, $title, $slug, 'information_object', $referenceCode);
 
         if ($added) {
-            return redirect()->back()->with('success', 'Added to favorites.');
+            return redirect()->back()->with('success', __('Added to favorites.'));
         }
 
-        return redirect()->back()->with('info', 'Already in favorites.');
+        return redirect()->back()->with('info', __('Already in favorites.'));
     }
 
     public function remove(Request $request, int $id)
     {
         $this->favoritesService->removeFromFavorites(Auth::id(), $id);
 
-        return redirect()->route('favorites.browse')->with('success', 'Removed from favorites.');
+        return redirect()->route('favorites.browse')->with('success', __('Removed from favorites.'));
     }
 
     public function clear(Request $request)
     {
         $count = $this->favoritesService->clearAll(Auth::id());
 
-        return redirect()->route('favorites.browse')->with('success', "Cleared {$count} favorites.");
+        return redirect()->route('favorites.browse')->with('success', __('Cleared :count favorites.', ['count' => $count]));
     }
 
     public function ajaxToggle(Request $request)
@@ -177,14 +177,14 @@ class FavoritesController extends Controller
         $ids = $request->input('ids', []);
 
         if (empty($ids)) {
-            return redirect()->route('favorites.browse')->with('error', 'No items selected.');
+            return redirect()->route('favorites.browse')->with('error', __('No items selected.'));
         }
 
         switch ($action) {
             case 'remove':
                 $count = $this->favoritesService->bulkRemove($userId, $ids);
 
-                return redirect()->route('favorites.browse')->with('success', "Removed {$count} items.");
+                return redirect()->route('favorites.browse')->with('success', __('Removed :count items.', ['count' => $count]));
             case 'move':
                 $folderId = $request->input('move_folder_id');
                 $result = $this->favoritesService->moveToFolder($userId, $ids, $folderId ? (int) $folderId : null);
@@ -209,7 +209,7 @@ class FavoritesController extends Controller
         $request->validate(['name' => 'required|string|max:255']);
         $id = $this->folderService->createFolder(Auth::id(), $request->input('name'), $request->input('description'), $request->input('color'));
 
-        return redirect()->route('favorites.browse', ['folder_id' => $id])->with('success', 'Folder created.');
+        return redirect()->route('favorites.browse', ['folder_id' => $id])->with('success', __('Folder created.'));
     }
 
     public function folderEdit(Request $request, int $id)
@@ -217,14 +217,14 @@ class FavoritesController extends Controller
         $request->validate(['name' => 'required|string|max:255']);
         $this->folderService->updateFolder(Auth::id(), $id, $request->only(['name', 'description', 'color']));
 
-        return redirect()->route('favorites.browse', ['folder_id' => $id])->with('success', 'Folder updated.');
+        return redirect()->route('favorites.browse', ['folder_id' => $id])->with('success', __('Folder updated.'));
     }
 
     public function folderDelete(int $id)
     {
         $this->folderService->deleteFolder(Auth::id(), $id);
 
-        return redirect()->route('favorites.browse')->with('success', 'Folder deleted. Items moved to unfiled.');
+        return redirect()->route('favorites.browse')->with('success', __('Folder deleted. Items moved to unfiled.'));
     }
 
     public function shareFolder(Request $request, int $id)
@@ -232,17 +232,17 @@ class FavoritesController extends Controller
         $token = $this->folderService->shareFolder(Auth::id(), $id);
         if ($token) {
             return redirect()->route('favorites.browse', ['folder_id' => $id])
-                ->with('success', 'Share link: '.url('/favorites/shared/'.$token));
+                ->with('success', __('Share link: :url', ['url' => url('/favorites/shared/'.$token)]));
         }
 
-        return redirect()->back()->with('error', 'Could not share folder.');
+        return redirect()->back()->with('error', __('Could not share folder.'));
     }
 
     public function revokeSharing(int $id)
     {
         $this->folderService->revokeSharing(Auth::id(), $id);
 
-        return redirect()->route('favorites.browse', ['folder_id' => $id])->with('success', 'Sharing revoked.');
+        return redirect()->route('favorites.browse', ['folder_id' => $id])->with('success', __('Sharing revoked.'));
     }
 
     public function viewShared(string $token)
@@ -279,7 +279,7 @@ class FavoritesController extends Controller
 
         $count = $this->favoritesService->importFromCsv(Auth::id(), $content);
 
-        return redirect()->route('favorites.browse')->with('success', "Imported {$count} items.");
+        return redirect()->route('favorites.browse')->with('success', __('Imported :count items.', ['count' => $count]));
     }
 
     // ------------------------------------------------------------------

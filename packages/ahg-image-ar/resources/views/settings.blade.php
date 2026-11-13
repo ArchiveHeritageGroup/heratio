@@ -16,7 +16,7 @@
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <h1><i class="fas fa-magic me-2"></i>{{ __('Image Animation Settings') }}</h1>
-      <p class="text-muted mb-0">AI image-to-video. Default: Stable Video Diffusion (works on the 8&nbsp;GB card with CPU offload). Swap to CogVideoX/WAN once the 24&nbsp;GB card is in.</p>
+      <p class="text-muted mb-0">{{ __('AI image-to-video. Default: Stable Video Diffusion (works on the 8 GB card with CPU offload). Swap to CogVideoX/WAN once the 24 GB card is in.') }}</p>
     </div>
   </div>
 
@@ -47,15 +47,15 @@
           <div class="mt-1">
             <strong>{{ __('GPU:') }}</strong> {{ $health['device'] }}
             @if(!empty($health['vram_total_gb']))
-              &middot; {{ $health['vram_free_gb'] }} GB free / {{ $health['vram_total_gb'] }} GB total
+              &middot; {{ __(':free GB free / :total GB total', ['free' => $health['vram_free_gb'], 'total' => $health['vram_total_gb']]) }}
             @endif
           </div>
         @endif
       @else
         <div class="text-danger">
-          Could not reach <code>{{ get_ar_setting($settings, 'ar_server_url', 'http://192.168.0.78:5052') }}</code>.<br>
-          Check the server is running: <code>sudo systemctl status heratio-video-server</code> on the AI host.
-          Install steps in <code>packages/ahg-image-ar/tools/video-server/INSTALL.md</code>.
+          {{ __('Could not reach :url.', ['url' => get_ar_setting($settings, 'ar_server_url', 'http://192.168.0.78:5052')]) }}<br>
+          {{ __('Check that the server is running:') }} <code>sudo systemctl status heratio-video-server</code> {{ __('on the AI host.') }}
+          {{ __('Installation instructions:') }} <code>packages/ahg-image-ar/tools/video-server/INSTALL.md</code>.
         </div>
       @endif
     </div>
@@ -88,7 +88,7 @@
           <input type="hidden" name="ar_user_button" value="0">
           <input class="form-check-input" type="checkbox" id="ar_user_button" name="ar_user_button" value="1"
                  {{ is_ar_on($settings, 'ar_user_button') ? 'checked' : '' }}>
-          <label class="form-check-label" for="ar_user_button">{{ __('Show') }} <em>{{ __('Animate image (AI)') }}</em> button on IO show pages</label>
+          <label class="form-check-label" for="ar_user_button">{{ __('Show') }} <em>{{ __('Animate image (AI)') }}</em> {{ __('button on IO show pages') }}</label>
         </div>
       </div>
     </div>
@@ -136,19 +136,19 @@
             <label class="form-label">{{ __('FPS') }}</label>
             <input type="number" class="form-control" min="4" max="30" name="ar_fps"
                    value="{{ get_ar_setting($settings, 'ar_fps', '7') }}">
-            <div class="form-text">SVD canonical = 7</div>
+            <div class="form-text">{{ __('SVD canonical = 7') }}</div>
           </div>
           <div class="col-md-2">
             <label class="form-label">{{ __('Motion bucket') }}</label>
             <input type="number" class="form-control" min="1" max="255" name="ar_motion_bucket_id"
                    value="{{ get_ar_setting($settings, 'ar_motion_bucket_id', '127') }}">
-            <div class="form-text">SVD only · 1=still · 255=wild</div>
+            <div class="form-text">{{ __('SVD only · 1=still · 255=wild') }}</div>
           </div>
           <div class="col-md-2">
             <label class="form-label">{{ __('Seed') }}</label>
             <input type="number" class="form-control" min="0" name="ar_seed"
                    value="{{ get_ar_setting($settings, 'ar_seed', '0') }}">
-            <div class="form-text">0 = random per call</div>
+            <div class="form-text">{{ __('0 = random per call') }}</div>
           </div>
           <div class="col-md-12">
             <label class="form-label">{{ __('Default prompt (CogVideoX/WAN only - SVD ignores it)') }}</label>

@@ -45,9 +45,9 @@
                     <button type="submit" class="btn btn-sm btn-primary">{{ __('Apply') }}</button>
                 </div>
                 <div class="col-auto">
-                    <a href="{{ route('statistics.dashboard', ['start' => \Carbon\Carbon::now()->subDays(7)->toDateString(), 'end' => \Carbon\Carbon::now()->toDateString()]) }}" class="btn btn-sm btn-outline-secondary">7 days</a>
-                    <a href="{{ route('statistics.dashboard', ['start' => \Carbon\Carbon::now()->subDays(30)->toDateString(), 'end' => \Carbon\Carbon::now()->toDateString()]) }}" class="btn btn-sm btn-outline-secondary">30 days</a>
-                    <a href="{{ route('statistics.dashboard', ['start' => \Carbon\Carbon::now()->subDays(90)->toDateString(), 'end' => \Carbon\Carbon::now()->toDateString()]) }}" class="btn btn-sm btn-outline-secondary">90 days</a>
+                    <a href="{{ route('statistics.dashboard', ['start' => \Carbon\Carbon::now()->subDays(7)->toDateString(), 'end' => \Carbon\Carbon::now()->toDateString()]) }}" class="btn btn-sm btn-outline-secondary">{{ __(':days days', ['days' => 7]) }}</a>
+                    <a href="{{ route('statistics.dashboard', ['start' => \Carbon\Carbon::now()->subDays(30)->toDateString(), 'end' => \Carbon\Carbon::now()->toDateString()]) }}" class="btn btn-sm btn-outline-secondary">{{ __(':days days', ['days' => 30]) }}</a>
+                    <a href="{{ route('statistics.dashboard', ['start' => \Carbon\Carbon::now()->subDays(90)->toDateString(), 'end' => \Carbon\Carbon::now()->toDateString()]) }}" class="btn btn-sm btn-outline-secondary">{{ __(':days days', ['days' => 90]) }}</a>
                 </div>
             </form>
         </div>

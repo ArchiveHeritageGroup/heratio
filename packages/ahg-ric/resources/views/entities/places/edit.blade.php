@@ -1,8 +1,8 @@
 @extends('theme::layouts.1col')
-@section('title', ($entity ? 'Edit' : 'Create') . ' Place')
+@section('title', __(':action Place', ['action' => $entity ? __('Edit') : __('Create')]))
 @section('body-class', 'admin ric')
 @section('content')
-<h1 class="mb-3"><i class="fas fa-map-marker-alt me-2"></i>{{ $entity ? 'Edit' : 'Create' }} Place</h1>
+<h1 class="mb-3"><i class="fas fa-map-marker-alt me-2"></i>{{ __(':action Place', ['action' => $entity ? __('Edit') : __('Create')]) }}</h1>
 <form method="post" action="{{ $entity ? route('ric.entities.update-form', ['places', $entity->slug]) : route('ric.entities.store-form', ['places']) }}">
     @csrf
     @if($entity) @method('PUT') @endif
@@ -14,7 +14,7 @@
         <div class="col-md-4">
             <label class="form-label">{{ __('Type') }}</label>
             <select name="type_id" class="form-select">
-                <option value="">-- Select --</option>
+                <option value="">{{ __('-- Select --') }}</option>
                 @foreach($typeChoices as $c)<option value="{{ $c->code }}" {{ ($entity->type_id ?? '') === $c->code ? 'selected' : '' }}>{{ $c->label }}</option>@endforeach
             </select>
         </div>
@@ -27,7 +27,7 @@
     <div class="mb-3">
         <label class="form-label">{{ __('Parent Place') }}</label>
         <select name="parent_id" class="form-select">
-            <option value="">-- None (top-level) --</option>
+            <option value="">{{ __('-- None (top-level) --') }}</option>
             @foreach(($parentChoices ?? []) as $p)
                 <option value="{{ $p->id }}" {{ (string)($entity->parent_id ?? '') === (string)$p->id ? 'selected' : '' }}>{{ $p->name ?: '(unnamed)' }}</option>
             @endforeach

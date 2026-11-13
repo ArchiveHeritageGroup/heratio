@@ -19,16 +19,16 @@
       <strong>{{ __('The following rights will be removed:') }}</strong>
       <ul class="mb-0 mt-2">
         @if(($currentRights->rights_statement ?? null))
-          <li><i class="fas fa-balance-scale me-1"></i>Rights Statement: {{ $currentRights->rights_statement->name ?? '' }}</li>
+          <li><i class="fas fa-balance-scale me-1"></i>{{ __('Rights Statement:') }} {{ $currentRights->rights_statement->name ?? '' }}</li>
         @endif
         @if(($currentRights->cc_license ?? null))
-          <li><i class="fab fa-creative-commons me-1"></i>Creative Commons License: {{ $currentRights->cc_license->name ?? '' }}</li>
+          <li><i class="fab fa-creative-commons me-1"></i>{{ __('Creative Commons License:') }} {{ $currentRights->cc_license->name ?? '' }}</li>
         @endif
         @if(!empty($currentRights->tk_labels ?? []))
-          <li><i class="fas fa-hand-holding-heart me-1"></i>Traditional Knowledge Labels: {{ implode(', ', $currentRights->tk_labels ?? []) }}</li>
+          <li><i class="fas fa-hand-holding-heart me-1"></i>{{ __('Traditional Knowledge Labels:') }} {{ implode(', ', $currentRights->tk_labels ?? []) }}</li>
         @endif
         @if(($currentRights->rights_holder ?? null))
-          <li><i class="fas fa-user me-1"></i>Rights Holder: {{ $currentRights->rights_holder->name ?? '' }}</li>
+          <li><i class="fas fa-user me-1"></i>{{ __('Rights Holder:') }} {{ $currentRights->rights_holder->name ?? '' }}</li>
         @endif
         @if(!($currentRights->rights_statement ?? null) && !($currentRights->cc_license ?? null) && empty($currentRights->tk_labels ?? []) && !($currentRights->rights_holder ?? null))
           <li class="text-muted"><em>{{ __('No extended rights currently assigned') }}</em></li>

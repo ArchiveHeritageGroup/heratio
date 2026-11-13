@@ -37,7 +37,7 @@
                         <div class="mb-3">
                             <label for="request_type" class="form-label">{{ __('Request Type') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
                             <select class="form-select" id="request_type" name="request_type" required>
-                                <option value="">-- Select type --</option>
+                                <option value="">{{ __('-- Select type --') }}</option>
                                 <option value="view">{{ __('View restricted material') }}</option>
                                 <option value="copy">{{ __('Request copies') }}</option>
                                 <option value="publish">{{ __('Permission to publish') }}</option>
@@ -138,10 +138,10 @@
                         <div class="mb-3">
                             <label for="requested_classification_id" class="form-label">{{ __('Requested classification level') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
                             <select class="form-select" id="requested_classification_id" name="requested_classification_id">
-                                <option value="">-- Default (lowest level) --</option>
+                                <option value="">{{ __('-- Default (lowest level) --') }}</option>
                                 @foreach($classifications as $cls)
                                     <option value="{{ $cls->id }}" {{ (int) old('requested_classification_id') === (int) $cls->id ? 'selected' : '' }}>
-                                        {{ $cls->name }} (level {{ $cls->level }})
+                                        {{ __(':name (level :level)', ['name' => $cls->name, 'level' => $cls->level]) }}
                                     </option>
                                 @endforeach
                             </select>

@@ -125,7 +125,7 @@
             <div class="card mt-4">
                 <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
                     <span><i class="fas fa-file-import me-2"></i>{{ __('Package Objects') }}</span>
-                    <span class="badge bg-light text-dark">{{ count($package->objects ?? []) }} objects</span>
+                    <span class="badge bg-light text-dark">{{ __(':count objects', ['count' => count($package->objects ?? [])]) }}</span>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">

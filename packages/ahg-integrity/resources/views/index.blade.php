@@ -16,9 +16,8 @@
     <div class="alert alert-warning mb-4">
       <i class="fas fa-exclamation-triangle me-1"></i>
       <strong>{{ __('Not configured.') }}</strong>
-      The integrity check system has not been set up yet. The required database tables
-      (<code>integrity_run</code>, <code>integrity_dead_letter</code>) do not exist.
-      Please run the integrity module migration to enable this feature.
+      {{ __('The integrity check system has not been set up yet. The required database tables') }}
+      (<code>integrity_run</code>, <code>integrity_dead_letter</code>) {{ __('do not exist. Please run the integrity module migration to enable this feature.') }}
     </div>
   @endif
 
@@ -100,7 +99,7 @@
     <a href="{{ url('/integrity/schedules') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-clock me-1"></i>{{ __('Schedules') }}</a>
     <a href="{{ url('/integrity/ledger') }}" class="btn btn-sm atom-btn-white"><i class="fas fa-clipboard-list me-1"></i>{{ __('Ledger') }}</a>
     <a href="{{ url('/integrity/dead-letters') }}" class="btn btn-sm atom-btn-white">
-      <i class="fas fa-exclamation-circle me-1"></i>Dead Letters
+      <i class="fas fa-exclamation-circle me-1"></i>{{ __('Dead Letters') }}
       @if($stats['open_dead_letters'] > 0)
         <span class="badge bg-danger ms-1">{{ number_format($stats['open_dead_letters']) }}</span>
       @endif

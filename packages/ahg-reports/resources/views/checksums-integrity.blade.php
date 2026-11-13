@@ -2,7 +2,7 @@
      This file is part of Heratio. Licensed under the GNU Affero General Public License v3+. --}}
 @extends('theme::layouts.1col')
 
-@section('title', 'Checksums & Integrity')
+@section('title', __('Checksums & Integrity'))
 
 @section('content')
 <div class="container-fluid">
@@ -11,10 +11,10 @@
             <nav aria-label="{{ __('breadcrumb') }}">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('reports.dashboard') }}">{{ __('Reports') }}</a></li>
-                    <li class="breadcrumb-item active">Checksums &amp; Integrity</li>
+                    <li class="breadcrumb-item active">{{ __('Checksums &amp; Integrity') }}</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-fingerprint me-2"></i>{{ __('Checksums & Integrity') }}</h1>
+            <h1><i class="fas fa-fingerprint me-2"></i>{{ __(__('Checksums & Integrity')) }}</h1>
             <p class="text-muted">{{ __('TIFF-to-PDF merge jobs, checksum coverage and fixity verification') }}</p>
         </div>
         <div class="col-auto">
@@ -27,7 +27,7 @@
     @if (!$hasJobTable)
         <div class="alert alert-info">
             <i class="fas fa-info-circle me-2"></i>
-            The <code>tiff_pdf_merge_job</code> table is not present in this install - the merge-job module has not been provisioned yet.
+            {{ __('The :table table is not present in this install - the merge-job module has not been provisioned yet.', ['table' => 'tiff_pdf_merge_job']) }}
         </div>
     @endif
 

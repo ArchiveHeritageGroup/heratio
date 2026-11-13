@@ -30,7 +30,7 @@ $total = $jobData['total'] ?? 0;
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">{{ __('Batch Jobs') }}</h5>
-        <span class="badge bg-secondary">{{ number_format($total) }} jobs</span>
+        <span class="badge bg-secondary">{{ __(':count jobs', ['count' => number_format($total)]) }}</span>
       </div>
       <div class="card-body p-0">
         @if(empty($jobs))
@@ -49,8 +49,8 @@ $total = $jobData['total'] ?? 0;
               <tr>
                 <td><strong>{{ $job->job_name ?? "Job #{$job->id}" }}</strong><br><small class="text-muted">by {{ $job->username ?? 'Unknown' }}</small></td>
                 <td>{{ $job->job_type }}</td>
-                <td><div class="progress" style="height:20px"><div class="progress-bar" style="width:{{ $progress }}%">{{ $progress }}%</div></div><small class="text-muted">{{ $job->processed_items }}/{{ $job->total_items }} items</small></td>
-                <td><span class="badge bg-{{ $color }}">{{ ucfirst($job->status) }}</span>@if($job->failed_items > 0)<br><small class="text-danger">{{ $job->failed_items }} failed</small>@endif</td>
+          <td><div class="progress" style="height:20px"><div class="progress-bar" style="width:{{ $progress }}%">{{ $progress }}%</div></div><small class="text-muted">{{ __(':processed/:total items', ['processed' => $job->processed_items, 'total' => $job->total_items]) }}</small></td>
+          <td><span class="badge bg-{{ $color }}">{{ ucfirst($job->status) }}</span>@if($job->failed_items > 0)<br><small class="text-danger">{{ __(':count failed', ['count' => $job->failed_items]) }}</small>@endif</td>
                 <td><small>{{ date('M d, H:i', strtotime($job->created_at)) }}</small></td>
                 <td class="text-end"><a href="#" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a></td>
               </tr>

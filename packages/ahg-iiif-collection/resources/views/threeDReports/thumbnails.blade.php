@@ -1,11 +1,11 @@
 {{-- 3D Thumbnails Report - cloned from AtoM. @copyright Johan Pieterse / Plain Sailing @license AGPL-3.0-or-later --}}
 @extends('theme::layouts.2col')
-@section('title', '3D Thumbnails Report')
+@section('title', __('3D Thumbnails Report'))
 @section('body-class', 'admin three-d-reports thumbnails')
 @section('sidebar')<div class="sidebar-content"><a href="{{ route('iiif.three-d-reports.index') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back') }}</a></div>@endsection
-@section('title-block')<h1><i class="fas fa-image me-2"></i>3D Thumbnails Report</h1>@endsection
+@section('title-block')<h1><i class="fas fa-image me-2"></i>{{ __('3D Thumbnails Report') }}</h1>@endsection
 @section('content')
-<div class="alert alert-info"><strong>{{ count($items) }}</strong> models with thumbnails</div>
+<div class="alert alert-info"><strong>{{ count($items) }}</strong> {{ __(':count models with thumbnails', ['count' => count($items)]) }}</div>
 <div class="row">
   @forelse($items as $m)
   <div class="col-md-3 mb-3">

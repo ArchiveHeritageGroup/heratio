@@ -105,16 +105,16 @@
             @if (!empty($query) && empty($results))
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle me-1"></i>
-                    {{ __('No matches found for "') }}<strong>{{ e($query) }}</strong>".
-                    Try a different query or check if documents have been indexed.
+                    {{ __('No matches found for "') }}<strong>{{ e($query) }}</strong>{{ __('".
+                    Try a different query or check if documents have been indexed.') }}
                 </div>
             @endif
 
             @if (!empty($results))
                 <div class="alert alert-success mb-3">
-                    {{ __('Found') }} <strong>{{ $totalMatches }}</strong> matching node(s) across
-                    <strong>{{ count($results) }}</strong> indexed record(s) for
-                    "<strong>{{ e($query) }}</strong>".
+                    {{ __('Found') }} <strong>{{ $totalMatches }}</strong> {{ __('matching node(s) across') }}
+                    <strong>{{ count($results) }}</strong> {{ __('indexed record(s) for
+                    "') }}<strong>{{ e($query) }}</strong>".
                 </div>
             @endif
 
@@ -134,7 +134,7 @@
                                 <span class="badge bg-warning text-dark ms-2">{{ __('RiC-O') }}</span>
                             @endif
                         </div>
-                        <small class="text-muted">{{ count($treeResult['matches']) }} match(es)</small>
+                        <small class="text-muted">{{ __(':value1 match(es)', ['value1' => count($treeResult['matches'])]) }}</small>
                     </div>
                     <div class="card-body">
                         @if (!empty($treeResult['reasoning']))
@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.history.pushState({}, '', url);
 
             let html = '<div class="alert alert-success mb-3">Found <strong>' + data.total_matches +
-                       '</strong> matching node(s) across <strong>' + data.results.length + '</strong> record(s).</div>';
+                       '</strong> {{ __('matching node(s) across') }} <strong>' + data.results.length + '</strong> record(s).</div>';
 
             data.results.forEach(function(treeResult) {
                 let typeBadge = '';

@@ -132,7 +132,7 @@
                         <br><small class="text-muted">{{ $row['object_identifier'] }}</small>
                       @endif
                     @elseif(!empty($row['object_id']))
-                      <span class="text-muted">Object #{{ $row['object_id'] }}</span>
+                      <span class="text-muted">{{ __('Object #:value1', ['value1' => $row['object_id']]) }}</span>
                     @else
                       <span class="text-muted">-</span>
                     @endif

@@ -41,7 +41,7 @@
           <div class="col-md-6 mb-3">
             <label for="adv-repository" class="form-label fw-semibold">{{ __('Repository') }} <span class="badge bg-warning ms-1">{{ __('Recommended') }}</span></label>
             <select id="adv-repository" name="repository" class="form-select">
-              <option value="">-- Any repository --</option>
+              <option value="">{{ __('-- Any repository --') }}</option>
               @foreach($repositories as $id => $name)
                 <option value="{{ $id }}">{{ $name }}</option>
               @endforeach
@@ -52,7 +52,7 @@
           <div class="col-md-6 mb-3">
             <label for="adv-level" class="form-label fw-semibold">{{ __('Level of description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select id="adv-level" name="level" class="form-select">
-              <option value="">-- Any level --</option>
+              <option value="">{{ __('-- Any level --') }}</option>
               @foreach($levels as $id => $name)
                 <option value="{{ $id }}">{{ $name }}</option>
               @endforeach
@@ -77,7 +77,7 @@
           <div class="col-md-3 mb-3">
             <label for="adv-mediaType" class="form-label fw-semibold">{{ __('Media type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select id="adv-mediaType" name="mediaType" class="form-select">
-              <option value="">-- Any type --</option>
+              <option value="">{{ __('-- Any type --') }}</option>
               @foreach($mediaTypes as $id => $name)
                 <option value="{{ $id }}">{{ $name }}</option>
               @endforeach

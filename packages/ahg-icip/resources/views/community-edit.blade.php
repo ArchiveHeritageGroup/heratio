@@ -12,7 +12,7 @@
 --}}
 @extends('theme::layouts.1col')
 
-@section('title', ($id ? 'Edit' : 'Add') . ' Community')
+@section('title', $id ? __('Edit Community') : __('Add Community'))
 
 @section('content')
 <div class="container-xxl">
@@ -20,13 +20,13 @@
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.dashboard') }}">ICIP</a></li>
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.communities') }}">{{ __('Communities') }}</a></li>
-      <li class="breadcrumb-item active">{{ $id ? 'Edit' : 'Add' }} Community</li>
+      <li class="breadcrumb-item active">{{ $id ? __('Edit Community') : __('Add Community') }}</li>
     </ol>
   </nav>
 
   <h1 class="mb-4">
     <i class="bi bi-{{ $id ? 'pencil' : 'plus-circle' }} me-2"></i>
-    {{ $id ? 'Edit Community' : 'Add Community' }}
+    {{ $id ? __('Edit Community') : __('Add Community') }}
   </h1>
 
   <form method="post" class="needs-validation" novalidate autocomplete="off">
@@ -176,7 +176,7 @@
           <div class="card-body">
             <button type="submit" class="btn btn-primary w-100 mb-2">
               <i class="bi bi-check-circle me-1"></i>
-              {{ $id ? 'Save Changes' : 'Create Community' }}
+              {{ $id ? __('Save Changes') : __('Create Community') }}
             </button>
             <a href="{{ route('ahgicip.communities') }}" class="btn btn-outline-secondary w-100">{{ __('Cancel') }}</a>
           </div>

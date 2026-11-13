@@ -28,7 +28,7 @@ $total = $queueData['total'] ?? 0;
 
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0">{{ __('Pending Contributions') }}</h5><span class="badge bg-warning text-dark">{{ $total }} pending</span>
+        <h5 class="mb-0">{{ __('Pending Contributions') }}</h5><span class="badge bg-warning text-dark">{{ __(':count pending', ['count' => $total]) }}</span>
       </div>
       <div class="card-body p-0">
         @if(empty($contributions))
@@ -40,14 +40,14 @@ $total = $queueData['total'] ?? 0;
             <div class="d-flex justify-content-between align-items-start mb-2">
               <div class="d-flex align-items-center">
                 <i class="fas {{ $contrib['type']['icon'] }} fs-4 text-{{ $contrib['type']['color'] }} me-3"></i>
-                <div><h6 class="mb-0"><a href="{{ route('heritage.review-contribution', $contrib['id']) }}" class="text-decoration-none">{{ $contrib['item']['title'] }}</a></h6><small class="text-muted">{!! $contrib['type']['name'] !!} &middot; Submitted {{ date('M d, Y H:i', strtotime($contrib['created_at'])) }}</small></div>
+                <div><h6 class="mb-0"><a href="{{ route('heritage.review-contribution', $contrib['id']) }}" class="text-decoration-none">{{ $contrib['item']['title'] }}</a></h6><small class="text-muted">{!! $contrib['type']['name'] !!} {{ __('· Submitted :date', ['date' => date('M d, Y H:i', strtotime($contrib['created_at']))]) }}</small></div>
               </div>
               <span class="badge bg-{{ match($contrib['contributor']['trust_level'] ?? 'new'){'expert'=>'primary','trusted'=>'success','contributor'=>'info',default=>'secondary'} }}">{{ ucfirst($contrib['contributor']['trust_level'] ?? 'new') }}</span>
             </div>
             <div class="d-flex align-items-center mb-2 small text-muted">
               <span class="me-3"><i class="fas fa-user me-1"></i>{{ $contrib['contributor']['display_name'] }}</span>
-              <span class="me-3"><i class="fas fa-check-circle text-success me-1"></i>{{ $contrib['contributor']['approved_count'] }} approved</span>
-              <span><i class="fas fa-gift me-1" style="color:var(--ahg-primary)"></i>+{{ $contrib['type']['points_value'] }} pts</span>
+              <span class="me-3"><i class="fas fa-check-circle text-success me-1"></i>{{ __(':count approved', ['count' => $contrib['contributor']['approved_count']]) }}</span>
+              <span><i class="fas fa-gift me-1" style="color:var(--ahg-primary)"></i>{{ __('+:count pts', ['count' => $contrib['type']['points_value']]) }}</span>
             </div>
             <div class="bg-light rounded p-2 small mb-2">
               @php

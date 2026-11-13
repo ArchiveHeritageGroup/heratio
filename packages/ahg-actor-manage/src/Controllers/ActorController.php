@@ -571,7 +571,7 @@ class ActorController extends Controller
 
         return redirect()
             ->route('actor.show', $slug)
-            ->with('success', 'Authority record created successfully.');
+            ->with('success', __('Authority record created successfully.'));
     }
 
     public function update(Request $request, string $slug)
@@ -769,7 +769,7 @@ class ActorController extends Controller
 
         return redirect()
             ->route('actor.show', $slug)
-            ->with('success', 'Authority record updated successfully.');
+            ->with('success', __('Authority record updated successfully.'));
     }
 
     public function rename(string $slug)
@@ -868,7 +868,7 @@ class ActorController extends Controller
 
         return redirect()
             ->route('actor.show', $newSlug)
-            ->with('success', 'Authority record renamed successfully.');
+            ->with('success', __('Authority record renamed successfully.'));
     }
 
     public function confirmDelete(string $slug)
@@ -900,7 +900,7 @@ class ActorController extends Controller
 
         return redirect()
             ->route('actor.browse')
-            ->with('success', 'Authority record deleted successfully.');
+            ->with('success', __('Authority record deleted successfully.'));
     }
 
     // ── External Authority Reconciliation ────────────────────────────
@@ -1560,7 +1560,7 @@ class ActorController extends Controller
                     );
             }
 
-            return redirect()->route('actor.config')->with('success', 'Configuration saved.');
+            return redirect()->route('actor.config')->with('success', __('Configuration saved.'));
         }
 
         $config = DB::table('ahg_authority_config')

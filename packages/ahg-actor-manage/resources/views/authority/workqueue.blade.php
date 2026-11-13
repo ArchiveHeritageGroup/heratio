@@ -67,7 +67,7 @@
 {{-- Results --}}
 <div class="card">
   <div class="card-header d-flex justify-content-between" style="background: var(--ahg-primary); color: #fff;">
-    <span>{{ number_format($total) }} record(s)</span>
+    <span>{{ trans_choice(':count record|:count records', $total, ['count' => number_format($total)]) }}</span>
   </div>
   <div class="card-body p-0">
     <table class="table table-hover table-striped mb-0">

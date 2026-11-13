@@ -132,7 +132,7 @@ class ClipboardController extends Controller
             ]);
         }
 
-        return redirect()->route('clipboard.index')->with('success', 'Clipboard cleared.');
+        return redirect()->route('clipboard.index')->with('success', __('Clipboard cleared.'));
     }
 
     /**
@@ -203,7 +203,7 @@ class ClipboardController extends Controller
                 return response()->json(['error' => 'Clipboard ID is required.'], 400);
             }
 
-            return redirect()->route('clipboard.load')->with('error', 'Clipboard ID is required.');
+            return redirect()->route('clipboard.load')->with('error', __('Clipboard ID is required.'));
         }
 
         $result = $this->service->load($password, $mode);
@@ -239,7 +239,7 @@ class ClipboardController extends Controller
 
         if (empty($items)) {
             return redirect()->route('clipboard.index')
-                ->with('warning', 'No items in clipboard to export.');
+                ->with('warning', __('No items in clipboard to export.'));
         }
 
         $csv = $this->service->exportCsv($items, $culture);

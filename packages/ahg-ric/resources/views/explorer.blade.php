@@ -52,7 +52,7 @@
   <div class="card mb-3 ric-explorer-page">
     <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
       <span><i class="fas fa-project-diagram me-1"></i> {{ __('Graph View') }}</span>
-      <span id="ric-node-count" class="badge bg-light text-dark">0 nodes</span>
+      <span id="ric-node-count" class="badge bg-light text-dark">{{ __('0 nodes') }}</span>
     </div>
     <div class="card-body p-0">
       <div class="ric-graph-main" style="position:relative; height:500px; background:#1a1a2e;">
@@ -137,7 +137,7 @@
             <textarea id="ric-create-description" class="form-control form-control-sm" rows="3" style="background:#1a1a2e; color:#e0e0e0; border-color:#444;" placeholder="{{ __('Optional description') }}"></textarea>
           </div>
           <div class="mb-3">
-            <label class="form-label small">{{ __('Parent URI') }} <span class="text-muted">(link to existing entity)</span></label>
+            <label class="form-label small">{{ __('Parent URI') }} <span class="text-muted">{{ __('(link to existing entity)') }}</span></label>
             <input type="text" id="ric-create-parent" class="form-control form-control-sm" style="background:#1a1a2e; color:#e0e0e0; border-color:#444;" placeholder="{{ __('Optional parent URI') }}">
           </div>
           <div id="ric-create-result" style="display:none;"></div>

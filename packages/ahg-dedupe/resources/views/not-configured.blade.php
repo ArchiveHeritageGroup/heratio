@@ -16,8 +16,8 @@
     <i class="fas fa-exclamation-triangle me-2"></i>
     <strong>{{ __('Duplicate detection tables not configured.') }}</strong>
     <p class="mb-0 mt-2">
-      The required database tables (<code>ahg_duplicate_detection</code>, <code>ahg_duplicate_rule</code>,
-      <code>ahg_dedupe_scan</code>) do not exist. Please run the appropriate migrations to set up duplicate detection.
+      {{ __('The required database tables') }} (<code>ahg_duplicate_detection</code>, <code>ahg_duplicate_rule</code>,
+      <code>ahg_dedupe_scan</code>) {{ __('do not exist. Please run the appropriate migrations to set up duplicate detection.') }}
     </p>
   </div>
 @endsection

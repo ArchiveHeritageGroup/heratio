@@ -177,7 +177,7 @@ $normalisePosition = function ($value) {
                       {{ ($currentCustomWatermarkId == $cw->id) ? 'selected' : '' }}
                       data-path="{{ $cw->file_path ?? '' }}">
                 {{ e($cw->name) }}
-                @if($cw->object_id ?? null) (This record)@endif
+                @if($cw->object_id ?? null) {{ __('(This record)') }}@endif
               </option>
             @endforeach
           </select>

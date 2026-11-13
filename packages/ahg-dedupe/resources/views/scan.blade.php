@@ -47,7 +47,7 @@
             <div class="mb-4" id="repositorySelect" style="display: none;">
               <label for="repository_id" class="form-label">{{ __('Select Repository') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select name="repository_id" id="repository_id" class="form-select">
-                <option value="">-- Select Repository --</option>
+                <option value="">{{ __('-- Select Repository --') }}</option>
                 @foreach($repositories as $repo)
                   <option value="{{ $repo->id }}">{{ $repo->name }}</option>
                 @endforeach

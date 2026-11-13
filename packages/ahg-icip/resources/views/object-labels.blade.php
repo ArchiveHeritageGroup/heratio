@@ -53,9 +53,9 @@
                         <div>
                           <strong>{{ $label->label_name ?? '' }}</strong>
                           <br>
-                          <small class="text-muted">Applied by: {{ ucfirst($label->applied_by ?? '') }}</small>
+                          <small class="text-muted">{{ __('Applied by: :name', ['name' => ucfirst($label->applied_by ?? '')]) }}</small>
                           @if(!empty($label->community_name))
-                            <br><small class="text-muted">Community: {{ $label->community_name }}</small>
+                            <br><small class="text-muted">{{ __('Community: :name', ['name' => $label->community_name]) }}</small>
                           @endif
                         </div>
                       </div>
@@ -142,9 +142,9 @@
       <div class="card mb-4">
         <div class="card-header"><h5 class="mb-0">{{ __('About TK Labels') }}</h5></div>
         <div class="card-body small">
-          <p>{{ __('TK Labels are developed by') }} <strong>{{ __('Local Contexts') }}</strong> to help Indigenous communities manage their cultural heritage.</p>
-          <p><strong>{{ __('TK Labels') }}</strong> (brown) relate to Traditional Knowledge.</p>
-          <p><strong>{{ __('BC Labels') }}</strong> (green) relate to Biocultural heritage.</p>
+          <p>{{ __('TK Labels are developed by') }} <strong>{{ __('Local Contexts') }}</strong> {{ __('to help Indigenous communities manage their cultural heritage.') }}</p>
+          <p><strong>{{ __('TK Labels') }}</strong> {{ __('(brown) relate to Traditional Knowledge.') }}</p>
+          <p><strong>{{ __('BC Labels') }}</strong> {{ __('(green) relate to Biocultural heritage.') }}</p>
           <p class="mb-0">
             <a href="https://localcontexts.org/labels/traditional-knowledge-labels/" target="_blank">
               {{ __('Learn more at Local Contexts') }} <i class="bi bi-box-arrow-up-right"></i>

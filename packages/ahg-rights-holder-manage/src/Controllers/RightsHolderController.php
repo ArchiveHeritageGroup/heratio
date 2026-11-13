@@ -57,9 +57,9 @@ class RightsHolderController extends Controller
         return view('ahg-rights-holder-manage::browse', [
             'pager' => new SimplePager($result),
             'sortOptions' => [
-                'alphabetic' => 'Name',
-                'lastUpdated' => 'Date modified',
-                'identifier' => 'Identifier',
+                'alphabetic' => __('Name'),
+                'lastUpdated' => __('Date modified'),
+                'identifier' => __('Identifier'),
             ],
         ]);
     }
@@ -120,7 +120,7 @@ class RightsHolderController extends Controller
         $request->validate(['authorized_form_of_name' => 'required|string|max:1024']);
         $id = $this->service->create($request->only($this->fields()));
 
-        return redirect()->route('rightsholder.show', $this->service->getSlug($id))->with('success', 'Rights holder created successfully.');
+        return redirect()->route('rightsholder.show', $this->service->getSlug($id))->with('success', __('Rights holder created successfully.'));
     }
 
     public function update(Request $request, string $slug)
@@ -132,7 +132,7 @@ class RightsHolderController extends Controller
         $request->validate(['authorized_form_of_name' => 'required|string|max:1024']);
         $this->service->update($rh->id, $request->only($this->fields()));
 
-        return redirect()->route('rightsholder.show', $slug)->with('success', 'Rights holder updated successfully.');
+        return redirect()->route('rightsholder.show', $slug)->with('success', __('Rights holder updated successfully.'));
     }
 
     public function confirmDelete(string $slug)
@@ -153,7 +153,7 @@ class RightsHolderController extends Controller
         }
         $this->service->delete($rh->id);
 
-        return redirect()->route('rightsholder.browse')->with('success', 'Rights holder deleted successfully.');
+        return redirect()->route('rightsholder.browse')->with('success', __('Rights holder deleted successfully.'));
     }
 
     private function emptyContact(): object

@@ -106,7 +106,7 @@ class PublishRequestController extends Controller
         }
 
         return redirect('/publish-request/receipt/'.$token)
-            ->with('success', 'Your request has been submitted.');
+            ->with('success', __('Your request has been submitted.'));
     }
 
     /**
@@ -306,7 +306,7 @@ class PublishRequestController extends Controller
         }
 
         return redirect()->route('publish-requests.inbox')
-            ->with('success', 'Decision recorded.');
+            ->with('success', __('Decision recorded.'));
     }
 
     /**

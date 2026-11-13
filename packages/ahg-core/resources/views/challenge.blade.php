@@ -14,7 +14,7 @@
       </h1>
       <div class="p-3">
         <p>
-          {{ __('Hang tight-we\'re just making sure you\'re a real person so our community stays safe. Redirecting in') }} <span id="countdown"></span> seconds...
+          {{ __('Hang tight-we\'re just making sure you\'re a real person so our community stays safe. Redirecting in') }} <span id="countdown"></span> {{ __('seconds...') }}
         </p>
         <noscript>
           <p>

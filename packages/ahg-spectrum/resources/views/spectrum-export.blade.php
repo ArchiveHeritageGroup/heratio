@@ -41,8 +41,8 @@
     <div class="card-header"><h5 class="mb-0">{{ __('Export Notes') }}</h5></div>
     <div class="card-body">
         <ul class="mb-0">
-            <li><strong>CSV</strong> - Compatible with Excel, suitable for AGSA audit submissions</li>
-            <li><strong>JSON</strong> - Machine-readable, suitable for system integrations</li>
+            <li><strong>CSV</strong> - {{ __('Compatible with Excel, suitable for AGSA audit submissions') }}</li>
+            <li><strong>JSON</strong> - {{ __('Machine-readable, suitable for system integrations') }}</li>
             <li>{{ __('All exports include object titles and full history records') }}</li>
             <li>{{ __('Timestamps are in ISO 8601 format') }}</li>
         </ul>

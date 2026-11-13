@@ -21,7 +21,7 @@
 
 <div class="card mb-3">
   <div class="card-header" style="background: var(--ahg-primary); color: #fff;">
-    <i class="fas fa-divide me-1"></i>Split: {{ e($actor->name ?? '') }}
+    <i class="fas fa-divide me-1"></i>{{ __('Split: :name', ['name' => $actor->name ?? '']) }}
   </div>
   <div class="card-body">
     <p class="text-muted">{{ __('Select fields and relations to move to a new authority record.') }}</p>

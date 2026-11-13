@@ -10,7 +10,7 @@
   <nav aria-label="{{ __('breadcrumb') }}" class="mb-3">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ url('/') }}">{{ __('Home') }}</a></li>
-      <li class="breadcrumb-item"><a href="{{ route('admin.3d-models.index') }}">3D Models</a></li>
+      <li class="breadcrumb-item"><a href="{{ route('admin.3d-models.index') }}">{{ __('3D Models') }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('admin.3d-models.view', $model->id) }}">{{ e($model->model_title ?: ($model->original_filename ?? '3D Model')) }}</a></li>
       <li class="breadcrumb-item active">{{ __('Edit') }}</li>
     </ol>

@@ -1,6 +1,6 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Rights Information')
+@section('title', __('Rights Information'))
 @section('body-class', 'extended-rights view')
 
 @section('content')
@@ -9,7 +9,7 @@
 <section id="extended-rights-area" class="card mb-3">
   <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
     <h4 class="mb-0">
-      Rights Information
+      {{ __('Rights Information') }}
       @auth
         <a href="{{ route('extended-rights.edit', $resource->slug ?? '') }}" class="btn btn-sm atom-btn-outline-light float-end"><i class="fas fa-edit"></i> {{ __('Edit') }}</a>
       @endauth

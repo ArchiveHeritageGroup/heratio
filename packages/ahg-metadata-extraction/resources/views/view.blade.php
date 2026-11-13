@@ -75,7 +75,7 @@
         </div>
 
         <div class="mt-3">
-          <span class="badge bg-info">{{ $metadata->count() }} metadata fields extracted</span>
+          <span class="badge bg-info">{{ __(':value1 metadata fields extracted', ['value1' => $metadata->count()]) }}</span>
         </div>
       </div>
     </div>

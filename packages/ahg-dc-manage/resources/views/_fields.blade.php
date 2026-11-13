@@ -28,27 +28,27 @@
       <div id="dc-core" class="accordion-collapse collapse show">
         <div class="accordion-body">
           <div class="mb-3">
-            <label class="form-label">dc:identifier</label>
+            <label class="form-label">{{ __('dc:identifier') }}</label>
             <input type="text" name="identifier" class="form-control" autocomplete="off" value="{{ old('identifier', $io->identifier ?? '') }}">
           </div>
           <div class="mb-3">
-            <label class="form-label">dc:title <span class="text-danger">*</span></label>
+            <label class="form-label">{{ __('dc:title') }} <span class="text-danger">*</span></label>
             <input type="text" name="title" class="form-control" required value="{{ old('title', $io->title ?? '') }}">
           </div>
           <div class="mb-3">
-            <label class="form-label">dc:description (scope and content)</label>
+            <label class="form-label">{{ __('dc:description (scope and content)') }}</label>
             <textarea name="scope_and_content" class="form-control" rows="4">{{ old('scope_and_content', $io->scope_and_content ?? '') }}</textarea>
           </div>
           <div class="mb-3">
-            <label class="form-label">dc:format (extent and medium)</label>
+            <label class="form-label">{{ __('dc:format (extent and medium)') }}</label>
             <textarea name="extent_and_medium" class="form-control" rows="2">{{ old('extent_and_medium', $io->extent_and_medium ?? '') }}</textarea>
           </div>
           <div class="mb-3">
-            <label class="form-label">dc:rights (access conditions)</label>
+            <label class="form-label">{{ __('dc:rights (access conditions)') }}</label>
             <textarea name="access_conditions" class="form-control" rows="2">{{ old('access_conditions', $io->access_conditions ?? '') }}</textarea>
           </div>
           <div class="mb-3">
-            <label class="form-label">dc:source (location of originals)</label>
+            <label class="form-label">{{ __('dc:source (location of originals)') }}</label>
             <textarea name="location_of_originals" class="form-control" rows="2">{{ old('location_of_originals', $io->location_of_originals ?? '') }}</textarea>
           </div>
         </div>
@@ -57,7 +57,7 @@
 
     <div class="accordion-item">
       <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#dc-type">dc:type</button>
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#dc-type">{{ __('dc:type') }}</button>
       </h2>
       <div id="dc-type" class="accordion-collapse collapse">
         <div class="accordion-body">
@@ -97,7 +97,7 @@
 
     <div class="accordion-item">
       <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#dc-language">dc:language</button>
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#dc-language">{{ __('dc:language') }}</button>
       </h2>
       <div id="dc-language" class="accordion-collapse collapse">
         <div class="accordion-body">

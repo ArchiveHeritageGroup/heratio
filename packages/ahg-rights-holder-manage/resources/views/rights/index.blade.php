@@ -82,11 +82,11 @@
                     <td>{{ $gr['act'] ?? '' }}</td>
                     <td>
                       @if(($gr['restriction'] ?? null) === 0 || ($gr['restriction'] ?? null) === '0')
-                        Allow
+                        {{ __('Allow') }}
                       @elseif(($gr['restriction'] ?? null) === 1 || ($gr['restriction'] ?? null) === '1')
-                        Disallow
+                        {{ __('Disallow') }}
                       @elseif(($gr['restriction'] ?? null) === 2 || ($gr['restriction'] ?? null) === '2')
-                        Conditional
+                        {{ __('Conditional') }}
                       @else
                         {{ $gr['restriction'] ?? '' }}
                       @endif
@@ -135,7 +135,7 @@
                       <div class="mb-3">
                         <label for="basis_id" class="form-label">{{ __('Basis') }}</label>
                         <select class="form-select" id="basis_id" name="basis_id" required>
-                          <option value="">-- Select basis --</option>
+              <option value="">{{ __('-- Select basis --') }}</option>
                           @if(isset($basisTerms))
                             @foreach($basisTerms as $term)
                               <option value="{{ $term->id }}" data-name="{{ strtolower($term->name) }}">{{ $term->name }}</option>
@@ -151,7 +151,7 @@
                         <div class="mb-3">
                           <label for="copyright_status_id" class="form-label">{{ __('Copyright status') }}</label>
                           <select class="form-select" id="copyright_status_id" name="copyright_status_id">
-                            <option value="">-- Select --</option>
+              <option value="">{{ __('-- Select --') }}</option>
                             @if(isset($copyrightStatusTerms))
                               @foreach($copyrightStatusTerms as $term)
                                 <option value="{{ $term->id }}">{{ $term->name }}</option>
@@ -279,7 +279,7 @@
                               <div class="mb-3">
                                 <label class="form-label">{{ __('Act') }}</label>
                                 <select class="form-select" name="granted_act[]">
-                                  <option value="">-- Select act --</option>
+              <option value="">{{ __('-- Select act --') }}</option>
                                   @if(isset($actTerms))
                                     @foreach($actTerms as $term)
                                       <option value="{{ $term->id }}">{{ $term->name }}</option>

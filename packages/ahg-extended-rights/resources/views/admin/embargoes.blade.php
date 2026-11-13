@@ -73,7 +73,7 @@
                   {{ \Carbon\Carbon::parse($embargo->end_date)->format('d M Y') }}
                 </span>
                 @if($daysLeft > 0 && $daysLeft <= 30)
-                  <br><small class="text-danger">{{ $daysLeft }} days left</small>
+                  <br><small class="text-danger">{{ __(':count days left', ['count' => $daysLeft]) }}</small>
                 @endif
               @else
                 <span class="text-muted">{{ __('Indefinite') }}</span>

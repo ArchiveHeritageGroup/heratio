@@ -34,7 +34,7 @@
                         </a>
                     </h5>
                     @if (!empty($identifier))
-                        <p class="text-muted mb-1">Identifier: {{ $identifier }}</p>
+                        <p class="text-muted mb-1">{{ __('Identifier: :value1', ['value1' => $identifier]) }}</p>
                     @endif
                     <p class="mb-0">
                         @if ($objectType === 'ead')
@@ -44,7 +44,7 @@
                         @elseif ($objectType === 'rico')
                             <span class="badge bg-warning text-dark">{{ __('RiC-O') }}</span>
                         @endif
-                        Object ID: {{ $objectId }}
+                        {{ __('Object ID: :value1', ['value1' => $objectId]) }}
                     </p>
                 </div>
                 <div class="col-md-6 text-md-end">

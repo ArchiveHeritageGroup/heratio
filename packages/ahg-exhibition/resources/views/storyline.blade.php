@@ -137,7 +137,7 @@
         <ul class="list-unstyled mb-0">
           <li class="mb-2"><strong>{{ __('Stops:') }}</strong> {{ count($stops) }}</li>
           @if(!empty($storyline->duration_minutes))
-            <li class="mb-2"><strong>{{ __('Est. Duration:') }}</strong> {{ $storyline->duration_minutes }} min</li>
+            <li class="mb-2"><strong>{{ __('Est. Duration:') }}</strong> {{ __(':count min', ['count' => $storyline->duration_minutes]) }}</li>
           @endif
         </ul>
       </div>

@@ -9,8 +9,7 @@
     <span class="badge bg-warning text-dark">{{ __('Validate') }}</span>
   </div>
   <p class="text-muted small mb-4">
-    Paste or upload an FRBR document to check for structural correctness.
-    Errors block import; warnings are advisory.
+    {{ __('Paste or upload an FRBR document to check for structural correctness. Errors block import; warnings are advisory.') }}
   </p>
 
   <div class="row">
@@ -134,7 +133,7 @@
           <ul class="text-muted mb-0">
             <li>{{ __('Well-formed XML') }}</li>
             <li>{{ __('RDF root element is present') }}</li>
-            <li>At least one <code>frbr:Work</code> or <code>frbr:Expression</code></li>
+            <li>{{ __('At least one') }} <code>frbr:Work</code> {{ __('or') }} <code>frbr:Expression</code></li>
             <li>{{ __('Items have a parent Expression') }}</li>
           </ul>
         </div>

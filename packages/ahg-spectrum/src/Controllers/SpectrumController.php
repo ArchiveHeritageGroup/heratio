@@ -215,7 +215,7 @@ class SpectrumController extends Controller
                 $request->input('label'),
                 Auth::id(),
             );
-            return back()->with('success', 'Barcode assigned (id ' . $newId . ').');
+            return back()->with('success', __('Barcode assigned (id :id).', ['id' => $newId]));
         } catch (\DomainException $e) {
             return back()->withInput()->withErrors(['barcode' => $e->getMessage()]);
         } catch (\InvalidArgumentException $e) {

@@ -459,7 +459,7 @@ class AuditTrailController extends Controller
                 }
             }
 
-            return redirect()->route('audit.settings')->with('success', 'Audit settings saved.');
+            return redirect()->route('audit.settings')->with('success', __('Audit settings saved.'));
         }
 
         // GET: load current settings

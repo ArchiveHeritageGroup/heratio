@@ -49,8 +49,8 @@
           <div class="col-md-2">
             <label class="form-label small mb-0">{{ __('Purpose') }}</label>
             <select name="purpose" class="form-select form-select-sm">
-              <option value="preservation">preservation</option>
-              <option value="access">access</option>
+              <option value="preservation">{{ __('preservation') }}</option>
+              <option value="access">{{ __('access') }}</option>
             </select>
           </div>
           <div class="col-md-2">

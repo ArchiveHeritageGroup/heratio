@@ -29,7 +29,7 @@
                 <input type="text" name="code" value="{{ old('code', $folder->code) }}"
                        class="form-control" {{ $folder->id ? 'readonly' : '' }}
                        pattern="[a-z0-9][a-z0-9_-]*" maxlength="64" required>
-                <div class="form-text">Lowercase slug. Used as <code>source_ref</code> on the ingest session.</div>
+                <div class="form-text">{{ __('Lowercase slug. Used as') }} <code>source_ref</code> {{ __('on the ingest session.') }}</div>
             </div>
 
             <div class="mb-3">
@@ -40,7 +40,7 @@
             <div class="mb-3">
                 <label class="form-label">{{ __('Absolute path') }} <span class="text-danger">*</span></label>
                 <input type="text" name="path" value="{{ old('path', $folder->path) }}" class="form-control" maxlength="1024" required>
-                <div class="form-text">e.g. <code>/mnt/nas/heratio/scan_inbox/archive-main</code> - must be readable by the Heratio user.</div>
+                <div class="form-text">{{ __('For example:') }} <code>/mnt/nas/heratio/scan_inbox/archive-main</code> {{ __('- must be readable by the Heratio user.') }}</div>
             </div>
 
             <div class="row">
@@ -51,8 +51,8 @@
                         <option value="flat-sidecar" {{ old('layout', $folder->layout) === 'flat-sidecar' ? 'selected' : '' }}>{{ __('Flat files + XML sidecar') }}</option>
                     </select>
                     <div class="form-text">
-                        Path: <code>&lt;folder&gt;/&lt;parent-slug&gt;/&lt;identifier&gt;/file.tiff</code><br>
-                        Flat-sidecar: <code>&lt;folder&gt;/ARC-2026-0001.tiff</code> + <code>&lt;folder&gt;/ARC-2026-0001.xml</code>
+                        {{ __('Path:') }} <code>&lt;folder&gt;/&lt;parent-slug&gt;/&lt;identifier&gt;/file.tiff</code><br>
+                        {{ __('Flat-sidecar:') }} <code>&lt;folder&gt;/ARC-2026-0001.tiff</code> + <code>&lt;folder&gt;/ARC-2026-0001.xml</code>
                     </div>
                 </div>
                 <div class="col-md-4 mb-3">
@@ -86,14 +86,14 @@
                 <div class="col-md-6 mb-3">
                     <label class="form-label">{{ __('Standard') }}</label>
                     <input type="text" name="standard" value="{{ old('standard', $folder->standard ?? 'isadg') }}" class="form-control" maxlength="32">
-                    <div class="form-text">e.g. isadg, rad, dacs, marc21, mods, lido, spectrum, dwc</div>
+                    <div class="form-text">{{ __('For example: isadg, rad, dacs, marc21, mods, lido, spectrum, dwc') }}</div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label">{{ __("Default parent (fallback if path doesn't resolve)") }}</label>
                     <select name="parent_id" class="form-select">
-                        <option value="">- None (require path-resolution) -</option>
+                        <option value="">{{ __('- None (require path-resolution) -') }}</option>
                         @foreach($parents as $p)
                             <option value="{{ $p['id'] }}" {{ (int) old('parent_id', $folder->parent_id ?? 0) === (int) $p['id'] ? 'selected' : '' }}>{{ $p['label'] }}</option>
                         @endforeach
@@ -102,7 +102,7 @@
                 <div class="col-md-6 mb-3">
                     <label class="form-label">{{ __('Repository') }}</label>
                     <select name="repository_id" class="form-select">
-                        <option value="">- None -</option>
+                        <option value="">{{ __('- None -') }}</option>
                         @foreach($repositories as $r)
                             <option value="{{ $r['id'] }}" {{ (int) old('repository_id', $folder->repository_id ?? 0) === (int) $r['id'] ? 'selected' : '' }}>{{ $r['label'] }}</option>
                         @endforeach
@@ -118,24 +118,23 @@
             <div class="form-check form-switch mb-3">
                 <input type="hidden" name="auto_commit" value="0">
                 <input type="checkbox" name="auto_commit" value="1" class="form-check-input" id="ac" {{ old('auto_commit', $folder->auto_commit ?? 1) ? 'checked' : '' }}>
-                <label class="form-check-label" for="ac"><strong>{{ __('Auto-commit') }}</strong> - process files automatically without human approval (default on)</label>
+                <label class="form-check-label" for="ac"><strong>{{ __('Auto-commit') }}</strong> {{ __('- process files automatically without human approval (default on)') }}</label>
             </div>
             <div class="form-check form-switch mb-3">
                 <input type="hidden" name="output_create_authorities" value="0">
                 <input type="checkbox" name="output_create_authorities" value="1" class="form-check-input" id="oca" {{ old('output_create_authorities', $folder->output_create_authorities ?? 1) ? 'checked' : '' }}>
-                <label class="form-check-label" for="oca"><strong>{{ __('Auto-create authorities') }}</strong> - when a sidecar names a new creator/artist that doesn't exist, create a draft actor record (default on). Turn off to skip files with unknown creators instead.</label>
+                <label class="form-check-label" for="oca"><strong>{{ __('Auto-create authorities') }}</strong> {{ __('- when a sidecar names a new creator/artist that does not exist, create a draft actor record (default on). Turn off to skip files with unknown creators instead.') }}</label>
             </div>
             <div class="form-check form-switch mb-3">
                 <input type="hidden" name="spectrum_auto_enter" value="0">
                 <input type="checkbox" name="spectrum_auto_enter" value="1" class="form-check-input" id="sae" {{ old('spectrum_auto_enter', $folder->spectrum_auto_enter ?? 0) ? 'checked' : '' }}>
-                <label class="form-check-label" for="sae"><strong>{{ __('Museum auto-entry') }}</strong> - for museum-sector scans, automatically create a Museum object-entry + acquisition record and enter the configured workflow (default off).</label>
+                <label class="form-check-label" for="sae"><strong>{{ __('Museum auto-entry') }}</strong> {{ __('- for museum-sector scans, automatically create a Museum object-entry + acquisition record and enter the configured workflow (default off).') }}</label>
             </div>
 
             @if($folder->id && !empty($folder->ingest_session_id ?? null))
                 <div class="alert alert-info d-flex align-items-center justify-content-between mb-0">
                     <div>
-                        <strong>{{ __('Derivatives, virus scan, OCR, SIP/AIP/DIP') }}</strong> are configured on this folder's ingest session.
-                        The scanner pipeline honours those settings.
+                        <strong>{{ __('Derivatives, virus scan, OCR, SIP/AIP/DIP') }}</strong> {{ __('are configured on this folder’s ingest session. The scanner pipeline honours those settings.') }}
                     </div>
                     <a href="{{ url('/ingest/configure/' . $folder->ingest_session_id) }}" class="btn btn-sm btn-outline-primary ms-3">
                         <i class="fas fa-sliders-h me-1"></i>{{ __('Configure processing') }}

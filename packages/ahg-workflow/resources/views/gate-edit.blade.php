@@ -1,11 +1,11 @@
 @extends('theme::layouts.1col')
 
-@section('title', $rule ? 'Edit Gate Rule' : 'Create Gate Rule')
+@section('title', $rule ? __('Edit Gate Rule') : __('Create Gate Rule'))
 @section('body-class', 'admin workflow')
 
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="mb-0"><i class="fas fa-shield-alt"></i> {{ $rule ? 'Edit' : 'Create' }} Gate Rule</h1>
+    <h1 class="mb-0"><i class="fas fa-shield-alt"></i> {{ $rule ? __('Edit Gate Rule') : __('Create Gate Rule') }}</h1>
     <a href="{{ route('workflow.gates.admin') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> {{ __('Back') }}</a>
   </div>
 
@@ -121,7 +121,7 @@
         </div>
 
         <div class="d-flex gap-2">
-          <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save"></i> {{ $rule ? 'Update' : 'Create' }} Rule</button>
+          <button type="submit" class="btn atom-btn-outline-success"><i class="fas fa-save"></i> {{ $rule ? __('Update Rule') : __('Create Rule') }}</button>
           <a href="{{ route('workflow.gates.admin') }}" class="btn atom-btn-white">{{ __('Cancel') }}</a>
         </div>
       </form>

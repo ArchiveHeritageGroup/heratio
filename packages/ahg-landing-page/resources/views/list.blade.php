@@ -55,7 +55,7 @@
               <div class="d-flex justify-content-between align-items-center text-muted small mb-3">
                 <span>
                   <i class="bi bi-grid-3x3-gap"></i>
-                  {{ $page->block_count ?? 0 }} blocks
+                  {{ __(':value1 blocks', ['value1' => $page->block_count ?? 0]) }}
                 </span>
                 <span>
                   <code>/{{ e($page->slug) }}</code>
@@ -80,7 +80,7 @@
               </div>
             </div>
             <div class="card-footer bg-transparent text-muted small">
-              Updated {{ $page->updated_at ? \Carbon\Carbon::parse($page->updated_at)->diffForHumans() : 'N/A' }}
+              {{ __('Updated :value1', ['value1' => $page->updated_at ? \Carbon\Carbon::parse($page->updated_at)->diffForHumans() : 'N/A']) }}
             </div>
           </div>
         </div>

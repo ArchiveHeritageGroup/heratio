@@ -89,7 +89,7 @@
         <i class="fas fa-sync-alt"></i> {{ __('Refresh') }}
       </a>
       <button type="button" class="btn btn-outline-secondary btn-sm" id="auto-refresh-toggle" title="{{ __('Toggle auto refresh') }}">
-        <i class="fas fa-sync"></i> {{ __('Auto refresh:') }} <span id="auto-refresh-label">off</span>
+        <i class="fas fa-sync"></i> {{ __('Auto refresh:') }} <span id="auto-refresh-label">{{ __('off') }}</span>
       </button>
       @if(Route::has('job.export-csv'))
         <a href="{{ route('job.export-csv') }}" class="btn btn-outline-secondary btn-sm" title="{{ __('Export CSV') }}">
@@ -173,7 +173,7 @@
   @include('ahg-core::components.pager', ['pager' => $pager])
 
   <div class="text-muted small text-center mb-3">
-    Showing {{ $pager->getNbResults() ? count($pager->getResults()) : 0 }} of {{ $pager->getNbResults() }} job(s)
+    {{ __('Showing :value1 of :value2 job(s)', ['value1' => $pager->getNbResults() ? count($pager->getResults()) : 0, 'value2' => $pager->getNbResults()]) }}
   </div>
 
   {{-- Auto-refresh toggle --}}

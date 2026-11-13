@@ -5,7 +5,7 @@
 @section('sidebar')<div class="sidebar-content"><a href="{{ route('museum.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back to Dashboard') }}</a></div>@endsection
 @section('title-block')<h1><i class="fas fa-user-edit me-2"></i>{{ __('Creators Report') }}</h1>@endsection
 @section('content')
-<div class="alert alert-info"><strong>{{ count($creators) }}</strong> creators found</div>
+<div class="alert alert-info"><strong>{{ count($creators) }}</strong> {{ __('creators found') }}</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
     <thead class="table-dark"><tr><th>{{ __('Creator') }}</th><th>{{ __('Role') }}</th><th>{{ __('Attribution') }}</th><th>{{ __('School') }}</th><th class="text-end">{{ __('Objects') }}</th></tr></thead>

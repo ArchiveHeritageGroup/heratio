@@ -34,7 +34,7 @@
 @endphp
 
 <h1>{{ __('Edit archival description') }}
-  <small class="text-muted">(Dublin Core Simple 1.1)</small>
+  <small class="text-muted">{{ __('(Dublin Core Simple 1.1)') }}</small>
 </h1>
 
 @if($parentTitle)

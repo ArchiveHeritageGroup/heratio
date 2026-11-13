@@ -40,7 +40,7 @@ if (!$isEditorMode && empty($col1Blocks) && empty($col2Blocks) && empty($col3Blo
         @endforeach
       @elseif ($isEditorMode)
         <div class="empty-column-preview text-center text-muted py-4 bg-light rounded border border-dashed">
-          <small>Column {{ $i }} (empty)</small>
+          <small>{{ __('Column :value1 (empty)', ['value1' => $i]) }}</small>
         </div>
       @endif
     </div>

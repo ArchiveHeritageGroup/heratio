@@ -53,7 +53,7 @@ class ScanFolderController extends Controller
         $userId = (int) ($request->user()->id ?? 0);
         $id = $this->service->create($data, $userId);
 
-        return redirect()->route('scan.folders.index')->with('notice', 'Watched folder created.');
+        return redirect()->route('scan.folders.index')->with('notice', __('Watched folder created.'));
     }
 
     public function edit(int $id)
@@ -81,14 +81,14 @@ class ScanFolderController extends Controller
         $data = $this->validateInput($request, $id);
         $this->service->update($id, $data);
 
-        return redirect()->route('scan.folders.index')->with('notice', 'Watched folder updated.');
+        return redirect()->route('scan.folders.index')->with('notice', __('Watched folder updated.'));
     }
 
     public function destroy(int $id)
     {
         $this->service->delete($id);
 
-        return redirect()->route('scan.folders.index')->with('notice', 'Watched folder removed.');
+        return redirect()->route('scan.folders.index')->with('notice', __('Watched folder removed.'));
     }
 
     public function runNow(int $id)
@@ -97,7 +97,7 @@ class ScanFolderController extends Controller
         abort_unless($folder, 404);
         Artisan::call('ahg:scan-watch', ['--once' => true, '--folder' => $folder->code]);
 
-        return redirect()->route('scan.folders.index')->with('notice', "Scan run for '{$folder->code}' completed.");
+        return redirect()->route('scan.folders.index')->with('notice', __('Scan run for :folder completed.', ['folder' => $folder->code]));
     }
 
     protected function validateInput(Request $request, ?int $existingId = null): array

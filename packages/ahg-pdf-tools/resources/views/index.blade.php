@@ -135,7 +135,7 @@
         @foreach($supportedFormats as $fmt)
           <span class="badge bg-secondary">.{{ $fmt }}</span>
         @endforeach
-        <span class="badge bg-secondary">.pdf</span>
+        <span class="badge bg-secondary">{{ __('.pdf') }}</span>
       </div>
     </div>
 

@@ -28,7 +28,7 @@
                     <li class="breadcrumb-item active">{{ $permit->permit_number ?? '' }}</li>
                 </ol>
             </nav>
-            <h1><i class="fas fa-id-card me-2"></i>Research Permit {{ $permit->permit_number ?? '' }}</h1>
+            <h1><i class="fas fa-id-card me-2"></i>{{ __('Research Permit :number', ['number' => $permit->permit_number ?? '']) }}</h1>
         </div>
         <div class="col-auto">
             <a href="{{ route('ahgnaz.permits') }}" class="btn btn-outline-secondary">
@@ -124,7 +124,7 @@
                         $daysLeft = !empty($permit->end_date) ? floor((strtotime($permit->end_date) - time()) / 86400) : 0;
                     @endphp
                     @if(($permit->status ?? '') === 'active' && $daysLeft > 0)
-                    <p class="mt-2 mb-0">{{ $daysLeft }} days remaining</p>
+                    <p class="mt-2 mb-0">{{ __(':count days remaining', ['count' => $daysLeft]) }}</p>
                     @endif
                 </div>
             </div>

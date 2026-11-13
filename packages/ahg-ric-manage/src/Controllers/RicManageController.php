@@ -85,7 +85,7 @@ class RicManageController extends Controller
             $this->persist($io->id, $request);
 
             return redirect()->route('ahgricmanage.edit', ['slug' => $slug])
-                ->with('success', 'Description saved (RiC-O).');
+                ->with('success', __('Description saved (RiC-O).'));
         }
 
         // ── GET: load related data for the form ──

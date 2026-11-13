@@ -4,7 +4,7 @@
 
 @section('content')
   <div class="multiline-header d-flex flex-column mb-3">
-    <h1 class="mb-0">{{ $storage ? 'Edit' : 'Create' }} physical storage</h1>
+    <h1 class="mb-0">{{ __(':value1 physical storage', ['value1' => $storage ? 'Edit' : 'Create']) }}</h1>
     @if($storage)
       <span class="small">{{ $storage->name }}</span>
     @endif

@@ -12,7 +12,7 @@
 --}}
 @extends('theme::layouts.1col')
 
-@section('title', ($id ? 'Edit' : 'Log') . ' Consultation')
+@section('title', $id ? __('Edit Consultation') : __('Log Consultation'))
 
 @section('content')
 <div class="container-xxl">
@@ -20,13 +20,13 @@
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.dashboard') }}">ICIP</a></li>
       <li class="breadcrumb-item"><a href="{{ route('ahgicip.consultations') }}">{{ __('Consultations') }}</a></li>
-      <li class="breadcrumb-item active">{{ $id ? 'Edit' : 'Log' }} Consultation</li>
+      <li class="breadcrumb-item active">{{ $id ? __('Edit Consultation') : __('Log Consultation') }}</li>
     </ol>
   </nav>
 
   <h1 class="mb-4">
     <i class="bi bi-{{ $id ? 'pencil' : 'plus-circle' }} me-2"></i>
-    {{ $id ? 'Edit Consultation' : 'Log Consultation' }}
+    {{ $id ? __('Edit Consultation') : __('Log Consultation') }}
   </h1>
 
   @if($object)
@@ -158,7 +158,7 @@
           <div class="card-body">
             <button type="submit" class="btn btn-primary w-100 mb-2">
               <i class="bi bi-check-circle me-1"></i>
-              {{ $id ? 'Save Changes' : 'Log Consultation' }}
+              {{ $id ? __('Save Changes') : __('Log Consultation') }}
             </button>
             <a href="{{ route('ahgicip.consultations') }}" class="btn btn-outline-secondary w-100">{{ __('Cancel') }}</a>
           </div>

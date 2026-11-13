@@ -139,7 +139,7 @@
                             <td>
                                 <span class="badge bg-secondary" title="{{ __('Total transactions') }}">{{ $vendor->transaction_count ?? 0 }}</span>
                                 @if (($vendor->active_transactions ?? 0) > 0)
-                                <span class="badge bg-primary" title="{{ __('Active transactions') }}">{{ $vendor->active_transactions }} active</span>
+                                <span class="badge bg-primary" title="{{ __('Active transactions') }}">{{ __(':count active', ['count' => $vendor->active_transactions]) }}</span>
                                 @endif
                             </td>
                             <td>

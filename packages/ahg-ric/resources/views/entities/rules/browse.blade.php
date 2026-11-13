@@ -38,5 +38,5 @@
     @endfor
 </ul></nav>
 @endif
-<p class="text-muted small">{{ $result->total }} rule{{ $result->total !== 1 ? 's' : '' }} total</p>
+<p class="text-muted small">{{ trans_choice('{1} :count rule total|[2,*] :count rules total', $result->total, ['count' => $result->total]) }}</p>
 @endsection

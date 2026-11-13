@@ -5,7 +5,7 @@
 @section('sidebar')<div class="sidebar-content"><a href="{{ route('museum.reports') }}" class="btn btn-outline-primary btn-sm w-100"><i class="fas fa-arrow-left me-2"></i>{{ __('Back to Dashboard') }}</a></div>@endsection
 @section('title-block')<h1><i class="fas fa-history me-2"></i>{{ __('Provenance Report') }}</h1>@endsection
 @section('content')
-<div class="alert alert-info"><strong>{{ count($records) }}</strong> records with provenance</div>
+<div class="alert alert-info"><strong>{{ count($records) }}</strong> {{ __('records with provenance') }}</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
     <thead class="table-dark"><tr><th>{{ __('Object') }}</th><th>{{ __('Provenance') }}</th><th>{{ __('Legal Status') }}</th><th>{{ __('Rights Holder') }}</th></tr></thead>

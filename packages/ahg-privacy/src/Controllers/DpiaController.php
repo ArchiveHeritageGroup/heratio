@@ -85,11 +85,11 @@ class DpiaController extends Controller
         if ($step < 4) {
             return redirect()
                 ->route('ahgprivacy.dpia.edit', ['id' => $dpia->id, 'step' => $step + 1])
-                ->with('status', 'Saved. Continue to the next step.');
+                ->with('status', __('Saved. Continue to the next step.'));
         }
         return redirect()
             ->route('ahgprivacy.dpia.edit', ['id' => $dpia->id, 'step' => 4])
-            ->with('status', 'Saved. Ready for sign-off.');
+            ->with('status', __('Saved. Ready for sign-off.'));
     }
 
     public function moveToReview(int $id): RedirectResponse
@@ -99,7 +99,7 @@ class DpiaController extends Controller
         $this->service->moveToReview($dpia);
         return redirect()
             ->route('ahgprivacy.dpia.edit', ['id' => $dpia->id, 'step' => 4])
-            ->with('status', 'Moved to review.');
+            ->with('status', __('Moved to review.'));
     }
 
     public function signOff(Request $request, int $id): RedirectResponse
@@ -108,7 +108,7 @@ class DpiaController extends Controller
         abort_if($dpia === null, 404);
         $userId = (int) (Auth::id() ?? 0);
         if ($userId <= 0) {
-            return back()->with('error', 'Sign-off requires an authenticated user.');
+            return back()->with('error', __('Sign-off requires an authenticated user.'));
         }
         $note = (string) $request->input('signoff_note', '');
         $this->service->signOff($dpia, $userId, $note !== '' ? $note : null);

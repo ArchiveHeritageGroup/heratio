@@ -322,7 +322,7 @@ class AclController extends Controller
         $this->service->addUserToGroup((int) $request->input('user_id'), $groupId);
 
         return redirect()->route('acl.edit-group', ['id' => $groupId])
-            ->with('success', 'Member added to group.');
+            ->with('success', __('Member added to group.'));
     }
 
     /**
@@ -333,7 +333,7 @@ class AclController extends Controller
         $this->service->removeUserFromGroup($userId, $groupId);
 
         return redirect()->route('acl.edit-group', ['id' => $groupId])
-            ->with('success', 'Member removed from group.');
+            ->with('success', __('Member removed from group.'));
     }
 
     /**
@@ -418,7 +418,7 @@ class AclController extends Controller
         }
 
         return redirect()->route('acl.clearances')
-            ->with('success', "Granted clearance to {$count} user(s).");
+            ->with('success', __('Granted clearance to :count user(s).', ['count' => $count]));
     }
 
     public function setClearance(Request $request)
@@ -446,7 +446,7 @@ class AclController extends Controller
             }
 
             return redirect()->route('acl.clearances')
-                ->with('success', 'User clearance revoked.');
+                ->with('success', __('User clearance revoked.'));
         }
 
         $validated = $request->validate([
@@ -478,7 +478,7 @@ class AclController extends Controller
         );
 
         return redirect()->route('acl.clearances')
-            ->with('success', 'User clearance updated successfully.');
+            ->with('success', __('User clearance updated successfully.'));
     }
 
     /**
@@ -577,7 +577,7 @@ class AclController extends Controller
         }
 
         return redirect()->route('acl.access-requests')
-            ->with('success', 'Access request '.$decision.'.');
+            ->with('success', $decision === 'approved' ? __('Access request approved.') : __('Access request denied.'));
     }
 
     /**
@@ -846,7 +846,7 @@ class AclController extends Controller
 
         if ($existing) {
             return redirect()->route('acl.approvers')
-                ->with('error', 'This user is already an active approver.');
+                ->with('error', __('This user is already an active approver.'));
         }
 
         DB::table('access_request_approver')->insert([
@@ -859,7 +859,7 @@ class AclController extends Controller
         ]);
 
         return redirect()->route('acl.approvers')
-            ->with('success', 'Approver added successfully.');
+            ->with('success', __('Approver added successfully.'));
     }
 
     /**
@@ -872,7 +872,7 @@ class AclController extends Controller
             ->update(['active' => 0]);
 
         return redirect()->route('acl.approvers')
-            ->with('success', 'Approver removed successfully.');
+            ->with('success', __('Approver removed successfully.'));
     }
 
     // ── Security Audit ──────────────────────────────────────────────
@@ -974,7 +974,7 @@ class AclController extends Controller
 
     public function classifyStore(Request $request)
     {
-        return redirect()->route('acl.security-dashboard')->with('success', 'Classification applied.');
+        return redirect()->route('acl.security-dashboard')->with('success', __('Classification applied.'));
     }
 
     /**
@@ -999,7 +999,7 @@ class AclController extends Controller
 
     public function declassifyStore(Request $request)
     {
-        return redirect()->route('acl.security-dashboard')->with('success', 'Object declassified.');
+        return redirect()->route('acl.security-dashboard')->with('success', __('Object declassified.'));
     }
 
     public function securityReport()
@@ -1054,7 +1054,7 @@ class AclController extends Controller
             );
 
             return redirect()->route('acl.watermark-settings')
-                ->with('success', 'Custom watermark uploaded successfully.');
+                ->with('success', __('Custom watermark uploaded successfully.'));
         }
 
         // Handle delete custom watermark
@@ -1062,7 +1062,7 @@ class AclController extends Controller
             $wmService->deleteCustomWatermark((int) $request->input('delete_custom_watermark'));
 
             return redirect()->route('acl.watermark-settings')
-                ->with('success', 'Custom watermark deleted.');
+                ->with('success', __('Custom watermark deleted.'));
         }
 
         // Save settings
@@ -1080,7 +1080,7 @@ class AclController extends Controller
         $wmService->updateCantaloupeCache();
 
         return redirect()->route('acl.watermark-settings')
-            ->with('success', 'Watermark settings saved successfully.');
+            ->with('success', __('Watermark settings saved successfully.'));
     }
 
     public function traceWatermark()
@@ -1195,7 +1195,7 @@ class AclController extends Controller
 
     public function submitAccessRequest(Request $request)
     {
-        return redirect()->route('security.my-requests')->with('success', 'Access request submitted.');
+        return redirect()->route('security.my-requests')->with('success', __('Access request submitted.'));
     }
 
     public function accessDenied()
@@ -1213,7 +1213,7 @@ class AclController extends Controller
 
     public function setupTwoFactorStore(Request $request)
     {
-        return redirect()->route('acl.security-dashboard')->with('success', 'Two-factor authentication enabled.');
+        return redirect()->route('acl.security-dashboard')->with('success', __('Two-factor authentication enabled.'));
     }
 
     public function twoFactor()
@@ -1223,7 +1223,7 @@ class AclController extends Controller
 
     public function verifyTwoFactor(Request $request)
     {
-        return redirect('/')->with('success', 'Two-factor verified.');
+        return redirect('/')->with('success', __('Two-factor verified.'));
     }
 
     public function reviewAccessRequest(int $id)

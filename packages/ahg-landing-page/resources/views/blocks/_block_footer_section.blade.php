@@ -57,7 +57,7 @@ $col3Content = $config['col3_content'] ?? '';
             <div class="small opacity-75">{!! $col3Content !!}</div>
           @else
             <div class="small opacity-75">
-              <p class="mb-1">Email: info@example.com</p>
+              <p class="mb-1">{{ __('Email: info') }}@example{{ __('.com') }}</p>
               <p class="mb-0">{{ __('Phone: +27 12 345 6789') }}</p>
             </div>
           @endif

@@ -332,7 +332,7 @@ class MuseumController extends Controller
 
         return redirect()
             ->route('museum.show', $slug)
-            ->with('success', 'Museum object created successfully.');
+            ->with('success', __('Museum object created successfully.'));
     }
 
     /**
@@ -377,7 +377,7 @@ class MuseumController extends Controller
 
         return redirect()
             ->route('museum.show', $slug)
-            ->with('success', 'Museum object updated successfully.');
+            ->with('success', __('Museum object updated successfully.'));
     }
 
     /**
@@ -389,7 +389,7 @@ class MuseumController extends Controller
 
         return redirect()
             ->route('museum.browse')
-            ->with('success', 'Museum object deleted successfully.');
+            ->with('success', __('Museum object deleted successfully.'));
     }
 
     // ── Dashboard & Reports ────────────────────────────────────────
@@ -615,7 +615,7 @@ class MuseumController extends Controller
 
     public function multiUploadStore(Request $request, string $slug)
     {
-        return redirect()->route('museum.show', $slug)->with('success', 'Files uploaded.');
+        return redirect()->route('museum.show', $slug)->with('success', __('Files uploaded.'));
     }
 
     /**
@@ -899,7 +899,7 @@ class MuseumController extends Controller
         if (empty($docs)) {
             return redirect()
                 ->route('museum.cidoc-export')
-                ->with('error', 'No museum objects available to export in culture ' . $culture . '.');
+                ->with('error', __('No museum objects available to export in culture :culture.', ['culture' => $culture]));
         }
 
         $body = $this->mergeCrmDocuments($docs, $serializerFormat);
@@ -986,11 +986,11 @@ class MuseumController extends Controller
 
     public function authorityLinkStore(Request $request, string $slug)
     {
-        return redirect()->route('museum.authority-link', $slug)->with('success', 'Authority linked.');
+        return redirect()->route('museum.authority-link', $slug)->with('success', __('Authority linked.'));
     }
 
     public function authorityUnlink(Request $request, string $slug)
     {
-        return redirect()->route('museum.authority-link', $slug)->with('success', 'Authority unlinked.');
+        return redirect()->route('museum.authority-link', $slug)->with('success', __('Authority unlinked.'));
     }
 }

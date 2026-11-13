@@ -14,21 +14,21 @@
           <li class="list-group-item">
             <a href="{{ route('actor.show', $related->slug) }}">{{ $related->name ?: '[Untitled]' }}</a>@if(!empty($related->dates_of_existence)) <span class="text-muted">({{ $related->dates_of_existence }})</span>@endif
             @if(!empty($related->identifier))
-              <br><small class="text-muted">Identifier: {{ $related->identifier }}</small>
+              <br><small class="text-muted">{{ __('Identifier: :identifier', ['identifier' => $related->identifier]) }}</small>
             @endif
             @if(!empty($related->type_id) && isset($relationCategoryNames[$related->type_id]))
-              <br><small class="text-muted">Category: {{ $relationCategoryNames[$related->type_id] }}</small>
+              <br><small class="text-muted">{{ __('Category: :category', ['category' => $relationCategoryNames[$related->type_id]]) }}</small>
             @endif
             @if(!empty($related->type_id) && isset($relationTypeNames[$related->type_id]))
-              <br><small class="text-muted">Type: {{ $relationTypeNames[$related->type_id] }}</small>
+              <br><small class="text-muted">{{ __('Type: :type', ['type' => $relationTypeNames[$related->type_id]]) }}</small>
             @endif
             @if(!empty($related->relation_description))
               <br><small class="text-muted">{{ $related->relation_description }}</small>
             @endif
             @if(!empty($related->relation_date))
-              <br><small class="text-muted">Dates: {{ $related->relation_date }}</small>
+              <br><small class="text-muted">{{ __('Dates: :date', ['date' => $related->relation_date]) }}</small>
             @elseif(!empty($related->start_date) || !empty($related->end_date))
-              <br><small class="text-muted">Dates: {{ $related->start_date ?? '?' }} - {{ $related->end_date ?? '?' }}</small>
+              <br><small class="text-muted">{{ __('Dates: :start - :end', ['start' => $related->start_date ?? '?', 'end' => $related->end_date ?? '?']) }}</small>
             @endif
           </li>
         @endforeach
@@ -53,13 +53,13 @@
       @if($relatedResourcesLastPage > 1)
         <div class="card-body py-2 px-3 d-flex justify-content-between align-items-center border-top">
           @if($relatedResourcesPage > 1)
-            <a href="{{ request()->fullUrlWithQuery(['creator_page' => $relatedResourcesPage - 1]) }}#creators" class="btn btn-sm btn-outline-secondary">&laquo; Previous</a>
+            <a href="{{ request()->fullUrlWithQuery(['creator_page' => $relatedResourcesPage - 1]) }}#creators" class="btn btn-sm btn-outline-secondary">&laquo; {{ __('Previous') }}</a>
           @else
-            <span class="btn btn-sm btn-outline-secondary disabled">&laquo; Previous</span>
+            <span class="btn btn-sm btn-outline-secondary disabled">&laquo; {{ __('Previous') }}</span>
           @endif
-          <small class="text-muted">Page {{ $relatedResourcesPage }} of {{ $relatedResourcesLastPage }}</small>
+          <small class="text-muted">{{ __('Page :page of :last', ['page' => $relatedResourcesPage, 'last' => $relatedResourcesLastPage]) }}</small>
           @if($relatedResourcesPage < $relatedResourcesLastPage)
-            <a href="{{ request()->fullUrlWithQuery(['creator_page' => $relatedResourcesPage + 1]) }}#creators" class="btn btn-sm btn-outline-secondary">Next &raquo;</a>
+            <a href="{{ request()->fullUrlWithQuery(['creator_page' => $relatedResourcesPage + 1]) }}#creators" class="btn btn-sm btn-outline-secondary">{{ __('Next') }} &raquo;</a>
           @else
             <span class="btn btn-sm btn-outline-secondary disabled">{{ __('Next &raquo;') }}</span>
           @endif
@@ -68,7 +68,7 @@
       <div class="card-body p-0">
         <a class="btn atom-btn-white border-0 w-100" href="{{ route('glam.browse') }}?topLevel=0&creator={{ $actor->id }}">
           <i class="fas fa-search me-1" aria-hidden="true"></i>
-          Browse {{ $relatedResourcesTotal }} result{{ $relatedResourcesTotal !== 1 ? 's' : '' }}
+          {{ __('Browse %1% results', ['%1%' => $relatedResourcesTotal]) }}
         </a>
       </div>
     </div>
@@ -91,13 +91,13 @@
       @if($subjectOfResourcesLastPage > 1)
         <div class="card-body py-2 px-3 d-flex justify-content-between align-items-center border-top">
           @if($subjectOfResourcesPage > 1)
-            <a href="{{ request()->fullUrlWithQuery(['subject_page' => $subjectOfResourcesPage - 1]) }}#subjects" class="btn btn-sm btn-outline-secondary">&laquo; Previous</a>
+            <a href="{{ request()->fullUrlWithQuery(['subject_page' => $subjectOfResourcesPage - 1]) }}#subjects" class="btn btn-sm btn-outline-secondary">&laquo; {{ __('Previous') }}</a>
           @else
-            <span class="btn btn-sm btn-outline-secondary disabled">&laquo; Previous</span>
+            <span class="btn btn-sm btn-outline-secondary disabled">&laquo; {{ __('Previous') }}</span>
           @endif
-          <small class="text-muted">Page {{ $subjectOfResourcesPage }} of {{ $subjectOfResourcesLastPage }}</small>
+          <small class="text-muted">{{ __('Page :page of :last', ['page' => $subjectOfResourcesPage, 'last' => $subjectOfResourcesLastPage]) }}</small>
           @if($subjectOfResourcesPage < $subjectOfResourcesLastPage)
-            <a href="{{ request()->fullUrlWithQuery(['subject_page' => $subjectOfResourcesPage + 1]) }}#subjects" class="btn btn-sm btn-outline-secondary">Next &raquo;</a>
+            <a href="{{ request()->fullUrlWithQuery(['subject_page' => $subjectOfResourcesPage + 1]) }}#subjects" class="btn btn-sm btn-outline-secondary">{{ __('Next') }} &raquo;</a>
           @else
             <span class="btn btn-sm btn-outline-secondary disabled">{{ __('Next &raquo;') }}</span>
           @endif
@@ -106,7 +106,7 @@
       <div class="card-body p-0">
         <a class="btn atom-btn-white border-0 w-100" href="{{ route('glam.browse') }}?topLevel=0&names={{ $actor->id }}">
           <i class="fas fa-search me-1" aria-hidden="true"></i>
-          Browse {{ $subjectOfResourcesTotal }} result{{ $subjectOfResourcesTotal !== 1 ? 's' : '' }}
+          {{ __('Browse %1% results', ['%1%' => $subjectOfResourcesTotal]) }}
         </a>
       </div>
     </div>
@@ -232,7 +232,7 @@
 
   {{-- Identity area --}}
   <section id="identityArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#identity-collapse" class="text-primary text-decoration-none">{{ __('Identity area') }}</a><a href="{{ route('actor.edit', $actor->slug) }}#identity-collapse" class="ms-auto text-muted" title="{{ __('Edit Identity area') }}"><i class="fas fa-pencil-alt fa-sm"></i></a>@else Identity area @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#identity-collapse" class="text-primary text-decoration-none">{{ __('Identity area') }}</a><a href="{{ route('actor.edit', $actor->slug) }}#identity-collapse" class="ms-auto text-muted" title="{{ __('Edit Identity area') }}"><i class="fas fa-pencil-alt fa-sm"></i></a>@else {{ __('Identity area') }} @endauth</div></h2>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Type of entity') }}</h3><div class="col-9 p-2">{{ $entityTypeName ?? '' }}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Authorized form of name') }}</h3><div class="col-9 p-2">{{ $actor->authorized_form_of_name ?? '' }}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Parallel form(s) of name') }}</h3><div class="col-9 p-2"><ul class="m-0 ms-1 ps-3">@foreach(($otherNames ?? collect())->where('type_id', 148) as $n)<li>{{ $n->name }}</li>@endforeach</ul></div></div>
@@ -243,7 +243,7 @@
 
   {{-- Description area --}}
   <section id="descriptionArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#description-collapse" class="text-primary text-decoration-none">{{ __('Description area') }}</a><a href="{{ route('actor.edit', $actor->slug) }}#description-collapse" class="ms-auto text-muted" title="{{ __('Edit Description area') }}"><i class="fas fa-pencil-alt fa-sm"></i></a>@else Description area @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#description-collapse" class="text-primary text-decoration-none">{{ __('Description area') }}</a><a href="{{ route('actor.edit', $actor->slug) }}#description-collapse" class="ms-auto text-muted" title="{{ __('Edit Description area') }}"><i class="fas fa-pencil-alt fa-sm"></i></a>@else {{ __('Description area') }} @endauth</div></h2>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Dates of existence') }}</h3><div class="col-9 p-2">{{ $actor->dates_of_existence ?? '' }}</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('History') }}</h3><div class="col-9 p-2">{!! ($actor->history ?? '') ? nl2br(e($actor->history)) : '' !!}@include('ahg-translation::components.badge', ['source' => $translationSources['history'] ?? null])</div></div>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Places') }}</h3><div class="col-9 p-2">{{ $actor->places ?? '' }}</div></div>
@@ -256,7 +256,7 @@
 
   {{-- Relationships area --}}
   <section id="relationshipsArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#relationships-collapse" class="text-primary text-decoration-none">{{ __('Relationships area') }}</a><a href="{{ route('actor.edit', $actor->slug) }}#relationships-collapse" class="ms-auto text-muted" title="{{ __('Edit Relationships area') }}"><i class="fas fa-pencil-alt fa-sm"></i></a>@else Relationships area @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#relationships-collapse" class="text-primary text-decoration-none">{{ __('Relationships area') }}</a><a href="{{ route('actor.edit', $actor->slug) }}#relationships-collapse" class="ms-auto text-muted" title="{{ __('Edit Relationships area') }}"><i class="fas fa-pencil-alt fa-sm"></i></a>@else {{ __('Relationships area') }} @endauth</div></h2>
     @foreach($relatedActors ?? [] as $related)
       <div class="field text-break row g-0">
         <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Related entity') }}</h3>
@@ -286,7 +286,7 @@
               <div class="col-8 p-1">
                 {{ $relationTypeNames[$related->type_id] }}
                 @if(!empty($converseRelationTypeNames[$related->type_id]))
-                  <span class="text-muted">(converse: {{ $converseRelationTypeNames[$related->type_id] }})</span>
+                  <span class="text-muted">{{ __('(converse: :relation)', ['relation' => $converseRelationTypeNames[$related->type_id]]) }}</span>
                 @endif
               </div>
             </div>
@@ -332,7 +332,7 @@
 
   {{-- Contact information --}}
   <section id="contactArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#contact-collapse" class="text-primary text-decoration-none">{{ __('Contact information') }}</a>@else Contact information @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#contact-collapse" class="text-primary text-decoration-none">{{ __('Contact information') }}</a>@else {{ __('Contact information') }} @endauth</div></h2>
     @foreach($contacts ?? [] as $contact)
       @if(!$loop->first)
         <hr class="my-3">
@@ -346,7 +346,7 @@
         @endif
         @if($contact->country_code) <div>{{ $contact->country_code }}</div> @endif
         @if($contact->telephone) <div><a href="tel:{{ $contact->telephone }}">{{ $contact->telephone }}</a></div> @endif
-        @if($contact->fax) <div>Fax: {{ $contact->fax }}</div> @endif
+        @if($contact->fax) <div>{{ __('Fax: :fax', ['fax' => $contact->fax]) }}</div> @endif
         @if($contact->email) <div><a href="mailto:{{ $contact->email }}">{{ $contact->email }}</a></div> @endif
         @if($contact->website) <div><a href="{{ $contact->website }}" target="_blank">{{ $contact->website }} <i class="fas fa-external-link-alt"></i></a></div> @endif
         @if($contact->note) <div class="text-muted mt-1">{{ $contact->note }}</div> @endif
@@ -356,7 +356,7 @@
 
   {{-- Access points area --}}
   <section id="accessPointsArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#access-collapse" class="text-primary text-decoration-none">{{ __('Access points area') }}</a>@else Access points area @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#access-collapse" class="text-primary text-decoration-none">{{ __('Access points area') }}</a>@else {{ __('Access points area') }} @endauth</div></h2>
     <div class="field row g-0">
       <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Subject access points') }}</h3>
       <div class="col-9 p-2">
@@ -488,7 +488,7 @@
 
   {{-- Control area --}}
   <section id="controlArea" class="border-bottom">
-    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#control-collapse" class="text-primary text-decoration-none">{{ __('Control area') }}</a>@else Control area @endauth</div></h2>
+    <h2 class="h5 mb-0 atom-section-header"><div class="d-flex p-3 border-bottom text-primary">@auth<a href="{{ route('actor.edit', $actor->slug) }}#control-collapse" class="text-primary text-decoration-none">{{ __('Control area') }}</a>@else {{ __('Control area') }} @endauth</div></h2>
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Authority record identifier') }}</h3><div class="col-9 p-2">{{ $actor->description_identifier ?? '' }}</div></div>
     @if($maintainingRepository ?? null)
     <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Maintained by') }}</h3><div class="col-9 p-2"><a href="{{ route('repository.show', $maintainingRepository->slug) }}">{{ $maintainingRepository->name ?: '[Untitled]' }}</a></div></div>

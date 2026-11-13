@@ -9,8 +9,7 @@
     <span class="badge bg-success">{{ __('Import') }}</span>
   </div>
   <p class="text-muted small mb-4">
-    Upload an FRBR XML document to import works, expressions, and items into the catalogue.
-    Existing works are updated; new works are inserted.
+    {{ __('Upload an FRBR XML document to import works, expressions, and items into the catalogue. Existing works are updated; new works are inserted.') }}
   </p>
 
   <div class="row">
@@ -32,7 +31,7 @@
               <input type="file" name="frbr_file" id="frbr_file" class="form-control"
                 accept=".xml" required>
               <div class="form-text">
-                Maximum file size: 10 MB. Accepts <code>.xml</code> files with FRBR namespace.
+                {{ __('Maximum file size: 10 MB. Accepts') }} <code>.xml</code> {{ __('files with FRBR namespace.') }}
               </div>
               @error('frbr_file')
                 <div class="text-danger small mt-1">{{ $message }}</div>
@@ -74,9 +73,9 @@
 ns/fr/frbr/frbrer/"</pre>
           <p class="mb-2">{{ __('The importer handles these elements:') }}</p>
           <ul class="mb-0 text-muted">
-            <li><code>frbr:Work</code> &rarr; a catalogue record (<code>library_item</code>), matched on title so a re-import does not duplicate</li>
-            <li><code>frbr:Expression</code> &rarr; publication fields applied to that record</li>
-            <li><code>frbr:Item</code> &rarr; a physical copy (<code>library_copy</code>)</li>
+            <li><code>frbr:Work</code> &rarr; {{ __('a catalogue record') }} (<code>library_item</code>), {{ __('matched on title so a re-import does not duplicate') }}</li>
+            <li><code>frbr:Expression</code> {{ __('→ publication fields applied to that record') }}</li>
+            <li><code>frbr:Item</code> &rarr; {{ __('a physical copy') }} (<code>library_copy</code>)</li>
           </ul>
         </div>
       </div>

@@ -64,7 +64,7 @@
   </div>
 
   <div class="card">
-    <div class="card-header"><strong>{{ $consents->count() }}</strong> consent records found</div>
+    <div class="card-header">{{ trans_choice(':count consent record found|:count consent records found', $consents->count(), ['count' => $consents->count()]) }}</div>
     <div class="card-body p-0">
       @if($consents->isEmpty())
         <div class="p-4 text-center text-muted">

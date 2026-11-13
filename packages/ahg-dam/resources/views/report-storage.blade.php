@@ -14,7 +14,7 @@
   </div>
   @if(($storage['orphaned'] ?? 0) > 0)
   <div class="alert alert-warning">
-    <strong>{{ $storage['orphaned'] }}</strong> orphaned files
+    <strong>{{ $storage['orphaned'] }}</strong> {{ __('orphaned files') }}
   </div>
   @endif
   <hr>

@@ -8,7 +8,7 @@
     <i class="fas fa-3x fa-chart-bar me-3" aria-hidden="true"></i>
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('Audit statistics') }}</h1>
-      <span class="small text-muted">Last {{ $days }} days</span>
+      <span class="small text-muted">{{ __('Last :value1 days', ['value1' => $days]) }}</span>
     </div>
   </div>
 

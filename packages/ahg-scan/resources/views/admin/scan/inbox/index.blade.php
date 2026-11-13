@@ -21,7 +21,7 @@
         <div class="col-md-3">
             <label class="form-label">{{ __('Status') }}</label>
             <select name="status" class="form-select form-select-sm">
-                <option value="">- All -</option>
+                <option value="">{{ __('- All -') }}</option>
                 @foreach($statuses as $s)
                     <option value="{{ $s }}" {{ $status === $s ? 'selected' : '' }}>{{ $s }}</option>
                 @endforeach
@@ -30,7 +30,7 @@
         <div class="col-md-3">
             <label class="form-label">{{ __('Folder') }}</label>
             <select name="folder" class="form-select form-select-sm">
-                <option value="">- All -</option>
+                <option value="">{{ __('- All -') }}</option>
                 @foreach($folders as $f)
                     <option value="{{ $f->code }}" {{ $folder === $f->code ? 'selected' : '' }}>{{ $f->label }}</option>
                 @endforeach
@@ -57,7 +57,7 @@
 
         <div class="d-flex justify-content-between align-items-center mb-2">
             <small class="text-muted">
-                Showing {{ $files->firstItem() }}-{{ $files->lastItem() }} of {{ $files->total() }}
+                {{ __('Showing :first-:last of :total', ['first' => $files->firstItem(), 'last' => $files->lastItem(), 'total' => $files->total()]) }}
             </small>
             <div class="btn-group btn-group-sm">
                 <button type="submit" name="action" value="retry" class="btn btn-outline-primary" data-confirm="Retry selected files?">

@@ -35,11 +35,11 @@
                                     <tr><th class="text-muted" style="width:40%">UUID</th><td><code>{{ $package->uuid }}</code></td></tr>
                                     <tr><th class="text-muted">{{ __('Type') }}</th><td>
                                         @if(strtoupper($package->package_type) === 'SIP')
-                                            <span class="badge bg-info">{{ __('SIP') }}</span> Submission Information Package
+                                            <span class="badge bg-info">{{ __('SIP') }}</span> {{ __('Submission Information Package') }}
                                         @elseif(strtoupper($package->package_type) === 'AIP')
-                                            <span class="badge bg-success">{{ __('AIP') }}</span> Archival Information Package
+                                            <span class="badge bg-success">{{ __('AIP') }}</span> {{ __('Archival Information Package') }}
                                         @elseif(strtoupper($package->package_type) === 'DIP')
-                                            <span class="badge bg-warning text-dark">{{ __('DIP') }}</span> Dissemination Information Package
+                                            <span class="badge bg-warning text-dark">{{ __('DIP') }}</span> {{ __('Dissemination Information Package') }}
                                         @else
                                             <span class="badge bg-secondary">{{ $package->package_type }}</span>
                                         @endif
@@ -87,7 +87,7 @@
 
                 {{-- Package Objects --}}
                 <div class="card mb-4">
-                    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-file-archive"></i> Package Objects ({{ count($package->objects ?? []) }})</div>
+                    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-file-archive"></i> {{ __('Package Objects (:count)', ['count' => count($package->objects ?? [])]) }}</div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table table-bordered table-sm table-striped mb-0">
@@ -126,7 +126,7 @@
 
                 {{-- Package Events --}}
                 <div class="card mb-4">
-                    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-history"></i> Package Events ({{ count($package->events ?? []) }})</div>
+                    <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-history"></i> {{ __('Package Events (:count)', ['count' => count($package->events ?? [])]) }}</div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table table-bordered table-sm table-striped mb-0">

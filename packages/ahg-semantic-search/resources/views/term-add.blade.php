@@ -72,7 +72,7 @@
                             <label class="form-label" for="weight">{{ __('Weight') }}</label>
                             <input type="number" class="form-control" id="weight" name="weight"
                                    value="0.8" min="0" max="1" step="0.1">
-                            <div class="form-text">Relevance weight (0.0 - 1.0). Higher = more relevant.</div>
+                            <div class="form-text">{{ __('Relevance weight (0.0 - 1.0). Higher = more relevant.') }}</div>
                         </div>
                     </div>
 

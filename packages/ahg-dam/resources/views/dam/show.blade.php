@@ -472,7 +472,7 @@
         <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Headline') }}</h3><div class="col-9 p-2">{{ $asset->headline }}</div></div>
       @endif
       @if($asset->duration_minutes)
-        <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Running time') }}</h3><div class="col-9 p-2">{{ $asset->duration_minutes }} min</div></div>
+        <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Running time') }}</h3><div class="col-9 p-2">{{ __(':value1 min', ['value1' => $asset->duration_minutes]) }}</div></div>
       @endif
       @if($asset->caption)
         <div class="field text-break row g-0"><h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Caption') }}</h3><div class="col-9 p-2">{!! nl2br(e($asset->caption)) !!}</div></div>

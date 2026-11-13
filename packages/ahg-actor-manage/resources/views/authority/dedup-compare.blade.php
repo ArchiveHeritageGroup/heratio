@@ -38,8 +38,8 @@
         <thead>
           <tr>
             <th style="width:20%">{{ __('Field') }}</th>
-            <th style="width:38%">Primary: {{ e($primary->authorized_form_of_name ?? '') }}</th>
-            <th style="width:38%">Secondary: {{ e($secondary->authorized_form_of_name ?? '') }}</th>
+            <th style="width:38%">{{ __('Primary: :name', ['name' => $primary->authorized_form_of_name ?? '']) }}</th>
+            <th style="width:38%">{{ __('Secondary: :name', ['name' => $secondary->authorized_form_of_name ?? '']) }}</th>
             <th style="width:4%"></th>
           </tr>
         </thead>

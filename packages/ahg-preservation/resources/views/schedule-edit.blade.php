@@ -164,11 +164,11 @@
  * * * * *</pre>
                     <p class="small mb-2"><strong>{{ __('Examples:') }}</strong></p>
                     <ul class="small mb-0">
-                        <li><code>0 2 * * *</code> - Daily at 2:00 AM</li>
-                        <li><code>0 */4 * * *</code> - Every 4 hours</li>
-                        <li><code>0 3 * * 0</code> - Sundays at 3:00 AM</li>
-                        <li><code>0 6 * * 1-5</code> - Weekdays at 6:00 AM</li>
-                        <li><code>0 0 1 * *</code> - 1st of each month</li>
+                        <li><code>0 2 * * *</code> - {{ __('Daily at 2:00 AM') }}</li>
+                        <li><code>0 */4 * * *</code> - {{ __('Every 4 hours') }}</li>
+                        <li><code>0 3 * * 0</code> - {{ __('Sundays at 3:00 AM') }}</li>
+                        <li><code>0 6 * * 1-5</code> - {{ __('Weekdays at 6:00 AM') }}</li>
+                        <li><code>0 0 1 * *</code> - {{ __('1st of each month') }}</li>
                     </ul>
                 </div>
             </div>

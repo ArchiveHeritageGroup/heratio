@@ -17,7 +17,7 @@
     </a>
     <div class="d-flex flex-column">
       <h1 class="mb-0" aria-describedby="heading-label">{{ $storage->name ?? '[Untitled]' }}</h1>
-      <span class="small" id="heading-label">View {{ config('app.ui_label_physicalobject', 'Physical storage') }}</span>
+      <span class="small" id="heading-label">{{ __('View :value1', ['value1' => config('app.ui_label_physicalobject', 'Physical storage')]) }}</span>
     </div>
   </div>
 
@@ -166,10 +166,10 @@
               </div>
               <div class="progress mb-2" style="height:25px">
                 <div class="progress-bar {{ $barClass }}" role="progressbar" style="width:{{ $percent }}%">
-                  {{ $percent }}% used
+                  {{ __(':value1% used', ['value1' => $percent]) }}
                 </div>
               </div>
-              <p class="text-muted mb-0">Unit: {{ $extendedData['capacity_unit'] ?? 'items' }}</p>
+              <p class="text-muted mb-0">{{ __('Unit: :value1', ['value1' => $extendedData['capacity_unit'] ?? 'items']) }}</p>
             @endif
 
             @if(!empty($extendedData['total_linear_metres']))
@@ -198,7 +198,7 @@
               </div>
               <div class="progress" style="height:25px">
                 <div class="progress-bar {{ $barClassLm }}" role="progressbar" style="width:{{ $percentLm }}%">
-                  {{ $percentLm }}% used
+                  {{ __(':value1% used', ['value1' => $percentLm]) }}
                 </div>
               </div>
             @endif

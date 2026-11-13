@@ -242,7 +242,7 @@ class AccessRequestController extends Controller
 
         $this->service->createRequest(auth()->id(), $payload);
 
-        return redirect()->route('accessRequest.myRequests')->with('notice', 'Access request submitted.');
+        return redirect()->route('accessRequest.myRequests')->with('notice', __('Access request submitted.'));
     }
 
     /**
@@ -252,7 +252,7 @@ class AccessRequestController extends Controller
     {
         $this->service->approveRequest((int) $id, auth()->id(), $request->get('notes'));
 
-        return redirect()->route('accessRequest.pending')->with('notice', 'Request approved.');
+        return redirect()->route('accessRequest.pending')->with('notice', __('Request approved.'));
     }
 
     /**
@@ -262,7 +262,7 @@ class AccessRequestController extends Controller
     {
         $this->service->denyRequest((int) $id, auth()->id(), $request->get('reason'));
 
-        return redirect()->route('accessRequest.pending')->with('notice', 'Request denied.');
+        return redirect()->route('accessRequest.pending')->with('notice', __('Request denied.'));
     }
 
     /**
@@ -276,7 +276,7 @@ class AccessRequestController extends Controller
 
         $this->service->addApprover($validated['user_id']);
 
-        return redirect()->route('accessRequest.approvers')->with('notice', 'Approver added.');
+        return redirect()->route('accessRequest.approvers')->with('notice', __('Approver added.'));
     }
 
     /**
@@ -286,7 +286,7 @@ class AccessRequestController extends Controller
     {
         $this->service->removeApprover((int) $id);
 
-        return redirect()->route('accessRequest.approvers')->with('notice', 'Approver removed.');
+        return redirect()->route('accessRequest.approvers')->with('notice', __('Approver removed.'));
     }
 
     /**
@@ -296,7 +296,7 @@ class AccessRequestController extends Controller
     {
         $this->service->cancelRequest((int) $id, auth()->id());
 
-        return redirect()->route('accessRequest.myRequests')->with('notice', 'Access request cancelled.');
+        return redirect()->route('accessRequest.myRequests')->with('notice', __('Access request cancelled.'));
     }
 
     /**
@@ -318,6 +318,6 @@ class AccessRequestController extends Controller
             'reason' => $validated['reason'],
         ]);
 
-        return redirect()->route('accessRequest.myRequests')->with('notice', 'Object access request submitted.');
+        return redirect()->route('accessRequest.myRequests')->with('notice', __('Object access request submitted.'));
     }
 }

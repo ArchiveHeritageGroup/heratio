@@ -47,7 +47,7 @@
                                             <div>{{ $src['ref'] ?? '' }} {{ Str::limit($src['title'] ?? '', 40) }}</div>
                                         @endforeach
                                     @else
-                                        <span class="text-muted">none</span>
+                                        <span class="text-muted">{{ __('none') }}</span>
                                     @endif
                                 </td>
                                 <td class="small" style="max-width: 350px;">

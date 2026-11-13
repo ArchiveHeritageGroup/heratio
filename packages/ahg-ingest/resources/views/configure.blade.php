@@ -106,7 +106,7 @@
                     <div class="mb-3">
                         <label for="repository_id" class="form-label">{{ __('Repository') }}</label>
                         <select class="form-select" id="repository_id" name="repository_id">
-                            <option value="">- Select repository -</option>
+                            <option value="">{{ __('- Select repository -') }}</option>
                             @foreach($repositories as $repo)
                                 <option value="{{ $repo->id }}" @selected(($session->repository_id ?? '') == $repo->id)>{{ e($repo->name) }}</option>
                             @endforeach
@@ -252,7 +252,7 @@
                         <input class="form-check-input" type="checkbox" id="process_spellcheck" name="process_spellcheck" value="1" @checked($session->process_spellcheck ?? false)>
                         <label class="form-check-label" for="process_spellcheck"><i class="fas fa-spell-check text-info me-1"></i>{{ __('Spell Check') }}</label>
                     </div>
-                    <small class="text-muted d-block ms-4">aspell grammar check</small>
+                    <small class="text-muted d-block ms-4">{{ __('aspell grammar check') }}</small>
                 </div>
                 @endif
                 @if($processingAvailable['format_id'] ?? false)

@@ -275,7 +275,7 @@ class IcipController extends Controller
         $communityId = (int) $request->input('community_id');
         $ident = trim((string) $request->input('user_ident'));
         if (! $communityId || $ident === '') {
-            return back()->with('error', 'A community and a username or email are required.');
+            return back()->with('error', __('A community and a username or email are required.'));
         }
         $user = DB::table('user')
             ->where('username', $ident)
@@ -283,7 +283,7 @@ class IcipController extends Controller
             ->when(ctype_digit($ident), fn ($q) => $q->orWhere('id', (int) $ident))
             ->first(['id', 'username']);
         if (! $user) {
-            return back()->with('error', 'No user found for "'.$ident.'".');
+            return back()->with('error', __('No user found for ":ident".', ['ident' => $ident]));
         }
         DB::table('icip_community_steward')->insertOrIgnore([
             'community_id' => $communityId,
@@ -293,7 +293,7 @@ class IcipController extends Controller
         ]);
 
         return redirect()->route('ahgicip.community-edit', ['id' => $communityId])
-            ->with('notice', 'Steward '.$user->username.' added.');
+            ->with('notice', __('Steward :username added.', ['username' => $user->username]));
     }
 
     /** #1406 P2c - remove a steward from a community (POST). */
@@ -307,7 +307,7 @@ class IcipController extends Controller
             ->delete();
 
         return redirect()->route('ahgicip.community-edit', ['id' => $communityId])
-            ->with('notice', 'Steward removed.');
+            ->with('notice', __('Steward removed.'));
     }
 
     // ========================================
@@ -456,13 +456,13 @@ class IcipController extends Controller
             if ($id) {
                 DB::table('icip_community')->where('id', $id)->update($data);
 
-                return redirect()->route('ahgicip.communities')->with('notice', 'Community updated successfully.');
+                return redirect()->route('ahgicip.communities')->with('notice', __('Community updated successfully.'));
             } else {
                 $data['created_by'] = auth()->id();
                 $data['created_at'] = now();
                 DB::table('icip_community')->insert($data);
 
-                return redirect()->route('ahgicip.communities')->with('notice', 'Community created successfully.');
+                return redirect()->route('ahgicip.communities')->with('notice', __('Community created successfully.'));
             }
         }
 
@@ -526,13 +526,13 @@ class IcipController extends Controller
 
         if ($linkedConsents > 0 || $linkedNotices > 0) {
             return redirect()->route('ahgicip.communities')
-                ->with('error', 'Cannot delete community with linked records. Deactivate instead.');
+                ->with('error', __('Cannot delete community with linked records. Deactivate instead.'));
         }
 
         DB::table('icip_community')->where('id', $id)->delete();
 
         return redirect()->route('ahgicip.communities')
-            ->with('notice', 'Community deleted successfully.');
+            ->with('notice', __('Community deleted successfully.'));
     }
 
     // ========================================
@@ -669,11 +669,11 @@ class IcipController extends Controller
 
             if ($object) {
                 return redirect()->route('ahgicip.object-icip', ['slug' => $object->slug])
-                    ->with('notice', 'Consent record saved successfully.');
+                    ->with('notice', __('Consent record saved successfully.'));
             }
 
             return redirect()->route('ahgicip.consent-list')
-                ->with('notice', 'Consent record saved successfully.');
+                ->with('notice', __('Consent record saved successfully.'));
         }
 
         return view('icip::consent-edit', [
@@ -875,7 +875,7 @@ class IcipController extends Controller
             }
 
             return redirect()->route('ahgicip.consultations')
-                ->with('notice', 'Consultation saved successfully.');
+                ->with('notice', __('Consultation saved successfully.'));
         }
 
         return view('icip::consultation-edit', [
@@ -1079,7 +1079,7 @@ class IcipController extends Controller
                 ]);
 
                 return redirect()->route('ahgicip.notice-types')
-                    ->with('notice', 'Notice type added.');
+                    ->with('notice', __('Notice type added.'));
             } elseif ($action === 'toggle' && $typeId) {
                 $current = DB::table('icip_cultural_notice_type')
                     ->where('id', $typeId)
@@ -1089,7 +1089,7 @@ class IcipController extends Controller
                     ->update(['is_active' => $current ? 0 : 1, 'updated_at' => now()]);
 
                 return redirect()->route('ahgicip.notice-types')
-                    ->with('notice', 'Notice type toggled.');
+                    ->with('notice', __('Notice type toggled.'));
             }
         }
 
@@ -1361,7 +1361,7 @@ class IcipController extends Controller
             $this->updateObjectSummary($object->id);
 
             return redirect()->route('ahgicip.object-icip', ['slug' => $slug])
-                ->with('notice', 'Consent record added.');
+                ->with('notice', __('Consent record added.'));
         }
 
         return view('icip::object-consent', [
@@ -1423,7 +1423,7 @@ class IcipController extends Controller
                 $this->updateObjectSummary($object->id);
 
                 return redirect()->route('ahgicip.object-notices', ['slug' => $slug])
-                    ->with('notice', 'Cultural notice added.');
+                    ->with('notice', __('Cultural notice added.'));
             } elseif ($action === 'remove') {
                 DB::table('icip_cultural_notice')
                     ->where('id', $request->input('notice_id'))
@@ -1433,7 +1433,7 @@ class IcipController extends Controller
                 $this->updateObjectSummary($object->id);
 
                 return redirect()->route('ahgicip.object-notices', ['slug' => $slug])
-                    ->with('notice', 'Cultural notice removed.');
+                    ->with('notice', __('Cultural notice removed.'));
             }
         }
 
@@ -1505,7 +1505,7 @@ class IcipController extends Controller
                 );
 
                 return redirect()->route('ahgicip.object-labels', ['slug' => $slug])
-                    ->with('notice', 'TK Label added.');
+                    ->with('notice', __('TK Label added.'));
             } elseif ($action === 'remove') {
                 $removed = DB::table('icip_tk_label')
                     ->where('id', $request->input('label_id'))
@@ -1535,7 +1535,7 @@ class IcipController extends Controller
                 }
 
                 return redirect()->route('ahgicip.object-labels', ['slug' => $slug])
-                    ->with('notice', 'TK Label removed.');
+                    ->with('notice', __('TK Label removed.'));
             }
         }
 
@@ -1593,7 +1593,7 @@ class IcipController extends Controller
                 $this->updateObjectSummary($object->id);
 
                 return redirect()->route('ahgicip.object-restrictions', ['slug' => $slug])
-                    ->with('notice', 'Restriction added.');
+                    ->with('notice', __('Restriction added.'));
             } elseif ($action === 'remove') {
                 DB::table('icip_access_restriction')
                     ->where('id', $request->input('restriction_id'))
@@ -1603,7 +1603,7 @@ class IcipController extends Controller
                 $this->updateObjectSummary($object->id);
 
                 return redirect()->route('ahgicip.object-restrictions', ['slug' => $slug])
-                    ->with('notice', 'Restriction removed.');
+                    ->with('notice', __('Restriction removed.'));
             }
         }
 
@@ -1683,7 +1683,7 @@ class IcipController extends Controller
             return response()->json(['success' => true]);
         }
 
-        return redirect()->back()->with('notice', 'Acknowledgement recorded.');
+        return redirect()->back()->with('notice', __('Acknowledgement recorded.'));
     }
 
     // ========================================
@@ -2154,7 +2154,9 @@ class IcipController extends Controller
                 ['config_value' => $val, 'updated_at' => now()]
             );
 
-            return redirect()->route('ahgicip.ocap-settings')->with('success', 'OCAP overlay '.($val === '1' ? 'enabled' : 'disabled').'.');
+            return redirect()->route('ahgicip.ocap-settings')->with('success', __('OCAP overlay :status.', [
+                'status' => $val === '1' ? __('enabled') : __('disabled'),
+            ]));
         }
 
         return view('icip::ocap-settings', [
@@ -2189,6 +2191,6 @@ class IcipController extends Controller
             ]);
         }
 
-        return back()->with('success', 'Possession assertion updated.');
+        return back()->with('success', __('Possession assertion updated.'));
     }
 }

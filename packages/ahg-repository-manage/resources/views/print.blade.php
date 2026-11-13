@@ -210,7 +210,7 @@
   @if($holdingsCount > 0)
     <div class="field-row">
       <div class="field-label">{{ __('Holdings count') }}</div>
-      <div class="field-value">{{ number_format($holdingsCount) }} description{{ $holdingsCount !== 1 ? 's' : '' }}</div>
+      <div class="field-value">{{ __(':value1 description:value2', ['value1' => number_format($holdingsCount), 'value2' => $holdingsCount !== 1 ? 's' : '']) }}</div>
     </div>
   @endif
 

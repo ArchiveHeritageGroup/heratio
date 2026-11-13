@@ -6,9 +6,9 @@
   <div class="multiline-header d-flex flex-column mb-3">
     <h1 class="mb-0" aria-describedby="heading-label">
       @if($function)
-        Edit function - ISDF
+        {{ __('Edit function - ISDF') }}
       @else
-        Add new function - ISDF
+        {{ __('Add new function - ISDF') }}
       @endif
     </h1>
     @if($function)
@@ -47,7 +47,7 @@
                 {{ __('Type') }}
                 <span class="form-required" title="{{ __('This is a mandatory element.') }}">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
               <select name="type_id" id="type_id" class="form-select" required>
-                <option value="" disabled @selected(empty(old('type_id', $function->type_id ?? '')))>-- Select --</option>
+                <option value="" disabled @selected(empty(old('type_id', $function->type_id ?? '')))>{{ __('-- Select --') }}</option>
                 @foreach($formChoices['functionTypes'] as $type)
                   <option value="{{ $type->id }}" @selected(old('type_id', $function->type_id ?? '') == $type->id)>
                     {{ $type->name }}
@@ -243,7 +243,7 @@
             <div class="mb-3">
               <label for="description_status_id" class="form-label">{{ __('Status') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select name="description_status_id" id="description_status_id" class="form-select">
-                <option value="">-- Select --</option>
+                <option value="">{{ __('-- Select --') }}</option>
                 @foreach($formChoices['descriptionStatuses'] as $status)
                   <option value="{{ $status->id }}" @selected(old('description_status_id', $function->description_status_id ?? '') == $status->id)>
                     {{ $status->name }}
@@ -256,7 +256,7 @@
             <div class="mb-3">
               <label for="description_detail_id" class="form-label">{{ __('Level of detail') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
               <select name="description_detail_id" id="description_detail_id" class="form-select">
-                <option value="">-- Select --</option>
+                <option value="">{{ __('-- Select --') }}</option>
                 @foreach($formChoices['descriptionDetails'] as $detail)
                   <option value="{{ $detail->id }}" @selected(old('description_detail_id', $function->description_detail_id ?? '') == $detail->id)>
                     {{ $detail->name }}

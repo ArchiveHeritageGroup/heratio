@@ -4,7 +4,7 @@
 @section('body-class', 'browse accession')
 
 @section('title-block')
-  <h1>Browse {{ mb_strtolower(config('app.ui_label_accession', 'Accession')) }}s</h1>
+  <h1>{{ __('Browse :value1s', ['value1' => mb_strtolower(config('app.ui_label_accession', 'Accession'))]) }}</h1>
 @endsection
 
 @section('before-content')

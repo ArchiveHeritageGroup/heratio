@@ -38,7 +38,7 @@
   </div>
 </div>
 
-<p class="text-muted">{{ $total }} entries found.</p>
+<p class="text-muted">{{ __(':count entries found.', ['count' => $total]) }}</p>
 
 <table class="table table-sm table-striped">
   <thead>

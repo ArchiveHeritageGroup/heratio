@@ -76,7 +76,7 @@
     @if(!empty($collection->items))
     <div class="card">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-            <h5 class="mb-0"><i class="fas fa-list me-2"></i>Current Items ({{ count($collection->items) }})</h5>
+            <h5 class="mb-0"><i class="fas fa-list me-2"></i>{{ __('Current Items (:count)', ['count' => count($collection->items)]) }}</h5>
         </div>
         <div class="card-body p-0">
             <table class="table table-bordered table-sm table-hover mb-0">

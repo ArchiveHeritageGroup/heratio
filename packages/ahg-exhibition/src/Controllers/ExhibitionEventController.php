@@ -95,7 +95,7 @@ class ExhibitionEventController extends Controller
 
         return redirect()
             ->route('exhibition-space.openings', ['slug' => $space->slug])
-            ->with('success', 'Opening scheduled.');
+            ->with('success', __('Opening scheduled.'));
     }
 
     /** Admin: change an opening's status (scheduled / live / ended / cancelled). */
@@ -122,7 +122,7 @@ class ExhibitionEventController extends Controller
 
         return redirect()
             ->route('exhibition-space.openings', ['slug' => $space->slug])
-            ->with('success', 'Opening updated.');
+            ->with('success', __('Opening updated.'));
     }
 
     /** Admin: delete an opening and all its RSVPs. */
@@ -141,7 +141,7 @@ class ExhibitionEventController extends Controller
 
         return redirect()
             ->route('exhibition-space.openings', ['slug' => $space->slug])
-            ->with('success', 'Opening deleted.');
+            ->with('success', __('Opening deleted.'));
     }
 
     /**
@@ -179,7 +179,7 @@ class ExhibitionEventController extends Controller
 
         return redirect()
             ->route('exhibition-space.openings', ['slug' => $space->slug])
-            ->with('success', 'Payment recorded - ticket confirmed and emailed.');
+            ->with('success', __('Payment recorded - ticket confirmed and emailed.'));
     }
 
     /**
@@ -330,7 +330,7 @@ class ExhibitionEventController extends Controller
         if (($rsvp->status ?? '') === 'pending') {
             return redirect()
                 ->route('exhibition-space.opening-public', ['token' => $event->public_token])
-                ->with('success', 'Seat reserved. Payment is required to confirm your ticket - your join link unlocks once payment is recorded.')
+                ->with('success', __('Seat reserved. Payment is required to confirm your ticket - your join link unlocks once payment is recorded.'))
                 ->with('ticket', $rsvp->ticket_code)
                 ->with('ticket_pending', true);
         }
@@ -342,7 +342,7 @@ class ExhibitionEventController extends Controller
 
         return redirect()
             ->route('exhibition-space.opening-public', ['token' => $event->public_token])
-            ->with('success', 'You are booked in. Your ticket code is below.')
+            ->with('success', __('You are booked in. Your ticket code is below.'))
             ->with('ticket', $rsvp->ticket_code);
     }
 

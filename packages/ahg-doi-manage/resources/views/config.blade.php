@@ -85,10 +85,10 @@
               <div class="col-sm-9">
                 <select class="form-select" id="datacite_url" name="datacite_url">
                   <option value="https://api.datacite.org" {{ (old('datacite_url', $settings['datacite_url'] ?? '') === 'https://api.datacite.org') ? 'selected' : '' }}>
-                    Production (https://api.datacite.org)
+                    {{ __('Production (https://api.datacite.org)') }}
                   </option>
                   <option value="https://api.test.datacite.org" {{ (old('datacite_url', $settings['datacite_url'] ?? '') === 'https://api.test.datacite.org') ? 'selected' : '' }}>
-                    Test (https://api.test.datacite.org)
+                    {{ __('Test (https://api.test.datacite.org)') }}
                   </option>
                 </select>
               </div>
@@ -217,7 +217,7 @@
                 <input type="text" class="form-control" id="suffix_pattern" name="suffix_pattern"
                        value="{{ old('suffix_pattern', $settings['suffix_pattern'] ?? '{repository_code}/{year}/{object_id}') }}">
                 <div class="form-text">
-                  Available placeholders: {repository_code}, {year}, {month}, {object_id}, {slug}, {identifier}
+                  {{ __('Available placeholders: {repository_code}, {year}, {month}, {object_id}, {slug}, {identifier}') }}
                 </div>
               </div>
             </div>

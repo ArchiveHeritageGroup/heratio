@@ -84,7 +84,7 @@ class TransferController extends Controller
             ]);
         }
 
-        return back()->with('success', 'Transfer sent to Archivematica (job #' . $jobId . ').');
+        return back()->with('success', __('Transfer sent to Archivematica (job #') . $jobId . ').');
     }
 
     /**

@@ -121,7 +121,7 @@
     @foreach($contacts as $contact)
       <div class="contact-block">
         @if($contact->primary_contact)
-          <div><strong>[Primary contact]</strong></div>
+          <div><strong>[{{ __('Primary contact') }}]</strong></div>
         @endif
         @if($contact->contact_person) <div><strong>{{ __('Contact:') }}</strong> {{ $contact->contact_person }}</div> @endif
         @if($contact->contact_type) <div><strong>{{ __('Type:') }}</strong> {{ $contact->contact_type }}</div> @endif

@@ -1,7 +1,7 @@
 @extends('theme::layouts.1col')
 
 @section('title')
-  <h1>Are you sure you want to delete {{ $storage->name ?? '[Untitled]' }}?</h1>
+  <h1>{{ __('Are you sure you want to delete :value1?', ['value1' => $storage->name ?? '[Untitled]']) }}</h1>
 @endsection
 
 @section('content')

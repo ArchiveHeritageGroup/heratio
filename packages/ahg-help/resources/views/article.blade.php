@@ -16,7 +16,7 @@
       </div>
 
       <a href="{{ route('help.category', \AhgHelp\Services\HelpArticleService::categorySlug($article['category'])) }}" class="d-block mb-3 small">
-        <i class="fas fa-arrow-left me-1"></i>Back to {{ $article['category'] }}
+        <i class="fas fa-arrow-left me-1"></i>{{ __('Back to :value1', ['value1' => $article['category']]) }}
       </a>
 
       @if(!empty($toc))
@@ -43,7 +43,7 @@
             / {{ $article['subcategory'] }}
           @endif
         </div>
-        <div class="mb-1"><i class="fas fa-align-left me-1"></i>{{ number_format($article['word_count']) }} words</div>
+        <div class="mb-1"><i class="fas fa-align-left me-1"></i>{{ __(':value1 words', ['value1' => number_format($article['word_count'])]) }}</div>
         <div><i class="fas fa-clock me-1"></i>{{ \Carbon\Carbon::parse($article['updated_at'])->format('M j, Y') }}</div>
       </div>
     </div>

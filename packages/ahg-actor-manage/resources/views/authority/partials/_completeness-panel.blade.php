@@ -36,7 +36,7 @@ $color = $levelColors[$level] ?? 'secondary';
       <span class="badge bg-{{ $color }}">{{ ucfirst($level) }}</span>
     </div>
     @if ($comp->scored_at)
-      <small class="text-muted">Last scored: {{ $comp->scored_at }}</small>
+      <small class="text-muted">{{ __('Last scored: :date', ['date' => $comp->scored_at]) }}</small>
     @endif
   </div>
 </div>

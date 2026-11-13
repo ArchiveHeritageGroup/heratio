@@ -18,7 +18,7 @@ $message = $typeLabels[$embargo->embargo_type ?? 'full'] ?? 'Access restricted';
   <div>
     <strong>{{ $message }}</strong>
     @if(($embargo->end_date ?? null) && !($embargo->is_perpetual ?? false))
-      <br><small>Available from: {{ $embargo->end_date }}</small>
+      <br><small>{{ __('Available from: :date', ['date' => $embargo->end_date]) }}</small>
     @endif
     @if($embargo->public_message ?? null)
       <br><small>{{ $embargo->public_message }}</small>

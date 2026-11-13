@@ -21,7 +21,7 @@
   @if($linked->isNotEmpty())
     <div class="card mb-4">
       <div class="card-header bg-warning text-dark fw-bold">
-        <i class="fas fa-link me-2"></i>Linked Containers ({{ $linked->count() }})
+        <i class="fas fa-link me-2"></i>{{ __('Linked Containers (:value1)', ['value1' => $linked->count()]) }}
       </div>
       <div class="table-responsive">
         <table class="table table-hover mb-0">
@@ -172,7 +172,7 @@
               <div class="col-md-3">
                 <label class="form-label">{{ __('Type') }}</label>
                 <select name="type_id" class="form-select">
-                  <option value="">-- Select --</option>
+                  <option value="">{{ __('-- Select --') }}</option>
                   @foreach($containerTypes as $ct)
                     <option value="{{ $ct->id }}">{{ $ct->name }}</option>
                   @endforeach
@@ -227,7 +227,7 @@
               <div class="col-md-3">
                 <label class="form-label">{{ __('Security level') }}</label>
                 <select name="security_level" class="form-select">
-                  <option value="">-- None --</option>
+                  <option value="">{{ __('-- None --') }}</option>
                   <option value="public">{{ __('Public') }}</option>
                   <option value="restricted">{{ __('Restricted') }}</option>
                   <option value="confidential">{{ __('Confidential') }}</option>

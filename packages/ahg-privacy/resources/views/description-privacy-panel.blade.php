@@ -103,7 +103,7 @@
         <div class="col-md-2">
           <label class="form-label small fw-bold">{{ __('Type') }}</label>
           <select name="redaction_type" class="form-select form-select-sm">
-            <option value="full">full</option><option value="partial">partial</option><option value="pseudonymised">pseudonymised</option>
+            <option value="full">{{ __('Full') }}</option><option value="partial">{{ __('Partial') }}</option><option value="pseudonymised">{{ __('Pseudonymised') }}</option>
           </select>
         </div>
         <div class="col-md-3">

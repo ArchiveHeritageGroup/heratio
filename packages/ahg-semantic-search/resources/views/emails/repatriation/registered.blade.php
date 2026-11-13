@@ -13,9 +13,7 @@
 <p><strong>{{ __('Currently held by:') }}</strong> {{ $claim->current_holder }}</p>
 @endif
 
-<p>{{ __('Your claim is now') }} <strong>registered</strong> and awaiting review. We will be in
-touch as the dialogue progresses, and you will receive an update whenever its
-status changes.</p>
+<p>{{ __('Your claim is now') }} <strong>{{ __('registered') }}</strong> {{ __('and awaiting review. We will be in touch as the dialogue progresses, and you will receive an update whenever its status changes.') }}</p>
 
 <hr>
 <p style="font-size:12px;color:#666;">{{ \AhgSemanticSearch\Services\RepatriationClaimService::DISCLAIMER }}</p>

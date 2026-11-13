@@ -100,7 +100,7 @@
   {{-- Results --}}
   @if($results !== null && $results->count() > 0)
     <div class="mb-2 text-muted small">
-      Showing {{ number_format($pager->getNbResults()) }} result(s)
+      {{ __('Showing :value1 result(s)', ['value1' => number_format($pager->getNbResults())]) }}
     </div>
 
     <table class="table table-bordered mb-0">

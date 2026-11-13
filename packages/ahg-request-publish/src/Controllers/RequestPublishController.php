@@ -277,7 +277,7 @@ class RequestPublishController extends Controller
             ->update($data);
 
         return redirect()->route('request-publish.browse')
-            ->with('success', 'Publication request updated successfully.');
+            ->with('success', __('Publication request updated successfully.'));
     }
 
     /**

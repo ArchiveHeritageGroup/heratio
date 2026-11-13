@@ -61,7 +61,7 @@
               </div>
             </div>
             <div class="card-footer bg-transparent text-muted small">
-              Updated {{ $page->updated_at ? \Carbon\Carbon::parse($page->updated_at)->diffForHumans() : 'N/A' }}
+              {{ __('Updated :value1', ['value1' => $page->updated_at ? \Carbon\Carbon::parse($page->updated_at)->diffForHumans() : 'N/A']) }}
             </div>
           </div>
         </div>

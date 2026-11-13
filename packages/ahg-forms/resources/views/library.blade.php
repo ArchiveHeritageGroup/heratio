@@ -46,7 +46,7 @@
                         <p class="card-text text-muted">{{ $item['description'] ?? '' }}</p>
                         <p class="card-text">
                             <small class="text-muted">
-                                <i class="fas fa-list me-1"></i>{{ $item['fields'] ?? 0 }} fields
+                                <i class="fas fa-list me-1"></i>{{ __(':value1 fields', ['value1' => $item['fields'] ?? 0]) }}
                             </small>
                         </p>
                     </div>

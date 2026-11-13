@@ -23,7 +23,7 @@
         <div class="col-md-4">
           <label for="column" class="form-label">{{ __('Column') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
           <select name="column" id="column" class="form-select" required>
-            <option value="">-- Select a field --</option>
+            <option value="">{{ __('-- Select a field --') }}</option>
             @foreach($columns as $value => $label)
               <option value="{{ $value }}" {{ (old('column', $column ?? '') === $value) ? 'selected' : '' }}>{{ $label }}</option>
             @endforeach
@@ -74,7 +74,7 @@
     @if($results->count() > 0)
       <div class="alert alert-warning">
         <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
-        <strong>{{ __('Warning:') }}</strong> {{ __('This will permanently modify') }} <strong>{{ number_format($count) }}</strong> record(s). This action cannot be undone!
+        <strong>{{ __('Warning:') }}</strong> {{ __('This will permanently modify') }} <strong>{{ number_format($count) }}</strong> {{ __('record(s). This action cannot be undone!') }}
       </div>
 
       <table class="table table-bordered table-striped table-hover mb-4">
@@ -109,7 +109,7 @@
       @if($count > $results->count())
         <div class="alert alert-info mb-3">
           <i class="fas fa-info-circle" aria-hidden="true"></i>
-          Showing {{ $results->count() }} of {{ number_format($count) }} affected record(s).
+          {{ __('Showing :value1 of :value2 affected record(s).', ['value1' => $results->count(), 'value2' => number_format($count)]) }}
         </div>
       @endif
 
@@ -123,7 +123,7 @@
         <input type="hidden" name="confirm" value="1">
         <div class="d-flex gap-2">
           <button type="submit" class="btn atom-btn-outline-danger" onclick="return confirm('Are you sure? This will modify {{ number_format($count) }} record(s) and cannot be undone.')">
-            <i class="fas fa-check" aria-hidden="true"></i> Confirm replacement ({{ number_format($count) }} records)
+            <i class="fas fa-check" aria-hidden="true"></i> {{ __('Confirm replacement (:value1 records)', ['value1' => number_format($count)]) }}
           </button>
           <a href="{{ route('search.globalReplace') }}" class="btn atom-btn-white">
             <i class="fas fa-times" aria-hidden="true"></i> {{ __('Cancel') }}

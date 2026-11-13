@@ -19,9 +19,9 @@
 <p class="text-muted">
     {{ __('Digital object:') }} <strong>{{ $doName }}</strong>
     @if($tracks->count())
-        - {{ $tracks->count() }} track(s) configured
+        {{ trans_choice('{1} - :count track configured|[0,*] - :count tracks configured', $tracks->count(), ['count' => $tracks->count()]) }}
     @else
-        - no tracks configured
+        {{ __('- no tracks configured') }}
     @endif
 </p>
 
@@ -57,7 +57,7 @@
                             <span class="badge bg-light text-dark ms-1">{{ count($grouped[$type]) }}</span>
                         </span>
                         <a href="{{ route('caption-tracks.create', $digitalObjectId) }}?type={{ $type }}" class="btn btn-sm atom-btn-white">
-                            <i class="fas fa-plus me-1"></i>Add {{ ucfirst($type) }}
+                            <i class="fas fa-plus me-1"></i>{{ __('Add :value1', ['value1' => ucfirst($type)]) }}
                         </a>
                     </div>
                 </div>
@@ -153,7 +153,7 @@
                                     <tr>
                                         <td colspan="7" class="bg-light">
                                             <small class="text-muted">
-                                                <i class="fas fa-code me-1"></i>VTT preview:
+                                                <i class="fas fa-code me-1"></i>{{ __('VTT preview:') }}
                                                 {{ Str::limit(preg_replace('/\s+/', ' ', trim(strip_tags(preg_replace('/<[^>]+>/', ' ', $track->vtt_content)))), 120) }}
                                             </small>
                                         </td>
@@ -176,7 +176,7 @@
     <div class="card-body small">
         <dl class="row mb-0">
             <dt class="col-sm-3">{{ __('Caption') }}</dt>
-            <dd class="col-sm-9">Full transcription with audio cues; essential for accessibility compliance.</dd>
+            <dd class="col-sm-9">{{ __('Full transcription with audio cues; essential for accessibility compliance.') }}</dd>
             <dt class="col-sm-3">{{ __('Subtitle') }}</dt>
             <dd class="col-sm-9">{{ __('Dialogue-only text tracks. Suitable for foreign-language dubs or same-language subtitles.') }}</dd>
             <dt class="col-sm-3">{{ __('Description') }}</dt>

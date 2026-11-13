@@ -127,7 +127,7 @@
             <div class="row">
                 <div class="col-md-4">
                     <h6>{{ __('Response Time') }}</h6>
-                    <p class="mb-0"><strong>30 days</strong> from receipt (extendable by 30 days with notice)</p>
+                    <p class="mb-0"><strong>{{ __(':days days', ['days' => 30]) }}</strong> {{ __('from receipt (extendable by :days days with notice)', ['days' => 30]) }}</p>
                 </div>
                 <div class="col-md-4">
                     <h6>{{ __('Fees') }}</h6>

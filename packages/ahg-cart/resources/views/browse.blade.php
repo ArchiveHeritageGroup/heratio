@@ -28,7 +28,7 @@
 @if($hasMarketplace)
   <div class="card mb-4">
     <div class="card-header bg-primary bg-opacity-10 fw-bold">
-      <i class="fas fa-store me-1 text-primary"></i> Marketplace purchases ({{ $marketplaceCart['items']->count() }})
+      <i class="fas fa-store me-1 text-primary"></i> {{ __('Marketplace purchases (:count)', ['count' => $marketplaceCart['items']->count()]) }}
     </div>
     <div class="table-responsive">
       <table class="table mb-0 align-middle">
@@ -53,7 +53,7 @@
               </td>
               <td>
                 <a href="{{ url('/marketplace/listing?slug=' . $m->slug) }}" class="text-decoration-none">{{ $m->title }}</a>
-                <div class="small text-muted">Added {{ \Carbon\Carbon::parse($m->added_at)->diffForHumans() }}</div>
+                <div class="small text-muted">{{ __('Added :time', ['time' => \Carbon\Carbon::parse($m->added_at)->diffForHumans()]) }}</div>
               </td>
               <td class="small">
                 @if($m->seller_name)
@@ -91,7 +91,7 @@
         <form method="post" action="{{ route('cart.marketplace-checkout') }}">
           @csrf
           <button type="submit" class="btn btn-success">
-            <i class="fas fa-credit-card me-1"></i> Pay {{ $marketplaceCart['currency'] }} {{ number_format($marketplaceCart['subtotal'], 2) }} via PayFast
+            <i class="fas fa-credit-card me-1"></i> {{ __('Pay :currency :amount via PayFast', ['currency' => $marketplaceCart['currency'], 'amount' => number_format($marketplaceCart['subtotal'], 2)]) }}
           </button>
         </form>
       @else
@@ -117,7 +117,7 @@
 @if(!$hasMarketplace && $items->isEmpty())
   <div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>{{ __('Your cart is empty. Browse the collection and add items.') }}</div>
 @elseif($hasReproductions)
-  <h4 class="mb-2"><i class="fas fa-images me-1 text-secondary"></i> Reproduction requests ({{ $items->count() }})</h4>
+  <h4 class="mb-2"><i class="fas fa-images me-1 text-secondary"></i> {{ __('Reproduction requests (:count)', ['count' => $items->count()]) }}</h4>
 @endif
 @if($hasReproductions)
   <div class="table-responsive mb-4">

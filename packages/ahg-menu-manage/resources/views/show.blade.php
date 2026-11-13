@@ -59,7 +59,7 @@
               @if($menu->parentId)
                 <a href="{{ route('menu.show', $menu->parentId) }}">{{ $menu->parentId }}</a>
               @else
-                N/A (root)
+                {{ __('N/A (root)') }}
               @endif
             </td>
           </tr>
@@ -91,7 +91,7 @@
   @if($children->count())
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0">Children ({{ $children->count() }})</h5>
+        <h5 class="mb-0">{{ __('Children (:value1)', ['value1' => $children->count()]) }}</h5>
       </div>
       <div class="card-body p-0">
         <table class="table table-bordered table-striped mb-0">

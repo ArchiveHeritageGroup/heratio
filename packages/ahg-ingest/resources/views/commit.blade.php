@@ -201,7 +201,7 @@
                                     <tr>
                                         <td>
                                             @if(isset($err['row']))
-                                                Row #{{ $err['row'] }}
+                                                {{ __('Row #:row', ['row' => $err['row']]) }}
                                             @elseif(isset($err['stage']))
                                                 {{ ucfirst($err['stage']) }}
                                             @endif

@@ -2,7 +2,7 @@
 @section('title', 'Edit Agreement')
 @section('body-class', 'edit')
 @section('content')
-  <div class="multiline-header d-flex align-items-center mb-3"><i class="fas fa-3x fa-file-signature me-3" aria-hidden="true"></i><div class="d-flex flex-column"><h1 class="mb-0">Edit Agreement: {{ $record->title ?? $record->agreement_number ?? '' }}</h1></div></div>
+  <div class="multiline-header d-flex align-items-center mb-3"><i class="fas fa-3x fa-file-signature me-3" aria-hidden="true"></i><div class="d-flex flex-column"><h1 class="mb-0">{{ __('Edit Agreement: :value1', ['value1' => $record->title ?? $record->agreement_number ?? '']) }}</h1></div></div>
   <div class="card"><div class="card-header fw-semibold" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-edit me-2"></i>{{ __('Edit Agreement') }}</div>
   <div class="card-body"><form method="POST" action="{{ $formAction }}" enctype="multipart/form-data">@csrf
     @include('ahg-donor-manage::_agreement-form')

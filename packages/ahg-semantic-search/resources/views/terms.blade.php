@@ -72,9 +72,7 @@
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <span>
-                Showing {{ number_format(($currentPage - 1) * $perPage + 1) }}
-                - {{ number_format(min($currentPage * $perPage, $totalCount)) }}
-                of {{ number_format($totalCount) }} terms
+                {{ __('Showing :first - :last of :total terms', ['first' => number_format(($currentPage - 1) * $perPage + 1), 'last' => number_format(min($currentPage * $perPage, $totalCount)), 'total' => number_format($totalCount)]) }}
             </span>
         </div>
         <div class="card-body p-0">

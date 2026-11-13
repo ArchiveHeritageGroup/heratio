@@ -37,7 +37,7 @@
           <div class="mb-3">
             <label class="form-label fw-semibold">{{ __('Feedback Type') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
             <select name="feed_type_id" class="form-select" required>
-              <option value="">-- Select --</option>
+              <option value="">{{ __('-- Select --') }}</option>
               @foreach($feedbackTypes as $type)
                 <option value="{{ $type->id }}" @selected(old('feed_type_id') == $type->id)>{{ $type->name }}</option>
               @endforeach

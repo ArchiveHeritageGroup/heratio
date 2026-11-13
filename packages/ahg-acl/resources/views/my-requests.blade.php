@@ -34,7 +34,7 @@
               {{ e($currentClearance->classification_name) }}
             </span>
             <small class="text-muted d-block mt-1">
-              Granted: {{ $currentClearance->granted_at ? \Carbon\Carbon::parse($currentClearance->granted_at)->format('M j, Y') : '-' }}
+              {{ __('Granted: :date', ['date' => $currentClearance->granted_at ? \Carbon\Carbon::parse($currentClearance->granted_at)->format('M j, Y') : '-']) }}
             </small>
           @else
             <span class="badge bg-secondary fs-6">{{ __('No Clearance') }}</span>
@@ -71,11 +71,11 @@
             <tbody>
               @foreach($accessGrants as $grant)
                 <tr>
-                  <td><strong>{{ e($grant->object_title ?? 'Unknown') }}</strong></td>
+                  <td><strong>{{ e($grant->object_title ?? __('Unknown')) }}</strong></td>
                   <td><span class="badge bg-secondary">{{ ucfirst(str_replace('_', ' ', $grant->object_type ?? '')) }}</span></td>
                   <td>
                     @if($grant->include_descendants ?? false)
-                      <span class="badge bg-info">+ Children</span>
+                      <span class="badge bg-info">{{ __('+ Children') }}</span>
                     @else
                       <span class="badge bg-light text-dark">{{ __('Single') }}</span>
                     @endif
@@ -90,7 +90,7 @@
                   </td>
                   <td>
                     {{ $grant->granted_at ? \Carbon\Carbon::parse($grant->granted_at)->format('M j, Y') : '-' }}
-                    <br><small class="text-muted">by {{ e($grant->granted_by_name ?? 'System') }}</small>
+                    <br><small class="text-muted">by {{ e($grant->granted_by_name ?? __('System')) }}</small>
                   </td>
                   <td>
                     @if($grant->expires_at)
@@ -160,7 +160,7 @@
                     @php
                       $statusColors = ['pending' => 'warning', 'approved' => 'success', 'denied' => 'danger', 'cancelled' => 'secondary', 'expired' => 'dark'];
                     @endphp
-                    <span class="badge bg-{{ $statusColors[$req->status ?? ''] ?? 'secondary' }}">{{ ucfirst($req->status ?? 'Pending') }}</span>
+                    <span class="badge bg-{{ $statusColors[$req->status ?? ''] ?? 'secondary' }}">{{ ucfirst($req->status ?? __('Pending')) }}</span>
                   </td>
                   <td>{{ $req->created_at ? \Carbon\Carbon::parse($req->created_at)->format('M j, Y H:i') : '-' }}</td>
                 </tr>

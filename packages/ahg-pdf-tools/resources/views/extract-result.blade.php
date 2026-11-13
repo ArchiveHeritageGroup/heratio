@@ -18,8 +18,8 @@
     {{-- Source Info --}}
     <div class="mb-3">
       <strong>{{ __('Source:') }}</strong> {{ e($filename) }}
-      <span class="badge bg-info ms-2">{{ number_format(strlen($extractedText)) }} characters</span>
-      <span class="badge bg-secondary">{{ number_format(str_word_count($extractedText)) }} words</span>
+      <span class="badge bg-info ms-2">{{ __(':value1 characters', ['value1' => number_format(strlen($extractedText))]) }}</span>
+      <span class="badge bg-secondary">{{ __(':value1 words', ['value1' => number_format(str_word_count($extractedText))]) }}</span>
     </div>
 
     {{-- Copy Button --}}

@@ -110,10 +110,10 @@ class RightsAdminController extends Controller
 
         if ($id) {
             $this->service->updateEmbargo($id, $data);
-            return redirect()->route('ext-rights-admin.embargoes')->with('success', 'Embargo updated successfully.');
+            return redirect()->route('ext-rights-admin.embargoes')->with('success', __('Embargo updated successfully.'));
         } else {
             $this->service->createEmbargo($data);
-            return redirect()->route('ext-rights-admin.embargoes')->with('success', 'Embargo created successfully.');
+            return redirect()->route('ext-rights-admin.embargoes')->with('success', __('Embargo created successfully.'));
         }
     }
 
@@ -121,9 +121,9 @@ class RightsAdminController extends Controller
     {
         $reason = $request->input('lift_reason');
         if ($this->service->liftEmbargo($id, $reason)) {
-            return redirect()->route('ext-rights-admin.embargoes')->with('success', 'Embargo lifted successfully.');
+            return redirect()->route('ext-rights-admin.embargoes')->with('success', __('Embargo lifted successfully.'));
         }
-        return redirect()->route('ext-rights-admin.embargoes')->with('error', 'Failed to lift embargo.');
+        return redirect()->route('ext-rights-admin.embargoes')->with('error', __('Failed to lift embargo.'));
     }
 
     public function embargoExtend(Request $request, int $id)
@@ -134,15 +134,15 @@ class RightsAdminController extends Controller
 
         $reason = $request->input('extend_reason');
         if ($this->service->extendEmbargo($id, $request->input('new_end_date'), $reason)) {
-            return redirect()->route('ext-rights-admin.embargoes')->with('success', 'Embargo extended successfully.');
+            return redirect()->route('ext-rights-admin.embargoes')->with('success', __('Embargo extended successfully.'));
         }
-        return redirect()->route('ext-rights-admin.embargoes')->with('error', 'Failed to extend embargo.');
+        return redirect()->route('ext-rights-admin.embargoes')->with('error', __('Failed to extend embargo.'));
     }
 
     public function processExpired()
     {
         $count = $this->service->processExpiredEmbargoes();
-        return redirect()->route('ext-rights-admin.embargoes')->with('success', "Processed {$count} expired embargoes.");
+        return redirect()->route('ext-rights-admin.embargoes')->with('success', __('Processed :count expired embargoes.', ['count' => $count]));
     }
 
     // =========================================================================
@@ -190,10 +190,10 @@ class RightsAdminController extends Controller
 
         if ($id) {
             $this->service->updateOrphanWork($id, $data);
-            return redirect()->route('ext-rights-admin.orphan-work-edit', $id)->with('success', 'Orphan work record updated.');
+            return redirect()->route('ext-rights-admin.orphan-work-edit', $id)->with('success', __('Orphan work record updated.'));
         } else {
             $newId = $this->service->createOrphanWork($data);
-            return redirect()->route('ext-rights-admin.orphan-work-edit', $newId)->with('success', 'Orphan work record created.');
+            return redirect()->route('ext-rights-admin.orphan-work-edit', $newId)->with('success', __('Orphan work record created.'));
         }
     }
 
@@ -213,7 +213,7 @@ class RightsAdminController extends Controller
 
         $this->service->addOrphanWorkSearchStep($orphanWorkId, $data);
 
-        return redirect()->route('ext-rights-admin.orphan-work-edit', $orphanWorkId)->with('success', 'Search step added.');
+        return redirect()->route('ext-rights-admin.orphan-work-edit', $orphanWorkId)->with('success', __('Search step added.'));
     }
 
     public function completeOrphanSearch(Request $request, int $id)
@@ -221,7 +221,7 @@ class RightsAdminController extends Controller
         $found = $request->boolean('rights_holder_found');
         $this->service->completeOrphanWorkSearch($id, $found);
 
-        return redirect()->route('ext-rights-admin.orphan-works')->with('success', 'Search marked as complete.');
+        return redirect()->route('ext-rights-admin.orphan-works')->with('success', __('Search marked as complete.'));
     }
 
     // =========================================================================
@@ -251,7 +251,7 @@ class RightsAdminController extends Controller
             $data
         );
 
-        return redirect()->route('ext-rights-admin.tk-labels')->with('success', 'TK Label assigned successfully.');
+        return redirect()->route('ext-rights-admin.tk-labels')->with('success', __('TK Label assigned successfully.'));
     }
 
     public function removeTkLabel(Request $request)
@@ -260,9 +260,9 @@ class RightsAdminController extends Controller
         $labelId = (int) $request->input('label_id');
 
         if ($this->service->removeTkLabel($objectId, $labelId)) {
-            return redirect()->route('ext-rights-admin.tk-labels')->with('success', 'TK Label removed.');
+            return redirect()->route('ext-rights-admin.tk-labels')->with('success', __('TK Label removed.'));
         }
-        return redirect()->route('ext-rights-admin.tk-labels')->with('error', 'Failed to remove TK Label.');
+        return redirect()->route('ext-rights-admin.tk-labels')->with('error', __('Failed to remove TK Label.'));
     }
 
     // =========================================================================
@@ -348,7 +348,7 @@ class RightsAdminController extends Controller
         $objectIds = array_filter(array_map('intval', (array) $request->input('object_ids', [])));
 
         if (empty($objectIds)) {
-            return redirect()->route('ext-rights-admin.batch')->with('error', 'Please select at least one object.');
+            return redirect()->route('ext-rights-admin.batch')->with('error', __('Please select at least one object.'));
         }
 
         $count = 0;
@@ -385,7 +385,7 @@ class RightsAdminController extends Controller
             }
         }
 
-        return redirect()->route('ext-rights-admin.batch')->with('success', "Processed {$count} object(s).");
+        return redirect()->route('ext-rights-admin.batch')->with('success', __('Processed :count object(s).', ['count' => $count]));
     }
 
     // =========================================================================

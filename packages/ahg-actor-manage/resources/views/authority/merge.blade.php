@@ -21,7 +21,7 @@
 
 <div class="card mb-3">
   <div class="card-header" style="background: var(--ahg-primary); color: #fff;">
-    <i class="fas fa-compress-arrows-alt me-1"></i>Merge into: {{ e($actor->name ?? '') }}
+    <i class="fas fa-compress-arrows-alt me-1"></i>{{ __('Merge into: :name', ['name' => $actor->name ?? '']) }}
   </div>
   <div class="card-body">
     <p class="text-muted">{{ __('Select a secondary actor to merge into this record. All relations, resources, contacts, and identifiers will be transferred.') }}</p>
@@ -81,10 +81,7 @@
               <td><span class="badge bg-secondary">{{ ucfirst($h->merge_type) }}</span></td>
               <td><span class="badge bg-{{ $color }}">{{ ucfirst($h->status) }}</span></td>
               <td>
-                Relations: {{ $h->relations_transferred ?? 0 }},
-                Resources: {{ $h->resources_transferred ?? 0 }},
-                Contacts: {{ $h->contacts_transferred ?? 0 }},
-                IDs: {{ $h->identifiers_transferred ?? 0 }}
+                {{ __('Relations: :relations, Resources: :resources, Contacts: :contacts, IDs: :ids', ['relations' => $h->relations_transferred ?? 0, 'resources' => $h->resources_transferred ?? 0, 'contacts' => $h->contacts_transferred ?? 0, 'ids' => $h->identifiers_transferred ?? 0]) }}
               </td>
               <td>{{ $h->performed_at ?? $h->created_at }}</td>
             </tr>

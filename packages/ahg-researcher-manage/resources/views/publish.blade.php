@@ -28,7 +28,7 @@
               <dt class="col-3">{{ __('Submission') }}</dt>
               <dd class="col-9">@php echo htmlspecialchars($submission->title) @endphp</dd>
               <dt class="col-3">{{ __('Items') }}</dt>
-              <dd class="col-9">@php echo $submission->total_items @endphp items, @php echo $submission->total_files @endphp files</dd>
+              <dd class="col-9">@php echo $submission->total_items @endphp {{ __('items,') }} @php echo $submission->total_files @endphp {{ __('files') }}</dd>
               <dt class="col-3">{{ __('Status') }}</dt>
               <dd class="col-9"><span class="badge bg-success">{{ __('Approved') }}</span></dd>
             </dl>

@@ -179,10 +179,10 @@ $statusColors = [
                 <div class="card-body">
                     <small class="text-muted">
                         @if (!empty($transaction->created_at))
-                        Created: {{ \Carbon\Carbon::parse($transaction->created_at)->format('j M Y H:i') }}<br>
+                        {{ __('Created: :date', ['date' => \Carbon\Carbon::parse($transaction->created_at)->format('j M Y H:i')]) }}<br>
                         @endif
                         @if (!empty($transaction->updated_at))
-                        Updated: {{ \Carbon\Carbon::parse($transaction->updated_at)->format('j M Y H:i') }}
+                        {{ __('Updated: :date', ['date' => \Carbon\Carbon::parse($transaction->updated_at)->format('j M Y H:i')]) }}
                         @endif
                     </small>
                 </div>

@@ -191,7 +191,7 @@
             @if($visits->isNotEmpty())
             <div class="card mb-3">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Recent Visits ({{ $visits->count() }} total)</h5>
+                    <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>{{ __('Recent visits: :count total', ['count' => $visits->count()]) }}</h5>
                 </div>
                 <div class="card-body p-0">
                     <table class="table table-sm table-hover mb-0">
@@ -247,7 +247,7 @@
             {{-- Permits --}}
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Permits ({{ $permits->count() }})</h5>
+                    <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>{{ __('Permits: :count', ['count' => $permits->count()]) }}</h5>
                     <a href="{{ route('ahgnaz.permit-create') }}" class="btn btn-sm btn-outline-primary">
                         <i class="fas fa-plus"></i> {{ __('New Permit') }}
                     </a>

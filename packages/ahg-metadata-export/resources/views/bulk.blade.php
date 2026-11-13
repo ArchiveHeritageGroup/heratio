@@ -96,7 +96,7 @@
           <div class="mb-3">
             <label for="max_depth" class="form-label">{{ __('Maximum Depth') }}</label>
             <input type="number" name="max_depth" id="max_depth" class="form-control" value="0" min="0" max="99">
-            <div class="form-text">Limit hierarchy depth (0 = unlimited).</div>
+            <div class="form-text">{{ __('Limit hierarchy depth (0 = unlimited).') }}</div>
           </div>
 
           <hr>

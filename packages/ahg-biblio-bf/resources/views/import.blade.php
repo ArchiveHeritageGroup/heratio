@@ -9,7 +9,7 @@
       <h1 class="h4 mb-0"><i class="bi bi-box-arrow-down-left"></i> {{ __('BIBFRAME Import') }}</h1>
       <p class="small text-muted mb-0">{{ __('Import a BIBFRAME RDF document into the catalogue') }}</p>
     </div>
-    <a href="{{ route('bibframe.index') }}" class="btn btn-outline-secondary btn-sm">&larr; Back</a>
+    <a href="{{ route('bibframe.index') }}" class="btn btn-outline-secondary btn-sm">{{ __('← Back') }}</a>
   </div>
 
   <form method="post" action="{{ route('bibframe.import-run') }}" enctype="multipart/form-data">

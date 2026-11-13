@@ -13,7 +13,7 @@
         <div class="flex items-center justify-between mb-6">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">{{ __('Search Results') }}</h1>
-                <p class="text-sm text-gray-500 mt-1">{{ count($records) }} records retrieved - {{ $syntax }} / {{ $elementSet }}</p>
+                <p class="text-sm text-gray-500 mt-1">{{ __(':value1 records retrieved - :value2 / :value3', ['value1' => count($records), 'value2' => $syntax, 'value3' => $elementSet]) }}</p>
             </div>
             <form method="POST" action="{{ route('z3950.import-batch') }}">
                 @csrf

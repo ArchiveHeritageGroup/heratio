@@ -80,7 +80,7 @@
                 <div class="modal-body">
                     <div class="alert alert-warning">
                         <i class="fas fa-clock me-2"></i>
-                        {{ __('POPIA requires notification to the Information Regulator within') }} <strong>72 hours</strong> if the breach poses a risk to data subjects.
+                        {{ __('POPIA requires notification to the Information Regulator within') }} <strong>{{ __('72 hours') }}</strong>{{ __('if the breach poses a risk to data subjects.') }}
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">

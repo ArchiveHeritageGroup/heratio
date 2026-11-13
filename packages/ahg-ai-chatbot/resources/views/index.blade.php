@@ -55,8 +55,8 @@
             @endif
         </div>
         <div class="col-md-4 text-end">
-            <span class="badge bg-secondary me-1" id="model-badge">model: -</span>
-            <span class="badge bg-info" id="grounding-badge">grounding: -</span>
+            <span class="badge bg-secondary me-1" id="model-badge">{{ __('model: -') }}</span>
+            <span class="badge bg-info" id="grounding-badge">{{ __('grounding: -') }}</span>
             <button class="btn btn-outline-secondary btn-sm ms-2" id="reset-btn" title="{{ __('Clear conversation') }}">
                 <i class="fas fa-trash-alt"></i> {{ __('Clear') }}
             </button>
@@ -134,7 +134,7 @@
                             <div class="bg-white border rounded-3 shadow-sm p-3"
                                  style="max-width: 75%;">
                                 <div class="small text-muted mb-1">
-                                    <i class="fas fa-robot me-1"></i> Assistant
+                                    <i class="fas fa-robot me-1"></i> {{ __('Assistant') }}
                                     @if ($msg['grounding_score'] !== null)
                                         <span class="ms-2 badge {{ $msg['grounding_score'] >= 0.5 ? 'bg-success' : 'bg-warning' }} small">
                                             G: {{ number_format($msg['grounding_score'], 2) }}
@@ -173,7 +173,7 @@
                         <div class="small text-muted mb-1">
                             <i class="fas fa-robot me-1"></i> {{ __('Assistant') }}
                         </div>
-                        <span class="text-muted"><i class="fas fa-spinner fa-spin me-1"></i> thinking…</span>
+                        <span class="text-muted"><i class="fas fa-spinner fa-spin me-1"></i> {{ __('thinking…') }}</span>
                     </div>
                 </div>
             </div>

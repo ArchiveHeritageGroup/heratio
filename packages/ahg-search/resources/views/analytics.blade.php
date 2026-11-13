@@ -14,7 +14,7 @@
     <div class="d-flex flex-column">
       <h1 class="mb-0">{{ __('Search analytics') }}</h1>
       <small class="text-muted">
-        Since {{ $since->format('Y-m-d H:i') }} ({{ $days }} {{ $days === 1 ? 'day' : 'days' }})
+        {{ __('Since :value1 (:value2 :value3)', ['value1' => $since->format('Y-m-d H:i'), 'value2' => $days, 'value3' => $days === 1 ? 'day' : 'days']) }}
       </small>
     </div>
   </div>
@@ -157,8 +157,7 @@
   </div>
 
   <p class="text-muted small">
-    Recorded via <code>ahg_search_query_log</code>. CTR =
-    clicks / executions for a query string. See
-    <a href="/help/search-analytics">/help/search-analytics</a> for the full schema and POPIA / GDPR notes.
+    {{ __('Recorded via') }} <code>ahg_search_query_log</code>{{ __('. CTR = clicks / executions for a query string. See') }}
+    <a href="/help/search-analytics">{{ __('/help/search-analytics') }}</a> {{ __('for the full schema and POPIA / GDPR notes.') }}
   </p>
 @endsection

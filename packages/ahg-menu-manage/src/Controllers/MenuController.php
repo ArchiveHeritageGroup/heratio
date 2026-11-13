@@ -151,7 +151,7 @@ class MenuController extends Controller
 
         return redirect()
             ->route('menu.show', $newId)
-            ->with('success', 'Menu item created successfully.');
+            ->with('success', __('Menu item created successfully.'));
     }
 
     /**
@@ -185,7 +185,7 @@ class MenuController extends Controller
 
         return redirect()
             ->route('menu.show', $id)
-            ->with('success', 'Menu item updated successfully.');
+            ->with('success', __('Menu item updated successfully.'));
     }
 
     /**
@@ -225,7 +225,7 @@ class MenuController extends Controller
 
         return redirect()
             ->route('menu.browse')
-            ->with('success', 'Menu item deleted successfully.');
+            ->with('success', __('Menu item deleted successfully.'));
     }
 
     /**

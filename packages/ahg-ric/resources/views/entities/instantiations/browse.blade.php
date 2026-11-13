@@ -38,5 +38,5 @@
     @endfor
 </ul></nav>
 @endif
-<p class="text-muted small">{{ $result->total }} instantiation{{ $result->total !== 1 ? 's' : '' }} total</p>
+<p class="text-muted small">{{ trans_choice('{1} :count instantiation total|[2,*] :count instantiations total', $result->total, ['count' => $result->total]) }}</p>
 @endsection

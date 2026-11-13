@@ -18,7 +18,7 @@
 @endsection
 
 @section('content')
-<div class="alert alert-info"><strong>{{ count($items) }}</strong> facility reports found</div>
+<div class="alert alert-info"><strong>{{ count($items) }}</strong> {{ __('facility reports found') }}</div>
 
 <div class="table-responsive">
   <table class="table table-striped table-hover">

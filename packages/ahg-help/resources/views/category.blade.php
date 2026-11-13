@@ -36,7 +36,7 @@
                 @endif
               </div>
               <div class="text-end text-nowrap ms-3">
-                <small class="text-muted d-block">{{ number_format($article['word_count']) }} words</small>
+                <small class="text-muted d-block">{{ __(':value1 words', ['value1' => number_format($article['word_count'])]) }}</small>
                 <small class="text-muted">{{ \Carbon\Carbon::parse($article['updated_at'])->format('M j, Y') }}</small>
               </div>
             </div>

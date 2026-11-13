@@ -34,7 +34,7 @@
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('ingest.index') }}">{{ __('Ingestion Manager') }}</a></li>
         <li class="breadcrumb-item">{{ $session->title ?? ('Session #' . ($session->id ?? '')) }}</li>
-        <li class="breadcrumb-item active" aria-current="page">Map &amp; Enrich</li>
+        <li class="breadcrumb-item active" aria-current="page">{{ __('Map &amp; Enrich') }}</li>
     </ol>
 </nav>
 
@@ -60,9 +60,9 @@
 
     <div class="alert alert-info">
         <i class="fas fa-folder-open me-2"></i>
-        <strong>{{ $rowCount }} files</strong> found in directory. Enter metadata to apply to all records.
-        Individual titles are generated from filenames.
-        <span class="text-danger ms-2">*</span> = Required
+        <strong>{{ __(':count files found in directory. Enter metadata to apply to all records.', ['count' => $rowCount]) }}</strong>
+        {{ __('Individual titles are generated from filenames.') }}
+        <span class="text-danger ms-2">*</span> {{ __('= Required') }}
     </div>
 
     <div class="row">
@@ -94,7 +94,7 @@
                                 <input type="number" class="form-control form-control-sm" name="metadata[_counter_padding]" value="4" min="1" max="10">
                             </div>
                         </div>
-                        <small class="text-muted">Preview: <code id="counter-preview">OBJ-0001, OBJ-0002, ...</code></small>
+                        <small class="text-muted">{{ __('Preview:') }} <code id="counter-preview">OBJ-0001, OBJ-0002, ...</code></small>
                     </div>
                 </div>
             </div>
@@ -120,7 +120,7 @@
                             </label>
                             @if(($fieldDef['type'] ?? '') === 'select' && !empty($vocabOptions))
                                 <select class="form-select" id="meta_{{ $fieldName }}" name="metadata[{{ $fieldName }}]">
-                                    <option value="">- Select -</option>
+                                    <option value="">{{ __('- Select -') }}</option>
                                     @foreach($vocabOptions as $opt)
                                         <option value="{{ $opt }}" {{ ($fieldName === 'levelOfDescription' && $opt === 'Item') ? 'selected' : '' }}>{{ $opt }}</option>
                                     @endforeach
@@ -149,7 +149,7 @@
                     @if(!empty($sampleRows))
                         @foreach($sampleRows as $i => $sr)
                             <div class="mb-2 p-2 border rounded">
-                                <small class="text-muted">Row {{ $sr->row_number ?? '' }}</small>
+                                <small class="text-muted">{{ __('Row :number', ['number' => $sr->row_number ?? '']) }}</small>
                                 <div><strong>{{ $sr->title ?? '-' }}</strong></div>
                                 @if(!empty($sr->digital_object_path))
                                     <small class="text-muted"><i class="fas fa-file me-1"></i>{{ basename($sr->digital_object_path) }}</small>
@@ -157,7 +157,7 @@
                             </div>
                         @endforeach
                         @if($rowCount > 10)
-                            <p class="text-muted small mt-2 mb-0">...and {{ $rowCount - 10 }} more files</p>
+                            <p class="text-muted small mt-2 mb-0">{{ __('...and :count more files', ['count' => $rowCount - 10]) }}</p>
                         @endif
                     @else
                         <p class="text-muted mb-0">{{ __('No files found in directory') }}</p>
@@ -184,7 +184,7 @@
             <i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}
         </a>
         <button type="submit" class="btn btn-primary">
-            Apply Metadata &amp; Validate <i class="fas fa-arrow-right ms-1"></i>
+            {{ __('Apply Metadata &amp; Validate') }} <i class="fas fa-arrow-right ms-1"></i>
         </button>
     </div>
 </form>
@@ -200,7 +200,7 @@
             <input type="hidden" name="form_action" value="load_profile">
             <label class="form-label mb-0 me-2 text-nowrap">{{ __('Load saved profile:') }}</label>
             <select class="form-select form-select-sm me-2" name="mapping_profile_id" style="max-width: 300px;">
-                <option value="">- Select -</option>
+                <option value="">{{ __('- Select -') }}</option>
                 @foreach($savedProfiles as $p)
                     <option value="{{ $p->id }}">{{ $p->name }} ({{ $p->target_type }})</option>
                 @endforeach
@@ -221,7 +221,7 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-columns me-2"></i>{{ __('Column Mapping') }}</h5>
                     <span class="badge bg-info">
-                        {{ count($mappings) }} columns
+                        {{ __(':count columns', ['count' => count($mappings)]) }}
                     </span>
                 </div>
                 <div class="card-body p-0">
@@ -248,7 +248,7 @@
                                         <td><code>{{ $map->source_column ?? '' }}</code></td>
                                         <td>
                                             <select class="form-select form-select-sm" name="target_field[{{ $map->id }}]">
-                                                <option value="">- unmapped -</option>
+                                                <option value="">{{ __('- unmapped -') }}</option>
                                                 @foreach($targetFields as $tf)
                                                     <option value="{{ $tf }}" {{ ($map->target_field ?? '') === $tf ? 'selected' : '' }}>{{ $tf }}</option>
                                                 @endforeach
@@ -291,7 +291,7 @@
                     @if(!empty($sampleRows))
                         @foreach($sampleRows as $i => $sr)
                             <div class="mb-2 p-2 border rounded {{ $i === 0 ? 'border-primary' : '' }}">
-                                <small class="text-muted">Row {{ $sr->row_number ?? '' }}</small>
+                                <small class="text-muted">{{ __('Row :number', ['number' => $sr->row_number ?? '']) }}</small>
                                 <div><strong>{{ $sr->title ?? '-' }}</strong></div>
                                 @if(!empty($sr->level_of_description))
                                     <small class="badge bg-secondary">{{ $sr->level_of_description }}</small>
@@ -361,7 +361,7 @@
             <i class="fas fa-arrow-left me-1"></i>{{ __('Back') }}
         </a>
         <button type="submit" class="btn btn-primary">
-            Save Mappings &amp; Validate <i class="fas fa-arrow-right ms-1"></i>
+            {{ __('Save Mappings &amp; Validate') }} <i class="fas fa-arrow-right ms-1"></i>
         </button>
     </div>
 </form>

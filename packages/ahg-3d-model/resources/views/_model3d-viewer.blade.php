@@ -23,7 +23,7 @@
 <div class="model-3d-section mb-4">
   <div class="d-flex justify-content-between align-items-center mb-2">
     <h4 class="mb-0">
-      <i class="fas fa-cube me-2"></i>3D Model{{ $models->count() > 1 ? 's' : '' }}
+      <i class="fas fa-cube me-2"></i>{{ $models->count() > 1 ? __('3D Models') : __('3D Model') }}
       <span class="badge bg-secondary">{{ $models->count() }}</span>
     </h4>
     @auth
@@ -44,7 +44,7 @@
       @include('ahg-3d-model::_splat-viewer', [
         'splatUrl' => '/uploads/' . ($model->file_path ?? ''),
         'height' => '500px',
-        'title' => $model->model_title ?? $model->original_filename ?? 'Gaussian Splat',
+        'title' => $model->model_title ?? $model->original_filename ?? __('Gaussian Splat'),
       ])
     @else
       <div class="card mb-3">
@@ -62,7 +62,7 @@
             id="ahg-3d-viewer-{{ $model->id }}"
             data-model-id="{{ $model->id }}"
             src="/uploads/{{ $model->file_path }}"
-            alt="{{ e($model->alt_text ?? $model->model_title ?? 'Model') }}"
+            alt="{{ e($model->alt_text ?? $model->model_title ?? __('Model')) }}"
             camera-controls
             touch-action="pan-y"
             data-auto-rotate-pref="{{ !empty($model->auto_rotate) ? '1' : '0' }}"

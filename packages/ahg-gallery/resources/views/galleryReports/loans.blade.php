@@ -18,7 +18,7 @@
 @endsection
 
 @section('content')
-<div class="alert alert-info"><strong>{{ count($items) }}</strong> loans found</div>
+<div class="alert alert-info"><strong>{{ count($items) }}</strong> {{ __('loans found') }}</div>
 
 <div class="table-responsive">
   <table class="table table-striped table-hover">

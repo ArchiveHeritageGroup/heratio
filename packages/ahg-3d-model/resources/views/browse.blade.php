@@ -1,13 +1,13 @@
 @extends('theme::layouts.1col')
 
-@section('title', '3D Models')
+@section('title', __('3D Models'))
 @section('body-class', 'browse 3d-models admin')
 
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-      <h1><i class="fas fa-cubes me-2"></i>3D Models</h1>
-      <p class="text-muted mb-0">{{ number_format($totalCount) }} models in the archive</p>
+      <h1><i class="fas fa-cubes me-2"></i>{{ __('3D Models') }}</h1>
+      <p class="text-muted mb-0">{{ __(':count models in the archive', ['count' => number_format($totalCount)]) }}</p>
     </div>
   </div>
 
@@ -45,8 +45,8 @@
       <form action="{{ route('admin.3d-models.batch-thumbnails') }}" method="POST" class="d-inline">
         @csrf
         <button type="submit" class="btn atom-btn-outline-success"
-                onclick="return confirm('Generate thumbnails for {{ $withoutThumbnails }} 3D objects? This may take a while.');">
-          <i class="fas fa-magic me-1"></i>Generate all missing thumbnails ({{ $withoutThumbnails }})
+                onclick="return confirm(@js(__('Generate thumbnails for :count 3D objects? This may take a while.', ['count' => $withoutThumbnails])));">
+          <i class="fas fa-magic me-1"></i>{{ __('Generate all missing thumbnails (:count)', ['count' => $withoutThumbnails]) }}
         </button>
       </form>
     </div>
@@ -160,7 +160,7 @@
           @if($page > 1)
             <li class="page-item">
               <a class="page-link" href="{{ route('admin.3d-models.browse', ['page' => $page - 1]) }}">
-                &laquo; Previous
+                &laquo; {{ __('Previous') }}
               </a>
             </li>
           @endif
@@ -176,7 +176,7 @@
           @if($page < $totalPages)
             <li class="page-item">
               <a class="page-link" href="{{ route('admin.3d-models.browse', ['page' => $page + 1]) }}">
-                Next &raquo;
+                {{ __('Next') }} &raquo;
               </a>
             </li>
           @endif

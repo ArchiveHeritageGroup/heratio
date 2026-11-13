@@ -94,7 +94,7 @@
                   <div class="mb-3">
                     <label for="level_of_description" class="form-label">{{ __('Level of Description') }}</label>
                     <select class="form-select" id="level_of_description" name="level_of_description">
-                      <option value="">-- All Levels --</option>
+                      <option value="">{{ __('-- All Levels --') }}</option>
                       @foreach ($availableLevels as $id => $name)
                         <option value="{{ $name }}">{{ $name }}</option>
                       @endforeach
@@ -107,14 +107,14 @@
               <div class="mb-3">
                 <label for="subject_filter_terms" class="form-label">{{ __('Subject Access Point Filter') }}</label>
                 <textarea class="form-control" id="subject_filter_terms" name="subject_filter_terms" rows="4"
-                  placeholder="{{ __('Enter subject terms to filter by (one per line)...') }}">brush painted
-finger painted
-engraving
-pecking
-incising
-San
-Khoekhoen
-Khoi</textarea>
+                  placeholder="{{ __('Enter subject terms to filter by (one per line)...') }}">{{ __('brush painted') }}
+{{ __('finger painted') }}
+{{ __('engraving') }}
+{{ __('pecking') }}
+{{ __('incising') }}
+{{ __('San') }}
+{{ __('Khoekhoen') }}
+{{ __('Khoi') }}</textarea>
                 <div class="form-text">{{ __('Records must have at least one of these subject terms. Leave empty for all subjects.') }}</div>
               </div>
 
@@ -145,21 +145,21 @@ Khoi</textarea>
               <h6 class="mb-0"><i class="bi bi-tags me-2"></i>{{ __('Tradition Classification') }}</h6>
             </div>
             <div class="card-body">
-              <p class="text-muted small">Configure which subject terms indicate painted vs engraved traditions. The export will include <code>is_painted</code> and <code>is_engraved</code> boolean columns based on these terms.</p>
+              <p class="text-muted small">{{ __('Configure which subject terms indicate painted vs engraved traditions. The export will include') }} <code>is_painted</code> {{ __('and') }} <code>is_engraved</code> {{ __('boolean columns based on these terms.') }}</p>
 
               <div class="row">
                 <div class="col-md-6">
                   <div class="mb-3">
                     <label for="painted_terms" class="form-label">{{ __('Painted Tradition Terms') }}</label>
                     <textarea class="form-control" id="painted_terms" name="painted_terms" rows="6">{{ $defaultPaintedTerms }}</textarea>
-                    <div class="form-text">One term per line. Records with these subjects = is_painted: TRUE</div>
+                    <div class="form-text">{{ __('One term per line. Records with these subjects = is_painted: TRUE') }}</div>
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="mb-3">
                     <label for="engraved_terms" class="form-label">{{ __('Engraved Tradition Terms') }}</label>
                     <textarea class="form-control" id="engraved_terms" name="engraved_terms" rows="6">{{ $defaultEngravedTerms }}</textarea>
-                    <div class="form-text">One term per line. Records with these subjects = is_engraved: TRUE</div>
+                    <div class="form-text">{{ __('One term per line. Records with these subjects = is_engraved: TRUE') }}</div>
                   </div>
                 </div>
               </div>
@@ -196,14 +196,14 @@ Khoi</textarea>
             </div>
             <div class="card-body p-0">
               <ul class="list-group list-group-flush">
-                <li class="list-group-item py-2"><code>reference_code</code> - Site identifier</li>
-                <li class="list-group-item py-2"><code>site_name</code> - Site title</li>
-                <li class="list-group-item py-2"><code>latitude</code> - GPS latitude</li>
-                <li class="list-group-item py-2"><code>longitude</code> - GPS longitude</li>
-                <li class="list-group-item py-2"><code>place_country</code> - Country from place terms</li>
+                <li class="list-group-item py-2"><code>reference_code</code> - {{ __('Site identifier') }}</li>
+                <li class="list-group-item py-2"><code>site_name</code> - {{ __('Site title') }}</li>
+                <li class="list-group-item py-2"><code>latitude</code> - {{ __('GPS latitude') }}</li>
+                <li class="list-group-item py-2"><code>longitude</code> - {{ __('GPS longitude') }}</li>
+                <li class="list-group-item py-2"><code>place_country</code> - {{ __('Country from place terms') }}</li>
                 <li class="list-group-item py-2"><code>is_painted</code> - TRUE/FALSE</li>
                 <li class="list-group-item py-2"><code>is_engraved</code> - TRUE/FALSE</li>
-                <li class="list-group-item py-2"><code>subjects</code> - All subject tags</li>
+                <li class="list-group-item py-2"><code>subjects</code> - {{ __('All subject tags') }}</li>
               </ul>
             </div>
           </div>
@@ -234,7 +234,7 @@ Khoi</textarea>
     <div class="card mt-4">
       <div class="card-header d-flex justify-content-between align-items-center">
         <h6 class="mb-0"><i class="bi bi-table me-2"></i>{{ __('Preview Results') }}</h6>
-        <span class="badge bg-primary">{{ $previewData['count'] }} records (limited to 10)</span>
+        <span class="badge bg-primary">{{ __(':count records (limited to 10)', ['count' => $previewData['count']]) }}</span>
       </div>
       <div class="card-body p-0">
         @if (!empty($previewData['rows']))

@@ -19,7 +19,7 @@
           <div class="mb-3">
             <label for="single_id" class="form-label">{{ __('Search and select object') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             <select name="id" id="single_id" class="form-select">
-              <option value="">-- Select an object --</option>
+              <option value="">{{ __('-- Select an object --') }}</option>
               @foreach($topLevelRecords ?? [] as $record)
                 <option value="{{ $record->id }}">{{ $record->title ?? 'Untitled' }}@if(!empty($record->identifier)) [{{ $record->identifier }}]@endif</option>
               @endforeach

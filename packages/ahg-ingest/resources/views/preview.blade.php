@@ -155,13 +155,13 @@
                 @if(!empty($session->output_generate_sip))
                     <div class="d-flex justify-content-between mb-2">
                         <span>{{ __('SIP Package') }}</span>
-                        <span class="badge bg-secondary">{{ $rowCount }} objects</span>
+                        <span class="badge bg-secondary">{{ __(':count objects', ['count' => $rowCount]) }}</span>
                     </div>
                 @endif
                 @if(!empty($session->output_generate_dip))
                     <div class="d-flex justify-content-between">
                         <span>{{ __('DIP Package') }}</span>
-                        <span class="badge bg-secondary">{{ $rowCount }} objects</span>
+                        <span class="badge bg-secondary">{{ __(':count objects', ['count' => $rowCount]) }}</span>
                     </div>
                 @endif
             </div>
@@ -189,8 +189,8 @@
             <input type="hidden" name="form_action" value="approve">
             <button type="submit" class="btn btn-success"
                     onclick="return confirm('This will create records in Heratio. Proceed?')">
-                <i class="fas fa-check me-1"></i>Approve &amp; Commit
-                ({{ $rowCount }} records)
+                <i class="fas fa-check me-1"></i>{{ __('Approve &amp; Commit') }}
+                ({{ __(':count records', ['count' => $rowCount]) }})
             </button>
         </form>
     </div>

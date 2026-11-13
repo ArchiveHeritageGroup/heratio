@@ -10,7 +10,7 @@
     <div class="card-header py-2"><h6 class="mb-0"><i class="fas fa-tools me-1"></i> {{ __('Actions') }}</h6></div>
     <div class="card-body p-2">
         <a href="{{ $browseRoute }}" class="btn btn-outline-secondary btn-sm w-100 mb-1 text-start">
-            <i class="fas fa-arrow-left me-1"></i> Browse {{ ucfirst($typeSlug) }}
+            <i class="fas fa-arrow-left me-1"></i> {{ __('Browse :type', ['type' => ucfirst($typeSlug)]) }}
         </a>
         <a href="{{ route('ric.entities.edit', [$typeSlug, $entity->slug]) }}" class="btn btn-outline-primary btn-sm w-100 mb-1 text-start">
             <i class="fas fa-edit me-1"></i> {{ __('Edit') }}

@@ -6,10 +6,9 @@
 @section('content')
 
   <div class="alert alert-info">
-    Enter the ID of the saved clipboard you would like to load.
-    In the &ldquo;Action&rdquo; selector, indicate whether you want to <strong>merge</strong>
-    the saved clipboard with the entries on the current clipboard or <strong>replace</strong>
-    (overwrite) the current clipboard with the saved one.
+    {{ __('Enter the ID of the saved clipboard you would like to load. In the “Action” selector, indicate whether you want to') }} <strong>{{ __('merge') }}</strong>
+    {{ __('the saved clipboard with the entries on the current clipboard or') }} <strong>{{ __('replace') }}</strong>
+    {{ __('(overwrite) the current clipboard with the saved one.') }}
   </div>
 
   <h1>{{ __('Load clipboard') }}</h1>

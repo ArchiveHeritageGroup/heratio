@@ -106,7 +106,7 @@ class DacsManageController extends Controller
             \AhgCustomFields\Services\CustomFieldService::saveFromRequest((int) $io->id, $request); // heratio#1530
 
             return redirect()->route('ahgdacsmanage.edit', ['slug' => $slug])
-                ->with('success', 'Description saved (DACS).');
+                ->with('success', __('Description saved (DACS).'));
         }
 
         // ── GET: load related data for the form ──

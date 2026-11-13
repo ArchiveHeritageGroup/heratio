@@ -44,7 +44,7 @@
                                         : 0;
                                 @endphp
                                 <h2 class="mb-0">{{ $coverage }}%</h2>
-                                <small>{{ number_format($stats->objects_with_checksums) }} objects</small>
+                                <small>{{ __(':count objects', ['count' => number_format($stats->objects_with_checksums)]) }}</small>
                             </div>
                             <i class="fas fa-fingerprint fa-2x opacity-50"></i>
                         </div>
@@ -58,7 +58,7 @@
                             <div>
                                 <h6 class="mb-0 text-white-50">{{ __('Fixity Checks') }}</h6>
                                 <h2 class="mb-0">{{ number_format($stats->fixity_checks_run) }}</h2>
-                                <small>{{ number_format($stats->fixity_failures) }} failures</small>
+                                <small>{{ __(':count failures', ['count' => number_format($stats->fixity_failures)]) }}</small>
                             </div>
                             <i class="fas fa-check-double fa-2x opacity-50"></i>
                         </div>
@@ -72,7 +72,7 @@
                             <div>
                                 <h6 class="mb-0 text-white-50">{{ __('At-Risk Formats') }}</h6>
                                 <h2 class="mb-0">{{ number_format($stats->at_risk_formats) }}</h2>
-                                <small>{{ number_format($stats->virus_scans) }} virus scans ({{ number_format($stats->clean_scans) }} clean)</small>
+                                <small>{{ __(':count virus scans (:clean clean)', ['count' => number_format($stats->virus_scans), 'clean' => number_format($stats->clean_scans)]) }}</small>
                             </div>
                             <i class="fas fa-exclamation-triangle fa-2x opacity-50"></i>
                         </div>

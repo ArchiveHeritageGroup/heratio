@@ -369,7 +369,7 @@ class AccessionController extends Controller
         if (! empty($blockers)) {
             return redirect()
                 ->route('accession.show', $slug)
-                ->with('error', 'Cannot finalise: '.implode('; ', $blockers));
+                ->with('error', __('Cannot finalise: :blockers', ['blockers' => implode('; ', $blockers)]));
         }
 
         $current = DB::table('accession_v2')
@@ -378,12 +378,12 @@ class AccessionController extends Controller
         if ($current === 'accepted') {
             return redirect()
                 ->route('accession.show', $slug)
-                ->with('info', 'This accession is already finalised.');
+                ->with('info', __('This accession is already finalised.'));
         }
         if ($current === 'rejected') {
             return redirect()
                 ->route('accession.show', $slug)
-                ->with('error', 'A rejected accession cannot be finalised - clear the rejection first.');
+                ->with('error', __('A rejected accession cannot be finalised - clear the rejection first.'));
         }
 
         $this->service->upsertWorkflow($accession->id, [
@@ -393,7 +393,7 @@ class AccessionController extends Controller
 
         return redirect()
             ->route('accession.show', $slug)
-            ->with('success', 'Accession finalised.');
+            ->with('success', __('Accession finalised.'));
     }
 
     /**
@@ -587,7 +587,7 @@ class AccessionController extends Controller
 
         return redirect()
             ->route('accession.show', $slug)
-            ->with('success', 'Accession record created successfully.');
+            ->with('success', __('Accession record created successfully.'));
     }
 
     /**
@@ -656,7 +656,7 @@ class AccessionController extends Controller
 
         return redirect()
             ->route('accession.show', $slug)
-            ->with('success', 'Accession record updated successfully.');
+            ->with('success', __('Accession record updated successfully.'));
     }
 
     /**
@@ -968,7 +968,7 @@ class AccessionController extends Controller
 
         return redirect()
             ->route('accession.browse')
-            ->with('success', 'Accession record deleted successfully.');
+            ->with('success', __('Accession record deleted successfully.'));
     }
 
     // ── Appraisal & Valuation ──────────────────────────────────────
@@ -992,7 +992,7 @@ class AccessionController extends Controller
 
     public function appraisalStore(Request $request, int $id)
     {
-        return redirect()->route('accession.appraisal', $id)->with('success', 'Appraisal saved.');
+        return redirect()->route('accession.appraisal', $id)->with('success', __('Appraisal saved.'));
     }
 
     public function appraisalTemplates()
@@ -1362,7 +1362,7 @@ class AccessionController extends Controller
 
     public function attachmentsStore(Request $request, int $id)
     {
-        return redirect()->route('accession.attachments', $id)->with('success', 'Attachment uploaded.');
+        return redirect()->route('accession.attachments', $id)->with('success', __('Attachment uploaded.'));
     }
 
     public function checklist(int $id)
@@ -1384,7 +1384,7 @@ class AccessionController extends Controller
 
     public function checklistStore(Request $request, int $id)
     {
-        return redirect()->route('accession.checklist', $id)->with('success', 'Checklist saved.');
+        return redirect()->route('accession.checklist', $id)->with('success', __('Checklist saved.'));
     }
 
     public function intakeConfig()
@@ -1398,7 +1398,7 @@ class AccessionController extends Controller
 
     public function intakeConfigStore(Request $request)
     {
-        return redirect()->route('accession.intake-config')->with('success', 'Configuration saved.');
+        return redirect()->route('accession.intake-config')->with('success', __('Configuration saved.'));
     }
 
     public function numbering()
@@ -1410,7 +1410,7 @@ class AccessionController extends Controller
 
     public function numberingStore(Request $request)
     {
-        return redirect()->route('accession.numbering')->with('success', 'Numbering scheme saved.');
+        return redirect()->route('accession.numbering')->with('success', __('Numbering scheme saved.'));
     }
 
     public function queue(Request $request)

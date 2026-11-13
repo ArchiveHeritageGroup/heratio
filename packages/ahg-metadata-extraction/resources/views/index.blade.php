@@ -31,17 +31,17 @@
     <div class="row mb-3">
       <div class="col-auto">
         <span class="badge {{ $exifToolAvailable ? 'bg-success' : 'bg-danger' }}">
-          <i class="bi bi-{{ $exifToolAvailable ? 'check-circle' : 'x-circle' }} me-1"></i>ExifTool{{ $exifToolVersion ? ' '.$exifToolVersion : '' }}
+          <i class="bi bi-{{ $exifToolAvailable ? 'check-circle' : 'x-circle' }} me-1"></i>{{ __('ExifTool:value1', ['value1' => $exifToolVersion ? ' '.$exifToolVersion : '']) }}
         </span>
       </div>
       <div class="col-auto">
         <span class="badge {{ $ffprobeAvailable ? 'bg-success' : 'bg-danger' }}">
-          <i class="bi bi-{{ $ffprobeAvailable ? 'check-circle' : 'x-circle' }} me-1"></i>ffprobe{{ $ffprobeVersion ? ' '.$ffprobeVersion : '' }}
+          <i class="bi bi-{{ $ffprobeAvailable ? 'check-circle' : 'x-circle' }} me-1"></i>{{ __('ffprobe:value1', ['value1' => $ffprobeVersion ? ' '.$ffprobeVersion : '']) }}
         </span>
       </div>
       <div class="col-auto">
         <span class="badge {{ $pdfinfoAvailable ? 'bg-success' : 'bg-danger' }}">
-          <i class="bi bi-{{ $pdfinfoAvailable ? 'check-circle' : 'x-circle' }} me-1"></i>pdfinfo
+          <i class="bi bi-{{ $pdfinfoAvailable ? 'check-circle' : 'x-circle' }} me-1"></i>{{ __('pdfinfo') }}
         </span>
       </div>
     </div>
@@ -50,7 +50,7 @@
       <div class="alert alert-warning">
         <i class="bi bi-exclamation-triangle me-2"></i>
         <strong>{{ __('ExifTool Not Available') }}</strong>
-        <p class="mb-0 mt-2">ExifTool is not installed on this system. Install it with: <code>sudo apt install exiftool</code></p>
+        <p class="mb-0 mt-2">{{ __('ExifTool is not installed on this system. Install it with:') }} <code>sudo apt install exiftool</code></p>
       </div>
     @endif
 
@@ -82,7 +82,7 @@
     </form>
 
     {{-- Results --}}
-    <p class="text-muted small">Showing {{ $digitalObjects->count() }} of {{ number_format($totalCount) }} digital objects</p>
+    <p class="text-muted small">{{ __('Showing :value1 of :value2 digital objects', ['value1' => $digitalObjects->count(), 'value2' => number_format($totalCount)]) }}</p>
 
     @if($digitalObjects->count() > 0)
       <div class="table-responsive">
@@ -118,7 +118,7 @@
                 </td>
                 <td>
                   @if($obj->metadata_count > 0)
-                    <span class="badge bg-success">{{ $obj->metadata_count }} fields</span>
+                    <span class="badge bg-success">{{ __(':value1 fields', ['value1' => $obj->metadata_count]) }}</span>
                   @else
                     <span class="badge bg-secondary">{{ __('None') }}</span>
                   @endif

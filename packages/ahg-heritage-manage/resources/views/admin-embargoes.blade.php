@@ -55,7 +55,7 @@ $expiringEmbargoes = $expiringEmbargoes ?? [];
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h5 class="mb-0">{{ __('Active Embargoes') }}</h5>
-        <span class="badge bg-danger">{{ number_format($total) }} active</span>
+        <span class="badge bg-danger">{{ __(':count active', ['count' => number_format($total)]) }}</span>
       </div>
       <div class="card-body p-0">
         @if(empty($embargoes))

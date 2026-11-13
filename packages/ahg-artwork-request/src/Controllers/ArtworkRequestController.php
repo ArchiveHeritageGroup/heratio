@@ -112,7 +112,7 @@ class ArtworkRequestController extends Controller
                 ], $objectIds, true);
 
                 return redirect()->route('artwork-request.view', ['id' => $requestId])
-                    ->with('success', 'Request submitted. The gallery has been notified.');
+                    ->with('success', __('Request submitted. The gallery has been notified.'));
             }
         }
 
@@ -165,7 +165,7 @@ class ArtworkRequestController extends Controller
             );
 
             return redirect()->route('artwork-request.review')
-                ->with('success', 'Decision recorded and the requester notified.');
+                ->with('success', __('Decision recorded and the requester notified.'));
         }
 
         $pending = DB::table('artwork_request')
@@ -194,11 +194,11 @@ class ArtworkRequestController extends Controller
 
         if ($loanId) {
             return redirect()->route('artwork-request.view', ['id' => $id])
-                ->with('success', 'Loan record created. Condition reports and movement are tracked there.');
+                ->with('success', __('Loan record created. Condition reports and movement are tracked there.'));
         }
 
         return redirect()->route('artwork-request.view', ['id' => $id])
-            ->with('error', 'No loan record was created - ahg-loan may not be installed, nothing on this request is approved, or a loan already exists.');
+            ->with('error', __('No loan record was created - ahg-loan may not be installed, nothing on this request is approved, or a loan already exists.'));
     }
 
     /**
@@ -259,7 +259,7 @@ class ArtworkRequestController extends Controller
                     if (null === $added) {
                         $errors[] = 'No user matches that username or email address.';
                     } else {
-                        return redirect()->route('artwork-request.approvers')->with('success', 'Approver added.');
+                        return redirect()->route('artwork-request.approvers')->with('success', __('Approver added.'));
                     }
 
                     break;
@@ -267,22 +267,22 @@ class ArtworkRequestController extends Controller
                 case 'activate':
                     Requests::setApproverActive($id, true);
 
-                    return redirect()->route('artwork-request.approvers')->with('success', 'Approver enabled.');
+                    return redirect()->route('artwork-request.approvers')->with('success', __('Approver enabled.'));
 
                 case 'deactivate':
                     Requests::setApproverActive($id, false);
 
-                    return redirect()->route('artwork-request.approvers')->with('success', 'Approver disabled.');
+                    return redirect()->route('artwork-request.approvers')->with('success', __('Approver disabled.'));
 
                 case 'notifications':
                     Requests::setApproverNotifications($id, (bool) $request->input('on'));
 
-                    return redirect()->route('artwork-request.approvers')->with('success', 'Notification setting saved.');
+                    return redirect()->route('artwork-request.approvers')->with('success', __('Notification setting saved.'));
 
                 case 'remove':
                     Requests::removeApprover($id);
 
-                    return redirect()->route('artwork-request.approvers')->with('success', 'Approver removed.');
+                    return redirect()->route('artwork-request.approvers')->with('success', __('Approver removed.'));
             }
         }
 

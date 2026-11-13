@@ -298,7 +298,7 @@ class DoiController extends Controller
 
         if (! Schema::hasTable('ahg_settings')) {
             return redirect()->route('doi.config')
-                ->with('error', 'Settings table does not exist.');
+                ->with('error', __('Settings table does not exist.'));
         }
 
         $keys = [
@@ -325,7 +325,7 @@ class DoiController extends Controller
         }
 
         return redirect()->route('doi.config')
-            ->with('success', 'DOI configuration saved.');
+            ->with('success', __('DOI configuration saved.'));
     }
 
     /**
@@ -405,7 +405,7 @@ class DoiController extends Controller
             }
 
             return redirect()->route('doi.batch-mint')
-                ->with('success', "{$queued} record(s) queued for DOI minting ({$state}).");
+                ->with('success', __(':count record(s) queued for DOI minting (:state).', ['count' => $queued, 'state' => $state]));
         }
 
         $records = collect();

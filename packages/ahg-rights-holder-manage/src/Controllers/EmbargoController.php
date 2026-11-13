@@ -106,7 +106,7 @@ class EmbargoController extends Controller
             ]);
         }
 
-        return redirect()->route('embargo.index')->with('success', 'Embargo created successfully.');
+        return redirect()->route('embargo.index')->with('success', __('Embargo created successfully.'));
     }
 
     public function show(int $id)
@@ -164,6 +164,6 @@ class EmbargoController extends Controller
             ]);
         }
 
-        return redirect()->route('embargo.index')->with('success', 'Embargo lifted successfully.');
+        return redirect()->route('embargo.index')->with('success', __('Embargo lifted successfully.'));
     }
 }

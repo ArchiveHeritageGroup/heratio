@@ -41,7 +41,7 @@
                 @foreach($classifications ?? [] as $cl)
                   <option value="{{ $cl->id }}" {{ ($clearance->classification_id ?? 0) == $cl->id ? 'selected' : '' }}
                           style="color: {{ $cl->color ?? '#333' }}">
-                    {{ e($cl->name) }} (Level {{ $cl->level }})
+                    {{ __(':name (Level :level)', ['name' => $cl->name, 'level' => $cl->level]) }}
                   </option>
                 @endforeach
               </select>

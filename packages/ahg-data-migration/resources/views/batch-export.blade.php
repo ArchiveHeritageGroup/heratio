@@ -33,7 +33,7 @@
 
 <div class="alert alert-info">
     <i class="fas fa-info-circle me-2"></i>
-    <strong>{{ __('Export existing records') }}</strong> to sector-specific CSV format for backup, reporting, or migration to another system.
+    <strong>{{ __('Export existing records') }}</strong> {{ __('to sector-specific CSV format for backup, reporting, or migration to another system.') }}
 </div>
 
 <div class="card shadow-sm mb-4">

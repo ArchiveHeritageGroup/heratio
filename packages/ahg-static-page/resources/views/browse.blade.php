@@ -9,8 +9,8 @@
       {{ __('Static pages are custom content pages that appear on your site. You can create pages such as About, Contact, Privacy, or any other informational page.') }}
     </p>
     <p class="small text-muted">
-      {{ __('Pages with the slugs') }} <strong>home</strong>, <strong>about</strong>, and <strong>contact</strong>
-      are protected and cannot be deleted as they are core to the site.
+      {{ __('Pages with the slugs') }} <strong>{{ __('home') }}</strong>, <strong>{{ __('about') }}</strong>{{ __(', and') }} <strong>{{ __('contact') }}</strong>
+      {{ __('are protected and cannot be deleted as they are core to the site.') }}
     </p>
   </div>
 @endsection

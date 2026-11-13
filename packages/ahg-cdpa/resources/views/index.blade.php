@@ -83,11 +83,11 @@
         <div class="d-flex align-items-center">
             <i class="fas fa-{{ $statusIcon }} fa-2x me-3"></i>
             <div>
-                <h5 class="mb-1">Compliance Status: {{ ucfirst(str_replace('_', ' ', $compliance['status'])) }}</h5>
+                <h5 class="mb-1">{{ __('Compliance Status: :value1', ['value1' => ucfirst(str_replace('_', ' ', $compliance['status']))]) }}</h5>
                 @if (!empty($compliance['issues']))
-                    <p class="mb-0">{{ count($compliance['issues']) }} issue(s) require attention</p>
+                    <p class="mb-0">{{ __(':value1 issue(s) require attention', ['value1' => count($compliance['issues'])]) }}</p>
                 @elseif (!empty($compliance['warnings']))
-                    <p class="mb-0">{{ count($compliance['warnings']) }} warning(s) to review</p>
+                    <p class="mb-0">{{ __(':value1 warning(s) to review', ['value1' => count($compliance['warnings'])]) }}</p>
                 @else
                     <p class="mb-0">{{ __('All compliance requirements met') }}</p>
                 @endif
@@ -111,7 +111,7 @@
                     <h3>{{ $stats['requests_pending'] ?? 0 }}</h3>
                     <p class="text-muted mb-0">{{ __('Pending Requests') }}</p>
                     @if (($stats['requests_overdue'] ?? 0) > 0)
-                        <small class="text-danger">{{ $stats['requests_overdue'] }} overdue</small>
+                        <small class="text-danger">{{ __(':value1 overdue', ['value1' => $stats['requests_overdue']]) }}</small>
                     @else
                         <small class="text-success">{{ __('None overdue') }}</small>
                     @endif
@@ -123,7 +123,7 @@
                 <div class="card-body text-center">
                     <h3>{{ $stats['breaches_open'] ?? 0 }}</h3>
                     <p class="text-muted mb-0">{{ __('Open Breaches') }}</p>
-                    <small class="text-muted">{{ $breachesThisYear }} this year</small>
+                    <small class="text-muted">{{ __(':value1 this year', ['value1' => $breachesThisYear]) }}</small>
                 </div>
             </div>
         </div>
@@ -132,7 +132,7 @@
                 <div class="card-body text-center">
                     <h3>{{ $stats['processing_active'] ?? 0 }}</h3>
                     <p class="text-muted mb-0">{{ __('Processing Activities') }}</p>
-                    <small class="text-muted">{{ $stats['consent_active'] ?? 0 }} active consents</small>
+                    <small class="text-muted">{{ __(':value1 active consents', ['value1' => $stats['consent_active'] ?? 0]) }}</small>
                 </div>
             </div>
         </div>
@@ -146,19 +146,19 @@
                 </div>
                 <div class="list-group list-group-flush">
                     <a href="{{ route('ahgcdpa.license') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-id-card me-2"></i> Controller License
+                        <i class="fas fa-id-card me-2"></i> {{ __('Controller License') }}
                         @if (!$license)
                             <span class="badge bg-danger float-end">{{ __('Required') }}</span>
                         @endif
                     </a>
                     <a href="{{ route('ahgcdpa.dpo') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-user-shield me-2"></i> Data Protection Officer
+                        <i class="fas fa-user-shield me-2"></i> {{ __('Data Protection Officer') }}
                         @if (!$dpo)
                             <span class="badge bg-danger float-end">{{ __('Required') }}</span>
                         @endif
                     </a>
                     <a href="{{ route('ahgcdpa.requests') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-user-clock me-2"></i> Data Subject Requests
+                        <i class="fas fa-user-clock me-2"></i> {{ __('Data Subject Requests') }}
                         @if (($stats['requests_pending'] ?? 0) > 0)
                             <span class="badge bg-warning text-dark float-end">{{ $stats['requests_pending'] }}</span>
                         @endif
@@ -176,7 +176,7 @@
                         <i class="fas fa-check-circle me-2"></i> {{ __('Consent Management') }}
                     </a>
                     <a href="{{ route('ahgcdpa.breaches') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-exclamation-triangle me-2"></i> Breach Register
+                        <i class="fas fa-exclamation-triangle me-2"></i> {{ __('Breach Register') }}
                         @if (($stats['breaches_open'] ?? 0) > 0)
                             <span class="badge bg-danger float-end">{{ $stats['breaches_open'] }}</span>
                         @endif

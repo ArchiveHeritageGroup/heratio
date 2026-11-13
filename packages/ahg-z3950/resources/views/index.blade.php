@@ -19,14 +19,14 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    <strong>yaz</strong> extension loaded - Z39.50 client is ready.
+                    <strong>{{ __('yaz') }}</strong> {{ __('extension loaded - Z39.50 client is ready.') }}
                 </div>
             @else
                 <div class="flex items-center gap-2 text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 17.5c-.77.833.192 2.5 1.732 2.5z"/>
                     </svg>
-                    <strong>yaz</strong> extension not installed. Install with <code class="font-mono bg-amber-100 px-1 rounded">pecl install yaz</code> or <code class="font-mono bg-amber-100 px-1 rounded">apt-get install php-yaz</code>.
+                    <strong>{{ __('yaz') }}</strong> {{ __('extension not installed. Install with') }} <code class="font-mono bg-amber-100 px-1 rounded">pecl install yaz</code> {{ __('or') }} <code class="font-mono bg-amber-100 px-1 rounded">apt-get install php-yaz</code>.
                 </div>
             @endif
         </div>
@@ -116,10 +116,7 @@
         <div class="mt-8 bg-gray-50 rounded-xl border border-gray-200 px-5 py-4">
             <h3 class="font-semibold text-gray-700 text-sm mb-2">{{ __('About Z39.50') }}</h3>
             <p class="text-xs text-gray-500 leading-relaxed">
-                Z39.50 is a client-server protocol for information retrieval (ANSI/NISO Z39.50, ISO 23950).
-                It uses the bib-1 attribute set to define query operators (title, author, ISBN, subject, etc.).
-                Records are returned in USmarc/MARC21 format. Common targets include national libraries (Library of Congress, BL),
-                union catalogues (WorldCat via OCLC), and SRU/Z39.50 gateways.
+                {{ __('Z39.50 is a client-server protocol for information retrieval (ANSI/NISO Z39.50, ISO 23950). It uses the bib-1 attribute set to define query operators (title, author, ISBN, subject, etc.). Records are returned in USmarc/MARC21 format. Common targets include national libraries (Library of Congress, BL), union catalogues (WorldCat via OCLC), and SRU/Z39.50 gateways.') }}
             </p>
         </div>
     </div>

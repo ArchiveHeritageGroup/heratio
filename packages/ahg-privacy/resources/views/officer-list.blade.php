@@ -79,10 +79,10 @@
                             @endphp
                         </li>
                         @if($officer->registration_number)
-                        <li><i class="fas fa-id-card me-2 text-muted"></i>Reg: {{ $officer->registration_number }}</li>
+                        <li><i class="fas fa-id-card me-2 text-muted"></i>{{ __('Reg: :number', ['number' => $officer->registration_number]) }}</li>
                         @endif
                         @if($officer->appointed_date)
-                        <li><i class="fas fa-calendar me-2 text-muted"></i>Appointed: {{ $officer->appointed_date }}</li>
+                        <li><i class="fas fa-calendar me-2 text-muted"></i>{{ __('Appointed: :date', ['date' => $officer->appointed_date]) }}</li>
                         @endif
                     </ul>
                 </div>

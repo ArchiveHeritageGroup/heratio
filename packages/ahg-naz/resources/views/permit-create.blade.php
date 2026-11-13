@@ -119,7 +119,7 @@
             <div class="alert alert-info">
                 <h6><i class="fas fa-info-circle"></i> {{ __('Permit Fees') }}</h6>
                 <ul class="small mb-0">
-                    <li>Foreign researchers: US$200</li>
+                    <li>{{ __('Foreign researchers: :fee', ['fee' => 'US$200']) }}</li>
                     <li>{{ __('Local researchers: Free') }}</li>
                     <li>{{ __('Validity: 12 months') }}</li>
                 </ul>

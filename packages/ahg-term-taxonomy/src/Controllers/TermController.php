@@ -1393,7 +1393,7 @@ class TermController extends Controller
         if ($request->isMethod('post')) {
             $taxonomyId = (int) $request->input('taxonomy_id');
             if (! $taxonomyId) {
-                return back()->with('error', 'Please select a taxonomy.');
+                return back()->with('error', __('Please select a taxonomy.'));
             }
 
             $xmlContent = null;
@@ -1403,26 +1403,26 @@ class TermController extends Controller
             } elseif ($request->filled('skos_url')) {
                 $url = $request->input('skos_url');
                 if (! filter_var($url, FILTER_VALIDATE_URL)) {
-                    return back()->with('error', 'Invalid URL.');
+                    return back()->with('error', __('Invalid URL.'));
                 }
                 // SECURITY: block SSRF - reject non-http(s) schemes and private/reserved hosts.
                 if (! \AhgCore\Support\UrlGuard::isAllowed($url)) {
-                    return back()->with('error', 'URL not allowed.');
+                    return back()->with('error', __('URL not allowed.'));
                 }
                 // #1395(C) - never follow redirects: UrlGuard already vetted $url, but a
                 // 30x to an internal host would otherwise re-open the SSRF hole.
                 $ctx = stream_context_create(['http' => ['timeout' => 30, 'follow_location' => 0, 'max_redirects' => 0, 'header' => 'Accept: application/rdf+xml,text/xml,*/*']]);
                 $xmlContent = @file_get_contents($url, false, $ctx);
                 if ($xmlContent === false) {
-                    return back()->with('error', 'Failed to fetch SKOS file from URL: '.$url);
+                    return back()->with('error', __('Failed to fetch SKOS file from URL: :url', ['url' => $url]));
                 }
             } else {
-                return back()->with('error', 'Please upload a file or provide a URL.');
+                return back()->with('error', __('Please upload a file or provide a URL.'));
             }
 
             $xml = simplexml_load_string($xmlContent);
             if (! $xml) {
-                return back()->with('error', 'Invalid XML content.');
+                return back()->with('error', __('Invalid XML content.'));
             }
 
             $xml->registerXPathNamespace('skos', 'http://www.w3.org/2004/02/skos/core#');
@@ -1478,7 +1478,7 @@ class TermController extends Controller
             }
 
             return redirect()->route('taxonomy.show', $taxonomyId)
-                ->with('success', "Imported $imported terms from SKOS file.");
+                ->with('success', __('Imported :count terms from SKOS file.', ['count' => $imported]));
         }
 
         // GET - show upload form
@@ -1578,7 +1578,7 @@ class TermController extends Controller
 
         return redirect()
             ->route('term.show', $slug)
-            ->with('success', 'Term created successfully.');
+            ->with('success', __('Term created successfully.'));
     }
 
     /**
@@ -1807,7 +1807,7 @@ class TermController extends Controller
 
         return redirect()
             ->route('term.show', $slug)
-            ->with('success', 'Term updated successfully.');
+            ->with('success', __('Term updated successfully.'));
     }
 
     /**
@@ -1850,7 +1850,7 @@ class TermController extends Controller
 
         return redirect()
             ->route('term.browse', ['taxonomy' => $taxonomyId])
-            ->with('success', 'Term deleted successfully.');
+            ->with('success', __('Term deleted successfully.'));
     }
 
     /**

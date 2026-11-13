@@ -128,9 +128,9 @@
     <div class="card-body">
       <h6>{{ __('When to use Rights Statements:') }}</h6>
       <ul>
-        <li><strong>{{ __('In Copyright statements') }}</strong> - For works that are still under copyright protection</li>
-        <li><strong>{{ __('No Copyright statements') }}</strong> - For works in the public domain or with specific use restrictions</li>
-        <li><strong>{{ __('Other statements') }}</strong> - When copyright status is unclear or not yet evaluated</li>
+        <li><strong>{{ __('In Copyright statements') }}</strong> {{ __('- For works that are still under copyright protection') }}</li>
+        <li><strong>{{ __('No Copyright statements') }}</strong> {{ __('- For works in the public domain or with specific use restrictions') }}</li>
+        <li><strong>{{ __('Other statements') }}</strong> {{ __('- When copyright status is unclear or not yet evaluated') }}</li>
       </ul>
 
       <h6>{{ __('When to use Creative Commons:') }}</h6>

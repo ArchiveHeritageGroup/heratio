@@ -282,6 +282,6 @@ class RightsController extends Controller
 
         return redirect()
             ->route($redirectRoute, $slug)
-            ->with('success', 'Rights record created successfully.');
+            ->with('success', __('Rights record created successfully.'));
     }
 }

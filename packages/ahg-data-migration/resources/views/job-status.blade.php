@@ -16,7 +16,7 @@
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="{{ route('data-migration.index') }}">{{ __('Data Migration') }}</a></li>
       <li class="breadcrumb-item"><a href="{{ route('data-migration.jobs') }}">{{ __('Jobs') }}</a></li>
-      <li class="breadcrumb-item active">Job #{{ $job['id'] }}</li>
+      <li class="breadcrumb-item active">{{ __('Job #:id', ['id' => $job['id']]) }}</li>
     </ol>
   </nav>
 
@@ -141,7 +141,7 @@
   @if(!empty($job['error_log']) && count($job['error_log']) > 0)
     <div class="card mb-4">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff">
-        <h5 class="mb-0 text-danger"><i class="fas fa-exclamation-triangle"></i> Error Log ({{ count($job['error_log']) }} errors)</h5>
+        <h5 class="mb-0 text-danger"><i class="fas fa-exclamation-triangle"></i> {{ __('Error Log (:count errors)', ['count' => count($job['error_log'])]) }}</h5>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">

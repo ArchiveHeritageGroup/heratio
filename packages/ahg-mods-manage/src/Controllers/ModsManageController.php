@@ -108,7 +108,7 @@ class ModsManageController extends Controller
             \AhgCustomFields\Services\CustomFieldService::saveFromRequest((int) $io->id, $request); // heratio#1530
 
             return redirect()->route('ahgmodsmanage.edit', ['slug' => $slug])
-                ->with('success', 'Description saved (MODS).');
+                ->with('success', __('Description saved (MODS).'));
         }
 
         // ── GET: load related data for the form ──

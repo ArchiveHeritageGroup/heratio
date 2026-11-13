@@ -95,7 +95,7 @@
 
     <div class="alert alert-info">
         <i class="fas fa-info-circle me-2"></i>
-        For bulk exports, use the command line tools: <code>php artisan export:bulk</code>
+        {{ __('For bulk exports, use the command line tools:') }} <code>php artisan export:bulk</code>
     </div>
 </div>
 @endsection

@@ -21,7 +21,7 @@ $editSlideData = isset($editSlide) && $editSlide ? (array)$editSlide : null;
           @if($editSlideData)<input type="hidden" name="slide_id" value="{{ $editSlideData['id'] }}">@endif
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">Hero Image {{ $editSlideData ? '' : '' }} <span class="badge bg-{{ $editSlideData ? 'secondary' : 'danger' }} ms-1">{{ $editSlideData ? 'Optional' : 'Required' }}</span></label>
+              <label class="form-label">{{ __('Hero Image') }} {{ $editSlideData ? '' : '' }} <span class="badge bg-{{ $editSlideData ? 'secondary' : 'danger' }} ms-1">{{ $editSlideData ? __('Optional') : __('Required') }}</span></label>
               @if($editSlideData && !empty($editSlideData['image_path']))<div class="mb-2"><img src="{{ $editSlideData['image_path'] }}" class="img-thumbnail" style="max-height:100px"><br><small class="text-muted">{{ __('Current image') }}</small></div>@endif
               <input type="file" class="form-control mb-2" name="hero_image" accept="image/jpeg,image/png,image/webp,image/gif">
               <div class="form-text">{{ __('Upload JPG, PNG, WebP, or GIF. Max 10MB. Recommended: 1920x1080px.') }}</div>
@@ -72,7 +72,7 @@ $editSlideData = isset($editSlide) && $editSlide ? (array)$editSlide : null;
     <div class="card border-0 shadow-sm">
       <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--ahg-primary);color:#fff">
         <h2 class="h5 mb-0">{{ __('Current Hero Slides') }}</h2>
-        <span class="badge bg-secondary">{{ count($slidesArray) }} slides</span>
+        <span class="badge bg-secondary">{{ __(':count slides', ['count' => count($slidesArray)]) }}</span>
       </div>
       <div class="card-body">
         @if(empty($slidesArray))

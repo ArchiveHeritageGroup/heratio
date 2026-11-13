@@ -17,7 +17,7 @@
 @endsection
 @section('title-block')<h1><i class="fas fa-camera me-2"></i>{{ __('IPTC Data Report') }}</h1>@endsection
 @section('content')
-<div class="alert alert-info"><strong>{{ count($rows) }}</strong> records with IPTC data</div>
+<div class="alert alert-info"><strong>{{ count($rows) }}</strong> {{ __('records with IPTC data') }}</div>
 <div class="table-responsive">
   <table class="table table-striped table-hover">
     <thead class="table-dark"><tr><th>{{ __('File') }}</th><th>{{ __('Property') }}</th><th>{{ __('Value') }}</th></tr></thead>

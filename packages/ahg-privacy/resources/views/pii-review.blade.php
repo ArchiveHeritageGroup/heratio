@@ -154,15 +154,15 @@ $typeBadges = [
             <div class="row">
                 <div class="col-md-4">
                     <span class="badge bg-success me-2"><i class="fas fa-check"></i></span>
-                    <strong>{{ __('Approve') }}</strong> - Not sensitive PII, can remain visible
+                    <strong>{{ __('Approve') }}</strong> {{ __('- Not sensitive PII, can remain visible') }}
                 </div>
                 <div class="col-md-4">
                     <span class="badge bg-warning text-dark me-2"><i class="fas fa-eraser"></i></span>
-                    <strong>{{ __('Redact') }}</strong> - Is PII, should be masked/restricted in metadata and PDFs
+                    <strong>{{ __('Redact') }}</strong> {{ __('- Is PII, should be masked/restricted in metadata and PDFs') }}
                 </div>
                 <div class="col-md-4">
                     <span class="badge bg-danger me-2"><i class="fas fa-times"></i></span>
-                    <strong>{{ __('Reject') }}</strong> - False positive, not actually PII
+                    <strong>{{ __('Reject') }}</strong> {{ __('- False positive, not actually PII') }}
                 </div>
             </div>
         </div>

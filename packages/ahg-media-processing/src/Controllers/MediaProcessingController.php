@@ -120,7 +120,7 @@ class MediaProcessingController extends Controller
         }
         if (! empty($result['errors'])) {
             return redirect()->route('media-processing.index')
-                ->with('error', 'Derivative generation errors: '.implode(' ', $result['errors']));
+                ->with('error', __('Derivative generation errors: :errors', ['errors' => implode(' ', $result['errors'])]));
         }
 
         return redirect()->route('media-processing.index')
@@ -242,7 +242,7 @@ class MediaProcessingController extends Controller
         }
 
         return redirect()->route('media-processing.index')
-            ->with('success', 'Media processing settings saved successfully.');
+            ->with('success', __('Media processing settings saved successfully.'));
     }
 
     /**
@@ -273,7 +273,7 @@ class MediaProcessingController extends Controller
         }
 
         return redirect()->route('media-processing.index')
-            ->with('success', 'Digital object derivative settings saved.');
+            ->with('success', __('Digital object derivative settings saved.'));
     }
 
     /**
@@ -307,7 +307,7 @@ class MediaProcessingController extends Controller
             ->delete();
 
         return redirect()->route('media-processing.queue')
-            ->with('success', 'Queue cleared.');
+            ->with('success', __('Queue cleared.'));
     }
 
     /**
@@ -442,11 +442,11 @@ class MediaProcessingController extends Controller
 
             if ($result === false) {
                 return redirect()->route('media-processing.watermark-settings')
-                    ->with('error', 'Failed to upload custom watermark. Only PNG, JPEG, and GIF files are allowed.');
+                    ->with('error', __('Failed to upload custom watermark. Only PNG, JPEG, and GIF files are allowed.'));
             }
 
             return redirect()->route('media-processing.watermark-settings')
-                ->with('success', 'Custom watermark uploaded successfully.');
+                ->with('success', __('Custom watermark uploaded successfully.'));
         }
 
         // Handle delete custom watermark
@@ -454,7 +454,7 @@ class MediaProcessingController extends Controller
             $this->watermarkService->deleteCustomWatermark((int) $request->input('delete_custom_watermark'));
 
             return redirect()->route('media-processing.watermark-settings')
-                ->with('success', 'Custom watermark deleted.');
+                ->with('success', __('Custom watermark deleted.'));
         }
 
         // Save global settings
@@ -482,6 +482,6 @@ class MediaProcessingController extends Controller
         $this->watermarkService->updateCantaloupeCache();
 
         return redirect()->route('media-processing.watermark-settings')
-            ->with('success', 'Watermark settings saved successfully.');
+            ->with('success', __('Watermark settings saved successfully.'));
     }
 }

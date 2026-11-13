@@ -348,7 +348,7 @@ class ResearcherSubmissionController extends Controller
 
         return redirect()->route('researcher.import')
             ->with('import_result', $result)
-            ->with('success', 'Exchange file imported successfully. A draft submission has been created.');
+            ->with('success', __('Exchange file imported successfully. A draft submission has been created.'));
     }
 
     // =========================================================================

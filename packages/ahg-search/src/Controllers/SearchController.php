@@ -684,7 +684,7 @@ class SearchController extends Controller
             }
 
             return redirect()->route('search.globalReplace')
-                ->with('success', "Successfully replaced {$updatedCount} record(s). Column: {$columns[$column]}.");
+                ->with('success', __('Successfully replaced :count record(s). Column: :column.', ['count' => $updatedCount, 'column' => $columns[$column]]));
         }
 
         // Preview mode - show affected records with snippets

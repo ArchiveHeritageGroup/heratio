@@ -76,7 +76,7 @@
                 <div class="modal-body">
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
-                        {{ __('POPIA requires response within') }} <strong>30 days</strong>. Deadline will be calculated automatically.
+                        {{ __('POPIA requires response within') }} <strong>{{ __('30 days') }}</strong>{{ __('. Deadline will be calculated automatically.') }}
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -109,7 +109,7 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label">{{ __('ID Verification Type') }}</label>
                             <select name="data_subject_id_type" class="form-select">
-                                <option value="">-- Select --</option>
+                                <option value="">{{ __('-- Select --') }}</option>
                                 <option value="id_document">{{ __('ID Document') }}</option>
                                 <option value="passport">{{ __('Passport') }}</option>
                                 <option value="drivers_license">{{ __("Driver's License") }}</option>

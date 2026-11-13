@@ -4,7 +4,7 @@
 @section('content')
 
   <div id="preview-message" class="mb-3 d-print-none">
-    Print preview
+    {{ __('Print preview') }}
     @if(isset($storage))
       <a href="{{ route('physicalobject.show', $storage->slug) }}">{{ __('Close') }}</a>
     @else

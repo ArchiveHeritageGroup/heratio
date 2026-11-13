@@ -14,7 +14,7 @@
     </dl></div><div class="col-md-6"><dl>
       <dt>{{ __('Fire Detection') }}</dt><dd>{{ ($report->fire_detection ?? false) ? 'Yes' : 'No' }}</dd>
       <dt>{{ __('Climate Control') }}</dt><dd>{{ ($report->climate_controlled ?? false) ? 'Yes' : 'No' }}</dd>
-      <dt>24hr Security</dt><dd>{{ ($report->security_24hr ?? false) ? 'Yes' : 'No' }}</dd>
+      <dt>{{ __('24hr Security') }}</dt><dd>{{ ($report->security_24hr ?? false) ? 'Yes' : 'No' }}</dd>
       <dt>{{ __('Trained Handlers') }}</dt><dd>{{ ($report->trained_handlers ?? false) ? 'Yes' : 'No' }}</dd>
     </dl></div></div>
     @if($report->notes ?? null)<h6>{{ __('Notes') }}</h6><p>{{ $report->notes }}</p>@endif

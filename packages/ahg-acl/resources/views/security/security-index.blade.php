@@ -104,7 +104,7 @@
                         <span class="badge bg-{{ $levelClass }} fs-6">
                           {{ e($user->classification_name) }}
                         </span>
-                        <br><small class="text-muted">Level {{ $user->classification_level }}</small>
+                        <br><small class="text-muted">{{ __('Level :level', ['level' => $user->classification_level]) }}</small>
                       @else
                         <span class="badge bg-secondary">{{ __('No Clearance') }}</span>
                       @endif
@@ -184,10 +184,10 @@
           <div class="mb-3">
             <label for="grantClassification" class="form-label">{{ __('Clearance Level') }}</label>
             <select class="form-select" name="classification_id" id="grantClassification" required>
-              <option value="0">-- Revoke Clearance --</option>
+              <option value="0">{{ __('-- Revoke Clearance --') }}</option>
               @foreach($classifications ?? [] as $c)
                 <option value="{{ $c->id }}">
-                  {{ e($c->name) }} (Level {{ $c->level }})
+                  {{ __(':name (Level :level)', ['name' => $c->name, 'level' => $c->level]) }}
                 </option>
               @endforeach
             </select>
@@ -231,7 +231,7 @@
             {{ __('Select users in the table, then choose a clearance level to grant to all selected users.') }}
           </div>
 
-          <p><strong id="selectedCount">0</strong> users selected</p>
+          <p><strong id="selectedCount">0</strong> {{ __('users selected') }}</p>
           <div id="selectedUsersContainer"></div>
 
           <div class="mb-3">
@@ -239,7 +239,7 @@
             <select class="form-select" name="classification_id" id="bulkClassification" required>
               @foreach($classifications ?? [] as $c)
                 <option value="{{ $c->id }}">
-                  {{ e($c->name) }} (Level {{ $c->level }})
+                  {{ __(':name (Level :level)', ['name' => $c->name, 'level' => $c->level]) }}
                 </option>
               @endforeach
             </select>

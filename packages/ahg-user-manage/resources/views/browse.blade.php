@@ -47,10 +47,10 @@
                   <span class="text-muted small">({{ __('no profile page') }})</span>
                 @endif
                 @if(!($doc['active'] ?? true))
-                  (inactive)
+                  {{ __('(inactive)') }}
                 @endif
                 @if(isset($currentUserId) && $doc['id'] == $currentUserId)
-                  (you)
+                  {{ __('(you)') }}
                 @endif
               </td>
               <td>{{ $doc['email'] ?? '' }}</td>

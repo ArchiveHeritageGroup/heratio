@@ -19,7 +19,7 @@
     <div>
       <h1 class="h3 mb-0">{{ __('Review Publication Request') }}</h1>
       <p class="text-muted mb-0">
-        Submitted: {{ $record->created_at ? \Carbon\Carbon::parse($record->created_at)->format('d M Y H:i') : '' }}
+        {{ __('Submitted: :value1', ['value1' => $record->created_at ? \Carbon\Carbon::parse($record->created_at)->format('d M Y H:i') : '']) }}
       </p>
     </div>
   </div>
@@ -96,10 +96,10 @@
                     </a>
                   </h6>
                   @if(!empty($record->object_identifier))
-                    <small class="text-muted">Identifier: {{ $record->object_identifier }}</small>
+                    <small class="text-muted">{{ __('Identifier: :value1', ['value1' => $record->object_identifier]) }}</small>
                   @endif
                 @else
-                  <span class="text-muted">Object #{{ $record->object_id }}</span>
+                  <span class="text-muted">{{ __('Object #:value1', ['value1' => $record->object_id]) }}</span>
                 @endif
               </div>
               @if(!empty($record->object_slug))

@@ -29,7 +29,7 @@
             <div class="mb-3">
               <label for="work_id" class="form-label">{{ __('Bibliographic Work') }}</label>
               <select name="work_id" id="work_id" class="form-select" required>
-                <option value="">-- Select a work --</option>
+                <option value="">{{ __('-- Select a work --') }}</option>
                 @foreach($works as $work)
                   <option value="{{ $work->id }}"
                     {{ old('work_id') == $work->id ? 'selected' : '' }}>
@@ -88,7 +88,7 @@
           </dl>
           <hr>
           <p class="mb-0 text-muted">
-            Heratio maps Expression/Manifestation to <code>library_item</code> and Item to <code>library_copy</code>.
+            {{ __('Heratio maps Expression/Manifestation to') }} <code>library_item</code> {{ __('and Item to') }} <code>library_copy</code>.
           </p>
         </div>
       </div>

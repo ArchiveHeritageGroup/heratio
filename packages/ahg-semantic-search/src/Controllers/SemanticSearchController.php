@@ -57,7 +57,7 @@ class SemanticSearchController extends Controller
                 $this->service->setConfig($key, $value);
             }
 
-            return redirect()->route('semantic-search.config')->with('notice', 'Configuration saved');
+            return redirect()->route('semantic-search.config')->with('notice', __('Configuration saved'));
         }
 
         $config = $this->service->getAllConfig();
@@ -84,7 +84,7 @@ class SemanticSearchController extends Controller
                 'source', 'language', 'is_active',
             ]));
 
-            return redirect()->route('semantic-search.terms')->with('notice', 'Term added');
+            return redirect()->route('semantic-search.terms')->with('notice', __('Term added'));
         }
 
         // #1355 - the Domain / Relationship controlled vocabularies live in
@@ -192,7 +192,7 @@ class SemanticSearchController extends Controller
                 $id = $this->service->createTemplate($data);
             }
 
-            return redirect()->route('semantic-search.admin.templates')->with('notice', 'Template saved');
+            return redirect()->route('semantic-search.admin.templates')->with('notice', __('Template saved'));
         }
 
         return view('ahg-semantic-search::admin-template-edit', compact('template', 'isNew'));
@@ -225,22 +225,22 @@ class SemanticSearchController extends Controller
             $id = (int) $request->get('id');
             $this->service->deleteTerm($id);
 
-            return redirect()->route('semantic-search.terms')->with('notice', 'Term deleted.');
+            return redirect()->route('semantic-search.terms')->with('notice', __('Term deleted.'));
         }
 
         if ($action === 'sync') {
             $this->service->syncTerms();
 
-            return redirect()->route('semantic-search.index')->with('notice', 'Terms synced.');
+            return redirect()->route('semantic-search.index')->with('notice', __('Terms synced.'));
         }
 
         if ($action === 'clear_history') {
             $this->service->clearSearchHistory(auth()->id());
 
-            return redirect()->route('semantic-search.history')->with('notice', 'Search history cleared.');
+            return redirect()->route('semantic-search.history')->with('notice', __('Search history cleared.'));
         }
 
-        return redirect()->back()->with('error', 'Invalid action.');
+        return redirect()->back()->with('error', __('Invalid action.'));
     }
 
     /**

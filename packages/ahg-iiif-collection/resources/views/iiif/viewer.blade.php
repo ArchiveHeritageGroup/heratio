@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ ahg_html_lang() }}">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>IIIF Viewer - {{ $objectTitle ?? '' }}</title>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>{{ __('IIIF Viewer - :title', ['title' => $objectTitle ?? '']) }}</title>
 <style>html, body { margin: 0; padding: 0; height: 100%; } #mirador-mount, #uv { position: relative; width: 100%; height: calc(100vh - 120px); background: #1a1a1a; }</style>
 @if(($viewer ?? 'mirador') === 'uv')
 {{-- #1540: Universal Viewer 4, pinned. jsDelivr is already allowed by the CSP for script, style and connect. --}}

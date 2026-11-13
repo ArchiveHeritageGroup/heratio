@@ -82,7 +82,7 @@ class IpsasController extends Controller
                 'valuation_basis', 'current_value', 'condition_rating',
             ]) + ['user_id' => auth()->id()]);
 
-            return redirect()->route('ipsas.asset.view', $id)->with('notice', 'Asset registered');
+            return redirect()->route('ipsas.asset.view', $id)->with('notice', __('Asset registered'));
         }
 
         return view('ahg-ipsas::asset-create', compact('categories'));
@@ -112,7 +112,7 @@ class IpsasController extends Controller
                 'condition_rating', 'risk_level', 'risk_notes',
             ]), auth()->id());
 
-            return redirect()->route('ipsas.asset.view', $id)->with('notice', 'Asset updated');
+            return redirect()->route('ipsas.asset.view', $id)->with('notice', __('Asset updated'));
         }
 
         return view('ahg-ipsas::asset-edit', compact('asset', 'categories'));
@@ -143,7 +143,7 @@ class IpsasController extends Controller
                 'documentation_ref', 'notes',
             ]) + ['user_id' => auth()->id()]);
 
-            return redirect()->route('ipsas.asset.view', $request->get('asset_id'))->with('notice', 'Valuation recorded');
+            return redirect()->route('ipsas.asset.view', $request->get('asset_id'))->with('notice', __('Valuation recorded'));
         }
 
         return view('ahg-ipsas::valuation-create', compact('asset'));
@@ -205,7 +205,7 @@ class IpsasController extends Controller
                 }
             }
 
-            return redirect()->route('ipsas.config')->with('notice', 'Configuration saved');
+            return redirect()->route('ipsas.config')->with('notice', __('Configuration saved'));
         }
 
         $config = $this->service->getAllConfig();
@@ -235,17 +235,17 @@ class IpsasController extends Controller
             $id = (int) $request->get('id');
             $this->service->deleteAsset($id);
 
-            return redirect()->route('ipsas.assets')->with('notice', 'Asset deleted.');
+            return redirect()->route('ipsas.assets')->with('notice', __('Asset deleted.'));
         }
 
         if ($action === 'recalculate') {
             $year = $request->get('year', date('Y'));
             $this->service->calculateFinancialYearSummary($year);
 
-            return redirect()->route('ipsas.financialYear', ['year' => $year])->with('notice', 'Financial year recalculated.');
+            return redirect()->route('ipsas.financialYear', ['year' => $year])->with('notice', __('Financial year recalculated.'));
         }
 
-        return redirect()->back()->with('error', 'Invalid action.');
+        return redirect()->back()->with('error', __('Invalid action.'));
     }
 
     protected function generateReport(string $report, string $year)

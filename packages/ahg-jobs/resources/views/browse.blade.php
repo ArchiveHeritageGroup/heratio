@@ -197,7 +197,7 @@
             {{-- Pagination Info --}}
             <div class="mt-3">
                 <small class="text-muted">
-                    Showing {{ count($pager->items()) }} of {{ $total }} jobs
+                    {{ __('Showing :value1 of :value2 jobs', ['value1' => count($pager->items()), 'value2' => $total]) }}
                 </small>
             </div>
         </div>

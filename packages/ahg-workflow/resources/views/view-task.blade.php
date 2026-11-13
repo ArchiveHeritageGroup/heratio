@@ -1,11 +1,11 @@
 @extends('theme::layouts.1col')
 
-@section('title', 'Task: ' . $task->step_name)
+@section('title', __('Task: :step', ['step' => $task->step_name]))
 @section('body-class', 'admin workflow')
 
 @section('content')
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="mb-0"><i class="fas fa-clipboard-check"></i> Task #{{ $task->id }}: {{ $task->step_name }}</h1>
+    <h1 class="mb-0"><i class="fas fa-clipboard-check"></i> {{ __('Task #:id: :step', ['id' => $task->id, 'step' => $task->step_name]) }}</h1>
     <div>
       <a href="{{ route('workflow.task.diagram', $task->id) }}" class="btn btn-outline-info"><i class="fas fa-project-diagram me-1"></i>{{ __('Progress diagram') }}</a>
       <a href="{{ route('workflow.my-tasks') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left"></i> {{ __('My Tasks') }}</a>
@@ -92,7 +92,7 @@
                   <td>
                     @if($task->due_date)
                       @if($task->due_date < now()->toDateString() && $task->status !== 'completed')
-                        <span class="text-danger fw-bold"><i class="fas fa-exclamation-circle"></i> {{ $task->due_date }} (Overdue)</span>
+                        <span class="text-danger fw-bold"><i class="fas fa-exclamation-circle"></i> {{ __(':date (:status)', ['date' => $task->due_date, 'status' => __('Overdue')]) }}</span>
                       @else
                         {{ $task->due_date }}
                       @endif
