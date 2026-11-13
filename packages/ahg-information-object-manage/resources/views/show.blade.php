@@ -36,7 +36,9 @@
   @include('ahg-menu-manage::_static-pages-menu')
 
   {{-- Dynamic treeview hierarchy --}}
-  @include('ahg-io-manage::partials._treeview', ['io' => $io])
+  @if(\AhgCore\Support\GlobalSettings::treeviewType() !== 'full')
+    @include('ahg-io-manage::partials._treeview', ['io' => $io])
+  @endif
 
   {{-- Quick search within this collection --}}
   <div class="card mb-3">
@@ -434,6 +436,9 @@
 {{-- BEFORE CONTENT: Digital object reference image               --}}
 {{-- ============================================================ --}}
 @section('before-content')
+  @if(\AhgCore\Support\GlobalSettings::treeviewType() === 'full')
+    @include('ahg-io-manage::partials._treeview', ['io' => $io])
+  @endif
   @include('ahg-information-object-manage::partials._redaction-overlay')
   @include('ahg-information-object-manage::partials._digital-object-viewer')
   {{-- #1447 - additional digital objects attached to this description (gallery + attach form) --}}

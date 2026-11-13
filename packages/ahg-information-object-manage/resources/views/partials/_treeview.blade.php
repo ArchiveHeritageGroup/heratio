@@ -33,20 +33,47 @@
 
 @switch($__treeviewType)
   @case('full')
-    <div class="mb-3" id="treeview-card">
-      <h5 class="mb-2 fw-bold d-flex justify-content-between align-items-center">
-        <span><i class="fas fa-sitemap me-1"></i> {{ __('Hierarchy') }}</span>
-        <button class="btn btn-sm btn-link p-0 text-muted" id="treeview-refresh" title="{{ __('Refresh') }}">
-          <i class="fas fa-sync-alt"></i>
-        </button>
-      </h5>
+    @php
+      $__collapseFullWidthTreeview = \AhgCore\Services\SettingHelper::get('allow_full_width_treeview_collapse', '0') === '1';
+    @endphp
+    @if($__collapseFullWidthTreeview)
+      <div class="accordion mb-3" id="treeview-card">
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#treeview-full-width-body" aria-expanded="false" aria-controls="treeview-full-width-body">
+              <i class="fas fa-sitemap me-2"></i> {{ __('Hierarchy') }}
+            </button>
+          </h2>
+          <div id="treeview-full-width-body" class="accordion-collapse collapse">
+            <div class="accordion-body p-2">
+              <div class="d-flex justify-content-end mb-2">
+                <button class="btn btn-sm btn-link p-0 text-muted" id="treeview-refresh" title="{{ __('Refresh') }}">
+                  <i class="fas fa-sync-alt"></i>
+                </button>
+              </div>
+    @else
+      <div class="mb-3" id="treeview-card">
+        <h5 class="mb-2 fw-bold d-flex justify-content-between align-items-center">
+          <span><i class="fas fa-sitemap me-1"></i> {{ __('Hierarchy') }}</span>
+          <button class="btn btn-sm btn-link p-0 text-muted" id="treeview-refresh" title="{{ __('Refresh') }}">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+        </h5>
+    @endif
       <div class="border rounded p-2" id="treeview-container" style="min-height:200px;">
         <div class="text-center py-3 text-muted" id="treeview-loading">
           <i class="fas fa-spinner fa-spin me-1"></i> {{ __('Loading hierarchy...') }}
         </div>
         <ul class="list-unstyled ps-0 mb-0" id="treeview-tree" style="display:none; column-count: 2; column-gap: 1.5rem;"></ul>
       </div>
-    </div>
+    @if($__collapseFullWidthTreeview)
+            </div>
+          </div>
+        </div>
+      </div>
+    @else
+      </div>
+    @endif
     @break
 
   @case('accordion')
