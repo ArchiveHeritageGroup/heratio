@@ -325,6 +325,9 @@ class IcipController extends Controller
                 'pendingConsultations' => [],
                 'expiringConsents' => [],
                 'recentConsultations' => [],
+                'statusOptions' => self::CONSENT_STATUSES,
+                'consultationTypes' => self::CONSULTATION_TYPES,
+                'consultationStatuses' => self::CONSULTATION_STATUSES,
                 'tablesExist' => false,
             ]);
         }
@@ -345,6 +348,9 @@ class IcipController extends Controller
             'pendingConsultations' => $pendingConsultations,
             'expiringConsents' => $expiringConsents,
             'recentConsultations' => $recentConsultations,
+            'statusOptions' => self::CONSENT_STATUSES,
+            'consultationTypes' => self::CONSULTATION_TYPES,
+            'consultationStatuses' => self::CONSULTATION_STATUSES,
             'tablesExist' => true,
         ]);
     }
