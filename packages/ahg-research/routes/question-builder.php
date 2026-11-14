@@ -20,7 +20,7 @@
 use AhgResearch\Controllers\QuestionBuilderController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('research')->name('research.')->middleware('auth')->group(function () {
+Route::prefix('research')->name('research.')->middleware(['web', 'auth'])->group(function () {
 
     // heratio#1226 - Research OS #4: Question Builder (per-project, versioned brief).
     Route::prefix('question-builder')->name('question.')->group(function () {

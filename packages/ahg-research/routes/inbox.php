@@ -19,7 +19,7 @@
 use AhgResearch\Controllers\InboxController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('research')->name('research.')->middleware('auth')->group(function () {
+Route::prefix('research')->name('research.')->middleware(['web', 'auth'])->group(function () {
     Route::prefix('inbox')->name('inbox.')->group(function () {
         // List + filter the current researcher's inbox.
         Route::get('/', [InboxController::class, 'index'])->name('index');
