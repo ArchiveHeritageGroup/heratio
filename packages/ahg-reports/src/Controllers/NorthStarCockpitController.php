@@ -80,7 +80,7 @@ class NorthStarCockpitController extends Controller
                         'On-demand translation of a record into the visitor\'s preferred language.',
                         'translate',
                         'record.translate',
-                        ['route_param' => ['slug' => '_sample_']]
+                        ['route_param' => ['idOrSlug' => '_sample_']]
                     ),
                     $this->card(
                         'discoveries',
@@ -208,33 +208,6 @@ class NorthStarCockpitController extends Controller
     }
 
 
-    /**
-     * Resolve the public "Open" link for a card, preferring the primary
-     * route and falling back to an alternate. Returns null (no link)
-     * whenever neither route is registered, so the card still renders.
-     *
-     * @param  array<string,mixed>  $card
-     */
-    private function resolveUrl(array $card): ?string
-    {
-        foreach ([$card['route'], $card['fallback_route']] as $name) {
-            if (! $name) {
-                continue;
-            }
-
-            try {
-                if (Route::has($name)) {
-                    return route($name, $card['route_param'] ?? []);
-                }
-            } catch (\Throwable $e) {
-                // URL generation can fail (e.g. a required parameter we
-                // cannot satisfy with a sample value). Skip silently and
-                // let the card render without a live link.
-            }
-        }
-
-        return null;
-    }
 
 
 }

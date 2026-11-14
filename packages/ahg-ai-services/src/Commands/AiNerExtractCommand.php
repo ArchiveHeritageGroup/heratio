@@ -72,6 +72,16 @@ class AiNerExtractCommand extends Command
                     ->from('ahg_ner_entity')
                     ->whereColumn('ahg_ner_entity.object_id', 'io.id');
             });
+            // A completed scan that found nothing leaves no entity rows, so the
+            // check above alone re-picked those records every night and logged a
+            // fresh inference each time (74 identical runs on one demo record).
+            // The ledger's 'completed' row is what says it was scanned.
+            $query->whereNotExists(function ($sub) {
+                $sub->select(DB::raw(1))
+                    ->from('ahg_ner_extraction')
+                    ->whereColumn('ahg_ner_extraction.object_id', 'io.id')
+                    ->where('ahg_ner_extraction.status', 'completed');
+            });
         }
 
         if ($limit > 0) {

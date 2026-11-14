@@ -8,6 +8,7 @@
 namespace AhgReports\Controllers\Concerns;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -35,9 +36,86 @@ trait BuildsReportCards
             'route_param'    => $opts['route_param'] ?? [],
             'metric_table'   => $opts['metric_table'] ?? null,
             'metric_label'   => $opts['metric_label'] ?? null,
+            // [table, record-id column] the '_sample_' record must have a row in.
+            'sample_from'    => $opts['sample_from'] ?? null,
             'url'            => null,
             'metric'         => null,
         ];
+    }
+
+    /**
+     * Resolve the live link for a card, preferring the primary route and
+     * falling back to an alternate. Returns null (no link) whenever neither
+     * route is registered, so the card still renders as "Not configured".
+     * A '_sample_' route parameter becomes the slug of a real published record
+     * (one with a row in the card's sample_from table when it names one):
+     * '_sample_' itself is no record, so every per-record card opened a 404.
+     */
+    private function resolveUrl(array $card): ?string
+    {
+        $params = $card['route_param'] ?? [];
+        foreach ($params as $k => $v) {
+            if ($v === '_sample_') {
+                $slug = $this->sampleSlug($card['sample_from'] ?? null);
+                if ($slug === null) {
+                    return null;
+                }
+                $params[$k] = $slug;
+            }
+        }
+
+        foreach ([$card['route'], $card['fallback_route']] as $name) {
+            if (! $name) {
+                continue;
+            }
+
+            try {
+                if (Route::has($name)) {
+                    return route($name, $params);
+                }
+            } catch (\Throwable $e) {
+                // URL generation can fail (a required parameter we cannot
+                // satisfy). Skip silently; the card renders without a link.
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Slug of a published record: the one with the most rows in $from when it
+     * names a table, otherwise (or when no published record has any) the first
+     * published record - the per-record pages say plainly when nothing is recorded.
+     */
+    private function sampleSlug(?array $from): ?string
+    {
+        return ($from ? $this->publishedSlug($from) : null) ?? $this->publishedSlug(null);
+    }
+
+    private function publishedSlug(?array $from): ?string
+    {
+        try {
+            $q = DB::table('slug as s')
+                ->join('information_object as io', 'io.id', '=', 's.object_id')
+                ->join('status as st', function ($j) {
+                    $j->on('st.object_id', '=', 'io.id')->where('st.type_id', 158)->where('st.status_id', 160);
+                })
+                ->where('io.id', '!=', 1);
+            if ($from) {
+                [$table, $col] = $from;
+                if (! Schema::hasTable($table)) {
+                    return null;
+                }
+                $q->join($table.' as x', 'x.'.$col, '=', 'io.id')
+                    ->groupBy('s.slug')->orderByRaw('count(*) desc');
+            } else {
+                $q->orderBy('io.id');
+            }
+
+            return $q->value('s.slug');
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     private function resolveMetric(array $card): ?array

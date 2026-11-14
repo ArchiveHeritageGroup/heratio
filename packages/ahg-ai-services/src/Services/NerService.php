@@ -65,6 +65,9 @@ class NerService
      */
     private ?array $modelIdentity = null;
 
+    /** [model, version|null] reported by the last successful API extraction. */
+    private ?array $lastApiModel = null;
+
     /**
      * Raw entities_v2 list from the most recent extract() / extractViaApi() /
      * extractFromPdf() call. Each record is
@@ -169,6 +172,11 @@ class NerService
             $normalised = $this->normalizeApiResult($apiResult);
             $merged = $this->mergeGazetteer($normalised, $gazetteer['buckets']);
             $modelId = (string) ($apiResult['model'] ?? 'ner-gateway');
+            // The model that actually answered, for extractAndRecord(): /health
+            // reports only a version, which recorded every run as model "unknown".
+            if (! empty($apiResult['model'])) {
+                $this->lastApiModel = [(string) $apiResult['model'], isset($apiResult['model_version']) ? (string) $apiResult['model_version'] : null];
+            }
             $this->logInferenceReceipt(
                 'ner',
                 $modelId,
@@ -385,6 +393,7 @@ class NerService
     public function extractAndRecord(string $text, int $informationObjectId, ?int $userId = null, ?int $digitalObjectId = null): array
     {
         $t0 = microtime(true);
+        $this->lastApiModel = null;
         $entities = $this->extract($text, $digitalObjectId);
         $elapsedMs = (int) round((microtime(true) - $t0) * 1000);
 
@@ -394,6 +403,10 @@ class NerService
             $outputJson         = json_encode($entities, JSON_UNESCAPED_UNICODE);
             [$outHash, $outExc] = \AhgProvenanceAi\DTO\InferenceRecord::hashAndExcerpt((string) $outputJson);
             [$model, $version]  = $this->resolveModelIdentity();
+            if ($this->lastApiModel !== null) {
+                $model   = $this->lastApiModel[0];
+                $version = $this->lastApiModel[1] ?? $version;
+            }
 
             $svc->record(new \AhgProvenanceAi\DTO\InferenceRecord(
                 serviceName:      'NER',
