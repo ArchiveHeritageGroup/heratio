@@ -80,12 +80,12 @@
     </div>
 </div>
 
-@if(!empty($errors))
+@if(!empty($importErrors))
 <div class="card mb-3">
-    <div class="card-header bg-danger text-white">{{ __('Errors (:count)', ['count' => count($errors)]) }}</div>
+    <div class="card-header bg-danger text-white">{{ __('Errors (:count)', ['count' => count($importErrors)]) }}</div>
     <div class="card-body">
         <ul class="mb-0">
-            @foreach($errors as $err)
+            @foreach($importErrors as $err)
                 <li class="text-danger">{{ $err }}</li>
             @endforeach
         </ul>

@@ -402,9 +402,11 @@ class FilePlanController extends Controller
             abort(404, 'Import session not found.');
         }
 
-        $errors = $session->errors_json ? json_decode($session->errors_json, true) : [];
+        // Not $errors: that name is Laravel's shared validation bag, and the
+        // layout's alerts partial calls ->any() on it (500 after every import).
+        $importErrors = $session->errors_json ? json_decode($session->errors_json, true) : [];
 
-        return view('ahg-records::fileplan.import-result', compact('session', 'errors'));
+        return view('ahg-records::fileplan.import-result', compact('session', 'importErrors'));
     }
 
     /**
