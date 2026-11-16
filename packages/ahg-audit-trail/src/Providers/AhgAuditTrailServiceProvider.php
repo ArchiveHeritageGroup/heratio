@@ -75,8 +75,13 @@ class AhgAuditTrailServiceProvider extends ServiceProvider
         // the install attempt inside one outer try/catch so a missing table
         // (fresh install before the rest of the bootstrap finishes) can't
         // fault the whole provider - mirrors reference_ci_schema_hastable.md.
+        // Not while the app is down: the demo reset drops these triggers to swap the
+        // tables in, and a boot during that window (scheduler, worker, a leaked web
+        // request) put them straight back - "1435 Trigger in wrong schema" killed the
+        // swap on 22 Oct and 11 Nov 2026. The first boot after `artisan up` installs
+        // anything still missing.
         try {
-            if (Schema::hasTable('ahg_audit_log')) {
+            if (! $this->app->isDownForMaintenance() && Schema::hasTable('ahg_audit_log')) {
                 if (!Schema::hasColumn('ahg_audit_log', 'seq')) {
                     $this->runSqlFile(__DIR__.'/../../database/install-chain.sql');
                 }
