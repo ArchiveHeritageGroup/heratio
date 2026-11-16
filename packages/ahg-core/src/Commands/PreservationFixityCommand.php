@@ -51,12 +51,23 @@ class PreservationFixityCommand extends Command
                 ->pluck('f.digital_object_id');
             $done = 0;
             foreach ($ids as $id) {
-                if (! $svc->generateChecksum((int) $id, (string) $this->option('algorithm'))) {
-                    $this->line("  skipped do={$id} - file not found");
+                // preservation_checksum is unique per (object, algorithm): replace
+                // the stored value in place and keep the old one in the event.
+                $row = \Illuminate\Support\Facades\DB::table('preservation_checksum')->where('digital_object_id', $id)->orderByDesc('generated_at')->first();
+                $do = \Illuminate\Support\Facades\DB::table('digital_object')->where('id', $id)->first();
+                $file = $do ? \AhgCore\Services\DigitalObjectService::resolveDiskPath($do) : null;
+                if (! $row || ! $file || ! is_file($file)) {
+                    $this->line("  skipped do={$id} - no checksum or file not found");
 
                     continue;
                 }
-                $svc->logEvent((int) $id, null, 'fixity_rebaseline', 'Changed file accepted as the new fixity baseline (operator decision)', 'success');
+                $new = hash_file(str_replace('-', '', strtolower($row->algorithm)), $file);
+                \Illuminate\Support\Facades\DB::table('preservation_checksum')->where('id', $row->id)->update([
+                    'checksum_value' => $new, 'file_size' => filesize($file),
+                    'generated_at' => now()->format('Y-m-d H:i:s'), 'verification_status' => 'pending',
+                ]);
+                $svc->logEvent((int) $id, null, 'fixity_rebaseline',
+                    "Changed file accepted as the new fixity baseline (operator decision): {$row->algorithm} {$row->checksum_value} -> {$new}", 'success');
                 $r = $svc->verifyFixity((int) $id);
                 $this->line("  rebaselined do={$id} now ".($r->status ?? '?'));
                 $done++;
