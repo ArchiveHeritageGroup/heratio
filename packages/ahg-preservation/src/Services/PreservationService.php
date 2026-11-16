@@ -92,6 +92,16 @@ class PreservationService
             return null;
         }
 
+        // One baseline per file and algorithm (uk_object_algorithm). A second
+        // call - an ingest retry, the API, a --baseline run - used to die on the
+        // unique key. Return the stored baseline unchanged: replacing it here
+        // would quietly hide a changed file; that is --rebaseline's job.
+        $existing = DB::table('preservation_checksum')
+            ->where('digital_object_id', $digitalObjectId)->where('algorithm', $algorithm)->first();
+        if ($existing) {
+            return $existing;
+        }
+
         // digital_object.path is the web folder (/uploads/r/...), not the file:
         // the shared resolver strips /uploads and adds the name.
         $filePath = \AhgCore\Services\DigitalObjectService::resolveDiskPath($digitalObject);

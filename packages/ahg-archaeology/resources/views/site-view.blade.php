@@ -91,6 +91,21 @@
                    than let a bare coordinate imply precision it may not have. --}}
               <div class="text-warning">{{ __('Positional accuracy not recorded') }}</div>
             @endif
+            {{-- Same vendored Leaflet + OSM tiles as the landing-page map block. --}}
+            <div id="arch-site-map" class="rounded border mt-2" style="height:260px" role="img" aria-label="{{ __('Map of the site location') }}"></div>
+            <link rel="stylesheet" href="{{ asset('vendor/ahg-theme-b5/css/leaflet.min.css') }}" />
+            <script src="{{ asset('vendor/ahg-theme-b5/js/leaflet.min.js') }}"></script>
+            <script nonce="{{ csp_nonce() }}">
+            (function () {
+              var ll = [{{ (float) $site->latitude }}, {{ (float) $site->longitude }}];
+              var map = L.map('arch-site-map').setView(ll, 13);
+              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
+              L.marker(ll).addTo(map).bindPopup(@json($site->site_number ?? ''));
+              @if($site->spatial_accuracy_m)
+                L.circle(ll, { radius: {{ (float) $site->spatial_accuracy_m }} }).addTo(map);
+              @endif
+            })();
+            </script>
           @else
             <span class="text-muted">{{ __('No coordinates recorded.') }}</span>
           @endif
