@@ -252,6 +252,12 @@ class PreservationService
     // because there is no digital_object with id 0.
     public function logEvent(?int $digitalObjectId, ?int $ioId, string $type, string $detail, string $outcome): int
     {
+        // A digital object can outlive its description (orphaned object_id); the
+        // event still belongs on the object, so drop only the dead record link
+        // rather than fail the FK and abort a whole sweep (#1733).
+        if ($ioId && ! DB::table('information_object')->where('id', $ioId)->exists()) {
+            $ioId = null;
+        }
         $newId = DB::table('preservation_event')->insertGetId([
             'digital_object_id'    => $digitalObjectId,
             'information_object_id'=> $ioId,

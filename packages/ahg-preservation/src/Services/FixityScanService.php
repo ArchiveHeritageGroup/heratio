@@ -227,12 +227,17 @@ class FixityScanService
 
         if (Schema::hasTable('preservation_virus_scan')) {
             try {
+                // Column names per install.sql (scan_engine / engine_version /
+                // threat_name); the old 'scanner' / 'threats_found' never existed,
+                // so every row failed silently into the catch below (#1733).
                 DB::table('preservation_virus_scan')->insert([
                     'digital_object_id' => $doId,
-                    'scanner'           => substr((string) ($scan['scanner_version'] ?? 'unknown'), 0, 128),
+                    'scan_engine'       => 'ClamAV',
+                    'engine_version'    => substr((string) ($scan['scanner_version'] ?? ''), 0, 50) ?: null,
                     'scanned_at'        => now()->format('Y-m-d H:i:s'),
+                    'scanned_by'        => 'preservation:scan',
                     'status'            => ($scan['clean'] ?? false) ? 'clean' : 'infected',
-                    'threats_found'     => ! empty($scan['threats']) ? json_encode($scan['threats']) : null,
+                    'threat_name'       => ! empty($scan['threats']) ? mb_substr(implode(', ', $scan['threats']), 0, 255) : null,
                     'created_at'        => now()->format('Y-m-d H:i:s'),
                 ]);
             } catch (Throwable $e) {

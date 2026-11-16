@@ -64,8 +64,9 @@ class PreservationVirusScanCommand extends Command
             $svc->logEvent((int) $r->id, null, 'virus_scan', trim((string) $out), $ok ? 'clean' : 'infected');
             // The dashboard and Virus Scans page count preservation_virus_scan, not events.
             DB::table('preservation_virus_scan')->insert([
-                'digital_object_id' => (int) $r->id, 'scanner' => 'ClamAV', 'scanned_at' => now(),
-                'status' => $ok ? 'clean' : 'infected', 'threats_found' => $ok ? null : json_encode([trim((string) $out)]), 'created_at' => now(),
+                'digital_object_id' => (int) $r->id, 'scan_engine' => 'ClamAV', 'file_path' => $full,
+                'file_size' => @filesize($full) ?: null, 'scanned_at' => now(), 'scanned_by' => 'ahg:preservation-virus-scan',
+                'status' => $ok ? 'clean' : 'infected', 'threat_name' => $ok ? null : mb_substr(trim((string) $out), 0, 255), 'created_at' => now(),
             ]);
             $ok ? $clean++ : $infected++;
             if (! $ok) {
