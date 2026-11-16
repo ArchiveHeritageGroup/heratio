@@ -37,8 +37,10 @@
   // Map a result key to a Bootstrap colour band + icon.
   $resultMeta = function (string $r): array {
       return match ($r) {
-          'match'            => ['badge' => 'bg-success',  'icon' => 'fa-circle-check',        'label' => __('Match')],
-          'mismatch'         => ['badge' => 'bg-danger',   'icon' => 'fa-triangle-exclamation','label' => __('Mismatch')],
+          // preservation_fixity_check stores pass / fail; the other keys are kept
+          // for older result stores.
+          'pass', 'match'    => ['badge' => 'bg-success',  'icon' => 'fa-circle-check',        'label' => __('Match')],
+          'fail', 'mismatch' => ['badge' => 'bg-danger',   'icon' => 'fa-triangle-exclamation','label' => __('Mismatch')],
           'missing_file'     => ['badge' => 'bg-warning text-dark', 'icon' => 'fa-file-circle-xmark', 'label' => __('Missing file')],
           'no_baseline'      => ['badge' => 'bg-secondary','icon' => 'fa-circle-question',     'label' => __('No baseline')],
           'skipped_oversize' => ['badge' => 'bg-info text-dark', 'icon' => 'fa-forward',       'label' => __('Skipped (oversize)')],

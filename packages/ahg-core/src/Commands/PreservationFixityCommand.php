@@ -56,11 +56,13 @@ class PreservationFixityCommand extends Command
         $fail = 0;
         foreach ($stale as $row) {
             $r = $svc->verifyFixity((int) $row->digital_object_id);
-            if ($r && ($r->status ?? '') === 'verified') {
+            // verifyFixity() records 'pass' / 'fail' (never 'verified'), so every
+            // good file used to be reported as a failure.
+            if ($r && ($r->status ?? '') === 'pass') {
                 $ok++;
             } else {
                 $fail++;
-                $this->line("  fail do={$row->digital_object_id}");
+                $this->line('  '.($r ? 'mismatch' : 'no checksum')." do={$row->digital_object_id}".($r && $r->error_message ? ' - '.$r->error_message : ''));
             }
         }
         $this->info("done; ok={$ok} fail={$fail}");
