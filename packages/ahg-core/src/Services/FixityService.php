@@ -91,10 +91,20 @@ class FixityService
 
             $report['total'] = (clone $base)->count();
 
-            $report['with_baseline'] = (clone $base)
-                ->whereNotNull('checksum')->where('checksum', '<>', '')
-                ->whereNotNull('checksum_type')->where('checksum_type', '<>', '')
-                ->count();
+            // A baseline is the legacy digital_object.checksum column OR a
+            // preservation_checksum row - the store verifyFixity() checks against
+            // and the one ahg:preservation-fixity --baseline writes. Counting only
+            // the column made this page disagree with the preservation dashboard.
+            $hasPc = Schema::hasTable('preservation_checksum');
+            $hasBaseline = function ($q) use ($hasPc) {
+                $q->where(fn ($c) => $c->whereNotNull('checksum')->where('checksum', '<>', '')
+                    ->whereNotNull('checksum_type')->where('checksum_type', '<>', ''));
+                if ($hasPc) {
+                    $q->orWhereIn('id', fn ($pc) => $pc->select('digital_object_id')->from('preservation_checksum'));
+                }
+            };
+
+            $report['with_baseline'] = (clone $base)->where($hasBaseline)->count();
 
             $report['without_baseline'] = max(0, $report['total'] - $report['with_baseline']);
 
@@ -116,7 +126,7 @@ class FixityService
 
                 $verifiedIds = DB::table($t)->select('digital_object_id')->distinct();
                 $report['never_verified'] = (clone $base)
-                    ->whereNotNull('checksum')->where('checksum', '<>', '')
+                    ->where($hasBaseline)
                     ->whereNotIn('id', $verifiedIds)
                     ->count();
 
