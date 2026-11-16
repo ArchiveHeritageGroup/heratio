@@ -107,6 +107,14 @@ class IcipRecordGateTest extends TestCase
         $this->assertStringContainsString('icip-tk-label', $html);
     }
 
+    public function test_403_page_names_the_cultural_protocol(): void
+    {
+        $e = new HttpException(403, 'ICIP restriction: Community Permission Required');
+        $html = view('errors.403', ['exception' => $e])->render();
+        $this->assertStringContainsString('restricted by a cultural protocol', $html);
+        $this->assertStringNotContainsString('you must log in', $html);
+    }
+
     public function test_unrestricted_record_renders_nothing(): void
     {
         Auth::logout();

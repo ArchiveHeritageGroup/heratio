@@ -92,10 +92,11 @@ class PreservationService
             return null;
         }
 
-        $uploadsBase = config('heratio.uploads_path');
-        $filePath = $uploadsBase . '/' . ltrim($digitalObject->path, '/');
+        // digital_object.path is the web folder (/uploads/r/...), not the file:
+        // the shared resolver strips /uploads and adds the name.
+        $filePath = \AhgCore\Services\DigitalObjectService::resolveDiskPath($digitalObject);
 
-        if (!file_exists($filePath)) {
+        if (!$filePath || !is_file($filePath)) {
             return null;
         }
 
@@ -144,8 +145,7 @@ class PreservationService
             return null;
         }
 
-        $uploadsBase = config('heratio.uploads_path');
-        $filePath = $uploadsBase . '/' . ltrim($digitalObject->path, '/');
+        $filePath = \AhgCore\Services\DigitalObjectService::resolveDiskPath($digitalObject) ?? '';
 
         $now = now()->format('Y-m-d H:i:s');
         $startTime = microtime(true);
@@ -154,8 +154,8 @@ class PreservationService
         $actualValue = null;
         $errorMessage = null;
 
-        if (!file_exists($filePath)) {
-            $errorMessage = 'File not found: ' . $filePath;
+        if ($filePath === '' || !is_file($filePath)) {
+            $errorMessage = 'File not found for digital object ' . $digitalObjectId;
         } else {
             $hashAlgo = str_replace('-', '', strtolower($checksum->algorithm));
             $actualValue = hash_file($hashAlgo, $filePath);

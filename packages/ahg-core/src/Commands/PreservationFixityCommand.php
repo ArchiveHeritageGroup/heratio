@@ -12,7 +12,8 @@ class PreservationFixityCommand extends Command
         {--limit=100 : Maximum files to verify in this run}
         {--age=90 : Only digital_objects whose last verification is older than N days}
         {--digital-object-id= : Verify a single digital_object}
-        {--report : Print summary report and exit}';
+        {--report : Print summary report and exit}
+        {--baseline : Record a first checksum for files that have none, instead of verifying}';
 
     protected $description = 'Verify file integrity checksums (delegates to PreservationService::verifyFixity)';
 
@@ -31,6 +32,20 @@ class PreservationFixityCommand extends Command
         if ($doId = $this->option('digital-object-id')) {
             $result = $svc->verifyFixity((int) $doId);
             $this->info($result ? "verified do={$doId} status={$result->status}" : "no checksum recorded for do={$doId}");
+
+            return self::SUCCESS;
+        }
+
+        // Files ingested before checksums were taken on upload have no baseline,
+        // and verifyFixity() skips them, so coverage never grew past new uploads.
+        if ($this->option('baseline')) {
+            $todo = $svc->getObjectsWithoutChecksums((int) $this->option('limit'));
+            $made = 0;
+            $missing = 0;
+            foreach ($todo as $row) {
+                $svc->generateChecksum((int) $row->id, (string) $this->option('algorithm')) ? $made++ : $missing++;
+            }
+            $this->info("baseline: {$made} checksum(s) recorded, {$missing} file(s) not found on disk");
 
             return self::SUCCESS;
         }

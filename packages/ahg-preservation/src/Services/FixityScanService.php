@@ -80,13 +80,10 @@ class FixityScanService
         }
 
         $digitalObjects = DB::table('digital_object')->where('object_id', $ioId)->get();
-        $uploadsBase    = config('heratio.uploads_path');
 
         foreach ($digitalObjects as $do) {
-            $relPath  = (string) ($do->path ?? '');
-            $fullPath = $uploadsBase
-                ? rtrim((string) $uploadsBase, '/') . '/' . ltrim($relPath, '/')
-                : $relPath;
+            // path is the web folder (/uploads/r/...), not the file (#1733).
+            $fullPath = \AhgCore\Services\DigitalObjectService::resolveDiskPath($do) ?? '';
 
             $row = [
                 'digital_object_id' => (int) $do->id,

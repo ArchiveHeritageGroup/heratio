@@ -42,9 +42,7 @@ class PreservationVirusScanCommand extends Command
         $limit = max(1, (int) $this->option('limit'));
         $q = DB::table('digital_object as do')->select('do.id', 'do.path', 'do.name');
         if ($this->option('unscanned')) {
-            $q->leftJoin('preservation_event as pe', function ($j) {
-                $j->on('pe.digital_object_id', '=', 'do.id')->where('pe.event_type', '=', 'virus_scan');
-            })->whereNull('pe.id');
+            $q->whereNotExists(fn ($w) => $w->from('preservation_virus_scan as vs')->whereColumn('vs.digital_object_id', 'do.id'));
         }
         $rows = $q->limit($limit)->get();
         $this->info("scanning {$rows->count()} digital_objects");
@@ -53,8 +51,10 @@ class PreservationVirusScanCommand extends Command
         $infected = 0;
         $skipped = 0;
         foreach ($rows as $r) {
-            $full = rtrim((string) config('heratio.uploads_path', ''), '/').$r->path.$r->name;
-            if (! is_file($full)) {
+            // path is the web folder (/uploads/r/...): the shared resolver strips
+            // /uploads, so the file is actually found (#1733).
+            $full = \AhgCore\Services\DigitalObjectService::resolveDiskPath($r) ?? '';
+            if ($full === '' || ! is_file($full)) {
                 $skipped++;
 
                 continue;
@@ -62,6 +62,11 @@ class PreservationVirusScanCommand extends Command
             $out = @shell_exec(escapeshellcmd($bin).' --no-summary '.escapeshellarg($full).' 2>&1');
             $ok = $out !== null && str_contains((string) $out, ': OK');
             $svc->logEvent((int) $r->id, null, 'virus_scan', trim((string) $out), $ok ? 'clean' : 'infected');
+            // The dashboard and Virus Scans page count preservation_virus_scan, not events.
+            DB::table('preservation_virus_scan')->insert([
+                'digital_object_id' => (int) $r->id, 'scanner' => 'ClamAV', 'scanned_at' => now(),
+                'status' => $ok ? 'clean' : 'infected', 'threats_found' => $ok ? null : json_encode([trim((string) $out)]), 'created_at' => now(),
+            ]);
             $ok ? $clean++ : $infected++;
             if (! $ok) {
                 $this->line("  INFECTED do={$r->id} path={$full}");
