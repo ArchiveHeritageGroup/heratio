@@ -167,7 +167,7 @@ class IcipAccessService
         return DB::table('icip_cultural_notice as n')
             ->join('icip_cultural_notice_type as t', 'n.notice_type_id', '=', 't.id')
             ->leftJoin('icip_community as c', 'n.community_id', '=', 'c.id')
-            ->where('n.information_object_id', $objectId)
+            ->where(fn ($q) => $this->scope($q, 'n', $objectId))
             ->where('t.is_active', 1)
             ->where(function ($query) {
                 $query->whereNull('n.start_date')->orWhere('n.start_date', '<=', now()->toDateString());
@@ -185,7 +185,7 @@ class IcipAccessService
     {
         return DB::table('icip_access_restriction as r')
             ->leftJoin('icip_community as c', 'r.community_id', '=', 'c.id')
-            ->where('r.information_object_id', $objectId)
+            ->where(fn ($q) => $this->scope($q, 'r', $objectId))
             ->where(function ($query) {
                 $query->whereNull('r.start_date')->orWhere('r.start_date', '<=', now()->toDateString());
             })
@@ -195,6 +195,80 @@ class IcipAccessService
             ->select(['r.*', 'c.name as community_name'])
             ->orderBy('r.created_at', 'desc')
             ->get();
+    }
+
+    /**
+     * #1731 - the one ICIP gate for every record view (archival, museum,
+     * library, gallery, DAM). Runs check() (which audits restricted views),
+     * then blocks with 403 unless the viewer can edit the record. Before this,
+     * only the archival show page called check(), so a restricted museum
+     * object was fully visible to anyone at its /museum/ URL.
+     */
+    public function enforce(int $objectId): array
+    {
+        $decision = $this->check($objectId, \Illuminate\Support\Facades\Auth::id());
+        if (! ($decision['allowed'] ?? true)
+            && ! \AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'update', $objectId)) {
+            abort(403, $decision['blocked_reason'] ?: 'Access to this record is restricted by an Indigenous cultural protocol.');
+        }
+
+        return $decision;
+    }
+
+    /** #1731 - active notices to show on the record (public ones, or all for staff). */
+    public function displayNotices(int $objectId, bool $staff = false)
+    {
+        if (! Schema::hasTable('icip_cultural_notice')) {
+            return collect();
+        }
+
+        return DB::table('icip_cultural_notice as n')
+            ->join('icip_cultural_notice_type as t', 'n.notice_type_id', '=', 't.id')
+            ->leftJoin('icip_community as c', 'n.community_id', '=', 'c.id')
+            ->where(fn ($q) => $this->scope($q, 'n', $objectId))
+            ->where('t.is_active', 1)
+            ->where($staff ? 't.display_staff' : 't.display_public', 1)
+            ->where(fn ($q) => $q->whereNull('n.start_date')->orWhere('n.start_date', '<=', now()->toDateString()))
+            ->where(fn ($q) => $q->whereNull('n.end_date')->orWhere('n.end_date', '>=', now()->toDateString()))
+            ->select(['n.id', 'n.custom_text', 't.name', 't.severity', 't.default_text', 't.description', 'c.name as community_name'])
+            ->orderBy('t.display_order')
+            ->get();
+    }
+
+    /** #1731 - active restrictions on the record (incl. inherited), for the staff note. */
+    public function restrictionsFor(int $objectId)
+    {
+        return Schema::hasTable('icip_access_restriction') ? $this->restrictions($objectId) : collect();
+    }
+
+    /** #1731 - TK / BC labels applied to the record. */
+    public function displayLabels(int $objectId)
+    {
+        if (! Schema::hasTable('icip_tk_label')) {
+            return collect();
+        }
+
+        return DB::table('icip_tk_label as l')
+            ->join('icip_tk_label_type as t', 'l.label_type_id', '=', 't.id')
+            ->leftJoin('icip_community as c', 'l.community_id', '=', 'c.id')
+            ->where('l.information_object_id', $objectId)
+            ->select(['t.code', 't.name', 't.category', 't.description', 't.local_contexts_url', 'c.name as community_name'])
+            ->orderBy('t.display_order')
+            ->get();
+    }
+
+    /**
+     * Rows on the object itself, plus rows on any ancestor marked
+     * applies_to_descendants (MPTT lft/rgt, as the GLAM browse ancestor filter).
+     */
+    private function scope($q, string $alias, int $objectId): void
+    {
+        $q->where("$alias.information_object_id", $objectId)
+            ->orWhere(fn ($w) => $w->where("$alias.applies_to_descendants", 1)
+                ->whereIn("$alias.information_object_id", fn ($a) => $a->select('a.id')
+                    ->from('information_object as a')
+                    ->join('information_object as me', fn ($j) => $j->on('a.lft', '<', 'me.lft')->on('a.rgt', '>', 'me.rgt'))
+                    ->where('me.id', $objectId)));
     }
 
 }

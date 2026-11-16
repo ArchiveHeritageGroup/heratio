@@ -358,12 +358,9 @@ class InformationObjectController extends Controller
         // unsatisfied restriction. Workflow-state protocols (elder approval /
         // under consultation) are non-blocking. Unrestricted records return early
         // in the service with no log write, so the common path stays cheap.
+        // #1731: the same gate now runs on every sector show page via enforce().
         if (class_exists(\AhgIcip\Services\IcipAccessService::class)) {
-            $icipAccess = app(\AhgIcip\Services\IcipAccessService::class)->check((int) $io->id, \Illuminate\Support\Facades\Auth::id());
-            if (! ($icipAccess['allowed'] ?? true)
-                && ! \AhgCore\Services\AclService::hasPermission(\Illuminate\Support\Facades\Auth::id(), 'update', (int) $io->id)) {
-                abort(403, $icipAccess['blocked_reason'] ?: 'Access to this record is restricted by an Indigenous cultural protocol.');
-            }
+            $icipAccess = app(\AhgIcip\Services\IcipAccessService::class)->enforce((int) $io->id);
         }
 
         // #1464: community-protocol gate. TermProtocolGate was already enforced

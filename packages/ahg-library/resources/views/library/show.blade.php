@@ -280,6 +280,9 @@
 {{-- ============================================================ --}}
 @section('content')
 
+  {{-- #1731 cultural notices, TK/BC labels, staff restriction note --}}
+  @include('icip::partials.record-notices', ['ioId' => (int) $item->id])
+
   @include('ahg-ric::_view-switch', ['standard' => 'Dublin Core', 'entityType' => 'library', 'objectId' => $item->id])
   @if(\AhgRic\Services\RicViewModeService::isRic('library', $item->id))
     @include('ahg-ric::_ric-view-library', ['item' => $item])

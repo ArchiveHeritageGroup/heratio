@@ -177,6 +177,8 @@
     {{-- ICIP cultural-sensitivity badge (issue #36 Phase 2b). --}}
     @include('ahg-translation::components.icip-sensitivity-badge', ['uri' => $artwork->icip_sensitivity ?? null])
   </h1>
+  {{-- #1731 cultural notices, TK/BC labels, staff restriction note --}}
+  @include('icip::partials.record-notices', ['ioId' => (int) $artwork->id])
 
   @if(!empty($breadcrumbs))
     <nav aria-label="{{ __('Hierarchy') }}">

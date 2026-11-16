@@ -155,6 +155,10 @@ class MuseumController extends Controller
         // still served on its direct URL. 404 like the draft gate above -
         // a restricted record is not confirmed to exist. Staff bypass is
         // handled inside allowsRecord().
+        // #1731: ICIP cultural-access gate, shared with the archival show page.
+        if (class_exists(\AhgIcip\Services\IcipAccessService::class)) {
+            app(\AhgIcip\Services\IcipAccessService::class)->enforce((int) $museum->id);
+        }
         if (! \AhgCore\Services\TermProtocolGate::allowsRecord((int) $museum->id)) {
             abort(404);
         }

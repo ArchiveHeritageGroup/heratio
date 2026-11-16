@@ -336,6 +336,8 @@
     {{-- ICIP cultural-sensitivity badge (issue #36 Phase 2b). --}}
     @include('ahg-translation::components.icip-sensitivity-badge', ['uri' => $asset->icip_sensitivity ?? null])
   </h1>
+  {{-- #1731 cultural notices, TK/BC labels, staff restriction note --}}
+  @include('icip::partials.record-notices', ['ioId' => (int) $asset->id])
 
   {{-- Identification area --}}
   <section id="identificationArea" class="border-bottom">

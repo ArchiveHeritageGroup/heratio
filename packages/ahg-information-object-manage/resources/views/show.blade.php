@@ -370,6 +370,8 @@
          carries access restrictions before they engage with it. --}}
     @include('ahg-translation::components.icip-sensitivity-badge', ['uri' => $io->icip_sensitivity ?? null])
   </h1>
+  {{-- #1731 cultural notices, TK/BC labels, staff restriction note --}}
+  @include('icip::partials.record-notices', ['ioId' => (int) $io->id])
 
   {{-- OCAP® overlay badges (rendered only if overlay enabled and the IO has ICIP signal) --}}
   @if(view()->exists('icip::partials.ocap-badges'))

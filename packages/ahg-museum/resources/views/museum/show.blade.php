@@ -261,6 +261,8 @@
          carries access restrictions before they engage with it. --}}
     @include('ahg-translation::components.icip-sensitivity-badge', ['uri' => $museum->icip_sensitivity ?? null])
   </h1>
+  {{-- #1731 cultural notices, TK/BC labels, staff restriction note --}}
+  @include('icip::partials.record-notices', ['ioId' => (int) $museum->id])
 
   {{-- Breadcrumb trail --}}
   @if($museum->parent_id != 1 && !empty($breadcrumbs))
