@@ -88,9 +88,9 @@ Route::post('/user/password-reset/{token}', [LoginController::class, 'submitPass
 Route::middleware('auth.required')->group(function () {
     Route::get('/user/profile', [LoginController::class, 'showProfile'])->name('user.profile');
     Route::get('/user/profile/edit', [LoginController::class, 'showProfileEdit'])->name('user.profile.edit');
-    Route::put('/user/profile', [LoginController::class, 'updateProfile'])->name('user.profile.update');
+    Route::put('/user/profile', [LoginController::class, 'updateProfile'])->name('user.profile.update')->middleware('shared.account:self');
     Route::get('/user/password', [LoginController::class, 'showPasswordEdit'])->name('user.password.edit');
-    Route::put('/user/password', [LoginController::class, 'updatePassword'])->name('user.password.update');
+    Route::put('/user/password', [LoginController::class, 'updatePassword'])->name('user.password.update')->middleware('shared.account:self');
 });
 
 // Legacy AtoM URL redirects

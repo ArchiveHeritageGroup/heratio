@@ -52,6 +52,9 @@ return Application::configure(basePath: dirname(__DIR__))
             // carries the `pending_mfa` flag. No-op for users without MFA
             // and for users who have already verified this session.
             \App\Http\Middleware\RequireMfaCompletion::class,
+            // heratio#1776 - repository-scoped accounts: default deny outside
+            // public pages and their own records. No-op for everyone else.
+            \App\Http\Middleware\ScopedAccountGuard::class,
             // Issue #723 - per-tenant MFA enforcement policy. Runs AFTER
             // RequireMfaCompletion so a user who is mid-challenge for an
             // already-enrolled factor is not bounced to the enrolment
@@ -96,6 +99,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth.forbid' => \App\Http\Middleware\RequireAuthForbid::class,
             'admin' => \App\Http\Middleware\RequireAdmin::class,
             'acl' => \App\Http\Middleware\CheckAcl::class,
+            'shared.account' => \App\Http\Middleware\ProtectSharedAccounts::class,
             // Issue #40 c5 — gate plugin URLs by per-user grant
             'plugin' => \AhgCore\Http\Middleware\PluginAccessMiddleware::class,
             // Issue #72 — gate /admin/privacy/* on the dp_enabled master toggle.

@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
     // Main page (menu path: ftpUpload/index)
-    Route::get('/ftpUpload/index', [FtpUploadController::class, 'index'])->name('ftpUpload.index');
+    Route::get('/ftpUpload/index', [FtpUploadController::class, 'index'])->name('ftpUpload.index')->middleware('acl:create'); // heratio#1776: the page and its listings need the upload right
 
     // Legacy single-file upload
     Route::post('/ftpUpload/upload', [FtpUploadController::class, 'upload'])->name('ftpUpload.upload')->middleware('acl:create'); // #1354
@@ -17,7 +17,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/ftpUpload/combineFolder', [FtpUploadController::class, 'combineFolder'])->name('ftpUpload.combineFolder')->middleware('acl:create'); // #1354
 
     // AJAX: list remote files
-    Route::get('/ftpUpload/listFiles', [FtpUploadController::class, 'listFiles'])->name('ftpUpload.listFiles');
+    Route::get('/ftpUpload/listFiles', [FtpUploadController::class, 'listFiles'])->name('ftpUpload.listFiles')->middleware('acl:create'); // heratio#1776: the page and its listings need the upload right
 
     // AJAX: delete remote file
     Route::post('/ftpUpload/deleteFile', [FtpUploadController::class, 'deleteFile'])->name('ftpUpload.deleteFile')->middleware('acl:delete'); // #1354
@@ -26,7 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/ftpUpload/clearAll', [FtpUploadController::class, 'clearAll'])->name('ftpUpload.clearAll')->middleware('acl:delete'); // #1354
 
     // AJAX: list combined PDFs ready to link (no-slug combines)
-    Route::get('/ftpUpload/readyToLink', [FtpUploadController::class, 'readyToLink'])->name('ftpUpload.readyToLink');
+    Route::get('/ftpUpload/readyToLink', [FtpUploadController::class, 'readyToLink'])->name('ftpUpload.readyToLink')->middleware('acl:create'); // heratio#1776: the page and its listings need the upload right
 
     // AJAX: attach a combined PDF to a record by slug
     Route::post('/ftpUpload/attachExisting', [FtpUploadController::class, 'attachExisting'])->name('ftpUpload.attachExisting')->middleware('acl:create'); // #1354

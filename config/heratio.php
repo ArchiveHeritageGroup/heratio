@@ -3,6 +3,15 @@
 return [
 
     /*
+    | Shared logins whose credentials are published (a demo admin, a course's
+    | training account). Their password, email, profile, groups and permissions
+    | cannot be changed through the site, by themselves or by administrators
+    | (App\Http\Middleware\ProtectSharedAccounts). Comma-separated emails or
+    | usernames, e.g. HERATIO_SHARED_ACCOUNTS=learner@example.org
+    */
+    'shared_accounts' => array_values(array_filter(array_map('trim', explode(',', (string) env('HERATIO_SHARED_ACCOUNTS', ''))))),
+
+    /*
     |--------------------------------------------------------------------------
     | Storage Base Path
     |--------------------------------------------------------------------------

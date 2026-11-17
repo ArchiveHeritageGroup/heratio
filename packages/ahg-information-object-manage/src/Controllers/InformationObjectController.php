@@ -83,6 +83,13 @@ class InformationObjectController extends Controller
             ->value('term.id');
         if ($existing) return (int) $existing;
 
+        // heratio#1776: a repository-scoped account may link existing terms but
+        // not add to the shared vocabularies (that needs createTerm, which
+        // editors hold). Imports and command-line runs are not signed in.
+        if (\Illuminate\Support\Facades\Auth::check() && \AhgCore\Services\AclService::isRepositoryScoped((int) \Illuminate\Support\Facades\Auth::id())) {
+            return 0;
+        }
+
         // Default parent = the taxonomy's most-common parent_id (its root term).
         $parentId = (int) (DB::table('term')
             ->where('taxonomy_id', $taxonomyId)

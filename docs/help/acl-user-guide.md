@@ -103,6 +103,12 @@ What these staff can then do:
 
 How rules combine, as in AtoM: a rule on one record beats a rule for its institution, which beats a rule for all records; where two rules at the same level disagree, Deny wins. So you can also use a per-institution **Deny** to keep an ordinary editor out of one institution's records while they keep working everywhere else.
 
+### Shared logins
+
+A login whose password is published - a demo administrator, a course's training account - should not be changeable through the site, or one visitor could lock everyone else out. List such accounts in `.env` as `HERATIO_SHARED_ACCOUNTS` (comma-separated emails or usernames) and run `php artisan config:cache`. For those accounts, changing the password, email or profile, their groups or user permissions, and deleting them is refused, whether the account tries it itself or an administrator does. To change one, take it off the list first, or change it on the command line.
+
+A repository-scoped account also links existing subject and place terms to its records but cannot add new terms to the shared vocabularies, and cannot open the FTP upload area.
+
 ### Use the term and translate permission matrices
 
 Two matrix pages give a quick, grid-based way to manage common permissions across many groups at once:

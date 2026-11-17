@@ -32,12 +32,12 @@ Route::middleware('admin')->group(function () {
 
     Route::get('/user/{slug}/edit', [UserController::class, 'edit'])->name('user.edit')
         ->where('slug', '(?!profile|password|passwordEdit|passwordReset|register|clipboard|registration|view|verify|add|list|browse)[a-zA-Z0-9][a-zA-Z0-9._-]*');
-    Route::post('/user/{slug}/edit', [UserController::class, 'update'])->name('user.update')->middleware('acl:update')
+    Route::post('/user/{slug}/edit', [UserController::class, 'update'])->name('user.update')->middleware('acl:update')->middleware('shared.account:slug')
         ->where('slug', '(?!profile|password|passwordEdit|passwordReset|register|clipboard|registration|view|verify|add|list|browse)[a-zA-Z0-9][a-zA-Z0-9._-]*');
 
     Route::get('/user/{slug}/delete', [UserController::class, 'confirmDelete'])->name('user.confirmDelete')
         ->where('slug', '(?!profile|password|register|clipboard|registration|view|verify|add|list|browse)[a-zA-Z0-9][a-zA-Z0-9._-]*');
-    Route::delete('/user/{slug}/delete', [UserController::class, 'destroy'])->name('user.destroy')->middleware('acl:delete')
+    Route::delete('/user/{slug}/delete', [UserController::class, 'destroy'])->name('user.destroy')->middleware('acl:delete')->middleware('shared.account:slug')
         ->where('slug', '(?!profile|password|register|clipboard|registration|view|verify|add|list|browse)[a-zA-Z0-9][a-zA-Z0-9._-]*');
 
     // ACL permission pages (#52). Routes were registered pointing at
@@ -50,16 +50,16 @@ Route::middleware('admin')->group(function () {
     // existing stub view (60 lines, not the IO/Actor/Repo/Term shape)
     // suggests a different design that #52 doesn't cover.
     Route::get('/user/{slug}/indexActorAcl', [UserAclController::class, 'indexActorAcl'])->name('user.indexActorAcl');
-    Route::match(['get', 'post'], '/user/{slug}/editActorAcl', [UserAclController::class, 'editActorAcl'])->name('user.editActorAcl');
+    Route::match(['get', 'post'], '/user/{slug}/editActorAcl', [UserAclController::class, 'editActorAcl'])->name('user.editActorAcl')->middleware('shared.account:slug');
 
     Route::get('/user/{slug}/indexInformationObjectAcl', [UserAclController::class, 'indexInformationObjectAcl'])->name('user.indexInformationObjectAcl');
-    Route::match(['get', 'post'], '/user/{slug}/editInformationObjectAcl', [UserAclController::class, 'editInformationObjectAcl'])->name('user.editInformationObjectAcl');
+    Route::match(['get', 'post'], '/user/{slug}/editInformationObjectAcl', [UserAclController::class, 'editInformationObjectAcl'])->name('user.editInformationObjectAcl')->middleware('shared.account:slug');
 
     Route::get('/user/{slug}/indexRepositoryAcl', [UserAclController::class, 'indexRepositoryAcl'])->name('user.indexRepositoryAcl');
-    Route::match(['get', 'post'], '/user/{slug}/editRepositoryAcl', [UserAclController::class, 'editRepositoryAcl'])->name('user.editRepositoryAcl');
+    Route::match(['get', 'post'], '/user/{slug}/editRepositoryAcl', [UserAclController::class, 'editRepositoryAcl'])->name('user.editRepositoryAcl')->middleware('shared.account:slug');
 
     Route::get('/user/{slug}/indexTermAcl', [UserAclController::class, 'indexTermAcl'])->name('user.indexTermAcl');
-    Route::match(['get', 'post'], '/user/{slug}/editTermAcl', [UserAclController::class, 'editTermAcl'])->name('user.editTermAcl');
+    Route::match(['get', 'post'], '/user/{slug}/editTermAcl', [UserAclController::class, 'editTermAcl'])->name('user.editTermAcl')->middleware('shared.account:slug');
 
     Route::match(['get', 'post'], '/user/{slug}/editResearcherAcl', [UserController::class, 'editResearcherAcl'])->name('user.editResearcherAcl'); // researcher-acl is a separate stub - out of #52 scope
 
@@ -80,7 +80,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/user/profile', [UserController::class, 'profile'])->name('user.profile');
     Route::get('/user/profile/edit', [UserController::class, 'profileEdit'])->name('user.profile.edit');
     Route::get('/user/passwordEdit', [UserController::class, 'passwordEdit'])->name('user.passwordEdit');
-    Route::match(['get', 'post'], '/user/passwordReset', [UserController::class, 'passwordReset'])->name('user.passwordReset');
+    Route::match(['get', 'post'], '/user/passwordReset', [UserController::class, 'passwordReset'])->name('user.passwordReset')->middleware('shared.account:self');
     Route::get('/user/clipboard', [UserController::class, 'clipboard'])->name('user.clipboard');
 });
 

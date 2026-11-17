@@ -6,13 +6,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('/repository/browse', [RepositoryController::class, 'browse'])->name('repository.browse');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/repository/add', [RepositoryController::class, 'create'])->name('repository.create');
+    // heratio#1776: forms need the same right as saving them.
+    Route::get('/repository/add', [RepositoryController::class, 'create'])->name('repository.create')->middleware('acl:create');
     Route::post('/repository/add', [RepositoryController::class, 'store'])->name('repository.store')->middleware('acl:create');
-    Route::get('/repository/{slug}/edit', [RepositoryController::class, 'edit'])->name('repository.edit');
+    Route::get('/repository/{slug}/edit', [RepositoryController::class, 'edit'])->name('repository.edit')->middleware('acl:update');
     Route::post('/repository/{slug}/edit', [RepositoryController::class, 'update'])->name('repository.update')->middleware('acl:update');
 
     // Theme editing
-    Route::get('/repository/{slug}/editTheme', [RepositoryController::class, 'editTheme'])->name('repository.editTheme');
+    Route::get('/repository/{slug}/editTheme', [RepositoryController::class, 'editTheme'])->name('repository.editTheme')->middleware('acl:update');
     Route::post('/repository/{slug}/editTheme', [RepositoryController::class, 'updateTheme'])->name('repository.editTheme.update')->middleware('acl:update');
 
     // Upload limit editing

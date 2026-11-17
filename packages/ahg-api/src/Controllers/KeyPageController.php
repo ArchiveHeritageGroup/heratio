@@ -45,6 +45,8 @@ class KeyPageController extends Controller
 
     public function index()
     {
+        abort_if(\AhgCore\Services\AclService::isRepositoryScoped((int) Auth::id()), 403, __('This account is limited to its repositories and cannot hold API keys.'));
+
         $userId = (int) Auth::id();
 
         return view('ahg-api::keys', $this->managerData($userId) + [

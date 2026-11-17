@@ -4,8 +4,10 @@ use Illuminate\Support\Facades\Route;
 
 // =====================================================================
 // Primary routes (admin/icip prefix, query-parameter style)
+// heratio#1776: staff only (administrators and editors). These pages show
+// communities, consent and consultation records; signing in alone used to be enough.
 // =====================================================================
-Route::prefix('admin/icip')->middleware(['web', 'auth', 'audit.icip'])->group(function () {
+Route::prefix('admin/icip')->middleware(['web', 'auth', 'admin', 'audit.icip'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [\AhgIcip\Controllers\IcipController::class, 'dashboard'])->name('ahgicip.dashboard');
 
@@ -69,7 +71,7 @@ Route::prefix('admin/icip')->middleware(['web', 'auth', 'audit.icip'])->group(fu
 // These map AtoM-style URLs to the existing controller methods by
 // merging path parameters into the request as query parameters.
 // =====================================================================
-Route::prefix('icip')->middleware(['web', 'auth', 'audit.icip'])->group(function () {
+Route::prefix('icip')->middleware(['web', 'auth', 'admin', 'audit.icip'])->group(function () {
 
     // 1. icip → dashboard
     Route::get('/', fn () => redirect()->route('ahgicip.dashboard'));
