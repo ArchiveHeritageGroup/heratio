@@ -771,7 +771,7 @@
         ? \Illuminate\Support\Facades\DB::table('icip_tk_label as il')->join('icip_tk_label_type as t','t.id','=','il.label_type_id')->where('il.information_object_id', $io->id)->select('t.*')->get()
         : collect();
     $embargoData = \Illuminate\Support\Facades\Schema::hasTable('embargo')
-        ? \AhgCore\Support\EmbargoScope::current(\Illuminate\Support\Facades\DB::table('embargo')->where('object_id', $io->id))->first()
+        ? \AhgCore\Support\EmbargoScope::current(\Illuminate\Support\Facades\DB::table('embargo')->where('object_id', $io->id))->orderByDesc('created_at')->first()
         : null;
     $primaryHolder = $premisRights->pluck('rights_holder_name')->filter()->first();
     $holderDisplay = $primaryHolder ?? ($extRightsData->rights_holder ?? null);
@@ -797,7 +797,7 @@
         @if($embargoData)
           <div class="alert alert-danger d-flex align-items-center mb-3">
             <i class="fas fa-ban me-2 fa-lg"></i>
-            <div><strong>{{ __('Under Embargo') }}</strong> - {{ __(':type embargo since :date', ['type' => ucfirst($embargoData->embargo_type ?? 'full'), 'date' => $embargoData->start_date]) }}
+            <div><strong>{{ __('Under Embargo') }}</strong> - {{ __(':type embargo since :date', ['type' => ucfirst(str_replace('_', ' ', $embargoData->embargo_type ?? 'full')), 'date' => $embargoData->start_date]) }}
               @if($embargoData->end_date) {{ __('until :date', ['date' => $embargoData->end_date]) }} @else {{ __('(no end date)') }} @endif
             </div>
           </div>

@@ -1,10 +1,11 @@
 @extends('theme::layouts.1col')
 
-@section('title', __('Add Embargo - :title', ['title' => $io->title ?? '']))
+@php $e = $activeEmbargo ?? null; @endphp
+@section('title', ($e ? __('Edit Embargo') : __('Add Embargo')).' - '.($io->title ?? ''))
 
 @section('content')
 
-<h1>{{ __('Add Embargo') }}</h1>
+<h1>{{ $e ? __('Edit Embargo') : __('Add Embargo') }}</h1>
 <p class="lead">{{ $io->title ?? $io->slug }}</p>
 
 <form method="post" action="{{ route('io.rights.embargo.store', $io->slug) }}">
@@ -19,10 +20,10 @@
         <div class="col-md-6 mb-3">
           <label for="embargo_type" class="form-label">{{ __('Embargo Type') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
           <select name="embargo_type" id="embargo_type" class="form-select" required>
-            <option value="full">{{ __('Full - Hide completely') }}</option>
-            <option value="metadata_only">{{ __('Metadata Only - Hide digital objects') }}</option>
-            <option value="digital_object">{{ __('Digital Object - Restrict downloads') }}</option>
-            <option value="custom">{{ __('Custom') }}</option>
+            <option value="full" @selected(($e->embargo_type ?? '') === 'full')>{{ __('Full - Hide completely') }}</option>
+            <option value="metadata_only" @selected(($e->embargo_type ?? '') === 'metadata_only')>{{ __('Metadata Only - Hide digital objects') }}</option>
+            <option value="digital_object" @selected(($e->embargo_type ?? '') === 'digital_object')>{{ __('Digital Object - Restrict downloads') }}</option>
+            <option value="custom" @selected(($e->embargo_type ?? '') === 'custom')>{{ __('Custom') }}</option>
           </select>
         </div>
       </div>
@@ -30,16 +31,16 @@
       <div class="row">
         <div class="col-md-4 mb-3">
           <label for="start_date" class="form-label">{{ __('Start Date') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-          <input type="date" name="start_date" id="start_date" class="form-control" required value="{{ date('Y-m-d') }}">
+          <input type="date" name="start_date" id="start_date" class="form-control" required value="{{ $e ? substr((string) $e->start_date, 0, 10) : date('Y-m-d') }}">
         </div>
         <div class="col-md-4 mb-3">
           <label for="end_date" class="form-label">{{ __('End Date') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-          <input type="date" name="end_date" id="end_date" class="form-control">
+          <input type="date" name="end_date" id="end_date" class="form-control" value="{{ $e && $e->end_date ? substr((string) $e->end_date, 0, 10) : '' }}" @disabled($e && $e->is_perpetual)>
           <small class="text-muted">{{ __('Leave blank for perpetual embargo') }}</small>
         </div>
         <div class="col-md-4 mb-3 d-flex align-items-end">
           <div class="form-check">
-            <input class="form-check-input" type="checkbox" name="is_perpetual" value="1" id="is_perpetual">
+            <input class="form-check-input" type="checkbox" name="is_perpetual" value="1" id="is_perpetual" @checked($e && $e->is_perpetual)>
             <label class="form-check-label" for="is_perpetual">
               {{ __('Perpetual (no end date)') }}
              <span class="badge bg-secondary ms-1">{{ __('Recommended') }}</span></label>
@@ -49,7 +50,7 @@
 
       <div class="mb-3">
         <label for="reason" class="form-label">{{ __('Reason') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-        <input type="text" name="reason" id="reason" class="form-control" placeholder="{{ __('e.g., Donor restriction, Privacy concerns, Legal hold') }}">
+        <input type="text" name="reason" id="reason" class="form-control" value="{{ $e->reason ?? '' }}" placeholder="{{ __('e.g., Donor restriction, Privacy concerns, Legal hold') }}">
       </div>
 
       <div class="mb-3">
@@ -103,7 +104,7 @@
     </div>
     <div class="card-body">
       <div class="form-check mb-3">
-        <input class="form-check-input" type="checkbox" name="notify_on_expiry" value="1" id="notify_on_expiry" checked>
+        <input class="form-check-input" type="checkbox" name="notify_on_expiry" value="1" id="notify_on_expiry" @checked(! $e || $e->notify_on_expiry)>
         <label class="form-check-label" for="notify_on_expiry">
           {{ __('Send notification before expiry') }}
          <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
@@ -112,7 +113,7 @@
       <div class="row">
         <div class="col-md-4">
           <label for="notify_days_before" class="form-label">{{ __('Notify days before expiry') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-          <input type="number" name="notify_days_before" id="notify_days_before" class="form-control" value="30" min="1" max="365">
+          <input type="number" name="notify_days_before" id="notify_days_before" class="form-control" value="{{ $e->notify_days_before ?? 30 }}" min="1" max="365">
         </div>
       </div>
     </div>
@@ -123,7 +124,7 @@
       {{ __('Cancel') }}
     </a>
     <button type="submit" class="btn atom-btn-outline-danger">
-      <i class="fas fa-lock"></i> {{ __('Create Embargo') }}
+      <i class="fas fa-lock"></i> {{ $e ? __('Save Embargo') : __('Create Embargo') }}
     </button>
   </div>
 

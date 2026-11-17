@@ -221,6 +221,20 @@ class ExtendedRightsController extends Controller
 
         $applyToChildren = $request->boolean('apply_to_children');
 
+        // "Edit embargo" opens this form on a record that already has one:
+        // change that embargo, don't add a second beside it.
+        $active = $this->service->getActiveEmbargo($io->id);
+        if ($active && ! $applyToChildren) {
+            $update = $data;
+            unset($update['object_id'], $update['created_by']);
+            if ($update['is_perpetual']) {
+                $update['end_date'] = null;
+            }
+            $this->service->updateEmbargo((int) $active->id, $update);
+
+            return redirect($this->resolveRecordUrl($slug))->with('notice', 'Embargo updated.');
+        }
+
         if ($applyToChildren) {
             $results = $this->service->createEmbargoWithPropagation($data, true);
             $message = "Embargo created for {$results['created']} record(s).";

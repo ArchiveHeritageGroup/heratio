@@ -898,7 +898,7 @@
         <div class="alert alert-danger d-flex align-items-center mb-3">
           <i class="fas fa-ban me-2 fa-lg"></i>
           <div>
-            <strong>{{ __('Under Embargo') }}</strong> - {{ __(':type embargo since :start', ['type' => ucfirst($embargo->embargo_type ?? 'full'), 'start' => $embargo->start_date]) }}
+            <strong>{{ __('Under Embargo') }}</strong> - {{ __(':type embargo since :start', ['type' => ucfirst(str_replace('_', ' ', $embargo->embargo_type ?? 'full')), 'start' => $embargo->start_date]) }}
             @if($embargo->end_date) {{ __('until :date', ['date' => $embargo->end_date]) }} @else ({{ __('no end date') }}) @endif
           </div>
         </div>
