@@ -33,7 +33,7 @@
             <h1 class="h3 mb-3">
                 <i class="fas fa-balance-scale me-2"></i>{{ __('GRAP 103 Compliance Dashboard') }}
             </h1>
-            <p class="text-muted">{{ __('South African heritage asset compliance monitoring') }}</p>
+            <p class="text-muted">{{ __('GRAP 103 heritage asset compliance monitoring (public sector market module)') }}</p>
         </div>
     </div>
 
@@ -88,7 +88,7 @@
                         <a href="{{ route('heritage.grap.national-treasury-report') }}" class="btn btn-outline-success">
                             <i class="fas fa-file-alt me-2"></i>{{ __('National Treasury Report') }}
                         </a>
-                        <a href="{{ route('heritage.accounting.browse', ['standard_id' => 1]) }}" class="btn btn-outline-info">
+                        <a href="{{ route('heritage.accounting.browse', array_filter(['standard_id' => $standardId ?? null])) }}" class="btn btn-outline-info">
                             <i class="fas fa-list me-2"></i>{{ __('Browse GRAP Assets') }}
                         </a>
                     </div>
@@ -204,8 +204,9 @@
                                             </td>
                                             <td class="text-end">{{ number_format((float) $asset->current_carrying_amount, 2) }}</td>
                                             <td class="text-center">
-                                                <a href="{{ route('heritage.grap.check', ['id' => $asset->id]) }}" class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-clipboard-check"></i>
+                                                @php $sum = $compliance[$asset->id] ?? null; @endphp
+                                                <a href="{{ route('heritage.grap.check', ['id' => $asset->id]) }}" class="btn btn-sm btn-outline-{{ !$sum ? 'primary' : ($sum['status'] === 'compliant' ? 'success' : ($sum['status'] === 'partially_compliant' ? 'warning' : 'danger')) }}" title="{{ __('View compliance check') }}">
+                                                    <i class="fas fa-clipboard-check me-1"></i>{{ $sum ? $sum['score'] . '%' : '' }}
                                                 </a>
                                             </td>
                                         </tr>

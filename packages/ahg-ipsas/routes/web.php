@@ -8,8 +8,8 @@ Route::middleware(['auth', 'admin'])->prefix('ipsas')->group(function () {
 
     Route::get('/assets', [IpsasController::class, 'assets'])->name('ipsas.assets');
     Route::match(['get', 'post'], '/asset/create', [IpsasController::class, 'assetCreate'])->name('ipsas.asset.create');
-    Route::get('/asset/{id}', [IpsasController::class, 'assetView'])->name('ipsas.asset.view');
-    Route::match(['get', 'post'], '/asset/{id}/edit', [IpsasController::class, 'assetEdit'])->name('ipsas.asset.edit');
+    Route::get('/asset/{id}', [IpsasController::class, 'assetView'])->whereNumber('id')->name('ipsas.asset.view');
+    Route::match(['get', 'post'], '/asset/{id}/edit', [IpsasController::class, 'assetEdit'])->whereNumber('id')->name('ipsas.asset.edit');
 
     Route::get('/valuations', [IpsasController::class, 'valuations'])->name('ipsas.valuations');
     Route::match(['get', 'post'], '/valuation/create', [IpsasController::class, 'valuationCreate'])->name('ipsas.valuation.create');

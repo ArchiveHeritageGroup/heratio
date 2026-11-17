@@ -22,8 +22,8 @@
       <div class="col-md-3">
         <select name="movement_type" class="form-select">
           <option value="">{{ __('All movement types') }}</option>
-          @foreach(['revaluation_up','revaluation_down','impairment','reversal','disposal'] as $mt)
-            <option value="{{ $mt }}" {{ ($filters['movement_type'] ?? '') === $mt ? 'selected' : '' }}>{{ $mt }}</option>
+          @foreach($movementTypes as $mt => $ml)
+            <option value="{{ $mt }}" {{ ($filters['movement_type'] ?? '') === $mt ? 'selected' : '' }}>{{ __($ml) }}</option>
           @endforeach
         </select>
       </div>
@@ -65,7 +65,7 @@
                 <tr>
                   <td>{{ $m->valuation_date }}</td>
                   <td>{{ $m->heritage_asset_id ?? '-' }}</td>
-                  <td><span class="badge bg-secondary">{{ $m->movement_type }}</span></td>
+                  <td><span class="badge bg-secondary">{{ __($movementTypes[$m->movement_type] ?? $m->movement_type) }}</span></td>
                   <td class="text-end {{ $m->amount < 0 ? 'text-danger' : '' }}">{{ number_format((float) $m->amount, 2) }}</td>
                   <td>{{ $m->currency }}</td>
                   <td>{{ $m->posted_to }}</td>

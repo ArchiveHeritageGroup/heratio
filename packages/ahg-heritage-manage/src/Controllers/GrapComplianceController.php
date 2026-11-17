@@ -27,134 +27,100 @@
 
 namespace AhgHeritageManage\Controllers;
 
+use AhgHeritageManage\Services\GrapComplianceService;
+use AhgHeritageManage\Services\HeritageAccountingService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
+/**
+ * GRAP 103 compliance module (per-market): dashboard, single-asset check,
+ * batch check and the National Treasury register.
+ */
 class GrapComplianceController extends Controller
 {
-    public function dashboard()
-    {
-        $stats = ['total' => 0];
-        $complianceSummary = [
-            'total_assets' => 0,
-            'compliant' => 0,
-            'partially_compliant' => 0,
-            'non_compliant' => 0,
-        ];
-        $recentAssets = [];
-
-        try {
-            if (Schema::hasTable('heritage_asset')) {
-                // GRAP 103 = South Africa heritage asset standard. Scope to it when standard table exists.
-                $grapStandardId = null;
-                if (Schema::hasTable('heritage_accounting_standard')) {
-                    $grapStandardId = DB::table('heritage_accounting_standard')
-                        ->where('code', 'GRAP103')
-                        ->orWhere('code', 'GRAP 103')
-                        ->value('id');
-                }
-
-                $base = DB::table('heritage_asset');
-                if ($grapStandardId) {
-                    $base->where('accounting_standard_id', $grapStandardId);
-                }
-
-                $stats['total'] = (clone $base)->count();
-
-                if (Schema::hasColumn('heritage_asset', 'compliance_status')) {
-                    $complianceSummary['compliant'] = (clone $base)->where('compliance_status', 'compliant')->count();
-                    $complianceSummary['partially_compliant'] = (clone $base)->where('compliance_status', 'partially_compliant')->count();
-                    $complianceSummary['non_compliant'] = (clone $base)->where('compliance_status', 'non_compliant')->count();
-                }
-                $complianceSummary['total_assets'] = $complianceSummary['compliant']
-                    + $complianceSummary['partially_compliant']
-                    + $complianceSummary['non_compliant'];
-
-                // Recent assets with related class/title
-                $recentQuery = DB::table('heritage_asset as a')
-                    ->leftJoin('heritage_asset_class as ac', 'a.asset_class_id', '=', 'ac.id')
-                    ->leftJoin('information_object_i18n as ioi', function ($j) {
-                        $j->on('ioi.id', '=', 'a.information_object_id')
-                            ->where('ioi.culture', '=', app()->getLocale());
-                    })
-                    ->leftJoin('information_object as io', 'io.id', '=', 'a.information_object_id')
-                    ->select(
-                        'a.id',
-                        'io.identifier as object_identifier',
-                        'ioi.title as object_title',
-                        'ac.name as class_name',
-                        'a.recognition_status',
-                        'a.current_carrying_amount'
-                    )
-                    ->orderByDesc('a.id')
-                    ->limit(10);
-                if ($grapStandardId) {
-                    $recentQuery->where('a.accounting_standard_id', $grapStandardId);
-                }
-                $recentAssets = $recentQuery->get()->all();
-            }
-        } catch (\Exception $e) {}
-
-        return view('ahg-heritage-manage::grap-compliance.dashboard', compact('stats', 'complianceSummary', 'recentAssets'));
+    public function __construct(
+        protected GrapComplianceService $grap,
+        protected HeritageAccountingService $accounting
+    ) {
     }
 
-    public function batchCheck() { return view('ahg-heritage-manage::grap-compliance.batch-check', ['stats' => [], 'items' => collect()]); }
-    public function check(int $id = null) { return view('ahg-heritage-manage::grap-compliance.check', ['stats' => [], 'items' => collect()]); }
+    public function dashboard()
+    {
+        $standardId = $this->grap->getStandardId();
+        $stats = $this->accounting->getDashboardStats(null, $standardId);
+        $complianceSummary = $this->grap->getComplianceSummary();
+        $recentAssets = $standardId ? $this->accounting->browse(['standard_id' => $standardId], 10)['items'] : collect();
+        $compliance = [];
+        foreach ($recentAssets as $a) {
+            $compliance[$a->id] = $this->grap->checkCompliance($a->id)['summary'] ?? null;
+        }
+
+        return view('ahg-heritage-manage::grap-compliance.dashboard', compact('stats', 'complianceSummary', 'recentAssets', 'standardId', 'compliance'));
+    }
+
+    public function check(?int $id = null)
+    {
+        if (! $id) {
+            return redirect()->route('heritage.grap.batch-check');
+        }
+        $asset = $this->accounting->getAsset($id) ?? abort(404);
+        $complianceResult = $this->grap->checkCompliance($asset->id);
+
+        return view('ahg-heritage-manage::grap-compliance.check', compact('asset', 'complianceResult'));
+    }
+
+    public function batchCheck()
+    {
+        $standardId = $this->grap->getStandardId();
+        $results = [];
+        if ($standardId) {
+            foreach ($this->accounting->browse(['standard_id' => $standardId], 1000)['items'] as $asset) {
+                $results[] = ['asset' => $asset, 'compliance' => $this->grap->checkCompliance($asset->id)];
+            }
+        }
+
+        return view('ahg-heritage-manage::grap-compliance.batch-check', compact('results'));
+    }
 
     /**
-     * GRAP 103 National Treasury Report.
-     * Builds the dataset that South African public-sector entities submit to National Treasury
-     * for heritage asset disclosures (capitalised + non-capitalised assets, current carrying
-     * amount, accumulated depreciation, valuations).
+     * GRAP 103 National Treasury register for a financial year: summary by
+     * asset class and the detailed register. ?export=csv downloads it.
      */
     public function nationalTreasuryReport(Request $request)
     {
-        $stats = ['total_assets' => 0, 'capitalised' => 0, 'non_capitalised' => 0, 'total_value_zar' => 0];
-        $items = collect();
-        $columns = ['ID', 'Asset', 'Class', 'Standard', 'Status', 'Carrying Amount (R)', 'Last Valuation', 'Date'];
+        $request->validate(['fy' => 'nullable|integer|min:1900|max:2999']);
+        $financialYear = (int) ($request->query('fy') ?: date('Y'));
+        $standardId = $this->grap->getStandardId();
 
-        if (!Schema::hasTable('heritage_asset')) {
-            return view('ahg-heritage-manage::grap-compliance.national-treasury-report', compact('stats', 'items', 'columns'));
+        $assets = $standardId ? $this->accounting->browse(['standard_id' => $standardId], 1000)['items'] : collect();
+        $byClass = ! $standardId ? collect() : DB::table('heritage_asset as ha')
+            ->leftJoin('heritage_asset_class as hc', 'ha.asset_class_id', '=', 'hc.id')
+            ->where('ha.accounting_standard_id', $standardId)
+            ->groupBy('hc.id', 'hc.name')
+            ->get([
+                'hc.name as class_name',
+                DB::raw('COUNT(*) as count'),
+                DB::raw('SUM(ha.current_carrying_amount) as total_value'),
+                DB::raw('SUM(ha.impairment_loss) as total_impairment'),
+                DB::raw('SUM(ha.revaluation_surplus) as total_surplus'),
+            ]);
+
+        if ($request->query('export') === 'csv') {
+            return response()->streamDownload(function () use ($assets) {
+                $out = fopen('php://output', 'w');
+                fwrite($out, "\xEF\xBB\xBF");
+                fputcsv($out, ['Asset ID', 'Description', 'Class', 'Status', 'Basis', 'Cost', 'Carrying Amount', 'Acquisition Date']);
+                foreach ($assets as $a) {
+                    fputcsv($out, [
+                        $a->object_identifier, $a->object_title, $a->class_name, $a->recognition_status,
+                        $a->measurement_basis, $a->acquisition_cost, $a->current_carrying_amount, $a->acquisition_date,
+                    ]);
+                }
+                fclose($out);
+            }, 'grap103-register-' . $financialYear . '.csv', ['Content-Type' => 'text/csv; charset=utf-8']);
         }
 
-        $statusFilter = $request->input('status');
-        $standardFilter = $request->input('standard');
-
-        $stats['total_assets'] = DB::table('heritage_asset')->count();
-        $stats['capitalised'] = DB::table('heritage_asset')->where('recognition_status', 'recognised')->count();
-        $stats['non_capitalised'] = DB::table('heritage_asset')->whereIn('recognition_status', ['pending', 'unrecognised'])->count();
-        $stats['total_value_zar'] = (float) DB::table('heritage_asset')->sum('current_carrying_amount');
-
-        $query = DB::table('heritage_asset as a')
-            ->leftJoin('heritage_asset_class as ac', 'a.asset_class_id', '=', 'ac.id')
-            ->leftJoin('heritage_accounting_standard as s', 'a.accounting_standard_id', '=', 's.id')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('ioi.id', '=', 'a.information_object_id')
-                    ->where('ioi.culture', '=', app()->getLocale());
-            })
-            ->select(
-                'a.id',
-                'ioi.title as asset_title',
-                'ac.name as class_name',
-                's.code as standard_code',
-                'a.recognition_status',
-                'a.current_carrying_amount',
-                'a.last_valuation_amount',
-                'a.last_valuation_date'
-            );
-
-        if ($statusFilter) {
-            $query->where('a.recognition_status', $statusFilter);
-        }
-        if ($standardFilter) {
-            $query->where('s.code', $standardFilter);
-        }
-
-        $items = $query->orderByDesc('a.current_carrying_amount')->limit(500)->get();
-        $standards = DB::table('heritage_accounting_standard')->where('is_active', 1)->orderBy('sort_order')->get(['code', 'name']);
-
-        return view('ahg-heritage-manage::grap-compliance.national-treasury-report', compact('stats', 'items', 'columns', 'statusFilter', 'standardFilter', 'standards'));
+        return view('ahg-heritage-manage::grap-compliance.national-treasury-report', compact('financialYear', 'assets', 'byClass', 'standardId'));
     }
 }

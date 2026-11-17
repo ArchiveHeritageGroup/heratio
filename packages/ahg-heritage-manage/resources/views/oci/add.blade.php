@@ -43,7 +43,7 @@
             </div>
             <div class="col-md-3">
               <label class="form-label">{{ __('Currency') }}</label>
-              <input type="text" name="currency" class="form-control" maxlength="3" value="{{ old('currency', 'ZAR') }}">
+              <input type="text" name="currency" class="form-control" maxlength="3" value="{{ old('currency', $currency ?? '') }}">
             </div>
             <div class="col-md-3">
               <label class="form-label">{{ __('Previous Value') }} <small class="text-muted">{{ __('(revaluation)') }}</small></label>

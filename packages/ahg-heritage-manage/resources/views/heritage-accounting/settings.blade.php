@@ -1,5 +1,5 @@
 @extends('theme::layouts.1col')
-@section('title', 'Accounting Settings')
+@section('title', __('Heritage Accounting Settings'))
 @section('body-class', 'admin heritage')
 
 @section('content')
@@ -7,51 +7,52 @@
   <div class="col-md-3">@include('ahg-heritage-manage::partials._heritage-accounting-menu')</div>
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1><i class="fas fa-cog me-2"></i>{{ __('Accounting Settings') }}</h1>
-      @if(Route::has('heritage.accounting.add'))
-      <a href="{{ route('heritage.accounting.add') }}" class="btn atom-btn-white btn-sm"><i class="fas fa-plus me-1"></i>{{ __('Add Asset') }}</a>
-      @endif
+      <h1 class="h3 mb-0"><i class="fas fa-cog me-2"></i>{{ __('Heritage Accounting Settings') }}</h1>
+      <a href="{{ route('heritage.hadmin.standard-list') }}" class="btn btn-outline-primary btn-sm"><i class="fas fa-edit me-1"></i>{{ __('Manage Standards') }}</a>
     </div>
-    <p class="text-muted">{{ __('Configure heritage asset accounting settings.') }}</p>
 
-    {{-- Stats --}}
-    @if(!empty($stats))
-    <div class="row mb-4">
-      @foreach($stats as $key => $value)
-      <div class="col-md-3 mb-3">
-        <div class="card bg-{{ ['primary','success','warning','info'][$loop->index % 4] }} text-white h-100">
-          <div class="card-body"><h6 class="text-white-50">{{ ucwords(str_replace('_', ' ', $key)) }}</h6><h2 class="mb-0">{{ is_numeric($value) ? number_format($value, (strpos($key,'value')!==false?2:0)) : $value }}</h2></div>
+    <form method="post" action="{{ route('heritage.accounting.settings.save') }}">
+      @csrf
+      <div class="card">
+        <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-balance-scale me-2"></i>{{ __('Accounting Standards') }}</div>
+        <div class="card-body">
+          <p class="text-muted mb-4">{{ __('Enable or disable accounting standards for your organization. At least one standard should be enabled.') }}</p>
+          <div class="row">
+            @forelse($standards as $std)
+              <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card h-100 {{ $std->is_active ? 'border-success' : 'border-secondary' }}">
+                  <div class="card-body">
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" name="enabled[]" value="{{ $std->id }}" id="std_{{ $std->id }}" {{ $std->is_active ? 'checked' : '' }}>
+                      <label class="form-check-label" for="std_{{ $std->id }}"><strong>{{ $std->code }}</strong></label>
+                    </div>
+                    <p class="mb-1 mt-2">{{ $std->name }}</p>
+                    <small class="text-muted"><i class="fas fa-globe me-1"></i>{{ $std->country }}</small>
+                    <div class="mt-2">
+                      @if($std->capitalisation_required)
+                        <span class="badge bg-warning text-dark">{{ __('Capitalisation Required') }}</span>
+                      @else
+                        <span class="badge bg-info">{{ __('Capitalisation Optional') }}</span>
+                      @endif
+                    </div>
+                  </div>
+                </div>
+              </div>
+            @empty
+              <div class="col-12 text-muted">{{ __('No accounting standards installed. Install a region under Heritage Admin > Regions.') }}</div>
+            @endforelse
+          </div>
+          <div class="alert alert-info mt-3 mb-0">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>{{ __('Note:') }}</strong> {{ __('Required means capitalisation is mandatory under that accounting standard. Optional means capitalisation is at the organisation\'s discretion. The checkboxes control which standards are available for use in your system.') }}
+          </div>
+        </div>
+        <div class="card-footer d-flex gap-2">
+          <button type="submit" class="btn btn-success"><i class="fas fa-save me-2"></i>{{ __('Save Settings') }}</button>
+          <a href="{{ route('heritage.accounting.dashboard') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Dashboard') }}</a>
         </div>
       </div>
-      @endforeach
-    </div>
-    @endif
-
-    <div class="card">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-cog me-2"></i>{{ __('Accounting Settings') }}</div>
-      <div class="card-body p-0">
-        <div class="table-responsive">
-          <table class="table table-bordered table-sm table-striped mb-0">
-            <thead><tr>
-              @foreach($columns ?? ['ID','Name','Class','Status','Value','Date'] as $col)
-                <th>{{ $col }}</th>
-              @endforeach
-            </tr></thead>
-            <tbody>
-              @forelse($items ?? [] as $item)
-              <tr>@foreach((array)$item as $val)<td>{{ Str::limit($val, 80) ?: '-' }}</td>@endforeach</tr>
-              @empty
-              <tr><td colspan="{{ count($columns ?? ['ID','Name','Class','Status','Value','Date']) }}" class="text-center text-muted py-3">{{ __('No records found') }}</td></tr>
-              @endforelse
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    @if(isset($items) && method_exists($items, 'links'))
-      <div class="mt-3">{{ $items->withQueryString()->links() }}</div>
-    @endif
+    </form>
   </div>
 </div>
 @endsection

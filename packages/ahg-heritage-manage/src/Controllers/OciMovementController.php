@@ -72,6 +72,10 @@ class OciMovementController extends Controller
         } catch (\Exception $e) {
         }
         return view('ahg-heritage-manage::oci.index', [
+            'movementTypes' => \AhgCore\Support\DropdownOptions::resolve('heritage_oci_movement_type', [
+                'revaluation_up' => 'Revaluation increase', 'revaluation_down' => 'Revaluation decrease',
+                'impairment' => 'Impairment', 'reversal' => 'Impairment reversal', 'disposal' => 'Disposal',
+            ]),
             'items'   => $items,
             'summary' => $summary,
             'filters' => $request->only(['from', 'to', 'movement_type', 'heritage_asset_id']),
@@ -89,6 +93,7 @@ class OciMovementController extends Controller
         }
         return view('ahg-heritage-manage::oci.add', [
             'valuers'    => $valuers,
+            'currency'   => $this->defaultCurrency(),
             'formAction' => route('heritage.oci.store'),
         ]);
     }
@@ -111,7 +116,7 @@ class OciMovementController extends Controller
             'currency'              => 'nullable|string|size:3',
         ]);
 
-        $currency = $v['currency'] ?? 'ZAR';
+        $currency = strtoupper($v['currency'] ?? $this->defaultCurrency());
         $userId = optional($request->user())->id;
         $ids = [];
 
@@ -168,5 +173,11 @@ class OciMovementController extends Controller
 
         return redirect()->route('heritage.oci.index')
             ->with('success', __('Recorded :count OCI movement row(s).', ['count' => count($ids)]));
+    }
+
+    /** Currency of the active accounting region, so no single market is assumed. */
+    private function defaultCurrency(): string
+    {
+        return app(\AhgHeritageManage\Services\HeritageAccountingService::class)->currency() ?? 'USD';
     }
 }

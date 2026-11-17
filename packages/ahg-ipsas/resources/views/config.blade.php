@@ -32,13 +32,6 @@
         </div>
     </div>
 
-    @if(session('notice'))
-    <div class="alert alert-success alert-dismissible fade show">
-        {{ session('notice') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    @endif
-
     <form method="post" class="row g-4">
         @csrf
         <div class="col-lg-8">
@@ -48,22 +41,21 @@
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="form-label">{{ __('Organization Name') }}</label>
-                            <input type="text" name="organization_name" class="form-control" value="{{ $config['organization_name'] ?? '' }}">
+                            <input type="text" name="organization_name" class="form-control" value="{{ old('organization_name', $config['organization_name'] ?? '') }}">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Accounting Standard') }}</label>
                             <select name="accounting_standard" class="form-select">
-                                <option value="ipsas" {{ 'ipsas' === ($config['accounting_standard'] ?? '') ? 'selected' : '' }}>{{ __('IPSAS (International)') }}</option>
-                                <option value="ifrs" {{ 'ifrs' === ($config['accounting_standard'] ?? '') ? 'selected' : '' }}>{{ __('IFRS') }}</option>
-                                <option value="grap" {{ 'grap' === ($config['accounting_standard'] ?? '') ? 'selected' : '' }}>{{ __('GRAP (South Africa)') }}</option>
-                                <option value="gaap" {{ 'gaap' === ($config['accounting_standard'] ?? '') ? 'selected' : '' }}>{{ __('GAAP') }}</option>
+                                @foreach($opts['accounting_standard'] as $code => $lbl)
+                                    <option value="{{ $code }}" {{ strcasecmp($code, (string) old('accounting_standard', $config['accounting_standard'] ?? 'IPSAS')) === 0 ? 'selected' : '' }}>{{ __($lbl) }}</option>
+                                @endforeach
                             </select>
                             <small class="text-muted">{{ __('IPSAS is the international baseline; other frameworks are jurisdictional overlays.') }}</small>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Default Currency') }}</label>
-                            <input type="text" name="default_currency" class="form-control" maxlength="3" value="{{ $config['default_currency'] ?? '' }}" placeholder="{{ __('ISO 4217 code (e.g. USD, EUR, GBP, ZAR)') }}">
-                            <small class="text-muted">{{ __('Three-letter ISO 4217 code. Leave blank to show amounts without a currency prefix.') }}</small>
+                            <input type="text" name="default_currency" class="form-control" maxlength="3" required value="{{ old('default_currency', $config['default_currency'] ?? 'USD') }}" placeholder="{{ __('ISO 4217 code (e.g. USD, EUR, GBP)') }}">
+                            <small class="text-muted">{{ __('Three-letter ISO 4217 code used for new assets, valuations and reports.') }}</small>
                         </div>
                     </div>
                 </div>
@@ -77,12 +69,14 @@
                             <label class="form-label">{{ __('Financial Year Start') }}</label>
                             <select name="financial_year_start" class="form-select">
                                 @php
-                                    $months = ['01' => 'January', '02' => 'February', '03' => 'March', '04' => 'April', '05' => 'May', '06' => 'June', '07' => 'July', '08' => 'August', '09' => 'September', '10' => 'October', '11' => 'November', '12' => 'December'];
+                                    $fyStart = substr((string) old('financial_year_start', $config['financial_year_start'] ?? '01-01'), 0, 2);
                                 @endphp
-                                @foreach($months as $num => $name)
-                                <option value="{{ $num }}" {{ $num === ($config['financial_year_start'] ?? '01') ? 'selected' : '' }}>{{ $name }}</option>
-                                @endforeach
+                                @for($m = 1; $m <= 12; $m++)
+                                    @php $num = sprintf('%02d', $m); @endphp
+                                <option value="{{ $num }}-01" {{ $num === $fyStart ? 'selected' : '' }}>{{ \Illuminate\Support\Carbon::create(2000, $m, 1)->translatedFormat('F') }}</option>
+                                @endfor
                             </select>
+                            <small class="text-muted">{{ __('The financial year runs for twelve months from the first day of this month.') }}</small>
                         </div>
                     </div>
                 </div>
@@ -95,9 +89,9 @@
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Depreciation Policy') }}</label>
                             <select name="depreciation_policy" class="form-select">
-                                <option value="none" {{ 'none' === ($config['depreciation_policy'] ?? 'none') ? 'selected' : '' }}>{{ __('No Depreciation (Heritage)') }}</option>
-                                <option value="straight_line" {{ 'straight_line' === ($config['depreciation_policy'] ?? '') ? 'selected' : '' }}>{{ __('Straight Line') }}</option>
-                                <option value="reducing_balance" {{ 'reducing_balance' === ($config['depreciation_policy'] ?? '') ? 'selected' : '' }}>{{ __('Reducing Balance') }}</option>
+                                @foreach($opts['depreciation_policy'] as $code => $lbl)
+                                    <option value="{{ $code }}" {{ $code === old('depreciation_policy', $config['depreciation_policy'] ?? 'none') ? 'selected' : '' }}>{{ __($lbl) }}</option>
+                                @endforeach
                             </select>
                             <small class="text-muted">{{ __('Heritage assets typically not depreciated under IPSAS 17') }}</small>
                         </div>

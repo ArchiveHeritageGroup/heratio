@@ -60,18 +60,17 @@
                 <div class="col-md-2">
                     <select name="status" class="form-select">
                         <option value="">{{ __('All Status') }}</option>
-                        <option value="active" {{ 'active' === $currentStatus ? 'selected' : '' }}>{{ __('Active') }}</option>
-                        <option value="on_loan" {{ 'on_loan' === $currentStatus ? 'selected' : '' }}>{{ __('On Loan') }}</option>
-                        <option value="in_storage" {{ 'in_storage' === $currentStatus ? 'selected' : '' }}>{{ __('In Storage') }}</option>
-                        <option value="disposed" {{ 'disposed' === $currentStatus ? 'selected' : '' }}>{{ __('Disposed') }}</option>
+                        @foreach($opts['status'] as $code => $lbl)
+                            <option value="{{ $code }}" {{ $code === $currentStatus ? 'selected' : '' }}>{{ __($lbl) }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="col-md-2">
                     <select name="basis" class="form-select">
                         <option value="">{{ __('All Valuation') }}</option>
-                        <option value="historical_cost" {{ 'historical_cost' === $currentBasis ? 'selected' : '' }}>{{ __('Historical Cost') }}</option>
-                        <option value="fair_value" {{ 'fair_value' === $currentBasis ? 'selected' : '' }}>{{ __('Fair Value') }}</option>
-                        <option value="nominal" {{ 'nominal' === $currentBasis ? 'selected' : '' }}>{{ __('Nominal') }}</option>
+                        @foreach($opts['valuation_basis'] as $code => $lbl)
+                            <option value="{{ $code }}" {{ $code === $currentBasis ? 'selected' : '' }}>{{ __($lbl) }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -130,7 +129,7 @@
                                     'nominal' => 'warning',
                                     'not_recognized' => 'secondary',
                                 ];
-                                $defaultCurrency = config('heratio.default_currency', '');
+                                $defaultCurrency = $currency;
                             @endphp
                             <tr>
                                 <td>
@@ -144,7 +143,7 @@
                                 <td>{{ $asset->category_name ?? '-' }}</td>
                                 <td>
                                     <span class="badge bg-{{ $basisColors[$asset->valuation_basis ?? ''] ?? 'secondary' }}">
-                                        {{ ucfirst(str_replace('_', ' ', $asset->valuation_basis ?? '-')) }}
+                                        {{ $opts['valuation_basis'][$asset->valuation_basis ?? ''] ?? ucfirst(str_replace('_', ' ', $asset->valuation_basis ?? '-')) }}
                                     </span>
                                 </td>
                                 <td>
@@ -153,12 +152,12 @@
                                 </td>
                                 <td>
                                     <span class="badge bg-{{ $statusColors[$asset->status ?? ''] ?? 'secondary' }}">
-                                        {{ ucfirst(str_replace('_', ' ', $asset->status ?? '-')) }}
+                                        {{ $opts['status'][$asset->status ?? ''] ?? ucfirst(str_replace('_', ' ', $asset->status ?? '-')) }}
                                     </span>
                                 </td>
                                 <td>
                                     <span class="badge bg-{{ $conditionColors[$asset->condition_rating ?? ''] ?? 'secondary' }}">
-                                        {{ ucfirst($asset->condition_rating ?? '-') }}
+                                        {{ $opts['condition_rating'][$asset->condition_rating ?? ''] ?? ucfirst($asset->condition_rating ?? '-') }}
                                     </span>
                                 </td>
                                 <td>

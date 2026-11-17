@@ -46,7 +46,17 @@
                 <div class="card-header"><h5 class="mb-0">{{ __('Select Asset') }}</h5></div>
                 <div class="card-body">
                     <label class="form-label">{{ __('Asset') }} <span class="text-danger">*</span></label>
-                    <input type="number" name="asset_id" class="form-control" required placeholder="{{ __('Enter Asset ID') }}">
+                    @if($assetChoices->isEmpty())
+                        <div class="alert alert-warning mb-0">{{ __('No active assets are registered yet.') }} <a href="{{ route('ipsas.asset.create') }}">{{ __('Register an asset') }}</a></div>
+                    @else
+                    <select name="asset_id" class="form-select" required>
+                        <option value="">{{ __('Select...') }}</option>
+                        @foreach($assetChoices as $choice)
+                            <option value="{{ $choice->id }}" {{ (string) old('asset_id') === (string) $choice->id ? 'selected' : '' }}>{{ $choice->asset_number }} - {{ \Illuminate\Support\Str::limit($choice->title, 60) }} ({{ $currency }} {{ number_format((float) $choice->current_value, 2) }})</option>
+                        @endforeach
+                    </select>
+                    <div class="form-text">{{ __('Enter the current value of the asset as the previous value below.') }}</div>
+                    @endif
                 </div>
             </div>
             @endif
@@ -62,27 +72,25 @@
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Valuation Type') }}</label>
                             <select name="valuation_type" class="form-select">
-                                <option value="initial">{{ __('Initial') }}</option>
-                                <option value="revaluation">{{ __('Revaluation') }}</option>
-                                <option value="impairment">{{ __('Impairment') }}</option>
-                                <option value="reversal">{{ __('Reversal') }}</option>
+                                @foreach($opts['valuation_type'] as $code => $lbl)
+                                    <option value="{{ $code }}" {{ old('valuation_type') === $code ? 'selected' : '' }}>{{ __($lbl) }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Valuation Basis') }}</label>
                             <select name="valuation_basis" class="form-select">
-                                <option value="historical_cost">{{ __('Historical Cost') }}</option>
-                                <option value="fair_value">{{ __('Fair Value') }}</option>
-                                <option value="nominal">{{ __('Nominal Value') }}</option>
+                                @foreach($opts['valuation_basis'] as $code => $lbl)
+                                    <option value="{{ $code }}" {{ old('valuation_basis') === $code ? 'selected' : '' }}>{{ __($lbl) }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Valuation Method') }}</label>
                             <select name="valuation_method" class="form-select">
-                                <option value="market_comparison">{{ __('Market Comparison') }}</option>
-                                <option value="income_approach">{{ __('Income Approach') }}</option>
-                                <option value="cost_approach">{{ __('Cost Approach') }}</option>
-                                <option value="expert_opinion">{{ __('Expert Opinion') }}</option>
+                                @foreach($opts['valuation_method'] as $code => $lbl)
+                                    <option value="{{ $code }}" {{ old('valuation_method') === $code ? 'selected' : '' }}>{{ __($lbl) }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -108,9 +116,9 @@
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Valuer Type') }}</label>
                             <select name="valuer_type" class="form-select">
-                                <option value="internal">{{ __('Internal') }}</option>
-                                <option value="external">{{ __('External') }}</option>
-                                <option value="government">{{ __('Government') }}</option>
+                                @foreach($opts['valuer_type'] as $code => $lbl)
+                                    <option value="{{ $code }}" {{ old('valuer_type') === $code ? 'selected' : '' }}>{{ __($lbl) }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="col-12">

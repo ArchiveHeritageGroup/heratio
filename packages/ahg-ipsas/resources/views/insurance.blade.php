@@ -18,7 +18,7 @@
 @php
     $policies = $policies ?? collect();
     $currentStatus = $currentStatus ?? '';
-    $defaultCurrency = config('heratio.default_currency', '');
+    $defaultCurrency = $currency;
 @endphp
 <div class="container-fluid">
     <div class="row mb-4">
@@ -41,9 +41,9 @@
                 <div class="col-md-3">
                     <select name="status" class="form-select">
                         <option value="">{{ __('All Status') }}</option>
-                        <option value="active" {{ 'active' === $currentStatus ? 'selected' : '' }}>{{ __('Active') }}</option>
-                        <option value="expired" {{ 'expired' === $currentStatus ? 'selected' : '' }}>{{ __('Expired') }}</option>
-                        <option value="cancelled" {{ 'cancelled' === $currentStatus ? 'selected' : '' }}>{{ __('Cancelled') }}</option>
+                        @foreach($opts['insurance_status'] as $code => $lbl)
+                            <option value="{{ $code }}" {{ $code === $currentStatus ? 'selected' : '' }}>{{ __($lbl) }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="col-md-2">

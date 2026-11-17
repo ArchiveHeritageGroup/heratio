@@ -28,244 +28,292 @@ namespace AhgIpsas\Controllers;
 use AhgIpsas\Services\IpsasService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\View;
 
+/**
+ * Heritage asset management under IPSAS. Every page shares the configured
+ * currency and the Dropdown Manager option lists.
+ */
 class IpsasController extends Controller
 {
     protected IpsasService $service;
 
-    public function __construct()
+    public function __construct(IpsasService $service)
     {
-        $this->service = new IpsasService;
+        $this->service = $service;
+    }
+
+    /** Currency + option lists every IPSAS view uses. */
+    private function shareCommon(): void
+    {
+        View::share('currency', $this->service->defaultCurrency());
+        View::share('opts', $this->service->options());
     }
 
     public function index()
     {
-        $stats = $this->service->getDashboardStats();
-        $compliance = $this->service->getComplianceStatus();
-        $config = $this->service->getAllConfig();
+        $this->shareCommon();
 
-        $recentAssets = \Illuminate\Support\Facades\DB::table('ipsas_heritage_asset')
-            ->orderByDesc('created_at')->limit(5)->get();
-
-        $expiringInsurance = \Illuminate\Support\Facades\DB::table('ipsas_insurance')
-            ->where('status', 'active')
-            ->whereRaw('coverage_end <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)')
-            ->orderBy('coverage_end')->limit(5)->get();
-
-        return view('ahg-ipsas::index', compact('stats', 'compliance', 'config', 'recentAssets', 'expiringInsurance'));
+        return view('ahg-ipsas::index', [
+            'stats' => $this->service->getDashboardStats(),
+            'compliance' => $this->service->getComplianceStatus(),
+            'config' => $this->service->getAllConfig(),
+            'recentAssets' => $this->service->getRecentAssets(),
+            'expiringInsurance' => $this->service->getExpiringInsurance(),
+        ]);
     }
 
     public function assets(Request $request)
     {
+        $this->shareCommon();
         $filters = [
-            'category_id' => $request->get('category'),
-            'status' => $request->get('status'),
-            'valuation_basis' => $request->get('basis'),
-            'search' => $request->get('q'),
+            'category_id' => $request->query('category'),
+            'status' => $request->query('status'),
+            'valuation_basis' => $request->query('basis'),
+            'search' => $request->query('q'),
         ];
 
-        $assets = $this->service->getAssets($filters);
-        $categories = $this->service->getCategories();
-
-        return view('ahg-ipsas::assets', compact('assets', 'categories', 'filters'));
+        return view('ahg-ipsas::assets', [
+            'assets' => $this->service->getAssets($filters),
+            'categories' => $this->service->getCategories(),
+            'filters' => $filters,
+        ]);
     }
 
     public function assetCreate(Request $request)
     {
-        $categories = $this->service->getCategories();
+        $this->shareCommon();
+        $opts = $this->service->options();
 
         if ($request->isMethod('post')) {
-            $id = $this->service->createAsset($request->only([
-                'information_object_id', 'category_id', 'title', 'description',
-                'location', 'repository_id', 'acquisition_date', 'acquisition_method',
-                'acquisition_source', 'acquisition_cost', 'acquisition_currency',
-                'valuation_basis', 'current_value', 'condition_rating',
-            ]) + ['user_id' => auth()->id()]);
+            $v = $request->validate([
+                'title' => 'required|string|max:500',
+                'description' => 'nullable|string',
+                'category_id' => 'nullable|integer|exists:ipsas_asset_category,id',
+                'location' => 'nullable|string|max:255',
+                'information_object_id' => 'nullable|integer|exists:information_object,id',
+                'repository_id' => 'nullable|integer',
+                'acquisition_date' => 'nullable|date',
+                'acquisition_method' => 'nullable|string|in:'.implode(',', array_keys($opts['acquisition_method'])),
+                'acquisition_source' => 'nullable|string|max:255',
+                'acquisition_cost' => 'nullable|numeric|min:0',
+                'acquisition_currency' => 'nullable|string|size:3',
+                'valuation_basis' => 'nullable|string|in:'.implode(',', array_keys($opts['valuation_basis'])),
+                'current_value' => 'nullable|numeric|min:0',
+                'condition_rating' => 'nullable|string|in:'.implode(',', array_keys($opts['condition_rating'])),
+            ]);
+            $keys = ['title', 'description', 'category_id', 'location', 'information_object_id', 'repository_id',
+                'acquisition_date', 'acquisition_method', 'acquisition_source', 'acquisition_cost',
+                'acquisition_currency', 'valuation_basis', 'current_value', 'condition_rating'];
+            $data = array_merge(array_fill_keys($keys, null), $v, ['user_id' => auth()->id()]);
 
-            return redirect()->route('ipsas.asset.view', $id)->with('notice', __('Asset registered'));
+            $id = $this->service->createAsset($data);
+
+            return redirect()->route('ipsas.asset.view', $id)->with('success', __('Asset registered'));
         }
 
-        return view('ahg-ipsas::asset-create', compact('categories'));
+        return view('ahg-ipsas::asset-create', ['categories' => $this->service->getCategories()]);
     }
 
     public function assetView(int $id)
     {
         $asset = $this->service->getAsset($id);
         abort_unless($asset, 404, 'Asset not found');
+        $this->shareCommon();
 
-        $valuations = $this->service->getAssetValuations($id);
-        $impairments = $this->service->getImpairments(['asset_id' => $id]);
-
-        return view('ahg-ipsas::asset-view', compact('asset', 'valuations', 'impairments'));
+        return view('ahg-ipsas::asset-view', [
+            'asset' => $asset,
+            'valuations' => $this->service->getAssetValuations($id),
+            'impairments' => $this->service->getImpairments(['asset_id' => $id]),
+        ]);
     }
 
     public function assetEdit(Request $request, int $id)
     {
         $asset = $this->service->getAsset($id);
         abort_unless($asset, 404, 'Asset not found');
-
-        $categories = $this->service->getCategories();
+        $this->shareCommon();
+        $opts = $this->service->options();
 
         if ($request->isMethod('post')) {
-            $this->service->updateAsset($id, $request->only([
-                'title', 'description', 'location', 'status',
-                'condition_rating', 'risk_level', 'risk_notes',
-            ]), auth()->id());
+            $v = $request->validate([
+                'title' => 'required|string|max:500',
+                'description' => 'nullable|string',
+                'location' => 'nullable|string|max:255',
+                'status' => 'required|string|in:'.implode(',', array_keys($opts['status'])),
+                'condition_rating' => 'nullable|string|in:'.implode(',', array_keys($opts['condition_rating'])),
+                'risk_level' => 'nullable|string|in:'.implode(',', array_keys($opts['risk_level'])),
+                'risk_notes' => 'nullable|string',
+            ]);
+            // Blank text fields clear the value; a blank select leaves it unchanged.
+            foreach (['description', 'location', 'risk_notes'] as $k) {
+                $v[$k] = $v[$k] ?? '';
+            }
 
-            return redirect()->route('ipsas.asset.view', $id)->with('notice', __('Asset updated'));
+            $this->service->updateAsset($id, $v, auth()->id());
+
+            return redirect()->route('ipsas.asset.view', $id)->with('success', __('Asset updated'));
         }
 
-        return view('ahg-ipsas::asset-edit', compact('asset', 'categories'));
+        return view('ahg-ipsas::asset-edit', [
+            'asset' => $asset,
+            'categories' => $this->service->getCategories(),
+        ]);
     }
 
     public function valuations(Request $request)
     {
+        $this->shareCommon();
         $filters = [
-            'type' => $request->get('type'),
-            'year' => $request->get('year', date('Y')),
+            'type' => $request->query('type'),
+            'year' => $request->query('year', date('Y')),
         ];
 
-        $valuations = $this->service->getValuations($filters);
-
-        return view('ahg-ipsas::valuations', compact('valuations', 'filters'));
+        return view('ahg-ipsas::valuations', [
+            'valuations' => $this->service->getValuations($filters),
+            'filters' => $filters,
+        ]);
     }
 
     public function valuationCreate(Request $request)
     {
-        $assetId = $request->get('asset_id');
-        $asset = $assetId ? $this->service->getAsset((int) $assetId) : null;
+        $this->shareCommon();
+        $opts = $this->service->options();
 
         if ($request->isMethod('post')) {
-            $this->service->createValuation($request->only([
-                'asset_id', 'valuation_date', 'valuation_type', 'valuation_basis',
-                'previous_value', 'new_value', 'valuer_name', 'valuer_qualification',
-                'valuer_type', 'valuation_method', 'market_evidence',
-                'documentation_ref', 'notes',
-            ]) + ['user_id' => auth()->id()]);
+            $v = $request->validate([
+                'asset_id' => 'required|integer|exists:ipsas_heritage_asset,id',
+                'valuation_date' => 'required|date',
+                'valuation_type' => 'required|string|in:'.implode(',', array_keys($opts['valuation_type'])),
+                'valuation_basis' => 'required|string|in:'.implode(',', array_keys($opts['valuation_basis'])),
+                'previous_value' => 'nullable|numeric|min:0',
+                'new_value' => 'required|numeric|min:0',
+                'valuer_name' => 'nullable|string|max:255',
+                'valuer_qualification' => 'nullable|string|max:255',
+                'valuer_type' => 'nullable|string|in:'.implode(',', array_keys($opts['valuer_type'])),
+                'valuation_method' => 'nullable|string|max:255',
+                'market_evidence' => 'nullable|string',
+                'documentation_ref' => 'nullable|string|max:255',
+                'notes' => 'nullable|string',
+            ]);
+            $v['user_id'] = auth()->id();
 
-            return redirect()->route('ipsas.asset.view', $request->get('asset_id'))->with('notice', __('Valuation recorded'));
+            $this->service->createValuation($v);
+
+            return redirect()->route('ipsas.asset.view', $v['asset_id'])->with('success', __('Valuation recorded'));
         }
 
-        return view('ahg-ipsas::valuation-create', compact('asset'));
+        $assetId = (int) $request->query('asset_id');
+        $asset = $assetId ? $this->service->getAsset($assetId) : null;
+
+        return view('ahg-ipsas::valuation-create', [
+            'asset' => $asset,
+            'assetChoices' => $asset ? collect() : $this->service->getAssetChoices(),
+        ]);
     }
 
     public function impairments(Request $request)
     {
-        $impairments = $this->service->getImpairments([
-            'recognized_only' => $request->get('recognized_only'),
-        ]);
+        $this->shareCommon();
+        $recognizedOnly = $request->boolean('recognized_only');
 
-        return view('ahg-ipsas::impairments', compact('impairments'));
+        return view('ahg-ipsas::impairments', [
+            'impairments' => $this->service->getImpairments(['recognized_only' => $recognizedOnly]),
+            'recognizedOnly' => $recognizedOnly,
+        ]);
     }
 
     public function insurance(Request $request)
     {
-        $policies = $this->service->getInsurancePolicies([
-            'status' => $request->get('status'),
-        ]);
-        $currentStatus = $request->get('status');
+        $this->shareCommon();
+        $status = $request->query('status');
 
-        return view('ahg-ipsas::insurance', compact('policies', 'currentStatus'));
+        return view('ahg-ipsas::insurance', [
+            'policies' => $this->service->getInsurancePolicies(['status' => $status]),
+            'currentStatus' => $status,
+        ]);
     }
 
     public function reports(Request $request)
     {
-        $year = $request->get('year', date('Y'));
-
-        $report = $request->get('report');
-        if ($report) {
-            return $this->generateReport($report, $year);
+        $year = (string) $request->query('year', date('Y'));
+        if (! preg_match('/^\d{4}$/', $year)) {
+            $year = date('Y');
         }
 
-        return view('ahg-ipsas::reports', compact('year'));
+        $report = $request->query('report');
+        if ($report) {
+            return $this->downloadReport((string) $report, $year);
+        }
+
+        $this->shareCommon();
+
+        return view('ahg-ipsas::reports', ['year' => $year, 'reports' => IpsasService::REPORTS]);
     }
 
     public function financialYear(Request $request)
     {
-        $year = $request->get('year', date('Y'));
-        $summary = $this->service->calculateFinancialYearSummary($year);
+        $this->shareCommon();
+        $year = (string) $request->query('year', date('Y'));
+        if (! preg_match('/^\d{4}$/', $year)) {
+            $year = date('Y');
+        }
 
-        return view('ahg-ipsas::financial-year', compact('year', 'summary'));
+        return view('ahg-ipsas::financial-year', [
+            'year' => $year,
+            'summary' => $this->service->calculateFinancialYearSummary($year),
+        ]);
     }
 
     public function config(Request $request)
     {
-        if ($request->isMethod('post')) {
-            $configs = [
-                'default_currency', 'financial_year_start', 'depreciation_policy',
-                'valuation_frequency_years', 'insurance_review_months',
-                'impairment_threshold_percent', 'nominal_value',
-                'organization_name', 'accounting_standard',
-            ];
+        $this->shareCommon();
+        $opts = $this->service->options();
 
-            foreach ($configs as $key) {
-                $value = $request->get($key);
-                if ($value !== null) {
-                    $this->service->setConfig($key, $value);
-                }
+        if ($request->isMethod('post')) {
+            $v = $request->validate([
+                'organization_name' => 'nullable|string|max:255',
+                'accounting_standard' => 'required|string|in:'.implode(',', array_keys($opts['accounting_standard'])),
+                'default_currency' => 'required|string|size:3|alpha',
+                'financial_year_start' => ['required', 'regex:/^(0[1-9]|1[0-2])-01$/'],
+                'depreciation_policy' => 'required|string|in:'.implode(',', array_keys($opts['depreciation_policy'])),
+                'valuation_frequency_years' => 'required|integer|min:1|max:10',
+                'nominal_value' => 'required|numeric|min:0',
+                'impairment_threshold_percent' => 'required|numeric|min:0|max:100',
+                'insurance_review_months' => 'required|integer|min:1|max:24',
+            ]);
+            $v['default_currency'] = strtoupper($v['default_currency']);
+            $v['organization_name'] = $v['organization_name'] ?? '';
+
+            foreach ($v as $key => $value) {
+                $this->service->setConfig($key, (string) $value);
             }
 
-            return redirect()->route('ipsas.config')->with('notice', __('Configuration saved'));
+            return redirect()->route('ipsas.config')->with('success', __('Configuration saved'));
         }
 
-        $config = $this->service->getAllConfig();
-
-        return view('ahg-ipsas::config', compact('config'));
+        return view('ahg-ipsas::config', ['config' => $this->service->getAllConfig()]);
     }
 
-    /**
-     * Admin dashboard for IPSAS configuration.
-     */
-    public function admin()
+    /** Stream one report as UTF-8 CSV (with BOM so spreadsheets read accents). */
+    protected function downloadReport(string $report, string $year)
     {
-        $config = $this->service->getAllConfig();
-        $stats = $this->service->getDashboardStats();
-
-        return view('ahg-ipsas::admin', compact('config', 'stats'));
-    }
-
-    /**
-     * Handle POST actions for IPSAS.
-     */
-    public function post(Request $request)
-    {
-        $action = $request->get('action');
-
-        if ($action === 'delete_asset') {
-            $id = (int) $request->get('id');
-            $this->service->deleteAsset($id);
-
-            return redirect()->route('ipsas.assets')->with('notice', __('Asset deleted.'));
+        $data = $this->service->buildReport($report, $year);
+        if ($data === null) {
+            return redirect()->route('ipsas.reports')->with('error', __('Unknown report type'));
         }
 
-        if ($action === 'recalculate') {
-            $year = $request->get('year', date('Y'));
-            $this->service->calculateFinancialYearSummary($year);
-
-            return redirect()->route('ipsas.financialYear', ['year' => $year])->with('notice', __('Financial year recalculated.'));
-        }
-
-        return redirect()->back()->with('error', __('Invalid action.'));
-    }
-
-    protected function generateReport(string $report, string $year)
-    {
-        $assets = $this->service->getAssets([]);
-        $output = fopen('php://temp', 'r+');
-        fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
-        fputcsv($output, ['Asset #', 'Title', 'Category', 'Current Value', 'Status']);
-
-        foreach ($assets as $a) {
-            fputcsv($output, [$a->asset_number ?? '', $a->title ?? '', $a->category_name ?? '', $a->current_value ?? 0, $a->status ?? '']);
-        }
-
-        rewind($output);
-        $csv = stream_get_contents($output);
-        fclose($output);
-
-        return response($csv, 200, [
+        return response()->streamDownload(function () use ($data) {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF");
+            fputcsv($out, $data['headers']);
+            foreach ($data['rows'] as $row) {
+                fputcsv($out, $row);
+            }
+            fclose($out);
+        }, $data['filename'].'.csv', [
             'Content-Type' => 'text/csv; charset=utf-8',
-            'Content-Disposition' => "attachment; filename=\"{$report}_{$year}.csv\"",
+            'Cache-Control' => 'no-cache, no-store',
         ]);
     }
 }

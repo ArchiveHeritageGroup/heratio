@@ -13,11 +13,16 @@
     $v = fn ($f, $d = '') => old($f, data_get($asset, $f, $d));
     $isSel = fn ($f, $opt, $d = '') => ((string) $v($f, $d) === (string) $opt) ? 'selected' : '';
     $linkedIoId = $io->id ?? data_get($asset, 'information_object_id');
+    // Enumerated values come from the Dropdown Manager (fallbacks only if a taxonomy is missing).
+    $dd = fn ($t, $fb) => \AhgCore\Support\DropdownOptions::resolve($t, $fb);
+    $recognitionOpts = $dd('recognition_status', ['pending' => 'Pending', 'recognised' => 'Recognised', 'not_recognised' => 'Not Recognised']);
+    $basisOpts = $dd('measurement_basis', ['cost' => 'Cost', 'fair_value' => 'Fair Value', 'nominal' => 'Nominal', 'not_practicable' => 'Not Practicable']);
+    $acqOpts = $dd('acquisition_method', ['purchase' => 'Purchase', 'donation' => 'Donation', 'bequest' => 'Bequest', 'transfer' => 'Transfer', 'found' => 'Found', 'exchange' => 'Exchange', 'other' => 'Other']);
+    $sigOpts = $dd('heritage_significance', ['exceptional' => 'Exceptional', 'high' => 'High', 'medium' => 'Medium', 'low' => 'Low']);
+    $condOpts = $dd('condition_rating', ['excellent' => 'Excellent', 'good' => 'Good', 'fair' => 'Fair', 'poor' => 'Poor', 'critical' => 'Critical']);
 @endphp
 
-@if(isset($errors) && $errors->any())
-  <div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>
-@endif
+{{-- Validation errors and flash messages are rendered by the theme layout. --}}
 
 <div class="row">
   <div class="col-md-8">
@@ -76,9 +81,9 @@
           <div class="col-md-4">
             <label class="form-label">{{ __('Recognition status') }}</label>
             <select name="recognition_status" class="form-select">
-              <option value="pending" {{ $isSel('recognition_status', 'pending', 'pending') }}>{{ __('Pending') }}</option>
-              <option value="recognised" {{ $isSel('recognition_status', 'recognised') }}>{{ __('Recognised') }}</option>
-              <option value="not_recognised" {{ $isSel('recognition_status', 'not_recognised') }}>{{ __('Not Recognised') }}</option>
+              @foreach($recognitionOpts as $ov => $ol)
+                <option value="{{ $ov }}" {{ $isSel('recognition_status', $ov, 'pending') }}>{{ __($ol) }}</option>
+              @endforeach
             </select>
           </div>
           <div class="col-md-4">
@@ -88,10 +93,9 @@
           <div class="col-md-4">
             <label class="form-label">{{ __('Measurement basis') }}</label>
             <select name="measurement_basis" class="form-select">
-              <option value="cost" {{ $isSel('measurement_basis', 'cost', 'cost') }}>{{ __('Cost') }}</option>
-              <option value="fair_value" {{ $isSel('measurement_basis', 'fair_value') }}>{{ __('Fair Value') }}</option>
-              <option value="nominal" {{ $isSel('measurement_basis', 'nominal') }}>{{ __('Nominal') }}</option>
-              <option value="not_practicable" {{ $isSel('measurement_basis', 'not_practicable') }}>{{ __('Not Practicable') }}</option>
+              @foreach($basisOpts as $ov => $ol)
+                <option value="{{ $ov }}" {{ $isSel('measurement_basis', $ov, 'cost') }}>{{ __($ol) }}</option>
+              @endforeach
             </select>
           </div>
           <div class="col-12">
@@ -111,7 +115,7 @@
             <label class="form-label">{{ __('Acquisition method') }}</label>
             <select name="acquisition_method" class="form-select">
               <option value="">{{ __('-- Select --') }}</option>
-              @foreach(['purchase'=>'Purchase','donation'=>'Donation','bequest'=>'Bequest','transfer'=>'Transfer','found'=>'Found','exchange'=>'Exchange','other'=>'Other'] as $mv => $ml)
+              @foreach($acqOpts as $mv => $ml)
                 <option value="{{ $mv }}" {{ $isSel('acquisition_method', $mv) }}>{{ __($ml) }}</option>
               @endforeach
             </select>
@@ -306,7 +310,7 @@
           <label class="form-label">{{ __('Significance') }}</label>
           <select name="heritage_significance" class="form-select">
             <option value="">{{ __('-- Select --') }}</option>
-            @foreach(['exceptional'=>'Exceptional','high'=>'High','medium'=>'Medium','low'=>'Low'] as $sv => $sl)
+            @foreach($sigOpts as $sv => $sl)
               <option value="{{ $sv }}" {{ $isSel('heritage_significance', $sv) }}>{{ __($sl) }}</option>
             @endforeach
           </select>
@@ -330,7 +334,7 @@
           <label class="form-label">{{ __('Condition') }}</label>
           <select name="condition_rating" class="form-select">
             <option value="">{{ __('-- Select --') }}</option>
-            @foreach(['excellent'=>'Excellent','good'=>'Good','fair'=>'Fair','poor'=>'Poor','critical'=>'Critical'] as $cv => $cl)
+            @foreach($condOpts as $cv => $cl)
               <option value="{{ $cv }}" {{ $isSel('condition_rating', $cv) }}>{{ __($cl) }}</option>
             @endforeach
           </select>

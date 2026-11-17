@@ -78,12 +78,12 @@ ON DUPLICATE KEY UPDATE code = code;
 CREATE TABLE IF NOT EXISTS ipsas_heritage_asset (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     asset_number VARCHAR(50) NOT NULL UNIQUE,
-    information_object_id INT COMMENT 'Link to AtoM record',
+    information_object_id INT COMMENT 'Link to archival description',
     category_id BIGINT UNSIGNED,
     title VARCHAR(500) NOT NULL,
     description TEXT,
     location VARCHAR(255),
-    repository_id INT COMMENT 'Link to AtoM repository',
+    repository_id INT COMMENT 'Link to repository',
 
     -- Acquisition details
     acquisition_date DATE,

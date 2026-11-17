@@ -27,6 +27,8 @@
 
 namespace AhgHeritageManage\Controllers;
 
+use AhgCore\Support\DropdownOptions;
+use AhgHeritageManage\Services\HeritageAccountingService;
 use AhgHeritageManage\Services\HeritageValuationService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -35,57 +37,60 @@ use Illuminate\Support\Facades\Schema;
 
 class HeritageAccountingController extends Controller
 {
-    public function dashboard()
+    public function __construct(protected HeritageAccountingService $accounting)
     {
-        $stats = ['total' => 0, 'recognised' => 0, 'pending' => 0, 'total_value' => 0];
-        $items = collect();
-
-        try {
-            if (Schema::hasTable('heritage_asset')) {
-                $stats['total'] = DB::table('heritage_asset')->count();
-                $stats['recognised'] = DB::table('heritage_asset')->where('recognition_status', 'recognised')->count();
-                $stats['pending'] = DB::table('heritage_asset')->where('recognition_status', 'pending')->count();
-                $stats['total_value'] = (float) DB::table('heritage_asset')->sum('current_carrying_amount');
-            }
-        } catch (\Exception $e) {}
-
-        return view('ahg-heritage-manage::heritage-accounting.dashboard', compact('stats', 'items'));
     }
 
+    /**
+     * Dashboard: headline figures, assets by class, the active standards and
+     * the ten most recently added assets, optionally scoped to a repository
+     * and/or an accounting standard.
+     */
+    public function dashboard(Request $request)
+    {
+        $repositoryId = $request->integer('repository_id') ?: null;
+        $standardId = $request->integer('standard_id') ?: null;
+
+        $stats = $this->accounting->getDashboardStats($repositoryId, $standardId);
+        $standards = $this->accounting->getAccountingStandards();
+        $recentAssets = $this->accounting->browse(array_filter([
+            'repository_id' => $repositoryId,
+            'standard_id' => $standardId,
+        ]), 10)['items'];
+        $statusLabels = DropdownOptions::resolve('recognition_status', self::STATUS_FALLBACK);
+        $currency = $this->accounting->currency();
+
+        return view('ahg-heritage-manage::heritage-accounting.dashboard', compact(
+            'stats', 'standards', 'recentAssets', 'statusLabels', 'currency', 'standardId'
+        ));
+    }
+
+    private const STATUS_FALLBACK = [
+        'recognised' => 'Recognised', 'not_recognised' => 'Not Recognised',
+        'pending' => 'Pending', 'derecognised' => 'Derecognised',
+    ];
+
+    /** Register with filters: standard, class, status, repository, record, search. */
     public function browse(Request $request)
     {
-        $culture = app()->getLocale();
-        $items = collect();
-        $columns = ['Asset', 'Class', 'Status', 'Carrying value', 'Recognised'];
+        $filters = array_filter([
+            'standard_id' => $request->query('standard_id'),
+            'class_id' => $request->query('class_id'),
+            'recognition_status' => $request->query('status'),
+            'repository_id' => $request->query('repository_id'),
+            'information_object_id' => $request->query('io_id'),
+            'search' => trim((string) $request->query('sq', '')),
+        ], fn ($v) => $v !== null && $v !== '');
 
-        try {
-            if (Schema::hasTable('heritage_asset')) {
-                // Resolve the item NAME from the linked information_object title
-                // (heritage_asset has no name column of its own) + its slug so the
-                // browse can link each row to the record, and the asset-class name.
-                $items = DB::table('heritage_asset as ha')
-                    ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                        $j->on('i18n.id', '=', 'ha.information_object_id')
-                            ->where('i18n.culture', '=', $culture);
-                    })
-                    ->leftJoin('slug as s', 's.object_id', '=', 'ha.information_object_id')
-                    ->leftJoin('heritage_asset_class as ac', 'ac.id', '=', 'ha.asset_class_id')
-                    ->orderByDesc('ha.created_at')
-                    ->select(
-                        'ha.id',
-                        'ha.information_object_id',
-                        's.slug',
-                        'i18n.title as item_name',
-                        'ac.name as class_name',
-                        'ha.recognition_status',
-                        'ha.current_carrying_amount',
-                        'ha.recognition_date'
-                    )
-                    ->paginate(25);
-            }
-        } catch (\Exception $e) {}
+        $items = $this->accounting->available() ? $this->accounting->paginate($filters, 25) : collect();
+        $columns = [__('Asset'), __('Class'), __('Standard'), __('Status'), __('Carrying value'), __('Recognised')];
+        $standards = $this->accounting->getAccountingStandards();
+        $classes = $this->accounting->getAssetClasses();
+        $statusOptions = DropdownOptions::resolve('recognition_status', self::STATUS_FALLBACK);
 
-        return view('ahg-heritage-manage::heritage-accounting.browse', compact('items', 'columns'));
+        return view('ahg-heritage-manage::heritage-accounting.browse', compact(
+            'items', 'columns', 'standards', 'classes', 'statusOptions', 'filters'
+        ));
     }
 
     public function add(Request $request)
@@ -102,19 +107,7 @@ class HeritageAccountingController extends Controller
                 ->first();
         }
 
-        $standards = collect();
-        try {
-            if (Schema::hasTable('heritage_accounting_standard')) {
-                $standards = DB::table('heritage_accounting_standard')->orderBy('code')->get();
-            }
-        } catch (\Exception $e) {}
-
-        $classes = collect();
-        try {
-            if (Schema::hasTable('heritage_asset_class')) {
-                $classes = DB::table('heritage_asset_class')->orderBy('name')->get();
-            }
-        } catch (\Exception $e) {}
+        [$standards, $classes] = $this->accountingFormLookups();
 
         return view('ahg-heritage-manage::heritage-accounting.add', compact('io', 'standards', 'classes'));
     }
@@ -124,13 +117,16 @@ class HeritageAccountingController extends Controller
             return back()->with('error', __('Heritage accounting is not installed.'))->withInput();
         }
         $request->validate([
-            'recognition_status'     => 'nullable|in:pending,recognised,not_recognised',
+            'recognition_status'     => ['nullable', \Illuminate\Validation\Rule::in(array_keys(DropdownOptions::resolve('recognition_status', self::STATUS_FALLBACK)))],
             'information_object_id'  => 'nullable|integer',
             'accounting_standard_id' => 'nullable|integer',
             'asset_class_id'         => 'nullable|integer',
         ]);
 
         $data = $this->collectAssetFields($request);
+        if ($error = $this->accounting->validateCapitalisation($data)) {
+            return back()->withInput()->with('error', $error);
+        }
         $data['created_at'] = now();
         $data['updated_at'] = now();
         if (Schema::hasColumn('heritage_asset', 'created_by') && auth()->id()) {
@@ -138,6 +134,7 @@ class HeritageAccountingController extends Controller
         }
 
         $id = DB::table('heritage_asset')->insertGetId($data);
+        $this->accounting->logTransaction($id, (object) $data, 'create', null, $data, auth()->id());
 
         return redirect()->route('heritage.accounting.view', $id)
             ->with('success', __('Heritage asset created.'));
@@ -149,7 +146,7 @@ class HeritageAccountingController extends Controller
      */
     public function updateStatus(Request $request, int $id)
     {
-        $allowed = ['pending', 'recognised', 'not_recognised'];
+        $allowed = array_keys(DropdownOptions::resolve('recognition_status', self::STATUS_FALLBACK));
         $status = (string) $request->input('recognition_status');
         if (! in_array($status, $allowed, true)) {
             return response()->json(['ok' => false, 'error' => 'Invalid status.'], 422);
@@ -191,7 +188,7 @@ class HeritageAccountingController extends Controller
         if (! $asset) {
             abort(404);
         }
-        [$standards, $classes] = $this->accountingFormLookups();
+        [$standards, $classes] = $this->accountingFormLookups($asset->accounting_standard_id ? (int) $asset->accounting_standard_id : null);
         $io = $this->fetchLinkedIo($asset->information_object_id ?: ($asset->object_id ?? null));
 
         return view('ahg-heritage-manage::heritage-accounting.edit', [
@@ -209,34 +206,44 @@ class HeritageAccountingController extends Controller
             abort(404);
         }
         $request->validate([
-            'recognition_status'     => 'nullable|in:pending,recognised,not_recognised',
+            'recognition_status'     => ['nullable', \Illuminate\Validation\Rule::in(array_keys(DropdownOptions::resolve('recognition_status', self::STATUS_FALLBACK)))],
             'information_object_id'  => 'nullable|integer',
             'accounting_standard_id' => 'nullable|integer',
             'asset_class_id'         => 'nullable|integer',
         ]);
 
         $data = $this->collectAssetFields($request);
+        $check = array_merge((array) DB::table('heritage_asset')->where('id', $id)->first(), $data);
+        if ($error = $this->accounting->validateCapitalisation($check)) {
+            return back()->withInput()->with('error', $error);
+        }
         $data['updated_at'] = now();
         if (Schema::hasColumn('heritage_asset', 'updated_by') && auth()->id()) {
             $data['updated_by'] = auth()->id();
         }
         DB::table('heritage_asset')->where('id', $id)->update($data);
+        $this->accounting->logTransaction($id, (object) $check, 'update', null, $data, auth()->id());
 
         return redirect()->route('heritage.accounting.view', $id)
             ->with('success', __('Heritage asset updated.'));
     }
 
-    /** Standards + classes for the create/edit form selects. */
-    private function accountingFormLookups(): array
+    /**
+     * Standards + classes for the create/edit form selects. Only active
+     * standards are offered (Settings decides which); an asset already on a
+     * since-disabled standard keeps it in the list so an edit does not drop it.
+     */
+    private function accountingFormLookups(?int $keepStandardId = null): array
     {
-        $standards = Schema::hasTable('heritage_accounting_standard')
-            ? DB::table('heritage_accounting_standard')->orderBy('code')->get()
-            : collect();
-        $classes = Schema::hasTable('heritage_asset_class')
-            ? DB::table('heritage_asset_class')->orderBy('name')->get()
-            : collect();
+        $standards = $this->accounting->getAccountingStandards();
+        if ($keepStandardId && ! $standards->contains('id', $keepStandardId)) {
+            $kept = DB::table('heritage_accounting_standard')->where('id', $keepStandardId)->first();
+            if ($kept) {
+                $standards->push($kept);
+            }
+        }
 
-        return [$standards, $classes];
+        return [$standards, $this->accounting->getAssetClasses()];
     }
 
     /** The linked archival record (title/identifier/slug) for display on the form/view. */
@@ -325,21 +332,17 @@ class HeritageAccountingController extends Controller
             abort(404);
         }
 
-        $io = null;
-        $ioId = $asset->information_object_id ?: ($asset->object_id ?? null);
-        if ($ioId) {
-            $culture = app()->getLocale();
-            $io = DB::table('information_object as io')
-                ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                    $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', $culture);
-                })
-                ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
-                ->where('io.id', $ioId)
-                ->select('io.id', 'io.identifier', 'i18n.title', 's.slug')
-                ->first();
-        }
+        $io = $this->fetchLinkedIo($asset->information_object_id ?: ($asset->object_id ?? null));
 
-        return view('ahg-heritage-manage::heritage-accounting.view', compact('asset', 'io'));
+        return view('ahg-heritage-manage::heritage-accounting.view', [
+            'asset' => $asset,
+            'io' => $io,
+            'valuations' => $this->accounting->getValuationHistory($id),
+            'impairments' => $this->accounting->getImpairmentAssessments($id),
+            'movements' => $this->accounting->getMovements($id),
+            'journals' => $this->accounting->getJournalEntries($id),
+            'currency' => $this->accounting->currency(),
+        ]);
     }
 
     /**
@@ -449,8 +452,186 @@ class HeritageAccountingController extends Controller
         return redirect()->route('heritage.accounting.view', $id)->with('success', $msg);
     }
 
-    public function addImpairment(int $id = null) { return view('ahg-heritage-manage::heritage-accounting.add-impairment', ['asset' => null, 'fields' => [], 'formAction' => '#']); }
-    public function addJournal(int $id = null) { return view('ahg-heritage-manage::heritage-accounting.add-journal', ['asset' => null, 'fields' => [], 'formAction' => '#']); }
-    public function addMovement(int $id = null) { return view('ahg-heritage-manage::heritage-accounting.add-movement', ['asset' => null, 'fields' => [], 'formAction' => '#']); }
-    public function settings() { $items = collect(); $stats = []; return view('ahg-heritage-manage::heritage-accounting.settings', compact('items', 'stats')); }
+    /** Resolve the asset for a sub-ledger form, or send the operator to pick one. */
+    private function assetOrPick(?int $id, string $what)
+    {
+        if (! $this->accounting->available()) {
+            return redirect()->route('heritage.accounting.dashboard')->with('error', __('Heritage accounting is not installed.'));
+        }
+        if (! $id) {
+            return redirect()->route('heritage.accounting.browse')->with('info', __('Choose a heritage asset to :what.', ['what' => $what]));
+        }
+
+        return $this->accounting->getAsset($id) ?? abort(404);
+    }
+
+    /** Impairment assessment form (indicators, outcome, recoverable amount). */
+    public function addImpairment(?int $id = null)
+    {
+        $asset = $this->assetOrPick($id, __('assess for impairment'));
+        if (! is_object($asset) || $asset instanceof \Symfony\Component\HttpFoundation\Response) {
+            return $asset;
+        }
+
+        return view('ahg-heritage-manage::heritage-accounting.add-impairment', [
+            'asset' => $asset,
+            'history' => $this->accounting->getImpairmentAssessments($asset->id),
+            'currency' => $this->accounting->currency(),
+            'formAction' => route('heritage.accounting.store-impairment', $asset->id),
+        ]);
+    }
+
+    public function storeImpairment(Request $request, int $id)
+    {
+        $v = $request->validate([
+            'assessment_date' => 'required|date',
+            'assessor_name' => 'nullable|string|max:255',
+            'physical_damage_details' => 'nullable|string|max:5000',
+            'obsolescence_details' => 'nullable|string|max:5000',
+            'change_in_use_details' => 'nullable|string|max:5000',
+            'external_factors_details' => 'nullable|string|max:5000',
+            'recoverable_amount' => 'nullable|numeric|min:0',
+            'impairment_loss' => 'nullable|numeric|min:0',
+            'notes' => 'nullable|string|max:10000',
+        ]);
+        foreach (['physical_damage', 'obsolescence', 'change_in_use', 'external_factors', 'impairment_identified'] as $flag) {
+            $v[$flag] = $request->boolean($flag) ? 1 : 0;
+        }
+        foreach (['recoverable_amount', 'impairment_loss'] as $m) {
+            $v[$m] = ($v[$m] ?? '') === '' ? null : (float) $v[$m];
+        }
+
+        try {
+            $this->accounting->addImpairment($id, $v, auth()->id());
+        } catch (\RuntimeException $e) {
+            abort(404);
+        }
+
+        return redirect()->route('heritage.accounting.view', $id)->with('success', __('Impairment assessment recorded.'));
+    }
+
+    /** Journal entry form. */
+    public function addJournal(?int $id = null)
+    {
+        $asset = $this->assetOrPick($id, __('post a journal entry for'));
+        if (! is_object($asset) || $asset instanceof \Symfony\Component\HttpFoundation\Response) {
+            return $asset;
+        }
+
+        return view('ahg-heritage-manage::heritage-accounting.add-journal', [
+            'asset' => $asset,
+            'journalTypes' => DropdownOptions::resolve('journal_type', [
+                'recognition' => 'Recognition', 'revaluation' => 'Revaluation', 'depreciation' => 'Depreciation',
+                'impairment' => 'Impairment', 'impairment_reversal' => 'Impairment Reversal',
+                'derecognition' => 'Derecognition', 'adjustment' => 'Adjustment', 'transfer' => 'Transfer',
+            ]),
+            'history' => $this->accounting->getJournalEntries($asset->id),
+            'formAction' => route('heritage.accounting.store-journal', $asset->id),
+        ]);
+    }
+
+    public function storeJournal(Request $request, int $id)
+    {
+        $types = array_keys(DropdownOptions::resolve('journal_type', ['adjustment' => 'Adjustment']));
+        $v = $request->validate([
+            'journal_date' => 'required|date',
+            'journal_type' => ['required', \Illuminate\Validation\Rule::in($types)],
+            'journal_number' => 'nullable|string|max:50',
+            'debit_account' => 'required|string|max:50',
+            'debit_amount' => 'required|numeric|min:0',
+            'credit_account' => 'required|string|max:50',
+            'credit_amount' => 'required|numeric|min:0',
+            'description' => 'nullable|string|max:10000',
+            'reference_document' => 'nullable|string|max:255',
+            'fiscal_year' => 'nullable|integer|min:1900|max:2999',
+            'fiscal_period' => 'nullable|integer|min:1|max:13',
+        ]);
+        if (round((float) $v['debit_amount'], 2) !== round((float) $v['credit_amount'], 2)) {
+            return back()->withInput()->withErrors(['credit_amount' => __('Debit and credit amounts must balance.')]);
+        }
+
+        try {
+            $this->accounting->addJournal($id, $v, auth()->id());
+        } catch (\RuntimeException $e) {
+            abort(404);
+        }
+
+        return redirect()->route('heritage.accounting.view', $id)->with('success', __('Journal entry recorded.'));
+    }
+
+    /** Movement register form (loans, transfers, exhibitions, storage changes). */
+    public function addMovement(?int $id = null)
+    {
+        $asset = $this->assetOrPick($id, __('record a movement for'));
+        if (! is_object($asset) || $asset instanceof \Symfony\Component\HttpFoundation\Response) {
+            return $asset;
+        }
+
+        return view('ahg-heritage-manage::heritage-accounting.add-movement', [
+            'asset' => $asset,
+            'movementTypes' => DropdownOptions::resolve('movement_type', [
+                'loan_out' => 'Loan Out', 'loan_return' => 'Loan Return', 'transfer' => 'Transfer',
+                'exhibition' => 'Exhibition', 'conservation' => 'Conservation',
+                'storage_change' => 'Storage Change', 'other' => 'Other',
+            ]),
+            'conditions' => DropdownOptions::resolve('condition_on_departure', [
+                'excellent' => 'Excellent', 'good' => 'Good', 'fair' => 'Fair', 'poor' => 'Poor',
+            ]),
+            'history' => $this->accounting->getMovements($asset->id),
+            'currency' => $this->accounting->currency(),
+            'formAction' => route('heritage.accounting.store-movement', $asset->id),
+        ]);
+    }
+
+    public function storeMovement(Request $request, int $id)
+    {
+        $types = array_keys(DropdownOptions::resolve('movement_type', ['other' => 'Other']));
+        $conditions = array_keys(DropdownOptions::resolve('condition_on_departure', ['good' => 'Good']));
+        $v = $request->validate([
+            'movement_date' => 'required|date',
+            'movement_type' => ['required', \Illuminate\Validation\Rule::in($types)],
+            'from_location' => 'nullable|string|max:255',
+            'to_location' => 'nullable|string|max:255',
+            'reason' => 'nullable|string|max:10000',
+            'authorized_by' => 'nullable|string|max:255',
+            'authorization_date' => 'nullable|date',
+            'expected_return_date' => 'nullable|date|after_or_equal:movement_date',
+            'condition_on_departure' => ['nullable', \Illuminate\Validation\Rule::in($conditions)],
+            'insurance_value' => 'nullable|numeric|min:0',
+        ]);
+        $v['insurance_confirmed'] = $request->boolean('insurance_confirmed') ? 1 : 0;
+        foreach (['authorization_date', 'expected_return_date', 'condition_on_departure', 'insurance_value'] as $k) {
+            $v[$k] = ($v[$k] ?? '') === '' ? null : $v[$k];
+        }
+
+        try {
+            $this->accounting->addMovement($id, $v, auth()->id());
+        } catch (\RuntimeException $e) {
+            abort(404);
+        }
+
+        return redirect()->route('heritage.accounting.view', $id)->with('success', __('Movement recorded.'));
+    }
+
+    /** Settings: choose which accounting standards are available for use. */
+    public function settings()
+    {
+        $standards = $this->accounting->getAccountingStandards(false);
+
+        return view('ahg-heritage-manage::heritage-accounting.settings', compact('standards'));
+    }
+
+    public function saveSettings(Request $request)
+    {
+        $v = $request->validate([
+            'enabled' => 'array',
+            'enabled.*' => 'integer|exists:heritage_accounting_standard,id',
+        ]);
+        if (empty($v['enabled'])) {
+            return back()->with('error', __('At least one accounting standard should be enabled.'));
+        }
+        $this->accounting->setActiveStandards($v['enabled']);
+
+        return redirect()->route('heritage.accounting.settings')->with('success', __('Settings saved successfully.'));
+    }
 }

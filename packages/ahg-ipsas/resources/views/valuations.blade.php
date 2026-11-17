@@ -20,7 +20,7 @@
     $filters = $filters ?? [];
     $currentType = $filters['type'] ?? '';
     $currentYear = $filters['year'] ?? date('Y');
-    $defaultCurrency = config('heratio.default_currency', '');
+    $defaultCurrency = $currency;
 @endphp
 <div class="container-fluid">
     <div class="row mb-4">
@@ -48,10 +48,9 @@
                 <div class="col-md-3">
                     <select name="type" class="form-select">
                         <option value="">{{ __('All Types') }}</option>
-                        <option value="initial" {{ 'initial' === $currentType ? 'selected' : '' }}>{{ __('Initial') }}</option>
-                        <option value="revaluation" {{ 'revaluation' === $currentType ? 'selected' : '' }}>{{ __('Revaluation') }}</option>
-                        <option value="impairment" {{ 'impairment' === $currentType ? 'selected' : '' }}>{{ __('Impairment') }}</option>
-                        <option value="reversal" {{ 'reversal' === $currentType ? 'selected' : '' }}>{{ __('Reversal') }}</option>
+                        @foreach($opts['valuation_type'] as $code => $lbl)
+                            <option value="{{ $code }}" {{ $code === $currentType ? 'selected' : '' }}>{{ __($lbl) }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="col-md-2">

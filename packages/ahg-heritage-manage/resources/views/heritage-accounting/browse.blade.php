@@ -17,20 +17,51 @@
         @endif
       </div>
     </div>
-    <p class="text-muted">{{ __('Browse all heritage assets.') }}</p>
+    <p class="text-muted">{{ __('Browse all heritage assets.') }} @if($items instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator){{ __(':n assets', ['n' => number_format($items->total())]) }}@endif</p>
 
-    {{-- Stats --}}
-    @if(!empty($stats))
-    <div class="row mb-4">
-      @foreach($stats as $key => $value)
-      <div class="col-md-3 mb-3">
-        <div class="card bg-{{ ['primary','success','warning','info'][$loop->index % 4] }} text-white h-100">
-          <div class="card-body"><h6 class="text-white-50">{{ ucwords(str_replace('_', ' ', $key)) }}</h6><h2 class="mb-0">{{ is_numeric($value) ? number_format($value, (strpos($key,'value')!==false?2:0)) : $value }}</h2></div>
+    {{-- Filters --}}
+    <form method="get" class="card mb-3">
+      <div class="card-body">
+        <div class="row g-2 align-items-end">
+          <div class="col-md-3">
+            <label class="form-label small" for="fSearch">{{ __('Search') }}</label>
+            <input type="text" id="fSearch" name="sq" class="form-control form-control-sm" value="{{ $filters['search'] ?? '' }}" placeholder="{{ __('Title, identifier or donor') }}">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small" for="fStd">{{ __('Standard') }}</label>
+            <select id="fStd" name="standard_id" class="form-select form-select-sm">
+              <option value="">{{ __('All') }}</option>
+              @foreach($standards as $st)
+                <option value="{{ $st->id }}" {{ (string) ($filters['standard_id'] ?? '') === (string) $st->id ? 'selected' : '' }}>{{ $st->code }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small" for="fClass">{{ __('Class') }}</label>
+            <select id="fClass" name="class_id" class="form-select form-select-sm">
+              <option value="">{{ __('All') }}</option>
+              @foreach($classes as $cl)
+                <option value="{{ $cl->id }}" {{ (string) ($filters['class_id'] ?? '') === (string) $cl->id ? 'selected' : '' }}>{{ $cl->name }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small" for="fStatus">{{ __('Status') }}</label>
+            <select id="fStatus" name="status" class="form-select form-select-sm">
+              <option value="">{{ __('All') }}</option>
+              @foreach($statusOptions as $sv => $sl)
+                <option value="{{ $sv }}" {{ ($filters['recognition_status'] ?? '') === $sv ? 'selected' : '' }}>{{ __($sl) }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="col-md-2 d-flex gap-1">
+            @if(!empty($filters['information_object_id']))<input type="hidden" name="io_id" value="{{ $filters['information_object_id'] }}">@endif
+            <button type="submit" class="btn btn-sm atom-btn-white"><i class="fas fa-filter me-1"></i>{{ __('Filter') }}</button>
+            <a href="{{ route('heritage.accounting.browse') }}" class="btn btn-sm btn-outline-secondary">{{ __('Clear') }}</a>
+          </div>
         </div>
       </div>
-      @endforeach
-    </div>
-    @endif
+    </form>
 
     <div class="card">
       <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-list me-2"></i>{{ __('Browse Assets') }}</div>
@@ -45,11 +76,11 @@
             <tbody>
               @forelse($items ?? [] as $item)
               @php
-                $itemName = $item->item_name ?: ('Asset #' . $item->id);
+                $itemName = $item->object_title ?: ($item->object_identifier ?: __('Asset #:id', ['id' => $item->id]));
                 // Link the asset to its accounting record; the item name also
                 // deep-links to the archival record when a slug is available.
                 $recordUrl = Route::has('heritage.accounting.view') ? route('heritage.accounting.view', $item->id) : null;
-                $itemUrl = !empty($item->slug) ? url('/' . $item->slug) : $recordUrl;
+                $itemUrl = !empty($item->object_slug) ? url('/' . $item->object_slug) : $recordUrl;
               @endphp
               <tr>
                 <td>
@@ -63,11 +94,12 @@
                   @endif
                 </td>
                 <td>{{ $item->class_name ?: '-' }}</td>
+                <td>{{ $item->standard_code ?: '-' }}</td>
                 <td>
                   @auth
                   <select class="form-select form-select-sm hasset-status" data-id="{{ $item->id }}" data-prev="{{ $item->recognition_status ?? 'pending' }}" style="min-width:9rem;" aria-label="{{ __('Recognition status') }}">
-                    @foreach(['pending' => __('Pending'), 'recognised' => __('Recognised'), 'not_recognised' => __('Not Recognised')] as $sv => $sl)
-                      <option value="{{ $sv }}" {{ ($item->recognition_status ?? 'pending') === $sv ? 'selected' : '' }}>{{ $sl }}</option>
+                    @foreach($statusOptions as $sv => $sl)
+                      <option value="{{ $sv }}" {{ ($item->recognition_status ?? 'pending') === $sv ? 'selected' : '' }}>{{ __($sl) }}</option>
                     @endforeach
                   </select>
                   @else
@@ -78,7 +110,7 @@
                 <td id="hasset-date-{{ $item->id }}">{{ $item->recognition_date ? \Illuminate\Support\Carbon::parse($item->recognition_date)->format('Y-m-d') : '-' }}</td>
               </tr>
               @empty
-              <tr><td colspan="{{ count($columns ?? ['Asset','Class','Status','Carrying value','Recognised']) }}" class="text-center text-muted py-3">{{ __('No records found') }}</td></tr>
+              <tr><td colspan="{{ count($columns) }}" class="text-center text-muted py-3">{{ __('No records found') }}</td></tr>
               @endforelse
             </tbody>
           </table>

@@ -31,6 +31,7 @@ Route::middleware('auth')->prefix('exhibition')->group(function () {
     Route::get('/{id}/sections', [ExhibitionController::class, 'sections'])->name('exhibition.sections');
     Route::get('/{id}/events', [ExhibitionController::class, 'events'])->name('exhibition.events');
     Route::get('/{id}/checklists', [ExhibitionController::class, 'checklists'])->name('exhibition.checklists');
+    Route::post('/{id}/transition', [ExhibitionController::class, 'transition'])->name('exhibition.transition')->middleware('acl:update')->whereNumber('id');
     Route::get('/{id}', [ExhibitionController::class, 'show'])->name('exhibition.show');
 });
 

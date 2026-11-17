@@ -66,7 +66,7 @@
         <div class="d-flex align-items-center">
             <i class="fas fa-{{ $complianceStatusValue === 'compliant' ? 'check-circle' : 'exclamation-triangle' }} fa-2x me-3"></i>
             <div>
-                <h5 class="mb-1">{{ __('IPSAS Compliance: :value1', ['value1' => ucfirst($complianceStatusValue)]) }}</h5>
+                <h5 class="mb-1">{{ __('IPSAS Compliance: :value1', ['value1' => ucfirst(str_replace('_', '-', $complianceStatusValue))]) }}</h5>
                 @if(!empty($compliance['issues']))
                     <p class="mb-0">{{ __(':value1 issue(s) require attention', ['value1' => count($compliance['issues'])]) }}</p>
                 @elseif(!empty($compliance['warnings']))
@@ -92,16 +92,16 @@
         <div class="col-md-3">
             <div class="card">
                 <div class="card-body text-center">
-                    <h3>${{ number_format($statsValues['total'] ?? 0, 0) }}</h3>
+                    <h3>{{ $currency }} {{ number_format($statsValues['total'] ?? 0, 0) }}</h3>
                     <p class="text-muted mb-0">{{ __('Total Value') }}</p>
-                    <small class="text-muted">{{ $config['default_currency'] ?? 'USD' }}</small>
+                    <small class="text-muted">{{ __('Active register, excluding disposed items') }}</small>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="card">
                 <div class="card-body text-center">
-                    <h3>${{ number_format($statsValues['insured'] ?? 0, 0) }}</h3>
+                    <h3>{{ $currency }} {{ number_format($statsValues['insured'] ?? 0, 0) }}</h3>
                     <p class="text-muted mb-0">{{ __('Insured Value') }}</p>
                     <small class="text-muted">{{ __('Total insurance coverage') }}</small>
                 </div>
@@ -164,7 +164,7 @@
                         <ul class="list-group list-group-flush">
                             @foreach($statsValuationBasis as $basis => $count)
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    {{ ucfirst(str_replace('_', ' ', $basis)) }}
+                                    {{ $opts['valuation_basis'][$basis] ?? ucfirst(str_replace('_', ' ', $basis)) }}
                                     <span class="badge bg-{{ $basisColors[$basis] ?? 'secondary' }}">{{ $count }}</span>
                                 </li>
                             @endforeach
@@ -190,7 +190,7 @@
                                     <span>{{ $cat->name ?? '-' }}</span>
                                     <span>
                                         <span class="badge bg-secondary">{{ $cat->count ?? 0 }}</span>
-                                        <small class="text-muted">${{ number_format($cat->value ?? 0, 0) }}</small>
+                                        <small class="text-muted">{{ $currency }} {{ number_format($cat->value ?? 0, 0) }}</small>
                                     </span>
                                 </li>
                             @endforeach
@@ -229,7 +229,7 @@
                                         </div>
                                         <div class="text-end">
                                             <span class="badge bg-secondary">
-                                                ${{ number_format($asset->current_value ?? 0, 0) }}
+                                                {{ $asset->current_value_currency ?: $currency }} {{ number_format($asset->current_value ?? 0, 0) }}
                                             </span>
                                         </div>
                                     </div>

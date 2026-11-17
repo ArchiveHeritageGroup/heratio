@@ -125,9 +125,13 @@ Route::middleware('admin')->group(function () {
         Route::get('/add-valuation/{id?}', [HeritageAccountingController::class, 'addValuation'])->name('heritage.accounting.add-valuation');
         Route::post('/{id}/valuation', [HeritageAccountingController::class, 'storeValuation'])->where('id', '[0-9]+')->name('heritage.accounting.store-valuation')->middleware('acl:update');
         Route::get('/add-impairment/{id?}', [HeritageAccountingController::class, 'addImpairment'])->name('heritage.accounting.add-impairment');
+        Route::post('/{id}/impairment', [HeritageAccountingController::class, 'storeImpairment'])->where('id', '[0-9]+')->name('heritage.accounting.store-impairment')->middleware('acl:update');
         Route::get('/add-journal/{id?}', [HeritageAccountingController::class, 'addJournal'])->name('heritage.accounting.add-journal');
+        Route::post('/{id}/journal', [HeritageAccountingController::class, 'storeJournal'])->where('id', '[0-9]+')->name('heritage.accounting.store-journal')->middleware('acl:update');
         Route::get('/add-movement/{id?}', [HeritageAccountingController::class, 'addMovement'])->name('heritage.accounting.add-movement');
+        Route::post('/{id}/movement', [HeritageAccountingController::class, 'storeMovement'])->where('id', '[0-9]+')->name('heritage.accounting.store-movement')->middleware('acl:update');
         Route::get('/settings', [HeritageAccountingController::class, 'settings'])->name('heritage.accounting.settings');
+        Route::post('/settings', [HeritageAccountingController::class, 'saveSettings'])->name('heritage.accounting.settings.save')->middleware('acl:update');
         Route::post('/{id}/status', [HeritageAccountingController::class, 'updateStatus'])->where('id', '[0-9]+')->name('heritage.accounting.update-status')->middleware('acl:update');
         Route::get('/{id}/edit', [HeritageAccountingController::class, 'edit'])->where('id', '[0-9]+')->name('heritage.accounting.edit');
         Route::put('/{id}', [HeritageAccountingController::class, 'update'])->where('id', '[0-9]+')->name('heritage.accounting.update')->middleware('acl:update');
@@ -151,13 +155,24 @@ Route::middleware('admin')->group(function () {
     Route::prefix('heritage/hadmin')->group(function () {
         Route::get('/', [HeritageAdminController::class, 'index'])->name('heritage.hadmin.index');
         Route::get('/regions', [HeritageAdminController::class, 'regions'])->name('heritage.hadmin.regions');
-        Route::get('/region/{id}', [HeritageAdminController::class, 'regionInfo'])->name('heritage.hadmin.region-info');
+        Route::get('/region/{region}', [HeritageAdminController::class, 'regionInfo'])->where('region', '[a-z0-9_]+')->name('heritage.hadmin.region-info');
+        Route::post('/region/{region}/install', [HeritageAdminController::class, 'regionInstall'])->where('region', '[a-z0-9_]+')->name('heritage.hadmin.region-install')->middleware('acl:create');
+        Route::post('/region/{region}/uninstall', [HeritageAdminController::class, 'regionUninstall'])->where('region', '[a-z0-9_]+')->name('heritage.hadmin.region-uninstall')->middleware('acl:delete');
+        Route::post('/region/{region}/activate', [HeritageAdminController::class, 'regionSetActive'])->where('region', '[a-z0-9_]+')->name('heritage.hadmin.region-activate')->middleware('acl:update');
         Route::get('/rules', [HeritageAdminController::class, 'ruleList'])->name('heritage.hadmin.rule-list');
         Route::get('/rule/add', [HeritageAdminController::class, 'ruleAdd'])->name('heritage.hadmin.rule-add');
-        Route::get('/rule/{id}/edit', [HeritageAdminController::class, 'ruleEdit'])->name('heritage.hadmin.rule-edit');
+        Route::post('/rule/add', [HeritageAdminController::class, 'ruleStore'])->name('heritage.hadmin.rule-store')->middleware('acl:create');
+        Route::get('/rule/{id}/edit', [HeritageAdminController::class, 'ruleEdit'])->where('id', '[0-9]+')->name('heritage.hadmin.rule-edit');
+        Route::put('/rule/{id}', [HeritageAdminController::class, 'ruleUpdate'])->where('id', '[0-9]+')->name('heritage.hadmin.rule-update')->middleware('acl:update');
+        Route::post('/rule/{id}/toggle', [HeritageAdminController::class, 'ruleToggle'])->where('id', '[0-9]+')->name('heritage.hadmin.rule-toggle')->middleware('acl:update');
+        Route::delete('/rule/{id}', [HeritageAdminController::class, 'ruleDelete'])->where('id', '[0-9]+')->name('heritage.hadmin.rule-delete')->middleware('acl:delete');
         Route::get('/standards', [HeritageAdminController::class, 'standardList'])->name('heritage.hadmin.standard-list');
         Route::get('/standard/add', [HeritageAdminController::class, 'standardAdd'])->name('heritage.hadmin.standard-add');
-        Route::get('/standard/{id}/edit', [HeritageAdminController::class, 'standardEdit'])->name('heritage.hadmin.standard-edit');
+        Route::post('/standard/add', [HeritageAdminController::class, 'standardStore'])->name('heritage.hadmin.standard-store')->middleware('acl:create');
+        Route::get('/standard/{id}/edit', [HeritageAdminController::class, 'standardEdit'])->where('id', '[0-9]+')->name('heritage.hadmin.standard-edit');
+        Route::put('/standard/{id}', [HeritageAdminController::class, 'standardUpdate'])->where('id', '[0-9]+')->name('heritage.hadmin.standard-update')->middleware('acl:update');
+        Route::post('/standard/{id}/toggle', [HeritageAdminController::class, 'standardToggle'])->where('id', '[0-9]+')->name('heritage.hadmin.standard-toggle')->middleware('acl:update');
+        Route::delete('/standard/{id}', [HeritageAdminController::class, 'standardDelete'])->where('id', '[0-9]+')->name('heritage.hadmin.standard-delete')->middleware('acl:delete');
     });
 
     // Valuer Registry (#668 Phase 2)

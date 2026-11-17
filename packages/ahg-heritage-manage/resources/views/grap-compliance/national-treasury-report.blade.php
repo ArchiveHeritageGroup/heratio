@@ -5,125 +5,120 @@
   This file is part of Heratio. AGPL-3.0-or-later.
 --}}
 @extends('theme::layouts.1col')
-@section('title', 'GRAP 103 National Treasury Report')
+@section('title', __('National Treasury Report'))
 @section('body-class', 'admin heritage')
 
 @section('content')
 <div class="row">
-  <div class="col-md-3">@include('ahg-heritage-manage::partials._heritage-accounting-menu')</div>
+  <div class="col-md-3 d-print-none">@include('ahg-heritage-manage::partials._heritage-accounting-menu')</div>
   <div class="col-md-9">
-    <h1><i class="fas fa-balance-scale me-2"></i>{{ __('GRAP 103 National Treasury Report') }}</h1>
-    <p class="text-muted">{{ __('Heritage asset disclosures for National Treasury submission per GRAP 103.') }}</p>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h1 class="h3 mb-1"><i class="fas fa-file-alt me-2"></i>{{ __('National Treasury Report') }}</h1>
+        <p class="text-muted mb-0">{{ __('GRAP 103 Heritage Assets - Financial Year :fy', ['fy' => $financialYear]) }}</p>
+      </div>
+      <div class="d-flex gap-2 d-print-none">
+        <form method="get" class="d-flex gap-2 align-items-center">
+          <label for="fy" class="form-label mb-0 small">{{ __('Financial year') }}</label>
+          <input type="number" id="fy" name="fy" class="form-control form-control-sm" style="width:6rem" value="{{ $financialYear }}" min="1900" max="2999">
+          <button type="submit" class="btn btn-sm atom-btn-white">{{ __('Go') }}</button>
+        </form>
+        <a href="{{ route('heritage.grap.national-treasury-report', ['fy' => $financialYear, 'export' => 'csv']) }}" class="btn btn-sm atom-btn-white"><i class="fas fa-download me-1"></i>{{ __('Export CSV') }}</a>
+        <button type="button" class="btn btn-sm atom-btn-white" data-heritage-print><i class="fas fa-print me-1"></i>{{ __('Print') }}</button>
+      </div>
+    </div>
 
-    @if(session('success'))
-      <div class="alert alert-success">{{ session('success') }}</div>
+    @if(!$standardId)
+      <div class="alert alert-warning">{{ __('The GRAP 103 standard is not installed. Install the South Africa (GRAP) region under Heritage Admin > Regions to use this report.') }}</div>
     @endif
 
-    {{-- Stats Cards --}}
-    <div class="row mb-4">
-      <div class="col-md-3 mb-3">
-        <div class="card bg-primary text-white h-100">
-          <div class="card-body text-center">
-            <h3 class="mb-0">{{ number_format($stats['total_assets'] ?? 0) }}</h3>
-            <small>{{ __('Total Heritage Assets') }}</small>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 mb-3">
-        <div class="card bg-success text-white h-100">
-          <div class="card-body text-center">
-            <h3 class="mb-0">{{ number_format($stats['capitalised'] ?? 0) }}</h3>
-            <small>{{ __('Capitalised') }}</small>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 mb-3">
-        <div class="card bg-warning text-dark h-100">
-          <div class="card-body text-center">
-            <h3 class="mb-0">{{ number_format($stats['non_capitalised'] ?? 0) }}</h3>
-            <small>{{ __('Non-Capitalised') }}</small>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 mb-3">
-        <div class="card bg-info text-white h-100">
-          <div class="card-body text-center">
-            <h3 class="mb-0">R {{ number_format($stats['total_value_zar'] ?? 0, 2) }}</h3>
-            <small>{{ __('Total Carrying Amount') }}</small>
-          </div>
+    {{-- Summary by class --}}
+    <div class="card mb-4">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">{{ __('Summary by Asset Class') }}</div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-bordered mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>{{ __('Asset Class') }}</th>
+                <th class="text-end">{{ __('Count') }}</th>
+                <th class="text-end">{{ __('Total Carrying Amount') }}</th>
+                <th class="text-end">{{ __('Total Impairment') }}</th>
+                <th class="text-end">{{ __('Revaluation Surplus') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @forelse($byClass as $class)
+                <tr>
+                  <td>{{ $class->class_name ?: __('Unclassified') }}</td>
+                  <td class="text-end">{{ number_format($class->count) }}</td>
+                  <td class="text-end">{{ number_format((float) $class->total_value, 2) }}</td>
+                  <td class="text-end text-danger">{{ number_format((float) $class->total_impairment, 2) }}</td>
+                  <td class="text-end text-success">{{ number_format((float) $class->total_surplus, 2) }}</td>
+                </tr>
+              @empty
+                <tr><td colspan="5" class="text-center text-muted py-3">{{ __('No GRAP 103 assets recorded yet.') }}</td></tr>
+              @endforelse
+            </tbody>
+            @if(count($byClass))
+            <tfoot class="table-secondary fw-bold">
+              <tr>
+                <td>{{ __('Grand Total') }}</td>
+                <td class="text-end">{{ number_format($byClass->sum('count')) }}</td>
+                <td class="text-end">{{ number_format((float) $byClass->sum('total_value'), 2) }}</td>
+                <td class="text-end text-danger">{{ number_format((float) $byClass->sum('total_impairment'), 2) }}</td>
+                <td class="text-end text-success">{{ number_format((float) $byClass->sum('total_surplus'), 2) }}</td>
+              </tr>
+            </tfoot>
+            @endif
+          </table>
         </div>
       </div>
     </div>
 
-    {{-- Filters --}}
-    <form method="GET" class="card mb-3">
-      <div class="card-body">
-        <div class="row g-2 align-items-end">
-          <div class="col-md-3">
-            <label class="form-label">{{ __('Recognition Status') }}</label>
-            <select name="status" class="form-select form-select-sm">
-              <option value="">{{ __('All') }}</option>
-              <option value="recognised" {{ ($statusFilter ?? '') === 'recognised' ? 'selected' : '' }}>{{ __('Recognised') }}</option>
-              <option value="pending" {{ ($statusFilter ?? '') === 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
-              <option value="unrecognised" {{ ($statusFilter ?? '') === 'unrecognised' ? 'selected' : '' }}>{{ __('Unrecognised') }}</option>
-            </select>
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">{{ __('Accounting Standard') }}</label>
-            <select name="standard" class="form-select form-select-sm">
-              <option value="">{{ __('All') }}</option>
-              @foreach($standards ?? [] as $std)
-                <option value="{{ $std->code }}" {{ ($standardFilter ?? '') === $std->code ? 'selected' : '' }}>{{ $std->code }} - {{ $std->name }}</option>
-              @endforeach
-            </select>
-          </div>
-          <div class="col-md-3">
-            <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-filter me-1"></i>{{ __('Filter') }}</button>
-            <a href="{{ url('/grap/national-treasury-report') }}" class="btn btn-sm btn-outline-secondary">{{ __('Clear') }}</a>
-            <a href="{{ url('/grap/national-treasury-report?export=csv') }}" class="btn btn-sm btn-outline-success"><i class="fas fa-download me-1"></i>{{ __('Export CSV') }}</a>
-            <button type="button" class="btn btn-sm btn-outline-primary" onclick="window.print()"><i class="fas fa-print me-1"></i>{{ __('Print') }}</button>
-          </div>
+    {{-- Detailed register --}}
+    <div class="card">
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">{{ __('Heritage Asset Register') }} ({{ count($assets) }})</div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>{{ __('Asset ID') }}</th>
+                <th>{{ __('Description') }}</th>
+                <th>{{ __('Class') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Basis') }}</th>
+                <th class="text-end">{{ __('Cost') }}</th>
+                <th class="text-end">{{ __('Carrying Amount') }}</th>
+                <th>{{ __('Acquisition Date') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @forelse($assets as $asset)
+                <tr>
+                  <td><a href="{{ route('heritage.accounting.view', $asset->id) }}">{{ $asset->object_identifier ?: '#' . $asset->id }}</a></td>
+                  <td>{{ $asset->object_title ?: '-' }}</td>
+                  <td>{{ $asset->class_name ?: '-' }}</td>
+                  <td>{{ ucfirst(str_replace('_', ' ', (string) $asset->recognition_status)) }}</td>
+                  <td>{{ $asset->measurement_basis ? ucfirst(str_replace('_', ' ', $asset->measurement_basis)) : '-' }}</td>
+                  <td class="text-end">{{ number_format((float) $asset->acquisition_cost, 2) }}</td>
+                  <td class="text-end">{{ number_format((float) $asset->current_carrying_amount, 2) }}</td>
+                  <td>{{ $asset->acquisition_date ?: '-' }}</td>
+                </tr>
+              @empty
+                <tr><td colspan="8" class="text-center text-muted py-3">{{ __('No heritage asset records found.') }}</td></tr>
+              @endforelse
+            </tbody>
+          </table>
         </div>
       </div>
-    </form>
+    </div>
 
-    {{-- Report Table --}}
-    <div class="card">
-      <div class="card-header bg-primary text-white">
-        <i class="fas fa-file-alt me-2"></i>{{ __('Heritage Asset Register') }} ({{ count($items) }})
-      </div>
-      <div class="card-body p-0 table-responsive">
-        <table class="table table-bordered table-sm table-striped table-hover mb-0">
-          <thead class="table-light">
-            <tr>
-              @foreach($columns as $col)
-                <th>{{ $col }}</th>
-              @endforeach
-            </tr>
-          </thead>
-          <tbody>
-            @forelse($items as $item)
-              <tr>
-                <td>{{ $item->id }}</td>
-                <td>{{ \Illuminate\Support\Str::limit($item->asset_title ?? 'Untitled', 50) }}</td>
-                <td>{{ $item->class_name ?? '-' }}</td>
-                <td><code>{{ $item->standard_code ?? '-' }}</code></td>
-                <td>
-                  <span class="badge bg-{{ $item->recognition_status === 'recognised' ? 'success' : ($item->recognition_status === 'pending' ? 'warning text-dark' : 'secondary') }}">
-                    {{ ucfirst($item->recognition_status ?? 'unknown') }}
-                  </span>
-                </td>
-                <td class="text-end">R {{ number_format($item->current_carrying_amount ?? 0, 2) }}</td>
-                <td class="text-end">{{ $item->last_valuation_amount ? 'R ' . number_format($item->last_valuation_amount, 2) : '-' }}</td>
-                <td>{{ $item->last_valuation_date ?? '-' }}</td>
-              </tr>
-            @empty
-              <tr><td colspan="{{ count($columns) }}" class="text-muted text-center py-4">{{ __('No heritage asset records found.') }}</td></tr>
-            @endforelse
-          </tbody>
-        </table>
-      </div>
+    <div class="mt-4 d-print-none">
+      <a href="{{ route('heritage.grap.dashboard') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to GRAP Dashboard') }}</a>
     </div>
   </div>
 </div>
+@include('ahg-heritage-manage::partials._print-script')
 @endsection

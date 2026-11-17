@@ -90,7 +90,75 @@ class ExhibitionController extends Controller
 
         abort_unless($exhibition, 404, 'Exhibition not found');
 
-        return view('ahg-exhibition::show', compact('exhibition'));
+        $validTransitions = $this->service->getValidTransitions($exhibition->status);
+        $statuses = $this->service->getStatusesWithColors();
+
+        return view('ahg-exhibition::show', compact('exhibition', 'validTransitions', 'statuses'));
+    }
+
+    /**
+     * Move the exhibition to its next workflow status (AJAX from the
+     * "Change Status" menu on the exhibition page).
+     */
+    public function transition(Request $request, int $id)
+    {
+        $data = $request->validate([
+            'status' => 'required|string|max:50',
+            'reason' => 'nullable|string|max:65535',
+        ]);
+
+        try {
+            $this->service->transitionStatus($id, $data['status'], auth()->id(), $data['reason'] ?? null);
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 422);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Form fields shared by add and edit, validated against the real
+     * exhibition columns. The old forms posted start_date, end_date, venue,
+     * curator, designer, budget and target_audience - none of which exist -
+     * so every save failed with an SQL error.
+     */
+    private function formData(Request $request): array
+    {
+        $types = array_keys($this->service->getTypes());
+        $statuses = array_keys($this->service->getStatuses());
+        $currencies = array_keys($this->service->getCurrencies());
+
+        $data = $request->validate([
+            'title' => 'required|string|max:500',
+            'subtitle' => 'nullable|string|max:500',
+            'exhibition_type' => ['nullable', 'string', \Illuminate\Validation\Rule::in($types)],
+            'status' => ['nullable', 'string', \Illuminate\Validation\Rule::in($statuses)],
+            'project_code' => 'nullable|string|max:50',
+            'theme' => 'nullable|string|max:65535',
+            'description' => 'nullable|string|max:65535',
+            'opening_date' => 'nullable|date',
+            'closing_date' => 'nullable|date|after_or_equal:opening_date',
+            'venue_id' => 'nullable|integer|exists:exhibition_venue,id',
+            'venue_name' => 'nullable|string|max:255',
+            'curator_name' => 'nullable|string|max:255',
+            'designer_name' => 'nullable|string|max:255',
+            'organized_by' => 'nullable|string|max:255',
+            'budget_amount' => 'nullable|numeric|min:0',
+            'budget_currency' => ['nullable', 'string', 'size:3', \Illuminate\Validation\Rule::in($currencies)],
+            'expected_visitors' => 'nullable|integer|min:0',
+            'admission_fee' => 'nullable|numeric|min:0',
+            'notes' => 'nullable|string|max:65535',
+        ]);
+        $data['is_free_admission'] = $request->boolean('is_free_admission') ? 1 : 0;
+
+        // Leave the column defaults (temporary / concept) in place when unset.
+        foreach (['exhibition_type', 'status', 'budget_currency'] as $k) {
+            if (empty($data[$k])) {
+                unset($data[$k]);
+            }
+        }
+
+        return $data;
     }
 
     public function add(Request $request)
@@ -98,18 +166,16 @@ class ExhibitionController extends Controller
         $types = $this->service->getTypes();
         $statuses = $this->service->getStatuses();
 
+        $currencies = $this->service->getCurrencies();
+        $venues = $this->service->getVenues();
+
         if ($request->isMethod('post')) {
-            $id = $this->service->create($request->only([
-                'title', 'subtitle', 'exhibition_type', 'project_code',
-                'description', 'theme', 'target_audience',
-                'start_date', 'end_date', 'venue', 'status',
-                'curator', 'designer', 'budget', 'budget_currency',
-            ]) + ['created_by' => auth()->id()]);
+            $id = $this->service->create($this->formData($request) + ['created_by' => auth()->id()]);
 
             return redirect()->route('exhibition.show', $id)->with('notice', __('Exhibition created'));
         }
 
-        return view('ahg-exhibition::add', compact('types', 'statuses'));
+        return view('ahg-exhibition::add', compact('types', 'statuses', 'currencies', 'venues'));
     }
 
     public function edit(Request $request, int $id)
@@ -120,29 +186,26 @@ class ExhibitionController extends Controller
         $types = $this->service->getTypes();
         $statuses = $this->service->getStatuses();
 
+        $currencies = $this->service->getCurrencies();
+        $venues = $this->service->getVenues();
+
         if ($request->isMethod('post')) {
-            $this->service->update($id, $request->only([
-                'title', 'subtitle', 'exhibition_type', 'project_code',
-                'description', 'theme', 'target_audience',
-                'start_date', 'end_date', 'venue', 'status',
-                'curator', 'designer', 'budget', 'budget_currency',
-            ]));
+            $this->service->update($id, $this->formData($request) + ['updated_by' => auth()->id()]);
 
             return redirect()->route('exhibition.show', $id)->with('notice', __('Exhibition updated'));
         }
 
-        return view('ahg-exhibition::edit', compact('exhibition', 'types', 'statuses'));
+        return view('ahg-exhibition::edit', compact('exhibition', 'types', 'statuses', 'currencies', 'venues'));
     }
 
-    public function dashboard()
+    /**
+     * The exhibition index already is the dashboard (stat cards, currently
+     * open, upcoming, workflow, pending checklist items, activity, calendar),
+     * so /exhibition/dashboard renders that page rather than a second copy.
+     */
+    public function dashboard(Request $request)
     {
-        $stats = $this->service->getStatistics();
-        $result = $this->service->search(['status' => 'active'], 10, 0);
-
-        return view('ahg-exhibition::dashboard', [
-            'stats' => $stats,
-            'activeExhibitions' => $result['results'],
-        ]);
+        return $this->index($request);
     }
 
     public function objects(int $id)
@@ -155,10 +218,13 @@ class ExhibitionController extends Controller
 
     public function objectList(int $id)
     {
-        $exhibition = $this->service->get($id, true);
+        $exhibition = $this->service->get($id);
         abort_unless($exhibition, 404);
 
-        return view('ahg-exhibition::object-list', compact('exhibition'));
+        $objects = $this->service->generateObjectList($id);
+        $sections = $this->service->getSections($id);
+
+        return view('ahg-exhibition::object-list', compact('exhibition', 'objects', 'sections'));
     }
 
     public function objectListCsv(int $id)

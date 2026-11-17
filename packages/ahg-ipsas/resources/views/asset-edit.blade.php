@@ -56,12 +56,9 @@
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Status') }}</label>
                             <select name="status" class="form-select">
-                                <option value="active" {{ 'active' === ($asset->status ?? '') ? 'selected' : '' }}>{{ __('Active') }}</option>
-                                <option value="on_loan" {{ 'on_loan' === ($asset->status ?? '') ? 'selected' : '' }}>{{ __('On Loan') }}</option>
-                                <option value="in_storage" {{ 'in_storage' === ($asset->status ?? '') ? 'selected' : '' }}>{{ __('In Storage') }}</option>
-                                <option value="under_conservation" {{ 'under_conservation' === ($asset->status ?? '') ? 'selected' : '' }}>{{ __('Under Conservation') }}</option>
-                                <option value="disposed" {{ 'disposed' === ($asset->status ?? '') ? 'selected' : '' }}>{{ __('Disposed') }}</option>
-                                <option value="lost" {{ 'lost' === ($asset->status ?? '') ? 'selected' : '' }}>{{ __('Lost') }}</option>
+                                @foreach($opts['status'] as $code => $lbl)
+                                    <option value="{{ $code }}" {{ $code === old('status', $asset->status ?? '') ? 'selected' : '' }}>{{ __($lbl) }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -75,21 +72,18 @@
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Condition Rating') }}</label>
                             <select name="condition_rating" class="form-select">
-                                <option value="excellent" {{ 'excellent' === ($asset->condition_rating ?? '') ? 'selected' : '' }}>{{ __('Excellent') }}</option>
-                                <option value="good" {{ 'good' === ($asset->condition_rating ?? '') ? 'selected' : '' }}>{{ __('Good') }}</option>
-                                <option value="fair" {{ 'fair' === ($asset->condition_rating ?? '') ? 'selected' : '' }}>{{ __('Fair') }}</option>
-                                <option value="poor" {{ 'poor' === ($asset->condition_rating ?? '') ? 'selected' : '' }}>{{ __('Poor') }}</option>
-                                <option value="critical" {{ 'critical' === ($asset->condition_rating ?? '') ? 'selected' : '' }}>{{ __('Critical') }}</option>
+                                @foreach($opts['condition_rating'] as $code => $lbl)
+                                    <option value="{{ $code }}" {{ $code === old('condition_rating', $asset->condition_rating ?? '') ? 'selected' : '' }}>{{ __($lbl) }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Risk Level') }}</label>
                             <select name="risk_level" class="form-select">
                                 <option value="">{{ __('Not Assessed') }}</option>
-                                <option value="low" {{ 'low' === ($asset->risk_level ?? '') ? 'selected' : '' }}>{{ __('Low') }}</option>
-                                <option value="medium" {{ 'medium' === ($asset->risk_level ?? '') ? 'selected' : '' }}>{{ __('Medium') }}</option>
-                                <option value="high" {{ 'high' === ($asset->risk_level ?? '') ? 'selected' : '' }}>{{ __('High') }}</option>
-                                <option value="critical" {{ 'critical' === ($asset->risk_level ?? '') ? 'selected' : '' }}>{{ __('Critical') }}</option>
+                                @foreach($opts['risk_level'] as $code => $lbl)
+                                    <option value="{{ $code }}" {{ $code === old('risk_level', $asset->risk_level ?? '') ? 'selected' : '' }}>{{ __($lbl) }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="col-12">

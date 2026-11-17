@@ -1,75 +1,99 @@
 @extends('theme::layouts.1col')
-@section('title', 'Asset Register')
+@section('title', __('Asset Register Report'))
 @section('body-class', 'admin heritage')
 
 @section('content')
 <div class="row">
-  <div class="col-md-3">@include('ahg-heritage-manage::partials._heritage-accounting-menu')</div>
+  <div class="col-md-3 d-print-none">@include('ahg-heritage-manage::partials._heritage-accounting-menu')</div>
   <div class="col-md-9">
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h1><i class="fas fa-clipboard-list me-2"></i>{{ __('Asset Register') }}</h1>
-      <div>
-        @if(!empty($items))
-          <a href="{{ request()->fullUrlWithQuery(['export' => 'csv']) }}" class="btn btn-sm atom-btn-outline-success"><i class="fas fa-file-csv me-1"></i>CSV</a>
-          <a href="{{ request()->fullUrlWithQuery(['export' => 'pdf']) }}" class="btn btn-sm btn-outline-danger ms-1"><i class="fas fa-file-pdf me-1"></i>PDF</a>
-        @endif
-      </div>
+      <h1 class="h3 mb-0"><i class="fas fa-list me-2"></i>{{ __('Asset Register Report') }}</h1>
+      <button type="button" class="btn atom-btn-white d-print-none" data-heritage-print><i class="fas fa-print me-1"></i>{{ __('Print') }}</button>
     </div>
-    <p class="text-muted">{{ __('Complete register of all heritage assets.') }}</p>
 
-    {{-- Filter --}}
-    <div class="card mb-3">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-filter me-2"></i>{{ __('Filters') }}</div>
-      <div class="card-body">
-        <form method="get" class="row g-3">
-          <div class="col-md-3">
-            <label class="form-label">{{ __('From') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-            <input type="date" name="date_from" class="form-control form-control-sm" value="{{ request('date_from') }}">
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">{{ __('To ') }}<span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-            <input type="date" name="date_to" class="form-control form-control-sm" value="{{ request('date_to') }}">
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">{{ __('Per Page') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
-            <select name="limit" class="form-select form-select-sm">
-              <option value="25" {{ request('limit',25)==25?'selected':'' }}>25</option>
-              <option value="50" {{ request('limit')==50?'selected':'' }}>50</option>
-              <option value="100" {{ request('limit')==100?'selected':'' }}>100</option>
-            </select>
-          </div>
-          <div class="col-md-3 d-flex align-items-end">
-            <button type="submit" class="btn atom-btn-white btn-sm"><i class="fas fa-filter me-1"></i>{{ __('Filter') }}</button>
-          </div>
-        </form>
+    <form method="get" class="card mb-4 d-print-none">
+      <div class="card-body row g-3">
+        <div class="col-md-3">
+          <label class="form-label" for="rStd">{{ __('Standard') }}</label>
+          <select id="rStd" name="standard_id" class="form-select">
+            <option value="">{{ __('All Standards') }}</option>
+            @foreach($standards as $s)
+              <option value="{{ $s->id }}" {{ (string) ($filters['standard_id'] ?? '') === (string) $s->id ? 'selected' : '' }}>{{ $s->code }}</option>
+            @endforeach
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label" for="rClass">{{ __('Class') }}</label>
+          <select id="rClass" name="class_id" class="form-select">
+            <option value="">{{ __('All Classes') }}</option>
+            @foreach($classes as $c)
+              <option value="{{ $c->id }}" {{ (string) ($filters['class_id'] ?? '') === (string) $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
+            @endforeach
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label" for="rStatus">{{ __('Status') }}</label>
+          <select id="rStatus" name="status" class="form-select">
+            <option value="">{{ __('All') }}</option>
+            @foreach($statusOptions as $sv => $sl)
+              <option value="{{ $sv }}" {{ ($filters['recognition_status'] ?? '') === $sv ? 'selected' : '' }}>{{ __($sl) }}</option>
+            @endforeach
+          </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-end"><button type="submit" class="btn atom-btn-white">{{ __('Filter') }}</button></div>
       </div>
-    </div>
+    </form>
 
     <div class="card">
-      <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-clipboard-list me-2"></i>{{ __('Asset Register') }}</div>
+      <div class="card-header" style="background:var(--ahg-primary);color:#fff">{{ __('Total: :n assets', ['n' => count($assets)]) }}@if($currency) <span class="ms-2 small">({{ $currency }})</span>@endif</div>
       <div class="card-body p-0">
         <div class="table-responsive">
-          <table class="table table-bordered table-sm table-striped mb-0">
-            <thead><tr>
-              @foreach($columns ?? ['ID','Name','Class','Value','Status','Date'] as $col)
-                <th>{{ $col }}</th>
-              @endforeach
-            </tr></thead>
+          <table class="table table-sm table-bordered mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>{{ __('Identifier') }}</th>
+                <th>{{ __('Title') }}</th>
+                <th>{{ __('Class') }}</th>
+                <th>{{ __('Status') }}</th>
+                <th>{{ __('Basis') }}</th>
+                <th class="text-end">{{ __('Acquisition Cost') }}</th>
+                <th class="text-end">{{ __('Carrying Amount') }}</th>
+                <th>{{ __('Acquisition Date') }}</th>
+              </tr>
+            </thead>
             <tbody>
-              @forelse($items ?? [] as $item)
-              <tr>@foreach((array)$item as $val)<td>{{ Str::limit($val, 80) ?: '-' }}</td>@endforeach</tr>
+              @forelse($assets as $asset)
+                <tr>
+                  <td><a href="{{ route('heritage.accounting.view', $asset->id) }}">{{ $asset->object_identifier ?: '#' . $asset->id }}</a></td>
+                  <td>{{ $asset->object_title ?: '-' }}</td>
+                  <td>{{ $asset->class_name ?: '-' }}</td>
+                  <td>{{ $statusOptions[$asset->recognition_status] ?? ucfirst(str_replace('_', ' ', (string) $asset->recognition_status)) }}</td>
+                  <td>{{ $asset->measurement_basis ? ucfirst(str_replace('_', ' ', $asset->measurement_basis)) : '-' }}</td>
+                  <td class="text-end">{{ number_format((float) $asset->acquisition_cost, 2) }}</td>
+                  <td class="text-end">{{ number_format((float) $asset->current_carrying_amount, 2) }}</td>
+                  <td>{{ $asset->acquisition_date ?: '-' }}</td>
+                </tr>
               @empty
-              <tr><td colspan="{{ count($columns ?? ['ID','Name','Class','Value','Status','Date']) }}" class="text-center text-muted py-3">{{ __('No records found') }}</td></tr>
+                <tr><td colspan="8" class="text-center text-muted py-4">{{ __('No assets match these filters.') }}</td></tr>
               @endforelse
             </tbody>
+            <tfoot class="table-secondary fw-bold">
+              <tr>
+                <td colspan="5" class="text-end">{{ __('Totals:') }}</td>
+                <td class="text-end">{{ number_format((float) $assets->sum('acquisition_cost'), 2) }}</td>
+                <td class="text-end">{{ number_format((float) $assets->sum('current_carrying_amount'), 2) }}</td>
+                <td></td>
+              </tr>
+            </tfoot>
           </table>
         </div>
       </div>
     </div>
 
-    @if(isset($items) && method_exists($items, 'links'))
-      <div class="mt-3">{{ $items->withQueryString()->links() }}</div>
-    @endif
+    <div class="mt-4 d-print-none">
+      <a href="{{ route('heritage.hreport.index') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Back to Reports') }}</a>
+    </div>
   </div>
 </div>
+@include('ahg-heritage-manage::partials._print-script')
 @endsection

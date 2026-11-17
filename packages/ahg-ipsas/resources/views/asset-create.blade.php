@@ -17,7 +17,7 @@
 @section('content')
 @php
     $categories = $categories ?? collect();
-    $defaultCurrency = config('heratio.default_currency', '');
+    $defaultCurrency = $currency;
 @endphp
 <div class="container-fluid">
     <div class="row mb-4">
@@ -76,12 +76,10 @@
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Acquisition Method') }}</label>
                             <select name="acquisition_method" class="form-select">
-                                <option value="purchase">{{ __('Purchase') }}</option>
-                                <option value="donation">{{ __('Donation') }}</option>
-                                <option value="bequest">{{ __('Bequest') }}</option>
-                                <option value="transfer">{{ __('Transfer') }}</option>
-                                <option value="exchange">{{ __('Exchange') }}</option>
-                                <option value="found">{{ __('Found/Discovered') }}</option>
+                                <option value="">{{ __('Select...') }}</option>
+                                @foreach($opts['acquisition_method'] as $code => $lbl)
+                                    <option value="{{ $code }}" {{ old('acquisition_method') === $code ? 'selected' : '' }}>{{ __($lbl) }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="col-12">
@@ -107,10 +105,9 @@
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Valuation Basis') }}</label>
                             <select name="valuation_basis" class="form-select">
-                                <option value="historical_cost">{{ __('Historical Cost') }}</option>
-                                <option value="fair_value">{{ __('Fair Value') }}</option>
-                                <option value="nominal">{{ __('Nominal Value') }}</option>
-                                <option value="not_recognized">{{ __('Not Recognized') }}</option>
+                                @foreach($opts['valuation_basis'] as $code => $lbl)
+                                    <option value="{{ $code }}" {{ old('valuation_basis', 'historical_cost') === $code ? 'selected' : '' }}>{{ __($lbl) }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -120,11 +117,9 @@
                         <div class="col-md-6">
                             <label class="form-label">{{ __('Condition Rating') }}</label>
                             <select name="condition_rating" class="form-select">
-                                <option value="excellent">{{ __('Excellent') }}</option>
-                                <option value="good">{{ __('Good') }}</option>
-                                <option value="fair">{{ __('Fair') }}</option>
-                                <option value="poor">{{ __('Poor') }}</option>
-                                <option value="critical">{{ __('Critical') }}</option>
+                                @foreach($opts['condition_rating'] as $code => $lbl)
+                                    <option value="{{ $code }}" {{ old('condition_rating', 'good') === $code ? 'selected' : '' }}>{{ __($lbl) }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>

@@ -441,26 +441,33 @@ class MuseumController extends Controller
                     ->limit(5)
                     ->get();
 
-                $recentItems = DB::table('museum_metadata as mm')
+                // heratio#1614: this list ordered by io.created_at, a column
+                // information_object does not have, so the query threw, the
+                // catch below swallowed it and the table said "No museum objects
+                // yet" under cards counting every museum_metadata row. It now
+                // reads museum_metadata - the same rows the cards count - in the
+                // order the museum records were made. Only the master file is
+                // joined: derivatives share object_id and tripled each row.
+                $recentItems = $this->museumRecords()
                     ->join('information_object as io', 'mm.object_id', '=', 'io.id')
-                    ->leftJoin('information_object_i18n as i18n', function ($j) {
-                        $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', 'en');
-                    })
                     ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
-                    ->leftJoin('digital_object as do', 'io.id', '=', 'do.object_id')
+                    ->leftJoin('digital_object as do', function ($j) {
+                        $j->on('io.id', '=', 'do.object_id')->whereNull('do.parent_id');
+                    })
                     ->select(
                         'io.id',
                         'io.identifier',
-                        'i18n.title',
+                        'io_i18n.title',
                         'slug.slug',
                         'do.id as digital_object_id'
                     )
-                    ->orderByDesc('io.created_at')
+                    ->orderByDesc('mm.created_at')
+                    ->orderByDesc('mm.id')
                     ->limit(10)
                     ->get();
             }
         } catch (\Throwable $e) {
-            // graceful degrade
+            \Log::warning('[ahg-museum] dashboard: '.$e->getMessage());
         }
 
         return view('ahg-museum::museum.dashboard', compact(
@@ -471,6 +478,22 @@ class MuseumController extends Controller
             'workTypeStats',
             'recentItems'
         ));
+    }
+
+    /**
+     * museum_metadata joined to the record title in the current culture -
+     * the one source the dashboard cards, the recent list and the reports
+     * read. museum_metadata keys on object_id; the reports joined a
+     * non-existent information_object_id and rendered empty (heratio#1614).
+     */
+    private function museumRecords(): \Illuminate\Database\Query\Builder
+    {
+        $culture = app()->getLocale();
+
+        return DB::table('museum_metadata as mm')
+            ->leftJoin('information_object_i18n as io_i18n', function ($j) use ($culture) {
+                $j->on('mm.object_id', '=', 'io_i18n.id')->where('io_i18n.culture', '=', $culture);
+            });
     }
 
     public function reports()
@@ -488,7 +511,9 @@ class MuseumController extends Controller
                 $stats['byWorkType'] = DB::table('museum_metadata')->whereNotNull('work_type')
                     ->select('work_type', DB::raw('COUNT(*) as count'))->groupBy('work_type')->orderByDesc('count')->limit(10)->get();
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+            \Log::warning('[ahg-museum] report: '.$e->getMessage());
+        }
         return view('ahg-museum::reports.index', compact('stats'));
     }
 
@@ -497,12 +522,13 @@ class MuseumController extends Controller
         $objects = collect();
         try {
             if (\Schema::hasTable('museum_metadata')) {
-                $objects = DB::table('museum_metadata as mm')
-                    ->leftJoin('information_object_i18n as io_i18n', function ($j) { $j->on('mm.information_object_id', '=', 'io_i18n.id')->where('io_i18n.culture', '=', 'en'); })
+                $objects = $this->museumRecords()
                     ->select('mm.*', 'io_i18n.title')
                     ->orderByDesc('mm.created_at')->limit(500)->get();
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+            \Log::warning('[ahg-museum] report: '.$e->getMessage());
+        }
         return view('ahg-museum::reports.objects', compact('objects'));
     }
 
@@ -511,13 +537,18 @@ class MuseumController extends Controller
         $creators = collect();
         try {
             if (\Schema::hasTable('museum_metadata')) {
+                // museum_metadata names these creator_identity and
+                // creator_attribution; creator_name / attribution do not exist,
+                // so this report was always empty.
                 $creators = DB::table('museum_metadata')
-                    ->whereNotNull('creator_name')->where('creator_name', '!=', '')
-                    ->select('creator_name', 'creator_role', 'attribution', 'school', DB::raw('COUNT(*) as object_count'))
-                    ->groupBy('creator_name', 'creator_role', 'attribution', 'school')
+                    ->whereNotNull('creator_identity')->where('creator_identity', '!=', '')
+                    ->select('creator_identity as creator_name', 'creator_role', 'creator_attribution as attribution', 'school', DB::raw('COUNT(*) as object_count'))
+                    ->groupBy('creator_identity', 'creator_role', 'creator_attribution', 'school')
                     ->orderByDesc('object_count')->limit(500)->get();
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+            \Log::warning('[ahg-museum] report: '.$e->getMessage());
+        }
         return view('ahg-museum::reports.creators', compact('creators'));
     }
 
@@ -526,13 +557,14 @@ class MuseumController extends Controller
         $records = collect();
         try {
             if (\Schema::hasTable('museum_metadata')) {
-                $records = DB::table('museum_metadata as mm')
-                    ->leftJoin('information_object_i18n as io_i18n', function ($j) { $j->on('mm.information_object_id', '=', 'io_i18n.id')->where('io_i18n.culture', '=', 'en'); })
+                $records = $this->museumRecords()
                     ->whereNotNull('mm.condition_term')
                     ->select('mm.*', 'io_i18n.title')
                     ->orderByDesc('mm.condition_date')->limit(500)->get();
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+            \Log::warning('[ahg-museum] report: '.$e->getMessage());
+        }
         return view('ahg-museum::reports.condition', compact('records'));
     }
 
@@ -541,13 +573,14 @@ class MuseumController extends Controller
         $records = collect();
         try {
             if (\Schema::hasTable('museum_metadata')) {
-                $records = DB::table('museum_metadata as mm')
-                    ->leftJoin('information_object_i18n as io_i18n', function ($j) { $j->on('mm.information_object_id', '=', 'io_i18n.id')->where('io_i18n.culture', '=', 'en'); })
+                $records = $this->museumRecords()
                     ->whereNotNull('mm.provenance_text')->where('mm.provenance_text', '!=', '')
                     ->select('mm.*', 'io_i18n.title')
                     ->orderBy('io_i18n.title')->limit(500)->get();
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+            \Log::warning('[ahg-museum] report: '.$e->getMessage());
+        }
         return view('ahg-museum::reports.provenance', compact('records'));
     }
 
@@ -561,7 +594,9 @@ class MuseumController extends Controller
                 $byPeriod = DB::table('museum_metadata')->whereNotNull('period')->where('period', '!=', '')
                     ->select('period', DB::raw('COUNT(*) as count'))->groupBy('period')->orderByDesc('count')->get();
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+            \Log::warning('[ahg-museum] report: '.$e->getMessage());
+        }
         return view('ahg-museum::reports.style-period', compact('byStyle', 'byPeriod'));
     }
 
@@ -570,13 +605,14 @@ class MuseumController extends Controller
         $records = collect();
         try {
             if (\Schema::hasTable('museum_metadata')) {
-                $records = DB::table('museum_metadata as mm')
-                    ->leftJoin('information_object_i18n as io_i18n', function ($j) { $j->on('mm.information_object_id', '=', 'io_i18n.id')->where('io_i18n.culture', '=', 'en'); })
+                $records = $this->museumRecords()
                     ->where(function ($q) { $q->whereNotNull('mm.materials')->orWhereNotNull('mm.techniques'); })
                     ->select('mm.*', 'io_i18n.title')
                     ->orderBy('io_i18n.title')->limit(500)->get();
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+            \Log::warning('[ahg-museum] report: '.$e->getMessage());
+        }
         return view('ahg-museum::reports.materials', compact('records'));
     }
 
