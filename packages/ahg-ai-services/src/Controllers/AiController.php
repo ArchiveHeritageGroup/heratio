@@ -2624,35 +2624,36 @@ class AiController extends Controller
         return null;
     }
 
+    /**
+     * A generated summary goes to AI > Suggest review as a proposed scope and
+     * content, never straight onto the record: an archivist approves, edits
+     * or rejects it, as with every other AI text. Returns true when queued.
+     */
     private function saveScopeAndContent(int $objectId, string $summary, string $culture): bool
     {
         try {
-            $taggedSummary = '[AI Summarized] ' . $summary;
-
-            $existing = DB::table('information_object_i18n')
-                ->where('id', $objectId)
-                ->where('culture', $culture)
-                ->first();
-
-            if ($existing) {
-                $currentText = $existing->scope_and_content ?? '';
-                if (!empty(trim($currentText)) && !str_starts_with($currentText, '[AI Summarized]')) {
-                    return false;
-                }
-
-                DB::table('information_object_i18n')
-                    ->where('id', $objectId)
-                    ->where('culture', $culture)
-                    ->update(['scope_and_content' => $taggedSummary]);
-            } else {
-                DB::table('information_object_i18n')->insert([
-                    'id' => $objectId, 'culture' => $culture, 'scope_and_content' => $taggedSummary,
-                ]);
+            $pending = DB::table('ahg_description_suggestion')->where('object_id', $objectId)->where('status', 'pending')
+                ->where('suggested_text', $summary)->exists();
+            if ($pending) {
+                return true;
             }
+            $existing = DB::table('information_object_i18n')->where('id', $objectId)->where('culture', $culture)->value('scope_and_content');
+            DB::table('ahg_description_suggestion')->insert([
+                'object_id' => $objectId,
+                'suggested_text' => $summary,
+                'existing_text' => $existing === null ? null : mb_strcut((string) $existing, 0, 65000),
+                'source_data' => json_encode(['kind' => 'field', 'field' => 'scope_and_content', 'culture' => $culture,
+                    'evidence' => 'Generated summary of the record', 'sources' => [], 'proposed_via' => 'Generate summary'], JSON_UNESCAPED_UNICODE),
+                'status' => 'pending',
+                'model_used' => 'summarizer',
+                'created_by' => auth()->id() ?: null,
+                'created_at' => now(),
+            ]);
 
             return true;
         } catch (\Exception $e) {
-            \Log::error("Error saving scope and content: " . $e->getMessage());
+            \Log::error('Error queuing summary suggestion: '.$e->getMessage());
+
             return false;
         }
     }

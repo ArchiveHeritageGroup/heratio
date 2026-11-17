@@ -61,7 +61,7 @@ document.getElementById('generate-summary-btn')?.addEventListener('click', funct
                 '<p style="white-space:pre-wrap">' + summary + '</p>' +
                 '<p class="text-muted small mb-0">Source: ' + src +
                 ' · ' + (data.processing_time_ms || 0) + ' ms' +
-                (data.saved ? ' · saved to description' : '') + '</p>';
+                (data.saved ? ' · sent to <a href="{{ route('admin.ai.suggest-review') }}">Suggest review</a> as the scope and content' : '') + '</p>';
         })
         .catch(err => {
             btn.disabled = false;

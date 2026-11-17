@@ -1477,7 +1477,7 @@
         '<div class="card"><div class="card-header fw-bold">Generated summary</div>' +
         '<div class="card-body"><p style="white-space:pre-wrap">' + summary + '</p>' +
         '<p class="text-muted small mb-0">Source: ' + src + ' · ' + (data.processing_time_ms || 0) + ' ms' +
-        (data.saved ? ' · saved to description' : '') + '</p></div></div>';
+        (data.saved ? ' · sent to <a href="{{ route('admin.ai.suggest-review') }}">Suggest review</a> as the scope and content' : '') + '</p></div></div>';
     })
     .catch(function (err) {
       btn.disabled = false;
