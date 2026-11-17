@@ -66,7 +66,13 @@ The reset runs every Sunday at 02:20 (weekly since 16 November 2026; it was nigh
 - cron monitoring history (`ahg_cron_run`, `ahg_cron_missed_run`, `cron_schedule`);
 - Dr Johan Pieterse's research works (`ahg:research-works-seed` with the manifest in `/mnt/nas/heratio/research-works/`).
 
-A guided-tour sample login (ticket H06) would join this list.
+The shared training login (ticket H06) lives in the baseline, not in a re-apply step, so it survives every reset while its practice records do not:
+
+- user `learner` (email learner@example.org), password published on learn.theahg.co.za for the "Heratio in practice" course;
+- group "Sandbox editor" (id 105), whose only rights are per-repository grants on the Learner sandbox (heratio#1776): create, update, delete, publish, view draft and file access there, nothing elsewhere, no admin area, no API keys;
+- repository "Learner sandbox (training)" (`learner-sandbox-training`), kept empty in the baseline. Whatever learners add is removed by the next reset.
+
+Re-take the baseline only when the sandbox is empty, or practice records become permanent demo content.
 
 The baseline itself is part of the demo data. Removing or changing anything on the live site does not last unless the baseline is re-snapshotted afterwards (`heratio-demo-snapshot.sh`). A baseline older than the deployed code is restored, migrated up to the code (`migrate --force`) and re-snapshotted by the reset itself; one newer than the code (after a rollback) makes the reset stop.
 

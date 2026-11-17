@@ -173,6 +173,8 @@ class RepositoryScopedAclTest extends TestCase
         $in = 'test-io-'.$this->childA;
 
         $this->put("/informationobject/{$out}", ['title' => 'x'])->assertStatus(403);
+        $this->get("/informationobject/{$out}/edit")->assertStatus(403);
+        $this->assertNotSame(403, $this->get("/informationobject/{$in}/edit")->status());
         $this->delete("/informationobject/{$out}")->assertStatus(403);
         $this->get("/informationobject/{$out}/delete")->assertStatus(403);
         $this->post("/informationobject/{$out}/update-status", ['publicationStatus' => 160])->assertStatus(403);
