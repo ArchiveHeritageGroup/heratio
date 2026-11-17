@@ -809,7 +809,15 @@ class OaiPmhController extends Controller
      */
     protected function adminEmail(): string
     {
-        $email = config('heratio.contact_email')
+        // The address set under Admin > Settings > OAI, as /oai uses, so both
+        // endpoints name the same contact.
+        $set = (string) DB::table('setting as s')->join('setting_i18n as si', 'si.id', '=', 's.id')
+            ->where('s.scope', 'oai')->where('s.name', 'oai_admin_emails')->where('si.culture', 'en')
+            ->value('si.value');
+        $first = trim(explode(',', $set)[0]);
+
+        $email = ($first !== '' ? $first : null)
+            ?: config('heratio.contact_email')
             ?: config('mail.from.address')
             ?: ('admin@'.$this->host());
 
