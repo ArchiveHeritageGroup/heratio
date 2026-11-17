@@ -81,6 +81,163 @@ class AclService
         self::$user = null;
         self::$userGroups = null;
         self::$actorEmbargoCol = null;
+        self::$repoRules = [];
+        self::$repoSlugOf = [];
+    }
+
+    // ---------------------------------------------------------------------
+    //  Per-repository permissions (heratio#1776)
+    //
+    //  A rule limited to one repository is an acl_permission row whose
+    //  constants name it: {"repository": "<slug>"} as the ACL editor writes it,
+    //  or AtoM's serialized ['repository' => slug] / ['repositoryId' => id]
+    //  with the conditional '%p[repository] == %k[repository]'. Precedence
+    //  follows AtoM: a rule on the record itself beats a repository rule,
+    //  which beats a global one; at one level deny beats grant. Such rows used
+    //  to count as GLOBAL rules because nothing read constants.
+    // ---------------------------------------------------------------------
+
+    /** @var array<int, array<int, array{action: ?string, grant: bool, repo: string}>> */
+    private static array $repoRules = [];
+
+    /** @var array<int, ?string> */
+    private static array $repoSlugOf = [];
+
+    /** Repository slug named by a permission row's constants, or null. */
+    public static function repositoryConstant(?string $constants): ?string
+    {
+        if ($constants === null || $constants === '' || ! str_contains($constants, 'repository')) {
+            return null;
+        }
+        $c = json_decode($constants, true);
+        if (! is_array($c)) {
+            $c = @unserialize($constants, ['allowed_classes' => false]);
+        }
+        if (! is_array($c)) {
+            return null;
+        }
+        if (! empty($c['repository']) && is_string($c['repository'])) {
+            return $c['repository'];
+        }
+        if (! empty($c['repositoryId'])) {
+            return DB::table('slug')->where('object_id', (int) $c['repositoryId'])->value('slug');
+        }
+
+        return null;
+    }
+
+    /** The user's (and their groups') repository rules. Empty for most users. */
+    public static function repositoryRules(?int $userId): array
+    {
+        if (! $userId) {
+            return [];
+        }
+        if (! array_key_exists($userId, self::$repoRules)) {
+            $groups = self::getUserGroupIds($userId);
+            self::$repoRules[$userId] = Cache::remember("acl_repo_rules_{$userId}", 300, function () use ($userId, $groups) {
+                $out = [];
+                $rows = DB::table('acl_permission')
+                    ->where(fn ($q) => $q->where('user_id', $userId)->orWhereIn('group_id', $groups))
+                    ->where('constants', 'like', '%repository%')
+                    ->get(['action', 'grant_deny', 'constants']);
+                foreach ($rows as $r) {
+                    if (($slug = self::repositoryConstant($r->constants)) !== null) {
+                        $out[] = ['action' => $r->action, 'grant' => (int) $r->grant_deny === self::GRANT, 'repo' => $slug];
+                    }
+                }
+
+                return $out;
+            });
+        }
+
+        return self::$repoRules[$userId];
+    }
+
+    /**
+     * Slug of the repository a record belongs to: its own repository_id, else
+     * the nearest ancestor's (one lft/rgt query, memoised per request). A
+     * repository resolves to itself, a digital object to its description's.
+     */
+    public static function repositorySlugOf(int $objectId): ?string
+    {
+        if (array_key_exists($objectId, self::$repoSlugOf)) {
+            return self::$repoSlugOf[$objectId];
+        }
+        $slug = DB::table('information_object as io')
+            ->join('information_object as a', function ($j) {
+                $j->on('a.lft', '<=', 'io.lft')->on('a.rgt', '>=', 'io.rgt');
+            })
+            ->join('slug as s', 's.object_id', '=', 'a.repository_id')
+            ->where('io.id', $objectId)
+            ->whereNotNull('a.repository_id')
+            ->orderByDesc('a.lft')
+            ->value('s.slug');
+        if ($slug === null) {
+            if (DB::table('repository')->where('id', $objectId)->exists()) {
+                $slug = DB::table('slug')->where('object_id', $objectId)->value('slug');
+            } elseif ($ioId = DB::table('digital_object')->where('id', $objectId)->value('object_id')) {
+                $slug = $ioId !== $objectId ? self::repositorySlugOf((int) $ioId) : null;
+            }
+        }
+
+        return self::$repoSlugOf[$objectId] = $slug;
+    }
+
+    /**
+     * Decision from the rules more specific than a global one, or null when
+     * none applies: a rule on the record itself, then a repository rule. Only
+     * consulted for users who hold repository rules, so everyone else keeps
+     * exactly the old behaviour and pays one cached lookup.
+     */
+    public static function scopedDecision(?int $userId, string $action, int $objectId): ?bool
+    {
+        $rules = self::repositoryRules($userId);
+        if ($rules === []) {
+            return null;
+        }
+        $groups = self::getUserGroupIds($userId);
+        $own = DB::table('acl_permission')
+            ->where(fn ($q) => $q->where('user_id', $userId)->orWhereIn('group_id', $groups))
+            ->where('object_id', $objectId)
+            ->where(fn ($q) => $q->where('action', $action)->orWhereNull('action'))
+            ->pluck('grant_deny');
+        if ($own->isNotEmpty()) {
+            return ! $own->contains(self::DENY);
+        }
+        $slug = self::repositorySlugOf($objectId);
+        if ($slug === null) {
+            return null;
+        }
+        $hit = array_filter($rules, fn ($r) => $r['repo'] === $slug && ($r['action'] === null || $r['action'] === $action));
+        if ($hit === []) {
+            return null;
+        }
+
+        return ! in_array(false, array_column($hit, 'grant'), true);
+    }
+
+    /**
+     * A repository-scoped account: write rights only through repository rules,
+     * no global create/update and no admin or editor group. Kept out of the
+     * admin area and the API key manager.
+     */
+    public static function isRepositoryScoped(?int $userId): bool
+    {
+        if (! $userId || ! in_array(true, array_column(self::repositoryRules($userId), 'grant'), true)) {
+            return false;
+        }
+        $groups = self::getUserGroupIds($userId);
+        if (array_intersect([AclGroup::ADMINISTRATOR_ID, AclGroup::EDITOR_ID], $groups)) {
+            return false;
+        }
+
+        return ! self::hasPermission($userId, 'create') && ! self::hasPermission($userId, 'update');
+    }
+
+    /** Global rows only: repository-keyed rows are evaluated per record above. */
+    private static function notRepositoryScoped($q): void
+    {
+        $q->where(fn ($w) => $w->whereNull('constants')->orWhere('constants', 'not like', '%repository%'));
     }
 
     public static function getUser(): ?object
@@ -123,6 +280,12 @@ class AclService
 
     private static function checkSingleAction(?object $resource, string $action, object $user, array $groups): bool
     {
+        // Record and repository rules first (heratio#1776), so a repository
+        // deny also holds for an editor.
+        if ($resource && ! empty($resource->id) && ($scoped = self::scopedDecision($user->id ?? null, $action, (int) $resource->id)) !== null) {
+            return $scoped;
+        }
+
         // Editors can do most things
         if (in_array(AclGroup::EDITOR_ID, $groups)) {
             $editorActions = ['create', 'read', 'update', 'delete', 'translate', 'publish', 'createTerm', 'list', 'readMaster', 'readReference', 'readThumbnail'];
@@ -158,6 +321,7 @@ class AclService
                     $q->whereNull('object_id')
                         ->orWhere('object_id', $resource->id ?? null);
                 })
+                ->where(fn ($q) => self::notRepositoryScoped($q))
                 ->orderByRaw('object_id IS NULL')
                 ->first();
 
@@ -415,6 +579,11 @@ class AclService
             return true;
         }
 
+        // Record and repository rules first (heratio#1776).
+        if ($objectId && ($scoped = self::scopedDecision($userId, $action, $objectId)) !== null) {
+            return $scoped;
+        }
+
         // Check user-specific permissions
         if ($userId) {
             $userPerm = DB::table('acl_permission')
@@ -425,6 +594,7 @@ class AclService
                 ->where(function ($q) use ($objectId) {
                     $q->where('object_id', $objectId)->orWhereNull('object_id');
                 })
+                ->where(fn ($q) => self::notRepositoryScoped($q))
                 ->orderByDesc('grant_deny')
                 ->first();
 
@@ -443,6 +613,7 @@ class AclService
             ->where(function ($q) use ($objectId) {
                 $q->where('object_id', $objectId)->orWhereNull('object_id');
             })
+            ->where(fn ($q) => self::notRepositoryScoped($q))
             ->orderByDesc('grant_deny')
             ->first();
 
@@ -460,6 +631,8 @@ class AclService
 
         $groupIds = self::getUserGroupIds($userId);
 
+        // An editor given repository rules stays an editor; the repository
+        // rules then narrow it per record. Scoped accounts are never editors.
         return ! empty(array_intersect([AclGroup::ADMINISTRATOR_ID, AclGroup::EDITOR_ID], $groupIds));
     }
 

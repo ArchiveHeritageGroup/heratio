@@ -98,6 +98,10 @@ class KeyPageController extends Controller
 
     protected function issueFrom(Request $request, int $ownerId): array
     {
+        // Repository-scoped accounts get no keys (heratio#1776): the API applies
+        // its own scope model, not the per-repository rules.
+        abort_if(\AhgCore\Services\AclService::isRepositoryScoped($ownerId), 403, __('This account is limited to its repositories and cannot hold API keys.'));
+
         $input = $request->validate([
             'name' => 'required|string|max:100',
             'scopes' => 'nullable|array',

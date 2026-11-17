@@ -86,6 +86,23 @@ The same four entity editors can be applied to an individual user, which is usef
 
 Each page behaves like the group editor (Grant / Deny / Inherit, root or scoped), but the resulting permission is attached to the user instead of a group.
 
+### Limit staff to their own repositories
+
+Some staff should work on one institution's records and nothing else: a department archivist in a shared install, a project team, or a training sandbox. Give them a group of their own and grant its rights **per archival institution** only.
+
+1. Create a group (for example "Records team - Museum archive") under **Admin > Groups > Add new**. Do not add its members to the editor or administrator groups.
+2. On the group's **Archival Description** tab, choose the institution under the per-institution scope and grant the actions they need: typically Create, Update, Delete, Publish and View draft. Leave the root (all records) scope on Inherit.
+3. Add the staff to the group.
+
+What these staff can then do:
+
+- Create, edit, upload to, publish and delete descriptions that belong to the institution. A description belongs to an institution when its own **Repository** field names it, or when the nearest record above it in the hierarchy does, so a new child of a fonds is covered automatically.
+- Create a top-level description only by choosing that institution in its Repository field.
+- Nothing outside it. Editing, deleting or publishing any other record is refused, and so is moving one of their records under another institution's fonds or changing its Repository to another institution.
+- They do not see the admin area, and cannot create API keys.
+
+How rules combine, as in AtoM: a rule on one record beats a rule for its institution, which beats a rule for all records; where two rules at the same level disagree, Deny wins. So you can also use a per-institution **Deny** to keep an ordinary editor out of one institution's records while they keep working everywhere else.
+
 ### Use the term and translate permission matrices
 
 Two matrix pages give a quick, grid-based way to manage common permissions across many groups at once:

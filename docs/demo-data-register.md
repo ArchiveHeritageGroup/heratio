@@ -1,6 +1,6 @@
 # heratio.org demo data register
 
-heratio.org is the flagship demonstration site: every record and file on it is there to show a Heratio feature. This register lists the approved demonstration data, where its files live, what is synthetic or third-party, and what the nightly reset must never touch. It closes ticket H01 (audit of public records, attachments, sample files, print addresses and exports), reviewed on 14 October 2026 at release 1.159.15.
+heratio.org is the flagship demonstration site: every record and file on it is there to show a Heratio feature. This register lists the approved demonstration data, where its files live, what is synthetic or third-party, and what the weekly reset must never touch. It closes ticket H01 (audit of public records, attachments, sample files, print addresses and exports), reviewed on 14 October 2026 at release 1.159.15.
 
 The rule it serves: a record or file on heratio.org is either listed here as demonstration data or it is not public. "Test" in a title does not make a record unwanted. The AI Test series, the format samples and the POPIA fixtures are how features get shown, and they stay.
 
@@ -58,9 +58,9 @@ Under `/uploads/` (on disk `/mnt/nas/heratio/uploads/`):
 
 Nothing else belongs in `/uploads/`. A file added there that is not demonstration data is public to anyone who learns its address.
 
-## What the nightly reset must never touch
+## What the weekly reset must never touch
 
-The reset restores the database from the baseline at 02:20 and leaves files on disk alone. After the restore it re-applies, and must keep re-applying:
+The reset runs every Sunday at 02:20 (weekly since 16 November 2026; it was nightly before). It restores the database from the baseline and leaves files on disk alone. After the restore it re-applies, and must keep re-applying:
 
 - the articles and blog section (`blog_post`, `blog_attachment`, `blog_comment`, `blog_post_link`);
 - cron monitoring history (`ahg_cron_run`, `ahg_cron_missed_run`, `cron_schedule`);
@@ -68,7 +68,9 @@ The reset restores the database from the baseline at 02:20 and leaves files on d
 
 A guided-tour sample login (ticket H06) would join this list.
 
-The baseline itself is part of the demo data. Removing or changing anything on the live site does not last unless the baseline is re-snapshotted afterwards (`heratio-demo-snapshot.sh`), and the reset refuses to run when the baseline version differs from the deployed code.
+The baseline itself is part of the demo data. Removing or changing anything on the live site does not last unless the baseline is re-snapshotted afterwards (`heratio-demo-snapshot.sh`). A baseline older than the deployed code is restored, migrated up to the code (`migrate --force`) and re-snapshotted by the reset itself; one newer than the code (after a rollback) makes the reset stop.
+
+User email addresses live in the baseline: every account except the three kept ones was renamed to `user<id>@example.org` on 16 November 2026 and the baseline re-taken after. A baseline taken before that date would bring real addresses back.
 
 ## Adding demonstration data
 

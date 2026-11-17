@@ -126,7 +126,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/informationobject/{slug}', [InformationObjectController::class, 'update'])->name('informationobject.update')->middleware('acl:update');
 });
 
-Route::middleware('admin')->group(function () {
+// heratio#1776: the delete permission decides, not membership of the admin
+// area, so a repository-scoped account can delete inside its own repository.
+// Editors and administrators hold delete globally; contributors still do not.
+Route::middleware(['auth', 'acl:delete'])->group(function () {
     Route::get('/informationobject/{slug}/delete', [InformationObjectController::class, 'confirmDelete'])->name('informationobject.confirmDelete');
     Route::delete('/informationobject/{slug}', [InformationObjectController::class, 'destroy'])->name('informationobject.destroy')->middleware('acl:delete');
 });

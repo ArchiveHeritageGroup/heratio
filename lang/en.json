@@ -28026,5 +28026,6 @@
     "The community connected to this record has asked that access to it be limited.": "The community connected to this record has asked that access to it be limited.",
     "If you believe you should have access, please contact the institution.": "If you believe you should have access, please contact the institution.",
     "Your account does not have permission to view it.": "Your account does not have permission to view it.",
-    "Map of the site location": "Map of the site location"
+    "Map of the site location": "Map of the site location",
+    "This account is limited to its repositories and cannot hold API keys.": "This account is limited to its repositories and cannot hold API keys."
 }
