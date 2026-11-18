@@ -59,6 +59,7 @@ class TranslationLlmFillCommand extends Command
         {--pause=0 : Seconds to wait after each batch, so a call for another model queued meanwhile gets the GPU first}
         {--yield-to= : Comma-separated gateway models with priority on the GPU: before each batch, wait while any of them is loaded or was seen loaded within --yield-grace seconds}
         {--yield-grace=180 : Seconds a priority model counts as active after it was last seen loaded}
+        {--node= : Gateway node (name or IP) every model call is pinned to via X-AHG-Node; no failover, so the fill never spills onto another node}
         {--dry-run : Count what would be translated; call nothing, write nothing}';
 
     protected $description = 'Fill missing UI strings for one or more locales through the AI gateway LLM route, with placeholder and script checks';
@@ -310,7 +311,8 @@ class TranslationLlmFillCommand extends Command
             .'Keep acronyms and standard names (ISAD(G), ISAAR, EAD, OAI-PMH, IIIF, RiC, CSV, PDF, URL, API, ICIP) unchanged. Do not add explanations. '
             .'Reply with a JSON object mapping each id to its translation, with the same ids.';
         try {
-            $resp = Http::withToken((string) $this->gatewayKey())->timeout(600)->post(self::URL, [
+            $node = trim((string) $this->option('node'));
+            $resp = Http::withToken((string) $this->gatewayKey())->withHeaders($node !== '' ? ['X-AHG-Node' => $node] : [])->timeout(600)->post(self::URL, [
                 'model' => (string) $this->option('model'), 'stream' => false, 'format' => 'json', 'think' => false,
                 'options' => ['temperature' => 0.1],
                 'messages' => [['role' => 'system', 'content' => $system], ['role' => 'user', 'content' => json_encode($items, JSON_UNESCAPED_UNICODE)]],
