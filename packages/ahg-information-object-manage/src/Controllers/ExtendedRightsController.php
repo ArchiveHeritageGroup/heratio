@@ -232,7 +232,7 @@ class ExtendedRightsController extends Controller
             }
             $this->service->updateEmbargo((int) $active->id, $update);
 
-            return redirect($this->resolveRecordUrl($slug))->with('notice', 'Embargo updated.');
+            return redirect($this->resolveRecordUrl($slug))->with('notice', __('Embargo updated.'));
         }
 
         if ($applyToChildren) {
