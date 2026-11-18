@@ -145,12 +145,24 @@ jobs:
         with:
           node-version: '20'
       - name: npm audit (fail at high+ severity)
+        # Advisories listed in .github/npm-audit-allowlist.txt (one GHSA id per
+        # line, each with its reason) do not fail the build. Only for advisories
+        # with no fixed version yet; remove the line once a fix ships.
         run: |
-          if [ -f package.json ]; then
-            npm audit --audit-level=high
-          else
-            echo "No package.json at repo root; skipping npm audit."
+          if [ ! -f package.json ]; then
+            echo "No package.json at repo root; skipping npm audit."; exit 0
           fi
+          npm audit --audit-level=high || true
+          allow=$(grep -oE 'GHSA-[a-z0-9-]+' .github/npm-audit-allowlist.txt 2>/dev/null | jq -R . | jq -sc . || echo '[]')
+          [ -n "$allow" ] || allow='[]'
+          left=$(npm audit --json | jq -r --argjson allow "$allow" '[.vulnerabilities[].via[] | objects
+            | select(.severity == "high" or .severity == "critical")
+            | (.url | capture("(?<id>GHSA-[a-z0-9-]+)").id) as $id
+            | select(($allow | index($id)) | not) | $id] | unique | .[]')
+          if [ -n "$left" ]; then
+            echo "::error::High or critical npm advisories not on the allowlist:"; echo "$left"; exit 1
+          fi
+          echo "No high or critical npm advisories outside .github/npm-audit-allowlist.txt."
 
   laravel-unit:
     name: Unit Tests

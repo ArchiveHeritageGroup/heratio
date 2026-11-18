@@ -365,10 +365,10 @@
             <span>{{ number_format((float) $stats['total_insurance_value'], 2) }} {{ $currency }}</span>
           </li>
         @endif
-        @if(!empty($exhibition->admission_fee))
+        @if((float) ($exhibition->admission_fee ?? 0) > 0 && empty($exhibition->is_free_admission))
           <li class="list-group-item d-flex justify-content-between">
             <span class="text-muted">{{ __('Admission') }}</span>
-            <span>{{ number_format((float) $exhibition->admission_fee, 2) }} {{ $exhibition->admission_currency }}</span>
+            <span>{{ number_format((float) $exhibition->admission_fee, 2) }} {{ $exhibition->admission_currency ?: $currency }}</span>
           </li>
         @elseif(!empty($exhibition->is_free_admission))
           <li class="list-group-item d-flex justify-content-between">
@@ -376,7 +376,7 @@
             <span class="text-success">{{ __('Free') }}</span>
           </li>
         @endif
-        @if(empty($exhibition->budget_amount) && empty($stats['total_insurance_value']) && empty($exhibition->admission_fee) && empty($exhibition->is_free_admission))
+        @if(empty($exhibition->budget_amount) && empty($stats['total_insurance_value']) && (float) ($exhibition->admission_fee ?? 0) <= 0 && empty($exhibition->is_free_admission))
           <li class="list-group-item text-muted">{{ __('No financial details recorded.') }}</li>
         @endif
       </ul>

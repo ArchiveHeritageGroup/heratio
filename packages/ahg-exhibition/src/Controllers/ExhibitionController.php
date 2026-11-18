@@ -151,6 +151,11 @@ class ExhibitionController extends Controller
             'notes' => 'nullable|string|max:65535',
         ]);
         $data['is_free_admission'] = $request->boolean('is_free_admission') ? 1 : 0;
+        // The form has one currency; admission is charged in it too (the column
+        // otherwise keeps its install default whatever the budget currency is).
+        if (! empty($data['budget_currency'])) {
+            $data['admission_currency'] = $data['budget_currency'];
+        }
 
         // Leave the column defaults (temporary / concept) in place when unset.
         foreach (['exhibition_type', 'status', 'budget_currency'] as $k) {

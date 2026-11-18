@@ -249,10 +249,12 @@
             <span class="fw-bold">{{ number_format($stats['due_this_month']) }}</span>
           </li>
         </ul>
-        @if($stats['total_insurance_value'] > 0)
+        @if(!empty($stats['insurance_by_currency']))
           <div class="card-body border-top">
             <small class="text-muted">{{ __('Total Insurance Value') }}</small>
-            <div class="fw-bold">R {{ number_format($stats['total_insurance_value'], 2) }}</div>
+            @foreach($stats['insurance_by_currency'] as $cur => $total)
+              <div class="fw-bold">{{ $cur }} {{ number_format((float) $total, 2) }}</div>
+            @endforeach
           </div>
         @endif
       </div>

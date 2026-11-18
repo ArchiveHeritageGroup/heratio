@@ -71,7 +71,10 @@ class LoanController extends Controller
             'active_in' => DB::table('ahg_loan')->where('loan_type', 'in')->whereIn('status', $activeStatuses)->count(),
             'overdue' => DB::table('ahg_loan')->where('end_date', '<', now())->whereIn('status', $activeStatuses)->count(),
             'due_this_month' => DB::table('ahg_loan')->whereBetween('end_date', [now(), now()->addDays(30)])->whereIn('status', $activeStatuses)->count(),
-            'total_insurance_value' => DB::table('ahg_loan')->sum('insurance_value'),
+            // Per currency: summing USD and ZAR values into one figure is meaningless.
+            'insurance_by_currency' => DB::table('ahg_loan')->where('insurance_value', '>', 0)
+                ->selectRaw("COALESCE(NULLIF(insurance_currency, ''), '') as currency, SUM(insurance_value) as total")
+                ->groupBy('currency')->orderBy('currency')->pluck('total', 'currency')->all(),
         ];
 
         // Top 5 overdue loans for sidebar
