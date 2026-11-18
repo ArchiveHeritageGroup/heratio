@@ -72,6 +72,8 @@ abstract class SectorCsvImporter
         'updated' => 0,
         'skipped' => 0,
         'errors' => 0,
+        // Rows whose record saved but whose sector fields did not (heratio#1782).
+        'sector_failures' => 0,
     ];
 
     protected array $errors = [];
@@ -820,6 +822,7 @@ abstract class SectorCsvImporter
             }
         } catch (\Throwable $e) {
             $prefix = $this->currentRow > 0 ? "Row {$this->currentRow}: " : '';
+            $this->counters['sector_failures']++;
             $this->errors[] = "{$prefix}record saved, but its {$this->getSectorName()} fields were not saved to {$table}: {$e->getMessage()}";
             Log::warning("SectorCsvImporter: Could not save metadata to {$table}: {$e->getMessage()}");
         }

@@ -79,12 +79,14 @@ class ImportArchivesCsvCommand extends Command
         $this->line(sprintf('Records updated: %d', $counters['updated']));
         $this->line(sprintf('Records skipped: %d', $counters['skipped']));
         $this->line(sprintf('Errors: %d', $counters['errors']));
+        $this->line(sprintf('Records with sector fields not saved: %d', $counters['sector_failures'] ?? 0));
 
         foreach ($importer->getErrors() as $error) {
             $this->error('  ' . $error);
         }
 
-        return $counters['errors'] === 0 ? 0 : 1;
+        // A record whose sector fields failed to save lost data, so the run is not clean.
+        return $counters['errors'] === 0 && ($counters['sector_failures'] ?? 0) === 0 ? 0 : 1;
     }
 
 }

@@ -103,5 +103,9 @@ class SectorCsvImporterColumnsTest extends TestCase
         $errors = $importer->getErrors();
         $this->assertCount(1, $errors);
         $this->assertStringContainsString('no_such_table_1778', $errors[0]);
+
+        // Counted, so the import command exits non-zero (heratio#1782).
+        $this->assertSame(1, $importer->getCounters()['sector_failures']);
+        $this->assertSame(0, $importer->getCounters()['errors']);
     }
 }
