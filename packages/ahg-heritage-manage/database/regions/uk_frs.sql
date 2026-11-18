@@ -38,7 +38,7 @@ VALUES
  'Date of recognition/acquisition',
  'required_field', 'recognition_date', NULL,
  'Recognition date should be recorded', 'FRS 102.34.51', 'warning', 3)
-ON DUPLICATE KEY UPDATE name=VALUES(name);
+ON DUPLICATE KEY UPDATE category = VALUES(category), name = VALUES(name), description = VALUES(description), check_type = VALUES(check_type), field_name = VALUES(field_name), `condition` = VALUES(`condition`), error_message = VALUES(error_message), reference = VALUES(reference), severity = VALUES(severity), sort_order = VALUES(sort_order);
 
 -- Measurement Rules
 INSERT INTO heritage_compliance_rule
@@ -53,7 +53,7 @@ VALUES
  'Carrying amount if capitalised',
  'value_check', 'current_carrying_amount', '>=0',
  'Carrying amount should be recorded if capitalised', 'FRS 102.34.52', 'warning', 11)
-ON DUPLICATE KEY UPDATE name=VALUES(name);
+ON DUPLICATE KEY UPDATE category = VALUES(category), name = VALUES(name), description = VALUES(description), check_type = VALUES(check_type), field_name = VALUES(field_name), `condition` = VALUES(`condition`), error_message = VALUES(error_message), reference = VALUES(reference), severity = VALUES(severity), sort_order = VALUES(sort_order);
 
 -- Disclosure Rules
 INSERT INTO heritage_compliance_rule
@@ -78,7 +78,7 @@ VALUES
  'Disclose any restrictions on disposal',
  'required_field', 'restrictions_on_disposal', NULL,
  'Restrictions on disposal should be documented', 'FRS 102.34.55(c)', 'info', 23)
-ON DUPLICATE KEY UPDATE name=VALUES(name);
+ON DUPLICATE KEY UPDATE category = VALUES(category), name = VALUES(name), description = VALUES(description), check_type = VALUES(check_type), field_name = VALUES(field_name), `condition` = VALUES(`condition`), error_message = VALUES(error_message), reference = VALUES(reference), severity = VALUES(severity), sort_order = VALUES(sort_order);
 
 -- UK-Specific Report Configurations
 UPDATE heritage_regional_config

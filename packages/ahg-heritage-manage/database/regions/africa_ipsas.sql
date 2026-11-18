@@ -46,7 +46,7 @@ VALUES
  'Asset must have clear recognition status',
  'required_field', 'recognition_status', NULL,
  'Recognition status must be specified', 'IPSAS 45.14', 'error', 4)
-ON DUPLICATE KEY UPDATE name=VALUES(name);
+ON DUPLICATE KEY UPDATE category = VALUES(category), name = VALUES(name), description = VALUES(description), check_type = VALUES(check_type), field_name = VALUES(field_name), `condition` = VALUES(`condition`), error_message = VALUES(error_message), reference = VALUES(reference), severity = VALUES(severity), sort_order = VALUES(sort_order);
 
 -- Measurement Rules
 INSERT INTO heritage_compliance_rule
@@ -76,7 +76,7 @@ VALUES
  'Currency must be specified for monetary values',
  'required_field', 'acquisition_currency', NULL,
  'Currency should be specified', 'IPSAS 45', 'info', 14)
-ON DUPLICATE KEY UPDATE name=VALUES(name);
+ON DUPLICATE KEY UPDATE category = VALUES(category), name = VALUES(name), description = VALUES(description), check_type = VALUES(check_type), field_name = VALUES(field_name), `condition` = VALUES(`condition`), error_message = VALUES(error_message), reference = VALUES(reference), severity = VALUES(severity), sort_order = VALUES(sort_order);
 
 -- Disclosure Rules
 INSERT INTO heritage_compliance_rule
@@ -106,7 +106,7 @@ VALUES
  'Insurance coverage should be documented for valuable assets',
  'required_field', 'insurance_value', NULL,
  'Insurance coverage should be documented', 'Best Practice', 'info', 24)
-ON DUPLICATE KEY UPDATE name=VALUES(name);
+ON DUPLICATE KEY UPDATE category = VALUES(category), name = VALUES(name), description = VALUES(description), check_type = VALUES(check_type), field_name = VALUES(field_name), `condition` = VALUES(`condition`), error_message = VALUES(error_message), reference = VALUES(reference), severity = VALUES(severity), sort_order = VALUES(sort_order);
 
 -- =============================================================================
 -- Africa-Specific Report Configurations

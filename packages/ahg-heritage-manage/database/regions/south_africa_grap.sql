@@ -52,7 +52,7 @@ VALUES
  'Reason for recognition status must be documented',
  'required_field', 'recognition_status_reason', NULL,
  'Recognition status reason should be documented', 'GRAP 103.15', 'warning', 5)
-ON DUPLICATE KEY UPDATE name=VALUES(name);
+ON DUPLICATE KEY UPDATE category = VALUES(category), name = VALUES(name), description = VALUES(description), check_type = VALUES(check_type), field_name = VALUES(field_name), `condition` = VALUES(`condition`), error_message = VALUES(error_message), reference = VALUES(reference), severity = VALUES(severity), sort_order = VALUES(sort_order);
 
 -- Measurement Rules
 INSERT INTO heritage_compliance_rule
@@ -87,7 +87,7 @@ VALUES
  'Fair value at acquisition date for donated items',
  'required_field', 'fair_value_at_acquisition', NULL,
  'Fair value at acquisition should be recorded for donations', 'GRAP 103.37', 'info', 15)
-ON DUPLICATE KEY UPDATE name=VALUES(name);
+ON DUPLICATE KEY UPDATE category = VALUES(category), name = VALUES(name), description = VALUES(description), check_type = VALUES(check_type), field_name = VALUES(field_name), `condition` = VALUES(`condition`), error_message = VALUES(error_message), reference = VALUES(reference), severity = VALUES(severity), sort_order = VALUES(sort_order);
 
 -- Disclosure Rules
 INSERT INTO heritage_compliance_rule
@@ -132,7 +132,7 @@ VALUES
  'Insurance details for valuable heritage assets',
  'required_field', 'insurance_value', NULL,
  'Insurance coverage should be documented', 'National Treasury Guideline', 'warning', 27)
-ON DUPLICATE KEY UPDATE name=VALUES(name);
+ON DUPLICATE KEY UPDATE category = VALUES(category), name = VALUES(name), description = VALUES(description), check_type = VALUES(check_type), field_name = VALUES(field_name), `condition` = VALUES(`condition`), error_message = VALUES(error_message), reference = VALUES(reference), severity = VALUES(severity), sort_order = VALUES(sort_order);
 
 -- =============================================================================
 -- South Africa-Specific Report Configurations

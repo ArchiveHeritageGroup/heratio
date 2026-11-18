@@ -54,7 +54,7 @@ VALUES
  'Conservation policy',
  'required_field', 'conservation_requirements', NULL,
  'Conservation policy should be documented', 'AASB 116 Aus73.1', 'info', 22)
-ON DUPLICATE KEY UPDATE name=VALUES(name);
+ON DUPLICATE KEY UPDATE category = VALUES(category), name = VALUES(name), description = VALUES(description), check_type = VALUES(check_type), field_name = VALUES(field_name), `condition` = VALUES(`condition`), error_message = VALUES(error_message), reference = VALUES(reference), severity = VALUES(severity), sort_order = VALUES(sort_order);
 
 UPDATE heritage_regional_config
 SET report_formats = JSON_OBJECT(

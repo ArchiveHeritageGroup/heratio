@@ -35,7 +35,7 @@ VALUES
  'How asset was acquired',
  'required_field', 'acquisition_method', NULL,
  'Acquisition method should be documented', 'GASB 34.18', 'warning', 3)
-ON DUPLICATE KEY UPDATE name=VALUES(name);
+ON DUPLICATE KEY UPDATE category = VALUES(category), name = VALUES(name), description = VALUES(description), check_type = VALUES(check_type), field_name = VALUES(field_name), `condition` = VALUES(`condition`), error_message = VALUES(error_message), reference = VALUES(reference), severity = VALUES(severity), sort_order = VALUES(sort_order);
 
 -- Measurement Rules
 INSERT INTO heritage_compliance_rule
@@ -50,7 +50,7 @@ VALUES
  'Current carrying amount',
  'value_check', 'current_carrying_amount', '>=0',
  'Carrying amount should be recorded', 'GASB 34.19', 'warning', 11)
-ON DUPLICATE KEY UPDATE name=VALUES(name);
+ON DUPLICATE KEY UPDATE category = VALUES(category), name = VALUES(name), description = VALUES(description), check_type = VALUES(check_type), field_name = VALUES(field_name), `condition` = VALUES(`condition`), error_message = VALUES(error_message), reference = VALUES(reference), severity = VALUES(severity), sort_order = VALUES(sort_order);
 
 -- Disclosure Rules
 INSERT INTO heritage_compliance_rule
@@ -70,7 +70,7 @@ VALUES
  'Policy for preservation',
  'required_field', 'conservation_requirements', NULL,
  'Conservation policy should be documented', 'GASB 34.27', 'info', 22)
-ON DUPLICATE KEY UPDATE name=VALUES(name);
+ON DUPLICATE KEY UPDATE category = VALUES(category), name = VALUES(name), description = VALUES(description), check_type = VALUES(check_type), field_name = VALUES(field_name), `condition` = VALUES(`condition`), error_message = VALUES(error_message), reference = VALUES(reference), severity = VALUES(severity), sort_order = VALUES(sort_order);
 
 UPDATE heritage_regional_config
 SET report_formats = JSON_OBJECT(

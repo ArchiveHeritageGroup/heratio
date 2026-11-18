@@ -17,6 +17,8 @@
 namespace AhgMuseum\Services;
 
 use AhgCore\Services\Import\SectorCsvImporter;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
  * Museum sector CSV importer following Spectrum 5.0 standard.
@@ -24,7 +26,8 @@ use AhgCore\Services\Import\SectorCsvImporter;
  * Migrated from AtoM's MuseumCsvImportCommand in ahgDataMigrationPlugin.
  * Maps CSV columns to Spectrum fields and creates information_object records
  * with events for production dates and maker/creator actors.
- * Saves museum-specific metadata to museum_metadata table.
+ * Saves museum-specific metadata where the museum add form keeps it
+ * (museum_metadata, display_object_config, provenance_overview).
  */
 class MuseumCsvImporter extends SectorCsvImporter
 {
@@ -161,24 +164,59 @@ class MuseumCsvImporter extends SectorCsvImporter
         );
     }
 
-    protected function saveSectorMetadata(int $objectId, array $data): void
+    /**
+     * Same table, key and columns as the museum add form (MuseumService::create):
+     * museum_metadata keyed object_id, display_object_config marking the record
+     * as museum, and acquisition on provenance_overview as the provenance form
+     * stores it. heratio#1778.
+     */
+    protected function metadataRows(array $data): array
     {
-        $metadata = array_filter([
-            'object_name'        => $data['objectName'] ?? null,
-            'number_of_objects'  => $data['numberOfObjects'] ?? null,
-            'technique'          => $data['technique'] ?? null,
-            'dimensions'         => $data['dimensions'] ?? null,
-            'inscription'        => $data['inscriptions'] ?? null,
-            'acquisition_method' => $data['acquisitionMethod'] ?? null,
-            'acquisition_date'   => $data['acquisitionDate'] ?? null,
-            'acquisition_source' => $data['acquisitionSource'] ?? null,
-            'current_location'   => $data['currentLocation'] ?? null,
-            'normal_location'    => $data['normalLocation'] ?? null,
-            'condition_note'     => $data['conditionNote'] ?? null,
-        ], fn($v) => $v !== null && $v !== '');
+        $acquisitionDate = $data['acquisitionDate'] ?? null;
 
-        if (!empty($metadata)) {
-            $this->upsertMetadata('museum_metadata', 'information_object_id', $objectId, $metadata);
+        return [
+            'museum_metadata' => ['object_id', [
+                'object_type'                => $data['objectName'] ?? null,
+                'components_count'           => $data['numberOfObjects'] ?? null,
+                'materials'                  => $data['materials'] ?? null,
+                'techniques'                 => $data['technique'] ?? $data['techniques'] ?? null,
+                'dimensions'                 => $data['dimensions'] ?? null,
+                'inscriptions'               => $data['inscriptions'] ?? null,
+                'physical_appearance'        => $data['distinguishingFeatures'] ?? null,
+                'creator_identity'           => $data['objectProductionPerson'] ?? $data['objectProductionOrganisation'] ?? null,
+                'creator_role'               => $data['objectProductionPersonRole'] ?? null,
+                'creation_date_display'      => $data['objectProductionDate'] ?? null,
+                'creation_place'             => $data['objectProductionPlace'] ?? null,
+                'ownership_history'          => $data['ownershipHistory'] ?? null,
+                'current_location'           => $data['currentLocation'] ?? null,
+                'location_within_repository' => $data['normalLocation'] ?? null,
+                'condition_notes'            => $data['conditionNote'] ?? null,
+            ]],
+            'display_object_config' => ['object_id', ['object_type' => 'museum']],
+            'provenance_overview' => ['information_object_id', [
+                'acquisition_type'      => $this->acquisitionTypeCode($data['acquisitionMethod'] ?? null),
+                'acquisition_date'      => $this->dateOrNull($acquisitionDate),
+                'acquisition_date_text' => $acquisitionDate,
+            ]],
+        ];
+    }
+
+    /**
+     * Acquisition method as a provenance_acquisition_type dropdown code
+     * (matched on code or label); an unmatched value is kept as written.
+     */
+    protected function acquisitionTypeCode(?string $value): ?string
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return null;
         }
+
+        $code = DB::table('ahg_dropdown')
+            ->where('taxonomy', 'provenance_acquisition_type')
+            ->where(fn ($q) => $q->where('code', Str::snake(strtolower($value)))->orWhere('label', $value))
+            ->value('code');
+
+        return $code ?? mb_substr($value, 0, 50);
     }
 }

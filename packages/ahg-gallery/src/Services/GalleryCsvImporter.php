@@ -24,7 +24,7 @@ use AhgCore\Services\Import\SectorCsvImporter;
  * Migrated from AtoM's GalleryCsvImportCommand in ahgDataMigrationPlugin.
  * Maps CSV columns to CCO fields and creates information_object records
  * with events for creation dates and artist/creator actors.
- * Saves gallery-specific metadata to gallery_metadata table.
+ * Saves gallery-specific metadata to museum_metadata, as the gallery add form does.
  */
 class GalleryCsvImporter extends SectorCsvImporter
 {
@@ -172,23 +172,36 @@ class GalleryCsvImporter extends SectorCsvImporter
         );
     }
 
-    protected function saveSectorMetadata(int $objectId, array $data): void
+    /**
+     * Same table, key and columns as the gallery add form (GalleryService::create):
+     * the shared CCO fields on museum_metadata keyed object_id, plus
+     * display_object_config marking the record as gallery. heratio#1778.
+     */
+    protected function metadataRows(array $data): array
     {
-        $metadata = array_filter([
-            'work_type'          => $data['workType'] ?? null,
-            'style_period'       => $data['stylePeriod'] ?? null,
-            'cultural_context'   => $data['culturalContext'] ?? null,
-            'technique'          => $data['technique'] ?? null,
-            'measurements'       => $data['measurements'] ?? null,
-            'inscriptions'       => $data['inscriptions'] ?? null,
-            'edition_number'     => $data['stateEdition'] ?? null,
-            'exhibition_history' => $data['exhibitionHistory'] ?? null,
-            'credit_line'        => $data['creditLine'] ?? null,
-            'rights'             => $data['rights'] ?? null,
-        ], fn($v) => $v !== null && $v !== '');
-
-        if (!empty($metadata)) {
-            $this->upsertMetadata('gallery_metadata', 'information_object_id', $objectId, $metadata);
-        }
+        return [
+            'museum_metadata' => ['object_id', [
+                'work_type'              => $data['workType'] ?? null,
+                'style_period'           => $data['stylePeriod'] ?? null,
+                'cultural_context'       => $data['culturalContext'] ?? null,
+                'creator_identity'       => $data['creator'] ?? null,
+                'creator_role'           => $data['creatorRole'] ?? null,
+                'creation_date_display'  => $data['creationDate'] ?? null,
+                'creation_date_earliest' => $this->dateOrNull($data['creationDateEarliest'] ?? null),
+                'creation_date_latest'   => $this->dateOrNull($data['creationDateLatest'] ?? null),
+                'creation_place'         => $data['creationPlace'] ?? null,
+                'materials'              => $data['materials'] ?? null,
+                'techniques'             => $data['technique'] ?? $data['techniques'] ?? null,
+                'measurements'           => $data['measurements'] ?? null,
+                'inscription'            => $data['inscriptions'] ?? null,
+                'edition_description'    => $data['stateEdition'] ?? null,
+                'provenance'             => $data['provenance'] ?? null,
+                'related_work_label'     => $data['relatedWorks'] ?? null,
+                'condition_description'  => $data['conditionDescription'] ?? null,
+                'treatment_description'  => $data['treatmentHistory'] ?? null,
+                'rights_remarks'         => $data['rights'] ?? null,
+            ]],
+            'display_object_config' => ['object_id', ['object_type' => 'gallery']],
+        ];
     }
 }

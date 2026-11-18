@@ -76,6 +76,9 @@ abstract class SectorCsvImporter
 
     protected array $errors = [];
 
+    /** CSV row being processed, so a failed sector write can name its row. */
+    protected int $currentRow = 0;
+
     protected array $legacyIdMap = [];
 
     protected int $jobRecordId = 0;
@@ -109,10 +112,48 @@ abstract class SectorCsvImporter
     abstract protected function createEvents(int $objectId, array $data): void;
 
     /**
-     * Save sector-specific metadata (library_item, museum_metadata, etc.).
-     * No-op for Archives which has no sector metadata table.
+     * Sector metadata rows for one CSV row, keyed by table:
+     *   ['museum_metadata' => ['object_id', ['techniques' => ..., ...]], ...]
+     * Table, key and columns must match what the sector's own add form
+     * writes (heratio#1778). Empty values are dropped before the write.
+     * Archives has no sector table and returns [].
      */
-    abstract protected function saveSectorMetadata(int $objectId, array $data): void;
+    protected function metadataRows(array $data): array
+    {
+        return [];
+    }
+
+    /**
+     * Save sector-specific metadata (library_item, museum_metadata, etc.).
+     */
+    protected function saveSectorMetadata(int $objectId, array $data): void
+    {
+        foreach ($this->metadataRows($data) as $table => [$keyColumn, $values]) {
+            $values = array_filter($values, fn ($v) => $v !== null && $v !== '');
+            if (! empty($values)) {
+                $this->upsertMetadata($table, $keyColumn, $objectId, $values);
+            }
+        }
+    }
+
+    /** Value if it is a real Y-m-d date (for DATE columns), else null. */
+    protected function dateOrNull($value): ?string
+    {
+        $value = trim((string) $value);
+        if (! preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $value, $m)) {
+            return null;
+        }
+
+        return checkdate((int) $m[2], (int) $m[3], (int) $m[1]) ? $value : null;
+    }
+
+    /** Value if numeric (for INT/DECIMAL columns), else null. */
+    protected function numberOrNull($value): ?string
+    {
+        $value = trim((string) $value);
+
+        return is_numeric($value) ? $value : null;
+    }
 
     // ─── Configuration ──────────────────────────────────────────────
 
@@ -303,6 +344,7 @@ abstract class SectorCsvImporter
                     $data[$targetCol] = $value;
                 }
 
+                $this->currentRow = $rowNumber;
                 $result = $this->processRow($data, $rowNumber);
 
                 match ($result) {
@@ -743,19 +785,42 @@ abstract class SectorCsvImporter
 
     // ─── Upsert sector metadata helper ──────────────────────────────
 
+    /** Per-table cache of [hasCreatedAt, hasUpdatedAt]. */
+    private static array $timestampColumns = [];
+
+    /**
+     * Non-fatal per row: the record itself is kept, but a failed sector write
+     * is added to the import's error list (shown in the import report) as
+     * well as the log. Before heratio#1778 it was only logged, which hid four
+     * importers writing to tables and columns that do not exist.
+     */
     protected function upsertMetadata(string $table, string $fkColumn, int $objectId, array $metadata): void
     {
         try {
+            self::$timestampColumns[$table] ??= [
+                \Illuminate\Support\Facades\Schema::hasColumn($table, 'created_at'),
+                \Illuminate\Support\Facades\Schema::hasColumn($table, 'updated_at'),
+            ];
+            [$hasCreated, $hasUpdated] = self::$timestampColumns[$table];
+
             $exists = DB::table($table)->where($fkColumn, $objectId)->exists();
 
             $metadata[$fkColumn] = $objectId;
+            if ($hasUpdated) {
+                $metadata['updated_at'] = now();
+            }
 
             if ($exists) {
                 DB::table($table)->where($fkColumn, $objectId)->update($metadata);
             } else {
+                if ($hasCreated) {
+                    $metadata['created_at'] = now();
+                }
                 DB::table($table)->insert($metadata);
             }
         } catch (\Throwable $e) {
+            $prefix = $this->currentRow > 0 ? "Row {$this->currentRow}: " : '';
+            $this->errors[] = "{$prefix}record saved, but its {$this->getSectorName()} fields were not saved to {$table}: {$e->getMessage()}";
             Log::warning("SectorCsvImporter: Could not save metadata to {$table}: {$e->getMessage()}");
         }
     }

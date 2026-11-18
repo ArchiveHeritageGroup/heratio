@@ -49,7 +49,7 @@ VALUES
  'Description of stewardship activities',
  'required_field', 'conservation_requirements', NULL,
  'Stewardship activities should be documented', 'FASB 958-360-50-2', 'info', 22)
-ON DUPLICATE KEY UPDATE name=VALUES(name);
+ON DUPLICATE KEY UPDATE category = VALUES(category), name = VALUES(name), description = VALUES(description), check_type = VALUES(check_type), field_name = VALUES(field_name), `condition` = VALUES(`condition`), error_message = VALUES(error_message), reference = VALUES(reference), severity = VALUES(severity), sort_order = VALUES(sort_order);
 
 UPDATE heritage_regional_config
 SET report_formats = JSON_OBJECT(

@@ -49,7 +49,7 @@ VALUES
  'Any restrictions on use or disposal',
  'required_field', 'restrictions_on_use', NULL,
  'Restrictions should be disclosed', 'PS 3150.42', 'info', 22)
-ON DUPLICATE KEY UPDATE name=VALUES(name);
+ON DUPLICATE KEY UPDATE category = VALUES(category), name = VALUES(name), description = VALUES(description), check_type = VALUES(check_type), field_name = VALUES(field_name), `condition` = VALUES(`condition`), error_message = VALUES(error_message), reference = VALUES(reference), severity = VALUES(severity), sort_order = VALUES(sort_order);
 
 UPDATE heritage_regional_config
 SET report_formats = JSON_OBJECT(

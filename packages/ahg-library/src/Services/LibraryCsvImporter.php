@@ -24,7 +24,7 @@ use AhgCore\Services\Import\SectorCsvImporter;
  * Migrated from AtoM's LibraryCsvImportCommand in ahgDataMigrationPlugin.
  * Maps CSV columns to MARC/RDA fields and creates information_object records
  * with events for publication dates and author/publisher actors.
- * Saves library-specific metadata to library_metadata table.
+ * Saves library-specific metadata to library_item, as the library add form does.
  */
 class LibraryCsvImporter extends SectorCsvImporter
 {
@@ -105,6 +105,7 @@ class LibraryCsvImporter extends SectorCsvImporter
             'extent_and_medium' => $this->formatExtent($data),
             'scope_and_content' => $data['summary'] ?? $data['description'] ?? null,
             'finding_aids'      => $data['tableOfContents'] ?? null,
+            'alternate_title'   => $data['parallelTitle'] ?? null,
         ], fn($v) => $v !== null && $v !== '');
     }
 
@@ -168,21 +169,36 @@ class LibraryCsvImporter extends SectorCsvImporter
         return $data['identifier'] ?? $data['callNumber'] ?? null;
     }
 
-    protected function saveSectorMetadata(int $objectId, array $data): void
+    /**
+     * Same table, key and columns as the library add form (LibraryService::create):
+     * library_item keyed information_object_id, plus display_object_config
+     * marking the record as library. heratio#1778.
+     */
+    protected function metadataRows(array $data): array
     {
-        $metadata = array_filter([
-            'isbn'                 => $data['isbn'] ?? null,
-            'issn'                 => $data['issn'] ?? null,
-            'call_number'          => $data['callNumber'] ?? null,
-            'publisher'            => $data['publisher'] ?? null,
-            'place_of_publication' => $data['placeOfPublication'] ?? null,
-            'edition'              => $data['editionStatement'] ?? $data['edition'] ?? null,
-            'series'               => $data['seriesTitle'] ?? null,
-            'language'             => $data['language'] ?? null,
-        ], fn($v) => $v !== null && $v !== '');
-
-        if (!empty($metadata)) {
-            $this->upsertMetadata('library_metadata', 'information_object_id', $objectId, $metadata);
-        }
+        return [
+            'library_item' => ['information_object_id', [
+                'call_number'              => $data['callNumber'] ?? null,
+                'isbn'                     => $data['isbn'] ?? null,
+                'issn'                     => $data['issn'] ?? null,
+                'subtitle'                 => $data['otherTitleInfo'] ?? null,
+                'responsibility_statement' => $data['statementOfResponsibility'] ?? null,
+                'edition_statement'        => $data['editionStatement'] ?? null,
+                'publisher'                => $data['publisher'] ?? null,
+                'publication_place'        => $data['placeOfPublication'] ?? null,
+                'publication_date'         => $data['dateOfPublication'] ?? null,
+                'copyright_date'           => $data['copyrightDate'] ?? null,
+                'pagination'               => $data['extent'] ?? null,
+                'dimensions'               => $data['dimensions'] ?? null,
+                'series_title'             => $data['seriesTitle'] ?? null,
+                'series_number'            => $data['seriesNumber'] ?? null,
+                'general_note'             => $data['generalNote'] ?? $data['note'] ?? null,
+                'contents_note'            => $data['tableOfContents'] ?? null,
+                'summary'                  => $data['summary'] ?? null,
+                'language'                 => $data['language'] ?? null,
+                'shelf_location'           => $data['physicalLocation'] ?? null,
+            ]],
+            'display_object_config' => ['object_id', ['object_type' => 'library']],
+        ];
     }
 }

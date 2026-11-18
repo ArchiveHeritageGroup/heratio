@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\DB;
  * Maps CSV columns to Dublin Core/IPTC fields and creates information_object records
  * with events for creation dates and photographer/creator actors.
  * Handles GPS coordinates and EXIF camera metadata.
- * Saves DAM-specific metadata to dam_metadata table.
+ * Saves DAM-specific metadata to dam_iptc_metadata, as the DAM create form does.
  */
 class DamCsvImporter extends SectorCsvImporter
 {
@@ -123,6 +123,7 @@ class DamCsvImporter extends SectorCsvImporter
             'extent_and_medium' => $this->formatExtent($data),
             'scope_and_content' => $data['description'] ?? $data['caption'] ?? null,
             'access_conditions' => $data['rights'] ?? $data['license'] ?? null,
+            'alternate_title'   => $data['alternativeTitle'] ?? null,
         ], fn($v) => $v !== null && $v !== '');
     }
 
@@ -232,27 +233,51 @@ class DamCsvImporter extends SectorCsvImporter
         }
     }
 
-    protected function saveSectorMetadata(int $objectId, array $data): void
+    /**
+     * Same table, key and columns as the DAM create form (DamService::create):
+     * dam_iptc_metadata keyed object_id, plus display_object_config marking the
+     * record as dam. File name, format, MIME type, size and duration have no
+     * column there and stay in extent_and_medium. heratio#1778.
+     */
+    protected function metadataRows(array $data): array
     {
-        $metadata = array_filter([
-            'filename'    => $data['filename'] ?? null,
-            'format'      => $data['format'] ?? null,
-            'mime_type'   => $data['formatMimeType'] ?? null,
-            'file_size'   => $data['fileSize'] ?? null,
-            'dimensions'  => $data['dimensions'] ?? null,
-            'resolution'  => $data['resolution'] ?? null,
-            'color_space' => $data['colorSpace'] ?? null,
-            'rights'      => $data['rights'] ?? null,
-            'license'     => $data['license'] ?? null,
-            'gps_latitude'  => $data['gpsLatitude'] ?? null,
-            'gps_longitude' => $data['gpsLongitude'] ?? null,
-            'camera_model'  => $data['cameraModel'] ?? null,
-            'camera_make'   => $data['cameraMake'] ?? null,
-            'caption'       => $data['caption'] ?? null,
-        ], fn($v) => $v !== null && $v !== '');
-
-        if (!empty($metadata)) {
-            $this->upsertMetadata('dam_metadata', 'information_object_id', $objectId, $metadata);
+        $width = $height = null;
+        if (preg_match('/^\s*(\d+)\s*[xX]\s*(\d+)/', (string) ($data['dimensions'] ?? ''), $m)) {
+            [$width, $height] = [$m[1], $m[2]];
         }
+        $resolution = preg_match('/^\s*(\d+)/', (string) ($data['resolution'] ?? ''), $m) ? $m[1] : null;
+
+        return [
+            'dam_iptc_metadata' => ['object_id', [
+                'creator'            => $data['creator'] ?? null,
+                'headline'           => $data['headline'] ?? null,
+                'caption'            => $data['caption'] ?? null,
+                'keywords'           => $data['keywords'] ?? null,
+                'asset_type'         => $data['type'] ?? null,
+                'date_created'       => $this->dateOrNull($data['dateCreated'] ?? null),
+                'duration_minutes'   => $this->numberOrNull($data['duration'] ?? null),
+                'sublocation'        => $data['locationShown'] ?? null,
+                'credit_line'        => $data['credit'] ?? null,
+                'source'             => $data['rightsHolder'] ?? null,
+                'copyright_notice'   => $data['rights'] ?? null,
+                'rights_usage_terms' => $data['usageTerms'] ?? null,
+                'license_type'       => $data['license'] ?? null,
+                'camera_make'        => $data['cameraMake'] ?? null,
+                'camera_model'       => $data['cameraModel'] ?? null,
+                'focal_length'       => $data['focalLength'] ?? null,
+                'aperture'           => $data['aperture'] ?? null,
+                'shutter_speed'      => $data['exposureTime'] ?? null,
+                'iso_speed'          => $this->numberOrNull($data['iso'] ?? null),
+                'color_space'        => $data['colorSpace'] ?? null,
+                'gps_latitude'       => $this->numberOrNull($data['gpsLatitude'] ?? null),
+                'gps_longitude'      => $this->numberOrNull($data['gpsLongitude'] ?? null),
+                'gps_altitude'       => $this->numberOrNull($data['gpsAltitude'] ?? null),
+                'image_width'        => $width,
+                'image_height'       => $height,
+                'resolution_x'       => $resolution,
+                'resolution_y'       => $resolution,
+            ]],
+            'display_object_config' => ['object_id', ['object_type' => 'dam']],
+        ];
     }
 }

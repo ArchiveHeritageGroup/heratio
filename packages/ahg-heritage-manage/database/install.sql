@@ -1638,7 +1638,8 @@ CREATE TABLE IF NOT EXISTS `heritage_compliance_rule` (
     `is_active` TINYINT(1) DEFAULT 1,
     `sort_order` INT DEFAULT 0,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (`id`),
+    UNIQUE KEY `uq_standard_code` (`standard_id`, `code`),
+  PRIMARY KEY (`id`),
     KEY `idx_standard` (`standard_id`),
     KEY `idx_category` (`category`),
     FOREIGN KEY (`standard_id`) REFERENCES `heritage_accounting_standard`(`id`) ON DELETE CASCADE
