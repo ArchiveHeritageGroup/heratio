@@ -57,6 +57,27 @@ class DedupeScanCommand extends Command
                 $duplicateGroups++;
             }
 
+            // heratio#1745: identical files on different records, by checksum.
+            // Each new pair goes to the review queue, as on upload.
+            $checksumPairs = 0;
+            $dupeChecksums = DB::table('digital_object')
+                ->where('usage_id', \AhgCore\Services\DigitalObjectService::USAGE_MASTER)
+                ->whereNotNull('checksum')->where('checksum', '!=', '')
+                ->when($repoId, fn ($q) => $q->whereIn('object_id', DB::table('information_object')->where('repository_id', (int) $repoId)->select('id')))
+                ->groupBy('checksum', 'checksum_type')
+                ->havingRaw('COUNT(DISTINCT object_id) > 1')
+                ->limit($limit)
+                ->get(['checksum', 'checksum_type']);
+            foreach ($dupeChecksums as $c) {
+                $doIds = DB::table('digital_object')->where('checksum', $c->checksum)->where('checksum_type', $c->checksum_type)
+                    ->where('usage_id', \AhgCore\Services\DigitalObjectService::USAGE_MASTER)->orderBy('id')->pluck('id');
+                foreach ($doIds as $doId) {
+                    $checksumPairs += \AhgCore\Services\DigitalObjectService::flagChecksumDuplicates((int) $doId);
+                }
+                $duplicateGroups++;
+            }
+            $this->info("checksum: ".count($dupeChecksums)." identical-file groups, {$checksumPairs} new pairs flagged");
+
             DB::table('ahg_dedupe_scan')->where('id', $scanId)->update([
                 'status' => 'completed',
                 'total_records' => $totalScanned,

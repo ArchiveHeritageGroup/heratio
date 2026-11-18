@@ -28,6 +28,7 @@ namespace AhgCore\Services;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 class DigitalObjectService
 {
@@ -411,20 +412,6 @@ class DigitalObjectService
         $byteSize = filesize($masterPath);
         $checksum = md5_file($masterPath);
 
-        // #125 derivative encryption: when encryption_encrypt_derivatives is
-        // on, encrypt the master file in place after the move. Idempotent +
-        // no-op when the gate is off so the existing flow stays unchanged
-        // for operators who haven't opted in. Encrypt failure is non-fatal -
-        // logged and the upload continues with the file at rest as
-        // plaintext (the daily bulk-apply will retry).
-        try {
-            (new \AhgCore\Services\EncryptionService)->encryptFile($masterPath);
-        } catch (\Throwable $__e) {
-            \Illuminate\Support\Facades\Log::warning('[encryption] master encrypt-on-write failed', [
-                'path' => $masterPath, 'error' => $__e->getMessage(),
-            ]);
-        }
-
         // Create object table entry for digital object (class table inheritance)
         $now = now()->format('Y-m-d H:i:s');
         $doObjectId = DB::table('object')->insertGetId([
@@ -453,6 +440,33 @@ class DigitalObjectService
         ]);
 
         $masterId = $doObjectId;
+
+        // heratio#1745: an identical file already on another record is
+        // flagged for review in the duplicate-detection queue.
+        self::flagChecksumDuplicates($masterId);
+
+        // heratio#1744: record embedded and technical metadata (duration,
+        // resolution, codecs) on every upload, from the plaintext file, before
+        // encrypt-on-write below. A failure here never fails the upload.
+        try {
+            self::extractMetadataForMaster($masterId, $masterPath);
+        } catch (\Throwable $e) {
+            Log::warning('[DigitalObjectService] metadata extraction on upload failed for DO '.$masterId.': '.$e->getMessage());
+        }
+
+        // #125 derivative encryption: when encryption_encrypt_derivatives is
+        // on, encrypt the master file in place after the move. Idempotent +
+        // no-op when the gate is off so the existing flow stays unchanged
+        // for operators who haven't opted in. Encrypt failure is non-fatal -
+        // logged and the upload continues with the file at rest as
+        // plaintext (the daily bulk-apply will retry).
+        try {
+            (new \AhgCore\Services\EncryptionService)->encryptFile($masterPath);
+        } catch (\Throwable $__e) {
+            \Illuminate\Support\Facades\Log::warning('[encryption] master encrypt-on-write failed', [
+                'path' => $masterPath, 'error' => $__e->getMessage(),
+            ]);
+        }
 
         // Generate derivatives
         $isImage = in_array($mediaTypeId, [self::MEDIA_IMAGE]);
@@ -802,16 +816,17 @@ class DigitalObjectService
      * uniqueness constraint exists; inserts a fresh preservation_checksum
      * row each time (append-only, as fixity verifications accrete).
      */
-    public static function extractMetadataForMaster(int $masterId): void
+    public static function extractMetadataForMaster(int $masterId, ?string $filePath = null): void
     {
         $master = DB::table('digital_object')->where('id', $masterId)->first();
         if (! $master || ! $master->object_id) {
             return;
         }
 
-        $uploadDir = config('heratio.uploads_path', self::UPLOAD_DIR).'/'.$master->object_id;
-        $filePath = $uploadDir.'/'.$master->name;
-        if (! is_file($filePath)) {
+        // heratio#1744: resolveDiskPath() keeps the r/ shard; the old
+        // uploads_path/<object_id>/<name> guess never found current uploads.
+        $filePath = $filePath ?? self::resolveDiskPath($master);
+        if (! $filePath || ! is_file($filePath)) {
             return;
         }
 
@@ -837,34 +852,132 @@ class DigitalObjectService
 
         // ExifTool extraction - optional; if not installed, skip without failing.
         $binary = trim((string) @shell_exec('command -v exiftool 2>/dev/null'));
+        $grouped = [];
+        $flat = [];
         if ($binary === '') {
-            Log::info('[DigitalObjectService] exiftool not found; skipping metadata extraction for DO '.$masterId);
+            Log::info('[DigitalObjectService] exiftool not found; embedded metadata skipped for DO '.$masterId);
+        } else {
+            // #1106: capture the COMPLETE metadata set grouped by ExifTool family
+            //   -G1  group names (EXIF:, IPTC:, XMP:, ICC_Profile:, GPS:, MakerNotes:, …)
+            //   -a   keep duplicate tags
+            //   -u   include unknown tags
+            // The grouped JSON is stored verbatim in raw_metadata so the full set is
+            // available for display; a flattened (Tag => value) view drives the
+            // curated typed columns below so bare-key picks still resolve.
+            $cmd = $binary.' -j -G1 -a -u -api largefilesupport=1 '.escapeshellarg($filePath).' 2>/dev/null';
+            $decoded = json_decode((string) @shell_exec($cmd), true);
+            if (is_array($decoded) && ! empty($decoded[0])) {
+                $grouped = $decoded[0];
+                $flat = self::flattenGroupedMeta($grouped);
+            }
+        }
 
+        // heratio#1744: audio and video get their technical fields from ffprobe,
+        // which reads every container; ExifTool misses or mislabels many.
+        $flat = array_merge($flat, self::ffprobeFields($filePath, (string) ($master->mime_type ?? '')));
+        if ($flat === []) {
             return;
         }
 
-        // #1106: capture the COMPLETE metadata set grouped by ExifTool family
-        //   -G1  group names (EXIF:, IPTC:, XMP:, ICC_Profile:, GPS:, MakerNotes:, …)
-        //   -a   keep duplicate tags
-        //   -u   include unknown tags
-        // The grouped JSON is stored verbatim in raw_metadata so the full set is
-        // available for display; a flattened (Tag => value) view drives the
-        // curated typed columns below so bare-key picks still resolve.
-        $cmd = $binary.' -j -G1 -a -u -api largefilesupport=1 '.escapeshellarg($filePath).' 2>/dev/null';
-        $json = @shell_exec($cmd);
-        if (! $json) {
-            return;
-        }
-        $decoded = json_decode($json, true);
-        if (! is_array($decoded) || empty($decoded[0])) {
-            return;
-        }
-        $grouped = $decoded[0];
-        $flat = self::flattenGroupedMeta($grouped);
-
-        self::writeDigitalObjectMetadata($masterId, $flat, $master, $grouped);
+        self::writeDigitalObjectMetadata($masterId, $flat, $master, $grouped ?: null);
         self::writeMediaMetadata($masterId, (int) $master->object_id, $flat, $master);
         self::writeDamIptcMetadata((int) $master->object_id, $flat);
+    }
+
+    /**
+     * Flag records that already hold a master file with the same checksum
+     * as this one (heratio#1745), as pending pairs in the duplicate-detection
+     * queue (/admin/dedupe). Upload is never blocked: the archivist decides.
+     * Compares like with like (md5 with md5, sha256 with sha256), since the
+     * upload paths hash differently. ponytail: a cross-algorithm match needs a
+     * second hash at upload; add one if mixed-path duplicates turn up.
+     * Respects the 'checksum' rule's is_enabled flag. Never throws.
+     *
+     * @return int pairs newly flagged
+     */
+    public static function flagChecksumDuplicates(int $masterId): int
+    {
+        try {
+            if (! Schema::hasTable('ahg_duplicate_detection')) {
+                return 0;
+            }
+            if (Schema::hasTable('ahg_duplicate_rule')) {
+                $rule = DB::table('ahg_duplicate_rule')->where('rule_type', 'checksum')->orderByDesc('priority')->first();
+                if ($rule && ! (int) $rule->is_enabled) {
+                    return 0;
+                }
+            }
+            $do = DB::table('digital_object')->where('id', $masterId)->first(['id', 'object_id', 'name', 'checksum', 'checksum_type']);
+            if (! $do || empty($do->checksum) || empty($do->object_id)) {
+                return 0;
+            }
+            $others = DB::table('digital_object')
+                ->where('checksum', $do->checksum)
+                ->where('checksum_type', $do->checksum_type)
+                ->where('usage_id', self::USAGE_MASTER)
+                ->where('object_id', '!=', $do->object_id)
+                ->limit(50)
+                ->get(['id', 'object_id', 'name']);
+            $n = 0;
+            foreach ($others as $o) {
+                $a = min((int) $o->object_id, (int) $do->object_id);
+                $b = max((int) $o->object_id, (int) $do->object_id);
+                $n += DB::table('ahg_duplicate_detection')->insertOrIgnore([
+                    'record_a_id' => $a,
+                    'record_b_id' => $b,
+                    'similarity_score' => 1.0,
+                    'detection_method' => 'checksum',
+                    'detection_details' => json_encode([
+                        'checksum' => $do->checksum, 'algorithm' => $do->checksum_type,
+                        'files' => [['digital_object_id' => (int) $o->id, 'name' => $o->name], ['digital_object_id' => (int) $do->id, 'name' => $do->name]],
+                    ], JSON_UNESCAPED_SLASHES),
+                    'status' => 'pending',
+                    'auto_detected' => 1,
+                    'detected_at' => now(),
+                    'created_at' => now(),
+                ]);
+            }
+
+            return $n;
+        } catch (\Throwable $e) {
+            Log::info('[DigitalObjectService] checksum duplicate check skipped for DO '.$masterId.': '.$e->getMessage());
+
+            return 0;
+        }
+    }
+
+    /**
+     * Technical fields from ffprobe for an audio or video file, under the tag
+     * names the writers below pick from. Empty for other files, or when the
+     * metadata-extraction package or ffprobe is missing.
+     *
+     * @return array<string,mixed>
+     */
+    protected static function ffprobeFields(string $filePath, string $mime): array
+    {
+        if (! preg_match('#^(audio|video)/#', $mime) || ! class_exists(\AhgMetadataExtraction\Services\MetadataExtractionService::class)) {
+            return [];
+        }
+        try {
+            $v = app(\AhgMetadataExtraction\Services\MetadataExtractionService::class)->extractVideoInfo($filePath);
+        } catch (\Throwable $e) {
+            Log::info('[DigitalObjectService] ffprobe failed: '.$e->getMessage());
+
+            return [];
+        }
+        $map = [
+            'duration' => 'Duration', 'bitrate' => 'AvgBitrate', 'video_codec' => 'VideoCodec',
+            'width' => 'VideoFrameWidth', 'height' => 'VideoFrameHeight', 'frame_rate' => 'VideoFrameRate',
+            'audio_codec' => 'AudioCodec', 'audio_sample_rate' => 'AudioSampleRate', 'audio_channels' => 'AudioChannels',
+        ];
+        $out = [];
+        foreach ($map as $from => $to) {
+            if (isset($v[$from]) && $v[$from] !== '') {
+                $out[$to] = $v[$from];
+            }
+        }
+
+        return $out;
     }
 
     /**

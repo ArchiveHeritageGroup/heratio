@@ -542,6 +542,15 @@ class IngestService
             'parent_id' => null,
         ]);
 
+        // heratio#1745 duplicate check and heratio#1744 technical metadata,
+        // as on the record-page upload. Neither can fail the ingest.
+        \AhgCore\Services\DigitalObjectService::flagChecksumDuplicates((int) $doObjectId);
+        try {
+            \AhgCore\Services\DigitalObjectService::extractMetadataForMaster((int) $doObjectId);
+        } catch (\Throwable $e) {
+            \Log::warning('Technical metadata on ingest failed: '.$e->getMessage(), ['do_id' => $doObjectId]);
+        }
+
         // Audio and video: queue the playable MP4/MP3 copy (ingest made none, so
         // a WMV or MOV that came in this way - including SharePoint capture - never played).
         try {

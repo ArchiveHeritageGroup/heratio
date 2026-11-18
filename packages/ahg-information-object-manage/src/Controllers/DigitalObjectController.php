@@ -174,6 +174,14 @@ class DigitalObjectController extends Controller
             }
         }
 
+        // heratio#1751: the form sends the browser's SHA-256 of the chosen file;
+        // a different hash here means the file was damaged in transfer.
+        $clientHash = strtolower(trim((string) $request->input('client_sha256', '')));
+        if ($hasFile && preg_match('/^[0-9a-f]{64}$/', $clientHash)
+            && ! hash_equals($clientHash, (string) @hash_file('sha256', $request->file('digital_object')->getRealPath()))) {
+            return back()->with('error', __('The file arrived damaged (its checksum does not match the one your browser computed). Please upload it again.'));
+        }
+
         try {
             if ($hasFtp && !$hasFile && !$hasUrl) {
                 $ftp = \AhgFtpUpload\Services\FtpService::fromSettings();

@@ -161,3 +161,4 @@
     </div>
   </div>
 </div>
+@include('ahg-io-manage::partials._client-hash')

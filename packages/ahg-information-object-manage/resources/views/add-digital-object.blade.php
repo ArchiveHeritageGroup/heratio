@@ -225,6 +225,7 @@
     </ul>
 
   </form>
+  @include('ahg-io-manage::partials._client-hash')
 
   @if($showFtp)
   @push('js')
