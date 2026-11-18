@@ -69,18 +69,30 @@ class IcipController extends Controller
         'full_rights' => 'Full Rights',
     ];
 
-    // Australian states/territories
-    const STATE_TERRITORIES = [
-        'NSW' => 'New South Wales',
-        'VIC' => 'Victoria',
-        'QLD' => 'Queensland',
-        'WA' => 'Western Australia',
-        'SA' => 'South Australia',
-        'TAS' => 'Tasmania',
-        'NT' => 'Northern Territory',
-        'ACT' => 'Australian Capital Territory',
-        'External' => 'External Territories',
-    ];
+    /**
+     * Community regions, from the Dropdown Manager taxonomy icip_region
+     * (heratio#1730; it was a hardcoded list of Australian states). Values
+     * already stored on communities but missing from the taxonomy are kept,
+     * so a filter or edit form never drops a community's region.
+     *
+     * @return array<string,string>
+     */
+    private function regions(): array
+    {
+        $out = \AhgCore\Support\DropdownOptions::resolve('icip_region', []);
+        try {
+            if (Schema::hasTable('icip_community')) {
+                foreach (DB::table('icip_community')->whereNotNull('state_territory')->where('state_territory', '!=', '')
+                    ->distinct()->orderBy('state_territory')->pluck('state_territory') as $v) {
+                    $out[(string) $v] ??= (string) $v;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Options only; the page still renders.
+        }
+
+        return $out;
+    }
 
     // Restriction types
     const RESTRICTION_TYPES = [
@@ -367,7 +379,7 @@ class IcipController extends Controller
         if (! Schema::hasTable('icip_community')) {
             return view('icip::communities', [
                 'communities' => collect(),
-                'states' => self::STATE_TERRITORIES,
+                'states' => $this->regions(),
                 'filters' => ['state' => null, 'active_only' => '1', 'search' => null],
                 'tablesExist' => false,
             ]);
@@ -397,7 +409,7 @@ class IcipController extends Controller
 
         return view('icip::communities', [
             'communities' => $communities,
-            'states' => self::STATE_TERRITORIES,
+            'states' => $this->regions(),
             'filters' => [
                 'state' => $state,
                 'active_only' => $activeOnly,
@@ -475,7 +487,7 @@ class IcipController extends Controller
         return view('icip::community-edit', [
             'id' => $id,
             'community' => $community,
-            'states' => self::STATE_TERRITORIES,
+            'states' => $this->regions(),
             'stewards' => $id ? $this->communityStewards((int) $id) : collect(),
             'regions' => $this->regionModules(),
         ]);
@@ -516,7 +528,7 @@ class IcipController extends Controller
             'community' => $community,
             'consents' => $consents,
             'consultations' => $consultations,
-            'states' => self::STATE_TERRITORIES,
+            'states' => $this->regions(),
         ]);
     }
 
@@ -1277,7 +1289,7 @@ class IcipController extends Controller
             'notices' => $notices,
             'labels' => $labels,
             'statusOptions' => self::CONSENT_STATUSES,
-            'states' => self::STATE_TERRITORIES,
+            'states' => $this->regions(),
         ]);
     }
 

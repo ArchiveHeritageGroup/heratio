@@ -109,6 +109,7 @@ Route::prefix('admin/privacy')->middleware(['dp.enabled', 'auth', 'admin'])->gro
     Route::get('/officer-edit', [PrivacyController::class, 'officerEdit'])->name('ahgprivacy.officer-edit');
     Route::get('/officer-list', [PrivacyController::class, 'officerList'])->name('ahgprivacy.officer-list');
     Route::get('/paia-add', [PrivacyController::class, 'paiaAdd'])->name('ahgprivacy.paia-add');
+    Route::post('/paia-add', [PrivacyController::class, 'paiaAddStore'])->name('ahgprivacy.paia-add.store');
     Route::get('/paia-list', [PrivacyController::class, 'paiaList'])->name('ahgprivacy.paia-list');
     Route::get('/pii-review', [PrivacyController::class, 'piiReview'])->name('ahgprivacy.pii-review');
     Route::get('/pii-scan-object', [PrivacyController::class, 'piiScanObject'])->name('ahgprivacy.pii-scan-object');

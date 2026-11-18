@@ -1072,7 +1072,60 @@ class PrivacyController extends Controller
     {
         return view('privacy::paia-add', [
             'paiaTypes' => PrivacyService::getPAIARequestTypes(),
+            'accessForms' => \AhgCore\Support\DropdownOptions::resolve('paia_access_form', [
+                'copy' => 'Copy', 'inspect' => 'Inspect', 'both' => 'Both',
+            ]),
         ]);
+    }
+
+    /**
+     * POST handler for the PAIA request form (heratio#1738). Before this the
+     * form posted to the GET-only paia-add route, so no request was saved.
+     * The due date is the received date plus the section's response window.
+     */
+    public function paiaAddStore(Request $request)
+    {
+        $types = PrivacyService::getPAIARequestTypes();
+        $forms = \AhgCore\Support\DropdownOptions::resolve('paia_access_form', [
+            'copy' => 'Copy', 'inspect' => 'Inspect', 'both' => 'Both',
+        ]);
+        $validated = $request->validate([
+            'paia_section' => 'required|string|in:'.implode(',', array_keys($types)),
+            'received_date' => 'required|date',
+            'record_description' => 'required|string',
+            'requestor_name' => 'required|string|max:255',
+            'requestor_email' => 'nullable|email|max:255',
+            'requestor_phone' => 'nullable|string|max:50',
+            'requestor_id_number' => 'nullable|string|max:100',
+            'requestor_address' => 'nullable|string',
+            'access_form' => 'required|string|in:'.implode(',', array_keys($forms)),
+            'fee_paid' => 'nullable|boolean',
+        ]);
+
+        $received = \Carbon\Carbon::parse($validated['received_date']);
+        $reference = 'PAIA-'.now()->format('Ymd').'-'.strtoupper(\Illuminate\Support\Str::random(6));
+
+        DB::table('privacy_paia_request')->insert([
+            'reference_number' => $reference,
+            'paia_section' => $validated['paia_section'],
+            'requestor_name' => $validated['requestor_name'],
+            'requestor_email' => $validated['requestor_email'] ?? null,
+            'requestor_phone' => $validated['requestor_phone'] ?? null,
+            'requestor_id_number' => $validated['requestor_id_number'] ?? null,
+            'requestor_address' => $validated['requestor_address'] ?? null,
+            'record_description' => $validated['record_description'],
+            'access_form' => $validated['access_form'],
+            'fee_paid' => $request->boolean('fee_paid') ? 1 : 0,
+            'status' => 'received',
+            'received_date' => $received->toDateString(),
+            'due_date' => $received->copy()->addDays((int) ($types[$validated['paia_section']]['days'] ?? 30))->toDateString(),
+            'created_by' => auth()->id(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->route('ahgprivacy.paia-list')
+            ->with('success', __('PAIA request :ref created.', ['ref' => $reference]));
     }
 
     /**

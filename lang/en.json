@@ -28391,5 +28391,10 @@
     "That object is already in this exhibition.": "That object is already in this exhibition.",
     "The new order could not be saved.": "The new order could not be saved.",
     "e.g., Main Hall, Lecture Theatre, Gallery A": "e.g., Main Hall, Lecture Theatre, Gallery A",
-    "e.g., Order display cases": "e.g., Order display cases"
+    "e.g., Order display cases": "e.g., Order display cases",
+    "Form of Access": "Form of Access",
+    "Request fee paid": "Request fee paid",
+    "PAIA request :ref created.": "PAIA request :ref created.",
+    "All regions": "All regions",
+    "The list of regions is kept in the Dropdown Manager (ICIP community region).": "The list of regions is kept in the Dropdown Manager (ICIP community region)."
 }

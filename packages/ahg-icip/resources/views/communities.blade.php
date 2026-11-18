@@ -38,9 +38,9 @@
     <div class="card-body">
       <form method="get" class="row g-3 align-items-end">
         <div class="col-md-3">
-          <label class="form-label">{{ __('State/Territory') }}</label>
+          <label class="form-label">{{ __('Region') }}</label>
           <select name="state" class="form-select">
-            <option value="">{{ __('All States') }}</option>
+            <option value="">{{ __('All regions') }}</option>
             @foreach($states as $code => $name)
               <option value="{{ $code }}" @selected(($filters['state'] ?? '') === $code)>{{ $name }}</option>
             @endforeach

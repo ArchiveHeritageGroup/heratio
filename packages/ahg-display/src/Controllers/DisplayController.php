@@ -1360,6 +1360,16 @@ class DisplayController extends Controller
         // guests/non-editors (editors/admins bypass inside the gate).
         \AhgCore\Services\TermProtocolGate::excludeRestrictedRecords($query, 'io.id');
 
+        // heratio#1766: the same disclosure gate the API, OAI-PMH and sitemap use
+        // (ICIP/TK restrictions, ODRL prohibitions, active embargoes, security
+        // classification), so a restricted record is not listed to someone who
+        // could not open it - whether keyword or vector search found it. Staff
+        // see everything, as on the show pages.
+        $u = auth()->user();
+        if (! ($u && (\AhgCore\Services\AclService::isAdministrator($u) || \AhgCore\Services\AclService::isEditor($u) || \AhgCore\Services\AclService::isContributor($u)))) {
+            app(\AhgCore\Services\DisclosureGate::class)->excludeRestricted($query, 'io.id');
+        }
+
         if ($this->parentId) {
             // #1333 read-swap: the record itself + all descendants via the closure
             // table. scopeDescendants uses the closure when built, and falls back

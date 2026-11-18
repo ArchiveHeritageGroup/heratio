@@ -95,14 +95,14 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">{{ __('State/Territory') }} <span class="text-muted small">({{ __('Australia') }})</span></label>
+              <label class="form-label">{{ __('Region') }}</label>
               <select name="state_territory" class="form-select">
                 <option value="">{{ __('Not applicable') }}</option>
                 @foreach($states as $code => $name)
                   <option value="{{ $code }}" @selected(($community->state_territory ?? '') === $code)>{{ $name }}</option>
                 @endforeach
               </select>
-              <div class="form-text">{{ __('AU-specific. Leave as "Not applicable" outside Australia.') }}</div>
+              <div class="form-text">{{ __('The list of regions is kept in the Dropdown Manager (ICIP community region).') }}</div>
             </div>
           </div>
         </div>
