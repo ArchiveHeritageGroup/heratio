@@ -21439,8 +21439,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-17",
-            "mt_batch_count": 25893,
+            "mt_batch_last_run": "2026-11-18",
+            "mt_batch_count": 26269,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%d total",
@@ -22557,7 +22557,28 @@
                 "(RAD Jul 2008)",
                 "(:value1 formats)",
                 "max:255",
-                "{\n  informationObjects(limit: 10, offset: 0) {\n    id\n    identifier\n    title\n    slug\n  }\n}"
+                "{\n  informationObjects(limit: 10, offset: 0) {\n    id\n    identifier\n    title\n    slug\n  }\n}",
+                ":name (:code, level :level)",
+                "Identifier: :identifier",
+                "Level :level",
+                "Permissions (:count)",
+                "(record #:id)",
+                ":count bytes",
+                ":taxonomy term",
+                "Condition Check: :reference (:condition)",
+                "items,",
+                "grounding: -",
+                "Owner > Super User > Editor > Contributor > Viewer",
+                "Restricted by a cultural protocol:",
+                "Visitors cannot open this record; you can because you are allowed to edit it.",
+                "Local Contexts labels:",
+                "This record is restricted by a cultural protocol",
+                "Sorry, you do not have access to that page",
+                "The community connected to this record has asked that access to it be limited.",
+                "If you believe you should have access, please contact the institution.",
+                "Your account does not have permission to view it.",
+                "Map of the site location",
+                "Braille"
             ],
             "review_required": "native-speaker review required before production",
             "mt_rejections": {
@@ -22597,7 +22618,8 @@
                 "Community: :community": 1,
                 "Diligent search completed: :date": 1,
                 "Holder: :holder": 1,
-                ":name (:count items):privacy": 1
+                ":name (:count items):privacy": 1,
+                ":from to :to": 1
             }
         },
         "is": {

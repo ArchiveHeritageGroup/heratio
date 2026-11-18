@@ -67,7 +67,7 @@
           @forelse($templates as $template)
             @php $tpl = (object) $template; @endphp
             <li>
-              <form method="post" action="{{ route('exhibition.checklists', ['id' => $exId]) }}" style="display: inline;">
+              <form method="post" action="{{ route('exhibition.checklists.store', ['id' => $exId]) }}" style="display: inline;">
                 @csrf
                 <input type="hidden" name="template_id" value="{{ $tpl->id ?? '' }}">
                 <button type="submit" class="dropdown-item">
@@ -127,14 +127,30 @@
                   <li class="list-group-item {{ !empty($it->is_completed) ? 'bg-light' : '' }}">
                     <div class="d-flex align-items-start">
                       <div class="form-check me-3">
-                        <input type="checkbox" class="form-check-input" style="transform: scale(1.3);" {{ !empty($it->is_completed) ? 'checked disabled' : '' }}>
+                        @if(!empty($it->is_completed))
+                          <input type="checkbox" class="form-check-input" style="transform: scale(1.3);" checked disabled aria-label="{{ __('Completed') }}">
+                        @else
+                          <form method="post" action="{{ route('exhibition.checklists.items.complete', ['id' => $exId, 'itemId' => $it->id]) }}" class="m-0 js-complete-item">
+                            @csrf
+                            <input type="checkbox" class="form-check-input" style="transform: scale(1.3);" aria-label="{{ __('Mark complete') }}">
+                          </form>
+                        @endif
                       </div>
                       <div class="flex-grow-1">
                         <div class="d-flex justify-content-between">
                           <div>
                             <span class="{{ !empty($it->is_completed) ? 'text-decoration-line-through text-muted' : '' }}">{{ $it->name ?? '' }}</span>
-                            @if(!empty($it->assigned_to))
-                              <br><small class="text-muted"><i class="fas fa-user me-1"></i> {{ $it->assigned_to }}</small>
+                            @if(!empty($it->is_required))
+                              <span class="badge bg-warning text-dark ms-1">{{ __('Required') }}</span>
+                            @endif
+                            @if(!empty($it->category))
+                              <br><small class="text-muted"><i class="fas fa-tag me-1"></i> {{ $it->category }}</small>
+                            @endif
+                            @if(!empty($it->description))
+                              <br><small class="text-muted">{{ $it->description }}</small>
+                            @endif
+                            @if(!empty($it->completed_at))
+                              <br><small class="text-success"><i class="fas fa-check me-1"></i> {{ __('Completed :date', ['date' => $it->completed_at]) }}</small>
                             @endif
                           </div>
                           <div class="text-end">
@@ -162,7 +178,7 @@
             @endif
           </div>
           <div class="card-footer bg-transparent">
-            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addItemModal" data-checklist-id="{{ $cl->id ?? '' }}" data-checklist-name="{{ $cl->name ?? '' }}">
+            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addItemModal" data-action="{{ route('exhibition.checklists.items.store', ['id' => $exId, 'checklistId' => $cl->id]) }}" data-checklist-name="{{ $cl->name ?? '' }}">
               <i class="fas fa-plus"></i> {{ __('Add Item') }}
             </button>
           </div>
@@ -245,31 +261,28 @@
         <h5 class="modal-title">{{ __('Add Checklist Item') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <form method="post" action="{{ route('exhibition.checklists', ['id' => $exId]) }}">
+      <form method="post" action="" id="addItemForm">
         @csrf
-        <input type="hidden" name="checklist_id" id="addItemChecklistId">
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">{{ __('Checklist') }}</label>
+            <label class="form-label" for="addItemChecklistName">{{ __('Checklist') }}</label>
             <input type="text" id="addItemChecklistName" class="form-control" readonly>
           </div>
           <div class="mb-3">
-            <label class="form-label">{{ __('Task Name') }} <span class="text-danger">*</span></label>
-            <input type="text" name="task_name" class="form-control" required>
-          </div>
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label class="form-label">{{ __('Assigned To') }}</label>
-              <input type="text" name="assigned_to" class="form-control">
-            </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label">{{ __('Due Date') }}</label>
-              <input type="date" name="due_date" class="form-control">
-            </div>
+            <label class="form-label" for="addItemName">{{ __('Task Name') }} <span class="text-danger">*</span></label>
+            <input type="text" name="name" id="addItemName" class="form-control" maxlength="255" required placeholder="{{ __('e.g., Order display cases') }}">
           </div>
           <div class="mb-3">
-            <label class="form-label">{{ __('Notes') }}</label>
-            <textarea name="notes" class="form-control" rows="2"></textarea>
+            <label class="form-label" for="addItemCategory">{{ __('Category') }}</label>
+            <input type="text" name="category" id="addItemCategory" class="form-control" maxlength="100">
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="addItemDescription">{{ __('Notes') }}</label>
+            <textarea name="description" id="addItemDescription" class="form-control" rows="2" placeholder="{{ __('Additional details...') }}"></textarea>
+          </div>
+          <div class="form-check">
+            <input type="checkbox" name="is_required" class="form-check-input" value="1" id="addItemRequired">
+            <label class="form-check-label" for="addItemRequired">{{ __('Required') }}</label>
           </div>
         </div>
         <div class="modal-footer">
@@ -281,3 +294,19 @@
   </div>
 </div>
 @endsection
+
+@push('js')
+<script nonce="{{ csp_nonce() }}">
+document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('addItemModal').addEventListener('show.bs.modal', function (event) {
+    var d = event.relatedTarget.dataset;
+    document.getElementById('addItemForm').action = d.action;
+    document.getElementById('addItemChecklistName').value = d.checklistName || '';
+  });
+  document.querySelectorAll('form.js-complete-item input[type=checkbox]').forEach(function (cb) {
+    cb.addEventListener('change', function () { if (cb.checked) { cb.form.submit(); } });
+  });
+});
+</script>
+@endpush
+

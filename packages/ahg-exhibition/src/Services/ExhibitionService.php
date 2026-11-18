@@ -206,6 +206,18 @@ class ExhibitionService
         return AhgSettingsService::getDropdownChoices('exhibition_narrative_type', false);
     }
 
+    /** exhibition_section_type codes => labels. */
+    public function getSectionTypes(): array
+    {
+        return AhgSettingsService::getDropdownChoices('exhibition_section_type', false);
+    }
+
+    /** target_audience codes => labels, for storylines. */
+    public function getTargetAudiences(): array
+    {
+        return AhgSettingsService::getDropdownChoices('target_audience', false);
+    }
+
     /** Currency codes => labels for budget and admission fields. */
     public function getCurrencies(): array
     {
@@ -677,10 +689,17 @@ class ExhibitionService
             return collect();
         }
 
-        return DB::table('exhibition_storyline_stop')
-            ->where('storyline_id', $storylineId)
-            ->orderBy('sequence_order')
-            ->orderBy('id')
+        // The view shows the object each stop is at; join its title and slug.
+        return DB::table('exhibition_storyline_stop as ss')
+            ->leftJoin('exhibition_object as eo', 'eo.id', '=', 'ss.exhibition_object_id')
+            ->leftJoin('information_object_i18n as ioi', function ($j) {
+                $j->on('ioi.id', '=', 'eo.information_object_id')->where('ioi.culture', '=', $this->culture);
+            })
+            ->leftJoin('slug', 'slug.object_id', '=', 'eo.information_object_id')
+            ->where('ss.storyline_id', $storylineId)
+            ->orderBy('ss.sequence_order')
+            ->orderBy('ss.id')
+            ->select('ss.*', 'ioi.title as object_title', 'slug.slug as object_slug')
             ->get();
     }
 
@@ -745,5 +764,459 @@ class ExhibitionService
         fclose($output);
 
         return $csv;
+    }
+
+    // Sub-page writes. The objects, sections, storylines, events and
+    // checklists pages had forms that posted to their GET-only routes, so
+    // every add returned 405 and nothing on those pages could be changed.
+    // Every write below is scoped to the exhibition it was posted under, so a
+    // row id from another exhibition does nothing.
+
+    /** Next sequence_order at the end of a list. */
+    private function nextOrder(string $table, string $column, int $value): int
+    {
+        return ((int) DB::table($table)->where($column, $value)->max('sequence_order')) + 1;
+    }
+
+    /** A slug for $title that is free in $table. */
+    private function uniqueSlug(string $table, string $title): string
+    {
+        $base = \Illuminate\Support\Str::slug($title) ?: 'item';
+        $slug = $base;
+        for ($n = 1; DB::table($table)->where('slug', $slug)->exists(); $n++) {
+            $slug = $base.'-'.$n;
+        }
+
+        return $slug;
+    }
+
+    // Objects
+
+    /**
+     * Search the catalogue for objects to add, leaving out the ones already
+     * in this exhibition and the root description.
+     */
+    public function searchObjects(int $exhibitionId, string $query, int $limit = 20): array
+    {
+        $existing = DB::table('exhibition_object')
+            ->where('exhibition_id', $exhibitionId)
+            ->pluck('information_object_id')
+            ->all();
+
+        $like = '%'.addcslashes($query, '%_\\').'%';
+
+        $rows = DB::table('information_object as io')
+            ->join('information_object_i18n as ioi', function ($j) {
+                $j->on('ioi.id', '=', 'io.id')->where('ioi.culture', '=', $this->culture);
+            })
+            ->where('io.id', '!=', 1)
+            ->whereNotIn('io.id', $existing ?: [0])
+            ->where(function ($q) use ($like) {
+                $q->where('io.identifier', 'LIKE', $like)->orWhere('ioi.title', 'LIKE', $like);
+            })
+            ->select('io.id', 'io.identifier', 'ioi.title')
+            ->limit($limit)
+            ->get();
+
+        $thumbs = $this->thumbnailsFor($rows->pluck('id')->all());
+
+        return $rows->map(fn ($r) => [
+            'id' => (int) $r->id,
+            'object_number' => $r->identifier,
+            'title' => $r->title,
+            'thumbnail' => $thumbs[(int) $r->id] ?? null,
+        ])->all();
+    }
+
+    public function addObject(int $exhibitionId, int $objectId, array $data): int
+    {
+        $sectionId = $data['section_id'] ?? null;
+        $order = ((int) DB::table('exhibition_object')
+            ->where('exhibition_id', $exhibitionId)
+            ->where('section_id', $sectionId)
+            ->max('sequence_order')) + 1;
+
+        return (int) DB::table('exhibition_object')->insertGetId([
+            'exhibition_id' => $exhibitionId,
+            'section_id' => $sectionId,
+            'information_object_id' => $objectId,
+            'sequence_order' => $order,
+            'display_position' => $data['display_position'] ?? null,
+            'status' => 'proposed',
+            'requires_loan' => ! empty($data['requires_loan']) ? 1 : 0,
+            'lender_institution' => ! empty($data['requires_loan']) ? ($data['lender_institution'] ?? null) : null,
+            'insurance_value' => $data['insurance_value'] ?? null,
+            'installation_notes' => $data['installation_notes'] ?? null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
+    public function updateObject(int $exhibitionId, int $exhibitionObjectId, array $data): void
+    {
+        $data['updated_at'] = now();
+        unset($data['id'], $data['exhibition_id'], $data['information_object_id'], $data['created_at'], $data['status']);
+
+        DB::table('exhibition_object')
+            ->where('id', $exhibitionObjectId)
+            ->where('exhibition_id', $exhibitionId)
+            ->update($data);
+    }
+
+    /**
+     * Move an object to another exhibition_object_status. Installing records
+     * who and when; removing or returning does the same on the removed_ pair.
+     * A note is appended to the installation notes with today's date.
+     */
+    public function updateObjectStatus(int $exhibitionId, int $exhibitionObjectId, string $status, ?int $userId, ?string $notes = null): void
+    {
+        $row = DB::table('exhibition_object')
+            ->where('id', $exhibitionObjectId)
+            ->where('exhibition_id', $exhibitionId)
+            ->first(['status', 'installation_notes']);
+        if (! $row || $row->status === $status) {
+            return;
+        }
+
+        $update = ['status' => $status, 'updated_at' => now()];
+        if ($status === 'installed') {
+            $update['installed_by'] = $userId;
+            $update['installed_at'] = now();
+        } elseif (in_array($status, ['removed', 'returned'], true)) {
+            $update['removed_by'] = $userId;
+            $update['removed_at'] = now();
+        }
+        if ($notes) {
+            $line = '['.now()->toDateString().'] '.$notes;
+            $update['installation_notes'] = $row->installation_notes ? $row->installation_notes."\n\n".$line : $line;
+        }
+
+        DB::table('exhibition_object')->where('id', $exhibitionObjectId)->update($update);
+    }
+
+    public function removeObject(int $exhibitionId, int $exhibitionObjectId): bool
+    {
+        return DB::table('exhibition_object')
+            ->where('id', $exhibitionObjectId)
+            ->where('exhibition_id', $exhibitionId)
+            ->delete() > 0;
+    }
+
+    /** @param array<int,array{id:int,sequence_order:int}> $order */
+    public function reorderObjects(int $exhibitionId, array $order): void
+    {
+        DB::transaction(function () use ($exhibitionId, $order) {
+            foreach ($order as $item) {
+                DB::table('exhibition_object')
+                    ->where('id', (int) $item['id'])
+                    ->where('exhibition_id', $exhibitionId)
+                    ->update(['sequence_order' => (int) $item['sequence_order']]);
+            }
+        });
+    }
+
+    // Sections
+
+    public function addSection(int $exhibitionId, array $data): int
+    {
+        return (int) DB::table('exhibition_section')->insertGetId([
+            'exhibition_id' => $exhibitionId,
+            'title' => $data['title'],
+            'subtitle' => $data['subtitle'] ?? null,
+            'description' => $data['description'] ?? null,
+            'narrative' => $data['narrative'] ?? null,
+            'section_type' => ($data['section_type'] ?? null) ?: 'gallery',
+            'sequence_order' => $data['sequence_order'] ?? $this->nextOrder('exhibition_section', 'exhibition_id', $exhibitionId),
+            'gallery_name' => $data['gallery_name'] ?? null,
+            'floor_level' => $data['floor_level'] ?? null,
+            'square_meters' => $data['square_meters'] ?? null,
+            'theme' => $data['theme'] ?? null,
+            'color_scheme' => $data['color_scheme'] ?? null,
+            'target_temperature_min' => $data['target_temperature_min'] ?? null,
+            'target_temperature_max' => $data['target_temperature_max'] ?? null,
+            'target_humidity_min' => $data['target_humidity_min'] ?? null,
+            'target_humidity_max' => $data['target_humidity_max'] ?? null,
+            'max_lux_level' => $data['max_lux_level'] ?? null,
+            'has_audio_guide' => ! empty($data['has_audio_guide']) ? 1 : 0,
+            'audio_guide_number' => $data['audio_guide_number'] ?? null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
+    public function updateSection(int $exhibitionId, int $sectionId, array $data): void
+    {
+        $data['updated_at'] = now();
+
+        DB::table('exhibition_section')
+            ->where('id', $sectionId)
+            ->where('exhibition_id', $exhibitionId)
+            ->update($data);
+    }
+
+    /** Delete a section. Its objects stay in the exhibition, unassigned. */
+    public function deleteSection(int $exhibitionId, int $sectionId): bool
+    {
+        return DB::transaction(function () use ($exhibitionId, $sectionId) {
+            $exists = DB::table('exhibition_section')
+                ->where('id', $sectionId)->where('exhibition_id', $exhibitionId)->exists();
+            if (! $exists) {
+                return false;
+            }
+            DB::table('exhibition_object')->where('section_id', $sectionId)->update(['section_id' => null]);
+
+            return DB::table('exhibition_section')->where('id', $sectionId)->delete() > 0;
+        });
+    }
+
+    /** @param array<int,int> $sectionIds section ids in their new order */
+    public function reorderSections(int $exhibitionId, array $sectionIds): void
+    {
+        DB::transaction(function () use ($exhibitionId, $sectionIds) {
+            foreach (array_values($sectionIds) as $i => $sectionId) {
+                DB::table('exhibition_section')
+                    ->where('id', (int) $sectionId)
+                    ->where('exhibition_id', $exhibitionId)
+                    ->update(['sequence_order' => $i + 1]);
+            }
+        });
+    }
+
+    // Storylines
+
+    public function createStoryline(int $exhibitionId, array $data, ?int $userId): int
+    {
+        return (int) DB::table('exhibition_storyline')->insertGetId([
+            'exhibition_id' => $exhibitionId,
+            'title' => $data['title'],
+            'slug' => $this->uniqueSlug('exhibition_storyline', $data['title']),
+            'description' => $data['description'] ?? null,
+            'narrative_type' => ($data['narrative_type'] ?? null) ?: 'thematic',
+            'introduction' => $data['introduction'] ?? null,
+            'body_text' => $data['body_text'] ?? null,
+            'conclusion' => $data['conclusion'] ?? null,
+            'sequence_order' => $data['sequence_order'] ?? 0,
+            'is_primary' => ! empty($data['is_primary']) ? 1 : 0,
+            'target_audience' => ($data['target_audience'] ?? null) ?: 'all',
+            'reading_level' => ($data['reading_level'] ?? null) ?: 'intermediate',
+            'estimated_duration_minutes' => $data['estimated_duration_minutes'] ?? null,
+            'has_audio' => ! empty($data['has_audio']) ? 1 : 0,
+            'audio_file_path' => $data['audio_file_path'] ?? null,
+            'created_by' => $userId,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
+    public function updateStoryline(int $exhibitionId, int $storylineId, array $data): void
+    {
+        foreach (['narrative_type' => 'thematic', 'target_audience' => 'all'] as $k => $default) {
+            if (array_key_exists($k, $data) && ! $data[$k]) {
+                $data[$k] = $default;
+            }
+        }
+        $data['is_primary'] = ! empty($data['is_primary']) ? 1 : 0;
+        $data['updated_at'] = now();
+
+        DB::table('exhibition_storyline')
+            ->where('id', $storylineId)
+            ->where('exhibition_id', $exhibitionId)
+            ->update($data);
+    }
+
+    /** Delete a storyline and its stops. */
+    public function deleteStoryline(int $exhibitionId, int $storylineId): bool
+    {
+        return DB::transaction(function () use ($exhibitionId, $storylineId) {
+            $exists = DB::table('exhibition_storyline')
+                ->where('id', $storylineId)->where('exhibition_id', $exhibitionId)->exists();
+            if (! $exists) {
+                return false;
+            }
+            DB::table('exhibition_storyline_stop')->where('storyline_id', $storylineId)->delete();
+
+            return DB::table('exhibition_storyline')->where('id', $storylineId)->delete() > 0;
+        });
+    }
+
+    public function updateStorylineStop(int $storylineId, int $stopId, array $data): void
+    {
+        $data['audio_duration_seconds'] = ($data['audio_duration_seconds'] ?? null) ?: null;
+        if (empty($data['sequence_order'])) {
+            unset($data['sequence_order']);
+        }
+        $data['updated_at'] = now();
+
+        DB::table('exhibition_storyline_stop')
+            ->where('id', $stopId)
+            ->where('storyline_id', $storylineId)
+            ->update($data);
+    }
+
+    public function deleteStorylineStop(int $storylineId, int $stopId): bool
+    {
+        return DB::table('exhibition_storyline_stop')
+            ->where('id', $stopId)
+            ->where('storyline_id', $storylineId)
+            ->delete() > 0;
+    }
+
+    // Events
+
+    public function createEvent(int $exhibitionId, array $data, ?int $userId): int
+    {
+        return (int) DB::table('exhibition_event')->insertGetId($this->eventColumns($data) + [
+            'exhibition_id' => $exhibitionId,
+            'is_recurring' => ! empty($data['is_recurring']) ? 1 : 0,
+            'recurrence_pattern' => $data['recurrence_pattern'] ?? null,
+            'venue_id' => $data['venue_id'] ?? null,
+            'gallery_id' => $data['gallery_id'] ?? null,
+            'registration_url' => $data['registration_url'] ?? null,
+            'presenter_bio' => $data['presenter_bio'] ?? null,
+            'status' => 'scheduled',
+            'notes' => $data['notes'] ?? null,
+            'created_by' => $userId,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
+    public function updateEvent(int $exhibitionId, int $eventId, array $data): void
+    {
+        DB::table('exhibition_event')
+            ->where('id', $eventId)
+            ->where('exhibition_id', $exhibitionId)
+            ->update($this->eventColumns($data) + ['updated_at' => now()]);
+    }
+
+    public function deleteEvent(int $exhibitionId, int $eventId): bool
+    {
+        return DB::table('exhibition_event')
+            ->where('id', $eventId)
+            ->where('exhibition_id', $exhibitionId)
+            ->delete() > 0;
+    }
+
+    /**
+     * The event fields the add and edit forms carry. The table has no
+     * `location` column, so the form's location is stored in location_notes;
+     * a free event carries no ticket price.
+     */
+    private function eventColumns(array $data): array
+    {
+        $isFree = ! empty($data['is_free']);
+
+        return [
+            'title' => $data['title'],
+            'event_type' => $data['event_type'],
+            'description' => $data['description'] ?? null,
+            'event_date' => $data['event_date'],
+            'start_time' => $data['start_time'] ?? null,
+            'end_time' => $data['end_time'] ?? null,
+            'location_notes' => $data['location_notes'] ?? null,
+            'max_attendees' => $data['max_attendees'] ?? null,
+            'requires_registration' => ! empty($data['requires_registration']) ? 1 : 0,
+            'is_free' => $isFree ? 1 : 0,
+            'ticket_price' => $isFree ? null : ($data['ticket_price'] ?? null),
+            'presenter_name' => $data['presenter_name'] ?? null,
+        ];
+    }
+
+    // Checklists
+
+    /** Checklist templates with the number of items each one creates. */
+    public function getChecklistTemplates(): \Illuminate\Support\Collection
+    {
+        if (! Schema::hasTable('exhibition_checklist_template')) {
+            return collect();
+        }
+
+        return DB::table('exhibition_checklist_template')
+            ->orderBy('checklist_type')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($t) {
+                $t->item_count = count(json_decode((string) $t->items, true) ?: []);
+
+                return $t;
+            });
+    }
+
+    /**
+     * Create a checklist from a template, copying the template's items.
+     *
+     * @throws \InvalidArgumentException when the template does not exist
+     */
+    public function createChecklistFromTemplate(int $exhibitionId, int $templateId, ?int $assignedTo = null): int
+    {
+        $template = DB::table('exhibition_checklist_template')->where('id', $templateId)->first();
+        if (! $template) {
+            throw new \InvalidArgumentException(__('Checklist template not found'));
+        }
+
+        return DB::transaction(function () use ($exhibitionId, $template, $assignedTo) {
+            $checklistId = (int) DB::table('exhibition_checklist')->insertGetId([
+                'exhibition_id' => $exhibitionId,
+                'template_id' => $template->id,
+                'name' => $template->name,
+                'checklist_type' => $template->checklist_type,
+                'status' => 'not_started',
+                'assigned_to' => $assignedTo,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            foreach (json_decode((string) $template->items, true) ?: [] as $order => $item) {
+                DB::table('exhibition_checklist_item')->insert([
+                    'checklist_id' => $checklistId,
+                    'name' => $item['name'] ?? '',
+                    'description' => $item['description'] ?? null,
+                    'category' => $item['category'] ?? null,
+                    'is_required' => ! empty($item['required']) ? 1 : 0,
+                    'is_completed' => 0,
+                    'sequence_order' => $order,
+                ]);
+            }
+
+            return $checklistId;
+        });
+    }
+
+    public function checklistBelongsTo(int $exhibitionId, int $checklistId): bool
+    {
+        return DB::table('exhibition_checklist')
+            ->where('id', $checklistId)->where('exhibition_id', $exhibitionId)->exists();
+    }
+
+    public function addChecklistItem(int $checklistId, array $data): int
+    {
+        return (int) DB::table('exhibition_checklist_item')->insertGetId([
+            'checklist_id' => $checklistId,
+            'name' => $data['name'],
+            'description' => $data['description'] ?? null,
+            'category' => $data['category'] ?? null,
+            'is_required' => ! empty($data['is_required']) ? 1 : 0,
+            'sequence_order' => $this->nextOrder('exhibition_checklist_item', 'checklist_id', $checklistId),
+            'is_completed' => 0,
+        ]);
+    }
+
+    /** Tick off a checklist item that belongs to one of this exhibition's checklists. */
+    public function completeChecklistItem(int $exhibitionId, int $itemId, ?int $userId, ?string $notes = null): bool
+    {
+        $update = [
+            'ci.is_completed' => 1,
+            'ci.completed_at' => now(),
+            'ci.completed_by' => $userId,
+        ];
+        if ($notes !== null && $notes !== '') {
+            $update['ci.notes'] = $notes;
+        }
+
+        return DB::table('exhibition_checklist_item as ci')
+            ->join('exhibition_checklist as c', 'c.id', '=', 'ci.checklist_id')
+            ->where('ci.id', $itemId)
+            ->where('c.exhibition_id', $exhibitionId)
+            ->update($update) > 0;
     }
 }

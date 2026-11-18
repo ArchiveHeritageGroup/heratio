@@ -99,18 +99,31 @@
                       @endif
                     </div>
                     <div class="btn-group btn-group-sm">
-                      <button type="button" class="btn btn-outline-secondary"><i class="fas fa-edit"></i></button>
-                      <button type="button" class="btn btn-outline-danger"><i class="fas fa-trash"></i></button>
+                      <button type="button" class="btn btn-outline-secondary" title="{{ __('Edit') }}"
+                              data-bs-toggle="modal" data-bs-target="#editStopModal"
+                              data-action="{{ route('exhibition.storyline.stops.update', ['exhibitionId' => $exId, 'storylineId' => $slId, 'stopId' => $st->id]) }}"
+                              data-title="{{ $st->title ?? '' }}"
+                              data-object="{{ $st->exhibition_object_id ?? '' }}"
+                              data-narrative="{{ $st->narrative_text ?? '' }}"
+                              data-duration="{{ $st->audio_duration_seconds ?? '' }}"
+                              data-order="{{ $st->sequence_order ?? '' }}">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <form method="post" action="{{ route('exhibition.storyline.stops.delete', ['exhibitionId' => $exId, 'storylineId' => $slId, 'stopId' => $st->id]) }}" class="d-inline"
+                            data-confirm="{{ __('Delete stop ":title"?', ['title' => $st->title ?? '']) }}">
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Delete') }}"><i class="fas fa-trash"></i></button>
+                      </form>
                     </div>
                   </div>
 
-                  @if(!empty($st->narrative_content))
-                    <p class="mb-2">{!! nl2br(e(mb_substr($st->narrative_content, 0, 300))) !!}{{ strlen($st->narrative_content) > 300 ? '...' : '' }}</p>
+                  @if(!empty($st->narrative_text))
+                    <p class="mb-2">{!! nl2br(e(mb_substr($st->narrative_text, 0, 300))) !!}{{ mb_strlen($st->narrative_text) > 300 ? '...' : '' }}</p>
                   @endif
 
                   <div class="d-flex gap-3 small text-muted">
-                    @if(!empty($st->duration_seconds))
-                      <span><i class="fas fa-clock me-1"></i> {{ floor($st->duration_seconds / 60) }}:{{ str_pad($st->duration_seconds % 60, 2, '0', STR_PAD_LEFT) }}</span>
+                    @if(!empty($st->audio_duration_seconds))
+                      <span><i class="fas fa-clock me-1"></i> {{ floor($st->audio_duration_seconds / 60) }}:{{ str_pad($st->audio_duration_seconds % 60, 2, '0', STR_PAD_LEFT) }}</span>
                     @endif
                     @if(!empty($st->audio_url))
                       <span><i class="fas fa-headphones me-1"></i> {{ __('Audio') }}</span>
@@ -209,4 +222,69 @@
     </div>
   </div>
 </div>
+<div class="modal fade" id="editStopModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ __('Edit Stop') }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="" id="editStopForm">
+        @csrf
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label" for="editStopObject">{{ __('Object') }} <span class="text-danger">*</span></label>
+            <select name="exhibition_object_id" id="editStopObject" class="form-select" required>
+              @foreach($objects ?? [] as $obj)
+                <option value="{{ $obj->id }}">{{ $obj->object_title ?? ('#' . $obj->id) }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="editStopTitle">{{ __('Stop Title') }} <span class="text-danger">*</span></label>
+            <input type="text" name="title" id="editStopTitle" class="form-control" maxlength="255" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="editStopNarrative">{{ __('Narrative Content') }}</label>
+            <textarea name="narrative_text" id="editStopNarrative" class="form-control" rows="5"></textarea>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label" for="editStopDuration">{{ __('Duration (seconds)') }}</label>
+              <input type="number" name="audio_duration_seconds" id="editStopDuration" class="form-control" min="0">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label" for="editStopOrder">{{ __('Stop Order') }}</label>
+              <input type="number" name="sequence_order" id="editStopOrder" class="form-control" min="1">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+          <button type="submit" class="btn btn-primary">{{ __('Save Changes') }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 @endsection
+
+@push('js')
+<script nonce="{{ csp_nonce() }}">
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('form[data-confirm]').forEach(function (f) {
+    f.addEventListener('submit', function (e) { if (!confirm(f.dataset.confirm)) { e.preventDefault(); } });
+  });
+  document.getElementById('editStopModal').addEventListener('show.bs.modal', function (event) {
+    var d = event.relatedTarget.dataset;
+    document.getElementById('editStopForm').action = d.action;
+    document.getElementById('editStopObject').value = d.object || '';
+    document.getElementById('editStopTitle').value = d.title || '';
+    document.getElementById('editStopNarrative').value = d.narrative || '';
+    document.getElementById('editStopDuration').value = d.duration || '';
+    document.getElementById('editStopOrder').value = d.order || '';
+  });
+});
+</script>
+@endpush
+

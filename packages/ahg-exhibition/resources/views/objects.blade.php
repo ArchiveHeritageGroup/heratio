@@ -127,16 +127,31 @@
                     @endif
                   </td>
                   <td>
-                    <span class="badge bg-secondary">{{ $obj->sort_order ?? ($obj->sequence_order ?? '-') }}</span>
+                    <span class="badge bg-secondary order-badge">{{ $obj->sequence_order ?? '-' }}</span>
+                    @if(!empty($obj->status_label))
+                      <br><small class="text-muted">{{ $obj->status_label }}</small>
+                    @endif
                   </td>
                   <td class="text-end">
                     <div class="btn-group btn-group-sm">
-                      <button type="button" class="btn btn-outline-primary" title="{{ __('Edit') }}">
+                      <button type="button" class="btn btn-outline-primary" title="{{ __('Edit') }}"
+                              data-bs-toggle="modal" data-bs-target="#editObjectModal"
+                              data-action="{{ route('exhibition.objects.update', ['id' => $exId, 'objectId' => $obj->id]) }}"
+                              data-section="{{ $obj->section_id ?? '' }}"
+                              data-location="{{ $obj->display_position ?? '' }}"
+                              data-notes="{{ $obj->installation_notes ?? '' }}"
+                              data-order="{{ $obj->sequence_order ?? '' }}"
+                              data-insurance="{{ $obj->insurance_value ?? '' }}"
+                              data-status="{{ $obj->status ?? '' }}"
+                              data-requires-loan="{{ !empty($obj->requires_loan) ? '1' : '0' }}"
+                              data-lender="{{ $obj->lender_institution ?? '' }}">
                         <i class="fas fa-edit"></i>
                       </button>
-                      <button type="button" class="btn btn-outline-danger" title="{{ __('Remove') }}">
-                        <i class="fas fa-times"></i>
-                      </button>
+                      <form method="post" action="{{ route('exhibition.objects.remove', ['id' => $exId, 'objectId' => $obj->id]) }}" class="d-inline"
+                            data-confirm="{{ __('Remove ":title" from this exhibition?', ['title' => $obj->object_title ?? ($obj->identifier ?? '')]) }}">
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Remove') }}"><i class="fas fa-times"></i></button>
+                      </form>
                     </div>
                   </td>
                 </tr>
@@ -161,11 +176,11 @@
         <p class="small text-muted mb-2">
           <span class="badge bg-secondary">{{ $exhibition->status ?? '' }}</span>
         </p>
-        @if(!empty($exhibition->start_date))
+        @if(!empty($exhibition->opening_date))
           <p class="small mb-1">
             <i class="fas fa-calendar me-1"></i>
-            {{ $exhibition->start_date }}
-            @if(!empty($exhibition->end_date)) - {{ $exhibition->end_date }} @endif
+            {{ $exhibition->opening_date }}
+            @if(!empty($exhibition->closing_date)) - {{ $exhibition->closing_date }} @endif
           </p>
         @endif
       </div>
@@ -224,6 +239,9 @@
   </div>
 </div>
 
+@php
+  $sectionOptions = collect($sections)->map(fn ($sec) => (object) $sec);
+@endphp
 <div class="modal fade" id="addObjectModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -231,23 +249,56 @@
         <h5 class="modal-title">{{ __('Add Object to Exhibition') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <form method="post" action="{{ route('exhibition.objects', ['id' => $exId]) }}">
+      <form method="post" action="{{ route('exhibition.objects.store', ['id' => $exId]) }}">
         @csrf
+        <input type="hidden" name="_form" value="add_object">
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">{{ __('Search Objects') }}</label>
-            <input type="text" id="objectSearch" class="form-control" placeholder="{{ __('Search by title, number, or description...') }}">
-            <input type="hidden" name="museum_object_id" id="selectedObjectId">
+            <label class="form-label" for="objectSearch">{{ __('Search Objects') }} <span class="text-danger">*</span></label>
+            <input type="text" id="objectSearch" class="form-control" autocomplete="off" placeholder="{{ __('Search by title or identifier...') }}"
+                   data-search-url="{{ route('exhibition.objects.search', ['id' => $exId]) }}">
+            <div id="searchResults" class="list-group mt-2" style="max-height: 200px; overflow-y: auto;"></div>
+            <input type="hidden" name="information_object_id" id="selectedObjectId" value="{{ old('information_object_id') }}">
+            <div id="selectedObject" class="alert alert-info mt-2 d-none"></div>
           </div>
+
+          @if($sectionOptions->isNotEmpty())
+            <div class="mb-3">
+              <label class="form-label" for="addSectionId">{{ __('Section') }}</label>
+              <select name="section_id" id="addSectionId" class="form-select">
+                <option value="">{{ __('-- No section --') }}</option>
+                @foreach($sectionOptions as $sec)
+                  <option value="{{ $sec->id }}" @selected(old('section_id') == $sec->id)>{{ $sec->title ?? '' }}</option>
+                @endforeach
+              </select>
+            </div>
+          @endif
 
           <div class="mb-3">
             <label class="form-label">{{ __('Display Location') }}</label>
-            <input type="text" name="display_location" class="form-control" placeholder="{{ __('e.g., Gallery A, Case 3') }}">
+            <input type="text" name="display_position" class="form-control" maxlength="100" value="{{ old('display_position') }}" placeholder="{{ __('e.g., Gallery A, Case 3') }}">
           </div>
 
           <div class="mb-3">
             <label class="form-label">{{ __('Display Notes') }}</label>
-            <textarea name="display_notes" class="form-control" rows="2"></textarea>
+            <textarea name="installation_notes" class="form-control" rows="2" placeholder="{{ __('Special display requirements...') }}">{{ old('installation_notes') }}</textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">{{ __('Insurance Value') }}</label>
+            <input type="number" name="insurance_value" class="form-control" min="0" step="0.01" value="{{ old('insurance_value') }}">
+          </div>
+
+          <h6 class="text-muted mt-4"><i class="fas fa-handshake me-1"></i> {{ __('Loan Details') }}</h6>
+          <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input js-toggle-lender" name="requires_loan" id="addRequiresLoan" value="1" data-target="#addLenderFields" @checked(old('requires_loan'))>
+            <label class="form-check-label" for="addRequiresLoan">{{ __('Requires loan from another institution') }}</label>
+          </div>
+          <div id="addLenderFields" class="{{ old('requires_loan') ? '' : 'd-none' }}">
+            <div class="mb-3">
+              <label class="form-label">{{ __('Lender Institution') }}</label>
+              <input type="text" name="lender_institution" class="form-control" maxlength="255" value="{{ old('lender_institution') }}" placeholder="{{ __('Institution lending the object') }}">
+            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -258,4 +309,200 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="editObjectModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ __('Edit Object Placement') }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="" id="editObjectForm">
+        @csrf
+        <div class="modal-body">
+          @if($sectionOptions->isNotEmpty())
+            <div class="mb-3">
+              <label class="form-label" for="editSectionId">{{ __('Section') }}</label>
+              <select name="section_id" id="editSectionId" class="form-select">
+                <option value="">{{ __('-- No section --') }}</option>
+                @foreach($sectionOptions as $sec)
+                  <option value="{{ $sec->id }}">{{ $sec->title ?? '' }}</option>
+                @endforeach
+              </select>
+            </div>
+          @endif
+
+          <div class="mb-3">
+            <label class="form-label" for="editStatus">{{ __('Status') }}</label>
+            <select name="status" id="editStatus" class="form-select">
+              @foreach(($objectStatuses ?? []) as $code => $label)
+                <option value="{{ $code }}">{{ $label }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="editStatusNotes">{{ __('Status change note') }}</label>
+            <input type="text" name="status_notes" id="editStatusNotes" class="form-control" placeholder="{{ __('Added to the installation notes when the status changes') }}">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="editLocation">{{ __('Display Location') }}</label>
+            <input type="text" name="display_position" id="editLocation" class="form-control" maxlength="100">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="editNotes">{{ __('Display Notes') }}</label>
+            <textarea name="installation_notes" id="editNotes" class="form-control" rows="2"></textarea>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label" for="editOrder">{{ __('Display Order') }}</label>
+              <input type="number" name="sequence_order" id="editOrder" class="form-control" min="0">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label" for="editInsurance">{{ __('Insurance Value') }}</label>
+              <input type="number" name="insurance_value" id="editInsurance" class="form-control" min="0" step="0.01">
+            </div>
+          </div>
+
+          <h6 class="text-muted mt-2"><i class="fas fa-handshake me-1"></i> {{ __('Loan Details') }}</h6>
+          <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input js-toggle-lender" name="requires_loan" id="editRequiresLoan" value="1" data-target="#editLenderFields">
+            <label class="form-check-label" for="editRequiresLoan">{{ __('Requires loan from another institution') }}</label>
+          </div>
+          <div id="editLenderFields" class="d-none">
+            <div class="mb-3">
+              <label class="form-label" for="editLenderInstitution">{{ __('Lender Institution') }}</label>
+              <input type="text" name="lender_institution" id="editLenderInstitution" class="form-control" maxlength="255" placeholder="{{ __('Institution lending the object') }}">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+          <button type="submit" class="btn btn-primary">{{ __('Save Changes') }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 @endsection
+
+@push('js')
+<script src="{{ asset('vendor/ahg-theme-b5/js/sortable.min.js') }}"></script>
+<script nonce="{{ csp_nonce() }}">
+document.addEventListener('DOMContentLoaded', function () {
+  var i18n = {
+    noResults: @json(__('No objects found')),
+    orderError: @json(__('The new order could not be saved.')),
+  };
+  var csrf = document.querySelector('meta[name="csrf-token"]');
+  csrf = csrf ? csrf.getAttribute('content') : '';
+
+  document.querySelectorAll('form[data-confirm]').forEach(function (f) {
+    f.addEventListener('submit', function (e) { if (!confirm(f.dataset.confirm)) { e.preventDefault(); } });
+  });
+
+  document.querySelectorAll('.js-toggle-lender').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      document.querySelector(cb.dataset.target).classList.toggle('d-none', !cb.checked);
+    });
+  });
+
+  // Object picker
+  var search = document.getElementById('objectSearch');
+  var results = document.getElementById('searchResults');
+  var timer;
+  function label(obj) { return obj.title || obj.object_number || ('#' + obj.id); }
+  search.addEventListener('input', function () {
+    clearTimeout(timer);
+    var q = search.value.trim();
+    if (q.length < 2) { results.innerHTML = ''; return; }
+    timer = setTimeout(function () {
+      fetch(search.dataset.searchUrl + '?q=' + encodeURIComponent(q), { headers: { 'Accept': 'application/json' } })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          results.innerHTML = '';
+          var list = (data && data.objects) || [];
+          if (!list.length) {
+            var none = document.createElement('div');
+            none.className = 'list-group-item text-muted';
+            none.textContent = i18n.noResults;
+            results.appendChild(none);
+            return;
+          }
+          list.forEach(function (obj) {
+            var item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'list-group-item list-group-item-action';
+            var strong = document.createElement('strong');
+            strong.textContent = label(obj);
+            item.appendChild(strong);
+            if (obj.object_number) {
+              var small = document.createElement('small');
+              small.className = 'text-muted d-block';
+              small.textContent = obj.object_number;
+              item.appendChild(small);
+            }
+            item.addEventListener('click', function () {
+              document.getElementById('selectedObjectId').value = obj.id;
+              var sel = document.getElementById('selectedObject');
+              sel.textContent = label(obj) + (obj.object_number ? ' (' + obj.object_number + ')' : '');
+              sel.classList.remove('d-none');
+              results.innerHTML = '';
+              search.value = '';
+            });
+            results.appendChild(item);
+          });
+        });
+    }, 300);
+  });
+
+  // Edit modal
+  document.getElementById('editObjectModal').addEventListener('show.bs.modal', function (event) {
+    var b = event.relatedTarget;
+    document.getElementById('editObjectForm').action = b.dataset.action;
+    var sec = document.getElementById('editSectionId');
+    if (sec) { sec.value = b.dataset.section || ''; }
+    document.getElementById('editStatus').value = b.dataset.status || '';
+    document.getElementById('editStatusNotes').value = '';
+    document.getElementById('editLocation').value = b.dataset.location || '';
+    document.getElementById('editNotes').value = b.dataset.notes || '';
+    document.getElementById('editOrder').value = b.dataset.order || '';
+    document.getElementById('editInsurance').value = b.dataset.insurance || '';
+    var loan = b.dataset.requiresLoan === '1';
+    document.getElementById('editRequiresLoan').checked = loan;
+    document.getElementById('editLenderFields').classList.toggle('d-none', !loan);
+    document.getElementById('editLenderInstitution').value = b.dataset.lender || '';
+  });
+
+  // Drag-and-drop order
+  var list = document.getElementById('objectList');
+  if (list && window.Sortable) {
+    new Sortable(list, {
+      handle: '.drag-handle',
+      animation: 150,
+      ghostClass: 'table-warning',
+      onEnd: function () {
+        var order = [];
+        list.querySelectorAll('tr[data-id]').forEach(function (row, i) {
+          order.push({ id: parseInt(row.dataset.id, 10), sequence_order: i + 1 });
+          var badge = row.querySelector('.order-badge');
+          if (badge) { badge.textContent = i + 1; }
+        });
+        fetch(@json(route('exhibition.objects.reorder', ['id' => $exId])), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
+          body: JSON.stringify({ order: order })
+        }).then(function (r) { if (!r.ok) { throw new Error(); } })
+          .catch(function () { alert(i18n.orderError); });
+      }
+    });
+  }
+
+  @if($errors->any() && old('_form') === 'add_object')
+    if (window.bootstrap) { bootstrap.Modal.getOrCreateInstance(document.getElementById('addObjectModal')).show(); }
+  @endif
+});
+</script>
+@endpush

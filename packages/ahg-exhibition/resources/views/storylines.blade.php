@@ -55,17 +55,34 @@
         <div class="card mb-3">
           <div class="card-header d-flex justify-content-between align-items-center">
             <div>
-              <h5 class="mb-0">{{ $sl->title ?? '' }}</h5>
-              @if(!empty($sl->type))
-                <small class="text-muted text-capitalize">{{ str_replace('_', ' ', $sl->type) }}</small>
+              <h5 class="mb-0">{{ $sl->title ?? '' }}
+                @if(!empty($sl->is_primary))<span class="badge bg-success ms-1">{{ __('Primary') }}</span>@endif
+              </h5>
+              @if(!empty($sl->narrative_type))
+                <small class="text-muted">{{ $sl->narrative_type_label ?? $sl->narrative_type }}</small>
               @endif
             </div>
             <div class="btn-group btn-group-sm">
               <a href="{{ route('exhibition.storyline', ['exhibitionId' => $exId, 'storylineId' => $sl->id ?? 0]) }}" class="btn btn-outline-primary">
                 <i class="fas fa-eye"></i> {{ __('View') }}
               </a>
-              <button type="button" class="btn btn-outline-secondary"><i class="fas fa-edit"></i></button>
-              <button type="button" class="btn btn-outline-danger"><i class="fas fa-trash"></i></button>
+              <button type="button" class="btn btn-outline-secondary" title="{{ __('Edit') }}"
+                      data-bs-toggle="modal" data-bs-target="#editStorylineModal"
+                      data-action="{{ route('exhibition.storylines.update', ['id' => $exId, 'storylineId' => $sl->id]) }}"
+                      data-title="{{ $sl->title ?? '' }}"
+                      data-narrative-type="{{ $sl->narrative_type ?? '' }}"
+                      data-description="{{ $sl->description ?? '' }}"
+                      data-introduction="{{ $sl->introduction ?? '' }}"
+                      data-audience="{{ $sl->target_audience ?? '' }}"
+                      data-duration="{{ $sl->estimated_duration_minutes ?? '' }}"
+                      data-primary="{{ !empty($sl->is_primary) ? '1' : '0' }}">
+                <i class="fas fa-edit"></i>
+              </button>
+              <form method="post" action="{{ route('exhibition.storylines.delete', ['id' => $exId, 'storylineId' => $sl->id]) }}" class="d-inline"
+                    data-confirm="{{ __('Delete storyline ":title" and all its stops?', ['title' => $sl->title ?? '']) }}">
+                @csrf
+                <button type="submit" class="btn btn-sm btn-outline-danger" title="{{ __('Delete') }}"><i class="fas fa-trash"></i></button>
+              </form>
             </div>
           </div>
           <div class="card-body">
@@ -78,12 +95,12 @@
               </div>
               @if(!empty($sl->target_audience))
                 <div class="col-md-4">
-                  <p class="small mb-1"><i class="fas fa-users me-1"></i> {{ __('Audience:') }} <strong class="text-capitalize">{{ str_replace('_', ' ', $sl->target_audience) }}</strong></p>
+                  <p class="small mb-1"><i class="fas fa-users me-1"></i> {{ __('Audience:') }} <strong>{{ $audiences[$sl->target_audience] ?? $sl->target_audience }}</strong></p>
                 </div>
               @endif
-              @if(!empty($sl->duration_minutes))
+              @if(!empty($sl->estimated_duration_minutes))
                 <div class="col-md-4">
-                  <p class="small mb-1"><i class="fas fa-clock me-1"></i> {{ __('Duration:') }} <strong>{{ __(':count min', ['count' => $sl->duration_minutes]) }}</strong></p>
+                  <p class="small mb-1"><i class="fas fa-clock me-1"></i> {{ __('Duration:') }} <strong>{{ __(':count min', ['count' => $sl->estimated_duration_minutes]) }}</strong></p>
                 </div>
               @endif
             </div>
@@ -115,13 +132,9 @@
       </div>
       <div class="card-body">
         <ul class="list-unstyled small mb-0">
-          <li class="mb-2"><strong>{{ __('General') }}</strong> - {{ __('Default visitor tour') }}</li>
-          <li class="mb-2"><strong>{{ __('Guided Tour') }}</strong> - {{ __('For docent-led visits') }}</li>
-          <li class="mb-2"><strong>{{ __('Self-Guided') }}</strong> - {{ __('Independent visitor path') }}</li>
-          <li class="mb-2"><strong>{{ __('Educational') }}</strong> - {{ __('School groups and learning') }}</li>
-          <li class="mb-2"><strong>{{ __('Accessible') }}</strong> - {{ __('Accessibility-focused route') }}</li>
-          <li class="mb-2"><strong>{{ __('Highlights') }}</strong> - {{ __('Quick overview tour') }}</li>
-          <li><strong>{{ __('Thematic') }}</strong> - {{ __('Topic-specific journey') }}</li>
+          @foreach(($narrativeTypes ?? []) as $label)
+            <li class="mb-1">{{ $label }}</li>
+          @endforeach
         </ul>
       </div>
     </div>
@@ -150,44 +163,44 @@
         <h5 class="modal-title">{{ __('Create Storyline') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <form method="post" action="{{ route('exhibition.storylines', ['id' => $exId]) }}">
+      <form method="post" action="{{ route('exhibition.storylines.store', ['id' => $exId]) }}">
         @csrf
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">{{ __('Title') }} <span class="text-danger">*</span></label>
-            <input type="text" name="title" class="form-control" required>
+            <label class="form-label" for="addTitle">{{ __('Title') }} <span class="text-danger">*</span></label>
+            <input type="text" name="title" id="addTitle" class="form-control" maxlength="255" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">{{ __('Type') }}</label>
-            <select name="type" class="form-select">
-              <option value="general">{{ __('General') }}</option>
-              <option value="guided_tour">{{ __('Guided Tour') }}</option>
-              <option value="self_guided">{{ __('Self-Guided') }}</option>
-              <option value="educational">{{ __('Educational') }}</option>
-              <option value="accessible">{{ __('Accessible') }}</option>
-              <option value="highlights">{{ __('Highlights') }}</option>
-              <option value="thematic">{{ __('Thematic') }}</option>
+            <label class="form-label" for="addNarrativeType">{{ __('Type') }}</label>
+            <select name="narrative_type" id="addNarrativeType" class="form-select">
+              @foreach(($narrativeTypes ?? []) as $code => $label)
+                <option value="{{ $code }}" @selected($code === 'thematic')>{{ $label }}</option>
+              @endforeach
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">{{ __('Description') }}</label>
-            <textarea name="description" class="form-control" rows="3"></textarea>
+            <label class="form-label" for="addDescription">{{ __('Description') }}</label>
+            <textarea name="description" id="addDescription" class="form-control" rows="3"></textarea>
           </div>
           <div class="mb-3">
-            <label class="form-label">{{ __('Target Audience') }}</label>
-            <select name="target_audience" class="form-select">
-              <option value="">{{ __('-- All visitors --') }}</option>
-              <option value="general">{{ __('General Public') }}</option>
-              <option value="families">{{ __('Families with Children') }}</option>
-              <option value="schools">{{ __('School Groups') }}</option>
-              <option value="adults">{{ __('Adults') }}</option>
-              <option value="experts">{{ __('Experts/Specialists') }}</option>
-              <option value="accessible">{{ __('Accessibility Needs') }}</option>
+            <label class="form-label" for="addIntroduction">{{ __('Introduction') }}</label>
+            <textarea name="introduction" id="addIntroduction" class="form-control" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="addAudience">{{ __('Target Audience') }}</label>
+            <select name="target_audience" id="addAudience" class="form-select">
+              @foreach(($audiences ?? []) as $code => $label)
+                <option value="{{ $code }}" @selected($code === 'all')>{{ $label }}</option>
+              @endforeach
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">{{ __('Estimated Duration (minutes)') }}</label>
-            <input type="number" name="duration_minutes" class="form-control" min="5" step="5">
+            <label class="form-label" for="addDuration">{{ __('Estimated Duration (minutes)') }}</label>
+            <input type="number" name="estimated_duration_minutes" id="addDuration" class="form-control" min="0" step="5">
+          </div>
+          <div class="form-check mb-3">
+            <input type="checkbox" name="is_primary" class="form-check-input" value="1" id="addPrimary">
+            <label class="form-check-label" for="addPrimary">{{ __('Primary storyline') }}</label>
           </div>
         </div>
         <div class="modal-footer">
@@ -198,4 +211,82 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="editStorylineModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ __('Edit Storyline') }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="" id="editStorylineForm">
+        @csrf
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label" for="editTitle">{{ __('Title') }} <span class="text-danger">*</span></label>
+            <input type="text" name="title" id="editTitle" class="form-control" maxlength="255" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="editNarrativeType">{{ __('Type') }}</label>
+            <select name="narrative_type" id="editNarrativeType" class="form-select">
+              @foreach(($narrativeTypes ?? []) as $code => $label)
+                <option value="{{ $code }}" @selected($code === 'thematic')>{{ $label }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="editDescription">{{ __('Description') }}</label>
+            <textarea name="description" id="editDescription" class="form-control" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="editIntroduction">{{ __('Introduction') }}</label>
+            <textarea name="introduction" id="editIntroduction" class="form-control" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="editAudience">{{ __('Target Audience') }}</label>
+            <select name="target_audience" id="editAudience" class="form-select">
+              @foreach(($audiences ?? []) as $code => $label)
+                <option value="{{ $code }}" @selected($code === 'all')>{{ $label }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="editDuration">{{ __('Estimated Duration (minutes)') }}</label>
+            <input type="number" name="estimated_duration_minutes" id="editDuration" class="form-control" min="0" step="5">
+          </div>
+          <div class="form-check mb-3">
+            <input type="checkbox" name="is_primary" class="form-check-input" value="1" id="editPrimary">
+            <label class="form-check-label" for="editPrimary">{{ __('Primary storyline') }}</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
+          <button type="submit" class="btn btn-primary">{{ __('Save Changes') }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 @endsection
+
+@push('js')
+<script nonce="{{ csp_nonce() }}">
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('form[data-confirm]').forEach(function (f) {
+    f.addEventListener('submit', function (e) { if (!confirm(f.dataset.confirm)) { e.preventDefault(); } });
+  });
+
+  document.getElementById('editStorylineModal').addEventListener('show.bs.modal', function (event) {
+    var d = event.relatedTarget.dataset;
+    document.getElementById('editStorylineForm').action = d.action;
+    document.getElementById('editTitle').value = d.title || '';
+    document.getElementById('editNarrativeType').value = d.narrativeType || 'thematic';
+    document.getElementById('editDescription').value = d.description || '';
+    document.getElementById('editIntroduction').value = d.introduction || '';
+    document.getElementById('editAudience').value = d.audience || 'all';
+    document.getElementById('editDuration').value = d.duration || '';
+    document.getElementById('editPrimary').checked = d.primary === '1';
+  });
+});
+</script>
+@endpush

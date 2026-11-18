@@ -27,10 +27,39 @@ Route::middleware('auth')->prefix('exhibition')->group(function () {
     Route::get('/{exhibitionId}/storyline/{storylineId}', [ExhibitionController::class, 'storyline'])->name('exhibition.storyline');
     // #1481: the Add Stop form posted to the GET route above and raised a 405.
     Route::post('/{exhibitionId}/storyline/{storylineId}/stops', [ExhibitionController::class, 'storeStorylineStop'])
-        ->name('exhibition.storyline.stops.store');
+        ->name('exhibition.storyline.stops.store')->middleware('acl:create')->whereNumber(['exhibitionId', 'storylineId']);
     Route::get('/{id}/sections', [ExhibitionController::class, 'sections'])->name('exhibition.sections');
     Route::get('/{id}/events', [ExhibitionController::class, 'events'])->name('exhibition.events');
     Route::get('/{id}/checklists', [ExhibitionController::class, 'checklists'])->name('exhibition.checklists');
+
+    // Sub-page writes: the add forms on these pages posted to the GET routes
+    // above and raised a 405; edit, remove, reorder and complete had no route.
+    Route::get('/{id}/objects/search', [ExhibitionController::class, 'searchObjects'])->name('exhibition.objects.search')->whereNumber('id');
+    Route::post('/{id}/objects', [ExhibitionController::class, 'storeObject'])->name('exhibition.objects.store')->middleware('acl:create')->whereNumber('id');
+    Route::post('/{id}/objects/reorder', [ExhibitionController::class, 'reorderObjects'])->name('exhibition.objects.reorder')->middleware('acl:update')->whereNumber('id');
+    Route::post('/{id}/objects/{objectId}', [ExhibitionController::class, 'updateObject'])->name('exhibition.objects.update')->middleware('acl:update')->whereNumber(['id', 'objectId']);
+    Route::post('/{id}/objects/{objectId}/remove', [ExhibitionController::class, 'removeObject'])->name('exhibition.objects.remove')->middleware('acl:delete')->whereNumber(['id', 'objectId']);
+
+    Route::post('/{id}/sections', [ExhibitionController::class, 'storeSection'])->name('exhibition.sections.store')->middleware('acl:create')->whereNumber('id');
+    Route::post('/{id}/sections/reorder', [ExhibitionController::class, 'reorderSections'])->name('exhibition.sections.reorder')->middleware('acl:update')->whereNumber('id');
+    Route::post('/{id}/sections/{sectionId}', [ExhibitionController::class, 'updateSection'])->name('exhibition.sections.update')->middleware('acl:update')->whereNumber(['id', 'sectionId']);
+    Route::post('/{id}/sections/{sectionId}/delete', [ExhibitionController::class, 'deleteSection'])->name('exhibition.sections.delete')->middleware('acl:delete')->whereNumber(['id', 'sectionId']);
+
+    Route::post('/{id}/storylines', [ExhibitionController::class, 'storeStoryline'])->name('exhibition.storylines.store')->middleware('acl:create')->whereNumber('id');
+    Route::post('/{id}/storylines/{storylineId}', [ExhibitionController::class, 'updateStoryline'])->name('exhibition.storylines.update')->middleware('acl:update')->whereNumber(['id', 'storylineId']);
+    Route::post('/{id}/storylines/{storylineId}/delete', [ExhibitionController::class, 'deleteStoryline'])->name('exhibition.storylines.delete')->middleware('acl:delete')->whereNumber(['id', 'storylineId']);
+    Route::post('/{exhibitionId}/storyline/{storylineId}/stops/{stopId}', [ExhibitionController::class, 'updateStorylineStop'])
+        ->name('exhibition.storyline.stops.update')->middleware('acl:update')->whereNumber(['exhibitionId', 'storylineId', 'stopId']);
+    Route::post('/{exhibitionId}/storyline/{storylineId}/stops/{stopId}/delete', [ExhibitionController::class, 'deleteStorylineStop'])
+        ->name('exhibition.storyline.stops.delete')->middleware('acl:delete')->whereNumber(['exhibitionId', 'storylineId', 'stopId']);
+
+    Route::post('/{id}/events', [ExhibitionController::class, 'storeEvent'])->name('exhibition.events.store')->middleware('acl:create')->whereNumber('id');
+    Route::post('/{id}/events/{eventId}', [ExhibitionController::class, 'updateEvent'])->name('exhibition.events.update')->middleware('acl:update')->whereNumber(['id', 'eventId']);
+    Route::post('/{id}/events/{eventId}/delete', [ExhibitionController::class, 'deleteEvent'])->name('exhibition.events.delete')->middleware('acl:delete')->whereNumber(['id', 'eventId']);
+
+    Route::post('/{id}/checklists', [ExhibitionController::class, 'storeChecklist'])->name('exhibition.checklists.store')->middleware('acl:create')->whereNumber('id');
+    Route::post('/{id}/checklists/{checklistId}/items', [ExhibitionController::class, 'storeChecklistItem'])->name('exhibition.checklists.items.store')->middleware('acl:create')->whereNumber(['id', 'checklistId']);
+    Route::post('/{id}/checklists/items/{itemId}/complete', [ExhibitionController::class, 'completeChecklistItem'])->name('exhibition.checklists.items.complete')->middleware('acl:update')->whereNumber(['id', 'itemId']);
     Route::post('/{id}/transition', [ExhibitionController::class, 'transition'])->name('exhibition.transition')->middleware('acl:update')->whereNumber('id');
     Route::get('/{id}', [ExhibitionController::class, 'show'])->name('exhibition.show');
 });
