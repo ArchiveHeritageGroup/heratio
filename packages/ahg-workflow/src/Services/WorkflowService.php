@@ -360,6 +360,9 @@ class WorkflowService
 
         if ($result) {
             $this->sendTaskDecisionMail($taskId, $userId, $comment, true, $hadNextStep);
+            if (! $hadNextStep) {
+                $this->finished($taskId, 'approved', $userId, $comment);
+            }
         }
 
         return $result;
@@ -397,9 +400,28 @@ class WorkflowService
 
         if ($result) {
             $this->sendTaskDecisionMail($taskId, $userId, $comment, false, false);
+            $this->finished($taskId, 'rejected', $userId, $comment);
         }
 
         return $result;
+    }
+
+    /**
+     * heratio#1773: tell the module that owns the object how its workflow
+     * ended (see WorkflowRouter::FINISHED). A listener failure is logged and
+     * never undoes the decision already recorded.
+     */
+    protected function finished(int $taskId, string $decision, int $userId, ?string $comment): void
+    {
+        $task = DB::table('ahg_workflow_task')->where('id', $taskId)->first(['object_type', 'object_id']);
+        if (! $task) {
+            return;
+        }
+        try {
+            event(WorkflowRouter::FINISHED, [(string) $task->object_type, (int) $task->object_id, $decision, $userId, $comment]);
+        } catch (\Throwable $e) {
+            Log::warning('[workflow] finish listener failed', ['task_id' => $taskId, 'error' => $e->getMessage()]);
+        }
     }
 
     /**

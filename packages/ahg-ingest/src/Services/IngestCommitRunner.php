@@ -225,6 +225,9 @@ class IngestCommitRunner
         }
 
         if ($digitalObjectPath && is_file($digitalObjectPath)) {
+            if ((int) ($session->process_virus_scan ?? 0) === 1) {
+                $this->virusCheck($digitalObjectPath);
+            }
             $result = $this->ingest->ingestFile(
                 (int) $session->id,
                 $digitalObjectPath,
@@ -256,6 +259,25 @@ class IngestCommitRunner
         $this->runAiSteps($session, $ioId, 0, null);
         $this->recordCustodialProvenance($ioId, $fields);
         return ['io_id' => $ioId, 'do_id' => null];
+    }
+
+    /**
+     * Refuse an infected file before it is attached; the row fails with the
+     * threat named. A missing scanner is logged and the file goes ahead, as
+     * in the scanner pipeline.
+     */
+    protected function virusCheck(string $path): void
+    {
+        $clam = class_exists(\AhgPreservation\Tools\ClamAVTool::class) ? new \AhgPreservation\Tools\ClamAVTool : null;
+        if (! $clam || ! $clam->isAvailable()) {
+            Log::warning('[ingest] virus scan requested but clamscan is not installed; '.basename($path).' not scanned');
+
+            return;
+        }
+        $r = $clam->scan($path);
+        if (empty($r['clean'])) {
+            throw new \RuntimeException('Virus scan detected threat: '.(implode(', ', $r['threats'] ?? []) ?: 'unknown'));
+        }
     }
 
     /**
@@ -360,29 +382,8 @@ class IngestCommitRunner
         // session row may carry boolean / string values depending on driver.
         $on = static fn ($v) => $v !== null && (int) $v === 1;
 
-        if ($filePath && $on($session->process_virus_scan ?? null)) {
-            $tryStep('virus_scan', function () use ($filePath, $log) {
-                if (!class_exists(\AhgAiServices\Services\VirusScanService::class)) {
-                    $log('virus_scan', 'service class not present, skipping');
-                    return;
-                }
-                $svc = app(\AhgAiServices\Services\VirusScanService::class);
-                if (method_exists($svc, 'scanFile')) {
-                    $svc->scanFile($filePath);
-                }
-            });
-        }
-
-        if ($filePath && $on($session->process_ocr ?? null)) {
-            $tryStep('ocr', function () use ($doId, $filePath, $log) {
-                if (!class_exists(\AhgAiServices\Services\OcrService::class)) {
-                    $log('ocr', 'service class not present, skipping'); return;
-                }
-                $svc = app(\AhgAiServices\Services\OcrService::class);
-                if (method_exists($svc, 'enqueueForDigitalObject') && $doId > 0) {
-                    $svc->enqueueForDigitalObject($doId);
-                }
-            });
+        if ($filePath && $doId > 0 && $on($session->process_ocr ?? null)) {
+            $tryStep('ocr', fn () => \AhgAiServices\Jobs\IngestAiStepJob::dispatch('ocr', $ioId, $doId));
         }
 
         if ($filePath && $on($session->process_format_id ?? null)) {
@@ -410,62 +411,31 @@ class IngestCommitRunner
         // interface - the runner's role is to fire the gate, not to know
         // the per-service implementation details.
         if ($on($session->process_ner ?? null)) {
-            $tryStep('ner', function () use ($ioId, $log) {
-                if (!class_exists(\AhgAiServices\Services\NerService::class)) {
-                    $log('ner', 'NerService not present, skipping'); return;
-                }
-                $svc = app(\AhgAiServices\Services\NerService::class);
-                if (method_exists($svc, 'enqueueForInformationObject')) {
-                    $svc->enqueueForInformationObject($ioId);
-                }
-            });
+            // Drained by ahg:ai-process-pending (scheduled every 5 minutes).
+            $tryStep('ner', fn () => DB::table('ahg_ai_pending_extraction')->insert([
+                'object_id' => $ioId, 'digital_object_id' => $doId ?: null, 'task_type' => 'ner', 'status' => 'pending',
+            ]));
         }
 
         // #69 master gates: ahg_ner_settings.{summarizer|spellcheck|translation}_enabled
         // operator-global kill switch on top of the per-session toggle. Both must be
         // on for the step to run. Helper short-circuits when the table is missing.
         $aiOn = class_exists(\AhgAiServices\Support\AiServicesSettings::class);
+        $queue = fn (string $step, ?string $lang = null) => $tryStep($step,
+            fn () => \AhgAiServices\Jobs\IngestAiStepJob::dispatch($step, $ioId, $doId, $lang));
 
         if ($on($session->process_summarize ?? null)
             && (!$aiOn || \AhgAiServices\Support\AiServicesSettings::summarizerEnabled())) {
-            $tryStep('summarize', function () use ($ioId, $log) {
-                if (!class_exists(\AhgAiServices\Services\SummarizerService::class)) {
-                    $log('summarize', 'SummarizerService not present, skipping'); return;
-                }
-                $svc = app(\AhgAiServices\Services\SummarizerService::class);
-                if (method_exists($svc, 'enqueueForInformationObject')) {
-                    $svc->enqueueForInformationObject($ioId);
-                }
-            });
+            $queue('summarize');
         }
-
         if ($on($session->process_spellcheck ?? null)
             && (!$aiOn || \AhgAiServices\Support\AiServicesSettings::spellcheckEnabled())) {
-            $tryStep('spellcheck', function () use ($ioId, $log) {
-                if (!class_exists(\AhgAiServices\Services\SpellcheckService::class)) {
-                    $log('spellcheck', 'SpellcheckService not present, skipping'); return;
-                }
-                $svc = app(\AhgAiServices\Services\SpellcheckService::class);
-                if (method_exists($svc, 'enqueueForInformationObject')) {
-                    $svc->enqueueForInformationObject($ioId);
-                }
-            });
+            $queue('spellcheck');
         }
-
         if ($on($session->process_translate ?? null)
             && (!$aiOn || \AhgAiServices\Support\AiServicesSettings::translationEnabled())) {
-            $tryStep('translate', function () use ($ioId, $session, $log) {
-                if (!class_exists(\AhgAiServices\Services\TranslateService::class)) {
-                    $log('translate', 'TranslateService not present, skipping'); return;
-                }
-                $svc = app(\AhgAiServices\Services\TranslateService::class);
-                // session column wins; fall back to the operator default.
-                $targetLang = (string) ($session->process_translate_lang
-                    ?? (\AhgAiServices\Support\AiServicesSettings::spellcheckLanguage() ?: 'af'));
-                if (method_exists($svc, 'enqueueForInformationObject')) {
-                    $svc->enqueueForInformationObject($ioId, $targetLang);
-                }
-            });
+            $queue('translate', (string) ($session->process_translate_lang
+                ?? (\AhgAiServices\Support\AiServicesSettings::spellcheckLanguage() ?: 'af')));
         }
 
         // Per-page document type and privacy screening (heratio#1584), when

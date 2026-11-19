@@ -179,41 +179,82 @@ class EcommerceService
         return $orderId;
     }
 
-    public function createRtpFromCart(array $data, \Illuminate\Support\Collection $cartItems): void
+    /**
+     * heratio#1768: the basket becomes ONE access request naming every record
+     * in it (previously one request-to-publish per item). The request is then
+     * routed into the access-request workflow when one is switched on.
+     */
+    public function createRequestFromCart(int $userId, array $data, \Illuminate\Support\Collection $cartItems): int
     {
-        foreach ($cartItems as $item) {
-            $objectId = DB::table('object')->insertGetId([
-                'class_name' => 'QubitRequestToPublish',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+        $lines = array_filter([
+            trim(($data['rtp_name'] ?? '').' '.($data['rtp_surname'] ?? '')),
+            ! empty($data['rtp_institution']) ? __('Institution').': '.$data['rtp_institution'] : null,
+            ! empty($data['rtp_email']) ? __('Email').': '.$data['rtp_email'] : null,
+            ! empty($data['rtp_phone']) ? __('Phone').': '.$data['rtp_phone'] : null,
+            ! empty($data['rtp_need_image_by']) ? __('Needed by').': '.$data['rtp_need_image_by'] : null,
+            ! empty($data['rtp_motivation']) ? "\n".$data['rtp_motivation'] : null,
+        ]);
+        $needBy = ! empty($data['rtp_need_image_by']) ? strtotime((string) $data['rtp_need_image_by']) : false;
 
-            DB::table('request_to_publish')->insert([
-                'id' => $objectId,
-                'parent_id' => $item->archival_description_id,
-                'lft' => 0,
-                'rgt' => 1,
-                'source_culture' => 'en',
-            ]);
+        $requestId = app(\AhgAccessRequest\Services\AccessRequestService::class)->createRequest($userId, [
+            'request_type' => 'object',
+            'scope_type' => 'basket',
+            'reason' => ($data['rtp_planned_use'] ?? '') !== '' ? (string) $data['rtp_planned_use'] : __('Basket request'),
+            'justification' => implode("\n", $lines),
+            'urgency' => $needBy && $needBy < strtotime('+14 days') ? 'high' : 'normal',
+            'items' => $cartItems->map(fn ($i) => ['id' => (int) $i->archival_description_id, 'title' => $i->archival_description])->all(),
+        ]);
 
-            DB::table('request_to_publish_i18n')->insert([
-                'id' => $objectId,
-                'object_id' => $item->archival_description_id,
-                'rtp_name' => $data['rtp_name'] ?? '',
-                'rtp_surname' => $data['rtp_surname'] ?? '',
-                'rtp_email' => $data['rtp_email'] ?? '',
-                'rtp_phone' => $data['rtp_phone'] ?? '',
-                'rtp_institution' => $data['rtp_institution'] ?? '',
-                'rtp_planned_use' => $data['rtp_planned_use'] ?? '',
-                'rtp_motivation' => $data['rtp_motivation'] ?? '',
-                'rtp_need_image_by' => $data['rtp_need_image_by'] ?? null,
-                'status_id' => 220,
-                'created_at' => now(),
-                'culture' => 'en',
-            ]);
+        DB::table('cart')->whereIn('id', $cartItems->pluck('id'))->update(['completed_at' => now()]);
 
-            DB::table('cart')->where('id', $item->id)->update(['completed_at' => now()]);
+        return $requestId;
+    }
+
+    /**
+     * heratio#1774: the requester accepted a quotation - raise the order that
+     * pays it. One line per record; the quotation is the order total (VAT
+     * included, as for cart orders). Reuses an unpaid order already raised.
+     */
+    public function createOrderForQuote(object $request, \Illuminate\Support\Collection $scopes): int
+    {
+        if (! empty($request->order_id) && DB::table('ahg_order')->where('id', $request->order_id)->where('status', 'pending')->exists()) {
+            return (int) $request->order_id;
         }
+        $settings = $this->getSettings();
+        $vatRate = (float) ($settings->vat_rate ?? 0);
+        $total = round((float) $request->quote_amount, 2);
+        $user = DB::table('user')->where('id', $request->user_id)->first(['email', 'username']);
+
+        $orderId = $this->createOrderFromCart([
+            'user_id' => (int) $request->user_id,
+            'subtotal' => $total,
+            'vat_amount' => round($total * ($vatRate / (100 + $vatRate)), 2),
+            'total' => $total,
+            'currency' => $request->quote_currency ?: ($settings->currency ?? 'ZAR'),
+            'customer_name' => $request->user_name ?? ($user->username ?? ''),
+            'customer_email' => $user->email ?? '',
+            'notes' => __('Quotation for access request #:id', ['id' => $request->id]),
+        ], collect());
+
+        $n = max(1, $scopes->count());
+        $each = round($total / $n, 2);
+        foreach ($scopes->values() as $i => $sc) {
+            $line = $i === $n - 1 ? round($total - $each * ($n - 1), 2) : $each;
+            DB::table('ahg_order_item')->insert([
+                'order_id' => $orderId,
+                'archival_description_id' => (int) $sc->object_id,
+                'archival_description' => $sc->object_title ?? '',
+                'slug' => $sc->slug ?? null,
+                'product_name' => __('Quotation'),
+                'quantity' => 1,
+                'unit_price' => $line,
+                'line_total' => $line,
+                'created_at' => now(),
+            ]);
+        }
+        DB::table('ahg_order')->where('id', $orderId)->update(['access_request_id' => (int) $request->id]);
+
+        return $orderId;
     }
 
     public function getUserOrders(int $userId): \Illuminate\Support\Collection

@@ -15,7 +15,11 @@
     $scopeId = $request->scope_object_id ?? null;
 @endphp
 
-@if($scopeType === 'all')
+@if($scopeType === 'basket')
+    {{-- heratio#1768: one request for everything in the basket. --}}
+    <span class="badge bg-primary"><i class="fas fa-basket-shopping me-1" aria-hidden="true"></i>{{ __('Basket') }}</span>
+    <span class="d-block small text-muted">{{ __(':count records', ['count' => (int) ($request->scope_count ?? 0)]) }}</span>
+@elseif($scopeType === 'all')
     <span class="badge bg-dark"><i class="fas fa-globe me-1" aria-hidden="true"></i>{{ __('Everything') }}</span>
 @elseif($scopeType === 'collection')
     <span class="badge bg-primary"><i class="fas fa-boxes-stacked me-1" aria-hidden="true"></i>{{ __('Collection') }}</span>

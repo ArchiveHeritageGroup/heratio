@@ -17,8 +17,8 @@ use Illuminate\Support\Facades\Schema;
  * setting is on, the original (master) of an image or PDF is served only to
  *  - staff (administrators, editors, contributors),
  *  - users granted Read Master on the record or its repository, or
- *  - a user whose access request covering the record was approved and has
- *    not expired (access_request + access_request_scope, descendants included
+ *  - a user whose access request covering the record was approved (with or
+ *    without conditions) and has not expired (access_request + access_request_scope, descendants included
  *    when the request says so).
  * Everyone else gets the preview: the reference copy and thumbnail.
  *
@@ -104,7 +104,7 @@ class MasterAccess
         return DB::table('access_request as ar')
             ->join('access_request_scope as s', 's.request_id', '=', 'ar.id')
             ->where('ar.user_id', $userId)
-            ->where('ar.status', 'approved')
+            ->whereIn('ar.status', ['approved', 'conditional'])
             ->where(fn ($q) => $q->whereNull('ar.expires_at')->orWhere('ar.expires_at', '>', now()))
             ->where('s.object_type', 'information_object')
             ->where(function ($q) use ($ioId, $ancestors) {

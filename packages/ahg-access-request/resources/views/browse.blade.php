@@ -64,15 +64,7 @@
                                             <td>{{ $req->user_name ?? 'Unknown' }}</td>
                                             <td>{{ $req->subject ?? 'N/A' }}</td>
                                             <td>
-                                                @if($req->status === 'approved')
-                                                    <span class="badge bg-success">{{ __('Approved') }}</span>
-                                                @elseif($req->status === 'denied')
-                                                    <span class="badge bg-danger">{{ __('Denied') }}</span>
-                                                @elseif($req->status === 'pending')
-                                                    <span class="badge bg-warning text-dark">{{ __('Pending') }}</span>
-                                                @else
-                                                    <span class="badge bg-secondary">{{ ucfirst($req->status ?? 'Unknown') }}</span>
-                                                @endif
+                                                @include('ahg-access-request::partials.status-badge', ['status' => $req->status])
                                             </td>
                                             <td>{{ $req->created_at ?? '' }}</td>
                                             <td>

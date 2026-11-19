@@ -93,17 +93,25 @@ class ReleaseLinkService
         return $n;
     }
 
-    /** A link for the record an approved object request names (not its descendants). */
+    /**
+     * Links for every record an approved (or conditionally released) object
+     * request names - one for a single record, one per record for a basket
+     * request (heratio#1768); not their descendants. Returns the first token.
+     */
     public static function issueForAccessRequest(int $requestId): ?string
     {
-        $req = DB::table('access_request')->where('id', $requestId)->where('status', 'approved')->first(['id', 'user_id', 'expires_at']);
-        $scope = $req ? DB::table('access_request_scope')->where('request_id', $requestId)->where('object_type', 'information_object')->first(['object_id']) : null;
-        if (! $scope) {
+        $req = DB::table('access_request')->where('id', $requestId)->whereIn('status', ['approved', 'conditional'])->first(['id', 'user_id', 'expires_at']);
+        if (! $req) {
             return null;
         }
         $days = $req->expires_at ? max(1, (int) ceil(now()->diffInDays($req->expires_at, false))) : self::DAYS;
+        $first = null;
+        foreach (DB::table('access_request_scope')->where('request_id', $requestId)->where('object_type', 'information_object')->pluck('object_id') as $ioId) {
+            $token = self::issue((int) $req->user_id, (int) $ioId, ['access_request_id' => $requestId], $days);
+            $first ??= $token;
+        }
 
-        return self::issue((int) $req->user_id, (int) $scope->object_id, ['access_request_id' => $requestId], $days);
+        return $first;
     }
 
     /** The live link row for a token, or null. */
@@ -119,17 +127,25 @@ class ReleaseLinkService
             ->first();
     }
 
-    /** Live links for a user, keyed by access_request_id (for My requests). */
+    /**
+     * Live links for a user (for My requests and the request page):
+     * [access_request_id => [information_object_id => token]].
+     */
     public static function forAccessRequests(int $userId): array
     {
         if (! self::available()) {
             return [];
         }
-
-        return DB::table('ahg_cart_downloads')
+        $out = [];
+        foreach (DB::table('ahg_cart_downloads')
             ->where('user_id', $userId)->whereNotNull('access_request_id')
             ->whereNull('revoked_at')->where('expires_at', '>', now())
-            ->pluck('token', 'access_request_id')->all();
+            ->orderBy('id')
+            ->get(['access_request_id', 'information_object_id', 'token']) as $r) {
+            $out[(int) $r->access_request_id][(int) $r->information_object_id] = $r->token;
+        }
+
+        return $out;
     }
 
     public static function recordDownload(object $link): void

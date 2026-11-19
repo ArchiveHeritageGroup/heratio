@@ -50,9 +50,10 @@ class CartController extends Controller
         $userId = Auth::id();
         $sessionId = $request->session()->getId();
 
-        // Merge guest cart on login
+        // Merge guest cart on login (the session id changes at sign-in, so
+        // checkout keeps the guest one - heratio#1768).
         if ($userId) {
-            $this->cartService->mergeGuestCart($sessionId, $userId);
+            $this->cartService->mergeGuestCart((string) $request->session()->pull('cart_guest_session', $sessionId), $userId);
         }
 
         $items = $this->cartService->getCart($userId, $userId ? null : $sessionId);
@@ -396,6 +397,9 @@ class CartController extends Controller
     {
         $userId = Auth::id();
         $sessionId = $request->session()->getId();
+        if ($userId) {
+            $this->cartService->mergeGuestCart((string) $request->session()->pull('cart_guest_session', $sessionId), $userId);
+        }
         $items = $this->cartService->getCart($userId, $userId ? null : $sessionId);
 
         if ($items->isEmpty()) {
@@ -423,14 +427,49 @@ class CartController extends Controller
             'rtp_name' => 'required|string|max:50',
             'rtp_surname' => 'required|string|max:50',
             'rtp_email' => 'required|email|max:50',
+            'rtp_phone' => 'nullable|string|max:50',
+            'rtp_institution' => 'nullable|string|max:200',
+            'rtp_planned_use' => 'nullable|string|max:100',
+            'rtp_motivation' => 'nullable|string|max:5000',
+            'rtp_need_image_by' => 'nullable|date',
         ]);
 
-        $this->ecommerceService->createRtpFromCart($request->only([
+        // heratio#1768: one request for the whole basket, owned by a signed-in
+        // user so it can be tracked, quoted and released to them.
+        if (! Auth::check()) {
+            $request->session()->put('cart_guest_session', $request->session()->getId());
+            $request->session()->flashInput($request->except('_token'));
+
+            return redirect()->guest(route('login'))->with('info', __('Sign in to send your request. Your basket is kept.'));
+        }
+
+        $requestId = $this->ecommerceService->createRequestFromCart((int) Auth::id(), $request->only([
             'rtp_name', 'rtp_surname', 'rtp_email', 'rtp_phone',
             'rtp_institution', 'rtp_planned_use', 'rtp_motivation', 'rtp_need_image_by',
         ]), $items);
 
-        return redirect()->route('cart.thankyou')->with('success', __('Your request has been submitted.'));
+        return redirect()->route('accessRequest.view', $requestId)
+            ->with('success', __('Your request for :count records has been submitted.', ['count' => $items->count()]));
+    }
+
+    /**
+     * heratio#1774: the requester accepts a quotation; an order is raised for
+     * it and they go on to pay. Release follows the verified payment.
+     */
+    public function acceptQuote(int $id)
+    {
+        $svc = app(\AhgAccessRequest\Services\AccessRequestService::class);
+        $req = $svc->getRequest($id);
+        abort_unless($req && (int) $req->user_id === (int) Auth::id(), 404);
+        if ($req->status !== 'quoted' || (float) $req->quote_amount <= 0) {
+            return redirect()->route('accessRequest.view', $id)->with('error', __('This request has no quotation waiting.'));
+        }
+        $orderId = $this->ecommerceService->createOrderForQuote($req, $svc->getScopes($id));
+        if ((int) $req->order_id !== $orderId) {
+            $svc->linkOrder($id, $orderId, (int) Auth::id());
+        }
+
+        return redirect()->route('cart.order-confirmation', $orderId);
     }
 
     private function processEcommerceCheckout(Request $request, $items): \Illuminate\Http\RedirectResponse
@@ -575,9 +614,40 @@ class CartController extends Controller
         }
     }
 
+    /**
+     * heratio#1774: pay an order. Sends the buyer to PayFast with this order's
+     * number and total; the ITN (paymentNotify) marks it paid and releases.
+     */
     public function payment(int $id)
     {
-        return view('ahg-cart::payment');
+        $order = $this->ecommerceService->getOrder($id);
+        abort_unless($order && Auth::check() && (int) $order->user_id === (int) Auth::id(), 404);
+        if ($order->status !== 'pending' || (float) $order->total <= 0) {
+            return redirect()->route('cart.order-confirmation', $id);
+        }
+
+        $settings = $this->ecommerceService->getSettings();
+        if (empty($settings->payfast_merchant_id) || empty($settings->payfast_merchant_key)) {
+            return redirect()->route('cart.order-confirmation', $id)->with('error', __('Online payment is not set up yet. Please contact us to pay.'));
+        }
+        $payments = app(\AhgMarketplace\Services\MarketplacePaymentService::class);
+        $name = preg_split('/\s+/', trim((string) $order->customer_name), 2) ?: [];
+        $fields = array_filter([
+            'merchant_id' => (string) $settings->payfast_merchant_id,
+            'merchant_key' => (string) $settings->payfast_merchant_key,
+            'return_url' => route('cart.order-confirmation', $id),
+            'cancel_url' => route('cart.order-confirmation', $id),
+            'notify_url' => route('cart.paymentNotify'),
+            'name_first' => mb_substr($name[0] ?? '', 0, 100),
+            'name_last' => mb_substr($name[1] ?? '', 0, 100),
+            'email_address' => (string) $order->customer_email,
+            'm_payment_id' => (string) $order->id,
+            'amount' => number_format((float) $order->total, 2, '.', ''),
+            'item_name' => mb_substr(__('Order :number', ['number' => $order->order_number]), 0, 100),
+        ], fn ($v) => $v !== '' && $v !== null);
+        $fields['signature'] = $payments->signFields($fields, (string) ($settings->payfast_passphrase ?? ''));
+
+        return redirect()->away($payments->getProcessHost().'/eng/process?'.http_build_query($fields));
     }
 
     /**
@@ -680,8 +750,13 @@ class CartController extends Controller
                     'paid_at' => now(),
                     'updated_at' => now(),
                 ]);
-            // heratio#1775: payment releases the ordered records' originals.
-            \AhgCore\Services\ReleaseLinkService::issueForOrder((int) $data['m_payment_id']);
+            // heratio#1774: an order that pays a quotation releases that access
+            // request (its links show on the request); heratio#1775: any other
+            // paid order releases the ordered records' originals.
+            $released = app(\AhgAccessRequest\Services\AccessRequestService::class)->recordPayment((int) $data['m_payment_id']);
+            if (! $released) {
+                \AhgCore\Services\ReleaseLinkService::issueForOrder((int) $data['m_payment_id']);
+            }
         }
 
         // PayFast expects a 200 acknowledgement regardless; do not leak validity.

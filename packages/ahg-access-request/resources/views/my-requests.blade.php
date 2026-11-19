@@ -57,22 +57,20 @@
                                             <td>{{ $req->request_type ?? 'N/A' }}</td>
                                             <td>@include('ahg-access-request::partials.scope-badge', ['request' => $req])</td>
                                             <td>
-                                                @if($req->status === 'approved')
-                                                    <span class="badge bg-success">{{ __('Approved') }}</span>
-                                                @elseif($req->status === 'denied')
-                                                    <span class="badge bg-danger">{{ __('Denied') }}</span>
-                                                @elseif($req->status === 'cancelled')
-                                                    <span class="badge bg-secondary">{{ __('Cancelled') }}</span>
-                                                @else
-                                                    <span class="badge bg-warning text-dark">{{ __('Pending') }}</span>
-                                                @endif
+                                                @include('ahg-access-request::partials.status-badge', ['status' => $req->status])
                                             </td>
                                             <td>{{ $req->created_at ?? '' }}</td>
                                             <td>
                                                 <a href="{{ route('accessRequest.view', $req->id) }}" class="atom-btn-white btn-sm">{{ __('View') }}</a>
-                                                @if(! empty($__releases[$req->id]))
+                                                @php $__files = $__releases[$req->id] ?? []; @endphp
+                                                @if(count($__files) === 1)
                                                     {{-- heratio#1775: the original released by this approval. --}}
-                                                    <a href="{{ route('cart.download', $__releases[$req->id]) }}" class="atom-btn-white btn-sm"><i class="fas fa-download me-1"></i>{{ __('Download original') }}</a>
+                                                    <a href="{{ route('cart.download', reset($__files)) }}" class="atom-btn-white btn-sm"><i class="fas fa-download me-1"></i>{{ __('Download original') }}</a>
+                                                @elseif(count($__files) > 1)
+                                                    <a href="{{ route('accessRequest.view', $req->id) }}#files" class="atom-btn-white btn-sm"><i class="fas fa-download me-1"></i>{{ __(':count files', ['count' => count($__files)]) }}</a>
+                                                @endif
+                                                @if($req->status === 'quoted')
+                                                    <a href="{{ route('accessRequest.view', $req->id) }}#quotation" class="atom-btn-white btn-sm"><i class="fas fa-file-invoice me-1"></i>{{ __('View quotation') }}</a>
                                                 @endif
                                             </td>
                                         </tr>

@@ -39,10 +39,15 @@
           </div>
         </div>
       @else
-        {{-- Standard (Request to Publish) form --}}
+        {{-- heratio#1768: the whole basket goes in as one request. --}}
         <div class="card mb-4">
-          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-paper-plane me-2"></i>{{ __('Request to Publish') }}</div>
+          <div class="card-header" style="background:var(--ahg-primary);color:#fff"><i class="fas fa-paper-plane me-2"></i>{{ __('Your request') }}</div>
           <div class="card-body">
+            <p class="text-muted small">{{ __('Everything in your basket is sent as one request. You can follow it, and download what is released to you, under My requests.') }}</p>
+            @guest
+              <div class="alert alert-info small">{{ __('You will be asked to sign in before the request is sent. Your basket is kept.') }}</div>
+            @endguest
+            @php $__me = auth()->user(); @endphp
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label class="form-label">{{ __('First name *') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
@@ -54,7 +59,7 @@
               </div>
               <div class="col-md-6 mb-3">
                 <label class="form-label">{{ __('Email *') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-                <input type="email" name="rtp_email" class="form-control" required value="{{ old('rtp_email') }}">
+                <input type="email" name="rtp_email" class="form-control" required value="{{ old('rtp_email', $__me->email ?? '') }}">
               </div>
               <div class="col-md-6 mb-3">
                 <label class="form-label">{{ __('Phone') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>

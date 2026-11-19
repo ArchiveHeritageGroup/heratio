@@ -36,6 +36,9 @@ use Illuminate\Support\Facades\Mail;
 
 class AccessRequestService
 {
+    /** heratio#1773: the object type an access-request workflow names in applies_to. */
+    public const WORKFLOW_TYPE = 'access_request';
+
     /**
      * #95: master gate for the four access-request mailers. Mirrors the
      * pattern in ResearchService::sendBookingMail / WorkflowService - when
@@ -125,17 +128,18 @@ class AccessRequestService
                 $join->on('user.id', '=', 'actor_i18n.id')
                     ->where('actor_i18n.culture', '=', 'en');
             })
-            ->leftJoin('access_request_scope as scope', 'scope.request_id', '=', 'access_request.id')
+            // The first record only, so a basket request (heratio#1768) stays one row.
+            ->leftJoin('access_request_scope as scope', 'scope.id', '=', DB::raw('(select min(s1.id) from access_request_scope s1 where s1.request_id = access_request.id)'))
             ->where('access_request.status', '=', 'pending')
             ->select(
                 'access_request.*',
                 'actor_i18n.authorized_form_of_name as user_name',
                 // Scope target, so a reviewer can see WHAT is being asked for
-                // without opening each request. createRequest() writes at most
-                // one scope row per request, so this join cannot fan out.
+                // without opening each request.
                 'scope.object_id as scope_object_id',
                 'scope.object_title as scope_object_title',
-                'scope.include_descendants as scope_include_descendants'
+                'scope.include_descendants as scope_include_descendants',
+                DB::raw('(select count(*) from access_request_scope s2 where s2.request_id = access_request.id) as scope_count')
             )
             ->orderByDesc('access_request.created_at')
             ->paginate($perPage);
@@ -147,13 +151,15 @@ class AccessRequestService
     public function getMyRequests(int $userId, int $perPage = 25): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         return DB::table('access_request')
-            ->leftJoin('access_request_scope as scope', 'scope.request_id', '=', 'access_request.id')
+            // The first record only, so a basket request (heratio#1768) stays one row.
+            ->leftJoin('access_request_scope as scope', 'scope.id', '=', DB::raw('(select min(s1.id) from access_request_scope s1 where s1.request_id = access_request.id)'))
             ->where('access_request.user_id', '=', $userId)
             ->select(
                 'access_request.*',
                 'scope.object_id as scope_object_id',
                 'scope.object_title as scope_object_title',
-                'scope.include_descendants as scope_include_descendants'
+                'scope.include_descendants as scope_include_descendants',
+                DB::raw('(select count(*) from access_request_scope s2 where s2.request_id = access_request.id) as scope_count')
             )
             ->orderByDesc('access_request.created_at')
             ->paginate($perPage);
@@ -170,14 +176,16 @@ class AccessRequestService
                 $join->on('user.id', '=', 'actor_i18n.id')
                     ->where('actor_i18n.culture', '=', 'en');
             })
-            ->leftJoin('access_request_scope as scope', 'scope.request_id', '=', 'access_request.id')
+            // The first record only, so a basket request (heratio#1768) stays one row.
+            ->leftJoin('access_request_scope as scope', 'scope.id', '=', DB::raw('(select min(s1.id) from access_request_scope s1 where s1.request_id = access_request.id)'))
             ->where('access_request.id', $id)
             ->select(
                 'access_request.*',
                 'actor_i18n.authorized_form_of_name as user_name',
                 'scope.object_id as scope_object_id',
                 'scope.object_title as scope_object_title',
-                'scope.include_descendants as scope_include_descendants'
+                'scope.include_descendants as scope_include_descendants',
+                DB::raw('(select count(*) from access_request_scope s2 where s2.request_id = access_request.id) as scope_count')
             )
             ->first();
     }
@@ -256,6 +264,31 @@ class AccessRequestService
             ]);
         }
 
+        // heratio#1768: a basket arrives as one request naming every record.
+        foreach ($data['items'] ?? [] as $item) {
+            DB::table('access_request_scope')->insert([
+                'request_id' => $newId,
+                'object_type' => 'information_object',
+                'object_id' => (int) $item['id'],
+                'include_descendants' => 0,
+                'object_title' => isset($item['title']) ? mb_substr((string) $item['title'], 0, 500) : null,
+                'created_at' => now(),
+            ]);
+        }
+
+        $this->log($newId, 'submitted', $userId, ($n = count($data['items'] ?? [])) ? $n.' record(s)' : null);
+
+        // heratio#1773: route it into the access-request workflow, when one is on.
+        if (class_exists(\AhgWorkflow\Services\WorkflowRouter::class)) {
+            try {
+                if ($task = \AhgWorkflow\Services\WorkflowRouter::start(self::WORKFLOW_TYPE, $newId, $userId)) {
+                    $this->log($newId, 'routed', null, 'Workflow task #'.$task);
+                }
+            } catch (\Throwable $e) {
+                Log::warning('[access-request] workflow routing failed', ['request_id' => $newId, 'error' => $e->getMessage()]);
+            }
+        }
+
         // Mail payload: keep justification/priority populated for the mail views'
         // back-compat (priority mirrors urgency).
         $justification = $justification ?? $reason;
@@ -314,18 +347,27 @@ class AccessRequestService
     /**
      * Approve an access request.
      */
-    public function approveRequest(int $id, int $reviewerId, ?string $notes = null): bool
+    public function approveRequest(int $id, int $reviewerId, ?string $notes = null, ?string $conditions = null): bool
     {
         $reviewedAt = now();
-        $affected = DB::table('access_request')
-            ->where('id', $id)
-            ->update([
-                'status' => 'approved',
-                'reviewed_by' => $reviewerId,
-                'reviewed_at' => $reviewedAt,
-                'review_notes' => $notes,
-                'updated_at' => $reviewedAt,
-            ]) > 0;
+        $conditions = trim((string) $conditions) ?: null;
+        // heratio#1773: release with conditions is its own status, so the
+        // requester (and anyone auditing) sees the terms the release carries.
+        $update = [
+            'status' => $conditions ? 'conditional' : 'approved',
+            'reviewed_by' => $reviewerId,
+            'reviewed_at' => $reviewedAt,
+            'review_notes' => $notes,
+            'updated_at' => $reviewedAt,
+        ];
+        if ($conditions) {
+            $update['conditions'] = $conditions;
+        }
+        $affected = DB::table('access_request')->where('id', $id)->update($update) > 0;
+        if ($affected) {
+            $this->log($id, $conditions ? 'released with conditions' : 'approved', $reviewerId, $conditions ?? $notes);
+            $this->closeWorkflow($id, $reviewerId, 'approved', $notes);
+        }
 
         // heratio#1775: an approved object request gets a release link to the
         // record's original, shown on the requester's My requests page.
@@ -350,14 +392,20 @@ class AccessRequestService
 
     public function cancelRequest(int $id, int $userId): bool
     {
-        return DB::table('access_request')
+        $ok = DB::table('access_request')
             ->where('id', $id)
             ->where('user_id', $userId)
-            ->whereIn('status', ['pending', 'approved'])
+            ->whereIn('status', ['pending', 'approved', 'conditional', 'quoted'])
             ->update([
                 'status' => 'cancelled',
                 'updated_at' => now(),
             ]) > 0;
+        if ($ok) {
+            $this->log($id, 'cancelled', $userId);
+            $this->closeWorkflow($id, $userId, 'cancelled', 'Cancelled by the requester');
+        }
+
+        return $ok;
     }
 
     /**
@@ -375,6 +423,10 @@ class AccessRequestService
                 'review_notes' => $reason,
                 'updated_at' => $reviewedAt,
             ]) > 0;
+        if ($affected) {
+            $this->log($id, 'denied', $reviewerId, $reason);
+            $this->closeWorkflow($id, $reviewerId, 'rejected', $reason);
+        }
 
         // #95: notify the requester their request was denied + the reason.
         if ($affected && $this->notificationsEnabled()) {
@@ -387,6 +439,128 @@ class AccessRequestService
         }
 
         return $affected;
+    }
+
+    /**
+     * heratio#1774: send the requester a quotation. The records are released
+     * only once it is paid (recordPayment), not on approval.
+     */
+    public function sendQuote(int $id, int $staffId, float $amount, ?string $note = null, string $currency = 'ZAR'): bool
+    {
+        $ok = DB::table('access_request')->where('id', $id)->whereIn('status', ['pending', 'quoted'])->update([
+            'status' => 'quoted',
+            'quote_amount' => round($amount, 2),
+            'quote_currency' => strtoupper(substr($currency, 0, 3)) ?: 'ZAR',
+            'quote_note' => $note,
+            'quoted_at' => now(),
+            'reviewed_by' => $staffId,
+            'updated_at' => now(),
+        ]) > 0;
+        if ($ok) {
+            $this->log($id, 'quoted', $staffId, number_format($amount, 2).' '.$currency.($note ? ' - '.$note : ''));
+            $this->closeWorkflow($id, $staffId, 'approved', 'Quotation sent');
+        }
+
+        return $ok;
+    }
+
+    /** The requester accepted the quotation and an order was raised to pay it. */
+    public function linkOrder(int $id, int $orderId, int $userId): void
+    {
+        DB::table('access_request')->where('id', $id)->update(['order_id' => $orderId, 'updated_at' => now()]);
+        $this->log($id, 'quotation accepted', $userId, 'Order #'.$orderId);
+    }
+
+    /**
+     * A verified payment for the order: release the request it pays for.
+     * Returns the request id released, or null.
+     */
+    public function recordPayment(int $orderId): ?int
+    {
+        $order = DB::table('ahg_order')->where('id', $orderId)->first(['id', 'access_request_id', 'payment_reference', 'user_id']);
+        $req = $order && $order->access_request_id
+            ? DB::table('access_request')->where('id', $order->access_request_id)->first(['id', 'status', 'reviewed_by'])
+            : null;
+        if (! $req || $req->status !== 'quoted') {
+            return null;
+        }
+        $this->log((int) $req->id, 'paid', (int) $order->user_id, 'Order #'.$orderId.($order->payment_reference ? ', ref '.$order->payment_reference : ''));
+        $this->approveRequest((int) $req->id, (int) ($req->reviewed_by ?: $order->user_id), 'Released on payment of order #'.$orderId);
+
+        return (int) $req->id;
+    }
+
+    /** Every record a request names. */
+    public function getScopes(int $id): \Illuminate\Support\Collection
+    {
+        return DB::table('access_request_scope as s')
+            ->leftJoin('slug', 'slug.object_id', '=', 's.object_id')
+            ->where('s.request_id', $id)
+            ->orderBy('s.id')
+            ->get(['s.object_id', 's.object_type', 's.object_title', 's.include_descendants', 'slug.slug']);
+    }
+
+    /**
+     * The request's steps, oldest first: its own log and, when it was routed,
+     * the workflow's history. Each row: at, action, by, details, step.
+     */
+    public function getHistory(int $id): array
+    {
+        $rows = DB::table('access_request_log as l')
+            ->leftJoin('user as u', 'u.id', '=', 'l.actor_id')
+            ->where('l.request_id', $id)
+            ->get(['l.created_at as at', 'l.action', 'u.username as by', 'l.details'])
+            ->map(fn ($r) => (object) ((array) $r + ['step' => null]))
+            ->all();
+        if (class_exists(\AhgWorkflow\Services\WorkflowRouter::class)) {
+            foreach (\AhgWorkflow\Services\WorkflowRouter::history(self::WORKFLOW_TYPE, $id) as $h) {
+                $rows[] = (object) ['at' => $h->performed_at, 'action' => $h->action, 'by' => $h->username, 'details' => $h->comment, 'step' => $h->step_name];
+            }
+        }
+        usort($rows, fn ($a, $b) => strcmp((string) $a->at, (string) $b->at));
+
+        return $rows;
+    }
+
+    /** The workflow step the request waits at, or null. */
+    public function getOpenStep(int $id): ?object
+    {
+        return class_exists(\AhgWorkflow\Services\WorkflowRouter::class)
+            ? \AhgWorkflow\Services\WorkflowRouter::openTask(self::WORKFLOW_TYPE, $id)
+            : null;
+    }
+
+    /**
+     * heratio#1773: the access-request workflow finished; carry its decision
+     * onto the request. Only a request still waiting is changed.
+     */
+    public function onWorkflowFinished(int $id, string $decision, int $userId, ?string $comment): void
+    {
+        if (DB::table('access_request')->where('id', $id)->value('status') !== 'pending') {
+            return;
+        }
+        $decision === 'approved'
+            ? $this->approveRequest($id, $userId, $comment)
+            : $this->denyRequest($id, $userId, $comment);
+    }
+
+    private function closeWorkflow(int $id, int $userId, string $decision, ?string $comment): void
+    {
+        if (class_exists(\AhgWorkflow\Services\WorkflowRouter::class)) {
+            \AhgWorkflow\Services\WorkflowRouter::close(self::WORKFLOW_TYPE, $id, $userId, $decision, $comment);
+        }
+    }
+
+    private function log(int $id, string $action, ?int $actorId, ?string $details = null): void
+    {
+        try {
+            DB::table('access_request_log')->insert([
+                'request_id' => $id, 'action' => $action, 'actor_id' => $actorId,
+                'details' => $details, 'ip_address' => request()->ip(), 'created_at' => now(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('[access-request] log write failed', ['request_id' => $id, 'error' => $e->getMessage()]);
+        }
     }
 
     /**

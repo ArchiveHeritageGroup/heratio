@@ -33,6 +33,9 @@ Route::get('/cart/order/{id}', [CartController::class, 'orderConfirmation'])->na
 // Authenticated user routes
 Route::middleware('auth')->group(function () {
     Route::get('/cart/orders', [CartController::class, 'orders'])->name('cart.orders');
+    // heratio#1774: pay an order; accept an access request's quotation.
+    Route::get('/cart/payment/{id}', [CartController::class, 'payment'])->name('cart.payment')->whereNumber('id');
+    Route::post('/cart/quote/{id}/accept', [CartController::class, 'acceptQuote'])->name('cart.quote.accept')->whereNumber('id');
 });
 
 // Download route (public - token-authenticated)
@@ -46,5 +49,4 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/orders', [CartController::class, 'adminOrders'])->name('cart.admin.orders');
     Route::match(['get', 'post'], '/admin/ahgSettings/ecommerce', [CartController::class, 'adminSettings'])->name('cart.admin.settings');
     Route::get('/admin/ecommerce-settings', fn () => redirect('/admin/ahgSettings/ecommerce')); // legacy redirect
-    Route::get('/cart/payment/{id}', [CartController::class, 'payment'])->name('cart.payment')->whereNumber('id');
 });

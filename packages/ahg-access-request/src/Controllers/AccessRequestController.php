@@ -179,7 +179,14 @@ class AccessRequestController extends Controller
             403
         );
 
-        return view('ahg-access-request::view', compact('accessRequest'));
+        $id = (int) $id;
+        $scopes = $this->service->getScopes($id);
+        $history = $this->service->getHistory($id);
+        $openStep = $this->service->getOpenStep($id);
+        $isStaff = AclService::canAdmin(auth()->id());
+        $files = \AhgCore\Services\ReleaseLinkService::forAccessRequests((int) $accessRequest->user_id)[$id] ?? [];
+
+        return view('ahg-access-request::view', compact('accessRequest', 'scopes', 'history', 'openStep', 'isStaff', 'files'));
     }
 
     /**
@@ -250,9 +257,23 @@ class AccessRequestController extends Controller
      */
     public function approve(Request $request, string $id)
     {
-        $this->service->approveRequest((int) $id, auth()->id(), $request->get('notes'));
+        $request->validate(['notes' => 'nullable|string|max:5000', 'conditions' => 'nullable|string|max:5000']);
+        $conditional = trim((string) $request->input('conditions')) !== '';
+        $this->service->approveRequest((int) $id, auth()->id(), $request->input('notes'), $request->input('conditions'));
 
-        return redirect()->route('accessRequest.pending')->with('notice', __('Request approved.'));
+        return redirect()->route('accessRequest.view', (int) $id)
+            ->with('success', $conditional ? __('Released with conditions.') : __('Request approved.'));
+    }
+
+    /** heratio#1774: send the requester a quotation; release waits for payment. */
+    public function quote(Request $request, string $id)
+    {
+        $data = $request->validate(['amount' => 'required|numeric|min:0.01|max:9999999', 'quote_note' => 'nullable|string|max:2000']);
+        $currency = (string) (\Illuminate\Support\Facades\DB::table('ahg_ecommerce_settings')->where('id', 1)->value('currency') ?: 'ZAR');
+        $ok = $this->service->sendQuote((int) $id, (int) auth()->id(), (float) $data['amount'], $data['quote_note'] ?? null, $currency);
+
+        return redirect()->route('accessRequest.view', (int) $id)
+            ->with($ok ? 'success' : 'error', $ok ? __('Quotation sent.') : __('Only a pending request can be quoted.'));
     }
 
     /**
@@ -260,9 +281,10 @@ class AccessRequestController extends Controller
      */
     public function deny(Request $request, string $id)
     {
-        $this->service->denyRequest((int) $id, auth()->id(), $request->get('reason'));
+        $request->validate(['reason' => 'nullable|string|max:5000']);
+        $this->service->denyRequest((int) $id, auth()->id(), $request->input('reason'));
 
-        return redirect()->route('accessRequest.pending')->with('notice', __('Request denied.'));
+        return redirect()->route('accessRequest.view', (int) $id)->with('success', __('Request denied.'));
     }
 
     /**

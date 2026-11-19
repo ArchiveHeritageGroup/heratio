@@ -19,6 +19,7 @@ Route::middleware(['auth', 'admin'])->prefix('access-request')->group(function (
     Route::get('/pending', [AccessRequestController::class, 'pending'])->name('accessRequest.pending');
     Route::post('/{id}/approve', [AccessRequestController::class, 'approve'])->name('accessRequest.approve');
     Route::post('/{id}/deny', [AccessRequestController::class, 'deny'])->name('accessRequest.deny');
+    Route::post('/{id}/quote', [AccessRequestController::class, 'quote'])->name('accessRequest.quote')->where('id', '[0-9]+');
     Route::get('/approvers', [AccessRequestController::class, 'approvers'])->name('accessRequest.approvers');
     Route::post('/approvers/add', [AccessRequestController::class, 'addApprover'])->name('accessRequest.addApprover');
     Route::delete('/approvers/{id}', [AccessRequestController::class, 'removeApprover'])->name('accessRequest.removeApprover');

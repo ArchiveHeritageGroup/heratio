@@ -48,6 +48,16 @@
         <div class="d-flex justify-content-between text-muted"><span>{{ __('VAT') }}</span><span>{{ number_format($order->vat_amount, 2) }}</span></div>
         <hr>
         <div class="d-flex justify-content-between fw-bold"><span>{{ __('Total') }}</span><span>{{ $order->currency }} {{ number_format($order->total, 2) }}</span></div>
+        @if($order->status === 'pending' && (float) $order->total > 0 && (int) $order->user_id === (int) auth()->id())
+          {{-- heratio#1774: pay online; the records are released once the payment is confirmed. --}}
+          <a href="{{ route('cart.payment', $order->id) }}" class="btn atom-btn-outline-success w-100 mt-3"><i class="fas fa-credit-card me-1"></i>{{ __('Pay now') }}</a>
+        @endif
+        @if(! empty($order->access_request_id))
+          <a href="{{ route('accessRequest.view', $order->access_request_id) }}" class="btn atom-btn-white w-100 mt-2"><i class="fas fa-key me-1"></i>{{ __('View the request') }}</a>
+          @if($order->status === 'paid')
+            <p class="small text-muted mt-2 mb-0">{{ __('Paid. Your files are on the request page.') }}</p>
+          @endif
+        @endif
       </div>
     </div>
   </div>
