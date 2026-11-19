@@ -306,9 +306,17 @@
 
   {{-- Visual graph of these results (relationship explorer) --}}
   @if(class_exists(\AhgApi\Services\ExplorerDataService::class))
-    <a href="{{ route('glam.browse', array_merge(request()->except(['page', 'view']), ['view' => 'graph'])) }}" target="_blank" rel="noopener" class="btn atom-btn-outline-success btn-sm" title="{{ __('Show these results as a graph of their subjects, places and names') }}">
-      <i class="fas fa-project-diagram"></i> {{ __('Visual graph') }}
-    </a>
+    @php $__inCollection = request('ancestor') || request('collection'); @endphp
+    @if($__inCollection && ! request('query'))
+      {{-- The whole collection, as the explorer draws it. --}}
+      <a href="{{ route('glam.browse', array_merge(request()->except(['page', 'view', 'graphLimit']), ['view' => 'graph'])) }}" target="_blank" rel="noopener" class="btn atom-btn-outline-success btn-sm" title="{{ __('See who and what this collection mentions, and how its records connect') }}">
+        <i class="fas fa-project-diagram"></i> {{ __('Explore this collection') }}
+      </a>
+    @else
+      <a href="{{ route('glam.browse', array_merge(request()->except(['page', 'view']), ['view' => 'graph'])) }}" target="_blank" rel="noopener" class="btn atom-btn-outline-success btn-sm" title="{{ __('Show these results as a graph of their subjects, places and names') }}">
+        <i class="fas fa-project-diagram"></i> {{ __('Visual graph') }}
+      </a>
+    @endif
   @endif
 
   {{-- Limit dropdown --}}

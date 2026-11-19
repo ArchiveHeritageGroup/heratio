@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Route;
 
 // Public browse routes
 Route::match(['GET', 'POST'], '/glam/browse', [DisplayController::class, 'browse'])->name('glam.browse');
+// The relationship explorer for one collection and everything in it (two segments,
+// so the /{slug} catch-all never sees it).
+Route::get('/explore/{slug}', [DisplayController::class, 'exploreCollection'])->name('explore.collection')->where('slug', '[a-z0-9][a-z0-9-]*');
 Route::match(['GET', 'POST'], '/glam/browseAjax', [DisplayController::class, 'browseAjax'])->name('glam.browse.ajax');
 Route::get('/glam/print', [DisplayController::class, 'printView'])->name('glam.print');
 Route::get('/glam/exportCsv', [DisplayController::class, 'exportCsv'])->name('glam.export.csv');

@@ -39,7 +39,13 @@ class ExplorerDataService
         foreach (array_chunk($ids, 1000) as $chunk) {
             foreach (self::records($chunk) as $r) {
                 $records[$r->id] = ['id' => (string) $r->id, 'title' => trim(html_entity_decode(strip_tags((string) $r->title), ENT_QUOTES)), 'ref' => (string) $r->identifier,
-                    'date' => '', 'url' => $r->slug ? "{$base}/{$r->slug}" : null, 'ents' => []];
+                    'date' => '', 'url' => $r->slug ? "{$base}/{$r->slug}" : null, 'ents' => []]
+                    + self::evidence($r, $base);
+            }
+            foreach (self::images($chunk, $base) as $id => $src) {
+                if (isset($records[$id])) {
+                    $records[$id]['img'] = $src;
+                }
             }
             foreach (self::dates($chunk, $year) as $id => $date) {
                 if (isset($records[$id])) {
@@ -126,7 +132,39 @@ class ExplorerDataService
             ->leftJoin('slug', 'slug.object_id', '=', 'io.id')
             ->whereIn('io.id', $ids)
             ->orderByRaw('FIELD(io.id, '.implode(',', array_map('intval', $ids)).')')
-            ->get(['io.id', 'io.identifier', DB::raw('COALESCE(i.title, s.title) as title'), 'slug.slug']);
+            ->get(['io.id', 'io.identifier', DB::raw('COALESCE(i.title, s.title) as title'), 'slug.slug',
+                DB::raw('COALESCE(i.scope_and_content, s.scope_and_content) as scope')]);
+    }
+
+    /** The record's text for the side panel: the opening of its scope and content (often the transcript). */
+    private static function evidence(object $r, string $base): array
+    {
+        $text = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags((string) ($r->scope ?? '')), ENT_QUOTES)));
+
+        return $text === '' ? [] : ['text' => mb_strlen($text) > 600 ? mb_substr($text, 0, 600).'...' : $text];
+    }
+
+    /**
+     * A picture per record for the side panel: the reference copy of its first
+     * file, else the thumbnail. Only image derivatives - the file gate still
+     * decides who may fetch them.
+     *
+     * @return array<int,string>
+     */
+    private static function images(array $ids, string $base): array
+    {
+        $rows = DB::table('digital_object as m')
+            ->join('digital_object as d', 'd.parent_id', '=', 'm.id')
+            ->whereIn('m.object_id', $ids)->whereIn('d.usage_id', [141, 142])
+            ->where('d.mime_type', 'like', 'image/%')
+            ->orderBy('m.id')->orderBy('d.usage_id')
+            ->get(['m.object_id', 'd.path', 'd.name']);
+        $out = [];
+        foreach ($rows as $r) {
+            $out[(int) $r->object_id] ??= $base.'/'.ltrim(rtrim((string) $r->path, '/').'/'.$r->name, '/');
+        }
+
+        return $out;
     }
 
     /** @return array<int,string> record id => display date (with $year, one in that year), else the start date */
@@ -170,6 +208,28 @@ class ExplorerDataService
             ->get([DB::raw('e.object_id as rid'), $name]);
         foreach ($named->concat($creators) as $r) {
             yield [(int) $r->rid, 'name', (string) $r->name];
+        }
+
+        // Names read from the records' own text (NER), so records link where the
+        // same person, body or place is mentioned - not only where a cataloguer
+        // added an access point. Reviewed names only by default: an unreviewed
+        // person name may be someone the catalogue deliberately leaves out.
+        // explorer_ner_min_confidence (0-1, default 0 = off) also admits pending
+        // names at or above that confidence.
+        if (\Illuminate\Support\Facades\Schema::hasTable('ahg_ner_entity')) {
+            $minConf = (float) \AhgCore\Services\AhgSettingsService::get('explorer_ner_min_confidence', '0');
+            $types = ['PERSON' => 'name', 'ORG' => 'name', 'NORP' => 'name', 'GPE' => 'place', 'LOC' => 'place', 'FAC' => 'place'];
+            $ner = DB::table('ahg_ner_entity')->whereIn('object_id', $ids)->whereIn('entity_type', array_keys($types))
+                ->where(function ($q) use ($minConf) {
+                    $q->whereIn('status', ['linked', 'approved', 'accepted']);
+                    if ($minConf > 0) {
+                        $q->orWhere(fn ($p) => $p->where('status', 'pending')->where('confidence', '>=', $minConf));
+                    }
+                })
+                ->get(['object_id', 'entity_type', 'entity_value']);
+            foreach ($ner as $r) {
+                yield [(int) $r->object_id, $types[$r->entity_type], (string) $r->entity_value];
+            }
         }
     }
 }

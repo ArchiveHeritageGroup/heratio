@@ -1151,7 +1151,14 @@ class DisplayController extends Controller
      */
     protected function graphView(Request $request): Response
     {
-        $limit = max(100, min(1000, (int) $request->input('graphLimit', 100)));
+        // "Explore this collection": a collection filter and no search draws the
+        // whole collection (up to explorer_collection_limit records, in its own
+        // order), leaving out names on fewer than explorer_min_mentions records
+        // and keeping explorer_hide_words off the starting list - as the
+        // offline explorer export does. A search draws the first page of results.
+        $collection = $this->parentId && ! $this->queryFilter;
+        $cap = $collection ? max(100, min(5000, \AhgCore\Services\AhgSettingsService::getInt('explorer_collection_limit', 2000))) : 1000;
+        $limit = max(100, min($cap, (int) $request->input('graphLimit', $collection ? $cap : 100)));
         $query = DB::table('information_object as io')->where('io.id', '>', 1);
         if ($this->typeFilter) {
             $query->leftJoin('display_object_config as doc', 'io.id', '=', 'doc.object_id');
@@ -1162,15 +1169,19 @@ class DisplayController extends Controller
             $marks = implode(',', array_fill(0, count($this->semanticIds), '?'));
             $query->orderByRaw("FIELD(io.id, $marks) = 0, FIELD(io.id, $marks)", array_merge($this->semanticIds, $this->semanticIds));
         }
-        $ids = $query->orderBy('io.id', 'desc')->limit($limit)->pluck('io.id')->map(fn ($i) => (int) $i)->all();
+        $collection ? $query->orderBy('io.lft') : $query->orderBy('io.id', 'desc');
+        $ids = $query->limit($limit)->pluck('io.id')->map(fn ($i) => (int) $i)->all();
 
-        $data = \AhgApi\Services\ExplorerDataService::build($ids, url('/'));
-        $data['site'] = ['title' => __('Visual graph'), 'generated' => now()->toDateString(),
-            'scope' => $this->queryFilter ? __('Search: :q', ['q' => $this->queryFilter]) : __('Filtered results')];
+        $data = \AhgApi\Services\ExplorerDataService::build($ids, url('/'),
+            $collection ? max(1, \AhgCore\Services\AhgSettingsService::getInt('explorer_min_mentions', 2)) : 1,
+            $collection ? (string) \AhgCore\Services\AhgSettingsService::get('explorer_hide_words', '') : '');
+        $collectionTitle = $collection ? (string) DB::table('information_object_i18n')->where('id', $this->parentId)->whereIn('culture', [app()->getLocale(), 'en'])->value('title') : '';
+        $data['site'] = ['title' => $collection ? ($collectionTitle ?: __('This collection')) : __('Visual graph'), 'generated' => now()->toDateString(),
+            'scope' => $collection ? __('Explore this collection') : ($this->queryFilter ? __('Search: :q', ['q' => $this->queryFilter]) : __('Filtered results'))];
         $params = $request->except(['view', 'graphLimit', 'page']);
         $live = ['shown' => count($ids), 'total' => $total, 'query' => (string) $this->queryFilter,
             'list' => route('glam.browse', $params),
-            'more' => $total > count($ids) && $limit < 1000 ? route('glam.browse', $params + ['view' => 'graph', 'graphLimit' => min(1000, $limit + 100)]) : null,
+            'more' => $total > count($ids) && $limit < $cap ? route('glam.browse', $params + ['view' => 'graph', 'graphLimit' => min($cap, $limit + 100)]) : null,
             'across' => route('glam.browse', ['view' => 'graph'])];
 
         return response(\AhgApi\Services\ExplorerDataService::page($data, $live));
@@ -2730,5 +2741,14 @@ class DisplayController extends Controller
         $kind = $request->boolean('hasDigital') || $request->input('onlyMedia') ? 'digital_object' : 'archival_description';
 
         return \AhgCore\Support\GlobalSettings::defaultBrowseView($kind) ?: 'card';
+    }
+
+    /** /explore/{slug}: the relationship explorer for a collection and everything in it. */
+    public function exploreCollection(string $slug)
+    {
+        $id = (int) DB::table('slug')->where('slug', $slug)->value('object_id');
+        abort_unless($id > 1 && DB::table('information_object')->where('id', $id)->exists(), 404);
+
+        return redirect()->route('glam.browse', ['ancestor' => $id, 'view' => 'graph', 'topLevel' => 0, 'type' => 'all']);
     }
 }

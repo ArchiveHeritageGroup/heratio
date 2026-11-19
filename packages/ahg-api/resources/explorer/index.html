@@ -46,6 +46,8 @@ aside h3 { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; col
 header a { color: var(--primary); }
 footer { padding: 8px 20px; font-size: 12px; color: var(--headtext); background: var(--head); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
 @media (max-width: 900px) { main { grid-template-columns: 1fr; grid-template-rows: 55vh auto; } aside { border-left: 0; border-top: 1px solid var(--rule); } }
+  img.evidence { display: block; max-width: 100%; max-height: 320px; margin: 10px 0; border: 1px solid #d8cfbf; background: #fff; }
+  p.excerpt { font-size: 14px; line-height: 1.5; color: #3b342a; margin: 8px 0 12px; }
 </style>
 </head>
 <body>
@@ -167,9 +169,12 @@ function showEntity(e, co) {
     ${L ? `<a class="btn" data-across="${esc(e.name)}">Search the whole catalogue for this</a>` : ''}`;
 }
 function showRecord(r) {
+  // The evidence in place: the record's picture and the opening of its text.
   side.innerHTML = `<div class="meta">${ref(r)}</div><h2>${esc(r.title || '(untitled)')}</h2>
+    ${r.img ? `<a href="${esc(r.url || r.img)}" target="_blank" rel="noopener"><img class="evidence" src="${esc(r.img)}" alt="${esc(r.title || '')}" loading="lazy" onerror="this.remove()"></a>` : ''}
+    ${r.text ? `<p class="excerpt">${esc(r.text)}</p>` : ''}
     ${r.url ? `<a class="btn" href="${esc(r.url)}" target="_blank" rel="noopener">Open the record</a>` : ''}
-    ${r.ents.length ? `<h3>Catalogued with</h3><div class="tags">${r.ents.map(k => chip(k) + '</span>').join('')}</div>` : ''}`;
+    ${r.ents.length ? `<h3>Linked with</h3><div class="tags">${r.ents.map(k => chip(k) + '</span>').join('')}</div>` : ''}`;
 }
 side.addEventListener('click', ev => { const t = ev.target.closest('[data-go]'); if (t) focus(t.dataset.go);
   const a = ev.target.closest('[data-across]'); if (a) across(a.dataset.across); });
