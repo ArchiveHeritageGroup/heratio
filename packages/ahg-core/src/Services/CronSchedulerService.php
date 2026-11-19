@@ -582,6 +582,12 @@ class CronSchedulerService
                 ['slug' => 'saved-search-notify-daily',  'name' => 'Saved-search alerts (daily)',  'description' => 'Run saved searches with notification_frequency=daily and notify owners on new matches.',  'artisan_command' => 'ahg:notify-saved-searches --frequency=daily',  'cron_expression' => '0 8 * * *',  'duration_hint' => 'short', 'log_file' => 'logs/saved-search-daily.log'],
                 ['slug' => 'saved-search-notify-weekly', 'name' => 'Saved-search alerts (weekly)', 'description' => 'Run saved searches with notification_frequency=weekly and notify owners on new matches.', 'artisan_command' => 'ahg:notify-saved-searches --frequency=weekly', 'cron_expression' => '0 8 * * 1', 'duration_hint' => 'short', 'log_file' => 'logs/saved-search-weekly.log'],
             ],
+            // heratio#1749: watched folders are polled on a schedule, so no separate
+            // service has to be set up. Each pass only reads enabled scan_folder rows
+            // and ends at once when there are none.
+            'Ingest & Capture' => [
+                ['slug' => 'scan-watch', 'name' => 'Watched Folder Poll', 'description' => 'Check every enabled watched (scan) folder and queue new files for ingest.', 'artisan_command' => 'ahg:scan-watch --once', 'cron_expression' => '*/2 * * * *', 'duration_hint' => 'short', 'log_file' => 'logs/scan-watch.log'],
+            ],
             // #673: SharePoint Integration - auto-ingest poll + webhook subscription renewal. Without these registered the SharePoint→Heratio ingest pipeline stalls (Graph webhooks expire within 12h).
             'SharePoint Integration' => [
                 ['slug' => 'sharepoint-auto-ingest', 'name' => 'SharePoint Auto-Ingest', 'description' => 'Cron-driven delta poll of ingest-enabled SharePoint drives + run the SharePoint→Heratio ingest pipeline.', 'artisan_command' => 'sharepoint:auto-ingest', 'cron_expression' => '*/15 * * * *', 'duration_hint' => 'short', 'log_file' => 'logs/sharepoint-auto-ingest.log'],

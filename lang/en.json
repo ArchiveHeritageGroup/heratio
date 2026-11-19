@@ -28398,5 +28398,7 @@
     "All regions": "All regions",
     "The list of regions is kept in the Dropdown Manager (ICIP community region).": "The list of regions is kept in the Dropdown Manager (ICIP community region).",
     "The file arrived damaged (its checksum does not match the one your browser computed). Please upload it again.": "The file arrived damaged (its checksum does not match the one your browser computed). Please upload it again.",
-    "Rows are combined in order, top to bottom: and narrows, or widens, not excludes.": "Rows are combined in order, top to bottom: and narrows, or widens, not excludes."
+    "Rows are combined in order, top to bottom: and narrows, or widens, not excludes.": "Rows are combined in order, top to bottom: and narrows, or widens, not excludes.",
+    "This file is larger than :size, the most this page accepts. Upload it through the ingest wizard, which sends large files in resumable parts, or by FTP, then link it here.": "This file is larger than :size, the most this page accepts. Upload it through the ingest wizard, which sends large files in resumable parts, or by FTP, then link it here.",
+    "FTP upload": "FTP upload"
 }

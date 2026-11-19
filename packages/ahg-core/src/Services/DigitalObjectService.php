@@ -476,6 +476,9 @@ class DigitalObjectService
         } elseif ($mimeType === 'application/pdf') {
             // Rasterise page 0 into a real JPEG thumbnail instead of a grey icon.
             self::generatePdfDerivatives($masterId, $objectId, $masterPath, $safeName, $webPath, $uploadDir, $mimeType);
+        } elseif (($preview = self::previewSource($masterPath, $mimeType)) !== null) {
+            self::generatePdfDerivatives($masterId, $objectId, $preview['path'], $safeName, $webPath, $uploadDir, $mimeType);
+            self::removePreviewTmp($preview['tmp']);
         } elseif (! self::queueMediaDerivatives($masterId, $mediaTypeId, $mimeType)) {
             self::generateGenericDerivatives($masterId, $objectId, $mimeType, $safeName, $webPath, $uploadDir);
         }
@@ -1386,6 +1389,9 @@ class DigitalObjectService
             imagedestroy($srcImage);
         } elseif ($mimeType === 'application/pdf') {
             self::generatePdfDerivatives($masterId, (int) $master->object_id, $masterPath, $safeName, $webPath, $uploadDir, $mimeType);
+        } elseif (($preview = self::previewSource($masterPath, $mimeType)) !== null) {
+            self::generatePdfDerivatives($masterId, (int) $master->object_id, $preview['path'], $safeName, $webPath, $uploadDir, $mimeType);
+            self::removePreviewTmp($preview['tmp']);
         } elseif (! self::queueMediaDerivatives($masterId, $mediaTypeId, $mimeType)) {
             self::generateGenericDerivatives($masterId, $master->object_id, $mimeType, $safeName, $webPath, $uploadDir);
         }
@@ -1623,6 +1629,76 @@ class DigitalObjectService
         if (! $haveDeriv) {
             self::generateGenericDerivatives($masterId, $objectId, $mimeType, $safeName, $webPath, $uploadDir);
         }
+    }
+
+    const OFFICE_PREVIEW_EXTENSIONS = ['doc', 'docx', 'odt', 'rtf', 'xls', 'xlsx', 'ods', 'ppt', 'pptx', 'odp'];
+
+    const POSTSCRIPT_PREVIEW_MIMES = ['application/postscript', 'application/illustrator', 'application/vnd.adobe.illustrator', 'application/eps', 'image/x-eps'];
+
+    /**
+     * heratio#1750: a page image for files ImageMagick cannot open on its own,
+     * so they get a real reference + thumbnail instead of a grey icon.
+     * - Office documents: page one via LibreOffice (PDF).
+     * - Illustrator files saved without PDF content, EPS, PS: Ghostscript to
+     *   PDF. (PDF-compatible .ai files arrive as application/pdf and are
+     *   already handled.)
+     * - InDesign: the page preview InDesign stores in the file's XMP.
+     * Returns ['path' => file to render, 'tmp' => directory to remove or null],
+     * or null when the type has no preview route or the conversion failed.
+     */
+    protected static function previewSource(string $masterPath, string $mimeType): ?array
+    {
+        $ext = strtolower(pathinfo($masterPath, PATHINFO_EXTENSION));
+        $isPostScript = in_array($mimeType, self::POSTSCRIPT_PREVIEW_MIMES, true) || in_array($ext, ['ai', 'eps', 'ps'], true);
+        $isOffice = in_array($ext, self::OFFICE_PREVIEW_EXTENSIONS, true)
+            || str_starts_with($mimeType, 'application/vnd.openxmlformats-officedocument.')
+            || str_starts_with($mimeType, 'application/vnd.oasis.opendocument.')
+            || in_array($mimeType, ['application/msword', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/rtf'], true);
+        if (! $isOffice && ! $isPostScript && $ext !== 'indd') {
+            return null;
+        }
+
+        $tmp = sys_get_temp_dir().'/ahg-preview-'.bin2hex(random_bytes(6));
+        if (! @mkdir($tmp, 0700)) {
+            return null;
+        }
+
+        if ($isPostScript) {
+            // ImageMagick's policy refuses PS/EPS, so Ghostscript (sandboxed
+            // with -dSAFER) turns it into a PDF, which the PDF route renders.
+            $out = $tmp.'/page.pdf';
+            @shell_exec(sprintf('timeout 60 gs -dSAFER -dBATCH -dNOPAUSE -dQUIET -dEPSCrop -dFirstPage=1 -dLastPage=1 -sDEVICE=pdfwrite -o %s %s 2>/dev/null',
+                escapeshellarg($out), escapeshellarg($masterPath)));
+        } elseif ($ext === 'indd') {
+            $out = $tmp.'/page.jpg';
+            @shell_exec(sprintf('timeout 30 exiftool -b -listItem 0 -PageImage %s > %s 2>/dev/null', escapeshellarg($masterPath), escapeshellarg($out)));
+        } else {
+            // A private LibreOffice profile per run: the shared one locks, and
+            // php-fpm cannot write the default under its home directory.
+            @shell_exec(sprintf('timeout 90 soffice --headless --norestore -env:UserInstallation=%s --convert-to pdf --outdir %s %s 2>/dev/null',
+                escapeshellarg('file://'.$tmp.'/profile'), escapeshellarg($tmp), escapeshellarg($masterPath)));
+            $out = $tmp.'/'.pathinfo($masterPath, PATHINFO_FILENAME).'.pdf';
+        }
+
+        if (is_file($out) && filesize($out) > 0) {
+            return ['path' => $out, 'tmp' => $tmp];
+        }
+        self::removePreviewTmp($tmp);
+        Log::info('[DigitalObjectService] no preview could be made for '.basename($masterPath));
+
+        return null;
+    }
+
+    protected static function removePreviewTmp(?string $dir): void
+    {
+        if (! $dir || ! str_starts_with($dir, sys_get_temp_dir().'/ahg-preview-') || ! is_dir($dir)) {
+            return;
+        }
+        $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST);
+        foreach ($it as $f) {
+            $f->isDir() && ! $f->isLink() ? @rmdir($f->getPathname()) : @unlink($f->getPathname());
+        }
+        @rmdir($dir);
     }
 
     /**

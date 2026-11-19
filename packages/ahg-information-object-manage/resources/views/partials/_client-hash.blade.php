@@ -4,6 +4,35 @@
      the limit below, the upload goes ahead unhashed as before.
      ponytail: crypto.subtle has no streaming digest, so the whole file is read
      into memory; 512 MB is the ceiling. A chunked hasher would lift it. --}}
+{{-- heratio#1749: a file over this page's limit is caught when chosen, with the
+     routes that take larger files, instead of failing after a long upload. --}}
+@php
+  $__maxBytes = \AhgCore\Services\DigitalObjectService::getMaxUploadSize();
+  $__tooBig = __('This file is larger than :size, the most this page accepts. Upload it through the ingest wizard, which sends large files in resumable parts, or by FTP, then link it here.', ['size' => \AhgCore\Services\DigitalObjectService::formatFileSize($__maxBytes)]);
+  $__links = [
+      ['href' => \Illuminate\Support\Facades\Route::has('ingest.index') ? route('ingest.index') : null, 'text' => __('Ingest wizard')],
+      ['href' => \Illuminate\Support\Facades\Route::has('ftpUpload.index') ? route('ftpUpload.index') : null, 'text' => __('FTP upload')],
+  ];
+@endphp
+<script>
+(function () {
+  if (window.__ahgSizeCheck) return; window.__ahgSizeCheck = true;
+  var MAX = {{ (int) $__maxBytes }}, MSG = @json($__tooBig);
+  var LINKS = @json($__links);
+  document.addEventListener('change', function (ev) {
+    var input = ev.target;
+    if (!input.matches || !input.matches('input[type=file][name="digital_object"]')) return;
+    var old = input.parentNode.querySelector('.ahg-too-big'); if (old) old.remove();
+    var f = input.files && input.files[0];
+    if (!MAX || !f || f.size <= MAX) return;
+    input.value = '';
+    var box = document.createElement('div'); box.className = 'alert alert-warning mt-2 ahg-too-big'; box.setAttribute('role', 'alert');
+    box.textContent = MSG + ' ';
+    LINKS.forEach(function (l) { if (!l.href) return; var a = document.createElement('a'); a.href = l.href; a.textContent = l.text; a.className = 'me-2'; box.appendChild(a); });
+    input.insertAdjacentElement('afterend', box);
+  });
+})();
+</script>
 <script>
 (function () {
   if (window.__ahgClientHash) return; window.__ahgClientHash = true;

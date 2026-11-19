@@ -9,15 +9,10 @@ use Illuminate\Support\Facades\DB;
 
 class UploadController extends BaseApiController
 {
-    protected array $allowedMimeTypes = [
-        'image/jpeg', 'image/png', 'image/gif', 'image/tiff', 'image/webp',
-        'application/pdf',
-        'audio/mpeg', 'audio/wav', 'audio/ogg',
-        'video/mp4', 'video/webm', 'video/quicktime',
-        'model/gltf-binary', 'model/gltf+json',
-        'application/xml', 'text/xml', 'text/csv',
-        'application/zip', 'application/x-tar',
-    ];
+    // heratio#1750: the same rule as the web upload - every format is accepted
+    // except the deny-list of browser- or server-executable types (svg, html,
+    // xml, php, js, ...). The old 18-type allow-list refused design formats
+    // (psd, ai, indd), office documents and most audio and video.
 
     /**
      * POST /api/v2/upload - Generic file upload.
@@ -26,7 +21,7 @@ class UploadController extends BaseApiController
     {
         $request->validate([
             'files' => 'required',
-            'files.*' => 'file|max:512000', // 500MB max
+            'files.*' => 'file|max:'.intdiv(DigitalObjectService::getMaxUploadSize(), 1024),
         ]);
 
         $uploaded = [];
@@ -45,10 +40,11 @@ class UploadController extends BaseApiController
             }
 
             $mime = $file->getMimeType();
-            if (! in_array($mime, $this->allowedMimeTypes)) {
+            $denied = DigitalObjectService::deniedUploadExtension($file);
+            if ($denied !== null) {
                 $errors[] = [
                     'filename' => $file->getClientOriginalName(),
-                    'error' => "MIME type '{$mime}' not allowed.",
+                    'error' => DigitalObjectService::deniedUploadMessage($denied),
                 ];
 
                 continue;
@@ -87,7 +83,7 @@ class UploadController extends BaseApiController
         }
 
         $request->validate([
-            'file' => 'required|file|max:512000',
+            'file' => 'required|file|max:'.intdiv(DigitalObjectService::getMaxUploadSize(), 1024),
         ]);
 
         // Idempotency (#1435): if the description already has a master digital
