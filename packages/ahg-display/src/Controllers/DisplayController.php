@@ -225,7 +225,15 @@ class DisplayController extends Controller
             || $this->levelFilter || $this->mediaFilter || $this->repoFilter
             || $this->queryFilter || $this->hasDigital
             || $this->materialTypeFilter || $this->conditionGradeFilter
-            || $this->acquisitionMethodFilter || $this->circulationStatusFilter;
+            || $this->acquisitionMethodFilter || $this->circulationStatusFilter
+            // heratio#1589: the advanced-search fields and criteria rows narrow the
+            // results too, so the facets must be counted live for them as well.
+            || $this->titleFilter || $this->identifierFilter || $this->referenceCodeFilter
+            || $this->scopeAndContentFilter || $this->extentAndMediumFilter || $this->archivalHistoryFilter
+            || $this->acquisitionFilter || $this->creatorSearchFilter || $this->subjectSearchFilter
+            || $this->placeSearchFilter || $this->genreSearchFilter || $this->startDateFilter || $this->endDateFilter
+            || array_filter(array_map(fn ($v) => is_string($v) ? trim($v) : '', (array) request()->input('sq', [])))
+            || request()->filled('sq0');
 
         // #114 multi_repository: when off, the repository facet is meaningless
         // (browse is locked to a single repo). Skip the facet build entirely
@@ -244,7 +252,7 @@ class DisplayController extends Controller
             $genres = $this->getLiveFacet('genre');
             $mediaTypes = $this->getLiveFacet('media_type');
         } else {
-            $sfx = $this->isAuthenticated ? '_all' : '';
+            $sfx = $this->viewerIsStaff() ? '_all' : '';
             $types = $this->getCachedFacet('glam_type' . $sfx, 'object_type');
             $levels = $this->getCachedFacet('level' . $sfx);
             $repositories = $singleRepoMode ? collect() : $this->getCachedFacet('repository' . $sfx);
@@ -1342,11 +1350,115 @@ class DisplayController extends Controller
         return $semanticEnabled;
     }
 
+    /**
+     * heratio#1765: the advanced-search criteria rows - so[] (and|or|not),
+     * sq[] (term) and sf[] (field, empty = any field) - combined left to
+     * right: ((row1 op2 row2) op3 row3) ... A leading "not" excludes.
+     * Numbered sq0/so0/sf0 parameters from older links are read too.
+     */
+    protected function applyCriteriaRows($query): void
+    {
+        $req = request();
+        $sq = (array) $req->input('sq', []);
+        $so = (array) $req->input('so', []);
+        $sf = (array) $req->input('sf', []);
+        for ($n = 0; $n < 20; $n++) {
+            if ($req->filled('sq'.$n)) {
+                $sq[] = $req->input('sq'.$n);
+                $so[count($sq) - 1] = $req->input('so'.$n, 'and');
+                $sf[count($sq) - 1] = $req->input('sf'.$n, '');
+            }
+        }
+        $rows = [];
+        foreach ($sq as $k => $text) {
+            if (is_array($text)) {
+                continue;
+            }
+            $text = trim((string) $text);
+            if ($text === '') {
+                continue;
+            }
+            $op = strtolower((string) ($so[$k] ?? 'and'));
+            $rows[] = ['op' => in_array($op, ['and', 'or', 'not'], true) ? $op : 'and', 'field' => (string) ($sf[$k] ?? ''), 'text' => mb_substr($text, 0, 255)];
+        }
+        if (! $rows) {
+            return;
+        }
+
+        $combined = null;
+        foreach (array_slice($rows, 0, 10) as $i => $row) {
+            $one = fn ($q) => $this->applyCriterion($q, $row['field'], $row['text']);
+            if ($combined === null) {
+                $combined = $row['op'] === 'not' ? fn ($q) => $q->whereNot($one) : $one;
+                continue;
+            }
+            $prev = $combined;
+            $combined = match ($row['op']) {
+                'or' => fn ($q) => $q->where($prev)->orWhere($one),
+                'not' => fn ($q) => $q->where($prev)->whereNot($one),
+                default => fn ($q) => $q->where($prev)->where($one),
+            };
+        }
+        $query->where($combined);
+    }
+
+    /** One criterion: $text in $field, or in any field when $field is empty or unknown. */
+    protected function applyCriterion($q, string $field, string $text): void
+    {
+        $like = '%'.\AhgCore\Support\EscapeQueriesHelper::escapeForLike($text).'%';
+        $i18n = [
+            'title' => 'title', 'scopeAndContent' => 'scope_and_content', 'extentAndMedium' => 'extent_and_medium',
+            'archivalHistory' => 'archival_history', 'acquisition' => 'acquisition', 'arrangement' => 'arrangement',
+            'accessConditions' => 'access_conditions', 'reproductionConditions' => 'reproduction_conditions',
+            'physicalCharacteristics' => 'physical_characteristics', 'findingAids' => 'finding_aids',
+            'locationOfOriginals' => 'location_of_originals', 'locationOfCopies' => 'location_of_copies',
+            'relatedUnits' => 'related_units_of_description', 'rules' => 'rules', 'sources' => 'sources',
+        ];
+        $taxonomies = ['subjectSearch' => 35, 'placeSearch' => 42, 'genreSearch' => 78];
+
+        if (isset($i18n[$field])) {
+            $col = $i18n[$field];
+            $q->whereExists(fn ($s) => $s->select(DB::raw(1))->from('information_object_i18n as ioi_c')
+                ->whereRaw('ioi_c.id = io.id')->where('ioi_c.'.$col, 'like', $like));
+        } elseif ($field === 'identifier' || $field === 'referenceCode') {
+            $q->where('io.identifier', 'like', $like);
+        } elseif (isset($taxonomies[$field])) {
+            $tax = $taxonomies[$field];
+            $q->whereExists(fn ($s) => $s->select(DB::raw(1))->from('object_term_relation as otr_c')
+                ->join('term as t_c', 'otr_c.term_id', '=', 't_c.id')
+                ->join('term_i18n as ti_c', 't_c.id', '=', 'ti_c.id')
+                ->whereRaw('otr_c.object_id = io.id')->where('t_c.taxonomy_id', $tax)->where('ti_c.name', 'like', $like));
+        } elseif ($field === 'creatorSearch') {
+            $q->whereExists(fn ($s) => $s->select(DB::raw(1))->from('event as e_c')
+                ->join('actor_i18n as ai_c', 'e_c.actor_id', '=', 'ai_c.id')
+                ->whereRaw('e_c.object_id = io.id')->where('ai_c.authorized_form_of_name', 'like', $like));
+        } elseif ($field === 'noteContent') {
+            $q->whereExists(fn ($s) => $s->select(DB::raw(1))->from('note as n_c')
+                ->join('note_i18n as ni_c', 'n_c.id', '=', 'ni_c.id')
+                ->whereRaw('n_c.object_id = io.id')->where('ni_c.content', 'like', $like));
+        } else {
+            $this->applyTextSearchFilter($q, $text);
+        }
+    }
+
+    /** Administrators, editors and contributors see drafts and withheld records in browse. */
+    protected function viewerIsStaff(): bool
+    {
+        $u = auth()->user();
+
+        return $u !== null && (\AhgCore\Services\AclService::isAdministrator($u)
+            || \AhgCore\Services\AclService::isEditor($u)
+            || \AhgCore\Services\AclService::isContributor($u));
+    }
+
     protected function applyFilters($query): void
     {
-        // Filter by publication status - only show Published items (status_id = 160) for guests
-        // Authenticated users (editors/admins) can see all items
-        if (!$this->isAuthenticated) {
+        // Filter by publication status - only staff (administrators, editors,
+        // contributors) see drafts. heratio#1765: this used to exempt any
+        // signed-in user, so a researcher or learner account saw unpublished
+        // records in browse.
+        $isStaff = $this->viewerIsStaff();
+        if (! $isStaff) {
             $query->whereExists(function ($sub) {
                 $sub->select(DB::raw(1))
                     ->from('status as pub_st')
@@ -1365,8 +1477,7 @@ class DisplayController extends Controller
         // classification), so a restricted record is not listed to someone who
         // could not open it - whether keyword or vector search found it. Staff
         // see everything, as on the show pages.
-        $u = auth()->user();
-        if (! ($u && (\AhgCore\Services\AclService::isAdministrator($u) || \AhgCore\Services\AclService::isEditor($u) || \AhgCore\Services\AclService::isContributor($u)))) {
+        if (! $isStaff) {
             app(\AhgCore\Services\DisclosureGate::class)->excludeRestricted($query, 'io.id');
         }
 
@@ -1510,6 +1621,8 @@ class DisplayController extends Controller
                 $this->applyTextSearchFilter($query, $terms);
             }
         }
+
+        $this->applyCriteriaRows($query);
 
         if ($this->titleFilter) {
             $query->whereExists(function ($sub) {
@@ -1766,7 +1879,7 @@ class DisplayController extends Controller
     protected function getLiveFacet(string $dimension): array
     {
         $ttl = \AhgCore\Services\AhgSettingsService::getInt('ahg_display_count_cache_ttl', 300);
-        $key = 'ahg_display:facet:'.md5(serialize([$dimension, app()->getLocale(), $this->isAuthenticated, $this->typeFilter,
+        $key = 'ahg_display:facet:'.md5(serialize([$dimension, app()->getLocale(), $this->viewerIsStaff(), $this->typeFilter,
             \Illuminate\Support\Arr::except(request()->query(), ['page', 'sort', 'sortDir', 'dir', 'view', 'limit'])]));
         $mysql = DB::connection()->getDriverName() === 'mysql';
         $compute = function () use ($dimension, $mysql) {

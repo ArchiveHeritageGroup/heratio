@@ -28397,5 +28397,6 @@
     "PAIA request :ref created.": "PAIA request :ref created.",
     "All regions": "All regions",
     "The list of regions is kept in the Dropdown Manager (ICIP community region).": "The list of regions is kept in the Dropdown Manager (ICIP community region).",
-    "The file arrived damaged (its checksum does not match the one your browser computed). Please upload it again.": "The file arrived damaged (its checksum does not match the one your browser computed). Please upload it again."
+    "The file arrived damaged (its checksum does not match the one your browser computed). Please upload it again.": "The file arrived damaged (its checksum does not match the one your browser computed). Please upload it again.",
+    "Rows are combined in order, top to bottom: and narrows, or widens, not excludes.": "Rows are combined in order, top to bottom: and narrows, or widens, not excludes."
 }

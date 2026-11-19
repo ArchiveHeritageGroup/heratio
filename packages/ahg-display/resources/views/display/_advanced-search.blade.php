@@ -164,16 +164,34 @@
               {{-- Search specific field --}}
               <div class="mb-3 p-3 bg-light rounded">
                 <label class="form-label small fw-bold"><i class="fas fa-search me-1"></i>{{ __('Search specific field') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <div class="form-text mb-2">{{ __('Rows are combined in order, top to bottom: and narrows, or widens, not excludes.') }}</div>
+                @php
+                  // heratio#1765: boolean criteria rows (so[]/sq[]/sf[]); the first row's
+                  // operator only matters when it is "not".
+                  $critRows = [];
+                  foreach ((array) request()->input('sq', []) as $k => $q) {
+                      $critRows[] = ['q' => (string) $q, 'f' => (string) (request()->input('sf')[$k] ?? ''), 'o' => (string) (request()->input('so')[$k] ?? 'and')];
+                  }
+                  if (! $critRows) { $critRows[] = ['q' => '', 'f' => '', 'o' => 'and']; }
+                @endphp
                 <div id="field-search-rows">
+                  @foreach($critRows as $ci => $cr)
                   <div class="input-group mb-2 field-search-row">
-                    <select class="form-select field-select" style="max-width: 200px;" onchange="this.nextElementSibling.name = this.value">
-                      <option value="" selected>{{ __('-- Select field --') }}</option>
+                    <select name="so[]" class="form-select" style="max-width: 90px;" aria-label="{{ __('Operator') }}">
+                      <option value="and" @selected($cr['o'] === 'and')>{{ __('and') }}</option>
+                      <option value="or" @selected($cr['o'] === 'or')>{{ __('or') }}</option>
+                      <option value="not" @selected($cr['o'] === 'not')>{{ __('not') }}</option>
+                    </select>
+                    <input type="text" name="sq[]" class="form-control" value="{{ $cr['q'] }}" placeholder="{{ __('Enter search term...') }}">
+                    <select name="sf[]" class="form-select field-select" style="max-width: 200px;" aria-label="{{ __('Field') }}">
+                      <option value="" @selected($cr['f'] === '')>{{ __('Any field') }}</option>
                       @foreach($activeFields as $fKey => $fLabel)
-                        <option value="{{ $fKey }}">{{ $fLabel }}</option>
+                        <option value="{{ $fKey }}" @selected($cr['f'] === $fKey)>{{ __($fLabel) }}</option>
                       @endforeach
                     </select>
-                    <input type="text" name="" class="form-control" value="" placeholder="{{ __('Enter search term...') }}">
+                    @if($ci > 0)<button type="button" class="btn atom-btn-outline-danger" onclick="this.closest('.field-search-row').remove()"><i class="fas fa-times"></i></button>@endif
                   </div>
+                  @endforeach
                 </div>
                 <button type="button" class="btn btn-sm atom-btn-white mt-1" id="add-field-search-btn">
                   <i class="fas fa-plus me-1"></i>{{ __('Add criterion') }}
@@ -367,18 +385,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Field search: add criterion
+    // Field search: add criterion (heratio#1765 boolean rows)
     var addBtn = document.getElementById('add-field-search-btn');
     if (addBtn) {
         addBtn.addEventListener('click', function() {
             var container = document.getElementById('field-search-rows');
-            var firstRow = container.querySelector('.field-search-row');
-            var newRow = firstRow.cloneNode(true);
-            var select = newRow.querySelector('select');
-            var input = newRow.querySelector('input');
-            select.selectedIndex = 0;
-            input.name = '';
-            input.value = '';
+            var newRow = container.querySelector('.field-search-row').cloneNode(true);
+            newRow.querySelectorAll('select').forEach(function (sel) { sel.selectedIndex = 0; });
+            newRow.querySelector('input[type="text"]').value = '';
             if (!newRow.querySelector('.atom-btn-outline-danger')) {
                 var removeBtn = document.createElement('button');
                 removeBtn.type = 'button';
@@ -391,20 +405,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Field search: sync dropdown to input name
-    document.addEventListener('change', function(e) {
-        if (e.target.classList.contains('field-select')) {
-            var input = e.target.closest('.field-search-row').querySelector('input[type="text"]');
-            if (input) { input.name = e.target.value; }
-        }
-    });
-
-    // Before submit: remove unnamed field inputs to keep URL clean
+    // Before submit: drop empty criteria rows to keep the URL clean
     var form = document.getElementById('glam-advanced-search-form');
     if (form) {
         form.addEventListener('submit', function() {
-            form.querySelectorAll('.field-search-row input[type="text"]').forEach(function(input) {
-                if (!input.name || !input.value.trim()) { input.removeAttribute('name'); }
+            form.querySelectorAll('.field-search-row').forEach(function(row) {
+                var q = row.querySelector('input[type="text"]');
+                if (!q.value.trim()) { row.querySelectorAll('[name]').forEach(function (el) { el.removeAttribute('name'); }); }
             });
         });
     }
@@ -440,7 +447,8 @@ document.addEventListener('DOMContentLoaded', function() {
             var fields = fieldsBySector[sector] || fieldsBySector[''];
             document.querySelectorAll('.field-select').forEach(function(sel) {
                 var currentVal = sel.value;
-                sel.innerHTML = '<option value="">-- Select field --</option>';
+                sel.innerHTML = '';
+                var any = document.createElement('option'); any.value = ''; any.textContent = @json(__('Any field')); sel.appendChild(any);
                 fields.forEach(function(f) {
                     var opt = document.createElement('option');
                     opt.value = f.value;
