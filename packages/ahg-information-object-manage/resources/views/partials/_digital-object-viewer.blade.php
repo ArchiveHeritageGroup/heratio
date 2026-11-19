@@ -78,7 +78,10 @@
       // $__openUrl is what the "open/download original" controls point at
       // (master for authenticated viewers, derivative for the public);
       // $__showOriginalCtl gates whether those controls render at all.
-      $__canSeeOriginal = auth()->check();
+      // heratio#1748/#1762: with "Protect originals" on, an image or PDF master
+      // goes only to those it is released to; everyone else gets the preview.
+      $__canSeeOriginal = \AhgCore\Services\MasterAccess::viewerMaySeeOriginal((int) $io->id, $masterObj);
+      $__previewOnly = \AhgCore\Services\MasterAccess::previewOnly((int) $io->id, $masterObj);
       $__derivUrl = $refUrl ?: $thumbUrl;
       $__openUrl = $__canSeeOriginal ? $masterUrl : $__derivUrl;
       $__showOriginalCtl = $__canSeeOriginal ? (bool) $masterUrl : ($__derivUrl !== '');
@@ -150,6 +153,18 @@
     @endphp
 
     <div class="digital-object-reference text-center p-3 border-bottom">
+      @if($__previewOnly)
+        <div class="alert alert-info py-2 mb-2 text-start small" role="note">
+          <i class="fas fa-eye me-1" aria-hidden="true"></i>{{ __('You are seeing a preview. The full-resolution original is released on request.') }}
+          @auth
+            @if(\Illuminate\Support\Facades\Route::has('accessRequest.requestObject') && ! empty($io->slug))
+              <a href="{{ route('accessRequest.requestObject', $io->slug) }}" class="ms-1">{{ __('Request the original') }}</a>
+            @endif
+          @else
+            <a href="{{ route('login') }}" class="ms-1">{{ __('Sign in to request it') }}</a>
+          @endauth
+        </div>
+      @endif
       @if($isPdf)
         @php
           // Prefer the web-optimized PDF derivative for DISPLAY (downsampled + linearized,

@@ -4184,6 +4184,7 @@ class SettingsController extends Controller
 
         return $this->buildGroupSettings($request, 'security', 'security-settings', 'Security', [
             'security_lockout_enabled', 'security_force_password_change', 'security_password_expiry_notify',
+            'protect_masters',
         ]);
     }
 

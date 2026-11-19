@@ -28400,5 +28400,11 @@
     "The file arrived damaged (its checksum does not match the one your browser computed). Please upload it again.": "The file arrived damaged (its checksum does not match the one your browser computed). Please upload it again.",
     "Rows are combined in order, top to bottom: and narrows, or widens, not excludes.": "Rows are combined in order, top to bottom: and narrows, or widens, not excludes.",
     "This file is larger than :size, the most this page accepts. Upload it through the ingest wizard, which sends large files in resumable parts, or by FTP, then link it here.": "This file is larger than :size, the most this page accepts. Upload it through the ingest wizard, which sends large files in resumable parts, or by FTP, then link it here.",
-    "FTP upload": "FTP upload"
+    "FTP upload": "FTP upload",
+    "Protect Originals": "Protect Originals",
+    "Show previews only until the original is released": "Show previews only until the original is released",
+    "When on, the original image or PDF of a record is served only to staff, to users with the Read Master permission, and to a user whose access request for the record has been approved and has not expired. Everyone else sees the reference copy. Video, audio and 3D files are not affected.": "When on, the original image or PDF of a record is served only to staff, to users with the Read Master permission, and to a user whose access request for the record has been approved and has not expired. Everyone else sees the reference copy. Video, audio and 3D files are not affected.",
+    "You are seeing a preview. The full-resolution original is released on request.": "You are seeing a preview. The full-resolution original is released on request.",
+    "Request the original": "Request the original",
+    "Sign in to request it": "Sign in to request it"
 }

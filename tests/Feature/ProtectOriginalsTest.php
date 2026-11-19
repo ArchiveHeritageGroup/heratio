@@ -1,0 +1,168 @@
+<?php
+
+/**
+ * ProtectOriginalsTest - heratio#1748 / heratio#1762. With "Protect originals"
+ * on, an image master is refused to guests and non-staff until an access
+ * request covering the record is approved (and unexpired); the reference copy
+ * stays public; staff are unaffected; with the setting off nothing changes.
+ *
+ * Copyright (C) 2026 Johan Pieterse
+ * Plain Sailing Information Systems
+ * Licensed under the GNU AGPL v3.
+ */
+
+namespace Tests\Feature;
+
+use AhgCore\Models\User;
+use AhgCore\Services\AclService;
+use AhgCore\Services\AhgSettingsService;
+use AhgCore\Services\MasterAccess;
+use AhgCore\Support\StatusRow;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
+use Tests\TestCase;
+
+class ProtectOriginalsTest extends TestCase
+{
+    use DatabaseTransactions;
+
+    private string $dir;
+
+    private int $parent;
+
+    private int $child;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        foreach (['digital_object', 'status', 'information_object', 'access_request', 'access_request_scope', 'ahg_settings'] as $t) {
+            if (! Schema::hasTable($t)) {
+                $this->markTestSkipped("$t table not present in this install.");
+            }
+        }
+        $this->dir = 'uploads/r/protect-'.uniqid();
+        $this->parent = $this->record(1000000, 1000003);
+        $this->child = $this->record(1000001, 1000002, $this->parent);
+        $master = $this->file($this->child, 'scan.jpg');
+        $this->file(null, 'reference_scan.jpg', $master);
+        $this->guest();
+    }
+
+    protected function tearDown(): void
+    {
+        AhgSettingsService::clearCache();
+        MasterAccess::forget();
+        AclService::forgetUser();
+        parent::tearDown();
+    }
+
+    private function objectRow(string $class): int
+    {
+        return (int) DB::table('object')->insertGetId(['class_name' => $class, 'created_at' => now(), 'updated_at' => now()]);
+    }
+
+    private function record(int $lft, int $rgt, ?int $parentId = null): int
+    {
+        $id = $this->objectRow('QubitInformationObject');
+        DB::table('information_object')->insert(['id' => $id, 'source_culture' => 'en', 'parent_id' => $parentId, 'lft' => $lft, 'rgt' => $rgt]);
+        StatusRow::set($id, 158, 160);
+
+        return $id;
+    }
+
+    private function file(?int $ioId, string $name, ?int $parentId = null): int
+    {
+        $id = $this->objectRow('QubitDigitalObject');
+        DB::table('digital_object')->insert([
+            'id' => $id, 'object_id' => $parentId ? null : $ioId, 'parent_id' => $parentId,
+            'usage_id' => $parentId ? 141 : 140, 'name' => $name, 'path' => '/'.$this->dir.'/', 'mime_type' => 'image/jpeg',
+        ]);
+
+        return $id;
+    }
+
+    private function user(?int $group = null): User
+    {
+        $id = $this->objectRow('QubitUser');
+        DB::table('actor')->insert(['id' => $id, 'source_culture' => 'en']);
+        DB::table('user')->insert(['id' => $id, 'username' => 'protect-'.$id, 'email' => uniqid('protect-', true).'@example.test', 'password_hash' => Hash::make('x'), 'active' => 1]);
+        if ($group) {
+            DB::table('acl_user_group')->insert(['user_id' => $id, 'group_id' => $group]);
+        }
+        Cache::forget("acl_groups_{$id}");
+
+        return User::findOrFail($id);
+    }
+
+    private function protect(bool $on): void
+    {
+        DB::table('ahg_settings')->updateOrInsert(['setting_key' => MasterAccess::SETTING], ['setting_value' => $on ? 'true' : 'false', 'setting_group' => 'security']);
+        AhgSettingsService::clearCache();
+        MasterAccess::forget();
+    }
+
+    private function guest(): void
+    {
+        auth()->forgetGuards();
+        AclService::forgetUser();
+        MasterAccess::forget();
+    }
+
+    private function approve(User $u, int $ioId, bool $descendants, ?string $expires = null): void
+    {
+        $rid = DB::table('access_request')->insertGetId([
+            'request_type' => 'object', 'scope_type' => 'single', 'user_id' => $u->id,
+            'requested_classification_id' => (int) (DB::table('security_classification')->min('id') ?? 1),
+            'reason' => 'test', 'status' => 'approved', 'expires_at' => $expires,
+        ]);
+        DB::table('access_request_scope')->insert(['request_id' => $rid, 'object_type' => 'information_object', 'object_id' => $ioId, 'include_descendants' => $descendants ? 1 : 0]);
+        MasterAccess::forget();
+    }
+
+    private function gate(string $name, ?User $as = null)
+    {
+        $req = $as ? $this->actingAs($as) : $this;
+
+        return $req->withHeader('X-Original-URI', '/'.$this->dir.'/'.$name)->get(route('io.privacy.file-check'));
+    }
+
+    public function test_off_changes_nothing(): void
+    {
+        $this->protect(false);
+        $this->gate('scan.jpg')->assertNoContent();
+    }
+
+    public function test_guest_gets_the_preview_only(): void
+    {
+        $this->protect(true);
+        $this->gate('scan.jpg')->assertForbidden();
+        $this->gate('reference_scan.jpg')->assertNoContent();
+        // The IIIF identifier of the same master is refused as well.
+        $this->assertTrue(MasterAccess::refusesPath(str_replace('/', '_SL_', $this->dir.'/scan.jpg')));
+    }
+
+    public function test_approval_releases_the_original_until_it_expires(): void
+    {
+        $this->protect(true);
+        $u = $this->user();
+        $this->gate('scan.jpg', $u)->assertForbidden();
+
+        $this->approve($u, $this->child, false, now()->subDay()->toDateTimeString());
+        $this->gate('scan.jpg', $u)->assertForbidden();
+
+        $this->approve($u, $this->parent, false);
+        $this->gate('scan.jpg', $u)->assertForbidden();
+
+        $this->approve($u, $this->parent, true);
+        $this->gate('scan.jpg', $u)->assertNoContent();
+    }
+
+    public function test_staff_are_unaffected(): void
+    {
+        $this->protect(true);
+        $this->gate('scan.jpg', $this->user(100))->assertNoContent();
+    }
+}

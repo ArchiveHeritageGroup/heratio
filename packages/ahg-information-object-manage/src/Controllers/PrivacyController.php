@@ -509,6 +509,13 @@ class PrivacyController extends Controller
             }
         }
 
+        // heratio#1748: with "Protect originals" on, deep zoom of an image
+        // master is for those the original is released to; others zoom the
+        // reference copy, which is a different identifier.
+        if (!$denied && \AhgCore\Services\MasterAccess::refusesPath($identifier)) {
+            $denied = true;
+        }
+
         return response()->json(['allowed' => !$denied]);
     }
 
@@ -546,6 +553,13 @@ class PrivacyController extends Controller
                 $screening = app(\AhgPrivacy\Services\FileScreeningGate::class);
                 $refuse = !collect($ioIds)->contains(fn ($id) => $gate->allows((int) $id) && !$screening->withholds((int) $id));
             }
+        }
+
+        // heratio#1748: with "Protect originals" on, an image or PDF master is
+        // served only to staff, Read Master holders and users whose access
+        // request for the record was approved. The preview copies stay public.
+        if (!$refuse && \AhgCore\Services\MasterAccess::refusesPath($path)) {
+            $refuse = true;
         }
 
         return response('', $refuse ? 403 : 204);

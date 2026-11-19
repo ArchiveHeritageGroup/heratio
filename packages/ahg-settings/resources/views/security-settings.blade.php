@@ -143,6 +143,20 @@
       </div>
     </div>
 
+    {{-- heratio#1748/#1762: originals released on approval --}}
+    <div class="card mb-4">
+      <div class="card-header"><i class="fas fa-eye me-2"></i>{{ __('Protect Originals') }}</div>
+      <div class="card-body">
+        <div class="form-check form-switch mb-2">
+          <input class="form-check-input" type="checkbox" id="protect_masters"
+                 name="settings[protect_masters]" value="true"
+                 {{ in_array($settings['protect_masters'] ?? 'false', ['true', '1'], true) ? 'checked' : '' }}>
+          <label class="form-check-label" for="protect_masters"><strong>{{ __('Show previews only until the original is released') }}</strong></label>
+        </div>
+        <div class="form-text">{{ __('When on, the original image or PDF of a record is served only to staff, to users with the Read Master permission, and to a user whose access request for the record has been approved and has not expired. Everyone else sees the reference copy. Video, audio and 3D files are not affected.') }}</div>
+      </div>
+    </div>
+
     {{-- Card 4: Security Status --}}
     <div class="card mb-4">
       <div class="card-header"><i class="fas fa-info-circle me-2"></i>{{ __('Security Status') }}</div>
