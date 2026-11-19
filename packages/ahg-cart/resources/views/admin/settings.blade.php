@@ -35,6 +35,13 @@
       <i class="fas fa-tags me-1"></i>{{ __('Pricing') }}
     </button>
   </li>
+  @if($hasTiers ?? false)
+  <li class="nav-item">
+    <button class="nav-link {{ ($activeTab ?? '') === 'tiers' ? 'active' : '' }}" data-bs-toggle="tab" data-bs-target="#tiers" type="button">
+      <i class="fas fa-id-card me-1"></i>{{ __('User types and subscriptions') }}
+    </button>
+  </li>
+  @endif
 </ul>
 
 <div class="tab-content">
@@ -265,6 +272,51 @@
     </form>
   </div>
 
+  @if($hasTiers ?? false)
+  {{-- heratio#1770: prices by user type and subscription tiers. --}}
+  <div class="tab-pane fade {{ ($activeTab ?? '') === 'tiers' ? 'show active' : '' }}" id="tiers">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header"><i class="fas fa-id-badge me-2"></i>{{ __('Prices by user type') }}</div>
+      <div class="card-body">
+        <p class="text-muted small">{{ __('Each user type can have a discount or free access to reproductions. Set them under Research > Researcher types.') }}
+          @if(\Illuminate\Support\Facades\Route::has('research.adminTypes'))<a href="{{ route('research.adminTypes') }}">{{ __('Edit user types') }}</a>@endif</p>
+        <table class="table table-sm mb-0">
+          <thead><tr><th>{{ __('User type') }}</th><th>{{ __('Discount') }}</th><th>{{ __('Free access') }}</th><th>{{ __('Originals online') }}</th><th>{{ __('Verifying email domains') }}</th></tr></thead>
+          <tbody>
+            @foreach($userTypes as $ut)
+              <tr><td>{{ $ut->name }}</td><td>{{ (float) ($ut->discount_percent ?? 0) > 0 ? rtrim(rtrim(number_format((float) $ut->discount_percent, 2), '0'), '.').'%' : '-' }}</td>
+                <td>{{ ! empty($ut->free_access) ? __('Yes') : '-' }}</td><td>{{ ! empty($ut->can_remote_access) ? __('Yes') : '-' }}</td><td class="small">{{ $ut->email_domains ?? '' }}</td></tr>
+            @endforeach
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-header"><i class="fas fa-id-card me-2"></i>{{ __('Subscription tiers') }}</div>
+      <div class="card-body">
+        <p class="text-muted small">{{ __('A subscription treats the subscriber as the chosen user type for its period: that type\'s prices and rights apply. Users take one out on the Subscriptions page.') }}
+          <a href="{{ route('cart.subscriptions') }}">{{ __('Subscriptions page') }}</a></p>
+        @foreach($tiers->concat([null]) as $t)
+          <form method="post" action="{{ route('cart.admin.settings') }}" class="row g-2 align-items-end border-bottom pb-3 mb-3">
+            @csrf
+            <input type="hidden" name="action_type" value="save_tier">
+            <input type="hidden" name="tier_id" value="{{ $t->id ?? '' }}">
+            <div class="col-md-3"><label class="form-label small">{{ $t ? __('Tier') : __('New tier') }}</label><input name="tier_name" class="form-control form-control-sm" value="{{ $t->name ?? '' }}" required></div>
+            <div class="col-md-2"><label class="form-label small">{{ __('User type') }}</label>
+              <select name="tier_type_id" class="form-select form-select-sm">@foreach($userTypes as $ut)<option value="{{ $ut->id }}" @selected(($t->researcher_type_id ?? null) == $ut->id)>{{ $ut->name }}</option>@endforeach</select></div>
+            <div class="col-md-2"><label class="form-label small">{{ __('Price') }}</label><input type="number" step="0.01" min="0" name="tier_price" class="form-control form-control-sm" value="{{ $t->price ?? '0' }}" required></div>
+            <div class="col-md-1"><label class="form-label small">{{ __('Months') }}</label><input type="number" min="1" max="120" name="tier_months" class="form-control form-control-sm" value="{{ $t->period_months ?? 12 }}" required></div>
+            <div class="col-md-1"><div class="form-check"><input type="checkbox" class="form-check-input" name="tier_active" value="1" id="tier-act-{{ $t->id ?? 'new' }}" @checked($t ? $t->is_active : true)><label class="form-check-label small" for="tier-act-{{ $t->id ?? 'new' }}">{{ __('Active') }}</label></div></div>
+            <div class="col-md-2"><button class="btn btn-sm btn-primary">{{ $t ? __('Save') : __('Add tier') }}</button>
+              @if($t)<span class="small text-muted ms-1">{{ __(':count active', ['count' => (int) $t->active_count]) }}</span>@endif</div>
+            <div class="col-12"><input name="tier_description" class="form-control form-control-sm" value="{{ $t->description ?? '' }}" placeholder="{{ __('What the tier gives (shown to users)') }}" aria-label="{{ __('Description') }}"></div>
+          </form>
+        @endforeach
+      </div>
+    </div>
+  </div>
+  @endif
 </div>
 
 <div class="mt-4">

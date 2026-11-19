@@ -26,10 +26,12 @@
 namespace AhgResearch\Controllers;
 
 use App\Http\Controllers\Controller;
+use AhgResearch\Concerns\AuthorizesProjectAccess;
 use AhgResearch\Services\AiDisclosureService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 /**
  * ResearchAiDecisionController - Accept/Reject of AI suggestions (heratio#1252).
@@ -44,6 +46,8 @@ use Illuminate\Support\Facades\Auth;
  */
 class ResearchAiDecisionController extends Controller
 {
+    use AuthorizesProjectAccess;
+
     protected AiDisclosureService $disclosure;
 
     public function __construct()
@@ -73,6 +77,10 @@ class ResearchAiDecisionController extends Controller
             ], 401);
         }
 
+        // heratio#1777: the row must belong to a project (or copilot workspace)
+        // the caller can reach - the id alone used to be enough.
+        $this->assertRowAccess($validated['slice'], (int) $validated['id']);
+
         $ok = $this->disclosure->recordAiDecision(
             $validated['slice'],
             (int) $validated['id'],
@@ -91,5 +99,28 @@ class ResearchAiDecisionController extends Controller
             'ok'       => true,
             'decision' => $validated['decision'],
         ]);
+    }
+
+    /** 404 when the row is missing, 403 when the caller is not on its project or workspace. */
+    private function assertRowAccess(string $slice, int $id): void
+    {
+        $table = AiDisclosureService::DECISION_TABLES[$slice] ?? null;
+        $row = $table ? DB::table($table)->where('id', $id)->first() : null;
+        abort_unless($row, 404);
+
+        if ($slice === 'copilot') {
+            $researcher = DB::table('research_researcher')->where('user_id', Auth::id())->first();
+            $ok = \AhgCore\Services\AclService::isAdministrator(Auth::user())
+                || ($researcher && app(\AhgResearch\Services\CollaborationService::class)
+                    ->canAccess((int) $row->workspace_id, (int) $researcher->id, 'editor'));
+            abort_unless($ok, 403);
+
+            return;
+        }
+
+        $projectId = $slice === 'writing'
+            ? (int) DB::table('research_writing_doc')->where('id', $row->doc_id)->value('project_id')
+            : (int) $row->project_id;
+        $this->assertProjectAccess($projectId);
     }
 }

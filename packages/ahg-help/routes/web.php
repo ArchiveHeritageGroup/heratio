@@ -15,6 +15,6 @@ Route::get('/help/article/{slug}', [HelpController::class, 'article'])->name('he
 // help admin convention (HelpArticleService::isAdmin() = any logged-in user).
 Route::middleware('auth')->group(function () {
     Route::get('/help/article/{slug}/links', [HelpController::class, 'manageLinks'])->name('help.article.links');
-    Route::post('/help/article/{slug}/links', [HelpController::class, 'addLink'])->name('help.article.links.add');
-    Route::delete('/help/article/{slug}/links/{targetId}', [HelpController::class, 'removeLink'])->name('help.article.links.remove');
+    Route::post('/help/article/{slug}/links', [HelpController::class, 'addLink'])->name('help.article.links.add')->middleware('acl:update');
+    Route::delete('/help/article/{slug}/links/{targetId}', [HelpController::class, 'removeLink'])->name('help.article.links.remove')->middleware('acl:update');
 });

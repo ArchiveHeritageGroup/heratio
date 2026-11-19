@@ -62,7 +62,7 @@ Route::get('/library/slug-preview', [LibraryController::class, 'slugPreview'])
 
 Route::post('/library/suggest-subjects', [LibraryController::class, 'suggestSubjects'])
     ->name('library.suggest-subjects')
-    ->middleware('auth');
+    ->middleware(['auth', 'acl:update']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/library/add', [LibraryController::class, 'create'])->name('library.create');
@@ -91,12 +91,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/library-manage/marc', [MarcEditorController::class, 'index'])->name('library.marc-index');
     Route::get('/library-manage/marc/edit', [MarcEditorController::class, 'editRedirect'])->name('library.marc-edit-redirect');
     Route::get('/library-manage/marc/import', [MarcEditorController::class, 'import'])->name('library.marc-import');
-    Route::post('/library-manage/marc/import/preview', [MarcEditorController::class, 'formImportPreview'])->name('library.marc-import-preview');
+    Route::post('/library-manage/marc/import/preview', [MarcEditorController::class, 'formImportPreview'])->name('library.marc-import-preview')->middleware('acl:create');
     Route::post('/library-manage/marc/import/commit', [MarcEditorController::class, 'formImportCommit'])->name('library.marc-import-commit')->middleware('acl:create');
 
     // MARC Binary import (ISO 2709)
     Route::get('/library-manage/marc/import/binary', [MarcEditorController::class, 'importBinary'])->name('library.marc-binary');
-    Route::post('/library-manage/marc/import/binary/preview', [MarcEditorController::class, 'formBinaryPreview'])->name('library.marc-binary-preview');
+    Route::post('/library-manage/marc/import/binary/preview', [MarcEditorController::class, 'formBinaryPreview'])->name('library.marc-binary-preview')->middleware('acl:create');
     Route::post('/library-manage/marc/import/binary', [MarcEditorController::class, 'formBinaryCommit'])->name('library.marc-binary-commit')->middleware('acl:create');
 
     Route::get('/library-manage/marc/{id}/edit', [MarcEditorController::class, 'edit'])->name('library.marc-edit')->where('id', '[0-9]+');
@@ -187,7 +187,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/library-manage/notice-templates', [NoticeTemplateController::class, 'index'])->name('library.notice-templates.index');
     Route::get('/library-manage/notice-templates/{id}/edit', [NoticeTemplateController::class, 'edit'])->name('library.notice-templates.edit')->where('id', '[0-9]+');
     Route::put('/library-manage/notice-templates/{id}', [NoticeTemplateController::class, 'update'])->name('library.notice-templates.update')->where('id', '[0-9]+')->middleware('acl:update');
-    Route::post('/library-manage/notice-templates/{id}/preview', [NoticeTemplateController::class, 'preview'])->name('library.notice-templates.preview')->where('id', '[0-9]+');
+    Route::post('/library-manage/notice-templates/{id}/preview', [NoticeTemplateController::class, 'preview'])->name('library.notice-templates.preview')->where('id', '[0-9]+')->middleware('acl:update');
 
     // ── Loan Rules & Overdue (read-only management views) ─────────────────
     Route::get('/library-manage/circulation/loan-rules', [LibraryController::class, 'loanRules'])->name('library.loan-rules');
@@ -273,8 +273,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/library-manage/kbart/export', [KbartoController::class, 'export'])->name('library.kbart-export');
     Route::get('/library-manage/kbart/export-csv', [KbartoController::class, 'exportCsv'])->name('library.kbart-export-csv');
     Route::get('/library-manage/kbart/import', [KbartoController::class, 'import'])->name('library.kbart-import');
-    Route::post('/library-manage/kbart/preview', [KbartoController::class, 'preview'])->name('library.kbart-preview');
-    Route::post('/library-manage/kbart/commit', [KbartoController::class, 'commit'])->name('library.kbart-commit');
+    Route::post('/library-manage/kbart/preview', [KbartoController::class, 'preview'])->name('library.kbart-preview')->middleware('acl:create');
+    Route::post('/library-manage/kbart/commit', [KbartoController::class, 'commit'])->name('library.kbart-commit')->middleware('acl:create');
     Route::get('/library-manage/kbart/template', [KbartoController::class, 'template'])->name('library.kbart-template');
     Route::get('/library-manage/kbart/remote', [KbartAdminController::class, 'index'])->name('library.kbart-remote');
     Route::get('/library-manage/kbart/remote/log', [KbartAdminController::class, 'log'])->name('library.kbart-remote-log');
@@ -285,7 +285,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/library-manage/kbart/remote/{feed}/refresh', [KbartAdminController::class, 'refresh'])->name('library.kbart-remote-refresh')->where('feed', '[0-9]+')->middleware('acl:update');
     Route::post('/library-manage/kbart/remote/{feed}/toggle', [KbartAdminController::class, 'toggle'])->name('library.kbart-remote-toggle')->where('feed', '[0-9]+')->middleware('acl:update');
     Route::delete('/library-manage/kbart/remote/{feed}', [KbartAdminController::class, 'destroy'])->name('library.kbart-remote-destroy')->where('feed', '[0-9]+')->middleware('acl:delete');
-    Route::post('/library-manage/kbart/remote/test-url', [KbartAdminController::class, 'testUrl'])->name('library.kbart-remote-test-url');
+    Route::post('/library-manage/kbart/remote/test-url', [KbartAdminController::class, 'testUrl'])->name('library.kbart-remote-test-url')->middleware('acl:update');
 
     // ── Usage / SUSHI ─────────────────────────────────────────────────────
     Route::get('/library-manage/usage', [LibraryUsageController::class, 'index'])->name('library.usage');
@@ -293,7 +293,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/library-manage/usage/dr', [LibraryUsageController::class, 'databaseReport'])->name('library.usage-dr');
     Route::get('/library-manage/usage/harvest', [LibraryUsageController::class, 'harvest'])->name('library.usage-harvest');
     Route::get('/library-manage/usage/subscriptions', [LibraryUsageController::class, 'subscriptions'])->name('library.usage-subscriptions');
-    Route::post('/library-manage/usage/subscriptions', [LibraryUsageController::class, 'subscriptionsStore'])->name('library.usage-subscriptions-store');
+    Route::post('/library-manage/usage/subscriptions', [LibraryUsageController::class, 'subscriptionsStore'])->name('library.usage-subscriptions-store')->middleware('acl:update');
     Route::get('/library-manage/usage/subscriptions/test', [LibraryUsageController::class, 'testConnection'])->name('library.usage-subscriptions-test');
     Route::get('/library-manage/usage/export/{type}', [LibraryUsageController::class, 'export'])->name('library.usage-export')->where('type', 'PR|TR|TR_J1|TR_J3|DR|IR');
     // Dotted-name alias: the tr view references route('library.usage.export');
@@ -382,9 +382,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('/library-manage/trading-partners/{partner}/toggle', [TradingPartnerController::class, 'toggle'])
         ->name('library.trading-partners.toggle')->middleware('acl:update');
     Route::post('/library-manage/trading-partners/{partner}/test', [TradingPartnerController::class, 'test'])
-        ->name('library.trading-partners.test');
+        ->name('library.trading-partners.test')->middleware('acl:update');
     Route::post('/library-manage/trading-partners/{partner}/preview-message', [TradingPartnerController::class, 'previewMessage'])
-        ->name('library.trading-partners.preview-message');
+        ->name('library.trading-partners.preview-message')->middleware('acl:update');
 });
 
 // ── Phase 2.5: ILL Request Management ───────────────────────────────────────

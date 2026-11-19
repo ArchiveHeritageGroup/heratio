@@ -104,6 +104,8 @@ class ResearchService
             'created_at' => date('Y-m-d H:i:s'),
         ]);
 
+        $this->classifyResearcher($researcherId, (string) $data['email'], $data['affiliation_type'] ?? null);
+
         // Create access request for researcher approval
         DB::table('access_request')->insert([
             'request_type' => 'researcher',
@@ -120,6 +122,81 @@ class ResearchService
 
         $this->logAudit('create', 'Researcher', $researcherId, [], $data, $data['first_name'] . ' ' . $data['last_name']);
         return $researcherId;
+    }
+
+    /**
+     * heratio#1769: classify a new registration. A type whose email domains
+     * match the address wins (the domain is the evidence); otherwise the
+     * affiliation the person chose suggests one. When the matched type is set
+     * to auto approve and needs no ID check, a confirmation link goes to the
+     * address and the registration is approved once it is followed
+     * (confirmEmail) - so nobody is approved on an address they do not hold.
+     */
+    public function classifyResearcher(int $researcherId, string $email, ?string $affiliation): void
+    {
+        if (! \AhgCore\Services\UserType::available()) {
+            return;
+        }
+        $type = \AhgCore\Services\UserType::forEmail($email);
+        $byDomain = $type !== null;
+        $type ??= match ((string) $affiliation) {
+            'academic' => DB::table('research_researcher_type')->where('code', 'academic')->first(),
+            'student' => DB::table('research_researcher_type')->where('code', 'undergraduate')->first(),
+            'school' => DB::table('research_researcher_type')->where('code', 'school')->first(),
+            default => null,
+        };
+        if (! $type) {
+            return;
+        }
+        $update = ['researcher_type_id' => $type->id];
+        $verify = $byDomain && ! empty($type->auto_approve) && empty($type->requires_id_verification)
+            && \Illuminate\Support\Facades\Schema::hasColumn('research_researcher', 'email_verify_token');
+        if ($verify) {
+            $update['email_verify_token'] = bin2hex(random_bytes(24));
+        }
+        DB::table('research_researcher')->where('id', $researcherId)->update($update);
+
+        if ($verify) {
+            $link = route('research.confirmEmail', $update['email_verify_token']);
+            try {
+                \Illuminate\Support\Facades\Mail::raw(
+                    __("Please confirm your email address to complete your registration as :type:\n\n:link\n\nIf you did not register, ignore this message.", ['type' => $type->name, 'link' => $link]),
+                    fn ($m) => $m->to($email)->subject(__('Confirm your email address'))
+                );
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('[research] confirmation mail failed', ['researcher' => $researcherId, 'error' => $e->getMessage()]);
+            }
+        }
+    }
+
+    /**
+     * The confirmation link was followed: the address is the person's. A type
+     * set to auto approve then approves the registration for its term.
+     * Returns the researcher row, or null for an unknown token.
+     */
+    public function confirmEmail(string $token): ?object
+    {
+        if (! preg_match('/^[a-f0-9]{48}$/', $token)) {
+            return null;
+        }
+        $r = DB::table('research_researcher')->where('email_verify_token', $token)->first();
+        if (! $r) {
+            return null;
+        }
+        $type = $r->researcher_type_id ? DB::table('research_researcher_type')->where('id', $r->researcher_type_id)->first() : null;
+        $update = ['email_verify_token' => null, 'email_verified_at' => now(), 'updated_at' => now()];
+        $approve = $type && ! empty($type->auto_approve) && empty($type->requires_id_verification)
+            && $r->status === 'pending' && \AhgCore\Services\UserType::forEmail((string) $r->email)?->id === $type->id;
+        if ($approve) {
+            $update += ['status' => 'approved', 'approved_at' => now(), 'expires_at' => now()->addMonths(max(1, (int) $type->expiry_months))->toDateString()];
+            DB::table('access_request')->where('user_id', $r->user_id)->where('request_type', 'researcher')->where('status', 'pending')
+                ->update(['status' => 'approved', 'reviewed_at' => now(), 'review_notes' => 'Approved automatically: '.$type->name.', email confirmed', 'updated_at' => now()]);
+        }
+        DB::table('research_researcher')->where('id', $r->id)->update($update);
+        \AhgCore\Services\UserType::forget();
+        $this->logAudit('update', 'Researcher', (int) $r->id, ['status' => $r->status], ['status' => $approve ? 'approved' : $r->status, 'email_verified' => true], trim($r->first_name.' '.$r->last_name));
+
+        return DB::table('research_researcher')->where('id', $r->id)->first();
     }
 
     public function updateResearcher(int $id, array $data): bool

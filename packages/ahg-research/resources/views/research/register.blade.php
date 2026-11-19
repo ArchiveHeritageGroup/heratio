@@ -101,6 +101,7 @@
               <option value="independent" {{ old('affiliation_type') === 'independent' ? 'selected' : '' }}>{{ __('Independent') }}</option>
               <option value="corporate" {{ old('affiliation_type') === 'corporate' ? 'selected' : '' }}>{{ __('Corporate') }}</option>
               <option value="student" {{ old('affiliation_type') === 'student' ? 'selected' : '' }}>{{ __('Student') }}</option>
+              <option value="school" {{ old('affiliation_type') === 'school' ? 'selected' : '' }}>{{ __('School (learner or educator)') }}</option>
               <option value="other" {{ old('affiliation_type') === 'other' ? 'selected' : '' }}>{{ __('Other') }}</option>
             </select>
           </div>

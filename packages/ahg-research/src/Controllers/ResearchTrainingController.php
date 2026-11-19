@@ -262,7 +262,7 @@ class ResearchTrainingController extends Controller
 
     public function completeModule(int $enrolmentId, int $moduleId, Request $request)
     {
-        abort_if(! $this->service->getEnrolment($enrolmentId), 404);
+        $this->assertLearner($enrolmentId);
         $this->service->markModule($enrolmentId, $moduleId, (bool) $request->input('completed', 1));
 
         $this->logResearchActivity('update', 'training', $enrolmentId, null, ['method' => 'ResearchTrainingController@completeModule', 'item' => 'module_progress', 'module_id' => $moduleId]);
@@ -286,7 +286,7 @@ class ResearchTrainingController extends Controller
 
     public function submitAssessment(int $enrolmentId, Request $request)
     {
-        abort_if(! $this->service->getEnrolment($enrolmentId), 404);
+        $this->assertLearner($enrolmentId);
         $answers = array_map('intval', (array) $request->input('answer', []));
         $result = $this->service->submitAssessment($enrolmentId, $answers);
 
@@ -361,6 +361,20 @@ class ResearchTrainingController extends Controller
      * flow (learn/takeAssessment/certificate) is enrolment-scoped, not course-
      * owner-scoped, and is intentionally not guarded here.
      */
+    /**
+     * heratio#1777: progress and assessments belong to the learner. The learner
+     * themself, the course owner and admins may write them; anyone else is refused.
+     */
+    private function assertLearner(int $enrolmentId): void
+    {
+        $enrol = $this->service->getEnrolment($enrolmentId);
+        abort_if(! $enrol, 404);
+        if ((int) ($enrol['user_id'] ?? 0) === (int) Auth::id()) {
+            return;
+        }
+        $this->assertOwner($this->service->getCourse((int) $enrol['course_id']));
+    }
+
     private function assertOwner(?array $row): void
     {
         if (\AhgCore\Services\AclService::isAdministrator(Auth::user())) {

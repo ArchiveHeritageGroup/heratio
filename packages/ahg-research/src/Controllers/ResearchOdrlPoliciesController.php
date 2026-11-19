@@ -154,6 +154,20 @@ class ResearchOdrlPoliciesController extends Controller
         if ($request->isMethod('post')) {
             $formAction = $request->input('form_action');
 
+            // heratio#1777: a policy on a record governs every viewer, so only an
+            // admin or editor sets one outside a project; and a researcher may
+            // change or delete only a project policy they wrote.
+            $isAdmin = \AhgCore\Services\AclService::canAdmin((int) Auth::id());
+            if (in_array($formAction, ['create', 'update'], true) && ! $isAdmin) {
+                abort_unless($request->input('target_type') === 'project', 403);
+            }
+            if (in_array($formAction, ['update', 'delete'], true) && ! $isAdmin) {
+                abort_unless(DB::table('research_rights_policy')
+                    ->where('id', (int) $request->input('policy_id'))
+                    ->where('target_type', 'project')
+                    ->where('created_by', $researcher->id)->exists(), 403);
+            }
+
             if ($formAction === 'create') {
                 // SECURITY (#1308-parity): a policy targeting a project may only be
                 // authored by a member (owner/accepted collaborator) or an admin.

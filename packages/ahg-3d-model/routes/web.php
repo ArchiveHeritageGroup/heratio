@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['web', 'auth'])->group(function () {
     Route::post('/3d-models/generate/{ioId}', [Model3dController::class, 'userGenerate3d'])
         ->where('ioId', '[0-9]+')
-        ->name('admin.3d-models.user-generate');
+        ->name('admin.3d-models.user-generate')->middleware('acl:update');
     Route::post('/3d-models/preview/{ioId}/save', [Model3dController::class, 'confirmAttach3d'])
         ->where('ioId', '[0-9]+')
-        ->name('admin.3d-models.preview-save');
+        ->name('admin.3d-models.preview-save')->middleware('acl:update');
     Route::post('/3d-models/preview/{ioId}/discard', [Model3dController::class, 'discard3d'])
         ->where('ioId', '[0-9]+')
         ->name('admin.3d-models.preview-discard');

@@ -30,12 +30,17 @@ Route::match(['get', 'post'], '/cart/checkout', [CartController::class, 'checkou
 Route::get('/cart/thank-you', [CartController::class, 'thankYou'])->name('cart.thankyou');
 Route::get('/cart/order/{id}', [CartController::class, 'orderConfirmation'])->name('cart.order-confirmation')->where('id', '[0-9]+');
 
+// heratio#1770: subscription tiers on offer (signing in is asked for on subscribing).
+Route::get('/cart/subscriptions', [CartController::class, 'subscriptions'])->name('cart.subscriptions');
+
 // Authenticated user routes
 Route::middleware('auth')->group(function () {
     Route::get('/cart/orders', [CartController::class, 'orders'])->name('cart.orders');
     // heratio#1774: pay an order; accept an access request's quotation.
     Route::get('/cart/payment/{id}', [CartController::class, 'payment'])->name('cart.payment')->whereNumber('id');
     Route::post('/cart/quote/{id}/accept', [CartController::class, 'acceptQuote'])->name('cart.quote.accept')->whereNumber('id');
+    // heratio#1770: take out a subscription tier.
+    Route::post('/cart/subscribe/{tierId}', [CartController::class, 'subscribe'])->name('cart.subscribe')->whereNumber('tierId');
 });
 
 // Download route (public - token-authenticated)

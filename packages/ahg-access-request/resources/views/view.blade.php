@@ -143,6 +143,15 @@
                                 <h6 class="mb-0">{{ __('Decision') }}</h6>
                             </div>
                             <div class="card-body">
+                                @if($requesterType)
+                                    {{-- heratio#1769 / #1770: what the requester's type allows and pays. --}}
+                                    <p class="small mb-3"><i class="fas fa-id-badge me-1" aria-hidden="true"></i>{{ __('Requester\'s user type: :type', ['type' => $requesterType->name]) }}
+                                        @if(! empty($requesterType->free_access)) - <strong>{{ __('free access: approve rather than quote') }}</strong>
+                                        @elseif((float) ($requesterType->discount_percent ?? 0) > 0) - {{ __(':pct% off reproductions', ['pct' => rtrim(rtrim(number_format((float) $requesterType->discount_percent, 2), '0'), '.')]) }}
+                                        @endif
+                                        @if(empty($requesterType->can_request_reproductions)) - <span class="text-danger">{{ __('may not request reproductions') }}</span>@endif
+                                    </p>
+                                @endif
                                 <form method="post" action="{{ route('accessRequest.approve', $accessRequest->id) }}" class="mb-3">
                                     @csrf
                                     <label class="form-label" for="ar-conditions">{{ __('Conditions of release (optional)') }}</label>

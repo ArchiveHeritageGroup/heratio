@@ -409,6 +409,10 @@ class CartController extends Controller
         $isEcommerce = $this->ecommerceService->isEcommerceEnabled();
 
         if ($request->isMethod('post')) {
+            // heratio#1769: the user's type must allow reproduction requests.
+            if (! \AhgCore\Services\UserType::allows($userId, 'can_request_reproductions')) {
+                return redirect()->route('cart.browse')->with('error', __('Your user type does not allow reproduction requests. Please contact us.'));
+            }
             if ($isEcommerce) {
                 return $this->processEcommerceCheckout($request, $items);
             }
@@ -464,6 +468,9 @@ class CartController extends Controller
         if ($req->status !== 'quoted' || (float) $req->quote_amount <= 0) {
             return redirect()->route('accessRequest.view', $id)->with('error', __('This request has no quotation waiting.'));
         }
+        if (! \AhgCore\Services\UserType::allows((int) Auth::id(), 'can_request_reproductions')) {
+            return redirect()->route('accessRequest.view', $id)->with('error', __('Your user type does not allow reproduction requests. Please contact us.'));
+        }
         $orderId = $this->ecommerceService->createOrderForQuote($req, $svc->getScopes($id));
         if ((int) $req->order_id !== $orderId) {
             $svc->linkOrder($id, $orderId, (int) Auth::id());
@@ -495,7 +502,53 @@ class CartController extends Controller
             'notes' => $request->input('notes', ''),
         ], $totals['items']);
 
+        // heratio#1770: nothing to pay (the user's type has free access) -
+        // the order is settled at once and the records released.
+        if ((float) $totals['total'] <= 0 && Auth::check()) {
+            DB::table('ahg_order')->where('id', $orderId)->update(['status' => 'paid', 'paid_at' => now(), 'payment_reference' => 'free', 'updated_at' => now()]);
+            \AhgCore\Services\ReleaseLinkService::issueForOrder($orderId);
+
+            return redirect()->route('cart.order-confirmation', $orderId)->with('success', __('No charge for your user type. Your files are ready.'));
+        }
+
         return redirect()->route('cart.order-confirmation', $orderId)->with('success', __('Order placed successfully.'));
+    }
+
+    /** heratio#1770: subscription tiers a signed-in user can take out. */
+    public function subscriptions()
+    {
+        $tiers = \Illuminate\Support\Facades\Schema::hasTable('ahg_subscription_tier')
+            ? DB::table('ahg_subscription_tier as t')->join('research_researcher_type as rt', 'rt.id', '=', 't.researcher_type_id')
+                ->where('t.is_active', 1)->orderBy('t.sort_order')->orderBy('t.price')
+                ->get(['t.*', 'rt.name as type_name', 'rt.discount_percent', 'rt.free_access', 'rt.can_remote_access'])
+            : collect();
+        $mine = Auth::check() && \Illuminate\Support\Facades\Schema::hasTable('ahg_user_subscription')
+            ? DB::table('ahg_user_subscription as s')->join('ahg_subscription_tier as t', 't.id', '=', 's.tier_id')
+                ->where('s.user_id', Auth::id())->orderByDesc('s.id')->get(['s.*', 't.name as tier_name'])
+            : collect();
+        $type = \AhgCore\Services\UserType::forUser(Auth::id());
+        $currency = $this->ecommerceService->getSettings()->currency ?? 'ZAR';
+
+        return view('ahg-cart::subscriptions', compact('tiers', 'mine', 'type', 'currency'));
+    }
+
+    /** Take out a tier: a free tier starts at once; a paid one raises an order to pay. */
+    public function subscribe(int $tierId)
+    {
+        $tier = DB::table('ahg_subscription_tier')->where('id', $tierId)->where('is_active', 1)->first();
+        abort_unless($tier, 404);
+        $userId = (int) Auth::id();
+        $subId = DB::table('ahg_user_subscription')->insertGetId([
+            'user_id' => $userId, 'tier_id' => $tier->id, 'status' => 'pending', 'created_at' => now(), 'updated_at' => now(),
+        ]);
+        if ((float) $tier->price <= 0) {
+            $this->ecommerceService->activateSubscription($subId);
+
+            return redirect()->route('cart.subscriptions')->with('success', __('Subscription started.'));
+        }
+        $orderId = $this->ecommerceService->createOrderForSubscription($subId);
+
+        return redirect()->route('cart.order-confirmation', $orderId);
     }
 
     public function orders()
@@ -566,6 +619,30 @@ class CartController extends Controller
                 return redirect()->route('cart.admin.settings', ['tab' => 'pricing'])->with('success', __('Product pricing updated.'));
             }
 
+            // heratio#1770: subscription tiers.
+            if ($actionType === 'save_tier') {
+                $data = $request->validate([
+                    'tier_id' => 'nullable|integer',
+                    'tier_name' => 'required|string|max:150',
+                    'tier_description' => 'nullable|string|max:2000',
+                    'tier_type_id' => 'required|integer|exists:research_researcher_type,id',
+                    'tier_price' => 'required|numeric|min:0|max:9999999',
+                    'tier_months' => 'required|integer|min:1|max:120',
+                    'tier_sort' => 'nullable|integer',
+                ]);
+                $row = [
+                    'name' => $data['tier_name'], 'description' => $data['tier_description'] ?? null,
+                    'researcher_type_id' => (int) $data['tier_type_id'], 'price' => round((float) $data['tier_price'], 2),
+                    'period_months' => (int) $data['tier_months'], 'sort_order' => (int) ($data['tier_sort'] ?? 100),
+                    'is_active' => $request->boolean('tier_active') ? 1 : 0, 'updated_at' => now(),
+                ];
+                empty($data['tier_id'])
+                    ? DB::table('ahg_subscription_tier')->insert($row + ['created_at' => now()])
+                    : DB::table('ahg_subscription_tier')->where('id', (int) $data['tier_id'])->update($row);
+
+                return redirect()->route('cart.admin.settings', ['tab' => 'tiers'])->with('success', __('Subscription tier saved.'));
+            }
+
             // save_settings (General + Payment tabs)
             $settings = $this->ecommerceService->getSettings();
             if ($settings) {
@@ -593,8 +670,13 @@ class CartController extends Controller
         $productTypes = $this->ecommerceService->getProductTypes(false);
         $pricing = $this->ecommerceService->getProductPricing(null, false);
         $activeTab = $request->get('tab', 'general');
+        $hasTiers = \Illuminate\Support\Facades\Schema::hasTable('ahg_subscription_tier');
+        $tiers = $hasTiers ? DB::table('ahg_subscription_tier as t')->leftJoin('research_researcher_type as rt', 'rt.id', '=', 't.researcher_type_id')
+            ->orderBy('t.sort_order')->get(['t.*', 'rt.name as type_name',
+                DB::raw("(select count(*) from ahg_user_subscription s where s.tier_id = t.id and s.status = 'active' and s.ends_at > now()) as active_count")]) : collect();
+        $userTypes = $hasTiers ? DB::table('research_researcher_type')->where('is_active', 1)->orderBy('sort_order')->get() : collect();
 
-        return view('ahg-cart::admin.settings', compact('settings', 'productTypes', 'pricing', 'activeTab'));
+        return view('ahg-cart::admin.settings', compact('settings', 'productTypes', 'pricing', 'activeTab', 'hasTiers', 'tiers', 'userTypes'));
     }
 
     private function savePricing(Request $request): void
@@ -676,6 +758,7 @@ class CartController extends Controller
         }
 
         \AhgCore\Services\ReleaseLinkService::recordDownload($link);
+        \AhgCore\Services\DeliveryLog::download((int) $link->information_object_id, (int) $master->id, ['via' => 'release link', 'release_id' => (int) $link->id]);
 
         return response()->download($path, basename((string) $master->name), [
             'Content-Type' => $master->mime_type ?: 'application/octet-stream',
@@ -754,6 +837,11 @@ class CartController extends Controller
             // request (its links show on the request); heratio#1775: any other
             // paid order releases the ordered records' originals.
             $released = app(\AhgAccessRequest\Services\AccessRequestService::class)->recordPayment((int) $data['m_payment_id']);
+            // heratio#1770: an order that pays a subscription starts it.
+            if (! $released && ! empty($order->subscription_id)) {
+                $this->ecommerceService->activateSubscription((int) $order->subscription_id);
+                $released = true;
+            }
             if (! $released) {
                 \AhgCore\Services\ReleaseLinkService::issueForOrder((int) $data['m_payment_id']);
             }

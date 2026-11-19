@@ -105,9 +105,12 @@ class EcommerceService
         $pricing = $this->getProductPricing($repositoryId);
 
         $subtotal = 0;
-        $enrichedItems = $cartItems->map(function ($item) use ($pricing, &$subtotal) {
+        $userId = \Illuminate\Support\Facades\Auth::id();
+        $enrichedItems = $cartItems->map(function ($item) use ($pricing, &$subtotal, $userId) {
             $price = $pricing->firstWhere('product_type_id', $item->product_type_id);
-            $unitPrice = $price->price ?? 0;
+            // heratio#1770: the price the user's type pays (free or discounted).
+            $item->list_price = (float) ($price->price ?? 0);
+            $unitPrice = \AhgCore\Services\UserType::price($userId, $item->list_price);
             $lineTotal = $unitPrice * ($item->quantity ?? 1);
             $subtotal += $lineTotal;
 
@@ -121,7 +124,10 @@ class EcommerceService
         $vatAmount = round($subtotal * ($vatRate / (100 + $vatRate)), 2); // VAT included
         $total = $subtotal;
 
+        $type = \AhgCore\Services\UserType::forUser($userId);
+
         return [
+            'user_type' => $type && (! empty($type->free_access) || (float) ($type->discount_percent ?? 0) > 0) ? $type : null,
             'items' => $enrichedItems,
             'subtotal' => $subtotal,
             'vat_amount' => $vatAmount,
@@ -255,6 +261,52 @@ class EcommerceService
         DB::table('ahg_order')->where('id', $orderId)->update(['access_request_id' => (int) $request->id]);
 
         return $orderId;
+    }
+
+    /** heratio#1770: raise the order that pays a pending subscription. */
+    public function createOrderForSubscription(int $subscriptionId): int
+    {
+        $sub = DB::table('ahg_user_subscription as s')->join('ahg_subscription_tier as t', 't.id', '=', 's.tier_id')
+            ->where('s.id', $subscriptionId)->first(['s.*', 't.name as tier_name', 't.price', 't.period_months']);
+        $settings = $this->getSettings();
+        $vatRate = (float) ($settings->vat_rate ?? 0);
+        $total = round((float) $sub->price, 2);
+        $user = DB::table('user')->where('id', $sub->user_id)->first(['email', 'username']);
+        $orderId = $this->createOrderFromCart([
+            'user_id' => (int) $sub->user_id,
+            'subtotal' => $total,
+            'vat_amount' => round($total * ($vatRate / (100 + $vatRate)), 2),
+            'total' => $total,
+            'currency' => $settings->currency ?? 'ZAR',
+            'customer_name' => $user->username ?? '',
+            'customer_email' => $user->email ?? '',
+            'notes' => __('Subscription: :tier', ['tier' => $sub->tier_name]),
+        ], collect());
+        DB::table('ahg_order_item')->insert([
+            'order_id' => $orderId, 'product_name' => __('Subscription: :tier (:months months)', ['tier' => $sub->tier_name, 'months' => $sub->period_months]),
+            'archival_description' => '', 'quantity' => 1, 'unit_price' => $total, 'line_total' => $total, 'created_at' => now(),
+        ]);
+        DB::table('ahg_order')->where('id', $orderId)->update(['subscription_id' => $subscriptionId]);
+        DB::table('ahg_user_subscription')->where('id', $subscriptionId)->update(['order_id' => $orderId, 'updated_at' => now()]);
+
+        return $orderId;
+    }
+
+    /** Start a subscription now, or extend the user's current one of the same tier. */
+    public function activateSubscription(int $subscriptionId): void
+    {
+        $sub = DB::table('ahg_user_subscription as s')->join('ahg_subscription_tier as t', 't.id', '=', 's.tier_id')
+            ->where('s.id', $subscriptionId)->first(['s.*', 't.period_months']);
+        if (! $sub || $sub->status === 'active') {
+            return;
+        }
+        $current = DB::table('ahg_user_subscription')->where('user_id', $sub->user_id)->where('tier_id', $sub->tier_id)
+            ->where('status', 'active')->where('ends_at', '>', now())->max('ends_at');
+        $start = $current ? \Illuminate\Support\Carbon::parse($current) : now();
+        DB::table('ahg_user_subscription')->where('id', $subscriptionId)->update([
+            'status' => 'active', 'starts_at' => now(), 'ends_at' => $start->copy()->addMonths(max(1, (int) $sub->period_months)), 'updated_at' => now(),
+        ]);
+        \AhgCore\Services\UserType::forget();
     }
 
     public function getUserOrders(int $userId): \Illuminate\Support\Collection

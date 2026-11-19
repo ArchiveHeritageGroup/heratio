@@ -189,6 +189,7 @@ class LibraryController extends Controller
         // Item physical location (single row from information_object_physical_location)
         $itemLocation = $this->service->getItemLocation($item->id);
 
+        \AhgCore\Services\DeliveryLog::view((int) $item->id); // heratio#1739/#1772: counted where delivered
         return view('ahg-library::library.show', [
             'item' => $item,
             'levelName' => $levelName,

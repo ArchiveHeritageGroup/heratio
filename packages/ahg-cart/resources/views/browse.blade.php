@@ -166,6 +166,9 @@
   <div class="d-flex justify-content-between">
     <a href="{{ url('/informationobject/browse') }}" class="btn atom-btn-white"><i class="fas fa-arrow-left me-1"></i>{{ __('Continue browsing') }}</a>
     <a href="{{ route('cart.checkout') }}" class="btn atom-btn-white"><i class="fas fa-credit-card me-1"></i>{{ __('Proceed to checkout') }}</a>
+    @if(\Illuminate\Support\Facades\Route::has('cart.subscriptions') && $isEcommerce)
+      <a href="{{ route('cart.subscriptions') }}" class="btn atom-btn-white ms-1"><i class="fas fa-id-card me-1"></i>{{ __('Subscriptions') }}</a>
+    @endif
   </div>
 @endif
 

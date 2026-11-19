@@ -22,6 +22,9 @@
             <a href="{{ route('statistics.export', ['type' => 'views', 'start' => $startDate, 'end' => $endDate]) }}" class="btn btn-outline-secondary">
                 <i class="fas fa-download me-1"></i>{{ __('Export CSV') }}
             </a>
+            <a href="{{ route('statistics.requests', ['start' => $startDate, 'end' => $endDate]) }}" class="btn btn-outline-secondary">
+                <i class="fas fa-key me-1"></i>{{ __('Requests and releases') }}
+            </a>
             <a href="{{ route('statistics.admin') }}" class="btn btn-outline-primary">
                 <i class="fas fa-cog me-1"></i>{{ __('Settings') }}
             </a>

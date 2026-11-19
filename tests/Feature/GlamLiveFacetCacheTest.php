@@ -21,6 +21,14 @@ class GlamLiveFacetCacheTest extends TestCase
 {
     use DatabaseTransactions;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Cache on, whatever an earlier test left in the settings cache.
+        DB::table('ahg_settings')->updateOrInsert(['setting_key' => 'ahg_display_count_cache_ttl'], ['setting_value' => '300']);
+        \AhgCore\Services\AhgSettingsService::clearCache();
+    }
+
     private function sql(callable $run): array
     {
         $sql = [];

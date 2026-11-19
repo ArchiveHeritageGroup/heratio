@@ -78,9 +78,13 @@ class ResearchDocumentTemplatesController extends Controller
 
             if ($formAction === 'update') {
                 $templateId = (int) $request->input('template_id');
-                DB::table('research_document_template')
-                    ->where('id', $templateId)
-                    ->update([
+                // heratio#1777: templates are shared, so only their author or an admin edits one.
+                $q = DB::table('research_document_template')->where('id', $templateId);
+                if (! \AhgCore\Services\AclService::isAdministrator(Auth::user())) {
+                    $q->where('created_by', $researcher->id);
+                }
+                abort_unless((clone $q)->exists(), 403);
+                $q->update([
                         'name' => $request->input('name'),
                         'document_type' => $request->input('document_type'),
                         'description' => $request->input('description'),

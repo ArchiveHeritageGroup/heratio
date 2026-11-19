@@ -29,6 +29,8 @@ class AhgArchaeologyServiceProvider extends ServiceProvider
         // is too late. Same approach as ahg-articles; see
         // memory/reference_slug_catchall_route_precedence.
         $this->callAfterResolving('router', function ($router) {
+            // heratio#1777: every write below carries its ACL action, so a plain
+            // signed-in account cannot change shared site and find records.
             $router->middleware(['web', 'auth'])->prefix('archaeology')->group(function () use ($router) {
                 $router->get('/', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'index'])
                     ->name('archaeology.index');
@@ -48,20 +50,24 @@ class AhgArchaeologyServiceProvider extends ServiceProvider
                 $router->get('/site/create', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'siteCreate'])
                     ->name('archaeology.site.create');
                 $router->post('/site', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'siteSave'])
-                    ->name('archaeology.site.store');
+                    ->name('archaeology.site.store')
+                    ->middleware('acl:create');
                 $router->get('/site/{id}/edit', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'siteEdit'])
                     ->whereNumber('id')->name('archaeology.site.edit');
                 $router->post('/site/{id}', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'siteSave'])
-                    ->whereNumber('id')->name('archaeology.site.update');
+                    ->whereNumber('id')->name('archaeology.site.update')
+                    ->middleware('acl:update');
 
                 $router->get('/object/create', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'findCreate'])
                     ->name('archaeology.object.create');
                 $router->post('/object', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'findSave'])
-                    ->name('archaeology.object.store');
+                    ->name('archaeology.object.store')
+                    ->middleware('acl:create');
                 $router->get('/object/{id}/edit', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'findEdit'])
                     ->whereNumber('id')->name('archaeology.object.edit');
                 $router->post('/object/{id}', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'findSave'])
-                    ->whereNumber('id')->name('archaeology.object.update');
+                    ->whereNumber('id')->name('archaeology.object.update')
+                    ->middleware('acl:update');
 
                 // Stratigraphic contexts (layers) - #1428 Phase 1. 'create' is
                 // declared before '{id}' so it is not captured as an id.
@@ -77,12 +83,14 @@ class AhgArchaeologyServiceProvider extends ServiceProvider
                 $router->get('/site/{siteId}/contexts/import/template', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextImportTemplate'])
                     ->whereNumber('siteId')->name('archaeology.contexts.import.template');
                 $router->post('/site/{siteId}/contexts/import', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextImport'])
-                    ->whereNumber('siteId')->name('archaeology.contexts.import.run');
+                    ->whereNumber('siteId')->name('archaeology.contexts.import.run')
+                    ->middleware('acl:create');
 
                 $router->get('/context/create', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextCreate'])
                     ->name('archaeology.context.create');
                 $router->post('/context', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextSave'])
-                    ->name('archaeology.context.store');
+                    ->name('archaeology.context.store')
+                    ->middleware('acl:create');
                 $router->get('/context/{id}', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'context'])
                     ->whereNumber('id')->name('archaeology.context');
                 $router->get('/context/{id}/edit', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextEdit'])
@@ -91,13 +99,16 @@ class AhgArchaeologyServiceProvider extends ServiceProvider
                 $router->get('/context/{id}/pdf', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextPdf'])
                     ->whereNumber('id')->name('archaeology.context.pdf');
                 $router->post('/context/{id}', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'contextSave'])
-                    ->whereNumber('id')->name('archaeology.context.update');
+                    ->whereNumber('id')->name('archaeology.context.update')
+                    ->middleware('acl:update');
 
                 // Stratigraphic relationships (Harris Matrix) - #1428 Phase 2.
                 $router->post('/context/{id}/relationship', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'relationshipStore'])
-                    ->whereNumber('id')->name('archaeology.context.relationship.store');
+                    ->whereNumber('id')->name('archaeology.context.relationship.store')
+                    ->middleware('acl:create');
                 $router->post('/context/{id}/relationship/{relId}/delete', [\AhgArchaeology\Controllers\ArchaeologyController::class, 'relationshipDelete'])
-                    ->whereNumber('id')->whereNumber('relId')->name('archaeology.context.relationship.delete');
+                    ->whereNumber('id')->whereNumber('relId')->name('archaeology.context.relationship.delete')
+                    ->middleware('acl:delete');
             });
         });
     }

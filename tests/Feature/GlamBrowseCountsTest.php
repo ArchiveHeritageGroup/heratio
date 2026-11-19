@@ -19,6 +19,12 @@ class GlamBrowseCountsTest extends TestCase
 {
     use DatabaseTransactions;
 
+    protected function tearDown(): void
+    {
+        \AhgCore\Services\AhgSettingsService::clearCache(); // no TTL 0 left for later tests
+        parent::tearDown();
+    }
+
     private function record(string $title, bool $withFile): int
     {
         $obj = fn (string $class) => (int) DB::table('object')->insertGetId(['class_name' => $class, 'created_at' => now(), 'updated_at' => now()]);

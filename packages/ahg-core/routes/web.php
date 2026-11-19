@@ -45,10 +45,10 @@ Route::get('/api/iiif-settings', [IiifController::class, 'getSettings'])->name('
 // heratio#1202 - storytelling engine (admin): theme -> AI narrative from catalogue objects
 Route::middleware('auth')->group(function () {
     Route::get('/admin/stories', [\AhgCore\Controllers\StorytellingController::class, 'index'])->name('stories.index');
-    Route::post('/admin/stories/generate', [\AhgCore\Controllers\StorytellingController::class, 'generateAjax'])->name('stories.generate');
-    Route::post('/admin/stories/save', [\AhgCore\Controllers\StorytellingController::class, 'saveAjax'])->name('stories.save');
+    Route::post('/admin/stories/generate', [\AhgCore\Controllers\StorytellingController::class, 'generateAjax'])->name('stories.generate')->middleware('acl:create');
+    Route::post('/admin/stories/save', [\AhgCore\Controllers\StorytellingController::class, 'saveAjax'])->name('stories.save')->middleware('acl:create');
     Route::get('/admin/stories/search', [\AhgCore\Controllers\StorytellingController::class, 'searchAjax'])->name('stories.search');
-    Route::post('/admin/stories/on-this-day', [\AhgCore\Controllers\StorytellingController::class, 'onThisDayAjax'])->name('stories.on-this-day');
+    Route::post('/admin/stories/on-this-day', [\AhgCore\Controllers\StorytellingController::class, 'onThisDayAjax'])->name('stories.on-this-day')->middleware('acl:create');
 });
 // Public, shareable story page (two-segment path - safe from the single-segment /{slug} catch-all).
 Route::get('/stories/{slug}', [\AhgCore\Controllers\StorytellingController::class, 'show'])
@@ -58,7 +58,7 @@ Route::get('/stories/{slug}', [\AhgCore\Controllers\StorytellingController::clas
 // as bin/install --sector. Admin-gated (auth group + canAdmin in the controller).
 Route::middleware('auth')->group(function () {
     Route::get('/admin/sector-profile', [\AhgCore\Controllers\SectorProfileController::class, 'index'])->name('admin.sector-profile');
-    Route::post('/admin/sector-profile', [\AhgCore\Controllers\SectorProfileController::class, 'apply'])->name('admin.sector-profile.apply');
+    Route::post('/admin/sector-profile', [\AhgCore\Controllers\SectorProfileController::class, 'apply'])->name('admin.sector-profile.apply')->middleware('admin');
 });
 
 // heratio#1205 - capture / at-risk register (admin): the records most in need of digitisation or
@@ -77,10 +77,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/capture-priority/queue', [\AhgCore\Controllers\CaptureQueueController::class, 'index'])->name('capture-priority.queue');
     // Read-only CSV export of the current queue (respects the active ?status= filter); streamed.
     Route::get('/admin/capture-priority/queue/export', [\AhgCore\Controllers\CaptureQueueController::class, 'export'])->name('capture-priority.queue.export');
-    Route::post('/admin/capture-priority/queue/add', [\AhgCore\Controllers\CaptureQueueController::class, 'store'])->name('capture-priority.queue.add');
-    Route::post('/admin/capture-priority/queue/status', [\AhgCore\Controllers\CaptureQueueController::class, 'setStatus'])->name('capture-priority.queue.status');
-    Route::post('/admin/capture-priority/queue/assign', [\AhgCore\Controllers\CaptureQueueController::class, 'assign'])->name('capture-priority.queue.assign');
-    Route::post('/admin/capture-priority/queue/remove', [\AhgCore\Controllers\CaptureQueueController::class, 'remove'])->name('capture-priority.queue.remove');
+    Route::post('/admin/capture-priority/queue/add', [\AhgCore\Controllers\CaptureQueueController::class, 'store'])->name('capture-priority.queue.add')->middleware('acl:create');
+    Route::post('/admin/capture-priority/queue/status', [\AhgCore\Controllers\CaptureQueueController::class, 'setStatus'])->name('capture-priority.queue.status')->middleware('acl:update');
+    Route::post('/admin/capture-priority/queue/assign', [\AhgCore\Controllers\CaptureQueueController::class, 'assign'])->name('capture-priority.queue.assign')->middleware('acl:update');
+    Route::post('/admin/capture-priority/queue/remove', [\AhgCore\Controllers\CaptureQueueController::class, 'remove'])->name('capture-priority.queue.remove')->middleware('acl:delete');
 });
 // Metadata completeness / data-quality dashboard (admin): a read-only audit that surfaces PUBLISHED
 // archival descriptions missing key descriptive fields (title, scope/abstract, level of description,
@@ -120,12 +120,12 @@ Route::middleware('auth')->group(function () {
 // mid-migration install (tables absent) degrades to a calm empty state, never a 500.
 Route::middleware('auth')->group(function () {
     Route::get('/admin/preservation-self-assessment', [\AhgCore\Controllers\PreservationSelfAssessmentController::class, 'index'])->name('preservation-self-assessment.index');
-    Route::post('/admin/preservation-self-assessment/start', [\AhgCore\Controllers\PreservationSelfAssessmentController::class, 'start'])->name('preservation-self-assessment.start');
+    Route::post('/admin/preservation-self-assessment/start', [\AhgCore\Controllers\PreservationSelfAssessmentController::class, 'start'])->name('preservation-self-assessment.start')->middleware('acl:create');
     Route::get('/admin/preservation-self-assessment/{id}', [\AhgCore\Controllers\PreservationSelfAssessmentController::class, 'edit'])->whereNumber('id')->name('preservation-self-assessment.edit');
-    Route::post('/admin/preservation-self-assessment/{id}', [\AhgCore\Controllers\PreservationSelfAssessmentController::class, 'update'])->whereNumber('id')->name('preservation-self-assessment.update');
+    Route::post('/admin/preservation-self-assessment/{id}', [\AhgCore\Controllers\PreservationSelfAssessmentController::class, 'update'])->whereNumber('id')->name('preservation-self-assessment.update')->middleware('acl:update');
     Route::get('/admin/preservation-self-assessment/{id}/profile', [\AhgCore\Controllers\PreservationSelfAssessmentController::class, 'profile'])->whereNumber('id')->name('preservation-self-assessment.profile');
     Route::get('/admin/preservation-self-assessment/{id}/export', [\AhgCore\Controllers\PreservationSelfAssessmentController::class, 'export'])->whereNumber('id')->name('preservation-self-assessment.export');
-    Route::post('/admin/preservation-self-assessment/{id}/delete', [\AhgCore\Controllers\PreservationSelfAssessmentController::class, 'destroy'])->whereNumber('id')->name('preservation-self-assessment.destroy');
+    Route::post('/admin/preservation-self-assessment/{id}/delete', [\AhgCore\Controllers\PreservationSelfAssessmentController::class, 'destroy'])->whereNumber('id')->name('preservation-self-assessment.destroy')->middleware('acl:delete');
 });
 
 // heratio#1244 (WARC web-archiving slice) - the web-archive ADMIN SURFACE now lives in ONE place:
@@ -182,14 +182,14 @@ Route::middleware('auth')->group(function () {
 // A zero-content / missing-table state renders a calm empty state, never a 500.
 Route::middleware('auth')->group(function () {
     Route::get('/admin/alt-text', [\AhgCore\Controllers\AltTextController::class, 'index'])->name('alt-text.index');
-    Route::post('/admin/alt-text/save', [\AhgCore\Controllers\AltTextController::class, 'store'])->name('alt-text.save');
+    Route::post('/admin/alt-text/save', [\AhgCore\Controllers\AltTextController::class, 'store'])->name('alt-text.save')->middleware('acl:update');
     // OPTIONAL AI assist: a DRAFT alt-text suggestion for one image, via the sanctioned
     // AHG AI gateway vision model (never a node port). Returns JSON; the draft is shown
     // labelled "AI-suggested - review and edit before saving" and is NEVER auto-saved -
     // the curator saves through alt-text.save above. Degrades cleanly (JSON ok:false,
     // HTTP 200) when the gateway is unavailable. Multi-segment path keeps it clear of
     // the single-segment /{slug} archival-record catch-all.
-    Route::post('/admin/alt-text/suggest', [\AhgCore\Controllers\AltTextController::class, 'suggest'])->name('alt-text.suggest');
+    Route::post('/admin/alt-text/suggest', [\AhgCore\Controllers\AltTextController::class, 'suggest'])->name('alt-text.suggest')->middleware('acl:update');
 });
 
 // Public "race against loss" awareness board: a dignified, anonymous, read-only top-N of the records
@@ -288,7 +288,7 @@ Route::get('/read/{idOrSlug}', [\AhgCore\Controllers\ReadInLanguageController::c
 // heratio#1183 - point clouds: admin manager + public Potree viewer
 Route::middleware('auth')->group(function () {
     Route::get('/admin/pointclouds', [\AhgCore\Controllers\PointCloudController::class, 'index'])->name('pointclouds.index');
-    Route::post('/admin/pointclouds', [\AhgCore\Controllers\PointCloudController::class, 'store'])->name('pointclouds.store');
+    Route::post('/admin/pointclouds', [\AhgCore\Controllers\PointCloudController::class, 'store'])->name('pointclouds.store')->middleware('acl:create');
 });
 Route::get('/pointcloud/{slug}', [\AhgCore\Controllers\PointCloudController::class, 'show'])
     ->where('slug', '[a-z0-9][a-z0-9-]*')->name('pointclouds.show');

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['web', 'auth'])->group(function () {
     Route::post('/image-ar/generate/{ioId}', [ImageArController::class, 'userGenerate'])
         ->where('ioId', '[0-9]+')
-        ->name('image-ar.generate');
+        ->name('image-ar.generate')->middleware('acl:update');
 
     // #1361: deleting an animation (removes the row + its MP4) was reachable by ANY
     // authenticated user by id (no ownership/admin check) - require admin.

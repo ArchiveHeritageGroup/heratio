@@ -250,7 +250,11 @@ class AuditLog
             return ['action' => 'search', 'category' => 'search', 'details' => json_encode(['path' => $path, 'query' => $request->input('query')])];
         }
 
-        // Downloads / exports
+        // Downloads / exports. Release-link downloads are recorded where the
+        // file is served (DeliveryLog, heratio#1739), so not again here.
+        if (str_starts_with($path, 'cart/download/')) {
+            return null;
+        }
         if (str_contains($path, '/export/') || str_contains($path, '/download') || str_contains($path, 'findingaid/download')) {
             $objectId = $this->extractObjectId($path);
 

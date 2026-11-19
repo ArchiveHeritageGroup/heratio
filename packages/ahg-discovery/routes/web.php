@@ -19,5 +19,5 @@ Route::prefix('discovery')->middleware(['web'])->group(function () {
     Route::get('/pageindex/api', [\AhgDiscovery\Controllers\DiscoveryController::class, 'pageindexApi'])->name('ahgdiscovery.pageindex.api')->middleware('throttle:10,1');
     Route::post('/pageindex/api', [\AhgDiscovery\Controllers\DiscoveryController::class, 'pageindexApi'])->middleware('throttle:10,1');
     Route::get('/build', [\AhgDiscovery\Controllers\DiscoveryController::class, 'build'])->name('ahgdiscovery.build')->middleware('auth');
-    Route::post('/build', [\AhgDiscovery\Controllers\DiscoveryController::class, 'buildStore'])->name('ahgdiscovery.build.store')->middleware('auth');
+    Route::post('/build', [\AhgDiscovery\Controllers\DiscoveryController::class, 'buildStore'])->name('ahgdiscovery.build.store')->middleware(['auth', 'acl:update']);
 });

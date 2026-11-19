@@ -80,6 +80,12 @@ class ResearchAdminReferenceController extends Controller
                 'priority_level' => (int) ($request->input('priority_level', 5)),
                 'sort_order' => (int) ($request->input('sort_order', 100)),
             ];
+            // heratio#1769 / #1770, once the columns exist.
+            if (\Illuminate\Support\Facades\Schema::hasColumn('research_researcher_type', 'free_access')) {
+                $data['email_domains'] = mb_substr(trim((string) $request->input('email_domains')), 0, 500) ?: null;
+                $data['discount_percent'] = min(100, max(0, (float) $request->input('discount_percent', 0)));
+                $data['free_access'] = $request->has('free_access') ? 1 : 0;
+            }
 
             if ($action === 'create') {
                 $data['created_at'] = now();

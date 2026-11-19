@@ -186,7 +186,9 @@ class AccessRequestController extends Controller
         $isStaff = AclService::canAdmin(auth()->id());
         $files = \AhgCore\Services\ReleaseLinkService::forAccessRequests((int) $accessRequest->user_id)[$id] ?? [];
 
-        return view('ahg-access-request::view', compact('accessRequest', 'scopes', 'history', 'openStep', 'isStaff', 'files'));
+        $requesterType = $isStaff ? \AhgCore\Services\UserType::forUser((int) $accessRequest->user_id) : null;
+
+        return view('ahg-access-request::view', compact('accessRequest', 'scopes', 'history', 'openStep', 'isStaff', 'files', 'requesterType'));
     }
 
     /**

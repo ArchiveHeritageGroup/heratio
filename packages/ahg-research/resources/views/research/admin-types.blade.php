@@ -96,6 +96,14 @@
                 <div class="col-md-4"><div class="form-check mb-2"><input type="checkbox" name="is_active" id="typeActive" class="form-check-input" value="1" checked><label class="form-check-label" for="typeActive">{{ __('Active') }}</label></div></div>
             </div>
 
+            {{-- heratio#1769 / #1770: automatic verification and prices by type. --}}
+            <h6 class="border-bottom pb-2 mt-3">{{ __('Verification and prices') }}</h6>
+            <div class="row">
+                <div class="col-md-12"><div class="mb-3"><label class="form-label" for="typeDomains">{{ __('Email domains that verify this type') }}</label><input type="text" name="email_domains" id="typeDomains" class="form-control" maxlength="500" placeholder="{{ __('For example: university.edu, school.org') }}"><div class="form-text">{{ __('A registration from one of these domains is classified as this type, and approved once the address is confirmed when the type is set to auto approve.') }}</div></div></div>
+                <div class="col-md-4"><div class="mb-3"><label class="form-label" for="typeDiscount">{{ __('Discount on reproductions (%)') }}</label><input type="number" name="discount_percent" id="typeDiscount" class="form-control" value="0" min="0" max="100" step="0.01"></div></div>
+                <div class="col-md-4"><div class="form-check mt-4"><input type="checkbox" name="free_access" id="typeFree" class="form-check-input" value="1"><label class="form-check-label" for="typeFree">{{ __('Free access (no charge for reproductions)') }}</label></div></div>
+            </div>
+
             <h6 class="border-bottom pb-2 mt-3">{{ __('Other') }}</h6>
             <div class="row">
                 <div class="col-md-4"><div class="mb-3"><label class="form-label">{{ __('Expiry (months)') }}</label><input type="number" name="expiry_months" id="typeExpiry" class="form-control" value="12" min="1"></div></div>
@@ -129,6 +137,9 @@ document.querySelectorAll('.edit-type-btn').forEach(function(btn) {
         document.getElementById('typeExpiry').value = t.expiry_months || 12;
         document.getElementById('typePriority').value = t.priority_level || 5;
         document.getElementById('typeSortOrder').value = t.sort_order || 100;
+        document.getElementById('typeDomains').value = t.email_domains || '';
+        document.getElementById('typeDiscount').value = t.discount_percent || 0;
+        document.getElementById('typeFree').checked = t.free_access == 1;
         document.getElementById('typeModalTitle').textContent = 'Edit Type: ' + t.name;
         document.getElementById('typeSubmitBtn').innerHTML = '<i class="fas fa-save me-1"></i>Save Changes';
         new bootstrap.Modal(document.getElementById('addTypeModal')).show();

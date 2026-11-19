@@ -190,6 +190,10 @@ class ResearchLectureController extends Controller
 
     public function destroyResource(int $id)
     {
+        // heratio#1777: only the lecture's owner (or an admin) removes its resources.
+        $lectureId = DB::table('research_lecture_resource')->where('id', $id)->value('lecture_id');
+        abort_unless($lectureId, 404);
+        $this->assertOwner($this->service->getLecture((int) $lectureId));
         $this->service->deleteResource($id);
 
         $this->logResearchActivity('delete', 'lecture', null, null, ['method' => 'ResearchLectureController@destroyResource', 'resource_id' => $id]);

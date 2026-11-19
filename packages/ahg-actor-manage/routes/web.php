@@ -68,7 +68,7 @@ Route::middleware('auth')->group(function () {
     // =========================================================================
     Route::get('/actor/authority/merge/{id}', [ActorController::class, 'merge'])->name('actor.merge');
     Route::get('/actor/authority/split/{id}', [ActorController::class, 'split'])->name('actor.split');
-    Route::post('/api/authority/merge/preview', [ActorController::class, 'apiMergePreview'])->name('actor.api.merge.preview');
+    Route::post('/api/authority/merge/preview', [ActorController::class, 'apiMergePreview'])->name('actor.api.merge.preview')->middleware('acl:update');
     Route::post('/api/authority/merge/execute', [ActorController::class, 'apiMergeExecute'])->name('actor.api.merge.execute')->middleware('acl:update');
     Route::post('/api/authority/split/execute', [ActorController::class, 'apiSplitExecute'])->name('actor.api.split.execute')->middleware('acl:update');
 

@@ -18,7 +18,8 @@ use Illuminate\Support\Facades\Schema;
  *  - staff (administrators, editors, contributors),
  *  - users granted Read Master on the record or its repository, or
  *  - a user whose access request covering the record was approved (with or
- *    without conditions) and has not expired (access_request + access_request_scope, descendants included
+ *    without conditions) and has not expired, or
+ *  - a user whose user type has remote access (heratio#1769) (access_request + access_request_scope, descendants included
  *    when the request says so).
  * Everyone else gets the preview: the reference copy and thumbnail.
  *
@@ -61,7 +62,9 @@ class MasterAccess
 
         $ok = AclService::isAdministrator($user) || AclService::isEditor($user) || AclService::isContributor($user)
             || AclService::check((object) ['id' => $ioId], 'readMaster', $user)
-            || self::releasedTo((int) $user->id, $ioId);
+            || self::releasedTo((int) $user->id, $ioId)
+            // heratio#1769: a user type with remote access sees originals online.
+            || (bool) (UserType::forUser((int) $user->id)->can_remote_access ?? false);
 
         return self::$memo[$key] = $ok;
     }
@@ -151,5 +154,6 @@ class MasterAccess
     public static function forget(): void
     {
         self::$memo = [];
+        UserType::forget();
     }
 }

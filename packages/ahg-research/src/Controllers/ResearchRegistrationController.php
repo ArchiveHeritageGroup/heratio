@@ -139,6 +139,19 @@ class ResearchRegistrationController extends Controller
         ));
     }
 
+    /** heratio#1769: the confirmation link from the registration email. */
+    public function confirmEmail(string $token)
+    {
+        $r = $this->service->confirmEmail($token);
+        if (! $r) {
+            return redirect()->route('homepage')->with('error', __('This confirmation link is not valid or was already used.'));
+        }
+
+        return redirect()->route(Auth::check() ? 'research.profile' : 'login')->with('success', $r->status === 'approved'
+            ? __('Email confirmed. Your registration is approved.')
+            : __('Email confirmed. Your registration will be reviewed.'));
+    }
+
     public function registrationComplete()
     {
         return view('research::research.registration-complete', $this->getSidebarData('profile'));

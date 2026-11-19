@@ -1191,6 +1191,7 @@ class InformationObjectController extends Controller
         // back to the instance-wide setting.scope='default_template' when the
         // record sets none. This is what makes one record render show-ric /
         // show-dacs / show-rad / show-mods while its neighbours stay on isad.
+        \AhgCore\Services\DeliveryLog::view((int) $io->id); // heratio#1739/#1772: counted where delivered
         return view(\AhgCore\Services\SettingHelper::resolveObjectTemplateView('informationobject', 'ahg-io-manage::show', 'isad', $io->display_standard_id ?? null), [
             'io' => $io,
             'dacsExt' => $dacsExt,

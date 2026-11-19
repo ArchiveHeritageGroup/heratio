@@ -18,6 +18,14 @@ class GlamBrowseCriteriaTest extends TestCase
 {
     use DatabaseTransactions;
 
+    protected function tearDown(): void
+    {
+        // The settings cache outlives the rolled-back row; leave no TTL 0 behind
+        // for the next test (GlamLiveFacetCacheTest failed in CI after this one).
+        \AhgCore\Services\AhgSettingsService::clearCache();
+        parent::tearDown();
+    }
+
     private function record(string $title): int
     {
         $id = (int) DB::table('object')->insertGetId(['class_name' => 'QubitInformationObject', 'created_at' => now(), 'updated_at' => now()]);

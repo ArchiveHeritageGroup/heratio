@@ -109,6 +109,10 @@
             @endforeach
           </ul>
           @if($isEcommerce && $totals)
+            @if(! empty($totals['user_type']))
+              {{-- heratio#1770: prices as the user's type pays them. --}}
+              <p class="small text-success mb-1"><i class="fas fa-tag me-1"></i>{{ ! empty($totals['user_type']->free_access) ? __('Free for :type', ['type' => $totals['user_type']->name]) : __(':pct% off for :type', ['pct' => rtrim(rtrim(number_format((float) $totals['user_type']->discount_percent, 2), '0'), '.'), 'type' => $totals['user_type']->name]) }}</p>
+            @endif
             <hr>
             <div class="d-flex justify-content-between"><span>{{ __('Subtotal') }}</span><span>{{ $totals['currency'] }} {{ number_format($totals['subtotal'], 2) }}</span></div>
             <div class="d-flex justify-content-between text-muted small"><span>VAT ({{ $totals['vat_rate'] }}%)</span><span>{{ number_format($totals['vat_amount'], 2) }}</span></div>

@@ -52,6 +52,18 @@ class StatisticsController extends Controller
         return view('ahg-statistics::dashboard', compact('stats', 'topItems', 'topDownloads', 'geoStats', 'viewsData', 'startDate', 'endDate'));
     }
 
+    /** heratio#1772: requests, approvals and releases. */
+    public function requests(Request $request)
+    {
+        $startDate = $request->get('start', now()->subDays(30)->toDateString());
+        $endDate = $request->get('end', now()->toDateString());
+        $request->merge(['start' => $startDate, 'end' => $endDate])->validate(['start' => 'date', 'end' => 'date']);
+
+        $data = $this->service->getRequestStats($startDate, $endDate);
+
+        return view('ahg-statistics::requests', compact('data', 'startDate', 'endDate'));
+    }
+
     public function views(Request $request)
     {
         $startDate = $request->get('start', now()->subDays(30)->toDateString());

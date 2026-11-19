@@ -61,6 +61,8 @@ Route::prefix('research')->name('research.')->group(function () {
     Route::get('/publicRegister', [ResearchRegistrationController::class, 'publicRegister'])->name('publicRegister');
     Route::post('/public-register', [ResearchRegistrationController::class, 'publicRegister'])->name('publicRegister.store');
     Route::get('/registrationComplete', [ResearchRegistrationController::class, 'registrationComplete'])->name('registrationComplete');
+    // heratio#1769: the link in the registration's confirmation email.
+    Route::get('/confirm-email/{token}', [ResearchRegistrationController::class, 'confirmEmail'])->name('confirmEmail')->where('token', '[a-f0-9]{48}');
     Route::get('/cite/{slug}', [ResearchCitationsController::class, 'cite'])->name('cite');
     Route::get('/cite/{slug}/export/{format}', [ResearchCitationsController::class, 'citeExport'])->name('citeExport')->where('format', 'ris|bibtex|endnote|apa|mla|chicago');
 

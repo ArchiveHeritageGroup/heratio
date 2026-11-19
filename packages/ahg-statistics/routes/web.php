@@ -7,6 +7,7 @@ Route::middleware(['auth', 'admin'])->prefix('statistics')->group(function () {
     Route::get('/dashboard', [StatisticsController::class, 'dashboard'])->name('statistics.dashboard');
     Route::get('/views', [StatisticsController::class, 'views'])->name('statistics.views');
     Route::get('/downloads', [StatisticsController::class, 'downloads'])->name('statistics.downloads');
+    Route::get('/requests', [StatisticsController::class, 'requests'])->name('statistics.requests');
     Route::get('/top-items', [StatisticsController::class, 'topItems'])->name('statistics.topItems');
     Route::get('/geographic', [StatisticsController::class, 'geographic'])->name('statistics.geographic');
     Route::get('/item', [StatisticsController::class, 'item'])->name('statistics.item');

@@ -285,6 +285,7 @@ class MuseumController extends Controller
             ->where('digital_object.usage_id', 142)
             ->count() : 0;
 
+        \AhgCore\Services\DeliveryLog::view((int) $museum->id); // heratio#1739/#1772: counted where delivered
         return view('ahg-museum::museum.show', [
             'museum' => $museum,
             'digitalObjects' => $digitalObjects,

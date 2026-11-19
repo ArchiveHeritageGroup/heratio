@@ -29,22 +29,87 @@ use Illuminate\Support\Facades\DB;
 
 class StatisticsService
 {
+    /** Usage events by people: bots are recorded (flagged) but not reported. */
+    private function people(): \Illuminate\Database\Query\Builder
+    {
+        return DB::table('ahg_usage_event')->where('is_bot', 0);
+    }
+
+    /**
+     * heratio#1772: requests, approvals and releases in the period - from the
+     * access requests, their step log, the orders that pay quotations and the
+     * release links (ahg_cart_downloads).
+     *
+     * @return array{requests: array, decisions: array, turnaround_hours: ?float, releases: array, by_day: array}
+     */
+    public function getRequestStats(string $startDate, string $endDate): array
+    {
+        $end = $endDate.' 23:59:59';
+        $has = fn (string $t) => \Illuminate\Support\Facades\Schema::hasTable($t);
+        $out = ['requests' => [], 'decisions' => [], 'turnaround_hours' => null, 'releases' => [], 'by_day' => []];
+        if (! $has('access_request')) {
+            return $out;
+        }
+
+        $req = DB::table('access_request')->whereBetween('created_at', [$startDate, $end]);
+        $out['requests'] = [
+            'submitted' => (clone $req)->count(),
+            'basket' => (clone $req)->where('scope_type', 'basket')->count(),
+            'records' => $has('access_request_scope') ? DB::table('access_request_scope as s')->join('access_request as r', 'r.id', '=', 's.request_id')->whereBetween('r.created_at', [$startDate, $end])->count() : 0,
+            'by_status' => (clone $req)->select('status', DB::raw('COUNT(*) as n'))->groupBy('status')->pluck('n', 'status')->map(fn ($n) => (int) $n)->all(),
+        ];
+
+        if ($has('access_request_log')) {
+            $out['decisions'] = DB::table('access_request_log')->whereBetween('created_at', [$startDate, $end])
+                ->whereIn('action', ['approved', 'released with conditions', 'denied', 'quoted', 'paid', 'cancelled', 'routed'])
+                ->select('action', DB::raw('COUNT(*) as n'))->groupBy('action')->pluck('n', 'action')->map(fn ($n) => (int) $n)->all();
+        }
+
+        $decided = DB::table('access_request')->whereBetween('reviewed_at', [$startDate, $end])
+            ->whereIn('status', ['approved', 'conditional', 'denied'])->whereNotNull('created_at')
+            ->selectRaw('AVG(TIMESTAMPDIFF(MINUTE, created_at, reviewed_at)) as m')->value('m');
+        $out['turnaround_hours'] = $decided !== null ? round(((float) $decided) / 60, 1) : null;
+
+        if ($has('ahg_cart_downloads') && \Illuminate\Support\Facades\Schema::hasColumn('ahg_cart_downloads', 'user_id')) {
+            $links = DB::table('ahg_cart_downloads')->whereNotNull('user_id')->whereBetween('created_at', [$startDate, $end]);
+            $out['releases'] = [
+                'issued' => (clone $links)->count(),
+                'by_request' => (clone $links)->whereNotNull('access_request_id')->count(),
+                'by_order' => (clone $links)->whereNotNull('order_item_id')->count(),
+                'downloaded' => (clone $links)->where('download_count', '>', 0)->count(),
+                'downloads' => (int) (clone $links)->sum('download_count'),
+                'revoked' => (clone $links)->whereNotNull('revoked_at')->count(),
+            ];
+        }
+        if ($has('ahg_order') && \Illuminate\Support\Facades\Schema::hasColumn('ahg_order', 'access_request_id')) {
+            $paid = DB::table('ahg_order')->whereNotNull('access_request_id')->where('status', 'paid')->whereBetween('paid_at', [$startDate, $end]);
+            $out['releases']['quotes_paid'] = (clone $paid)->count();
+            $out['releases']['quotes_paid_total'] = (float) (clone $paid)->sum('total');
+        }
+
+        $out['by_day'] = DB::table('access_request')->whereBetween('created_at', [$startDate, $end])
+            ->selectRaw('DATE(created_at) as day, COUNT(*) as n')->groupBy('day')->orderBy('day')
+            ->pluck('n', 'day')->map(fn ($n) => (int) $n)->all();
+
+        return $out;
+    }
+
     public function getDashboardStats(string $startDate, string $endDate): array
     {
-        $views = DB::table('ahg_usage_event')
+        $views = $this->people()
             ->where('event_type', 'view')
             ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
             ->count();
 
-        $downloads = DB::table('ahg_usage_event')
+        $downloads = $this->people()
             ->where('event_type', 'download')
             ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
             ->count();
 
-        $uniqueVisitors = DB::table('ahg_usage_event')
+        $uniqueVisitors = $this->people()
             ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
-            ->distinct('ip_address')
-            ->count('ip_address');
+            ->distinct()
+            ->count(DB::raw('COALESCE(ip_hash, ip_address)'));
 
         return [
             'views' => $views,
@@ -57,7 +122,7 @@ class StatisticsService
     {
         $culture = app()->getLocale();
 
-        return DB::table('ahg_usage_event as e')
+        return DB::table('ahg_usage_event as e')->where('e.is_bot', 0)
             ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
                 $j->on('e.object_id', '=', 'ioi.id')
                     ->where('ioi.culture', '=', $culture);
@@ -76,7 +141,7 @@ class StatisticsService
     public function getGeographicStats(string $startDate, string $endDate): array
     {
         // Real columns are `country_code` (ISO 2-letter) + `country_name`.
-        return DB::table('ahg_usage_event')
+        return $this->people()
             ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
             ->whereNotNull('country_code')
             ->select('country_code as country', 'country_name', DB::raw('COUNT(*) as count'))
@@ -90,7 +155,7 @@ class StatisticsService
     {
         $format = $groupBy === 'month' ? '%Y-%m' : ($groupBy === 'week' ? '%Y-%u' : '%Y-%m-%d');
 
-        return DB::table('ahg_usage_event')
+        return $this->people()
             ->where('event_type', 'view')
             ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
             ->select(DB::raw("DATE_FORMAT(created_at, '{$format}') as period"), DB::raw('COUNT(*) as count'))
@@ -102,7 +167,7 @@ class StatisticsService
 
     public function getDownloadsOverTime(string $startDate, string $endDate): array
     {
-        return DB::table('ahg_usage_event')
+        return $this->people()
             ->where('event_type', 'download')
             ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
             ->select(DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d') as period"), DB::raw('COUNT(*) as count'))
@@ -115,12 +180,12 @@ class StatisticsService
     public function getItemStats(int $objectId, string $startDate, string $endDate): array
     {
         return [
-            'views' => DB::table('ahg_usage_event')
+            'views' => $this->people()
                 ->where('object_id', $objectId)
                 ->where('event_type', 'view')
                 ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
                 ->count(),
-            'downloads' => DB::table('ahg_usage_event')
+            'downloads' => $this->people()
                 ->where('object_id', $objectId)
                 ->where('event_type', 'download')
                 ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
@@ -135,12 +200,12 @@ class StatisticsService
             ->pluck('id');
 
         return [
-            'views' => DB::table('ahg_usage_event')
+            'views' => $this->people()
                 ->whereIn('object_id', $objectIds)
                 ->where('event_type', 'view')
                 ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])
                 ->count(),
-            'downloads' => DB::table('ahg_usage_event')
+            'downloads' => $this->people()
                 ->whereIn('object_id', $objectIds)
                 ->where('event_type', 'download')
                 ->whereBetween('created_at', [$startDate, $endDate.' 23:59:59'])

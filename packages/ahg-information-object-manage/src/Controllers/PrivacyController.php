@@ -562,6 +562,12 @@ class PrivacyController extends Controller
             $refuse = true;
         }
 
+        // heratio#1739 / #1772: an original let through is a download, counted
+        // here - the one place every file request passes - for every visitor.
+        if (!$refuse && $path !== '' && ($master = \AhgCore\Services\MasterAccess::masterForPath($path))) {
+            \AhgCore\Services\DeliveryLog::download((int) $master->object_id, (int) $master->id, ['via' => 'file', 'file' => $path]);
+        }
+
         return response('', $refuse ? 403 : 204);
     }
 

@@ -275,7 +275,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/informationobject/attachment/{id}', [DigitalObjectController::class, 'attachDelete'])->name('io.attachments.delete')->middleware('acl:delete')->where('id', '[0-9]+');
     Route::post('/informationobject/attachment/{id}/primary', [DigitalObjectController::class, 'attachSetPrimary'])->name('io.attachments.primary')->middleware('acl:update')->where('id', '[0-9]+');
     Route::post('/informationobject/{slug}/attachments/reorder', [DigitalObjectController::class, 'attachReorder'])->name('io.attachments.reorder')->middleware('acl:update');
-    Route::match(['get', 'post'], '/informationobject/{slug}/multiFileUpload', [DigitalObjectController::class, 'multiFileUpload'])->name('io.multiFileUpload');
+    Route::get('/informationobject/{slug}/multiFileUpload', [DigitalObjectController::class, 'multiFileUpload'])->name('io.multiFileUpload');
+    // The POST creates child descriptions and digital objects (heratio#1777).
+    Route::post('/informationobject/{slug}/multiFileUpload', [DigitalObjectController::class, 'multiFileUpload'])->name('io.multiFileUpload.post')->middleware('acl:create');
     // Per-file AJAX stage for the multiFileUpload widget (returns blueimp JSON with tmpName).
     Route::post('/informationobject/{slug}/multiFileUpload/store', [DigitalObjectController::class, 'multiFileUploadStore'])->name('io.multiFileUpload.store')->middleware('acl:create');
     // Batch title-review step shown after a multiFileUpload import (GET form + POST save).

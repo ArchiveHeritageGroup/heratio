@@ -106,6 +106,11 @@ class ResearchNotebooksController extends Controller
                 ]);
                 return redirect()->route('research.notebookShow', $id)->with('success', __('Note added.'));
             }
+            // heratio#1777: an item id must belong to this notebook.
+            if (in_array($action, ['remove_item', 'pin_item'], true)) {
+                abort_unless(\Illuminate\Support\Facades\DB::table('research_notebook_item')
+                    ->where('id', (int) $request->input('item_id'))->where('notebook_id', $id)->exists(), 404);
+            }
             if ($action === 'remove_item') {
                 $svc->removeItem((int) $request->input('item_id'));
                 return redirect()->route('research.notebookShow', $id)->with('success', __('Note removed.'));
