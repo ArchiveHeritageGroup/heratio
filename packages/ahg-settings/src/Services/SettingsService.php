@@ -237,6 +237,7 @@ class SettingsService
             'hits_per_page', 'sort_browser_user', 'sort_browser_anonymous',
             'sort_browser_direction_user', 'sort_browser_direction_anonymous',
             'default_archival_description_browse_view', 'default_repository_browse_view',
+            'default_digital_object_browse_view',
             'escape_queries', 'show_tooltips', 'draft_notification_enabled',
             'multi_repository', 'enable_institutional_scoping',
             'slug_basis_informationobject', 'permissive_slug_creation',

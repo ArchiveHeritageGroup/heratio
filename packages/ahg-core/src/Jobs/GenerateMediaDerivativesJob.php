@@ -48,8 +48,12 @@ class GenerateMediaDerivativesJob implements ShouldQueue
     /** Do not retry once this many exceptions have been recorded. */
     public int $maxExceptions = 1;
 
-    /** Seconds before the worker kills this job. 5 min covers a 1080p encode. */
-    public int $timeout = 300;
+    /**
+     * Seconds before the worker kills this job. Raised from 300 for the HLS
+     * ladder and H.265/AV1 profiles (heratio#1753-#1755); kept under the
+     * database queue's retry_after (1900 s) so a long encode is not started twice.
+     */
+    public int $timeout = 1800;
 
     public function __construct(int $masterId)
     {

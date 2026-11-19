@@ -289,7 +289,8 @@
   {{-- Display mode toggle + Sort controls --}}
   <div class="d-flex flex-wrap gap-2 mb-3">
     @php
-      $displayMode = request('displayMode', 'list');
+      // Settings > Global > Default repository browse view (table = list, card = grid).
+      $displayMode = request('displayMode') ?: (\AhgCore\Support\GlobalSettings::defaultBrowseView('repository') === 'card' ? 'grid' : 'list');
       $baseQuery = request()->except(['displayMode', 'page']);
     @endphp
     <div class="btn-group" role="group" aria-label="{{ __('Display mode') }}">

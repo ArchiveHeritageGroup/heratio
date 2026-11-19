@@ -39,7 +39,8 @@
 {{-- Authenticated: user profile dropdown --}}
 <div class="dropdown my-2">
   <button class="btn btn-sm atom-btn-secondary dropdown-toggle" type="button" id="user-menu" data-bs-toggle="dropdown" aria-expanded="false">
-    <i class="fas fa-user me-1"></i>{{ $user->username }}
+    {{-- AtoM #2411 equivalent: a long username is cut short, with the full name on hover. --}}
+    <i class="fas fa-user me-1"></i><span class="d-inline-block text-truncate align-bottom" style="max-width: 12rem;" title="{{ $user->username }}">{{ $user->username }}</span>
   </button>
   <ul class="dropdown-menu dropdown-menu-lg-end mt-2" aria-labelledby="user-menu">
 

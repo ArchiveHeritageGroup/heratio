@@ -89,6 +89,12 @@ class ResearchValidationQueueController extends Controller
         $researcher = $this->service->getResearcherByUserId(Auth::id());
         if (!$researcher) return response()->json(['error' => 'Not a researcher'], 403);
 
+        // heratio#1777: only someone on the result's project (or its own
+        // researcher, or staff) may accept, reject or change it.
+        if (! $this->mayReview([(int) $resultId], (int) $researcher->id)) {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+
         $vqService = new ValidationQueueService();
         $action = $request->input('form_action');
 
@@ -111,8 +117,11 @@ class ResearchValidationQueueController extends Controller
         $researcher = $this->service->getResearcherByUserId(Auth::id());
         if (!$researcher) return response()->json(['error' => 'Not a researcher'], 403);
 
+        $resultIds = array_map('intval', (array) $request->input('result_ids', []));
+        if (! $this->mayReview($resultIds, (int) $researcher->id)) {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
         $vqService = new ValidationQueueService();
-        $resultIds = $request->input('result_ids', []);
         $action = $request->input('form_action');
 
         if ($action === 'accept') {
@@ -124,5 +133,33 @@ class ResearchValidationQueueController extends Controller
         }
 
         return response()->json(['success' => true, 'count' => $count]);
+    }
+
+    /**
+     * heratio#1777: every result must belong to an extraction job of this
+     * researcher, or of a project they are an accepted collaborator on.
+     * Administrators and editors review any.
+     */
+    private function mayReview(array $resultIds, int $researcherId): bool
+    {
+        if (\AhgCore\Services\AclService::canAdmin((int) Auth::id())) {
+            return true;
+        }
+        if (! $resultIds) {
+            return true;
+        }
+        $jobs = \Illuminate\Support\Facades\DB::table('research_extraction_result as er')
+            ->join('research_extraction_job as ej', 'er.job_id', '=', 'ej.id')
+            ->whereIn('er.id', $resultIds)
+            ->get(['er.id', 'ej.project_id', 'ej.researcher_id']);
+        if ($jobs->count() !== count(array_unique($resultIds))) {
+            return false;
+        }
+        $projects = \Illuminate\Support\Facades\DB::table('research_project_collaborator')
+            ->where('researcher_id', $researcherId)->where('status', 'accepted')
+            ->pluck('project_id')->map(fn ($v) => (int) $v)->all();
+
+        return $jobs->every(fn ($j) => (int) $j->researcher_id === $researcherId
+            || ($j->project_id && in_array((int) $j->project_id, $projects, true)));
     }
 }

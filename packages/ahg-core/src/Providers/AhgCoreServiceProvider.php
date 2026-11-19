@@ -195,6 +195,8 @@ class AhgCoreServiceProvider extends ServiceProvider
             $this->commands([
                 \AhgCore\Console\Commands\SchemaCacheClearCommand::class,
                 \AhgCore\Console\Commands\NasWatchdogCommand::class,
+                \AhgCore\Console\Commands\TrashPurgeCommand::class,
+                \AhgCore\Console\Commands\RecordsArchiveCommand::class,
                 \AhgCore\Console\Commands\BackfillEmbeddedMetadataCommand::class,
                 \AhgCore\Console\Commands\OptimizeModelsCommand::class,
                 \AhgCore\Console\Commands\OptimizePdfsCommand::class,

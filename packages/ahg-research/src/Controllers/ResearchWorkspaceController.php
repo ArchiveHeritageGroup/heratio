@@ -124,12 +124,44 @@ class ResearchWorkspaceController extends Controller
     public function viewWorkspace(Request $request, int $id)
     {
         if (!Auth::check()) return redirect()->route('login');
-        $workspace = $this->service->getWorkspace($id);
+        // The workspace lives in CollaborationService (ResearchService has no
+        // getWorkspace(), so this page always failed with a 500).
+        $collab = app(\AhgResearch\Services\CollaborationService::class);
+        $workspace = $collab->getWorkspace($id);
         if (!$workspace) abort(404, 'Not found');
+        // heratio#1777: a workspace is shown to its owner, accepted members, or
+        // anyone when public - and to admins.
+        if (! \AhgCore\Services\AclService::canAdmin((int) Auth::id())) {
+            $researcher = $this->service->getResearcherByUserId(Auth::id());
+            $ok = $researcher && ((int) ($workspace->owner_id ?? 0) === (int) $researcher->id
+                || $collab->canAccess($id, (int) $researcher->id));
+            abort_unless($ok || ($workspace->visibility ?? '') === 'public', 404);
+        }
+
+        // The view needs the workspace's people, resources and discussions
+        // (they were never passed, so the page could not render).
+        $me = $this->service->getResearcherByUserId(Auth::id());
+        $name = fn ($r) => trim(($r->first_name ?? '').' '.($r->last_name ?? '')) ?: ($r->email ?? '');
+        $members = array_map(function ($m) use ($name) {
+            $m->name = $m->name ?? $name($m);
+
+            return $m;
+        }, $collab->getMembers($id));
+        $owner = $workspace->owner_id ? (object) ['id' => $workspace->owner_id, 'name' => trim(($workspace->owner_first_name ?? '').' '.($workspace->owner_last_name ?? ''))] : null;
+        $myRole = $me && (int) $workspace->owner_id === (int) $me->id ? 'owner'
+            : (collect($members)->first(fn ($m) => $me && (int) $m->researcher_id === (int) $me->id && ($m->status ?? '') === 'accepted')->role ?? 'viewer');
+        $resources = $collab->getResources($id);
+        $discussions = array_map(function ($d) {
+            $d->author_name = $d->author_name ?? trim(($d->first_name ?? '').' '.($d->last_name ?? ''));
+
+            return $d;
+        }, $collab->getDiscussions($id));
+        $sharedCollections = [];
+        $copilotAnswers = [];
 
         return view('research::research.view-workspace', array_merge(
             $this->getSidebarData('workspace'),
-            compact('workspace')
+            compact('workspace', 'members', 'owner', 'myRole', 'resources', 'discussions', 'sharedCollections', 'copilotAnswers')
         ));
     }
 

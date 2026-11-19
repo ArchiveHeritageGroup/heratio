@@ -245,8 +245,9 @@ class ResearchTrainingController extends Controller
 
     public function learn(int $enrolmentId)
     {
+        // heratio#1777: only the learner, the course owner or an admin.
+        $this->assertLearner($enrolmentId);
         $enrol = $this->service->getEnrolment($enrolmentId);
-        abort_if(! $enrol, 404);
         $courseId = (int) $enrol['course_id'];
 
         return view('research::training.learn', [

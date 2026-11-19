@@ -763,6 +763,29 @@ class DigitalObjectController extends Controller
      * touching the master. Mirrors PSIS's per-representation delete button.
      * After delete, redirect back to the master's edit page.
      */
+    /** heratio#1759: download a kept version (staff; versions are outside the web root). */
+    public function versionDownload(int $id, int $versionId)
+    {
+        $v = DB::table(\AhgCore\Services\FileVersionService::TABLE)->where('id', $versionId)->where('digital_object_id', $id)->first();
+        abort_unless($v, 404);
+        $path = $v->is_current ? DigitalObjectService::resolveDiskPath(DB::table('digital_object')->where('id', $id)->first()) : $v->stored_path;
+        abort_unless($path && is_file($path), 404);
+
+        return response()->download($path, 'v'.$v->version_major.'.'.$v->version_minor.'-'.$v->name);
+    }
+
+    /** heratio#1759: make an older version current again (kept as a new minor version). */
+    public function versionRestore(int $id, int $versionId)
+    {
+        $v = DB::table(\AhgCore\Services\FileVersionService::TABLE)->where('id', $versionId)->where('digital_object_id', $id)->first();
+        abort_unless($v, 404);
+        $new = \AhgCore\Services\FileVersionService::restore($versionId);
+
+        return redirect()->route('io.digitalobject.show', $id)->with($new ? 'success' : 'error', $new
+            ? __('Version :v restored as :n.', ['v' => $v->version_major.'.'.$v->version_minor, 'n' => $new->version_major.'.'.$new->version_minor])
+            : __('That version could not be restored.'));
+    }
+
     public function representationDelete(Request $request, int $id)
     {
         $doRow = DB::table('digital_object')->where('id', $id)->first();
@@ -848,6 +871,7 @@ class DigitalObjectController extends Controller
             ->where('parent_id', $doRow->object_id)->exists();
 
         return view('ahg-io-manage::digitalobject.edit-page', [
+            'fileVersions' => \AhgCore\Services\FileVersionService::list($id),
             'do' => $doRow,
             'ioTitle' => $ioTitle,
             'ioSlug' => $ioSlug,
@@ -921,16 +945,28 @@ class DigitalObjectController extends Controller
             DB::table('digital_object')->where('id', $id)->update($updates);
         }
 
-        // Replace master file
+        // Replace master file. heratio#1759: the file it replaces is kept as a
+        // numbered version. (The old code tested is_dir() on the web path
+        // '/uploads/...', which never exists on disk, so a replace did nothing.)
         if ($request->hasFile('replace_file')) {
             $file = $request->file('replace_file');
-            $dir = rtrim($doRow->path, '/');
-            if ($dir && is_dir($dir)) {
-                $file->move($dir, $doRow->name);
-                DB::table('digital_object')->where('id', $id)->update([
-                    'byte_size' => $file->getSize(),
-                    'mime_type' => $file->getMimeType(),
-                ]);
+            $current = DigitalObjectService::resolveDiskPath($doRow);
+            if ($current && is_file($current)) {
+                $versioned = \AhgCore\Services\FileVersionService::replace(
+                    $doRow, $current, $file->getRealPath(),
+                    $request->input('version_type') === 'major',
+                    mb_substr(trim((string) $request->input('version_note')), 0, 1000) ?: null,
+                    $file->getClientOriginalName()
+                );
+                if (! $versioned) {
+                    $file->move(dirname($current), basename($current));
+                    DB::table('digital_object')->where('id', $id)->update([
+                        'byte_size' => filesize($current),
+                        'mime_type' => $file->getClientMimeType() ?: $doRow->mime_type,
+                    ]);
+                }
+            } else {
+                return back()->with('error', __('The current master file was not found on disk, so it cannot be replaced.'));
             }
         }
 

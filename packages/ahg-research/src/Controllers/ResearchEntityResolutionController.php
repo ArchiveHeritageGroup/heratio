@@ -100,6 +100,13 @@ class ResearchEntityResolutionController extends Controller
         $researcher = $this->service->getResearcherByUserId(Auth::id());
         if (!$researcher) return response()->json(['error' => 'Not a researcher'], 403);
 
+        // heratio#1777: a proposed match between shared entities is decided by
+        // staff, or withdrawn/settled by the researcher who proposed it.
+        $proposer = \Illuminate\Support\Facades\DB::table('research_entity_resolution')->where('id', (int) $id)->value('proposer_id');
+        if (! \AhgCore\Services\AclService::canAdmin((int) Auth::id()) && (int) $proposer !== (int) $researcher->id) {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+
         $erService = new EntityResolutionService();
         $status = $request->input('status');
         $success = $erService->resolveMatch((int) $id, $status, $researcher->id);

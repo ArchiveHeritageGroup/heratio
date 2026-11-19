@@ -565,7 +565,14 @@ class DigitalObjectService
      * @param  int  $digitalObjectId  Digital object ID
      * @return bool True on success
      */
-    public static function delete(int $digitalObjectId): bool
+    /**
+     * Delete a digital object, its derivatives and their rows.
+     *
+     * heratio#1734: with the trash on (trash_retention_days > 0) the files are
+     * moved to the trash and the rows kept for restore; $extraRows names other
+     * rows to bring back with it (table => rows).
+     */
+    public static function delete(int $digitalObjectId, array $extraRows = []): bool
     {
         try {
             // Get master and all derivatives
@@ -578,12 +585,20 @@ class DigitalObjectService
                 return false;
             }
 
+            $trashed = false;
+            if (DigitalObjectTrash::enabled()) {
+                if (DigitalObjectTrash::put($digitalObjectId, $objects, $extraRows) === null) {
+                    return false; // a file could not be moved; delete nothing
+                }
+                $trashed = true;
+            }
+
             foreach ($objects as $obj) {
                 // #1455 - resolve the real on-disk path via the shared resolver
                 // (uploads_path/r/<id>/<name>) instead of the old inline logic,
                 // which dropped the '/r/' shard and doubled 'uploads/' so the file
                 // was never found and got orphaned on every delete.
-                $onDisk = self::resolveDiskPath($obj);
+                $onDisk = $trashed ? null : self::resolveDiskPath($obj);
                 if ($onDisk && @is_file($onDisk)) {
                     @unlink($onDisk);
                 }
@@ -780,7 +795,8 @@ class DigitalObjectService
             'audio' => self::MEDIA_AUDIO,
             'video' => self::MEDIA_VIDEO,
             'text' => self::MEDIA_TEXT,
-            'application' => self::resolveApplicationMediaType($mimeType),
+            // heratio#1746: an MXF (application/mxf) master is video, so its proxy is queued at upload.
+            'application' => MediaDerivativeService::avMediaTypeId($mimeType) ?? self::resolveApplicationMediaType($mimeType),
             default => self::MEDIA_OTHER,
         };
     }

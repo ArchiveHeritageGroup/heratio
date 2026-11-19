@@ -42,8 +42,14 @@ class TranscodingService
      * Audio formats that require transcoding to MP3 for browser playback.
      */
     private array $audioTranscodeFormats = [
-        'aiff', 'au', 'ac3', '8svx', 'wma', 'ra', 'flac',
+        'aiff', 'aif', 'au', 'ac3', '8svx', 'wma', 'ra', 'flac',
+        // heratio#1756: AMR (phone recordings), Opus and ALAC do not play in
+        // every browser. An .m4a/.caf is only transcoded when it holds ALAC.
+        'amr', 'awb', 'opus', 'alac',
     ];
+
+    /** Containers that may hold AAC (plays) or ALAC (does not). */
+    private array $alacContainers = ['m4a', 'caf'];
 
     /**
      * MIME types considered video.
@@ -60,6 +66,7 @@ class TranscodingService
     private array $audioMimeTypes = [
         'audio/x-aiff', 'audio/basic', 'audio/ac3', 'audio/x-8svx',
         'audio/x-ms-wma', 'audio/x-realaudio', 'audio/flac',
+        'audio/amr', 'audio/amr-wb', 'audio/opus', 'audio/x-caf',
     ];
 
     /**
@@ -67,10 +74,7 @@ class TranscodingService
      */
     public function needsTranscoding(string $filePath): bool
     {
-        $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-
-        return in_array($extension, $this->videoTranscodeFormats, true)
-            || in_array($extension, $this->audioTranscodeFormats, true);
+        return $this->isVideoTranscodeFormat($filePath) || $this->isAudioTranscodeFormat($filePath);
     }
 
     /**
@@ -89,6 +93,10 @@ class TranscodingService
     public function isAudioTranscodeFormat(string $filePath): bool
     {
         $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        if (in_array($extension, $this->alacContainers, true)) {
+            return is_file($filePath) && $this->isFfprobeAvailable() && trim((string) shell_exec(sprintf(
+                'ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of csv=p=0 %s 2>/dev/null', escapeshellarg($filePath)))) === 'alac';
+        }
 
         return in_array($extension, $this->audioTranscodeFormats, true);
     }

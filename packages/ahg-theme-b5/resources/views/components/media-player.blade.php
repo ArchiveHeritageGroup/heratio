@@ -56,6 +56,17 @@
     $__isMinimal  = $__playerType === 'heratio-minimal';
     $__isBare     = in_array($__playerType, ['plyr', 'videojs', 'native'], true);
     $__isVideo    = $type === 'video';
+
+    // heratio#1754/#1756: the HLS stream made beside this file (played first
+    // where the browser or Video.js can, with quality switching) and the
+    // playback copy beside a master (the next <source> when the master will
+    // not play, first when no browser plays it - AMR, WMA, AIFF).
+    $__alt      = \AhgCore\Services\MediaDerivativeService::playbackAlternates((string) $src, $type);
+    $__hls      = $__alt['hls'];
+    $__fallback = $__alt['fallback'];
+    if ($__fallback && in_array(strtolower((string) $mime), \AhgCore\Services\MediaDerivativeService::BROWSER_UNPLAYABLE_AUDIO, true)) {
+        [$src, $mime, $__fallback] = [$__fallback[0], $__fallback[1], [$src, $mime]];
+    }
 @endphp
 
 @if($__isBare)
@@ -67,7 +78,9 @@
                    @if($__media['autoplay']) autoplay @endif
                    @if($__media['loop']) loop @endif
                    @if($poster) poster="{{ $poster }}" @endif>
+                @if($__hls)<source src="{{ $__hls }}" type="application/x-mpegURL">@endif
                 <source src="{{ $src }}" type="{{ $mime }}">
+                @if($__fallback)<source src="{{ $__fallback[0] }}" type="{{ $__fallback[1] }}">@endif
                 @if($needsStreaming && $src !== $masterUrl)
                     <source src="{{ $masterUrl }}" type="{{ $masterMime }}">
                 @endif
@@ -85,7 +98,9 @@
                    @if($__media['show_controls']) controls @endif
                    @if($__media['autoplay']) autoplay @endif
                    @if($__media['loop']) loop @endif>
+                @if($__hls)<source src="{{ $__hls }}" type="application/x-mpegURL">@endif
                 <source src="{{ $src }}" type="{{ $mime }}">
+                @if($__fallback)<source src="{{ $__fallback[0] }}" type="{{ $__fallback[1] }}">@endif
                 @if($needsStreaming && $src !== $masterUrl)
                     <source src="{{ $masterUrl }}" type="{{ $masterMime }}">
                 @endif
@@ -123,7 +138,9 @@
                    @if($__media['autoplay']) autoplay @endif
                    @if($__media['loop']) loop @endif
                    @if($poster) poster="{{ $poster }}" @endif>
+                @if($__hls)<source src="{{ $__hls }}" type="application/x-mpegURL">@endif
                 <source src="{{ $src }}" type="{{ $mime }}">
+                @if($__fallback)<source src="{{ $__fallback[0] }}" type="{{ $__fallback[1] }}">@endif
                 @if($needsStreaming && $src !== $masterUrl)
                     <source src="{{ $masterUrl }}" type="{{ $masterMime }}">
                 @endif
@@ -139,7 +156,9 @@
             <audio id="{{ $playerId }}" class="w-100 mb-2" preload="metadata" controls
                    @if($__media['autoplay']) autoplay @endif
                    @if($__media['loop']) loop @endif>
+                @if($__hls)<source src="{{ $__hls }}" type="application/x-mpegURL">@endif
                 <source src="{{ $src }}" type="{{ $mime }}">
+                @if($__fallback)<source src="{{ $__fallback[0] }}" type="{{ $__fallback[1] }}">@endif
                 @if($needsStreaming && $src !== $masterUrl)
                     <source src="{{ $masterUrl }}" type="{{ $masterMime }}">
                 @endif
@@ -186,7 +205,9 @@
                    style="max-height:500px;background:#000;" preload="metadata"
                    data-no-ahg-media
                    @if($poster) poster="{{ $poster }}" @endif>
+                @if($__hls)<source src="{{ $__hls }}" type="application/x-mpegURL">@endif
                 <source src="{{ $src }}" type="{{ $mime }}">
+                @if($__fallback)<source src="{{ $__fallback[0] }}" type="{{ $__fallback[1] }}">@endif
                 @if($needsStreaming && $src !== $masterUrl)
                     <source src="{{ $masterUrl }}" type="{{ $masterMime }}">
                 @endif
@@ -201,7 +222,9 @@
             </video>
         @else
             <audio id="{{ $playerId }}" preload="metadata" style="display:none;" data-no-ahg-media>
+                @if($__hls)<source src="{{ $__hls }}" type="application/x-mpegURL">@endif
                 <source src="{{ $src }}" type="{{ $mime }}">
+                @if($__fallback)<source src="{{ $__fallback[0] }}" type="{{ $__fallback[1] }}">@endif
                 @if($needsStreaming && $src !== $masterUrl)
                     <source src="{{ $masterUrl }}" type="{{ $masterMime }}">
                 @endif
@@ -390,4 +413,8 @@
         }
     })();
     </script>
+@endif
+
+@if($__isVideo && $__hls)
+    @include('theme::components.media-player-hls', ['playerId' => $playerId, 'hls' => $__hls, 'playerType' => $__playerType])
 @endif

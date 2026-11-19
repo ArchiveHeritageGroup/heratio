@@ -187,23 +187,151 @@ class ExportService
 
         return $this->csvDownload(
             'information-objects-' . date('Ymd-His') . '.csv',
-            ['legacyId', 'identifier', 'title', 'levelOfDescription', 'repository', 'scopeAndContent', 'culture'],
+            self::ISAD_CSV_COLUMNS,
             function ($out) use ($filters, $limit) {
-                $q = DB::table('information_object as io')
-                    ->leftJoin('information_object_i18n as i18n', fn ($j) => $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', 'en'))
-                    ->leftJoin('term_i18n as lvl', fn ($j) => $j->on('io.level_of_description_id', '=', 'lvl.id')->where('lvl.culture', '=', 'en'))
-                    ->leftJoin('actor_i18n as repo', fn ($j) => $j->on('io.repository_id', '=', 'repo.id')->where('repo.culture', '=', 'en'))
-                    ->where('io.id', '>', 1)
-                    ->select('io.id', 'io.identifier', 'i18n.title', 'lvl.name as level', 'repo.authorized_form_of_name as repository', 'i18n.scope_and_content');
-                $this->applyIoCsvFilters($q, $filters);
+                $idq = DB::table('information_object as io')->where('io.id', '>', 1)->select('io.id');
+                $this->applyIoCsvFilters($idq, $filters);
+                $idq->orderBy('io.lft');
                 if ($limit > 0) {
-                    $q->limit($limit);
+                    $idq->limit($limit);
                 }
-                foreach ($q->orderBy('io.lft')->cursor() as $r) {
-                    fputcsv($out, [$r->id, $r->identifier, $r->title, $r->level, $r->repository, $r->scope_and_content, 'en']);
+                $ids = $idq->pluck('io.id')->all();
+                $inExport = array_flip($ids);
+                foreach (array_chunk($ids, 500) as $chunk) {
+                    foreach ($this->isadRows($chunk, $inExport) as $row) {
+                        fputcsv($out, $row);
+                    }
                 }
             }
         );
+    }
+
+    /**
+     * The archival description CSV columns, in the order AtoM's own export
+     * writes them, so a file can go out, be edited and come back in through
+     * the CSV import (ArchivesCsvImporter reads these names). Multiple values
+     * are separated by |, as the import expects.
+     *
+     * ponytail: physical-object and alternative-identifier columns are left
+     * out (Heratio keeps those in other modules); add them when a round trip
+     * needs them.
+     */
+    public const ISAD_CSV_COLUMNS = [
+        'legacyId', 'parentId', 'qubitParentSlug', 'identifier', 'title', 'levelOfDescription',
+        'extentAndMedium', 'repository', 'archivalHistory', 'acquisition', 'scopeAndContent',
+        'appraisal', 'accruals', 'arrangement', 'accessConditions', 'reproductionConditions',
+        'language', 'script', 'languageNote', 'physicalCharacteristics', 'findingAids',
+        'locationOfOriginals', 'locationOfCopies', 'relatedUnitsOfDescription', 'publicationNote',
+        'digitalObjectURI', 'generalNote', 'subjectAccessPoints', 'placeAccessPoints',
+        'nameAccessPoints', 'genreAccessPoints', 'descriptionIdentifier', 'institutionIdentifier',
+        'rules', 'descriptionStatus', 'levelOfDetail', 'revisionHistory', 'languageOfDescription',
+        'scriptOfDescription', 'sources', 'archivistNote', 'publicationStatus',
+        'eventDates', 'eventTypes', 'eventStartDates', 'eventEndDates', 'eventActors',
+        // The creation event again, in the columns Heratio's CSV import reads.
+        'creators', 'dateRange', 'dateStart', 'dateEnd',
+        'culture',
+    ];
+
+    /** One row per record in $chunk, in the order of $chunk; batch lookups, no per-row queries. */
+    private function isadRows(array $chunk, array $inExport): array
+    {
+        $culture = 'en';
+        $i18n = fn ($alias, $col) => fn ($j) => $j->on($col, '=', $alias.'.id')->where($alias.'.culture', '=', $culture);
+        $core = DB::table('information_object as io')
+            ->leftJoin('information_object_i18n as i', $i18n('i', 'io.id'))
+            ->leftJoin('term_i18n as lvl', $i18n('lvl', 'io.level_of_description_id'))
+            ->leftJoin('term_i18n as dst', $i18n('dst', 'io.description_status_id'))
+            ->leftJoin('term_i18n as ddt', $i18n('ddt', 'io.description_detail_id'))
+            ->leftJoin('actor_i18n as repo', $i18n('repo', 'io.repository_id'))
+            ->leftJoin('slug as ps', 'ps.object_id', '=', 'io.parent_id')
+            ->whereIn('io.id', $chunk)
+            ->select('io.id', 'io.parent_id', 'io.identifier', 'io.description_identifier', 'i.*', 'io.id as io_id',
+                'lvl.name as level', 'dst.name as desc_status', 'ddt.name as desc_detail',
+                'repo.authorized_form_of_name as repository', 'ps.slug as parent_slug')
+            ->get()->keyBy('io_id');
+
+        $join = fn ($c) => collect($c)->map(fn ($v) => str_replace('|', '/', (string) $v))->implode('|');
+        $events = DB::table('event as e')
+            ->leftJoin('event_i18n as ei', $i18n('ei', 'e.id'))
+            ->leftJoin('term_i18n as et', $i18n('et', 'e.type_id'))
+            ->leftJoin('actor_i18n as ea', $i18n('ea', 'e.actor_id'))
+            ->whereIn('e.object_id', $chunk)->orderBy('e.id')
+            ->get(['e.object_id', 'e.type_id', 'e.start_date', 'e.end_date', 'ei.date', 'et.name as type', 'ea.authorized_form_of_name as actor'])
+            ->groupBy('object_id');
+        $terms = DB::table('object_term_relation as otr')
+            ->join('term as t', 't.id', '=', 'otr.term_id')
+            ->leftJoin('term_i18n as ti', $i18n('ti', 'otr.term_id'))
+            ->whereIn('otr.object_id', $chunk)->whereIn('t.taxonomy_id', [35, 42, 78])
+            ->get(['otr.object_id', 't.taxonomy_id', 'ti.name'])->groupBy('object_id');
+        $names = DB::table('relation as r')
+            ->leftJoin('actor_i18n as a', $i18n('a', 'r.object_id'))
+            ->whereIn('r.subject_id', $chunk)->where('r.type_id', \AhgCore\Constants\TermId::RELATION_NAME_ACCESS_POINT)
+            ->get(['r.subject_id', 'a.authorized_form_of_name as name'])->groupBy('subject_id');
+        $notes = DB::table('note as n')
+            ->join('note_i18n as ni', $i18n('ni', 'n.id'))
+            ->whereIn('n.object_id', $chunk)->whereIn('n.type_id', [120, 124, 125, 174])
+            ->get(['n.object_id', 'n.type_id', 'ni.content'])->groupBy('object_id');
+        $props = DB::table('property as p')
+            ->join('property_i18n as pi', 'pi.id', '=', 'p.id')
+            ->whereIn('p.object_id', $chunk)->whereIn('p.name', ['language', 'script', 'languageOfDescription', 'scriptOfDescription'])
+            ->get(['p.object_id', 'p.name', 'pi.value'])->groupBy('object_id');
+        $status = DB::table('status as st')
+            ->leftJoin('term_i18n as sn', $i18n('sn', 'st.status_id'))
+            ->whereIn('st.object_id', $chunk)->where('st.type_id', \AhgCore\Constants\TermId::STATUS_TYPE_PUBLICATION)
+            ->pluck('sn.name', 'st.object_id');
+        $masters = DB::table('digital_object')->whereIn('object_id', $chunk)->whereNull('parent_id')->orderBy('id')
+            ->get(['object_id', 'path', 'name'])->groupBy('object_id');
+
+        $rows = [];
+        foreach ($chunk as $id) {
+            $r = $core[$id] ?? null;
+            if (! $r) {
+                continue;
+            }
+            $ev = $events[$id] ?? collect();
+            $tm = $terms[$id] ?? collect();
+            $nt = $notes[$id] ?? collect();
+            $pr = $props[$id] ?? collect();
+            $codes = function (string $name) use ($pr, $join) {
+                $v = $pr->firstWhere('name', $name)->value ?? '';
+                $list = @unserialize((string) $v, ['allowed_classes' => false]);
+
+                return is_array($list) ? $join($list) : (string) $v;
+            };
+            $note = fn (int $type) => $join($nt->where('type_id', $type)->pluck('content')->filter());
+            $term = fn (int $tax) => $join($tm->where('taxonomy_id', $tax)->pluck('name')->filter()->unique());
+            $parent = (int) $r->parent_id > 1 ? (int) $r->parent_id : null;
+            $do = ($masters[$id] ?? collect())->first();
+            $rows[] = [
+                $id,
+                $parent && isset($inExport[$parent]) ? $parent : '',
+                $parent && ! isset($inExport[$parent]) ? (string) $r->parent_slug : '',
+                $r->identifier, $r->title, $r->level,
+                $r->extent_and_medium, $r->repository, $r->archival_history, $r->acquisition, $r->scope_and_content,
+                $r->appraisal, $r->accruals, $r->arrangement, $r->access_conditions, $r->reproduction_conditions,
+                $codes('language'), $codes('script'), $note(174), $r->physical_characteristics, $r->finding_aids,
+                $r->location_of_originals, $r->location_of_copies, $r->related_units_of_description, $note(120),
+                $do ? url(rtrim((string) $do->path, '/').'/'.$do->name) : '',
+                $note(125), $term(35), $term(42),
+                $join(($names[$id] ?? collect())->pluck('name')->filter()->unique()), $term(78),
+                $r->description_identifier, $r->institution_responsible_identifier,
+                $r->rules, $r->desc_status, $r->desc_detail, $r->revision_history,
+                $codes('languageOfDescription'), $codes('scriptOfDescription'), $r->sources, $note(124),
+                $status[$id] ?? '',
+                $join($ev->pluck('date')->map(fn ($v) => $v ?? '')),
+                $join($ev->pluck('type')->map(fn ($v) => $v ?? '')),
+                $join($ev->pluck('start_date')->map(fn ($v) => $v ?? '')),
+                $join($ev->pluck('end_date')->map(fn ($v) => $v ?? '')),
+                $join($ev->pluck('actor')->map(fn ($v) => $v ?? '')),
+                $join(($cr = $ev->where('type_id', \AhgCore\Constants\TermId::EVENT_TYPE_CREATION))->pluck('actor')->filter()->unique()),
+                (string) ($cr->pluck('date')->filter()->first() ?? ''),
+                (string) ($cr->pluck('start_date')->filter()->first() ?? ''),
+                (string) ($cr->pluck('end_date')->filter()->first() ?? ''),
+                $culture,
+            ];
+        }
+
+        return $rows;
     }
 
     /**

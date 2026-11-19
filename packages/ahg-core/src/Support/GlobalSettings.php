@@ -114,6 +114,22 @@ class GlobalSettings
      * Heratio-defined sort tokens (e.g. 'title', 'identifier', 'lastUpdated',
      * 'relevance'); 'lastUpdated' matches the form default.
      */
+    /**
+     * The default browse view an administrator chose (Settings > Global):
+     * 'table' or 'card', or '' when not set. $kind is archival_description,
+     * repository or digital_object; digital objects fall back to archival
+     * descriptions, as their browse is the description browse filtered.
+     */
+    public static function defaultBrowseView(string $kind): string
+    {
+        $val = strtolower(trim((string) SettingHelper::get('default_'.$kind.'_browse_view', '')));
+        if ($val === '' && $kind === 'digital_object') {
+            return self::defaultBrowseView('archival_description');
+        }
+
+        return in_array($val, ['table', 'card'], true) ? $val : '';
+    }
+
     public static function sortBrowserAnonymous(): string
     {
         $val = trim((string) SettingHelper::get('sort_browser_anonymous', 'lastUpdated'));

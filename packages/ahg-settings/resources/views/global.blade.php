@@ -93,6 +93,15 @@
                   @endforeach
                 </select>
               </div>
+              {{-- AtoM #2370 equivalent: browse filtered to digital objects. --}}
+              <div class="mb-3">
+                <label class="form-label">{{ __('Default digital object browse view') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <select name="settings[default_digital_object_browse_view]" class="form-select">
+                  @foreach(['' => __('Same as archival descriptions'), 'table' => 'Table', 'card' => 'Card'] as $val => $label)
+                    <option value="{{ $val }}" {{ ($settings['default_digital_object_browse_view'] ?? '') == $val ? 'selected' : '' }}>{{ $label }}</option>
+                  @endforeach
+                </select>
+              </div>
               <div class="form-check mb-3">
                 <input type="hidden" name="settings[escape_queries]" value="0">
                 <input class="form-check-input" type="checkbox" name="settings[escape_queries]" value="1" id="escape_queries" {{ ($settings['escape_queries'] ?? '') == '1' ? 'checked' : '' }}>

@@ -116,6 +116,95 @@
       </div>
     </div>
 
+    {{-- heratio#1752-#1755: playback copies made at upload. The codec list is
+         what this server's ffmpeg can encode, so nothing unavailable is offered. --}}
+    @php
+      $__codecs = \AhgCore\Services\MediaDerivativeService::videoCodecs();
+      $__audioCodecs = \AhgCore\Services\MediaDerivativeService::audioCodecs();
+      $__vc = $settings['media_video_codec'] ?? 'h264';
+      $__ac = $settings['media_audio_codec'] ?? 'mp3';
+      $__vh = (int) ($settings['media_video_height'] ?? 480);
+      $__codecLabels = ['h264' => __('H.264 (plays in every browser)'), 'h265' => __('H.265 / HEVC (smaller files; not every browser plays it)'), 'av1' => __('AV1 (smallest files; slow to encode, recent browsers only)')];
+      $__audioLabels = ['mp3' => __('MP3'), 'aac' => __('AAC (M4A)')];
+    @endphp
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-film me-2"></i>{{ __('Playback Copies') }}</h5>
+      </div>
+      <div class="card-body">
+        <p class="text-muted small">{{ __('Every audio and video file gets a copy made for playing in the browser when it is uploaded. These settings apply to files uploaded or reprocessed after you save.') }}</p>
+
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label" for="media_video_codec">{{ __('Video codec') }}</label>
+          <div class="col-sm-9">
+            <select class="form-select" id="media_video_codec" name="settings[media_video_codec]">
+              @foreach(\AhgCore\Services\MediaDerivativeService::VIDEO_CODECS as $__code => $__enc)
+                <option value="{{ $__code }}" {{ $__vc === $__code ? 'selected' : '' }} {{ isset($__codecs[$__code]) ? '' : 'disabled' }}>
+                  {{ $__codecLabels[$__code] ?? $__code }}{{ isset($__codecs[$__code]) ? '' : ' - '.__('not available on this server') }}
+                </option>
+              @endforeach
+            </select>
+            <div class="form-text">{{ __('Only the codecs this server\'s ffmpeg can encode can be chosen. H.264 is the safe choice for public viewing.') }}</div>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label" for="media_video_height">{{ __('Video height') }}</label>
+          <div class="col-sm-9">
+            <select class="form-select" id="media_video_height" name="settings[media_video_height]">
+              @foreach(array_keys(\AhgCore\Services\MediaDerivativeService::LADDER) as $__h)
+                <option value="{{ $__h }}" {{ $__vh === $__h ? 'selected' : '' }}>{{ $__h }}p</option>
+              @endforeach
+            </select>
+            <div class="form-text">{{ __('The largest frame height of the playback copy. A smaller original keeps its own size; nothing is upscaled.') }}</div>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label" for="media_audio_codec">{{ __('Audio codec') }}</label>
+          <div class="col-sm-9">
+            <select class="form-select" id="media_audio_codec" name="settings[media_audio_codec]">
+              @foreach(\AhgCore\Services\MediaDerivativeService::AUDIO_CODECS as $__code => $__c)
+                <option value="{{ $__code }}" {{ $__ac === $__code ? 'selected' : '' }} {{ in_array($__code, $__audioCodecs, true) ? '' : 'disabled' }}>
+                  {{ $__audioLabels[$__code] ?? $__code }}{{ in_array($__code, $__audioCodecs, true) ? '' : ' - '.__('not available on this server') }}
+                </option>
+              @endforeach
+            </select>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label" for="media_audio_bitrate">{{ __('Audio bitrate (kbps)') }}</label>
+          <div class="col-sm-9">
+            <input type="number" class="form-control" id="media_audio_bitrate" name="settings[media_audio_bitrate]"
+                   min="32" max="512" step="1" value="{{ $settings['media_audio_bitrate'] ?? '128' }}">
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">{{ __('Adaptive streaming (HLS)') }}</label>
+          <div class="col-sm-9">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="media_hls_enabled"
+                     name="settings[media_hls_enabled]" value="true"
+                     {{ ($settings['media_hls_enabled'] ?? 'false') === 'true' ? 'checked' : '' }}>
+              <label class="form-check-label" for="media_hls_enabled">{{ __('Also make an HLS stream with one rendition per quality level') }}</label>
+            </div>
+            <div class="form-text">{{ __('The player then switches quality to suit the connection, and viewers can pick a quality themselves. Takes more disk space and encoding time.') }}</div>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label" for="media_rendition_ladder">{{ __('Quality levels') }}</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" id="media_rendition_ladder" name="settings[media_rendition_ladder]"
+                   value="{{ $settings['media_rendition_ladder'] ?? '480,720,1080' }}">
+            <div class="form-text">{{ __('Frame heights for the HLS renditions, separated by commas. Choose from :levels. Levels above the original are skipped.', ['levels' => implode(', ', array_keys(\AhgCore\Services\MediaDerivativeService::LADDER))]) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="d-flex justify-content-between align-items-center">
       <a href="{{ route('settings.index') }}" class="btn btn-link text-secondary">
         <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Settings') }}

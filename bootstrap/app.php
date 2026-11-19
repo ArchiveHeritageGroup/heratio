@@ -99,6 +99,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth.forbid' => \App\Http\Middleware\RequireAuthForbid::class,
             'admin' => \App\Http\Middleware\RequireAdmin::class,
             'acl' => \App\Http\Middleware\CheckAcl::class,
+            // heratio#1760: declared records are read-only.
+            'record.unlocked' => \AhgCore\Http\Middleware\DeclaredRecordLock::class,
             'shared.account' => \App\Http\Middleware\ProtectSharedAccounts::class,
             // Issue #40 c5 — gate plugin URLs by per-user grant
             'plugin' => \AhgCore\Http\Middleware\PluginAccessMiddleware::class,

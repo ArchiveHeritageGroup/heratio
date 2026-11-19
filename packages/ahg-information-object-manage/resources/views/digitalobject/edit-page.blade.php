@@ -140,7 +140,41 @@
                     <hr>
                     <label class="form-label">{{ __('Replace master file') }}</label>
                     <input type="file" class="form-control" name="replace_file">
-                    <div class="form-text">{{ __('Select a new file to replace the existing master.') }}</div>
+                    <div class="form-text">{{ __('Select a new file to replace the existing master. The current file is kept as a version.') }}</div>
+                    {{-- heratio#1759: major or minor version. --}}
+                    <div class="row g-2 mt-1">
+                        <div class="col-md-4">
+                            <select name="version_type" class="form-select form-select-sm" aria-label="{{ __('Kind of change') }}">
+                                <option value="minor">{{ __('Minor change (1.0 to 1.1)') }}</option>
+                                <option value="major">{{ __('Major change (1.x to 2.0)') }}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-8"><input type="text" name="version_note" class="form-control form-control-sm" maxlength="1000" placeholder="{{ __('What changed (optional)') }}" aria-label="{{ __('What changed') }}"></div>
+                    </div>
+                    @if(($fileVersions ?? collect())->isNotEmpty())
+                        <h6 class="mt-3">{{ __('Versions') }}</h6>
+                        <table class="table table-sm mb-0">
+                            <thead><tr><th>{{ __('Version') }}</th><th>{{ __('File') }}</th><th>{{ __('Size') }}</th><th>{{ __('When') }}</th><th>{{ __('By') }}</th><th>{{ __('Note') }}</th><th></th></tr></thead>
+                            <tbody>
+                                @foreach($fileVersions as $v)
+                                    <tr>
+                                        <td>{{ $v->version_major }}.{{ $v->version_minor }} @if($v->is_current)<span class="badge bg-success">{{ __('Current') }}</span>@endif</td>
+                                        <td class="small">{{ $v->name }}</td>
+                                        <td class="small">{{ number_format(($v->byte_size ?? 0) / 1024) }} KB</td>
+                                        <td class="small text-nowrap">{{ $v->created_at }}</td>
+                                        <td class="small">{{ $v->username ?? '' }}</td>
+                                        <td class="small">{{ $v->note }}</td>
+                                        <td class="text-nowrap">
+                                            <a href="{{ route('io.digitalobject.version.download', [$digitalObject->id ?? $v->digital_object_id, $v->id]) }}" class="btn btn-sm atom-btn-white" title="{{ __('Download') }}"><i class="fas fa-download" aria-hidden="true"></i><span class="visually-hidden">{{ __('Download') }}</span></a>
+                                            @unless($v->is_current)
+                                                <button type="submit" form="restore-version-{{ $v->id }}" class="btn btn-sm atom-btn-white">{{ __('Restore') }}</button>
+                                            @endunless
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
                 </div>
             </div>
 
@@ -282,4 +316,7 @@
   </form>
 @endif
 
+@foreach(($fileVersions ?? collect())->where('is_current', 0) as $v)
+  <form id="restore-version-{{ $v->id }}" method="post" action="{{ route('io.digitalobject.version.restore', [$v->digital_object_id, $v->id]) }}" class="d-none">@csrf</form>
+@endforeach
 @endsection

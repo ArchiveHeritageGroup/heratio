@@ -124,16 +124,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/informationobject/{slug}/inventory', [InformationObjectController::class, 'inventory'])->name('informationobject.inventory');
     // heratio#1776: the form shows the record in full, drafts included, so it
     // needs the same right as saving it.
-    Route::get('/informationobject/{slug}/edit', [InformationObjectController::class, 'edit'])->name('informationobject.edit')->middleware('acl:update');
-    Route::put('/informationobject/{slug}', [InformationObjectController::class, 'update'])->name('informationobject.update')->middleware('acl:update');
+    Route::get('/informationobject/{slug}/edit', [InformationObjectController::class, 'edit'])->name('informationobject.edit')->middleware('acl:update')->middleware('record.unlocked');
+    Route::put('/informationobject/{slug}', [InformationObjectController::class, 'update'])->name('informationobject.update')->middleware('acl:update')->middleware('record.unlocked');
 });
 
 // heratio#1776: the delete permission decides, not membership of the admin
 // area, so a repository-scoped account can delete inside its own repository.
 // Editors and administrators hold delete globally; contributors still do not.
 Route::middleware(['auth', 'acl:delete'])->group(function () {
-    Route::get('/informationobject/{slug}/delete', [InformationObjectController::class, 'confirmDelete'])->name('informationobject.confirmDelete');
-    Route::delete('/informationobject/{slug}', [InformationObjectController::class, 'destroy'])->name('informationobject.destroy')->middleware('acl:delete');
+    Route::get('/informationobject/{slug}/delete', [InformationObjectController::class, 'confirmDelete'])->name('informationobject.confirmDelete')->middleware('record.unlocked');
+    Route::delete('/informationobject/{slug}', [InformationObjectController::class, 'destroy'])->name('informationobject.destroy')->middleware('acl:delete')->middleware('record.unlocked');
 });
 
 // Treeview API (public for viewing)
@@ -269,17 +269,17 @@ Route::middleware('auth')->group(function () {
         ->where('slug', '[a-z0-9][a-z0-9-]*');
 
     // Digital Object upload/delete
-    Route::post('/informationobject/{slug}/upload', [DigitalObjectController::class, 'upload'])->name('io.digitalobject.upload')->middleware('acl:create');
+    Route::post('/informationobject/{slug}/upload', [DigitalObjectController::class, 'upload'])->name('io.digitalobject.upload')->middleware('acl:create')->middleware('record.unlocked');
     // #1447 - attach N additional digital objects to one description (no child records).
-    Route::post('/informationobject/{slug}/attachments', [DigitalObjectController::class, 'attachStore'])->name('io.attachments.store')->middleware('acl:create');
-    Route::delete('/informationobject/attachment/{id}', [DigitalObjectController::class, 'attachDelete'])->name('io.attachments.delete')->middleware('acl:delete')->where('id', '[0-9]+');
-    Route::post('/informationobject/attachment/{id}/primary', [DigitalObjectController::class, 'attachSetPrimary'])->name('io.attachments.primary')->middleware('acl:update')->where('id', '[0-9]+');
+    Route::post('/informationobject/{slug}/attachments', [DigitalObjectController::class, 'attachStore'])->name('io.attachments.store')->middleware('acl:create')->middleware('record.unlocked');
+    Route::delete('/informationobject/attachment/{id}', [DigitalObjectController::class, 'attachDelete'])->name('io.attachments.delete')->middleware('acl:delete')->where('id', '[0-9]+')->middleware('record.unlocked:attachment');
+    Route::post('/informationobject/attachment/{id}/primary', [DigitalObjectController::class, 'attachSetPrimary'])->name('io.attachments.primary')->middleware('acl:update')->where('id', '[0-9]+')->middleware('record.unlocked:attachment');
     Route::post('/informationobject/{slug}/attachments/reorder', [DigitalObjectController::class, 'attachReorder'])->name('io.attachments.reorder')->middleware('acl:update');
     Route::get('/informationobject/{slug}/multiFileUpload', [DigitalObjectController::class, 'multiFileUpload'])->name('io.multiFileUpload');
     // The POST creates child descriptions and digital objects (heratio#1777).
     Route::post('/informationobject/{slug}/multiFileUpload', [DigitalObjectController::class, 'multiFileUpload'])->name('io.multiFileUpload.post')->middleware('acl:create');
     // Per-file AJAX stage for the multiFileUpload widget (returns blueimp JSON with tmpName).
-    Route::post('/informationobject/{slug}/multiFileUpload/store', [DigitalObjectController::class, 'multiFileUploadStore'])->name('io.multiFileUpload.store')->middleware('acl:create');
+    Route::post('/informationobject/{slug}/multiFileUpload/store', [DigitalObjectController::class, 'multiFileUploadStore'])->name('io.multiFileUpload.store')->middleware('acl:create')->middleware('record.unlocked');
     // Batch title-review step shown after a multiFileUpload import (GET form + POST save).
     Route::match(['get', 'post'], '/informationobject/{slug}/multiFileUpdate', [DigitalObjectController::class, 'multiFileUpdate'])->name('informationobject.multiFileUpdate')->middleware('acl:create');
     // Bulk folder upload - accepts digital_objects[] + relative_paths[] and
@@ -287,12 +287,15 @@ Route::middleware('auth')->group(function () {
     Route::post('/{slug}/object/addDigitalObject/bulk', [DigitalObjectController::class, 'bulkUpload'])
         ->name('io.digitalobject.bulk-upload')
         ->middleware('acl:create')
-        ->where('slug', '[a-z0-9][a-z0-9-]*');
-    Route::delete('/digitalobject/{id}', [DigitalObjectController::class, 'delete'])->name('io.digitalobject.delete')->middleware('acl:delete')->where('id', '[0-9]+');
+        ->where('slug', '[a-z0-9][a-z0-9-]*')->middleware('record.unlocked');
+    Route::delete('/digitalobject/{id}', [DigitalObjectController::class, 'delete'])->name('io.digitalobject.delete')->middleware('acl:delete')->where('id', '[0-9]+')->middleware('record.unlocked:object');
     // Per-representation delete - removes only the chosen reference/thumbnail
     // row without cascading to the master (matches PSIS's behaviour).
-    Route::delete('/digitalobject/representation/{id}', [DigitalObjectController::class, 'representationDelete'])->name('io.digitalobject.representation.delete')->middleware('acl:delete')->where('id', '[0-9]+');
-    Route::put('/digitalobject/{id}', [DigitalObjectController::class, 'update'])->name('io.digitalobject.update')->middleware('acl:update')->where('id', '[0-9]+');
+    Route::delete('/digitalobject/representation/{id}', [DigitalObjectController::class, 'representationDelete'])->name('io.digitalobject.representation.delete')->middleware('acl:delete')->where('id', '[0-9]+')->middleware('record.unlocked:object');
+    Route::put('/digitalobject/{id}', [DigitalObjectController::class, 'update'])->name('io.digitalobject.update')->middleware('acl:update')->where('id', '[0-9]+')->middleware('record.unlocked:object');
+    // heratio#1759: kept versions of a replaced master.
+    Route::get('/digitalobject/{id}/version/{versionId}', [DigitalObjectController::class, 'versionDownload'])->name('io.digitalobject.version.download')->middleware('acl:update')->whereNumber('id')->whereNumber('versionId');
+    Route::post('/digitalobject/{id}/version/{versionId}/restore', [DigitalObjectController::class, 'versionRestore'])->name('io.digitalobject.version.restore')->middleware('acl:update')->whereNumber('id')->whereNumber('versionId')->middleware('record.unlocked:object');
     Route::get('/digitalobject/{id}', [DigitalObjectController::class, 'show'])->name('io.digitalobject.show')->where('id', '[0-9]+');
 
     // #125 derivative encryption: decrypt-on-stream endpoint. Blade
@@ -320,9 +323,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/informationobject/generateIdentifier', [InformationObjectController::class, 'generateIdentifier'])->name('io.generateIdentifier');
 
     // Legacy digital object URL aliases
-    Route::post('/digitalobject/upload', [DigitalObjectController::class, 'upload'])->middleware('acl:create');
+    Route::post('/digitalobject/upload', [DigitalObjectController::class, 'upload'])->middleware('acl:create')->middleware('record.unlocked');
     Route::get('/digitalobject/{id}/edit', [DigitalObjectController::class, 'show'])->whereNumber('id');
-    Route::delete('/digitalobject/{id}/delete', [DigitalObjectController::class, 'delete'])->whereNumber('id')->middleware('acl:delete');
+    Route::delete('/digitalobject/{id}/delete', [DigitalObjectController::class, 'delete'])->whereNumber('id')->middleware('acl:delete')->middleware('record.unlocked:object');
 });
 
 // Provenance read routes - sector-neutral: provenance is keyed by

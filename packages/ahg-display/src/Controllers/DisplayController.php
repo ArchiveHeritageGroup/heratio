@@ -203,7 +203,11 @@ class DisplayController extends Controller
             ? \AhgCore\Support\GlobalSettings::sortBrowserDirectionUser()
             : \AhgCore\Support\GlobalSettings::sortBrowserDirectionAnonymous();
         $sortDir = $request->input('sortDir', $request->input('dir', $defaultSortDir));
-        $viewMode = $request->input('view', 'card');
+        // The view asked for, else the signed-in user's saved default, else the
+        // administrator's default for descriptions (or for digital objects when
+        // browsing with the digital-object filter), else cards. These settings
+        // existed in the settings screens but nothing read them.
+        $viewMode = $request->input('view') ?: $this->defaultViewMode($request);
 
         $semanticEnabled = $this->loadFilters($request);
 
@@ -2707,4 +2711,24 @@ class DisplayController extends Controller
     public function glamSearch(Request $request) { return view('ahg-display::search', ['rows' => collect()]); }
 
     public function treeviewPage(Request $request) { return view('ahg-display::treeview-page'); }
+
+    /** The browse view to open with when the URL does not name one. */
+    protected function defaultViewMode(Request $request): string
+    {
+        if (auth()->check()) {
+            $mine = $this->settingsRepo->getSettings((int) auth()->id());
+            if (! empty($mine['id'])) {
+                $v = (string) ($mine['default_view'] ?? '');
+                if ($v === 'list') {
+                    $v = 'table';
+                }
+                if (in_array($v, ['card', 'table', 'grid', 'full'], true)) {
+                    return $v;
+                }
+            }
+        }
+        $kind = $request->boolean('hasDigital') || $request->input('onlyMedia') ? 'digital_object' : 'archival_description';
+
+        return \AhgCore\Support\GlobalSettings::defaultBrowseView($kind) ?: 'card';
+    }
 }

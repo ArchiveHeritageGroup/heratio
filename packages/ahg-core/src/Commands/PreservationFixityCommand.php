@@ -14,7 +14,8 @@ class PreservationFixityCommand extends Command
         {--digital-object-id= : Verify a single digital_object}
         {--report : Print summary report and exit}
         {--baseline : Record a first checksum for files that have none, instead of verifying}
-        {--rebaseline : Accept the current file as the new baseline for files whose latest check failed (deliberate changes only)}';
+        {--rebaseline : Accept the current file as the new baseline for files whose latest check failed (deliberate changes only)}
+        {--notify : Tell administrators (and preservation_alert_email) about files found missing or changed}';
 
     protected $description = 'Verify file integrity checksums (delegates to PreservationService::verifyFixity)';
 
@@ -95,6 +96,7 @@ class PreservationFixityCommand extends Command
         $this->info('verifying '.$stale->count().' stale objects (age>'.$this->option('age').'d)');
         $ok = 0;
         $fail = 0;
+        $failed = [];
         foreach ($stale as $row) {
             $r = $svc->verifyFixity((int) $row->digital_object_id);
             // verifyFixity() records 'pass' / 'fail' (never 'verified'), so every
@@ -103,11 +105,52 @@ class PreservationFixityCommand extends Command
                 $ok++;
             } else {
                 $fail++;
+                if ($r) {
+                    $failed[] = ['id' => (int) $row->digital_object_id, 'name' => (string) ($row->file_name ?? ''), 'error' => (string) ($r->error_message ?? '')];
+                }
                 $this->line('  '.($r ? 'mismatch' : 'no checksum')." do={$row->digital_object_id}".($r && $r->error_message ? ' - '.$r->error_message : ''));
             }
         }
         $this->info("done; ok={$ok} fail={$fail}");
+        if ($failed && $this->option('notify')) {
+            $this->notifyFailures($failed);
+        }
 
         return $fail === 0 ? self::SUCCESS : self::FAILURE;
+    }
+
+    /**
+     * heratio#1735: a missing or changed file is noticed the same day - while
+     * a backup can still bring it back - instead of only on the fixity pages.
+     */
+    private function notifyFailures(array $failed): void
+    {
+        $db = \Illuminate\Support\Facades\DB::class;
+        $lines = [];
+        foreach (array_slice($failed, 0, 50) as $f) {
+            $do = $db::table('digital_object')->where('id', $f['id'])->first(['object_id', 'parent_id']);
+            $ioId = $do->object_id ?? ($do && $do->parent_id ? $db::table('digital_object')->where('id', $do->parent_id)->value('object_id') : null);
+            $slug = $ioId ? $db::table('slug')->where('object_id', $ioId)->value('slug') : null;
+            $lastGood = $db::table('preservation_fixity_check')->where('digital_object_id', $f['id'])->where('status', 'pass')->max('checked_at');
+            $lines[] = '- '.($f['name'] ?: 'object '.$f['id']).($slug ? ' ('.url('/'.$slug).')' : '')
+                .': '.($f['error'] ?: __('checksum does not match')).'; '.($lastGood ? __('last good check :date', ['date' => $lastGood]) : __('never verified good'));
+        }
+        if (count($failed) > 50) {
+            $lines[] = __('... and :count more', ['count' => count($failed) - 50]);
+        }
+        $link = \Illuminate\Support\Facades\Route::has('preservation.fixity-log') ? route('preservation.fixity-log', ['status' => 'fail']) : null;
+        $title = __('Fixity: :count file(s) missing or changed', ['count' => count($failed)]);
+        $body = implode("\n", $lines);
+
+        $n = app(\AhgCore\Services\NotificationService::class)->notifyAdmins('preservation_fixity', $title, $body, $link, 'digital_object', $failed[0]['id']);
+        $to = array_filter(array_map('trim', explode(',', (string) \AhgCore\Services\AhgSettingsService::get('preservation_alert_email', ''))));
+        foreach ($to as $email) {
+            try {
+                \Illuminate\Support\Facades\Mail::raw($title."\n\n".$body.($link ? "\n\n".__('Fixity report').': '.$link : ''), fn ($m) => $m->to($email)->subject($title));
+            } catch (\Throwable $e) {
+                $this->warn('alert mail to '.$email.' failed: '.$e->getMessage());
+            }
+        }
+        $this->info("alerted {$n} administrator(s) and ".count($to).' address(es)');
     }
 }

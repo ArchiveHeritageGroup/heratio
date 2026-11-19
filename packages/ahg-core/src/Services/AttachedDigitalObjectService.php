@@ -199,19 +199,23 @@ class AttachedDigitalObjectService
         // the id/parent_id-keyed DB-row cleanup. NB: the /r/<ioId>/ directory is
         // SHARED with this record's primary object - we only unlink the specific
         // attached files, never the directory (#1455).
-        $rows = DB::table('digital_object')
-            ->where('id', $masterId)->orWhere('parent_id', $masterId)
-            ->get(['id', 'name', 'path']);
-        foreach ($rows as $r) {
-            $onDisk = DigitalObjectService::resolveDiskPath($r);
-            if ($onDisk && @is_file($onDisk)) {
-                @unlink($onDisk);
+        // heratio#1734: with the trash on, delete() moves the files (it resolves
+        // them by path) and keeps the link row to restore with them.
+        if (! DigitalObjectTrash::enabled()) {
+            $rows = DB::table('digital_object')
+                ->where('id', $masterId)->orWhere('parent_id', $masterId)
+                ->get(['id', 'name', 'path']);
+            foreach ($rows as $r) {
+                $onDisk = DigitalObjectService::resolveDiskPath($r);
+                if ($onDisk && @is_file($onDisk)) {
+                    @unlink($onDisk);
+                }
             }
         }
 
         DB::table(self::TABLE)->where('id', $linkId)->delete();
         try {
-            DigitalObjectService::delete($masterId);
+            DigitalObjectService::delete($masterId, [self::TABLE => [(array) $link]]);
         } catch (\Throwable $e) {
             // DB-row cleanup is best-effort; the link is gone and the files were
             // removed above, so a failure here must not throw into the request.

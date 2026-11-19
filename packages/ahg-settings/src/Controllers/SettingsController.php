@@ -4105,7 +4105,7 @@ class SettingsController extends Controller
     {
         return $this->buildGroupSettings($request, 'media', 'media-settings', 'Media Player', [
             'media_autoplay', 'media_show_controls', 'media_loop', 'media_show_waveform',
-            'media_transcription_enabled', 'media_show_download',
+            'media_transcription_enabled', 'media_show_download', 'media_hls_enabled',
         ]);
     }
 

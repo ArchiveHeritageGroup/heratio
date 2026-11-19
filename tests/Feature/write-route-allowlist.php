@@ -320,7 +320,7 @@ return [
     ],
     \AhgResearch\Controllers\ResearchEntityResolutionController::class => [
         'entityResolution' => 'design',
-        'resolveEntityResolution' => 'review',
+        'resolveEntityResolution' => 'own',
     ],
     \AhgResearch\Controllers\ResearchEthicsController::class => [
         'destroy' => 'project',
@@ -474,8 +474,8 @@ return [
         'updateModule' => 'own',
     ],
     \AhgResearch\Controllers\ResearchValidationQueueController::class => [
-        'bulkValidate' => 'review',
-        'validateResult' => 'review',
+        'bulkValidate' => 'project',
+        'validateResult' => 'project',
     ],
     \AhgResearch\Controllers\ResearchWorkspaceController::class => [
         'saveExperienceLevel' => 'own',

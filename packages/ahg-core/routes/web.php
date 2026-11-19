@@ -59,6 +59,10 @@ Route::get('/stories/{slug}', [\AhgCore\Controllers\StorytellingController::clas
 Route::middleware('auth')->group(function () {
     Route::get('/admin/sector-profile', [\AhgCore\Controllers\SectorProfileController::class, 'index'])->name('admin.sector-profile');
     Route::post('/admin/sector-profile', [\AhgCore\Controllers\SectorProfileController::class, 'apply'])->name('admin.sector-profile.apply')->middleware('admin');
+    // heratio#1734: deleted digital objects in the trash.
+    Route::get('/admin/trash', [\AhgCore\Controllers\TrashController::class, 'index'])->name('admin.trash')->middleware('admin');
+    Route::post('/admin/trash/{id}/restore', [\AhgCore\Controllers\TrashController::class, 'restore'])->name('admin.trash.restore')->whereNumber('id')->middleware('admin');
+    Route::post('/admin/trash/{id}/purge', [\AhgCore\Controllers\TrashController::class, 'purge'])->name('admin.trash.purge')->whereNumber('id')->middleware('admin');
 });
 
 // heratio#1205 - capture / at-risk register (admin): the records most in need of digitisation or

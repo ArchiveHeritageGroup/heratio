@@ -312,9 +312,20 @@ class RedactionRenderService
         // A watermarked preview (reference_scan.wm.jpg, heratio#1747) is judged
         // as the copy it was made from, in the same way.
         $name = preg_replace(['/\.c2pa\.json$/', '/\.c2pa(\.[^.\/]+)$/', '/\.wm(\.[^.\/]+)$/'], ['', '$1', '$1'], $name);
+        // An HLS rendition (hls_<name>/master.m3u8, v720.m3u8, v720_001.ts,
+        // heratio#1754) is judged as the playback copy it was made beside,
+        // reference_<name>.mp4 - or, should that row be gone, as the master.
+        $hlsMaster = null;
+        if (preg_match('#^(.+)/hls_([^/]+)$#', $dir, $m)) {
+            $dir = $m[1];
+            $name = 'reference_' . $m[2] . '.mp4';
+            $hlsMaster = 'master_' . addcslashes($m[2], '\\%_') . '.%';
+        }
 
         $rows = DB::table('digital_object')
-            ->where('name', $name)
+            ->where(fn ($q) => $hlsMaster === null
+                ? $q->where('name', $name)
+                : $q->where('name', $name)->orWhere('name', 'like', $hlsMaster))
             ->whereIn('path', ['/' . $dir . '/', $dir . '/', '/' . $dir, $dir])
             ->get(['id', 'object_id', 'parent_id']);
 
