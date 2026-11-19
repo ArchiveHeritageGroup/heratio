@@ -14,7 +14,13 @@
           <tbody>
             @foreach($items as $item)
               <tr>
-                <td><a href="{{ url('/' . $item->slug) }}">{{ Str::limit($item->archival_description, 60) }}</a></td>
+                <td><a href="{{ url('/' . $item->slug) }}">{{ Str::limit($item->archival_description, 60) }}</a>
+                  @if(! empty($item->download_url) && (empty($item->download_expires_at) || \Illuminate\Support\Carbon::parse($item->download_expires_at)->isFuture()))
+                    {{-- heratio#1775: released on payment; the link only works for the buyer. --}}
+                    <div><a href="{{ $item->download_url }}" class="btn btn-sm atom-btn-white mt-1"><i class="fas fa-download me-1"></i>{{ __('Download') }}</a>
+                      <span class="text-muted small">{{ __('until :date', ['date' => \Illuminate\Support\Carbon::parse($item->download_expires_at)->format('Y-m-d')]) }}</span></div>
+                  @endif
+                </td>
                 <td>{{ $item->product_name ?? '' }}</td>
                 <td>{{ $item->quantity }}</td>
                 <td class="text-end">{{ number_format($item->unit_price, 2) }}</td>

@@ -28406,5 +28406,9 @@
     "When on, the original image or PDF of a record is served only to staff, to users with the Read Master permission, and to a user whose access request for the record has been approved and has not expired. Everyone else sees the reference copy. Video, audio and 3D files are not affected.": "When on, the original image or PDF of a record is served only to staff, to users with the Read Master permission, and to a user whose access request for the record has been approved and has not expired. Everyone else sees the reference copy. Video, audio and 3D files are not affected.",
     "You are seeing a preview. The full-resolution original is released on request.": "You are seeing a preview. The full-resolution original is released on request.",
     "Request the original": "Request the original",
-    "Sign in to request it": "Sign in to request it"
+    "Sign in to request it": "Sign in to request it",
+    "This download link has expired or is not valid.": "This download link has expired or is not valid.",
+    "This download link was issued to another user.": "This download link was issued to another user.",
+    "File not found.": "File not found.",
+    "Download original": "Download original"
 }

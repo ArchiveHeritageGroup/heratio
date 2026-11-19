@@ -82,6 +82,13 @@
       // goes only to those it is released to; everyone else gets the preview.
       $__canSeeOriginal = \AhgCore\Services\MasterAccess::viewerMaySeeOriginal((int) $io->id, $masterObj);
       $__previewOnly = \AhgCore\Services\MasterAccess::previewOnly((int) $io->id, $masterObj);
+      // heratio#1747: the preview such a viewer gets carries the watermark.
+      if ($__previewOnly && $refObj && ! $__hasRedactions && class_exists(\AhgMediaProcessing\Services\WatermarkService::class)) {
+          try {
+              $__wm = app(\AhgMediaProcessing\Services\WatermarkService::class)->previewCopyUrl($refObj, (int) $io->id);
+              if ($__wm) { $refUrl = $__wm; }
+          } catch (\Throwable $e) { /* keep the plain reference */ }
+      }
       $__derivUrl = $refUrl ?: $thumbUrl;
       $__openUrl = $__canSeeOriginal ? $masterUrl : $__derivUrl;
       $__showOriginalCtl = $__canSeeOriginal ? (bool) $masterUrl : ($__derivUrl !== '');

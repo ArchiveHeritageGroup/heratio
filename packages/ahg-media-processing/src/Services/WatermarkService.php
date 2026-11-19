@@ -216,6 +216,36 @@ class WatermarkService
     }
 
     /**
+     * heratio#1747: web path of a watermarked copy of a record's reference
+     * image, for viewers held to the preview by "Protect originals". The copy
+     * (reference_x.wm.jpg) sits beside the reference, is made once, and is
+     * remade when the reference is newer. Null when no watermark is configured
+     * for the record or the copy could not be made; the caller then keeps the
+     * plain reference.
+     * ponytail: the plain reference file stays reachable by its own URL,
+     * because browse cards fall back to it when there is no thumbnail.
+     */
+    public function previewCopyUrl(object $reference, int $objectId): ?string
+    {
+        $src = \AhgCore\Services\DigitalObjectService::resolveDiskPath($reference);
+        if (! $src || ! preg_match('/\.(jpe?g|png)$/i', $src) || ! $this->hasWatermark($objectId)) {
+            return null;
+        }
+        $wmName = preg_replace('/(\.[^.\/]+)$/', '.wm$1', basename($src));
+        $dst = dirname($src).'/'.$wmName;
+        if (! is_file($dst) || filemtime($dst) < filemtime($src)) {
+            $tmp = $dst.'.tmp-'.getmypid();
+            if (! @copy($src, $tmp) || ! $this->applyForObject($tmp, $objectId) || ! @rename($tmp, $dst)) {
+                @unlink($tmp);
+
+                return null;
+            }
+        }
+
+        return rtrim((string) $reference->path, '/').'/'.$wmName;
+    }
+
+    /**
      * Get the complete watermark configuration for an object.
      *
      * Priority:

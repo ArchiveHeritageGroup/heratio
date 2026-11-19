@@ -309,7 +309,9 @@ class RedactionRenderService
         // A C2PA-signed copy (scan.c2pa.jpg) or sidecar (scan.jpg.c2pa.json) sits
         // next to its original and carries the same pixels or metadata, so it is
         // judged as the original.
-        $name = preg_replace(['/\.c2pa\.json$/', '/\.c2pa(\.[^.\/]+)$/'], ['', '$1'], $name);
+        // A watermarked preview (reference_scan.wm.jpg, heratio#1747) is judged
+        // as the copy it was made from, in the same way.
+        $name = preg_replace(['/\.c2pa\.json$/', '/\.c2pa(\.[^.\/]+)$/', '/\.wm(\.[^.\/]+)$/'], ['', '$1', '$1'], $name);
 
         $rows = DB::table('digital_object')
             ->where('name', $name)

@@ -327,6 +327,12 @@ class AccessRequestService
                 'updated_at' => $reviewedAt,
             ]) > 0;
 
+        // heratio#1775: an approved object request gets a release link to the
+        // record's original, shown on the requester's My requests page.
+        if ($affected) {
+            \AhgCore\Services\ReleaseLinkService::issueForAccessRequest($id);
+        }
+
         // #95: notify the requester their request was approved. Look up the
         // user's email from the access_request row's user_id (rather than
         // re-reading the whole row) since the update above already happened.

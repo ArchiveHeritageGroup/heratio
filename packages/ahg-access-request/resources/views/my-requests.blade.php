@@ -49,6 +49,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    @php $__releases = \Illuminate\Support\Facades\Route::has('cart.download') ? \AhgCore\Services\ReleaseLinkService::forAccessRequests((int) auth()->id()) : []; @endphp
                                     @foreach($requests as $req)
                                         <tr>
                                             <td>{{ $req->id }}</td>
@@ -69,6 +70,10 @@
                                             <td>{{ $req->created_at ?? '' }}</td>
                                             <td>
                                                 <a href="{{ route('accessRequest.view', $req->id) }}" class="atom-btn-white btn-sm">{{ __('View') }}</a>
+                                                @if(! empty($__releases[$req->id]))
+                                                    {{-- heratio#1775: the original released by this approval. --}}
+                                                    <a href="{{ route('cart.download', $__releases[$req->id]) }}" class="atom-btn-white btn-sm"><i class="fas fa-download me-1"></i>{{ __('Download original') }}</a>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach

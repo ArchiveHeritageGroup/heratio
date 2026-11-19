@@ -165,4 +165,30 @@ class ProtectOriginalsTest extends TestCase
         $this->protect(true);
         $this->gate('scan.jpg', $this->user(100))->assertNoContent();
     }
+
+    public function test_preview_copy_carries_the_watermark(): void
+    {
+        if (trim((string) shell_exec('command -v composite')) === '' || ! is_file(public_path('images/watermarks/copyright.png'))) {
+            $this->markTestSkipped('ImageMagick or the watermark images are missing');
+        }
+        $root = sys_get_temp_dir().'/ahg-wm-'.uniqid();
+        mkdir($root.'/r/1', 0777, true);
+        shell_exec('convert -size 480x360 xc:white '.escapeshellarg($root.'/r/1/reference_scan.jpg'));
+        config(['heratio.uploads_path' => $root]);
+        DB::table('watermark_setting')->updateOrInsert(['setting_key' => 'default_watermark_enabled'], ['setting_value' => '1']);
+        DB::table('watermark_setting')->updateOrInsert(['setting_key' => 'default_watermark_type'], ['setting_value' => 'COPYRIGHT']);
+
+        $ref = (object) ['path' => '/uploads/r/1/', 'name' => 'reference_scan.jpg'];
+        $url = app(\AhgMediaProcessing\Services\WatermarkService::class)->previewCopyUrl($ref, $this->child);
+
+        $this->assertSame('/uploads/r/1/reference_scan.wm.jpg', $url);
+        $this->assertFileExists($root.'/r/1/reference_scan.wm.jpg');
+        $this->assertNotSame(md5_file($root.'/r/1/reference_scan.jpg'), md5_file($root.'/r/1/reference_scan.wm.jpg'));
+        // The gate judges the watermarked copy as the reference it came from.
+        $this->assertSame([$this->child], app(\AhgInformationObjectManage\Services\RedactionRenderService::class)->recordIdsForIdentifier('/'.$this->dir.'/reference_scan.wm.jpg'));
+        $this->protect(true);
+        $this->gate('reference_scan.jpg')->assertNoContent();
+
+        shell_exec('rm -rf '.escapeshellarg($root));
+    }
 }

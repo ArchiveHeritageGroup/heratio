@@ -581,30 +581,35 @@ class CartController extends Controller
     }
 
     /**
-     * Download a cart export via token authentication.
+     * heratio#1775: a release download link. The token names one user and one
+     * record's original; the signed-in user must be that user (or staff).
      */
     public function download(string $token)
     {
-        $download = DB::table('ahg_cart_downloads')
-            ->where('token', $token)
-            ->where('expires_at', '>', now())
-            ->first();
-
-        if (! $download) {
-            abort(404, 'Download link has expired or is invalid.');
+        $link = \AhgCore\Services\ReleaseLinkService::find($token);
+        if (! $link) {
+            abort(404, __('This download link has expired or is not valid.'));
+        }
+        if (! auth()->check()) {
+            return redirect()->guest(route('login'));
+        }
+        $user = auth()->user();
+        $staff = \AhgCore\Services\AclService::isAdministrator($user) || \AhgCore\Services\AclService::isEditor($user);
+        if ((int) $link->user_id !== (int) $user->id && ! $staff) {
+            abort(403, __('This download link was issued to another user.'));
         }
 
-        $filePath = $download->file_path ?? null;
-        if (! $filePath || ! file_exists($filePath)) {
-            abort(404, 'File not found.');
+        $master = DB::table('digital_object')->where('id', $link->digital_object_id)->first();
+        $path = $master ? \AhgCore\Services\DigitalObjectService::resolveDiskPath($master) : null;
+        if (! $path || ! is_file($path)) {
+            abort(404, __('File not found.'));
         }
 
-        // Mark as downloaded
-        DB::table('ahg_cart_downloads')
-            ->where('id', $download->id)
-            ->update(['downloaded_at' => now()]);
+        \AhgCore\Services\ReleaseLinkService::recordDownload($link);
 
-        return response()->download($filePath);
+        return response()->download($path, basename((string) $master->name), [
+            'Content-Type' => $master->mime_type ?: 'application/octet-stream',
+        ]);
     }
 
     /**
@@ -675,6 +680,8 @@ class CartController extends Controller
                     'paid_at' => now(),
                     'updated_at' => now(),
                 ]);
+            // heratio#1775: payment releases the ordered records' originals.
+            \AhgCore\Services\ReleaseLinkService::issueForOrder((int) $data['m_payment_id']);
         }
 
         // PayFast expects a 200 acknowledgement regardless; do not leak validity.
