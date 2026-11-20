@@ -2411,6 +2411,16 @@ class DisplayController extends Controller
                         }
                     }
                 }
+                // heratio#1763: the text inside the records' files (OCR,
+                // transcripts, captions) lives only in the search index. With
+                // the index answering above it is already included; otherwise
+                // ask the index for the file text alone. Index down: skipped.
+                if ($esIds === null) {
+                    foreach (app(\AhgSearch\Services\ElasticsearchService::class)->transcriptMatchIds((string) $term, self::ES_MATCH_LIMIT) ?? [] as $tid) {
+                        $ids[$tid] = true;
+                    }
+                }
+
                 if ($collect(DB::table('information_object')->select('id')
                     ->where('identifier', 'like', $like)->get())) {
                     return null;

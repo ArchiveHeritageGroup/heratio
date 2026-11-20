@@ -365,6 +365,17 @@ class OcrService
             }
         } catch (\Throwable $e) {
             Log::warning('[ahg-ai] OcrService::persist failed: '.$e->getMessage());
+
+            return;
+        }
+
+        // heratio#1763: the new text is searchable once the record is reindexed.
+        if ($ioId) {
+            try {
+                \Illuminate\Support\Facades\Artisan::call('ahg:es-reindex', ['--index' => 'informationobject', '--id' => $ioId]);
+            } catch (\Throwable $e) {
+                Log::info('[ahg-ai] search reindex after OCR skipped: '.$e->getMessage());
+            }
         }
     }
 

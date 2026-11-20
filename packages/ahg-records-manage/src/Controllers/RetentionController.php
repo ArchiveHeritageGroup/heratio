@@ -102,6 +102,9 @@ class RetentionController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'authority' => 'nullable|string|max:255',
+            // heratio#1737
+            'schedule_type' => 'nullable|string|max:64|exists:ahg_dropdown,code,taxonomy,rm_retention_schedule_type',
+            'disposal_authority_number' => 'nullable|string|max:100',
             'jurisdiction' => 'nullable|string|max:100',
             'effective_date' => 'nullable|date',
             'review_date' => 'nullable|date',
@@ -164,6 +167,9 @@ class RetentionController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'authority' => 'nullable|string|max:255',
+            // heratio#1737
+            'schedule_type' => 'nullable|string|max:64|exists:ahg_dropdown,code,taxonomy,rm_retention_schedule_type',
+            'disposal_authority_number' => 'nullable|string|max:100',
             'jurisdiction' => 'nullable|string|max:100',
             'effective_date' => 'nullable|date',
             'review_date' => 'nullable|date',

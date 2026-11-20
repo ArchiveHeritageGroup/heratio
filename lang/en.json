@@ -28570,5 +28570,18 @@
     "Default digital object browse view": "Default digital object browse view",
     "Same as archival descriptions": "Same as archival descriptions",
     "This collection": "This collection",
-    "See who and what this collection mentions, and how its records connect": "See who and what this collection mentions, and how its records connect"
+    "See who and what this collection mentions, and how its records connect": "See who and what this collection mentions, and how its records connect",
+    "(failing since :at)": "(failing since :at)",
+    "Back to normal.": "Back to normal.",
+    "Disposal authority number": "Disposal authority number",
+    "Expected at :at; nothing has finished for :mins minutes.": "Expected at :at; nothing has finished for :mins minutes.",
+    "Problem: :check": "Problem: :check",
+    "Recovered: :check": "Recovered: :check",
+    "Schedule type": "Schedule type",
+    "Scheduled job missed: :cmd": "Scheduled job missed: :cmd",
+    "disk space on :path": "disk space on :path",
+    "the background job queue": "the background job queue",
+    "the database": "the database",
+    "the search engine": "the search engine",
+    "the website": "the website"
 }

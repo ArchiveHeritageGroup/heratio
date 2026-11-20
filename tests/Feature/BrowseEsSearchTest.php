@@ -29,6 +29,17 @@ class BrowseEsSearchTest extends TestCase
 
     private string $term;
 
+    protected function tearDown(): void
+    {
+        // The controller memoises the setting in a static; leave it unset so a
+        // later test does not inherit "search goes to the index".
+        $r = new \ReflectionClass(\AhgDisplay\Controllers\DisplayController::class);
+        $r->setStaticPropertyValue('searchEs', null);
+        $r->setStaticPropertyValue('textMatchIdCache', []);
+        \AhgCore\Services\AhgSettingsService::clearCache();
+        parent::tearDown();
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -73,7 +84,10 @@ class BrowseEsSearchTest extends TestCase
         Http::assertSent(function (Request $req) {
             $fields = $req['query']['simple_query_string']['fields'] ?? [];
 
-            return $fields !== [] && ! array_filter($fields, fn ($f) => preg_match('/^(all|transcript)\b/', $f));
+            // `all` is never searched; `transcript` (file text, heratio#1763) is,
+            // at a low weight - the indexer leaves it empty for withheld files.
+            return $fields !== [] && ! array_filter($fields, fn ($f) => preg_match('/^all\b/', $f))
+                && in_array('transcript^0.5', $fields, true);
         });
     }
 

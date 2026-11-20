@@ -197,6 +197,7 @@ class AhgCoreServiceProvider extends ServiceProvider
                 \AhgCore\Console\Commands\NasWatchdogCommand::class,
                 \AhgCore\Console\Commands\TrashPurgeCommand::class,
                 \AhgCore\Console\Commands\RecordsArchiveCommand::class,
+                \AhgCore\Console\Commands\MonitorCommand::class,
                 \AhgCore\Console\Commands\BackfillEmbeddedMetadataCommand::class,
                 \AhgCore\Console\Commands\OptimizeModelsCommand::class,
                 \AhgCore\Console\Commands\OptimizePdfsCommand::class,

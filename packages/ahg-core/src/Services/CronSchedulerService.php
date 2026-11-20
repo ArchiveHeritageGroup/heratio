@@ -521,6 +521,8 @@ class CronSchedulerService
             ],
             'Digital Preservation' => [
                 ['slug' => 'preservation-scheduler', 'name' => 'Preservation Scheduler', 'description' => 'Execute due preservation actions from the scheduler queue.', 'artisan_command' => 'ahg:preservation-scheduler', 'cron_expression' => '*/5 * * * *', 'duration_hint' => 'medium', 'log_file' => 'logs/preservation-scheduler.log'],
+                // heratio#1742: built-in monitoring - website, disk, database, search, queue.
+                ['slug' => 'monitor', 'name' => 'System Monitor', 'description' => 'Check the website, disk space, database, search engine and job queue every 5 minutes; alert administrators and monitoring_alert_email on a problem and on recovery.', 'artisan_command' => 'ahg:monitor', 'cron_expression' => '*/5 * * * *', 'duration_hint' => 'short', 'log_file' => 'logs/monitor.log'],
                 // heratio#1760: no-op until records_archive_after_days is set.
                 ['slug' => 'records-archive', 'name' => 'Records Archive Tier', 'description' => 'Move declared records inactive for records_archive_after_days to the archive tier (still read-only). Off while the setting is 0.', 'artisan_command' => 'ahg:records-archive', 'cron_expression' => '15 4 * * *', 'duration_hint' => 'short', 'log_file' => 'logs/records-archive.log'],
                 // heratio#1734: off until the trash location and retention are agreed for every system sharing the uploads folder.

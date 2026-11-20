@@ -353,9 +353,11 @@ class ElasticsearchService
      * or more may be missing, so one word the records spell differently
      * does not empty the result.
      *
-     * Only catalogue fields are searched - never `all` or `transcript`,
-     * which hold the text of the digital objects, so a name inside an
-     * unscreened file is not findable here. No visibility filter is applied:
+     * Catalogue fields first, then `transcript` (heratio#1763): the text
+     * inside the record's files - OCR, transcripts, captions - at a low weight.
+     * The indexer leaves `transcript` empty for a record whose files privacy
+     * screening still withholds, so a name inside an unscreened file is not
+     * findable. `all` is never searched. No visibility filter is applied:
      * the caller filters the ids with the same gates as the SQL path.
      *
      * Returns null when ES cannot answer or matches more than $limit, so the
@@ -363,6 +365,40 @@ class ElasticsearchService
      *
      * @return array<int,int>|null
      */
+    /**
+     * heratio#1763: description ids whose file text (`transcript` - OCR,
+     * transcripts, captions; filled only for records screening does not
+     * withhold) matches the query, for the database search path. All words
+     * must match. Null when the index cannot answer or matches more than $limit.
+     *
+     * @return list<int>|null
+     */
+    public function transcriptMatchIds(string $query, int $limit = 10000): ?array
+    {
+        if (trim($query) === '') {
+            return [];
+        }
+        try {
+            $response = Http::timeout(5)->post("{$this->host}/{$this->indexPrefix}qubitinformationobject/_search", [
+                // The index refuses more than 10,000 hits per request.
+                'size' => $size = min($limit + 1, 10000),
+                '_source' => false,
+                'query' => ['simple_query_string' => ['query' => $query, 'fields' => ['transcript'], 'default_operator' => 'and']],
+            ]);
+        } catch (\Throwable) {
+            return null;
+        }
+        if (! $response->successful()) {
+            return null;
+        }
+        $hits = $response->json('hits.hits') ?? [];
+        if (count($hits) > $limit || count($hits) >= $size && $size === 10000) {
+            return null;
+        }
+
+        return array_map(fn ($h) => (int) $h['_id'], $hits);
+    }
+
     public function matchingIoIds(string $query, string $culture = 'en', int $limit = 10000): ?array
     {
         $fields = [];
@@ -373,6 +409,7 @@ class ElasticsearchService
         // ahg:es-search-analysis has added them; an index without them skips these.
         array_push($fields, 'i18n.en.title.stem^2', 'i18n.en.scopeAndContent.stem');
         array_push($fields, 'identifier^2', 'referenceCode^2', 'isbn^3', 'callNumber^2', 'seriesTitle', 'summary', 'contentsNote');
+        $fields[] = 'transcript^0.5';
 
         $url = "{$this->host}/{$this->indexPrefix}qubitinformationobject/_search";
         foreach (['all' => '100%', 'most' => '2<-1'] as $msm) {
@@ -959,6 +996,7 @@ class ElasticsearchService
                         'seriesIssn',
                         'summary',
                         'contentsNote',
+                        'transcript^0.5', // heratio#1763, screened records only (see the indexer)
                     ],
                     'default_operator' => 'AND',
                 ],

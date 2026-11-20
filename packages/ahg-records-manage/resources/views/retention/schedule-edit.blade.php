@@ -30,6 +30,20 @@
         <label for="description" class="form-label">{{ __('Description') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <textarea name="description" id="description" class="form-control" rows="3">{{ old('description', $schedule->description) }}</textarea>
       </div>
+      {{-- heratio#1737 --}}
+      <div class="col-md-6 mb-3">
+        <label for="schedule_type" class="form-label">{{ __('Schedule type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <select name="schedule_type" id="schedule_type" class="form-select">
+          <option value="">{{ __('-- Select --') }}</option>
+          @foreach(\AhgCore\Support\DropdownOptions::resolve('rm_retention_schedule_type', []) as $code => $label)
+            <option value="{{ $code }}" @selected(old('schedule_type', $schedule->schedule_type) == $code)>{{ $label }}</option>
+          @endforeach
+        </select>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label for="disposal_authority_number" class="form-label">{{ __('Disposal authority number') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+        <input type="text" name="disposal_authority_number" id="disposal_authority_number" class="form-control" maxlength="100" value="{{ old('disposal_authority_number', $schedule->disposal_authority_number) }}">
+      </div>
       <div class="col-md-6 mb-3">
         <label for="authority" class="form-label">{{ __('Authority') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
         <input type="text" name="authority" id="authority" class="form-control" value="{{ old('authority', $schedule->authority) }}">

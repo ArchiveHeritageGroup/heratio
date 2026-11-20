@@ -536,6 +536,10 @@ class EsReindexCommand extends Command
                     }
                 }
 
+                // heratio#1763: the text inside the records' files (OCR, transcripts,
+                // captions), for records privacy screening does not withhold.
+                $texts = \AhgSearch\Services\RecordTextService::forRecords($ids);
+
                 // Batch-load creators via event table (event.object_id links to information_object.id)
                 $creators = DB::table('event')
                     ->whereIn('object_id', $ids)
@@ -760,6 +764,10 @@ class EsReindexCommand extends Command
                         // same Work into a single result row with a 'View all
                         // editions' expander. Backfilled by ahg:frbr-backfill-work-keys.
                         $doc['workKey'] = $libRow->work_key ?: null;
+                    }
+
+                    if (isset($texts[$row->id])) {
+                        $doc['transcript'] = $texts[$row->id];
                     }
 
                     if ($do) {

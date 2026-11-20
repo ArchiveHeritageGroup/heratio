@@ -66,7 +66,7 @@ footer { padding: 8px 20px; font-size: 12px; color: var(--headtext); background:
 <script src="data.js"></script>
 <script>
 const D = window.DATA;
-const TYPES = { subject: ['Subjects', '#10373E'], place: ['Places', '#3f6b5a'], name: ['People and bodies', '#9a3f1c'], genre: ['Genres', '#b07d2b'] };
+const TYPES = { subject: ['Subjects', '#10373E'], place: ['Places', '#3f6b5a'], name: ['People and bodies', '#9a3f1c'], genre: ['Genres', '#b07d2b'], event: ['Events', '#5b4a7a'] };
 const REC = new Map(D.records.map(r => [r.id, r]));
 const ENT = new Map(D.entities.map(e => [e.id, e]));
 const on = new Set(Object.keys(TYPES));

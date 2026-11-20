@@ -29,7 +29,10 @@
         <table class="table table-sm">
           <tr><th style="width:160px">{{ __('Reference') }}</th><td>{{ $schedule->schedule_ref }}</td></tr>
           <tr><th>{{ __('Title') }}</th><td>{{ $schedule->title }}</td></tr>
+          @php $__types = \AhgCore\Support\DropdownOptions::resolve('rm_retention_schedule_type', []); @endphp
+          <tr><th>{{ __('Schedule type') }}</th><td>{{ $__types[$schedule->schedule_type ?? ''] ?? ($schedule->schedule_type ?? '-') }}</td></tr>
           <tr><th>{{ __('Authority') }}</th><td>{{ $schedule->authority ?? '-' }}</td></tr>
+          <tr><th>{{ __('Disposal authority number') }}</th><td>{{ $schedule->disposal_authority_number ?? '-' }}</td></tr>
           <tr><th>{{ __('Jurisdiction') }}</th><td>{{ $schedule->jurisdiction ?? '-' }}</td></tr>
           <tr><th>{{ __('Version') }}</th><td>{{ $schedule->version }}</td></tr>
         </table>

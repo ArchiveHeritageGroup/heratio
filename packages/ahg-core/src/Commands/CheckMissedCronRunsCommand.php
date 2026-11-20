@@ -219,6 +219,16 @@ class CheckMissedCronRunsCommand extends Command
      */
     private function dropWorkbenchNotification(string $command, Carbon $expectedAt, int $gapSeconds): void
     {
+        // heratio#1742: a missed job is also e-mailed (monitoring_alert_email)
+        // and shown to administrators in Heratio, not only dropped in the
+        // internal Workbench folder.
+        \AhgCore\Services\SystemAlerts::send(
+            __('Scheduled job missed: :cmd', ['cmd' => $command]),
+            __('Expected at :at; nothing has finished for :mins minutes.', ['at' => $expectedAt->toDateTimeString(), 'mins' => (int) round($gapSeconds / 60)]),
+            \Illuminate\Support\Facades\Route::has('settings.cron-jobs') ? route('settings.cron-jobs') : null,
+            'cron_missed'
+        );
+
         $inbox = (string) config('cron-monitoring.inbox_path', '/var/spool/workbench/notifications');
         $user = (string) config('cron-monitoring.notification_user', 'johan');
 

@@ -19,6 +19,8 @@ class RetentionScheduleService
             'title' => $data['title'],
             'description' => $data['description'] ?? null,
             'authority' => $data['authority'] ?? null,
+            'schedule_type' => $data['schedule_type'] ?? null,
+            'disposal_authority_number' => $data['disposal_authority_number'] ?? null,
             'jurisdiction' => $data['jurisdiction'] ?? null,
             'effective_date' => $data['effective_date'] ?? null,
             'review_date' => $data['review_date'] ?? null,
@@ -44,7 +46,7 @@ class RetentionScheduleService
             'updated_at' => Carbon::now(),
         ];
 
-        $fields = ['schedule_ref', 'title', 'description', 'authority', 'jurisdiction',
+        $fields = ['schedule_ref', 'title', 'description', 'authority', 'schedule_type', 'disposal_authority_number', 'jurisdiction',
             'effective_date', 'review_date', 'expiry_date', 'naz_schedule_id'];
 
         foreach ($fields as $field) {
