@@ -28583,5 +28583,8 @@
     "the background job queue": "the background job queue",
     "the database": "the database",
     "the search engine": "the search engine",
-    "the website": "the website"
+    "the website": "the website",
+    "Drawn on images": "Drawn on images",
+    "Annotations you drew in the image viewer. To change one, open the record and use the Annotations panel.": "Annotations you drew in the image viewer. To change one, open the record and use the Annotations panel.",
+    "(no comment)": "(no comment)"
 }

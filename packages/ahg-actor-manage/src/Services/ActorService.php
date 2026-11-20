@@ -513,8 +513,13 @@ class ActorService
             ->select(
                 'information_object.id',
                 'information_object_i18n.title',
-                'slug.slug'
+                'slug.slug',
+                'information_object.parent_id'
             )
+            // Top-level records (collections, a library bookcase) before the
+            // many pages inside them, so they are not buried on page 5.
+            ->orderByRaw('information_object.parent_id = 1 DESC')
+            ->orderBy('information_object_i18n.title')
             ->distinct();
 
         $total = DB::table(DB::raw("({$baseQuery->toSql()}) as sub"))

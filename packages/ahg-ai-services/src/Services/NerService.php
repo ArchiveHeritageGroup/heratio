@@ -912,19 +912,23 @@ class NerService
             return;
         }
 
-        // Insert into object table first (class table inheritance)
-        $id = DB::table('object')->insertGetId([
-            'class_name' => 'QubitRelation',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // Object row first (class table inheritance), in one transaction so a
+        // failed relation insert leaves no orphan object row behind.
+        DB::transaction(function () use ($objectId, $actorId) {
+            $id = DB::table('object')->insertGetId([
+                'class_name' => 'QubitRelation',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-        DB::table('relation')->insert([
-            'id'         => $id,
-            'subject_id' => $objectId,
-            'object_id'  => $actorId,
-            'type_id'    => self::NAME_ACCESS_POINT_ID,
-        ]);
+            DB::table('relation')->insert([
+                'id'             => $id,
+                'subject_id'     => $objectId,
+                'object_id'      => $actorId,
+                'type_id'        => self::NAME_ACCESS_POINT_ID,
+                'source_culture' => app()->getLocale() ?: 'en',
+            ]);
+        });
     }
 
     /**

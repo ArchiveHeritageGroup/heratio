@@ -351,6 +351,54 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode, viewerObjects) {
         iiifAvailable().then(buildMirador);
     }
 
+    // One Mirador setup for both the single-image and the multi-object
+    // paths, so drawing annotations works the same on either. With
+    // iiif_enable_annotations on, the sidebar opens on the annotation panel
+    // and mirador-annotation-editor is wired with the Heratio storage adapter
+    // (writes to /api/annotations, reads via the same search endpoint).
+    // Closes #100. The adapter is exposed as window.HeratioAnnotationAdapter
+    // by the bundle entrypoint (see tools/mirador-build/src/index.js).
+    var annotationsOn = cfg.enable_annotations === true;
+    function miradorViewerConfig() {
+        var conf = {
+            id: 'mirador-' + vid,
+            // Windows are opened imperatively (addWindow) after the inline
+            // manifest is injected into the store, so Mirador never tries to
+            // fetch the urn: manifestId.
+            windows: [],
+            window: {
+                allowClose: false,
+                allowMaximize: false,
+                allowFullscreen: cfg.show_fullscreen !== false,
+                allowTopMenuButton: false,
+                allowWindowSideBar: true,
+                sideBarOpenByDefault: annotationsOn,
+                sideBarOpen: annotationsOn,
+                highlightAllAnnotations: annotationsOn
+            },
+            workspaceControlPanel: { enabled: false },
+            workspace: { type: 'mosaic', allowNewWindows: false }
+        };
+        if (annotationsOn && typeof window.HeratioAnnotationAdapter === 'function') {
+            conf.annotation = {
+                adapter: function (canvasId) { return new window.HeratioAnnotationAdapter(canvasId); },
+                // Editor stays editable; the storage backend gates writes via
+                // session auth (anon POST -> 401). Toggling readonly per-user
+                // from JS would need the auth state in a global, which we
+                // don't currently expose.
+                exportLocalStorageAnnotations: false
+            };
+        }
+        return conf;
+    }
+    function miradorWindowOptions(manifestId) {
+        return {
+            manifestId: manifestId,
+            sideBarPanel: annotationsOn ? 'annotations' : 'info',
+            highlightAllAnnotations: annotationsOn
+        };
+    }
+
     // iiifOk = the IIIF image service answered with JSON (heratio#1577).
     function buildMirador(iiifOk) {
 
@@ -376,7 +424,11 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode, viewerObjects) {
                 if (items.length < 2) { showImg(); return; } // not enough loaded - fall back to the single image
                 var manifestUrl = 'urn:heratio:multi:' + encodeURIComponent(vid);
                 var canvases = items.map(function (it, i) {
-                    var cid = manifestUrl + '/canvas/' + i;
+                    // Canvas id = the image URL + /canvas/1, the same shape as
+                    // the single-image path, so a drawn annotation stays on its
+                    // image when objects are added or reordered, and the server
+                    // can map it back to the record (AnnotationTargetResolver).
+                    var cid = it.url + '/canvas/1';
                     // #1475: when the object is a Cantaloupe-servable raster,
                     // attach an IIIF image service so this canvas deep-zooms
                     // (tiled pyramid) instead of loading a single flat image.
@@ -409,13 +461,9 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode, viewerObjects) {
                 };
                 function createMulti() {
                     if (typeof Mirador === 'undefined') { mirEl.innerHTML = '<div class="alert alert-warning m-3">Mirador viewer not available.</div>'; return; }
-                    var mir = Mirador.viewer({
-                        id: 'mirador-' + vid, windows: [],
-                        window: { allowClose: false, allowMaximize: false, allowFullscreen: cfg.show_fullscreen !== false, allowTopMenuButton: false, allowWindowSideBar: true },
-                        workspaceControlPanel: { enabled: false }, workspace: { type: 'mosaic', allowNewWindows: false }
-                    });
+                    var mir = Mirador.viewer(miradorViewerConfig());
                     mir.store.dispatch(Mirador.actions.receiveManifest(manifestUrl, manifest));
-                    mir.store.dispatch(Mirador.actions.addWindow({ manifestId: manifestUrl }));
+                    mir.store.dispatch(Mirador.actions.addWindow(miradorWindowOptions(manifestUrl)));
                     setTimeout(function () {
                         var style = document.createElement('style');
                         style.textContent = '#mirador-' + vid + ' button[aria-label="Close"], #mirador-' + vid + ' button[aria-label="Minimize window"], #mirador-' + vid + ' button[aria-label="Maximize window"] { display:none !important; }';
@@ -502,53 +550,12 @@ function initIiifViewer(viewerId, imageUrl, title, initialMode, viewerObjects) {
                     mirEl.innerHTML = '<div class="alert alert-warning m-3">Mirador viewer not available.</div>';
                     return;
                 }
-                // Mirador honours iiif_show_fullscreen + iiif_enable_annotations.
-                // Annotations on -> sidebar opens to the annotation panel and
-                // mirador-annotation-editor is wired with the Heratio storage
-                // adapter (writes to /api/annotations, reads via the same
-                // search endpoint). Closes #100. Adapter is exposed as
-                // window.HeratioAnnotationAdapter by the bundle entrypoint
-                // (see tools/mirador-build/src/index.js).
-                var miradorConfig = {
-                    id: 'mirador-' + vid,
-                    // Windows are opened imperatively (addWindow) after the
-                    // inline manifest is injected into the store, so Mirador
-                    // never tries to fetch the urn: manifestId.
-                    windows: [],
-                    window: {
-                        allowClose: false,
-                        allowMaximize: false,
-                        allowFullscreen: cfg.show_fullscreen !== false,
-                        allowTopMenuButton: false,
-                        allowWindowSideBar: true,
-                        sideBarOpenByDefault: cfg.enable_annotations === true,
-                        sideBarOpen: cfg.enable_annotations === true,
-                        highlightAllAnnotations: cfg.enable_annotations === true
-                    },
-                    workspaceControlPanel: { enabled: false },
-                    workspace: { type: 'mosaic', allowNewWindows: false }
-                };
-                if (cfg.enable_annotations === true && typeof window.HeratioAnnotationAdapter === 'function') {
-                    miradorConfig.annotation = {
-                        adapter: function (canvasId) { return new window.HeratioAnnotationAdapter(canvasId); },
-                        // Editor stays editable; the storage backend gates
-                        // writes via session auth (anon POST -> 302 to
-                        // /login). Toggling readonly per-user from JS would
-                        // need to round-trip the auth state into a global,
-                        // which we don't currently expose.
-                        exportLocalStorageAnnotations: false
-                    };
-                }
-                var mir = Mirador.viewer(miradorConfig);
+                var mir = Mirador.viewer(miradorViewerConfig());
                 // Hand Mirador the manifest object directly (the manifestUrl is a
                 // urn:, not fetchable), then open a window on it. This keeps the
                 // annotation/highlight options that used to live in windows:[{...}].
                 mir.store.dispatch(Mirador.actions.receiveManifest(manifestUrl, manifest));
-                mir.store.dispatch(Mirador.actions.addWindow({
-                    manifestId: manifestUrl,
-                    sideBarPanel: cfg.enable_annotations === true ? 'annotations' : 'info',
-                    highlightAllAnnotations: cfg.enable_annotations === true
-                }));
+                mir.store.dispatch(Mirador.actions.addWindow(miradorWindowOptions(manifestUrl)));
 
                 // Hide Mirador's own close/minimize/maximize buttons via CSS
                 setTimeout(function() {

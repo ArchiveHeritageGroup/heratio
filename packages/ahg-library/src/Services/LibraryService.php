@@ -934,10 +934,19 @@ class LibraryService
                 'library_item_creator.name',
                 'library_item_creator.role',
                 'library_item_creator.authority_uri',
+                'library_item_creator.actor_id',
+                'creator_slug.slug as actor_slug',
             ])
+            ->leftJoin('slug as creator_slug', 'creator_slug.object_id', '=', 'library_item_creator.actor_id')
             ->get()
             ->map(function ($creator) {
-                // Try to find matching actor for slug link
+                // The linked authority record first; older rows without one
+                // fall back to a match on the name.
+                if ($creator->actor_slug) {
+                    $creator->slug = $creator->actor_slug;
+
+                    return $creator;
+                }
                 $actor = DB::table('actor_i18n')
                     ->join('slug', 'actor_i18n.id', '=', 'slug.object_id')
                     ->where('actor_i18n.authorized_form_of_name', $creator->name)
@@ -947,6 +956,45 @@ class LibraryService
                 $creator->slug = $actor->slug ?? null;
                 return $creator;
             });
+    }
+
+    /**
+     * The record's own access points, as on an archival description: names
+     * (relation type 161 to an actor) and subject, place and genre terms.
+     *
+     * @return array{names: \Illuminate\Support\Collection, subjects: \Illuminate\Support\Collection, places: \Illuminate\Support\Collection, genres: \Illuminate\Support\Collection}
+     */
+    public function getAccessPoints(int $informationObjectId): array
+    {
+        $names = DB::table('relation')
+            ->join('actor_i18n', function ($j) {
+                $j->on('actor_i18n.id', '=', 'relation.object_id')->where('actor_i18n.culture', '=', $this->culture);
+            })
+            ->leftJoin('slug', 'slug.object_id', '=', 'relation.object_id')
+            ->where('relation.subject_id', $informationObjectId)
+            ->where('relation.type_id', 161)
+            ->orderBy('actor_i18n.authorized_form_of_name')
+            ->select('actor_i18n.authorized_form_of_name as name', 'slug.slug')
+            ->distinct()->get();
+
+        $terms = DB::table('object_term_relation as otr')
+            ->join('term', 'term.id', '=', 'otr.term_id')
+            ->join('term_i18n', function ($j) {
+                $j->on('term_i18n.id', '=', 'term.id')->where('term_i18n.culture', '=', $this->culture);
+            })
+            ->leftJoin('slug', 'slug.object_id', '=', 'term.id')
+            ->where('otr.object_id', $informationObjectId)
+            ->whereIn('term.taxonomy_id', [35, 42, 78])
+            ->orderBy('term_i18n.name')
+            ->select('term.taxonomy_id', 'term_i18n.name', 'slug.slug')
+            ->get();
+
+        return [
+            'names' => $names,
+            'subjects' => $terms->where('taxonomy_id', 35)->values(),
+            'places' => $terms->where('taxonomy_id', 42)->values(),
+            'genres' => $terms->where('taxonomy_id', 78)->values(),
+        ];
     }
 
     /**

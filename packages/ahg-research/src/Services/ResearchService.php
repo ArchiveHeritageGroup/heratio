@@ -617,6 +617,114 @@ class ResearchService
             ->get()->toArray();
     }
 
+    /**
+     * Annotations the user drew on images in the record viewer (Mirador,
+     * table ahg_iiif_annotation), for the read-only list in the notebook.
+     * Only the user's own rows: the notebook is personal, and public rows by
+     * others are already shown on the records themselves.
+     *
+     * $visibility takes the notebook's values; 'shared' matches the viewer's
+     * 'project'. $query matches the comment text or the record title.
+     *
+     * @return array<int, object{id:int, uuid:string, text:string, tags:array, visibility:string, created_at:string, object_id:?int, object_title:?string, object_slug:?string}>
+     */
+    public function getImageAnnotations(int $userId, ?string $query = null, ?string $visibility = null): array
+    {
+        if (! Schema::hasTable('ahg_iiif_annotation')) {
+            return [];
+        }
+
+        $rows = DB::table('ahg_iiif_annotation')
+            ->where('created_by', $userId)
+            ->when($visibility, fn ($q) => $q->where('visibility', $visibility === 'shared' ? 'project' : $visibility))
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            // ponytail: newest 500 only; add paging if anyone draws more.
+            ->limit(500)
+            ->get(['id', 'uuid', 'target_iri', 'information_object_id', 'visibility', 'body_json', 'created_at']);
+
+        $resolver = \AhgAnnotations\Services\AnnotationTargetResolver::class;
+        $items = $rows->map(function ($row) use ($resolver) {
+            [$text, $tags] = $this->imageAnnotationText((string) $row->body_json);
+            $ioId = $row->information_object_id
+                ?: (class_exists($resolver) ? $resolver::resolveIoId((string) $row->target_iri) : null);
+
+            return (object) [
+                'id' => (int) $row->id,
+                'uuid' => $row->uuid,
+                'text' => $text,
+                'tags' => $tags,
+                'visibility' => $row->visibility,
+                'created_at' => $row->created_at,
+                'object_id' => $ioId ? (int) $ioId : null,
+                'object_title' => null,
+                'object_slug' => null,
+            ];
+        });
+
+        $ioIds = $items->pluck('object_id')->filter()->unique()->values()->all();
+        if ($ioIds) {
+            $culture = app()->getLocale();
+            $titles = DB::table('information_object_i18n')
+                ->whereIn('id', $ioIds)
+                ->whereIn('culture', array_unique([$culture, 'en']))
+                ->get(['id', 'culture', 'title'])
+                ->groupBy('id')
+                ->map(fn ($g) => optional($g->firstWhere('culture', $culture) ?: $g->first())->title);
+            $slugs = DB::table('slug')->whereIn('object_id', $ioIds)->pluck('slug', 'object_id');
+            foreach ($items as $item) {
+                if ($item->object_id) {
+                    $item->object_title = $titles[$item->object_id] ?? null;
+                    $item->object_slug = $slugs[$item->object_id] ?? null;
+                }
+            }
+        }
+
+        if ($query !== null && trim($query) !== '') {
+            $needle = trim($query);
+            $items = $items->filter(fn ($i) => stripos($i->text, $needle) !== false
+                || stripos((string) $i->object_title, $needle) !== false);
+        }
+
+        return $items->values()->all();
+    }
+
+    /**
+     * Plain comment text and tags from a stored W3C annotation document.
+     * The editor saves HTML in TextualBody.value; tags are bodies with
+     * purpose 'tagging'.
+     *
+     * @return array{0:string, 1:array<int,string>}
+     */
+    private function imageAnnotationText(string $bodyJson): array
+    {
+        $doc = json_decode($bodyJson, true);
+        $bodies = is_array($doc) ? ($doc['body'] ?? []) : [];
+        if (! is_array($bodies) || isset($bodies['type']) || isset($bodies['value'])) {
+            $bodies = is_array($bodies) ? [$bodies] : [];
+        }
+
+        $texts = [];
+        $tags = [];
+        foreach ($bodies as $b) {
+            if (! is_array($b) || ! isset($b['value']) || ! is_string($b['value'])) {
+                continue;
+            }
+            $plain = html_entity_decode(strip_tags(preg_replace('~<(br|/p|/div|/li)[^>]*>~i', ' ', $b['value'])), ENT_QUOTES | ENT_HTML5);
+            $plain = trim(preg_replace('/\s+/u', ' ', $plain));
+            if ($plain === '') {
+                continue;
+            }
+            if (($b['purpose'] ?? '') === 'tagging') {
+                $tags[] = $plain;
+            } else {
+                $texts[] = $plain;
+            }
+        }
+
+        return [implode(' ', $texts), $tags];
+    }
+
     public function deleteAnnotation(int $id, int $researcherId): bool
     {
         return DB::table('research_annotation')

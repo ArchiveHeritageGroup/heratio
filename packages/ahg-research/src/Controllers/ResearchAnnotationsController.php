@@ -230,13 +230,17 @@ class ResearchAnnotationsController extends Controller
         }
         $annotations = array_values($annotations);
 
+        // Drawn image annotations carry no notebook tags, so a tag filter
+        // hides them.
+        $imageAnnotations = $tag ? [] : $this->service->getImageAnnotations((int) Auth::id(), $q, $visibility);
+
         $researchCollections = DB::table('research_collection')
             ->where('researcher_id', $researcher->id)
             ->orderBy('name')->get();
 
         return view('research::research.annotations', array_merge(
             $this->getSidebarData('annotations'),
-            compact('researcher', 'annotations', 'researchCollections')
+            compact('researcher', 'annotations', 'imageAnnotations', 'researchCollections')
         ));
     }
 

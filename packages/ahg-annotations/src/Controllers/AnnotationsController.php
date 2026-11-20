@@ -25,6 +25,7 @@
 
 namespace AhgAnnotations\Controllers;
 
+use AhgAnnotations\Services\AnnotationTargetResolver;
 use AhgCore\Services\AclService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
@@ -681,46 +682,15 @@ class AnnotationsController extends Controller
     }
 
     /**
-     * Resolve an annotation target IRI to its information_object.id.
-     *
-     * Local canvas/manifest IRIs are built by the IIIF manifest service as
-     *   {baseUrl}/iiif-manifest/{slug}[/canvas/{n}[/...]]
-     * (IiifCollectionService::buildSingleCanvasV3 + routes/web.php), so the
-     * IO slug is the path segment immediately after `/iiif-manifest/`. We
-     * lift it, strip any selector fragment / query string, URL-decode it,
-     * and round-trip through the `slug` table to the object id.
-     *
-     * Returns null when the IRI is not a local manifest IRI (remote IIIF
-     * servers, legacy shapes) or the slug doesn't resolve - callers MUST
-     * fail safe (treat null as "not published" for anonymous readers).
+     * Resolve an annotation target IRI to its information_object.id. The
+     * canvas shapes (server manifests, the viewer's inline file-URL canvases,
+     * redacted derivatives) are handled by AnnotationTargetResolver, shared
+     * with the researcher notebook. Null means unresolved - callers MUST fail
+     * safe (treat null as "not published" for anonymous readers).
      */
     private function resolveIoIdFromTarget(string $iri): ?int
     {
-        if ($iri === '') {
-            return null;
-        }
-
-        // Drop selector fragment (#xywh=...) and query string before matching.
-        $path = parse_url($iri, PHP_URL_PATH);
-        if (! is_string($path) || $path === '') {
-            $path = $iri;
-        }
-
-        // NB: delimiter is ~ (not #) - the pattern's char class contains a
-        // literal '#', which would otherwise be read as the closing delimiter
-        // and throw "preg_match(): Unknown modifier ']'" (500 on anon search).
-        if (! preg_match('~/iiif-manifest/([^/?#]+)~', $path, $m)) {
-            return null;
-        }
-
-        $slug = rawurldecode($m[1]);
-        if ($slug === '') {
-            return null;
-        }
-
-        $objectId = DB::table('slug')->where('slug', $slug)->value('object_id');
-
-        return $objectId ? (int) $objectId : null;
+        return AnnotationTargetResolver::resolveIoId($iri);
     }
 
     /**

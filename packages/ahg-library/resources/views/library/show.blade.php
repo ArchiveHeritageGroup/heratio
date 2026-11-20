@@ -465,7 +465,11 @@
         <ul class="list-unstyled mb-0">
           @foreach($creators as $creator)
             <li class="mb-2">
-              <strong>{{ $creator->name ?? '[Unknown]' }}</strong>
+              @if(!empty($creator->slug))
+                <a href="{{ url('/actor/'.$creator->slug) }}"><strong>{{ $creator->name ?? '[Unknown]' }}</strong></a>
+              @else
+                <strong>{{ $creator->name ?? '[Unknown]' }}</strong>
+              @endif
               <span class="badge bg-secondary ms-2">{{ ucfirst($creator->role ?? __('Author')) }}</span>
               @if(!empty($creator->authority_uri))
                 <a href="{{ $creator->authority_uri }}" target="_blank" class="ms-2" title="{{ __('View authority record') }}">
@@ -741,6 +745,34 @@
             <span class="badge bg-secondary me-1 mb-1">{{ $subject->name ?? '[Unknown]' }}</span>
           @endif
         @endforeach
+      </div>
+    </section>
+  @endif
+
+  {{-- Access points: names, subjects, places and genres on the record itself --}}
+  @php $ap = $accessPoints ?? ['names' => collect(), 'subjects' => collect(), 'places' => collect(), 'genres' => collect()]; @endphp
+  @if($ap['names']->isNotEmpty() || $ap['subjects']->isNotEmpty() || $ap['places']->isNotEmpty() || $ap['genres']->isNotEmpty())
+    <section class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-link me-2"></i>{{ __('Access points') }}</h5>
+      </div>
+      <div class="card-body">
+        <dl class="row mb-0">
+          @foreach(['names' => __('Names'), 'subjects' => __('Subjects'), 'places' => __('Places'), 'genres' => __('Genres')] as $key => $label)
+            @if($ap[$key]->isNotEmpty())
+              <dt class="col-sm-3">{{ $label }}</dt>
+              <dd class="col-sm-9">
+                @foreach($ap[$key] as $point)
+                  @if($point->slug)
+                    <a href="{{ url(($key === 'names' ? '/actor/' : '/term/').$point->slug) }}" class="badge bg-secondary text-decoration-none me-1 mb-1">{{ $point->name }}</a>
+                  @else
+                    <span class="badge bg-secondary me-1 mb-1">{{ $point->name }}</span>
+                  @endif
+                @endforeach
+              </dd>
+            @endif
+          @endforeach
+        </dl>
       </div>
     </section>
   @endif

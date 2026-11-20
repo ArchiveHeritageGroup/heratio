@@ -150,6 +150,53 @@
 </div>
 @endif
 
+{{-- Drawn image annotations (record image viewer). Read-only here; editing stays in the viewer. --}}
+@if(!empty($imageAnnotations))
+<div class="mt-4" id="image-annotations">
+    <h2 class="h5 mb-1"><i class="fas fa-draw-polygon text-primary me-2"></i>{{ __('Drawn on images') }} <span class="badge bg-secondary">{{ count($imageAnnotations) }}</span></h2>
+    <p class="small text-muted mb-2">{{ __('Annotations you drew in the image viewer. To change one, open the record and use the Annotations panel.') }}</p>
+    <div class="table-responsive">
+        <table class="table table-sm table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>{{ __('Comment') }}</th>
+                    <th>{{ __('Record') }}</th>
+                    <th>{{ __('Date') }}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach($imageAnnotations as $img)
+                @php $recordUrl = $img->object_id ? url('/' . ($img->object_slug ?? $img->object_id)) : null; @endphp
+                <tr id="image-annotation-{{ $img->id }}">
+                    <td>
+                        {{ $img->text !== '' ? $img->text : __('(no comment)') }}
+                        @foreach($img->tags as $t)<span class="badge bg-light text-dark ms-1">{{ $t }}</span>@endforeach
+                        @if(($img->visibility ?? 'private') !== 'private')
+                            <span class="badge bg-{{ $img->visibility === 'public' ? 'success' : 'info' }} ms-1">{{ $img->visibility === 'public' ? __('Public') : __('Shared') }}</span>
+                        @endif
+                    </td>
+                    <td>
+                        @if($recordUrl)
+                            <a href="{{ $recordUrl }}"><i class="fas fa-archive me-1"></i>{{ \Illuminate\Support\Str::limit($img->object_title ?: __('Untitled'), 60) }}</a>
+                        @else
+                            <span class="text-muted">{{ __('Record not found') }}</span>
+                        @endif
+                    </td>
+                    <td class="text-nowrap small text-muted">{{ date('M j, Y H:i', strtotime($img->created_at)) }}</td>
+                    <td class="text-end">
+                        @if($recordUrl)
+                            <a href="{{ $recordUrl }}" class="btn btn-sm btn-outline-primary py-0" title="{{ __('Open record') }}"><i class="fas fa-external-link-alt me-1"></i>{{ __('Open') }}</a>
+                        @endif
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+@endif
+
 {{-- Create/Edit Modal (shared) --}}
 <div class="modal fade" id="annotationModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
