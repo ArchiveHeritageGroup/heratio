@@ -68,6 +68,11 @@ return [
     // name differs (e.g. "archive" on the AHG NAS vs "uploads" on a fresh install).
     'uploads_path' => env('HERATIO_UPLOADS_PATH', env('HERATIO_STORAGE_PATH', base_path('uploads'))),
 
+    // Trash for deleted files (heratio#1734). Must be on the same volume as the
+    // uploads so a delete is a rename. Keep it outside a folder another system
+    // serves; empty = <uploads_path>/.trash.
+    'trash_path' => env('HERATIO_TRASH_PATH'),
+
     // Backups path — independently configurable.
     'backups_path' => env('HERATIO_BACKUPS_PATH', env('HERATIO_STORAGE_PATH', base_path('uploads')).'/backups'),
 

@@ -135,6 +135,44 @@ class RecordsLifecycleTest extends TestCase
         $this->assertSame(0, DB::table('ahg_trash')->where('digital_object_id', $m)->count());
     }
 
+    /** heratio#1734: a folder shared with another system's catalogue (PSIS on heratio.org). */
+    public function test_a_shared_uploads_folder_is_only_touched_where_heratio_alone_uses_the_file(): void
+    {
+        config([
+            'heratio.trash_path' => $this->root.'/trash',
+            'database.connections.shared_uploads' => ['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => ''],
+        ]);
+        DB::purge('shared_uploads');
+        DB::connection('shared_uploads')->statement('create table digital_object (id integer primary key, path varchar(255), name varchar(255))');
+
+        // A repository-slug folder is the other system's: refused, file stays.
+        $m = $this->files();
+        $this->assertFalse(DigitalObjectService::delete($m));
+        $this->assertFileExists($this->root.'/archive/r/rl/scan.tif');
+        $this->assertSame(1, DB::table('digital_object')->where('id', $m)->count());
+
+        // A Heratio numeric folder nobody else uses: trashed, outside the uploads folder.
+        mkdir($this->root.'/archive/r/'.$this->io, 0777, true);
+        DB::table('digital_object')->whereIn('id', [$m, $m + 1])->orWhere('parent_id', $m)->update(['path' => '/uploads/r/'.$this->io.'/']);
+        rename($this->root.'/archive/r/rl/scan.tif', $this->root.'/archive/r/'.$this->io.'/scan.tif');
+        rename($this->root.'/archive/r/rl/scan_141.jpg', $this->root.'/archive/r/'.$this->io.'/scan_141.jpg');
+        $this->assertTrue(DigitalObjectService::delete($m));
+        $t = DB::table('ahg_trash')->where('digital_object_id', $m)->first();
+        $this->assertStringStartsWith($this->root.'/trash/', json_decode($t->files_json, true)[0]['to']);
+
+        // The other system points at it again: the purge leaves it alone.
+        DB::connection('shared_uploads')->table('digital_object')->insert(['path' => '/uploads/r/'.$this->io.'/', 'name' => 'scan.tif']);
+        DB::table('ahg_trash')->where('id', $t->id)->update(['purge_after' => now()->subMinute()]);
+        $this->assertSame(0, DigitalObjectTrash::purgeExpired());
+        $this->assertFileExists(json_decode($t->files_json, true)[0]['to']);
+
+        // The other catalogue cannot be read: fail closed.
+        config(['database.connections.shared_uploads.database' => $this->root.'/missing/none.sqlite']);
+        DB::purge('shared_uploads');
+        $this->assertNotNull(\AhgCore\Services\SharedUploadsGuard::refuse($this->root.'/archive/r/'.$this->io.'/other.tif'));
+        DB::purge('shared_uploads');
+    }
+
     public function test_replacing_a_master_keeps_numbered_versions_outside_the_uploads_folder(): void
     {
         $m = $this->files('MASTER v1');

@@ -105,6 +105,24 @@ return [
             'strict' => true,
         ],
 
+        // heratio#1734: the catalogue of another system sharing the uploads
+        // folder (on heratio.org, PSIS). Read-only; give it a user with SELECT
+        // on digital_object only. Unset = not shared (SharedUploadsGuard off).
+        'shared_uploads' => [
+            'driver' => 'mysql',
+            'host' => env('SHARED_UPLOADS_DB_HOST', env('DB_HOST', '127.0.0.1')),
+            'port' => env('SHARED_UPLOADS_DB_PORT', env('DB_PORT', '3306')),
+            'database' => env('SHARED_UPLOADS_DB_DATABASE', ''),
+            'username' => env('SHARED_UPLOADS_DB_USERNAME', ''),
+            'password' => env('SHARED_UPLOADS_DB_PASSWORD', ''),
+            'unix_socket' => env('SHARED_UPLOADS_DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'options' => [\PDO::ATTR_TIMEOUT => 5],
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),

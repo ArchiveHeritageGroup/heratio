@@ -17,18 +17,19 @@ use Illuminate\Support\Facades\Schema;
  * heratio#1734: a deleted digital object goes to a trash area first.
  *
  * Its files (master and derivatives) are moved - renamed on the same volume,
- * never copied and unlinked - to uploads_path/.trash/<date>/<digital object id>/,
+ * never copied and unlinked - to trash_path/<date>/<digital object id>/,
  * and its rows (object, digital_object, any extra rows the caller names) are
  * kept as JSON in ahg_trash. Restore puts both back; purge removes the files
  * once the retention has passed (ahg:trash-purge).
  *
- * Retention is the setting trash_retention_days (default 30); 0 turns the
+ * Retention is the setting trash_retention_days (default 90); 0 turns the
  * trash off and deletes at once, as before.
  *
- * ponytail: the uploads folder can be shared with another system (on
- * heratio.org, PSIS). Moving a file is no worse than the old immediate
- * delete, but the purge schedule ships switched off until both systems agree
- * on the trash location and retention.
+ * The uploads folder can be shared with another system (on heratio.org,
+ * PSIS). Agreed with it (20 Nov 2026): the trash lives outside the uploads
+ * folder (HERATIO_TRASH_PATH, on the same volume so the move stays a
+ * rename), retention is 90 days, and every move and purge first asks
+ * SharedUploadsGuard - a file the other system still uses is never touched.
  */
 class DigitalObjectTrash
 {
@@ -41,12 +42,12 @@ class DigitalObjectTrash
 
     public static function retentionDays(): int
     {
-        return max(0, AhgSettingsService::getInt('trash_retention_days', 30));
+        return max(0, AhgSettingsService::getInt('trash_retention_days', 90));
     }
 
     public static function root(): string
     {
-        return rtrim((string) config('heratio.uploads_path', DigitalObjectService::UPLOAD_DIR), '/').'/.trash';
+        return rtrim((string) (config('heratio.trash_path') ?: rtrim((string) config('heratio.uploads_path', DigitalObjectService::UPLOAD_DIR), '/').'/.trash'), '/');
     }
 
     /**
@@ -64,6 +65,14 @@ class DigitalObjectTrash
             $from = DigitalObjectService::resolveDiskPath($obj);
             if (! $from || ! is_file($from)) {
                 continue;
+            }
+            if ($why = SharedUploadsGuard::refuse($from)) {
+                foreach ($files as $f) {
+                    @rename($f['to'], $f['from']);
+                }
+                Log::warning('[trash] refused to move '.$from.': '.$why);
+
+                return null;
             }
             if (! is_dir($dir) && ! @mkdir($dir, 0775, true) && ! is_dir($dir)) {
                 Log::error('[trash] cannot create '.$dir);
@@ -161,9 +170,19 @@ class DigitalObjectTrash
         if (! $t) {
             return false;
         }
-        foreach (json_decode((string) $t->files_json, true) ?: [] as $f) {
+        $files = json_decode((string) $t->files_json, true) ?: [];
+        foreach ($files as $f) {
+            // A file the shared catalogue now points at again is not purged.
+            if ($why = SharedUploadsGuard::refuse($f['from'])) {
+                Log::warning('[trash] purge of trash#'.$t->id.' refused: '.$why);
+
+                return false;
+            }
+        }
+        foreach ($files as $f) {
             if (is_file($f['to'])) {
                 @unlink($f['to']);
+                Log::info('[trash] purged '.$f['to'].' (was '.$f['from'].')');
             }
             @rmdir(dirname($f['to']));
             @rmdir(dirname($f['to'], 2));

@@ -591,6 +591,16 @@ class DigitalObjectService
                     return false; // a file could not be moved; delete nothing
                 }
                 $trashed = true;
+            } else {
+                // heratio#1734: never delete a file the shared catalogue uses.
+                foreach ($objects as $obj) {
+                    $onDisk = self::resolveDiskPath($obj);
+                    if ($onDisk && @is_file($onDisk) && ($why = SharedUploadsGuard::refuse($onDisk))) {
+                        Log::warning('[DigitalObjectService] delete of '.$digitalObjectId.' refused: '.$why);
+
+                        return false;
+                    }
+                }
             }
 
             foreach ($objects as $obj) {

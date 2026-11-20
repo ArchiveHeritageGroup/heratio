@@ -207,7 +207,7 @@ class AttachedDigitalObjectService
                 ->get(['id', 'name', 'path']);
             foreach ($rows as $r) {
                 $onDisk = DigitalObjectService::resolveDiskPath($r);
-                if ($onDisk && @is_file($onDisk)) {
+                if ($onDisk && @is_file($onDisk) && ! SharedUploadsGuard::refuse($onDisk)) {
                     @unlink($onDisk);
                 }
             }

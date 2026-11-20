@@ -39,6 +39,16 @@ class TrashPurgeCommand extends Command
         }
         $this->info(DigitalObjectTrash::purgeExpired().' purged.');
 
+        // A day's notice: what the next run will purge, so a file still
+        // needed can be restored first (agreed with PSIS for the shared folder).
+        $next = DB::table(DigitalObjectTrash::TABLE)->where('status', 'trashed')->where('purge_after', '<=', now()->addDay())->get(['id', 'digital_object_id', 'name', 'files_json']);
+        foreach ($next as $t) {
+            foreach (json_decode((string) $t->files_json, true) ?: [] as $f) {
+                $this->line("due tomorrow: trash#{$t->id} object {$t->digital_object_id} {$f['from']}");
+            }
+        }
+        $this->info($next->count().' due by the next run.');
+
         return self::SUCCESS;
     }
 }
