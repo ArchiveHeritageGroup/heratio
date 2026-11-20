@@ -74,4 +74,38 @@ class TranslationEditFallbackTest extends TestCase
             $page->assertSee($level);
         }
     }
+
+    public function test_saving_the_edit_form_in_afrikaans_creates_the_translation_and_keeps_english(): void
+    {
+        [$io, $slug] = $this->record();
+        DB::table('information_object_i18n')->where('id', $io)->where('culture', 'en')->update(['archival_history' => 'Kept by Ouma Smuts.']);
+        $note = $this->obj('QubitNote');
+        DB::table('note')->insert(['id' => $note, 'object_id' => $io, 'type_id' => 125, 'source_culture' => 'en']);
+        DB::table('note_i18n')->insert(['id' => $note, 'culture' => 'en', 'content' => 'An English note.']);
+
+        $id = $this->obj('QubitUser');
+        DB::table('actor')->insert(['id' => $id, 'source_culture' => 'en']);
+        DB::table('user')->insert(['id' => $id, 'username' => 'tef-'.$id, 'email' => uniqid('tef-', true).'@example.test', 'password_hash' => Hash::make('x'), 'active' => 1]);
+        DB::table('acl_user_group')->insert(['user_id' => $id, 'group_id' => 100]);
+        Cache::forget("acl_groups_{$id}");
+        AclService::forgetUser();
+
+        $this->actingAs(User::findOrFail($id))->withSession(['locale' => 'af'])
+            ->put('/informationobject/'.$slug, [
+                'title' => 'Begrafnis van die Generaal',
+                'archival_history' => 'Deur Ouma Smuts bewaar.',
+                'scope_and_content' => 'Cuttings on the funeral.',
+                'notes' => [],
+            ]);
+
+        $af = DB::table('information_object_i18n')->where('id', $io)->where('culture', 'af')->first();
+        $this->assertNotNull($af, 'the first save in Afrikaans creates its row');
+        $this->assertSame('Begrafnis van die Generaal', $af->title);
+        $this->assertSame('Deur Ouma Smuts bewaar.', $af->archival_history);
+        $this->assertNull($af->scope_and_content, 'unchanged text keeps following English');
+        $en = DB::table('information_object_i18n')->where('id', $io)->where('culture', 'en')->first();
+        $this->assertSame('Funeral of the General', $en->title);
+        $this->assertSame('Kept by Ouma Smuts.', $en->archival_history);
+        $this->assertSame('An English note.', DB::table('note_i18n')->where('id', $note)->where('culture', 'en')->value('content'), 'English notes survive a save in Afrikaans');
+    }
 }

@@ -2511,7 +2511,7 @@ class InformationObjectController extends Controller
         $io = DB::table('slug')
             ->join('information_object', 'slug.object_id', '=', 'information_object.id')
             ->where('slug.slug', $slug)
-            ->select('information_object.id')
+            ->select('information_object.id', 'information_object.source_culture')
             ->first();
 
         if (!$io) {
@@ -2519,6 +2519,11 @@ class InformationObjectController extends Controller
         }
 
         $ioId = $io->id;
+        // Saving in a language other than the record's own is a translation:
+        // only the text fields are stored, for that language. Dates, creators,
+        // notes and alternative identifiers are rewritten as whole sets, which
+        // would replace the source-language rows, so they are left alone.
+        $isTranslation = $io->source_culture && $io->source_culture !== $culture;
 
         // #51 ACL enforcement: object-aware write gate, mirroring the read-side
         // gate in show(). CheckAcl only evaluates the GLOBAL (object-blind)
@@ -2592,10 +2597,19 @@ class InformationObjectController extends Controller
         foreach ($i18nFieldKeys as $k) {
             $i18nUpdate[$k] = $request->input($k);
         }
-        DB::table('information_object_i18n')
-            ->where('id', $ioId)
-            ->where('culture', $culture)
-            ->update($i18nUpdate);
+        if ($isTranslation) {
+            // A field still equal to the source text (the edit form pre-fills
+            // it) is not stored, so it keeps following the source language.
+            $src = DB::table('information_object_i18n')->where('id', $ioId)->where('culture', $io->source_culture)->first();
+            foreach (\AhgInformationObjectManage\Services\InformationObjectService::translatableFields() as $f) {
+                if ($src && array_key_exists($f, $i18nUpdate) && trim((string) $i18nUpdate[$f]) === trim((string) ($src->{$f} ?? ''))) {
+                    $i18nUpdate[$f] = null;
+                }
+            }
+        }
+        // updateOrInsert: the first save in a new language creates its row
+        // (an update alone changed nothing, and the translation was lost).
+        DB::table('information_object_i18n')->updateOrInsert(['id' => $ioId, 'culture' => $culture], $i18nUpdate);
 
         // Detect AI-inference overrides on whichever of the i18n fields just
         // changed. No-op when no field has a prior inference recorded.
@@ -2652,7 +2666,7 @@ class InformationObjectController extends Controller
         // When both forms reference the same actor under type 111, events[] wins
         // (because it has the richer data). Old controller had separate blocks
         // that competed and the creator block always stomped any dates.
-        if ($request->has('_creatorsIncluded') || $request->has('events')) {
+        if (! $isTranslation && ($request->has('_creatorsIncluded') || $request->has('events'))) {
             // Wipe all existing events for this IO; we re-insert the merged set.
             $oldEventIds = DB::table('event')->where('object_id', $ioId)->pluck('id')->toArray();
             if (!empty($oldEventIds)) {
@@ -2729,7 +2743,7 @@ class InformationObjectController extends Controller
         // Form posts three arrays: notes[] (typed via dropdown - General 125 or
         // Language 174), publicationNotes[] (textarea-only, type 120), and
         // archivistNotes[] (textarea-only, type 124).
-        if ($request->has('notes') || $request->has('publicationNotes') || $request->has('archivistNotes')) {
+        if (! $isTranslation && ($request->has('notes') || $request->has('publicationNotes') || $request->has('archivistNotes'))) {
             $managedTypeIds = [125, 174, 120, 124];
             $oldNoteIds = DB::table('note')
                 ->where('object_id', $ioId)
@@ -2778,7 +2792,7 @@ class InformationObjectController extends Controller
         $this->saveAccessPoints($request, (int) $ioId, $culture);
 
         // ---- Alternative identifiers (property name = alternativeIdentifiers) ----
-        if ($request->has('altIds')) {
+        if (! $isTranslation && $request->has('altIds')) {
             $oldPropertyIds = DB::table('property')
                 ->where('object_id', $ioId)
                 ->where('name', 'alternativeIdentifiers')
@@ -2850,7 +2864,7 @@ class InformationObjectController extends Controller
             'scriptOfDescription'  => 'scriptsOfDescription',
         ];
         foreach ($serialisedProps as $propName => $formField) {
-            if (!$request->has($formField)) continue;
+            if ($isTranslation || !$request->has($formField)) continue;
             $values = array_values(array_filter(
                 array_map('strval', (array) $request->input($formField, [])),
                 fn ($v) => $v !== ''
@@ -2887,7 +2901,7 @@ class InformationObjectController extends Controller
         }
 
         // ---- Language note (free-text, stored as property name=languageNote) ----
-        if ($request->has('language_notes')) {
+        if (! $isTranslation && $request->has('language_notes')) {
             $note = trim((string) $request->input('language_notes', ''));
             $oldIds = DB::table('property')
                 ->where('object_id', $ioId)
