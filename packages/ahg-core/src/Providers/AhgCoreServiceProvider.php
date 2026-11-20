@@ -97,6 +97,13 @@ class AhgCoreServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Afrikaans relative times: the date library's own Afrikaans says
+        // "1 sekond gelede"; the singular is "sekonde".
+        // Applied after each locale switch: switching reloads the library's own file.
+        $fixAfrikaans = fn () => \Carbon\Carbon::getTranslator()->setMessages('af', ['second' => ':count sekonde|:count sekondes']);
+        $fixAfrikaans();
+        \Illuminate\Support\Facades\Event::listen(\Illuminate\Foundation\Events\LocaleUpdated::class, $fixAfrikaans);
+
         // heratio#1515. AclService keeps the signed-in user and their ACL groups
         // in statics, and TermProtocolGate memoises what restricts. Under PHP-FPM
         // they die with the request, which is the intended lifetime; in a
