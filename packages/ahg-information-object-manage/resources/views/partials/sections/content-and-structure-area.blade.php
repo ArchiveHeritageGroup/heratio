@@ -16,7 +16,7 @@
       @if($io->scope_and_content)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Scope and content') }}</h3>
-          <div class="col-9 p-2">{!! nl2br(e(\AhgInformationObjectManage\Services\PiiMaskingService::mask((int)$io->id, $io->scope_and_content))) !!}@include('ahg-translation::components.badge', ['source' => $translationSources['scope_and_content'] ?? null])</div>
+          <div class="col-9 p-2">{!! \AhgCore\Support\RichText::render(\AhgInformationObjectManage\Services\PiiMaskingService::mask((int)$io->id, $io->scope_and_content)) !!}@include('ahg-translation::components.badge', ['source' => $translationSources['scope_and_content'] ?? null])</div>
         </div>
       @endif
 
@@ -24,7 +24,7 @@
       @if($io->appraisal)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Appraisal, destruction and scheduling') }}</h3>
-          <div class="col-9 p-2">{!! nl2br(e($io->appraisal)) !!}</div>
+          <div class="col-9 p-2">{!! \AhgCore\Support\RichText::render($io->appraisal) !!}</div>
         </div>
       @endif
       @endif
@@ -32,14 +32,14 @@
       @if($io->accruals)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Accruals') }}</h3>
-          <div class="col-9 p-2">{!! nl2br(e($io->accruals)) !!}</div>
+          <div class="col-9 p-2">{!! \AhgCore\Support\RichText::render($io->accruals) !!}</div>
         </div>
       @endif
 
       @if($io->arrangement)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('System of arrangement') }}</h3>
-          <div class="col-9 p-2">{!! nl2br(e($io->arrangement)) !!}</div>
+          <div class="col-9 p-2">{!! \AhgCore\Support\RichText::render($io->arrangement) !!}</div>
         </div>
       @endif
 

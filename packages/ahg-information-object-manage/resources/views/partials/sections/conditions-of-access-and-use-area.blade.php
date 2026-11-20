@@ -16,14 +16,14 @@
       @if($io->access_conditions)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Conditions governing access') }}</h3>
-          <div class="col-9 p-2">{!! nl2br(e($io->access_conditions)) !!}</div>
+          <div class="col-9 p-2">{!! \AhgCore\Support\RichText::render($io->access_conditions) !!}</div>
         </div>
       @endif
 
       @if($io->reproduction_conditions)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Conditions governing reproduction') }}</h3>
-          <div class="col-9 p-2">{!! nl2br(e($io->reproduction_conditions)) !!}</div>
+          <div class="col-9 p-2">{!! \AhgCore\Support\RichText::render($io->reproduction_conditions) !!}</div>
         </div>
       @endif
 
@@ -62,7 +62,7 @@
       @foreach($notes->where('type_id', 174) as $lnote)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Language and script notes') }}</h3>
-          <div class="col-9 p-2">{!! nl2br(e($lnote->content)) !!}</div>
+          <div class="col-9 p-2">{!! \AhgCore\Support\RichText::render($lnote->content) !!}</div>
         </div>
       @endforeach
 
@@ -70,7 +70,7 @@
       @if($io->physical_characteristics)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Physical characteristics and technical requirements') }}</h3>
-          <div class="col-9 p-2">{!! nl2br(e($io->physical_characteristics)) !!}</div>
+          <div class="col-9 p-2">{!! \AhgCore\Support\RichText::render($io->physical_characteristics) !!}</div>
         </div>
       @endif
       @endif
@@ -78,7 +78,7 @@
       @if($io->finding_aids)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Finding aids') }}</h3>
-          <div class="col-9 p-2">{!! nl2br(e($io->finding_aids)) !!}</div>
+          <div class="col-9 p-2">{!! \AhgCore\Support\RichText::render($io->finding_aids) !!}</div>
         </div>
       @endif
 

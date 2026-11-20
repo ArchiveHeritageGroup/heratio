@@ -40,7 +40,7 @@
                     {{ __('Biographical history') }}
                   @endif
                 </h3>
-                <div class="col-9 p-2">{!! nl2br(e($creator->history)) !!}</div>
+                <div class="col-9 p-2">{!! \AhgCore\Support\RichText::render($creator->history) !!}</div>
               </div>
             @endif
           @endforeach
@@ -79,7 +79,7 @@
       @if($io->archival_history)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Archival history') }}</h3>
-          <div class="col-9 p-2">{!! nl2br(e(\AhgInformationObjectManage\Services\PiiMaskingService::mask((int)$io->id, $io->archival_history))) !!}</div>
+          <div class="col-9 p-2">{!! \AhgCore\Support\RichText::render(\AhgInformationObjectManage\Services\PiiMaskingService::mask((int)$io->id, $io->archival_history)) !!}</div>
         </div>
       @endif
       @endif
@@ -88,7 +88,7 @@
       @if($io->acquisition)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Immediate source of acquisition or transfer') }}</h3>
-          <div class="col-9 p-2">{!! nl2br(e($io->acquisition)) !!}</div>
+          <div class="col-9 p-2">{!! \AhgCore\Support\RichText::render($io->acquisition) !!}</div>
         </div>
       @endif
       @endif

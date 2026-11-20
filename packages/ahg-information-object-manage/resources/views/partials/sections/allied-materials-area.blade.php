@@ -16,21 +16,21 @@
       @if($io->location_of_originals)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Existence and location of originals') }}</h3>
-          <div class="col-9 p-2">{!! nl2br(e($io->location_of_originals)) !!}</div>
+          <div class="col-9 p-2">{!! \AhgCore\Support\RichText::render($io->location_of_originals) !!}</div>
         </div>
       @endif
 
       @if($io->location_of_copies)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Existence and location of copies') }}</h3>
-          <div class="col-9 p-2">{!! nl2br(e($io->location_of_copies)) !!}</div>
+          <div class="col-9 p-2">{!! \AhgCore\Support\RichText::render($io->location_of_copies) !!}</div>
         </div>
       @endif
 
       @if($io->related_units_of_description)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Related units of description') }}</h3>
-          <div class="col-9 p-2">{!! nl2br(e($io->related_units_of_description)) !!}</div>
+          <div class="col-9 p-2">{!! \AhgCore\Support\RichText::render($io->related_units_of_description) !!}</div>
         </div>
       @endif
 
@@ -59,7 +59,7 @@
         @foreach($notes->where('type_id', 120) as $note)
           <div class="field text-break row g-0">
             <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Publication note') }}</h3>
-            <div class="col-9 p-2">{!! nl2br(e($note->content)) !!}</div>
+            <div class="col-9 p-2">{!! \AhgCore\Support\RichText::render($note->content) !!}</div>
           </div>
         @endforeach
       @endif

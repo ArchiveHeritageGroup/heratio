@@ -35,7 +35,7 @@
       @if($io->rules ?? null)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Rules and/or conventions used') }}</h3>
-          <div class="col-9 p-2">{!! nl2br(e($io->rules)) !!}</div>
+          <div class="col-9 p-2">{!! \AhgCore\Support\RichText::render($io->rules) !!}</div>
         </div>
       @endif
       @endif
@@ -62,7 +62,7 @@
       @if($io->revision_history ?? null)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Dates of creation revision deletion') }}</h3>
-          <div class="col-9 p-2">{!! nl2br(e($io->revision_history)) !!}</div>
+          <div class="col-9 p-2">{!! \AhgCore\Support\RichText::render($io->revision_history) !!}</div>
         </div>
       @endif
       @endif
@@ -97,7 +97,7 @@
       @if($io->sources ?? null)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Sources') }}</h3>
-          <div class="col-9 p-2">{!! nl2br(e($io->sources)) !!}</div>
+          <div class="col-9 p-2">{!! \AhgCore\Support\RichText::render($io->sources) !!}</div>
         </div>
       @endif
       @endif
@@ -108,7 +108,7 @@
         @foreach($notes->where('type_id', 124) as $note)
           <div class="field text-break row g-0">
             <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __("Archivist's note") }}</h3>
-            <div class="col-9 p-2">{!! nl2br(e($note->content)) !!}</div>
+            <div class="col-9 p-2">{!! \AhgCore\Support\RichText::render($note->content) !!}</div>
           </div>
         @endforeach
       @endif

@@ -21,7 +21,7 @@
       @foreach($notes->where('type_id', 125) as $note)
         <div class="field text-break row g-0">
           <h3 class="h6 lh-base m-0 text-muted col-3 border-end text-end p-2">{{ __('Note') }}</h3>
-          <div class="col-9 p-2">{!! nl2br(e($note->content)) !!}</div>
+          <div class="col-9 p-2">{!! \AhgCore\Support\RichText::render($note->content) !!}</div>
         </div>
       @endforeach
     @endif
