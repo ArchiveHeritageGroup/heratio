@@ -1180,6 +1180,12 @@ class RicController extends Controller
         RicDisclosure::guard($id);
 
         $culture = app()->getLocale();
+        // ponytail: a record not yet described in the interface language (an
+        // Afrikaans screen on an English record) is read in English rather than
+        // reported missing. Per-field fallback would need every join doubled.
+        if ($culture !== 'en' && ! DB::table('information_object_i18n')->where('id', $id)->where('culture', $culture)->exists()) {
+            $culture = 'en';
+        }
 
         // Get the record info
         $io = DB::table('information_object as io')

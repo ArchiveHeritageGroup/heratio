@@ -146,7 +146,7 @@ const I18N = {
 // The site's own scope lines, as the catalogue sends them.
 const SCOPE_AF = { 'Explore this collection': 'Verken hierdie versameling', 'Filtered results': 'Gefiltreerde resultate', 'Visual graph': 'Visuele grafiek', 'This collection': 'Hierdie versameling' };
 const store = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
-const LANG = (() => { const u = new URLSearchParams(location.search).get('lang'); const v = u || store.get('explorer-lang') || D.site.lang || 'en'; return I18N[v] ? v : 'en'; })();
+const LANG = (() => { const u = new URLSearchParams(location.search).get('lang'); const v = u || (I18N[D.site.lang] ? D.site.lang : null) || store.get('explorer-lang') || 'en'; return I18N[v] ? v : 'en'; })();
 const LOC = LANG === 'af' ? 'af-ZA' : 'en-GB';
 const t = (k, vars = {}) => Object.entries(vars).reduce((s, [a, b]) => s.replace(':' + a, b), I18N[LANG][k] ?? I18N.en[k] ?? k);
 const tScope = s => LANG === 'af' && SCOPE_AF[s] ? SCOPE_AF[s] : s;

@@ -1177,6 +1177,7 @@ class DisplayController extends Controller
             $collection ? (string) \AhgCore\Services\AhgSettingsService::get('explorer_hide_words', '') : '');
         $collectionTitle = $collection ? (string) DB::table('information_object_i18n')->where('id', $this->parentId)->whereIn('culture', [app()->getLocale(), 'en'])->value('title') : '';
         $data['site'] = ['title' => $collection ? ($collectionTitle ?: __('This collection')) : __('Visual graph'), 'generated' => now()->toDateString(),
+            'lang' => app()->getLocale(), // the explorer opens in the interface language when it has it (en, af)
             'scope' => $collection ? __('Explore this collection') : ($this->queryFilter ? __('Search: :q', ['q' => $this->queryFilter]) : __('Filtered results'))];
         if ($collection) {
             // The home screen's introduction: the collection's own description and page.

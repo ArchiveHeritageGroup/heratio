@@ -21,7 +21,7 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
-LOCALES="ar,fr,pt_BR,es,de,pt,zh,nl,it,ru,ja,ko,tr,pl,sv,he,uk,fa,id,vi,th,el,cs,ro,hu"
+LOCALES="af,ar,fr,pt_BR,es,de,pt,zh,nl,it,ru,ja,ko,tr,pl,sv,he,uk,fa,id,vi,th,el,cs,ro,hu"
 LOCALES="$LOCALES,mk,cy,bs,hr,sr,ca,ca@valencia,gl,sl,de_CH,de_AT,eu,is,ka,ta,uz,et,fil,ga,nb,sk,sq,ur"
 LOCALES="$LOCALES,kj,umb,khi,am"
 # The southern African languages are not in the LLM list: on 9 Nov 2026
