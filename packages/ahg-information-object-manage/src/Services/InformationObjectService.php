@@ -73,6 +73,17 @@ class InformationObjectService
     ];
 
     /**
+     * The text fields a translation can carry, less the two stored encrypted
+     * (they are not pre-filled or compared in another language).
+     *
+     * @return list<string>
+     */
+    public static function translatableFields(): array
+    {
+        return array_values(array_diff(self::$i18nFields, ['access_conditions', 'reproduction_conditions']));
+    }
+
+    /**
      * camelCase -> snake_case field map for incoming data with camelCase keys.
      */
     protected static array $camelToSnakeMap = [
@@ -592,6 +603,20 @@ class InformationObjectService
             foreach (self::$i18nFields as $field) {
                 if (array_key_exists($field, $data)) {
                     $i18nUpdate[$field] = $data[$field];
+                }
+            }
+            // Saving in a language other than the record's own: a field still
+            // equal to the source-language text (the edit form pre-fills it)
+            // is not stored for this language, so it keeps following the source.
+            $sourceCulture = DB::table('information_object')->where('id', $id)->value('source_culture');
+            if ($i18nUpdate && $sourceCulture && $sourceCulture !== $culture) {
+                $src = DB::table('information_object_i18n')->where('id', $id)->where('culture', $sourceCulture)->first();
+                if ($src) {
+                    foreach (self::translatableFields() as $f) {
+                        if (array_key_exists($f, $i18nUpdate) && trim((string) $i18nUpdate[$f]) === trim((string) ($src->{$f} ?? ''))) {
+                            $i18nUpdate[$f] = null;
+                        }
+                    }
                 }
             }
             // #1309: scope_and_content is rendered raw in browse/search snippets; sanitize on save.

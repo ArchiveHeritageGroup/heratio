@@ -85,7 +85,7 @@
 
     <ul class="actions mb-3 nav gap-2">
       <li><a href="{{ route('actor.show', $actor->slug) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
-      <li><input class="btn atom-btn-outline-success" id="rename-form-submit" type="submit" value="Update"></li>
+      <li><input class="btn atom-btn-outline-success" id="rename-form-submit" type="submit" value="{{ __('Update') }}"></li>
     </ul>
 
   </form>

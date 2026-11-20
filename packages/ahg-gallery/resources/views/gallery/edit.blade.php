@@ -1852,7 +1852,7 @@
     </div>
 
     <ul class="actions mb-3 nav gap-2">
-      <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
+      <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Save') }}"></li>
       <li>
         @if($isNew)
           <a href="{{ route('gallery.browse') }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a>

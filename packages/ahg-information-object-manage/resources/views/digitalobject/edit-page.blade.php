@@ -293,7 +293,7 @@
         @if($ioSlug)
             <li><a href="{{ url('/' . $ioSlug) }}" class="btn atom-btn-outline-light">{{ __('Cancel') }}</a></li>
         @endif
-        <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
+        <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Save') }}"></li>
     </ul>
 
 </form>

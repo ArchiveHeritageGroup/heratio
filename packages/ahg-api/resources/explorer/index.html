@@ -45,7 +45,24 @@ aside h3 { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; col
 .live button, .live a { padding: 7px 12px; border: 0; border-radius: 4px; background: var(--head); color: var(--headtext); font: inherit; font-size: 14px; text-decoration: none; cursor: pointer; }
 header a { color: var(--primary); }
 footer { padding: 8px 20px; font-size: 12px; color: var(--headtext); background: var(--head); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
-@media (max-width: 900px) { main { grid-template-columns: 1fr; grid-template-rows: 55vh auto; } aside { border-left: 0; border-top: 1px solid var(--rule); } }
+@media (max-width: 900px) {
+  /* On a phone the page scrolls as a whole: a fixed-height layout left the
+     content a thin strip under the header and the search bar. */
+  html, body { height: auto; } body { display: block; }
+  header { padding: 10px 14px; } header h1 { font-size: 18px; line-height: 1.3; } header .sub { font-size: 12px; }
+  .bar { padding: 8px 14px; gap: 8px; }
+  .search { flex: 1 1 100%; max-width: none; }
+  #chips { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 6px; width: 100%; padding-bottom: 2px; }
+  #chips .chip { flex: none; }
+  .live { width: 100%; } .live input { flex: 1; width: auto; min-width: 0; }
+  main { display: block; } #graph { height: 62vh; } aside { border-left: 0; border-top: 1px solid var(--rule); overflow: visible; }
+  #home { overflow: visible; padding: 16px 14px 28px; }
+  #home .about { font-size: 15px; }
+  #home .stats { gap: 8px; } #home .stat { flex: 1 1 calc(33% - 8px); min-width: 96px; padding: 8px 10px; } #home .stat b { font-size: 20px; }
+  #home .go { display: block; text-align: center; margin: 0 0 8px; }
+  #home .gallery { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; } #home .card img { height: 110px; }
+  footer { padding: 8px 14px; }
+}
   #home { display: none; flex: 1; overflow: auto; padding: 24px 20px 40px; }
   body.home #home { display: block; } body.home main, body.home #timeline { display: none; }
   #home .wrap { max-width: 1180px; margin: 0 auto; }

@@ -581,10 +581,10 @@
     <ul class="actions mb-3 nav gap-2">
       @if($accession)
         <li><a class="btn atom-btn-outline-light" role="button" href="{{ route('accession.show', $accession->slug) }}">{{ __('Cancel') }}</a></li>
-        <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
+        <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Save') }}"></li>
       @else
         <li><a class="btn atom-btn-outline-light" role="button" href="{{ route('accession.browse') }}">{{ __('Cancel') }}</a></li>
-        <li><input class="btn atom-btn-outline-success" type="submit" value="Create"></li>
+        <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Create') }}"></li>
       @endif
     </ul>
   </form>

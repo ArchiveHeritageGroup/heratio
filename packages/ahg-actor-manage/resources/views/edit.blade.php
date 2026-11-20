@@ -669,10 +669,10 @@
     <ul class="actions mb-3 nav gap-2">
       @if($actor)
         <li><a href="{{ route('actor.show', $actor->slug) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
-        <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
+        <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Save') }}"></li>
       @else
         <li><a href="{{ route('actor.browse') }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
-        <li><input class="btn atom-btn-outline-success" type="submit" value="Create"></li>
+        <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Create') }}"></li>
       @endif
     </ul>
   </form>

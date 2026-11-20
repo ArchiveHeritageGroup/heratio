@@ -1671,6 +1671,19 @@ class InformationObjectController extends Controller
      */
     private function getFormDropdowns(string $culture, ?string $sector = null): array
     {
+        // A term or repository with no name in the interface language (an
+        // Afrikaans screen on an English catalogue) falls back to its English
+        // name, then any name - an empty dropdown cannot be filled in.
+        $termNames = function ($q) use ($culture) {
+            return $q->leftJoin('term_i18n as tn', function ($j) use ($culture) {
+                    $j->on('term.id', '=', 'tn.id')->where('tn.culture', '=', $culture);
+                })
+                ->leftJoin('term_i18n as te', function ($j) {
+                    $j->on('term.id', '=', 'te.id')->where('te.culture', '=', 'en');
+                })
+                ->whereRaw('COALESCE(tn.name, te.name, (SELECT x.name FROM term_i18n x WHERE x.id = term.id LIMIT 1)) IS NOT NULL');
+        };
+        $termName = DB::raw('COALESCE(tn.name, te.name, (SELECT x.name FROM term_i18n x WHERE x.id = term.id LIMIT 1)) as name');
         // Level of description options (taxonomy_id = 34), filtered to the
         // record's SECTOR via level_of_description_sector: an archival record
         // offers the nine ISAD levels, a museum record offers museum levels,
@@ -1681,46 +1694,45 @@ class InformationObjectController extends Controller
         // duplicate sector-mapping rows (seed drift), which otherwise shows the
         // same level twice in the dropdown.
         $sector = in_array($sector, ['archive', 'library', 'museum', 'dam', 'gallery'], true) ? $sector : 'archive';
-        $levels = DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+        $levels = $termNames(DB::table('term'))
             ->join('level_of_description_sector', function ($j) use ($sector) {
                 $j->on('term.id', '=', 'level_of_description_sector.term_id')
                   ->where('level_of_description_sector.sector', '=', $sector);
             })
             ->where('term.taxonomy_id', 34)
-            ->where('term_i18n.culture', $culture)
             ->orderBy('level_of_description_sector.display_order')
             ->distinct()
             // display_order must be SELECTed too: DISTINCT + ORDER BY on a
             // non-selected column is rejected by MySQL (error 3065). The extra
             // column is harmless (the view reads id + name).
-            ->select('term.id', 'term_i18n.name', 'level_of_description_sector.display_order')
+            ->select('term.id', $termName, 'level_of_description_sector.display_order')
             ->get();
 
         // Repositories
         $repositories = DB::table('repository')
-            ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
-            ->where('actor_i18n.culture', $culture)
-            ->orderBy('actor_i18n.authorized_form_of_name')
-            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
+            ->leftJoin('actor_i18n as an', function ($j) use ($culture) {
+                $j->on('repository.id', '=', 'an.id')->where('an.culture', '=', $culture);
+            })
+            ->leftJoin('actor_i18n as ae', function ($j) {
+                $j->on('repository.id', '=', 'ae.id')->where('ae.culture', '=', 'en');
+            })
+            ->whereRaw('COALESCE(an.authorized_form_of_name, ae.authorized_form_of_name) IS NOT NULL')
+            ->orderBy('name')
+            ->select('repository.id', DB::raw('COALESCE(an.authorized_form_of_name, ae.authorized_form_of_name) as name'))
             ->get();
 
         // Description status options (AtoM QubitTaxonomy::DESCRIPTION_STATUS_ID = 33)
-        $descriptionStatuses = DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+        $descriptionStatuses = $termNames(DB::table('term'))
             ->where('term.taxonomy_id', 33)
-            ->where('term_i18n.culture', $culture)
-            ->orderBy('term_i18n.name')
-            ->select('term.id', 'term_i18n.name')
+            ->orderBy('name')
+            ->select('term.id', $termName)
             ->get();
 
         // Description detail options (AtoM QubitTaxonomy::DESCRIPTION_DETAIL_LEVEL_ID = 31)
-        $descriptionDetails = DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+        $descriptionDetails = $termNames(DB::table('term'))
             ->where('term.taxonomy_id', 31)
-            ->where('term_i18n.culture', $culture)
-            ->orderBy('term_i18n.name')
-            ->select('term.id', 'term_i18n.name')
+            ->orderBy('name')
+            ->select('term.id', $termName)
             ->get();
 
         // Display standard options (taxonomy_id = 52 - descriptive standards)
@@ -1729,28 +1741,24 @@ class InformationObjectController extends Controller
         // DACS, Museum (CCO), Photo/DAM, Gallery, Library. Was wrongly pointed
         // at taxonomy 52 ("RAD Title Note"), which filled the Display standard
         // dropdown with title-note terms.
-        $displayStandards = DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+        $displayStandards = $termNames(DB::table('term'))
             ->where('term.taxonomy_id', 70)
-            ->where('term_i18n.culture', $culture)
-            ->orderBy('term_i18n.name')
+            ->orderBy('name')
             // #1425: `code` drives the dynamic field-set swap (data-code on the option).
-            ->select('term.id', 'term_i18n.name', 'term.code')
+            ->select('term.id', $termName, 'term.code')
             ->get();
 
         // Event type options (taxonomy_id = 40)
-        $eventTypes = DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+        $eventTypes = $termNames(DB::table('term'))
             ->where('term.taxonomy_id', 40)
-            ->where('term_i18n.culture', $culture)
-            ->orderBy('term_i18n.name')
-            ->select('term.id', 'term_i18n.name')
+            ->orderBy('name')
+            ->select('term.id', $termName)
             ->get();
 
         // Note types for general notes (ISAD)
         $noteTypes = collect([
-            (object) ['id' => 125, 'name' => 'General note'],
-            (object) ['id' => 174, 'name' => 'Language note'],
+            (object) ['id' => 125, 'name' => __('General note')],
+            (object) ['id' => 174, 'name' => __('Language note')],
         ]);
 
         // Security classifications
@@ -1766,12 +1774,10 @@ class InformationObjectController extends Controller
             ->get();
 
         // Collection type options (AtoM QubitTaxonomy::COLLECTION_TYPE_ID = 45)
-        $collectionTypes = DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+        $collectionTypes = $termNames(DB::table('term'))
             ->where('term.taxonomy_id', 45)
-            ->where('term_i18n.culture', $culture)
-            ->orderBy('term_i18n.name')
-            ->select('term.id', 'term_i18n.name')
+            ->orderBy('name')
+            ->select('term.id', $termName)
             ->get();
 
         return compact('levels', 'repositories', 'descriptionStatuses', 'descriptionDetails', 'displayStandards', 'eventTypes', 'noteTypes', 'securityClassifications', 'watermarkTypes', 'collectionTypes');
@@ -1878,6 +1884,25 @@ class InformationObjectController extends Controller
 
         if (!$io) {
             abort(404);
+        }
+
+        // Editing in a language the record is not yet described in (an
+        // Afrikaans screen on an English record): start each empty field from
+        // the source-language text, so the translator edits rather than retypes.
+        // On save, a field left equal to the source text is not stored for
+        // this language (InformationObjectService::update), so it keeps
+        // following the source.
+        $translationFrom = null;
+        if ($io->source_culture && $io->source_culture !== $culture) {
+            $src = DB::table('information_object_i18n')->where('id', $io->id)->where('culture', $io->source_culture)->first();
+            if ($src) {
+                foreach (\AhgInformationObjectManage\Services\InformationObjectService::translatableFields() as $f) {
+                    if (property_exists($io, $f) && ($io->{$f} === null || $io->{$f} === '') && ($src->{$f} ?? '') !== '') {
+                        $io->{$f} = $src->{$f};
+                        $translationFrom = $io->source_culture;
+                    }
+                }
+            }
         }
 
         // #1425: hand a record off to its own description-standard editor when
@@ -2119,6 +2144,7 @@ class InformationObjectController extends Controller
         return view('ahg-io-manage::edit', array_merge(
             [
                 'io' => $io,
+                'translationFrom' => $translationFrom,
                 'museumMetadata' => $museumMetadata,
                 'events' => $events,
                 'creators' => $creators,

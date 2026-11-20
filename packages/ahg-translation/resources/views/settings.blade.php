@@ -41,7 +41,7 @@
 
   <ul class="actions mb-3 nav gap-2">
     <li><a href="{{ url()->previous() }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
-    <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
+    <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Save') }}"></li>
   </ul>
 </form>
 

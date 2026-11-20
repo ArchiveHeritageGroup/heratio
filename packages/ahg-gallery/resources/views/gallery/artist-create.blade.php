@@ -273,7 +273,7 @@
     <section class="actions mb-3">
       <ul class="actions mb-1 nav gap-2">
         <li><a href="{{ route('gallery.artists') }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
-        <li><input class="btn atom-btn-outline-success" type="submit" value="Create"></li>
+        <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Create') }}"></li>
       </ul>
     </section>
   </form>

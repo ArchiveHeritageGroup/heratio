@@ -133,7 +133,7 @@
     </div>
 
     <section class="actions mb-3">
-      <input class="btn atom-btn-outline-success" type="submit" value="Import">
+      <input class="btn atom-btn-outline-success" type="submit" value="{{ __('Import') }}">
     </section>
 
   </form>

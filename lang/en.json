@@ -28588,5 +28588,6 @@
     "Annotations you drew in the image viewer. To change one, open the record and use the Annotations panel.": "Annotations you drew in the image viewer. To change one, open the record and use the Annotations panel.",
     "(no comment)": "(no comment)",
     "Library Holdings": "Library Holdings",
-    "Filter by title, author or shelf mark": "Filter by title, author or shelf mark"
+    "Filter by title, author or shelf mark": "Filter by title, author or shelf mark",
+    "This record is not yet described in this language. Empty fields show the :lang text: change what should read differently. Fields you leave unchanged keep following the :lang text.": "This record is not yet described in this language. Empty fields show the :lang text: change what should read differently. Fields you leave unchanged keep following the :lang text."
 }

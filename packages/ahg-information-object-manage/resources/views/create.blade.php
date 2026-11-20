@@ -721,7 +721,7 @@
       @else
         <li><a class="btn atom-btn-outline-light" role="button" href="{{ route('informationobject.browse') }}" title="{{ __('Cancel') }}">{{ __('Cancel') }}</a></li>
       @endif
-      <li><input class="btn atom-btn-outline-success" type="submit" value="Create"></li>
+      <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Create') }}"></li>
     </ul>
   </form>
 

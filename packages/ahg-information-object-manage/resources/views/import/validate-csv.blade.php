@@ -60,7 +60,7 @@
     </div>
 
     <section class="actions mb-3">
-      <input class="btn atom-btn-outline-success" type="submit" value="Validate">
+      <input class="btn atom-btn-outline-success" type="submit" value="{{ __('Validate') }}">
     </section>
 
   </form>

@@ -365,10 +365,10 @@
       <ul class="actions mb-1 nav gap-2">
         @if($storage)
           <li><a href="{{ route('physicalobject.show', $storage->slug) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
-          <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
+          <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Save') }}"></li>
         @else
           <li><a href="{{ route('physicalobject.browse') }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
-          <li><input class="btn atom-btn-outline-success" type="submit" value="Create"></li>
+          <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Create') }}"></li>
         @endif
         <li><a href="{{ route('physicalobject.browse') }}" class="btn atom-btn-outline-light" role="button"><i class="fas fa-list me-1"></i>{{ __('Browse physical objects') }}</a></li>
       </ul>

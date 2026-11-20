@@ -75,6 +75,12 @@
     </div>
   @endif
 
+  @if(!empty($translationFrom))
+    <div class="alert alert-info">
+      <i class="fas fa-language me-1"></i>
+      {{ __('This record is not yet described in this language. Empty fields show the :lang text: change what should read differently. Fields you leave unchanged keep following the :lang text.', ['lang' => locale_get_display_language($translationFrom, app()->getLocale()) ?: $translationFrom]) }}
+    </div>
+  @endif
   <form method="POST" action="{{ route('informationobject.update', $io->slug) }}" id="editForm" enctype="multipart/form-data" autocomplete="off">
     @csrf
     @method('PUT')
@@ -1072,7 +1078,7 @@
     <section class="actions mb-3">
       <ul class="actions mb-1 nav gap-2">
         <li><a href="{{ route('informationobject.show', $io->slug) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a></li>
-        <li><input class="btn atom-btn-outline-success" type="submit" value="Save"></li>
+        <li><input class="btn atom-btn-outline-success" type="submit" value="{{ __('Save') }}"></li>
       </ul>
     </section>
   </form>

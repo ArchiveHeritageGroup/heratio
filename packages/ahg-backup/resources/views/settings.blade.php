@@ -110,7 +110,7 @@
       </div>
 
       <div class="actions mb-3" style="background:#495057 !important;border-radius:.375rem;padding:1rem;display:block;">
-        <input class="btn atom-btn-outline-success" type="submit" value="Save">
+        <input class="btn atom-btn-outline-success" type="submit" value="{{ __('Save') }}">
       </div>
     </form>
   </div>

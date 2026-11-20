@@ -96,7 +96,7 @@
             <a href="{{ route('informationobject.show', $io->slug) }}" class="btn atom-btn-outline-light" role="button">{{ __('Cancel') }}</a>
           </li>
           <li>
-            <input class="btn atom-btn-outline-success" id="rename-form-submit" type="submit" value="Update">
+            <input class="btn atom-btn-outline-success" id="rename-form-submit" type="submit" value="{{ __('Update') }}">
           </li>
         </ul>
 
