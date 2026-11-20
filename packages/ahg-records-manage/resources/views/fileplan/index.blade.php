@@ -9,6 +9,12 @@
         <a href="{{ route('records.fileplan.import') }}" class="btn btn-outline-primary btn-sm me-1">
             <i class="fas fa-file-import"></i> {{ __('Import File Plan') }}
         </a>
+        <a href="{{ route('records.fileplan.export', 'csv') }}" class="btn btn-outline-secondary btn-sm me-1">
+            <i class="fas fa-file-csv"></i> {{ __('Export CSV') }}
+        </a>
+        <a href="{{ route('records.fileplan.export', 'json') }}" class="btn btn-outline-secondary btn-sm me-1">
+            <i class="fas fa-file-code"></i> {{ __('Export JSON') }}
+        </a>
         <a href="{{ route('records.fileplan.create') }}" class="btn btn-primary btn-sm">
             <i class="fas fa-plus"></i> {{ __('Create Node') }}
         </a>

@@ -15,6 +15,14 @@
  * A retention value of 0 (or empty) disables pruning - existing rows stay
  * forever. Useful for compliance regimes that mandate permanent retention.
  *
+ * heratio#1740: some ahg_audit_log rows are never pruned, whatever their age:
+ *   - rows in the signed hash chain (seq set). Deleting one would break the
+ *     chain that auditlog:verify-chain checks, so the chain stays whole;
+ *   - records-management evidence: disposal and destruction rows (module
+ *     records-manage) and legal hold place/release rows. A destruction
+ *     certificate's audit trail must outlive the retention of ordinary
+ *     activity logs.
+ *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
  * Licensed under the GNU AGPL v3.
  */
@@ -62,6 +70,12 @@ class PruneCommand extends Command
         ['atom_plugin_audit',            'created_at'],
     ];
 
+    /** ahg_audit_log entity types kept as records-management evidence. */
+    private const PROTECTED_ENTITY_TYPES = ['rm_disposal_action', 'destruction_certificate', 'integrity_legal_hold'];
+
+    /** ahg_audit_log modules kept as records-management evidence. */
+    private const PROTECTED_MODULES = ['records-manage'];
+
     public function handle(): int
     {
         $days = (int) ($this->option('days') ?? $this->retentionDays());
@@ -88,7 +102,14 @@ class PruneCommand extends Command
             if (! Schema::hasColumn($table, $col)) {
                 continue;
             }
-            $count = DB::table($table)->where($col, '<', $cutoff)->count();
+            $query = fn () => $this->prunable($table, $col, $cutoff);
+            if ($table === 'ahg_audit_log') {
+                $kept = DB::table($table)->where($col, '<', $cutoff)->count() - $query()->count();
+                if ($kept > 0) {
+                    $this->line(sprintf('  %-30s %d row(s) kept (signed chain or records evidence)', $table, $kept));
+                }
+            }
+            $count = $query()->count();
             if ($count === 0) {
                 continue;
             }
@@ -97,7 +118,7 @@ class PruneCommand extends Command
             if ($dry) {
                 $this->line(sprintf('  %-30s %d row(s) would be deleted', $table, $count));
             } else {
-                $deleted = DB::table($table)->where($col, '<', $cutoff)->delete();
+                $deleted = $query()->delete();
                 $this->line(sprintf('  %-30s %d row(s) deleted', $table, $deleted));
             }
         }
@@ -122,6 +143,26 @@ class PruneCommand extends Command
             $dry ? 'would be removed' : 'removed'));
 
         return self::SUCCESS;
+    }
+
+    /** The rows of $table that may be deleted: older than the cutoff and not protected. */
+    private function prunable(string $table, string $col, string $cutoff): \Illuminate\Database\Query\Builder
+    {
+        $q = DB::table($table)->where($col, '<', $cutoff);
+        if ($table !== 'ahg_audit_log') {
+            return $q;
+        }
+        if (Schema::hasColumn($table, 'seq')) {
+            $q->whereNull('seq');
+        }
+        if (Schema::hasColumn($table, 'module')) {
+            $q->where(fn ($w) => $w->whereNull('module')->orWhereNotIn('module', self::PROTECTED_MODULES));
+        }
+        if (Schema::hasColumn($table, 'entity_type')) {
+            $q->whereNotIn('entity_type', self::PROTECTED_ENTITY_TYPES);
+        }
+
+        return $q;
     }
 
     private function retentionDays(): int

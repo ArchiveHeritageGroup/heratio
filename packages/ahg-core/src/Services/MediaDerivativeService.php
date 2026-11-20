@@ -44,19 +44,11 @@ class MediaDerivativeService
             return 0;
         }
 
-        $uploadDir = config('heratio.uploads_path', DigitalObjectService::UPLOAD_DIR).'/'.$master->object_id;
-        $masterPath = $uploadDir.'/'.$master->name;
-        if (! is_file($masterPath)) {
-            // Other layouts (uploads/r/<id>/, imported hashed folders such as
-            // r/null/9/0/2/...): find the file from its stored path and write the
-            // derivatives beside it, so these videos get their playable MP4 too.
-            $resolved = DigitalObjectService::resolveDiskPath($master);
-            if (! $resolved || ! is_file($resolved)) {
-                return 0;
-            }
-            $masterPath = $resolved;
-            $uploadDir = dirname($resolved);
+        $masterPath = self::masterPath($master);
+        if ($masterPath === null) {
+            return 0;
         }
+        $uploadDir = dirname($masterPath);
 
         $mime = (string) ($master->mime_type ?? '');
         $ext = strtolower(pathinfo($master->name, PATHINFO_EXTENSION));
@@ -112,6 +104,49 @@ class MediaDerivativeService
         }
 
         return 0;
+    }
+
+    /**
+     * The master's file on disk, or null. Derivatives are written beside it.
+     * Other layouts (uploads/r/<id>/, imported hashed folders such as
+     * r/null/9/0/2/...) are found from the stored path, so these videos get
+     * their playable MP4 too.
+     */
+    public static function masterPath(object $master): ?string
+    {
+        $flat = config('heratio.uploads_path', DigitalObjectService::UPLOAD_DIR).'/'.$master->object_id.'/'.$master->name;
+        if (is_file($flat)) {
+            return $flat;
+        }
+        $resolved = DigitalObjectService::resolveDiskPath($master);
+
+        return $resolved && is_file($resolved) ? $resolved : null;
+    }
+
+    /** The name part the derivative files share: reference_<safe>.mp4, hls_<safe>/ and so on. */
+    public static function safeName(string $masterName): string
+    {
+        $safe = preg_replace('/[^a-zA-Z0-9_.-]/', '_', pathinfo($masterName, PATHINFO_FILENAME));
+
+        return str_starts_with($safe, 'master_') ? substr($safe, 7) : $safe;
+    }
+
+    /**
+     * Derivative rows written (made or brought up to date) since the last
+     * call to startTracking(); MediaRegenerateService uses it to tell the
+     * current copies from stale ones.
+     */
+    private static array $written = [];
+
+    public static function startTracking(): void
+    {
+        self::$written = [];
+    }
+
+    /** @return int[] */
+    public static function written(): array
+    {
+        return self::$written;
     }
 
     /**
@@ -647,6 +682,21 @@ class MediaDerivativeService
         $checksum = hash_file('sha256', $diskPath);
         $now = now()->format('Y-m-d H:i:s');
 
+        // Made again (same master, kind and file name): bring the existing row
+        // up to date instead of adding a duplicate.
+        $existing = DB::table('digital_object')->where('parent_id', $parentId)->where('usage_id', $usageId)
+            ->where('name', $filename)->orderBy('id')->value('id');
+        if ($existing) {
+            DB::table('digital_object')->where('id', $existing)->update([
+                'mime_type' => $mime, 'media_type_id' => $mediaTypeId, 'byte_size' => $byteSize,
+                'checksum' => $checksum, 'checksum_type' => 'sha256',
+            ]);
+            DB::table('object')->where('id', $existing)->update(['updated_at' => $now]);
+            self::$written[] = (int) $existing;
+
+            return;
+        }
+
         $doId = DB::table('object')->insertGetId([
             'class_name' => 'QubitDigitalObject',
             'created_at' => $now,
@@ -667,5 +717,6 @@ class MediaDerivativeService
             'checksum_type' => 'sha256',
             'parent_id' => $parentId,
         ]);
+        self::$written[] = (int) $doId;
     }
 }

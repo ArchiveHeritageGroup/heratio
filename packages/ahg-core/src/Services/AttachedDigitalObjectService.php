@@ -190,6 +190,9 @@ class AttachedDigitalObjectService
 
         $masterId = (int) $link->digital_object_id;
 
+        // heratio#1740: refuse before any file is unlinked below.
+        LegalHoldGate::assertDeletable((int) $link->information_object_id);
+
         // Remove the on-disk files ourselves FIRST. DigitalObjectService::delete()
         // resolves file paths via object_id, which attach() deliberately nulled -
         // so it cannot find an attached object's files and would leave them

@@ -31,13 +31,7 @@
                                 <td>{{ $item->io_title ?? 'Untitled (IO #' . $item->information_object_id . ')' }}</td>
                                 <td>
                                     @php
-                                        $typeLabels = [
-                                            'destroy' => 'Destroy',
-                                            'transfer_archives' => 'Transfer to Archives',
-                                            'transfer_external' => 'Transfer External',
-                                            'retain_permanent' => 'Retain Permanently',
-                                            'review' => 'Review',
-                                        ];
+                                        $typeLabels = \AhgRecordsManage\Services\DisposalActionTypes::labels();
                                     @endphp
                                     {{ $typeLabels[$item->action_type] ?? $item->action_type }}
                                 </td>

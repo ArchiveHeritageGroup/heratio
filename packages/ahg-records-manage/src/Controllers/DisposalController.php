@@ -4,6 +4,7 @@ namespace AhgRecordsManage\Controllers;
 
 use AhgRecordsManage\Services\DisposalExecutionService;
 use AhgRecordsManage\Services\DisposalWorkflowService;
+use AhgRecordsManage\Services\DisposalActionTypes;
 use AhgRecordsManage\Services\LegalHoldGuard;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -85,6 +86,7 @@ class DisposalController extends Controller
             'io' => $io,
             'disposalClasses' => $disposalClasses,
             'hasLegalHold' => $hasLegalHold,
+            'actionTypes' => DisposalActionTypes::offered(),
         ]);
     }
 
@@ -95,7 +97,8 @@ class DisposalController extends Controller
     {
         $request->validate([
             'information_object_id' => 'required|integer',
-            'action_type' => 'required|string|in:destroy,transfer_archives,transfer_external,retain_permanent,review',
+            // heratio#1740: the types come from the Dropdown Manager (rm_disposal_action_type).
+            'action_type' => ['required', 'string', \Illuminate\Validation\Rule::in(DisposalActionTypes::codes())],
             'disposal_class_id' => 'nullable|integer',
             // heratio#1740: destruction must say why.
             'reason' => 'nullable|required_if:action_type,destroy|string|max:2000',

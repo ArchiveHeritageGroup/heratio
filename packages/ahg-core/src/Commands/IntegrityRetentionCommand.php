@@ -226,14 +226,20 @@ class IntegrityRetentionCommand extends Command
             return 1;
         }
 
-        DB::table('integrity_legal_hold')->insert([
-            'information_object_id' => $ioId,
-            'reason' => $reason,
-            'placed_by' => 0,
-            'placed_at' => Carbon::now(),
-            'status' => 'active',
-            'created_at' => Carbon::now(),
-        ]);
+        // heratio#1740: through LegalHoldService when installed, so the hold
+        // joins the signed audit chain like one placed in the web interface.
+        if (class_exists(\AhgIntegrity\Services\LegalHoldService::class)) {
+            app(\AhgIntegrity\Services\LegalHoldService::class)->placeHold($ioId, $reason, 0);
+        } else {
+            DB::table('integrity_legal_hold')->insert([
+                'information_object_id' => $ioId,
+                'reason' => $reason,
+                'placed_by' => 0,
+                'placed_at' => Carbon::now(),
+                'status' => 'active',
+                'created_at' => Carbon::now(),
+            ]);
+        }
 
         $this->info("Legal hold placed on IO #{$ioId}. Reason: {$reason}");
 
@@ -250,14 +256,24 @@ class IntegrityRetentionCommand extends Command
             return 1;
         }
 
-        $affected = DB::table('integrity_legal_hold')
-            ->where('information_object_id', $ioId)
-            ->where('status', 'active')
-            ->update([
-                'status' => 'released',
-                'released_by' => 0,
-                'released_at' => Carbon::now(),
-            ]);
+        $reason = $this->option('reason') ?? 'CLI release';
+        if (class_exists(\AhgIntegrity\Services\LegalHoldService::class)) {
+            // heratio#1740: stores the release reason and writes the signed audit entry.
+            $svc = app(\AhgIntegrity\Services\LegalHoldService::class);
+            $affected = 0;
+            foreach (DB::table('integrity_legal_hold')->where('information_object_id', $ioId)->where('status', 'active')->pluck('id') as $holdId) {
+                $affected += $svc->releaseHold((int) $holdId, 0, $reason) ? 1 : 0;
+            }
+        } else {
+            $affected = DB::table('integrity_legal_hold')
+                ->where('information_object_id', $ioId)
+                ->where('status', 'active')
+                ->update([
+                    'status' => 'released',
+                    'released_by' => 0,
+                    'released_at' => Carbon::now(),
+                ]);
+        }
 
         if ($affected > 0) {
             $this->info("Legal hold released on IO #{$ioId}. {$affected} hold(s) released.");

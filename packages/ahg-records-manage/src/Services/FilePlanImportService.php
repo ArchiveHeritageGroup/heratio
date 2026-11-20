@@ -67,8 +67,11 @@ class FilePlanImportService
                 $retentionCol = $columnMapping['retention_period'] ?? null;
                 $disposalCol = $columnMapping['disposal_action'] ?? null;
 
-                $code = $codeCol ? trim((string) ($row[$codeCol] ?? '')) : '';
-                $title = $titleCol ? trim((string) ($row[$titleCol] ?? '')) : '';
+                // heratio#1740: FilePlanExportService::cell() guards formula-like
+                // values with a leading apostrophe; uncell() takes it off again.
+                $cell = fn ($col) => $col ? FilePlanExportService::uncell(trim((string) ($row[$col] ?? ''))) : null;
+                $code = (string) $cell($codeCol);
+                $title = (string) $cell($titleCol);
 
                 if (empty($code) && empty($title)) {
                     continue; // Skip empty rows
@@ -88,9 +91,9 @@ class FilePlanImportService
                     'row_num' => $rowIdx + 2,
                     'code' => $code,
                     'title' => $title,
-                    'description' => $descCol ? trim((string) ($row[$descCol] ?? '')) : null,
-                    'retention_period' => $retentionCol ? trim((string) ($row[$retentionCol] ?? '')) : null,
-                    'disposal_action' => $disposalCol ? trim((string) ($row[$disposalCol] ?? '')) : null,
+                    'description' => $cell($descCol),
+                    'retention_period' => $cell($retentionCol),
+                    'disposal_action' => $cell($disposalCol),
                 ];
             }
 

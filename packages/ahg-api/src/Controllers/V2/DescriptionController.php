@@ -642,6 +642,11 @@ class DescriptionController extends BaseApiController
             return $this->error('Conflict', 'Cannot delete description with children. Delete children first.', 409);
         }
 
+        // heratio#1740: a held record is not deleted.
+        if ($hold = \AhgCore\Services\LegalHoldGate::holdOn((int) $id)) {
+            return $this->error('Locked', (new \AhgCore\Services\RecordUnderLegalHoldException($hold, (int) $id))->getMessage(), 423);
+        }
+
         DB::transaction(function () use ($id, $io) {
             // Delete related records
             DB::table('status')->where('object_id', $id)->delete();

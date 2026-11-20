@@ -2,6 +2,7 @@
 
 namespace AhgRecordsManage\Controllers;
 
+use AhgRecordsManage\Services\FilePlanExportService;
 use AhgRecordsManage\Services\FilePlanImportService;
 use AhgRecordsManage\Services\FilePlanService;
 use Illuminate\Http\Request;
@@ -40,6 +41,34 @@ class FilePlanController extends Controller
         $tree = $this->filePlanService->getTree();
 
         return response()->json($tree);
+    }
+
+    /**
+     * heratio#1740: the file plan as CSV (the importer's own columns, so it
+     * imports back) or JSON (every node field).
+     */
+    public function export(string $format, FilePlanExportService $exporter)
+    {
+        return $this->download($format, 'file-plan', fn () => $exporter->fileplanCsv(), fn () => $exporter->fileplanJson());
+    }
+
+    /** heratio#1740: the retention schedules with their disposal classes. */
+    public function exportSchedules(string $format, FilePlanExportService $exporter)
+    {
+        return $this->download($format, 'retention-schedules', fn () => $exporter->schedulesCsv(), fn () => $exporter->schedulesJson());
+    }
+
+    private function download(string $format, string $name, \Closure $csv, \Closure $json)
+    {
+        $file = $name.'-'.now()->format('Y-m-d').'.'.$format;
+        if ($format === 'csv') {
+            return response($csv(), 200, [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => 'attachment; filename="'.$file.'"',
+            ]);
+        }
+
+        return response()->json($json(), 200, ['Content-Disposition' => 'attachment; filename="'.$file.'"'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
     /**

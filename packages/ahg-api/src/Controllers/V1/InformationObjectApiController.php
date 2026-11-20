@@ -764,6 +764,11 @@ class InformationObjectApiController extends Controller
                 return response()->json(['error' => 'Cannot delete: has children.'], 409);
             }
 
+            // heratio#1740: a held record is not deleted.
+            if ($hold = \AhgCore\Services\LegalHoldGate::holdOn((int) $id)) {
+                return response()->json(['error' => (new \AhgCore\Services\RecordUnderLegalHoldException($hold, (int) $id))->getMessage(), 'legal_hold_id' => $hold->id], 423);
+            }
+
             // Delete related records in proper order (respecting FK constraints)
             DB::table('relation')->where('subject_id', $id)->delete();
             DB::table('relation')->where('object_id', $id)->delete();

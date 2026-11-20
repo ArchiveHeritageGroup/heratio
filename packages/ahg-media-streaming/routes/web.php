@@ -2,6 +2,7 @@
 
 use AhgMediaStreaming\Controllers\CaptionTrackController;
 use AhgMediaStreaming\Controllers\MediaStreamController;
+use AhgMediaStreaming\Controllers\PublishPackageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -29,6 +30,21 @@ Route::middleware('auth')->group(function () {
     // Release clearance for audio/video (heratio#1771; admin or editor, checked in the controller)
     Route::post('/media-streaming/clearance/{masterId}', [MediaStreamController::class, 'clearance'])
         ->name('media-streaming.clearance')->whereNumber('masterId')->middleware('acl:update');
+
+    // Publish to platforms (heratio#1761): packages for posting by hand, and the
+    // distribution log. Staff with update permission only - every route, reads too.
+    Route::middleware('acl:update')->group(function () {
+        Route::get('/informationobject/{id}/publish', [PublishPackageController::class, 'form'])
+            ->name('media-streaming.publish.form')->whereNumber('id');
+        Route::post('/informationobject/{id}/publish', [PublishPackageController::class, 'store'])
+            ->name('media-streaming.publish.store')->whereNumber('id');
+        Route::get('/media-streaming/publish/{packageId}/download', [PublishPackageController::class, 'download'])
+            ->name('media-streaming.publish.download')->whereNumber('packageId');
+        Route::post('/media-streaming/publish/{packageId}/posted', [PublishPackageController::class, 'posted'])
+            ->name('media-streaming.publish.posted')->whereNumber('packageId');
+        Route::get('/admin/publish-log', [PublishPackageController::class, 'index'])
+            ->name('media-streaming.publish.index');
+    });
 
     // Caption track CRUD
     Route::get('/media-streaming/caption-tracks/{digitalObjectId}', [CaptionTrackController::class, 'index'])

@@ -14,6 +14,15 @@ INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_secti
   ('rm_disposal_action', 'Disposal Action', 'records', 'review',           'Review at end of retention',    40, 1),
   ('rm_disposal_action', 'Disposal Action', 'records', 'transfer_external','Transfer to external custodian',50, 1);
 
+-- Disposal action types - what a disposal action does (rm_disposal_action.action_type).
+-- Also seeded by migration 2026_11_20_200100 for existing installs.
+INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `sort_order`, `is_active`, `metadata`) VALUES
+  ('rm_disposal_action_type', 'Disposal action type', 'records', 'destroy',           'Destroy',              10, 1, '{"description": "Permanently delete all digital objects and generate destruction certificate.", "badge": "danger"}'),
+  ('rm_disposal_action_type', 'Disposal action type', 'records', 'transfer_archives', 'Transfer to Archives', 20, 1, '{"description": "Transfer records to an archival institution.", "badge": "info"}'),
+  ('rm_disposal_action_type', 'Disposal action type', 'records', 'transfer_external', 'Transfer External',    30, 1, '{"description": "Transfer records to an external organization.", "badge": "info"}'),
+  ('rm_disposal_action_type', 'Disposal action type', 'records', 'retain_permanent',  'Retain Permanently',   40, 1, '{"description": "Mark records for permanent retention.", "badge": "success"}'),
+  ('rm_disposal_action_type', 'Disposal action type', 'records', 'review',            'Review',               50, 1, '{"description": "Flag for review before determining disposal action.", "badge": "warning"}');
+
 -- Retention trigger codes - when the retention clock starts.
 INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `sort_order`, `is_active`) VALUES
   ('rm_retention_trigger', 'Retention Trigger', 'records', 'creation_date',     'Date of creation',                10, 1),

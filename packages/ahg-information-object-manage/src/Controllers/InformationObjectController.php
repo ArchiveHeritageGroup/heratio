@@ -4021,6 +4021,13 @@ class InformationObjectController extends Controller
         $ioId = $record->id;
         $width = $record->rgt - $record->lft + 1;
 
+        // heratio#1740: refuse while the record, a file or series above it, or
+        // any record inside it is under legal hold.
+        if ($hold = \AhgCore\Services\LegalHoldGate::holdOn((int) $ioId, true)) {
+            return redirect()->route('informationobject.show', $slug)
+                ->with('error', (new \AhgCore\Services\RecordUnderLegalHoldException($hold, (int) $ioId))->getMessage());
+        }
+
         // Snapshot before delete - controller-direct delete bypasses
         // InformationObjectService::delete (which v1.52.24 wrapped).
         \AhgCore\Support\AuditLog::captureDelete((int) $ioId, 'information_object', \AhgInformationObjectManage\Services\InformationObjectService::auditSnapshot((int) $ioId, app()->getLocale()));

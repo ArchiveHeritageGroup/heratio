@@ -574,6 +574,10 @@ class DigitalObjectService
      */
     public static function delete(int $digitalObjectId, array $extraRows = []): bool
     {
+        // heratio#1740: a held record's files and rows stay. Thrown (not false)
+        // so the caller can say why; outside the try so it is not swallowed.
+        LegalHoldGate::assertDigitalObjectDeletable($digitalObjectId);
+
         try {
             // Get master and all derivatives
             $objects = DB::table('digital_object')
@@ -1322,8 +1326,8 @@ class DigitalObjectService
      */
     /**
      * After a master is replaced (a new version, a check-in, a restore): make
-     * its reference copy and thumbnail from the new file, and queue new
-     * renditions for audio and video. Before this, a replace kept the old
+     * its reference copy and thumbnail from the new file, and queue a clean
+     * regenerate (RegenerateMediaJob) for audio and video. Before this, a replace kept the old
      * pictures. The derivative files keep their names, so they are written
      * over in place; older duplicate derivative rows are removed, never their
      * files. Never touches a file another system's catalogue uses.
@@ -1349,6 +1353,9 @@ class DigitalObjectService
                         DB::table('object')->whereIn('id', $old)->delete();
                     }
                 }
+            } elseif (MediaProtection::isAudioVideo($master)) {
+                // Clean copies from the new file: old HLS and keys removed, no duplicate rows.
+                \AhgCore\Jobs\RegenerateMediaJob::dispatch($masterId);
             } else {
                 self::queueMediaDerivatives($masterId, $mediaTypeId ? (int) $mediaTypeId : null, $master->mime_type);
             }

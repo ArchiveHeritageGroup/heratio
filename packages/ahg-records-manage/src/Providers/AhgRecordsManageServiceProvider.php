@@ -31,6 +31,10 @@ class AhgRecordsManageServiceProvider extends ServiceProvider
         Route::middleware('web')->group(__DIR__.'/../../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-records');
 
+        if ($this->app->runningInConsole()) {
+            $this->commands([\AhgRecordsManage\Console\Commands\RecordsAuditScrubCommand::class]);
+        }
+
         $this->bootInstallIfNeeded();
     }
 

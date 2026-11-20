@@ -28,21 +28,17 @@
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">{{ __('Action Type') }}</label>
-                    @foreach ([
-                        'destroy' => ['Destroy', 'Permanently delete all digital objects and generate destruction certificate.'],
-                        'transfer_archives' => ['Transfer to Archives', 'Transfer records to an archival institution.'],
-                        'transfer_external' => ['Transfer External', 'Transfer records to an external organization.'],
-                        'retain_permanent' => ['Retain Permanently', 'Mark records for permanent retention.'],
-                        'review' => ['Review', 'Flag for review before determining disposal action.'],
-                    ] as $value => [$label, $desc])
+                    @foreach ($actionTypes as $value => $type)
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="radio" name="action_type" id="action_{{ $value }}" value="{{ $value }}"
                                 {{ old('action_type') === $value ? 'checked' : '' }}
                                 {{ $hasLegalHold ? 'disabled' : '' }}
                                 onchange="toggleTransferDest()">
                             <label class="form-check-label" for="action_{{ $value }}">
-                                <strong>{{ $label }}</strong>
-                                <br><small class="text-muted">{{ $desc }}</small>
+                                <strong>{{ __($type->label) }}</strong>
+                                @if ($type->description !== '')
+                                    <br><small class="text-muted">{{ __($type->description) }}</small>
+                                @endif
                             </label>
                         </div>
                     @endforeach

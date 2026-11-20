@@ -18,7 +18,11 @@
 <div class="card">
   <div class="card-header d-flex justify-content-between align-items-center" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
     <h5 class="mb-0">{{ __('Retention Schedules') }}</h5>
-    <a href="{{ route('records.schedules.create') }}" class="btn btn-sm btn-light"><i class="fas fa-plus me-1"></i>{{ __('Create Schedule') }}</a>
+    <div>
+      <a href="{{ route('records.schedules.export', 'csv') }}" class="btn btn-sm btn-outline-light me-1"><i class="fas fa-file-csv me-1"></i>{{ __('Export CSV') }}</a>
+      <a href="{{ route('records.schedules.export', 'json') }}" class="btn btn-sm btn-outline-light me-1"><i class="fas fa-file-code me-1"></i>{{ __('Export JSON') }}</a>
+      <a href="{{ route('records.schedules.create') }}" class="btn btn-sm btn-light"><i class="fas fa-plus me-1"></i>{{ __('Create Schedule') }}</a>
+    </div>
   </div>
   <div class="card-body pb-2">
     <form method="get" action="{{ route('records.schedules.index') }}" class="row g-2 mb-3">

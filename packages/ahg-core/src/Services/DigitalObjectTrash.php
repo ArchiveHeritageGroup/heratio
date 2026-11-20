@@ -170,6 +170,13 @@ class DigitalObjectTrash
         if (! $t) {
             return false;
         }
+        // heratio#1740: a trashed file of a record now under legal hold is kept
+        // until the hold is released (purgeExpired retries it on a later run).
+        if ($t->information_object_id && LegalHoldGate::holdOn((int) $t->information_object_id)) {
+            Log::warning('[trash] purge of trash#'.$t->id.' refused: record #'.$t->information_object_id.' is under legal hold');
+
+            return false;
+        }
         $files = json_decode((string) $t->files_json, true) ?: [];
         foreach ($files as $f) {
             // A file the shared catalogue now points at again is not purged.

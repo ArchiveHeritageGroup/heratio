@@ -1152,6 +1152,8 @@
   ])
   {{-- #1178 3D technical metadata panel (renders only when the record has a 3D model). --}}
   @includeIf('ahg-3d-model::_metadata-panel', ['objectId' => $io->id])
+  {{-- heratio#1761 Publish to platforms + distribution log (staff with update permission only). --}}
+  @includeIf('ahg-media-streaming::publish._record-panel', ['ioId' => $io->id])
   {{-- #658 Phase 1: METS download. Surfaced as a small supplemental block
        because the main Export dropdown lives in the locked partial above
        and cannot be edited from this issue's unlocked scope. --}}

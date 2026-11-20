@@ -52,6 +52,9 @@ Route::middleware('admin')->group(function () {
     Route::get('/admin/records/fileplan/tree', [FilePlanController::class, 'treeJson'])->name('records.fileplan.tree');
     Route::get('/admin/records/fileplan/create', [FilePlanController::class, 'create'])->name('records.fileplan.create');
     Route::post('/admin/records/fileplan', [FilePlanController::class, 'store'])->name('records.fileplan.store');
+    // heratio#1740: file plan and retention schedule export (CSV / JSON)
+    Route::get('/admin/records/fileplan/export.{format}', [FilePlanController::class, 'export'])->name('records.fileplan.export')->where('format', 'csv|json');
+    Route::get('/admin/records/schedules/export.{format}', [FilePlanController::class, 'exportSchedules'])->name('records.schedules.export')->where('format', 'csv|json');
     Route::get('/admin/records/fileplan/import', [FilePlanController::class, 'importForm'])->name('records.fileplan.import');
     Route::post('/admin/records/fileplan/import/upload', [FilePlanController::class, 'importUpload'])->name('records.fileplan.import.upload');
     Route::post('/admin/records/fileplan/import/map', [FilePlanController::class, 'importMap'])->name('records.fileplan.import.map');

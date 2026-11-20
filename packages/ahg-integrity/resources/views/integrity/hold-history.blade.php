@@ -17,7 +17,7 @@
     @if(count($history) > 0)
     <table class="table table-striped table-hover mb-0">
       <thead><tr style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);">
-        <th>{{ __('ID') }}</th><th>{{ __('Status') }}</th><th>{{ __('Reason') }}</th><th>{{ __('Placed By') }}</th><th>{{ __('Placed At') }}</th><th>{{ __('Released By') }}</th><th>{{ __('Released At') }}</th>
+        <th>{{ __('ID') }}</th><th>{{ __('Status') }}</th><th>{{ __('Reason') }}</th><th>{{ __('Placed By') }}</th><th>{{ __('Placed At') }}</th><th>{{ __('Released By') }}</th><th>{{ __('Released At') }}</th><th>{{ __('Release Reason') }}</th>
       </tr></thead>
       <tbody>
         @foreach($history as $h)
@@ -30,6 +30,7 @@
           <td>{{ $hold->placed_at }}</td>
           <td>{{ $hold->released_by ?? '-' }}</td>
           <td>{{ $hold->released_at ?? '-' }}</td>
+          <td>{{ $hold->release_reason ?? '-' }}</td>
         </tr>
         @endforeach
       </tbody>

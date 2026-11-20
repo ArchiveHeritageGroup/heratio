@@ -3,6 +3,7 @@
 namespace AhgMediaStreaming\Providers;
 
 use AhgMediaStreaming\Services\CaptionTrackService;
+use AhgMediaStreaming\Services\PublishPackageService;
 use AhgMediaStreaming\Services\StreamingService;
 use AhgMediaStreaming\Services\TranscodingService;
 use Illuminate\Support\Facades\View;
@@ -21,12 +22,16 @@ class AhgMediaStreamingServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(CaptionTrackService::class);
+        $this->app->singleton(PublishPackageService::class);
     }
 
     public function boot(): void
     {
         \Illuminate\Support\Facades\Route::middleware('web')
             ->group(__DIR__.'/../../routes/web.php');
+
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-media-streaming');
+        $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
 
         // #757 caption tracks: auto-inject active tracks into the media-player
         // Blade component whenever a caller has not supplied them. Avoids

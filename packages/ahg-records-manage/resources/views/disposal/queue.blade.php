@@ -72,7 +72,7 @@
                     <label class="form-label" for="filter-action-type">{{ __('Action Type') }}</label>
                     <select name="action_type" id="filter-action-type" class="form-select form-select-sm">
                         <option value="">{{ __('All') }}</option>
-                        @foreach (['destroy' => 'Destroy', 'transfer_archives' => 'Transfer to Archives', 'transfer_external' => 'Transfer External', 'retain_permanent' => 'Retain Permanently', 'review' => 'Review'] as $val => $label)
+                        @foreach (\AhgRecordsManage\Services\DisposalActionTypes::labels() as $val => $label)
                             <option value="{{ $val }}" {{ ($filters['action_type'] ?? '') === $val ? 'selected' : '' }}>{{ $label }}</option>
                         @endforeach
                     </select>
@@ -113,20 +113,8 @@
                                 <td>{{ $item->io_title ?? 'Untitled (IO #' . $item->information_object_id . ')' }}</td>
                                 <td>
                                     @php
-                                        $typeLabels = [
-                                            'destroy' => 'Destroy',
-                                            'transfer_archives' => 'Transfer to Archives',
-                                            'transfer_external' => 'Transfer External',
-                                            'retain_permanent' => 'Retain Permanently',
-                                            'review' => 'Review',
-                                        ];
-                                        $typeBadges = [
-                                            'destroy' => 'danger',
-                                            'transfer_archives' => 'info',
-                                            'transfer_external' => 'info',
-                                            'retain_permanent' => 'success',
-                                            'review' => 'warning',
-                                        ];
+                                        $typeLabels = \AhgRecordsManage\Services\DisposalActionTypes::labels();
+                                        $typeBadges = \AhgRecordsManage\Services\DisposalActionTypes::badges();
                                     @endphp
                                     <span class="badge bg-{{ $typeBadges[$item->action_type] ?? 'secondary' }}">{{ $typeLabels[$item->action_type] ?? $item->action_type }}</span>
                                 </td>

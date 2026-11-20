@@ -187,6 +187,7 @@ CREATE TABLE IF NOT EXISTS `integrity_legal_hold` (
     `placed_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `released_by` VARCHAR(255) NULL,
     `released_at` DATETIME NULL,
+    `release_reason` TEXT NULL,
     `status` VARCHAR(20) NOT NULL DEFAULT 'active' COMMENT 'active, released',
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     INDEX `idx_ilh_io` (`information_object_id`),

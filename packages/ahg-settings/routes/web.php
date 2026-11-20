@@ -108,6 +108,7 @@ Route::middleware('admin')->group(function () {
     Route::match(['get', 'post'], '/admin/ahgSettings/levels', [SettingsController::class, 'levels'])->name('settings.levels');
     Route::match(['get', 'post'], '/admin/ahgSettings/library', [SettingsController::class, 'librarySettings'])->name('settings.ahg.library');
     Route::match(['get', 'post'], '/admin/ahgSettings/media', [SettingsController::class, 'mediaSettings'])->name('settings.ahg.media');
+    Route::post('/admin/ahgSettings/media/regenerate', [\AhgSettings\Controllers\MediaRegenerateController::class, 'store'])->name('settings.ahg.media.regenerate');
     Route::match(['get', 'post'], '/admin/ahgSettings/metadata', [SettingsController::class, 'metadataSettings'])->name('settings.ahg.metadata');
     Route::match(['get', 'post'], '/admin/ahgSettings/multiTenant', [SettingsController::class, 'multiTenantSettings'])->name('settings.ahg.multi_tenant');
     Route::match(['get', 'post'], '/admin/ahgSettings/plugins', [SettingsController::class, 'plugins'])->name('settings.plugins');

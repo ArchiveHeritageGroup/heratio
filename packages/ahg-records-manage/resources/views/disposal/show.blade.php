@@ -25,20 +25,8 @@
                     <p class="mb-1">
                         <strong>{{ __('Action Type:') }}</strong>
                         @php
-                            $typeLabels = [
-                                'destroy' => 'Destroy',
-                                'transfer_archives' => 'Transfer to Archives',
-                                'transfer_external' => 'Transfer External',
-                                'retain_permanent' => 'Retain Permanently',
-                                'review' => 'Review',
-                            ];
-                            $typeBadges = [
-                                'destroy' => 'danger',
-                                'transfer_archives' => 'info',
-                                'transfer_external' => 'info',
-                                'retain_permanent' => 'success',
-                                'review' => 'warning',
-                            ];
+                            $typeLabels = \AhgRecordsManage\Services\DisposalActionTypes::labels();
+                            $typeBadges = \AhgRecordsManage\Services\DisposalActionTypes::badges();
                         @endphp
                         <span class="badge bg-{{ $typeBadges[$action->action_type] ?? 'secondary' }}">{{ $typeLabels[$action->action_type] ?? $action->action_type }}</span>
                     </p>

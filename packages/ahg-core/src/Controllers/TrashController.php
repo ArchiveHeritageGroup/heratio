@@ -47,6 +47,10 @@ class TrashController extends Controller
 
     public function purge(int $id)
     {
+        $infoId = DB::table(DigitalObjectTrash::TABLE)->where('id', $id)->value('information_object_id');
+        if ($infoId && ($hold = \AhgCore\Services\LegalHoldGate::holdOn((int) $infoId))) {
+            return back()->with('error', (new \AhgCore\Services\RecordUnderLegalHoldException($hold, (int) $infoId))->getMessage());
+        }
         $ok = DigitalObjectTrash::purge($id);
 
         return back()->with($ok ? 'success' : 'error', $ok ? __('Deleted for good.') : __('Nothing to delete.'));

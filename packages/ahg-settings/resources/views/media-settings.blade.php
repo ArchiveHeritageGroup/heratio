@@ -280,6 +280,16 @@
             <div class="form-text">{{ __('Administrators and editors clear media under its player. Media can also be held back one item at a time with this off.') }}</div>
           </div>
         </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">{{ __('Existing videos') }}</label>
+          <div class="col-sm-9">
+            <button type="submit" form="media-regenerate-form" class="btn btn-outline-secondary"
+                    onclick="return confirm({{ json_encode(__('Make the playback copies of every video again? This runs in the background and can take a while.')) }})">
+              <i class="fas fa-sync-alt me-1"></i>{{ __('Regenerate playback copies for all videos') }}
+            </button>
+            <div class="form-text">{{ __('Save the settings first. The watermark and encryption apply only to copies made after they are switched on; this makes them again for every video. Originals are not changed.') }}</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -291,5 +301,10 @@
         <i class="fas fa-save me-1"></i>{{ __('Save') }}
       </button>
     </div>
+  </form>
+
+  {{-- Outside the settings form: a form cannot sit inside another. --}}
+  <form id="media-regenerate-form" method="POST" action="{{ route('settings.ahg.media.regenerate') }}" class="d-none">
+    @csrf
   </form>
 @endsection

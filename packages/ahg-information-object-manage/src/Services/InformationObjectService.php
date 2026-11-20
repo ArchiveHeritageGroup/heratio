@@ -758,6 +758,10 @@ class InformationObjectService
      */
     public static function delete(int $id): void
     {
+        // heratio#1740: nothing held - the record, a file or series above it, or
+        // any record inside it - is deleted. Throws RecordUnderLegalHoldException.
+        \AhgCore\Services\LegalHoldGate::assertDeletable($id, true);
+
         \AhgCore\Support\AuditLog::captureDelete($id, 'information_object', self::auditSnapshot($id, app()->getLocale()));
 
         DB::transaction(function () use ($id) {

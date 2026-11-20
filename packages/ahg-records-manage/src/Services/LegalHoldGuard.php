@@ -52,6 +52,43 @@ class LegalHoldGuard
             ->first();
     }
 
+    /**
+     * An active hold on the record or on anything below it, or null. Deleting
+     * a series deletes every record inside it, so a hold on one item must stop
+     * the series from being deleted too. Active holds are few, so this walks
+     * up from each held record rather than down the (possibly large) tree.
+     */
+    public static function activeHoldWithin(int $ioId): ?object
+    {
+        if ($ioId <= 0 || ! Schema::hasTable('integrity_legal_hold')) {
+            return null;
+        }
+
+        $holds = DB::table('integrity_legal_hold')->where('status', 'active')->orderBy('placed_at')->get();
+        foreach ($holds as $hold) {
+            $seen = [];
+            $current = (int) $hold->information_object_id;
+            while ($current && $current !== self::ROOT_ID && ! isset($seen[$current]) && count($seen) < self::MAX_DEPTH) {
+                if ($current === $ioId) {
+                    return $hold;
+                }
+                $seen[$current] = true;
+                $current = (int) DB::table('information_object')->where('id', $current)->value('parent_id');
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The hold that stops this record being deleted: one on the record, on a
+     * file or series containing it, or (with $withContents) on a record inside it.
+     */
+    public static function blockingDeletion(int $ioId, bool $withContents = true): ?object
+    {
+        return self::activeHoldFor($ioId) ?? ($withContents ? self::activeHoldWithin($ioId) : null);
+    }
+
     public static function isHeld(int $ioId): bool
     {
         return self::activeHoldFor($ioId) !== null;

@@ -354,6 +354,7 @@ class AhgCoreServiceProvider extends ServiceProvider
                 // Digital Objects
                 \AhgCore\Commands\RegenDerivativesCommand::class,
                 \AhgCore\Commands\MediaDerivativesCommand::class,
+                \AhgCore\Commands\MediaRegenerateCommand::class,
                 \AhgCore\Commands\LoadDigitalObjectsCommand::class,
 
                 // OAI-PMH
