@@ -14,20 +14,19 @@ class DisposalWorkflowService
     /**
      * Initiate a disposal action for an information object.
      *
-     * @throws \RuntimeException if the IO is under legal hold
+     * @throws \RuntimeException if the IO (or an aggregation above it) is under
+     *                           legal hold, or a destruction has no reason
      */
     public function initiateDisposal(int $ioId, int $disposalClassId, string $actionType, int $userId, ?string $reason = null): int
     {
-        // Check legal hold
-        if (Schema::hasTable('integrity_legal_hold')) {
-            $activeHold = DB::table('integrity_legal_hold')
-                ->where('information_object_id', $ioId)
-                ->where('status', 'active')
-                ->exists();
+        // heratio#1740: a hold on the file or series above the record counts too.
+        if (LegalHoldGuard::isHeld($ioId)) {
+            throw new \RuntimeException(__('Cannot initiate disposal: the record, or a file or series it belongs to, is under an active legal hold.'));
+        }
 
-            if ($activeHold) {
-                throw new \RuntimeException('Cannot initiate disposal: information object is under active legal hold.');
-            }
+        // heratio#1740: destruction is irreversible, so its justification is mandatory.
+        if ($actionType === 'destroy' && trim((string) $reason) === '') {
+            throw new \RuntimeException(__('A reason is required to initiate destruction.'));
         }
 
         $actionId = DB::table('rm_disposal_action')->insertGetId([
@@ -219,16 +218,9 @@ class DisposalWorkflowService
             return false;
         }
 
-        // Check if IO still has active legal hold
-        if (Schema::hasTable('integrity_legal_hold')) {
-            $activeHold = DB::table('integrity_legal_hold')
-                ->where('information_object_id', $action->information_object_id)
-                ->where('status', 'active')
-                ->exists();
-
-            if ($activeHold) {
-                return false;
-            }
+        // Check if the record, or an aggregation above it, still has an active legal hold
+        if (LegalHoldGuard::isHeld((int) $action->information_object_id)) {
+            return false;
         }
 
         DB::table('rm_disposal_action')->where('id', $disposalActionId)->update([
@@ -350,14 +342,8 @@ class DisposalWorkflowService
             ->first();
 
         if ($action) {
-            // Check if IO is under legal hold
-            $action->has_active_hold = false;
-            if (Schema::hasTable('integrity_legal_hold')) {
-                $action->has_active_hold = DB::table('integrity_legal_hold')
-                    ->where('information_object_id', $action->information_object_id)
-                    ->where('status', 'active')
-                    ->exists();
-            }
+            // Check if the record, or an aggregation above it, is under legal hold
+            $action->has_active_hold = LegalHoldGuard::isHeld((int) $action->information_object_id);
 
             // Get certificate if linked
             $action->certificate = null;

@@ -562,6 +562,13 @@ class PrivacyController extends Controller
             $refuse = true;
         }
 
+        // heratio#1771: audio/video not yet cleared for release plays only for
+        // staff, and the original of a watermarked video goes only to those
+        // originals are released to (the watermarked copies stay playable).
+        if (!$refuse && \AhgCore\Services\MediaProtection::refusesPath($path)) {
+            $refuse = true;
+        }
+
         // heratio#1739 / #1772: an original let through is a download, counted
         // here - the one place every file request passes - for every visitor.
         if (!$refuse && $path !== '' && ($master = \AhgCore\Services\MasterAccess::masterForPath($path))) {

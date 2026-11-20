@@ -246,10 +246,25 @@ class MediaDerivativeService
         //    is a ceiling: a smaller source keeps its own size (never upscaled).
         $p = self::profile();
         $mp4 = $uploadDir.'/reference_'.$safe.'.mp4';
-        $cmd = sprintf('%s -y -i %s -vf %s -c:v %s %s -pix_fmt yuv420p -c:a aac -b:a 128k -movflags +faststart %s 2>/dev/null',
-            escapeshellcmd($ffmpeg), escapeshellarg($masterPath), escapeshellarg(self::scaleFilter($p['video_height'])),
-            $p['video_encoder'], self::ENCODER_ARGS[$p['video_encoder']], escapeshellarg($mp4));
+        // heratio#1771: a record under a watermark gets it burnt into this copy
+        // and the HLS renditions; the master itself is never touched.
+        $ioIds = MediaProtection::recordIds($master);
+        $wm = $ioIds ? MediaProtection::videoWatermark($ioIds[0]) : null;
+        if ($wm) {
+            $g = MediaProtection::overlayGraph($wm, self::videoHeight($masterPath));
+            $cmd = sprintf('%s -y -i %s %s -filter_complex %s -map "[v]" -map "0:a:0?" -c:v %s %s -pix_fmt yuv420p -c:a aac -b:a 128k -movflags +faststart %s 2>/dev/null',
+                escapeshellcmd($ffmpeg), escapeshellarg($masterPath), $g['inputs'],
+                escapeshellarg($g['graph'].';[wm]'.self::scaleFilter($p['video_height']).'[v]'),
+                $p['video_encoder'], self::ENCODER_ARGS[$p['video_encoder']], escapeshellarg($mp4));
+        } else {
+            $cmd = sprintf('%s -y -i %s -vf %s -c:v %s %s -pix_fmt yuv420p -c:a aac -b:a 128k -movflags +faststart %s 2>/dev/null',
+                escapeshellcmd($ffmpeg), escapeshellarg($masterPath), escapeshellarg(self::scaleFilter($p['video_height'])),
+                $p['video_encoder'], self::ENCODER_ARGS[$p['video_encoder']], escapeshellarg($mp4));
+        }
         @shell_exec($cmd);
+        if ($wm) {
+            array_map('unlink', array_filter($g['cleanup'], 'is_file'));
+        }
         if (is_file($mp4) && filesize($mp4) > 0) {
             self::insertDerivative($masterId, $master->object_id, 'reference_'.$safe.'.mp4',
                 $master->path, 'video/mp4', DigitalObjectService::MEDIA_VIDEO, DigitalObjectService::USAGE_REFERENCE, $mp4);
@@ -257,7 +272,7 @@ class MediaDerivativeService
             // 1b. HLS ladder beside it (off by default). Files only: the folder
             //     is judged by the /uploads gate as this reference copy.
             if ($p['hls']) {
-                self::generateHls($ffmpeg, $masterPath, $uploadDir.'/hls_'.$safe, $p['ladder']);
+                self::generateHls($ffmpeg, $masterPath, $uploadDir.'/hls_'.$safe, $p['ladder'], $masterId, $wm);
             }
         }
 
@@ -464,18 +479,33 @@ class MediaDerivativeService
      * Package the master as HLS: one variant per rung (H.264 + AAC, which
      * every HLS player decodes), segments and playlists in $dir, and one
      * master.m3u8 listing them. Returns the master playlist path or null.
+     *
+     * heratio#1771: $wm (MediaProtection::videoWatermark) is burnt into every
+     * rendition. With media_hls_encrypt on and $masterId given, the segments
+     * are AES-128 encrypted, each rendition with its own key (see
+     * generateEncryptedHls).
      */
-    public static function generateHls(string $ffmpeg, string $masterPath, string $dir, array $ladder): ?string
+    public static function generateHls(string $ffmpeg, string $masterPath, string $dir, array $ladder, ?int $masterId = null, ?array $wm = null): ?string
     {
-        $rungs = self::ladderFor(self::videoHeight($masterPath), $ladder);
+        $height = self::videoHeight($masterPath);
+        $rungs = self::ladderFor($height, $ladder);
         if (! is_dir($dir) && ! @mkdir($dir, 0775, true)) {
             return null;
         }
         array_map('unlink', glob($dir.'/*') ?: []);
         $audio = self::hasAudioStream($masterPath);
+        $g = $wm ? MediaProtection::overlayGraph($wm, $height) : ['inputs' => '', 'graph' => '', 'cleanup' => []];
+
+        if ($masterId && MediaProtection::encryptionEnabled()) {
+            try {
+                return self::generateEncryptedHls($ffmpeg, $masterPath, $dir, $rungs, $masterId, $audio, $g);
+            } finally {
+                array_map('unlink', array_filter($g['cleanup'], 'is_file'));
+            }
+        }
 
         $n = count($rungs);
-        $filter = '[0:v]split='.$n.implode('', array_map(fn ($i) => "[s$i]", range(0, $n - 1)));
+        $filter = ($wm ? $g['graph'].';[wm]' : '[0:v]').'split='.$n.implode('', array_map(fn ($i) => "[s$i]", range(0, $n - 1)));
         $maps = [];
         $streams = [];
         foreach ($rungs as $i => $h) {
@@ -489,14 +519,65 @@ class MediaDerivativeService
             $streams[] = "v:$i".($audio ? ",a:$i" : '').",name:$h";
         }
 
-        $cmd = sprintf('%s -y -i %s -filter_complex %s %s %s -preset fast -pix_fmt yuv420p -force_key_frames %s -sc_threshold 0'
+        $cmd = sprintf('%s -y -i %s %s -filter_complex %s %s %s -preset fast -pix_fmt yuv420p -force_key_frames %s -sc_threshold 0'
             .' -f hls -hls_time 6 -hls_playlist_type vod -hls_segment_filename %s -master_pl_name master.m3u8 -var_stream_map %s %s 2>/dev/null',
-            escapeshellcmd($ffmpeg), escapeshellarg($masterPath), escapeshellarg($filter), implode(' ', $maps),
+            escapeshellcmd($ffmpeg), escapeshellarg($masterPath), $g['inputs'], escapeshellarg($filter), implode(' ', $maps),
             $audio ? '-c:a aac -b:a 128k -ac 2' : '', escapeshellarg('expr:gte(t,n_forced*6)'),
             escapeshellarg($dir.'/v%v_%03d.ts'), escapeshellarg(implode(' ', $streams)), escapeshellarg($dir.'/v%v.m3u8'));
         @shell_exec($cmd);
+        array_map('unlink', array_filter($g['cleanup'], 'is_file'));
 
         return is_file($dir.'/master.m3u8') ? $dir.'/master.m3u8' : null;
+    }
+
+    /**
+     * Encrypted HLS (heratio#1771): one ffmpeg run per rendition, each with a
+     * fresh random AES-128 key and IV (ffmpeg -hls_key_info_file), so every
+     * rendition has its own key and making the renditions again replaces all
+     * of them. The playlists name the key by its access-checked route; the
+     * key files stay in MediaProtection::keysDir(), outside the web root.
+     * The per-rendition master playlists ffmpeg writes are merged into one
+     * master.m3u8 with the same file names as the plain ladder.
+     * This is encryption in transit with access-controlled keys, not DRM.
+     */
+    private static function generateEncryptedHls(string $ffmpeg, string $masterPath, string $dir, array $rungs, int $masterId, bool $audio, array $g): ?string
+    {
+        MediaProtection::dropKeys($masterId);
+        $entries = [];
+        foreach ($rungs as $h) {
+            $info = MediaProtection::newKeyInfo($masterId, $h);
+            if ($info === null) {
+                return null; // never fall back to clear segments when encryption was asked for
+            }
+            $kbps = self::LADDER[$h] ?? (int) max(400, round($h * 2.9));
+            $filter = ($g['graph'] !== '' ? $g['graph'].';[wm]' : '[0:v]').self::scaleFilter($h).'[v]';
+            $cmd = sprintf('%s -y -i %s %s -filter_complex %s -map "[v]" -c:v libx264 -b:v %dk -maxrate %dk -bufsize %dk %s'
+                .' -preset fast -pix_fmt yuv420p -force_key_frames %s -sc_threshold 0 -f hls -hls_time 6 -hls_playlist_type vod'
+                .' -hls_key_info_file %s -hls_segment_filename %s -master_pl_name %s %s 2>/dev/null',
+                escapeshellcmd($ffmpeg), escapeshellarg($masterPath), $g['inputs'], escapeshellarg($filter),
+                $kbps, (int) ($kbps * 1.07), (int) ($kbps * 1.5), $audio ? '-map 0:a:0 -c:a aac -b:a 128k -ac 2' : '',
+                escapeshellarg('expr:gte(t,n_forced*6)'), escapeshellarg($info), escapeshellarg($dir.'/v'.$h.'_%03d.ts'),
+                escapeshellarg('master_v'.$h.'.m3u8'), escapeshellarg($dir.'/v'.$h.'.m3u8'));
+            @shell_exec($cmd);
+            @unlink($info);
+
+            $part = $dir.'/master_v'.$h.'.m3u8';
+            foreach (preg_split('/\R/', (string) @file_get_contents($part)) as $line) {
+                if (str_starts_with($line, '#EXT-X-STREAM-INF')) {
+                    $entries[] = $line."\nv{$h}.m3u8";
+                }
+            }
+            @unlink($part);
+            if (! is_file($dir.'/v'.$h.'.m3u8')) {
+                return null;
+            }
+        }
+        if ($entries === []) {
+            return null;
+        }
+        file_put_contents($dir.'/master.m3u8', "#EXTM3U\n#EXT-X-VERSION:3\n".implode("\n", $entries)."\n");
+
+        return $dir.'/master.m3u8';
     }
 
     // ---------------------------------------------------------------

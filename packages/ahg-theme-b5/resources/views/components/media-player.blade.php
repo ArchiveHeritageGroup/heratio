@@ -67,7 +67,27 @@
     if ($__fallback && in_array(strtolower((string) $mime), \AhgCore\Services\MediaDerivativeService::BROWSER_UNPLAYABLE_AUDIO, true)) {
         [$src, $mime, $__fallback] = [$__fallback[0], $__fallback[1], [$src, $mime]];
     }
+
+    // heratio#1771: media not cleared for release is shown to staff only, and
+    // the original of a watermarked video is left out for viewers it is not
+    // released to - they play the watermarked copy and HLS. The /uploads gate
+    // and the stream route enforce both; this keeps the player from offering
+    // files that would be refused.
+    $__prot = \AhgCore\Services\MediaProtection::playerState((string) $src);
+    if ($__prot['hideOriginal']) {
+        if ($__fallback) {
+            [$src, $mime, $__fallback] = [$__fallback[0], $__fallback[1], null];
+        }
+        $needsStreaming = false;
+        $showDownload = false;
+    }
 @endphp
+
+@if($__prot['withheld'])
+    <div class="alert alert-secondary small text-start" role="note">
+        <i class="fas fa-lock me-1" aria-hidden="true"></i>{{ __('This media has not yet been cleared for release.') }}
+    </div>
+@else
 
 @if($__isBare)
     {{-- ── Bare native: master.blade.php's enhance() may wrap with Plyr or Video.js. ── --}}
@@ -417,4 +437,9 @@
 
 @if($__isVideo && $__hls)
     @include('theme::components.media-player-hls', ['playerId' => $playerId, 'hls' => $__hls, 'playerType' => $__playerType])
+@endif
+@endif
+
+@if($__prot['staff'] && $__prot['master'])
+    @include('theme::components.media-clearance', ['prot' => $__prot])
 @endif

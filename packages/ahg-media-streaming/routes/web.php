@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('/media-streaming/stream/{digitalObjectId}', [MediaStreamController::class, 'stream'])
     ->name('media-streaming.stream');
 
+// HLS segment key (heratio#1771) - public route, access-checked per request
+Route::get('/media-streaming/hls-key/{masterId}/{rendition}', [MediaStreamController::class, 'hlsKey'])
+    ->name('media-streaming.hls-key')
+    ->whereNumber('masterId')->whereNumber('rendition');
+
 // Caption track VTT endpoint - public (video players need direct access)
 Route::get('/media-streaming/captions/{trackId}', [CaptionTrackController::class, 'serve'])
     ->name('media-streaming.captions')
@@ -21,6 +26,10 @@ Route::get('/media-streaming/captions/{trackId}', [CaptionTrackController::class
 
 // Admin-capable routes (auth required)
 Route::middleware('auth')->group(function () {
+    // Release clearance for audio/video (heratio#1771; admin or editor, checked in the controller)
+    Route::post('/media-streaming/clearance/{masterId}', [MediaStreamController::class, 'clearance'])
+        ->name('media-streaming.clearance')->whereNumber('masterId')->middleware('acl:update');
+
     // Caption track CRUD
     Route::get('/media-streaming/caption-tracks/{digitalObjectId}', [CaptionTrackController::class, 'index'])
         ->name('caption-tracks.index');

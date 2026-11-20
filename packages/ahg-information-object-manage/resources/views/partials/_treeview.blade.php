@@ -600,3 +600,59 @@ document.addEventListener('DOMContentLoaded', function() {
   loadTreeview();
 });
 </script>
+
+{{-- Hierarchy hover card: hovering a record in the tree shows its preview
+     (thumbnail, reference, level, dates, opening of its description).
+     Mouse and pen only; on touch screens a tap still opens the record. --}}
+<style>
+  #tv-preview { position: fixed; z-index: 1080; width: 320px; max-width: calc(100vw - 24px); background: var(--bs-body-bg, #fff); color: var(--bs-body-color, #212529);
+    border: 1px solid var(--bs-border-color, #dee2e6); border-radius: 6px; box-shadow: 0 6px 24px rgba(0,0,0,.18); padding: 10px 12px; font-size: 13px; line-height: 1.4; pointer-events: none; display: none; }
+  #tv-preview img { float: right; width: 88px; height: 88px; object-fit: cover; margin: 0 0 6px 10px; border-radius: 4px; background: var(--bs-tertiary-bg, #f1f1f1); }
+  #tv-preview .tvp-title { font-weight: 600; margin-bottom: 2px; }
+  #tv-preview .tvp-meta { color: var(--bs-secondary-color, #6c757d); font-size: 12px; margin-bottom: 4px; }
+</style>
+<script>
+(function () {
+  var url = @json(url('/informationobject/treeview-preview')) + '/';
+  var cache = {}, card = null, timer = null, current = null;
+  var labels = { children: @json(__(':n records below')), loading: @json(__('Loading...')) };
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function el() { if (!card) { card = document.createElement('div'); card.id = 'tv-preview'; card.setAttribute('role', 'tooltip'); document.body.appendChild(card); } return card; }
+  function place(a) {
+    var r = a.getBoundingClientRect(), c = el(), w = c.offsetWidth, h = c.offsetHeight;
+    var left = r.right + 12; if (left + w > window.innerWidth - 8) left = Math.max(8, r.left - w - 12);
+    var top = Math.min(Math.max(8, r.top - 8), window.innerHeight - h - 8);
+    c.style.left = left + 'px'; c.style.top = top + 'px';
+  }
+  function render(a, d) {
+    var c = el();
+    c.innerHTML = (d.thumbnail ? '<img src="' + esc(d.thumbnail) + '" alt="" onerror="this.remove()">' : '')
+      + '<div class="tvp-title">' + esc(d.title) + '</div>'
+      + '<div class="tvp-meta">' + [d.identifier, d.level, d.dates].filter(Boolean).map(esc).join(' &middot; ') + '</div>'
+      + (d.scope ? '<div>' + esc(d.scope) + '</div>' : '')
+      + (d.children ? '<div class="tvp-meta" style="margin-top:4px">' + esc(labels.children.replace(':n', d.children)) + '</div>' : '');
+    c.style.display = 'block'; place(a);
+  }
+  function show(a) {
+    var id = a.closest('.tv-node') && a.closest('.tv-node').dataset.id; if (!id) return;
+    current = a;
+    if (cache[id]) { render(a, cache[id]); return; }
+    fetch(url + id, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) { if (!d) return; cache[id] = d; if (current === a) render(a, d); })
+      .catch(function () {});
+  }
+  function hide() { clearTimeout(timer); current = null; if (card) card.style.display = 'none'; }
+  document.addEventListener('pointerover', function (e) {
+    if (e.pointerType === 'touch') return;
+    var a = e.target.closest && e.target.closest('.tv-node a');
+    if (!a || a === current) return;
+    clearTimeout(timer); timer = setTimeout(function () { show(a); }, 350);
+  });
+  document.addEventListener('pointerout', function (e) {
+    var a = e.target.closest && e.target.closest('.tv-node a');
+    if (a && !a.contains(e.relatedTarget)) hide();
+  });
+  window.addEventListener('scroll', hide, true);
+})();
+</script>

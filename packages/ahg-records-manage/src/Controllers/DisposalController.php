@@ -4,6 +4,7 @@ namespace AhgRecordsManage\Controllers;
 
 use AhgRecordsManage\Services\DisposalExecutionService;
 use AhgRecordsManage\Services\DisposalWorkflowService;
+use AhgRecordsManage\Services\LegalHoldGuard;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -77,14 +78,8 @@ class DisposalController extends Controller
                 ->toArray();
         }
 
-        // Check legal hold status
-        $hasLegalHold = false;
-        if (Schema::hasTable('integrity_legal_hold')) {
-            $hasLegalHold = DB::table('integrity_legal_hold')
-                ->where('information_object_id', $ioId)
-                ->where('status', 'active')
-                ->exists();
-        }
+        // Check legal hold status (the record or a file/series above it)
+        $hasLegalHold = LegalHoldGuard::isHeld($ioId);
 
         return view('ahg-records::disposal.initiate', [
             'io' => $io,
@@ -102,7 +97,8 @@ class DisposalController extends Controller
             'information_object_id' => 'required|integer',
             'action_type' => 'required|string|in:destroy,transfer_archives,transfer_external,retain_permanent,review',
             'disposal_class_id' => 'nullable|integer',
-            'reason' => 'nullable|string|max:2000',
+            // heratio#1740: destruction must say why.
+            'reason' => 'nullable|required_if:action_type,destroy|string|max:2000',
             'transfer_destination' => 'nullable|string|max:255',
         ]);
 

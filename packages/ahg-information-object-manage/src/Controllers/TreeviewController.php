@@ -35,6 +35,25 @@ use Illuminate\Http\Request;
 class TreeviewController extends Controller
 {
     /**
+     * A short preview of one record for the hierarchy's hover card: title,
+     * reference, level, dates, the opening of its scope and content, and its
+     * thumbnail. A visitor sees only records the public may see (published,
+     * not restricted); a signed-in user sees what the tree already shows them.
+     */
+    public function preview(int $id): JsonResponse
+    {
+        if (! auth()->check() && ! app(\AhgCore\Services\DisclosureGate::class)->allows($id)) {
+            return response()->json(['error' => 'Not found'], 404);
+        }
+
+        $data = (new TreeviewService())->preview($id);
+
+        return $data
+            ? response()->json($data)->header('Cache-Control', 'private, max-age=300')
+            : response()->json(['error' => 'Not found'], 404);
+    }
+
+    /**
      * JSON API endpoint for treeview operations.
      *
      * Params:

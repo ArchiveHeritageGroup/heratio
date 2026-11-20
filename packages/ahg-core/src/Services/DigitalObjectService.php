@@ -1321,6 +1321,43 @@ class DigitalObjectService
      * @param  bool|null  $makeReference  null = honour session flag upstream
      */
     /**
+     * After a master is replaced (a new version, a check-in, a restore): make
+     * its reference copy and thumbnail from the new file, and queue new
+     * renditions for audio and video. Before this, a replace kept the old
+     * pictures. The derivative files keep their names, so they are written
+     * over in place; older duplicate derivative rows are removed, never their
+     * files. Never touches a file another system's catalogue uses.
+     */
+    public static function refreshDerivatives(int $masterId): void
+    {
+        $master = DB::table('digital_object')->where('id', $masterId)->first();
+        $path = $master ? self::resolveDiskPath($master) : null;
+        if (! $master || ! $path || SharedUploadsGuard::refuse($path)) {
+            return;
+        }
+        $mediaTypeId = $master->media_type_id ?: self::resolveMediaTypeId((string) $master->mime_type);
+        try {
+            if ((int) $mediaTypeId === self::MEDIA_IMAGE) {
+                $before = DB::table('digital_object')->where('parent_id', $masterId)->max('id') ?? 0;
+                self::generateDerivativesForMaster($masterId);
+                // Keep the newest row per kind (reference, thumbnail) when new ones were made.
+                foreach ([self::USAGE_REFERENCE, self::USAGE_THUMBNAIL] as $usage) {
+                    $rows = DB::table('digital_object')->where('parent_id', $masterId)->where('usage_id', $usage)->orderByDesc('id')->pluck('id');
+                    if ($rows->count() > 1 && $rows->first() > $before) {
+                        $old = $rows->slice(1)->all();
+                        DB::table('digital_object')->whereIn('id', $old)->delete();
+                        DB::table('object')->whereIn('id', $old)->delete();
+                    }
+                }
+            } else {
+                self::queueMediaDerivatives($masterId, $mediaTypeId ? (int) $mediaTypeId : null, $master->mime_type);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('[DigitalObjectService] derivatives not refreshed for '.$masterId.': '.$e->getMessage());
+        }
+    }
+
+    /**
      * Audio and video masters get their playable copy (MP4 H.264 480p / MP3, plus
      * a poster or waveform) from MediaDerivativeService through a queued ffmpeg
      * job, never a placeholder icon - an icon filed as the reference copy is what

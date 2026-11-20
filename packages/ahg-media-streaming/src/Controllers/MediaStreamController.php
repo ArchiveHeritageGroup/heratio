@@ -26,11 +26,16 @@
 namespace AhgMediaStreaming\Controllers;
 
 use AhgCore\Models\DigitalObject;
+use AhgCore\Services\AclService;
+use AhgCore\Services\MediaProtection;
 use AhgMediaStreaming\Services\StreamingService;
 use AhgMediaStreaming\Services\TranscodingService;
 use AhgResearch\Services\OdrlService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 class MediaStreamController extends Controller
@@ -60,7 +65,71 @@ class MediaStreamController extends Controller
             abort(403, 'Access denied by rights policy.');
         }
 
+        // heratio#1771: the same gates as the /uploads file check, not ODRL
+        // alone - publication, embargo, ICIP/TK, classification, PII
+        // screening, release clearance, and for the master file itself
+        // "Protect originals" and the video watermark.
+        $do = DB::table('digital_object')->where('id', $id)->first();
+        $master = MediaProtection::masterOf($do);
+        if ($master && ! MediaProtection::mayPlay($master, ! $do->parent_id)) {
+            abort(403, 'Access denied.');
+        }
+
         return $this->streamingService->streamWithTranscode($id);
+    }
+
+    /**
+     * GET /media-streaming/hls-key/{masterId}/{rendition} - the AES-128 key
+     * of one HLS rendition (heratio#1771). Handed out only to a viewer who may
+     * play the record (MediaProtection::mayPlay: publication, embargo, ICIP/TK,
+     * classification, ODRL, PII screening, release clearance; staff pass), and
+     * never cached. Without the key the segments are unreadable.
+     * This is encryption in transit with access-controlled keys, not DRM: a
+     * viewer who is given the key can keep the decrypted stream.
+     */
+    public function hlsKey(int $masterId, int $rendition): Response
+    {
+        $master = DB::table('digital_object')->where('id', $masterId)->whereNull('parent_id')->first();
+        if (! $master) {
+            abort(404);
+        }
+        if (! MediaProtection::mayPlay($master)) {
+            abort(auth()->check() ? 403 : 401);
+        }
+        $key = MediaProtection::keyPath($masterId, $rendition);
+        if (! is_file($key) || filesize($key) !== 16) {
+            abort(404);
+        }
+
+        return response((string) file_get_contents($key), 200, [
+            'Content-Type' => 'application/octet-stream',
+            'Cache-Control' => 'no-store, private',
+        ]);
+    }
+
+    /**
+     * POST /media-streaming/clearance/{masterId} - clear audio/video for
+     * release, or hold it back (heratio#1771). Administrators and editors.
+     */
+    public function clearance(Request $request, int $masterId): RedirectResponse
+    {
+        $user = $request->user();
+        if (! $user || ! (AclService::isAdministrator($user) || AclService::isEditor($user))) {
+            abort(403);
+        }
+        $data = $request->validate([
+            'decision' => 'required|in:clear,withhold',
+            'note' => 'nullable|string|max:2000',
+        ]);
+        $master = DB::table('digital_object')->where('id', $masterId)->whereNull('parent_id')->first();
+        if (! $master || ! MediaProtection::isAudioVideo($master)) {
+            abort(404);
+        }
+        MediaProtection::setClearance($masterId, $data['decision'] === 'clear', $data['note'] ?? null);
+
+        return back()->with('success', $data['decision'] === 'clear'
+            ? __('Cleared for release.')
+            : __('Held back from release.'));
     }
 
     /**
@@ -76,6 +145,11 @@ class MediaStreamController extends Controller
 
         if (! $digitalObject) {
             abort(404, 'Digital object not found.');
+        }
+        // heratio#1771: a frame of the video is the video's content - same gates as playback.
+        $master = MediaProtection::masterOf(DB::table('digital_object')->where('id', $id)->first());
+        if ($master && ! MediaProtection::mayPlay($master)) {
+            abort(403, 'Access denied.');
         }
 
         $uploadsDir = config('heratio.uploads_path');
@@ -109,7 +183,7 @@ class MediaStreamController extends Controller
 
         return response()->file($thumbnailPath, [
             'Content-Type' => 'image/jpeg',
-            'Cache-Control' => 'public, max-age=604800',
+            'Cache-Control' => 'private, max-age=604800', // access-checked: no shared caches
         ]);
     }
 
@@ -122,6 +196,10 @@ class MediaStreamController extends Controller
 
         if (! $digitalObject) {
             return response()->json(['error' => 'Digital object not found.'], 404);
+        }
+        $master = MediaProtection::masterOf(DB::table('digital_object')->where('id', $id)->first());
+        if ($master && ! MediaProtection::mayPlay($master)) {
+            return response()->json(['error' => 'Access denied.'], 403);
         }
 
         $uploadsDir = config('heratio.uploads_path');

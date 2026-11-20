@@ -52,6 +52,71 @@ class TreeviewService
     }
 
     /**
+     * The hierarchy hover card: title, reference, level, dates, the opening
+     * of the scope and content (interface language, else English) and the
+     * thumbnail. Null for an unknown record.
+     *
+     * @return array{title:string, identifier:?string, level:?string, dates:?string, scope:?string, thumbnail:?string, children:int}|null
+     */
+    public function preview(int $id): ?array
+    {
+        $io = \Illuminate\Support\Facades\DB::table('information_object as io')
+            ->leftJoin('information_object_i18n as c', function ($j) {
+                $j->on('c.id', '=', 'io.id')->where('c.culture', '=', $this->culture);
+            })
+            ->leftJoin('information_object_i18n as e', function ($j) {
+                $j->on('e.id', '=', 'io.id')->where('e.culture', '=', 'en');
+            })
+            ->leftJoin('term_i18n as lc', function ($j) {
+                $j->on('lc.id', '=', 'io.level_of_description_id')->where('lc.culture', '=', $this->culture);
+            })
+            ->leftJoin('term_i18n as le', function ($j) {
+                $j->on('le.id', '=', 'io.level_of_description_id')->where('le.culture', '=', 'en');
+            })
+            ->where('io.id', $id)->where('io.id', '>', self::ROOT_ID)
+            ->first(['io.id', 'io.identifier',
+                \Illuminate\Support\Facades\DB::raw('COALESCE(c.title, e.title) as title'),
+                \Illuminate\Support\Facades\DB::raw('COALESCE(c.scope_and_content, e.scope_and_content) as scope'),
+                \Illuminate\Support\Facades\DB::raw('COALESCE(lc.name, le.name) as level')]);
+        if (! $io) {
+            return null;
+        }
+        $event = \Illuminate\Support\Facades\DB::table('event as ev')
+            ->leftJoin('event_i18n as ei', 'ei.id', '=', 'ev.id')
+            ->where('ev.object_id', $id)
+            ->whereNotNull(\Illuminate\Support\Facades\DB::raw('COALESCE(ei.date, ev.start_date)'))
+            ->orderByRaw('ei.culture = ? DESC', [$this->culture])
+            ->first(['ei.date', 'ev.start_date', 'ev.end_date']);
+        $dates = $event ? ($event->date ?: trim(($event->start_date ?? '').($event->end_date && $event->end_date !== $event->start_date ? ' - '.$event->end_date : ''))) : null;
+        // The same privacy treatment as the record page: personal details masked
+        // in the text, and no picture when the record has redactions or its
+        // files are still withheld by privacy screening.
+        $scopeRaw = class_exists(\AhgInformationObjectManage\Services\PiiMaskingService::class)
+            ? \AhgInformationObjectManage\Services\PiiMaskingService::mask($id, (string) $io->scope) : (string) $io->scope;
+        $scope = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags((string) $scopeRaw), ENT_QUOTES)));
+        $scope = preg_replace('/^#+\s*/', '', $scope);
+        $thumb = null;
+        $noPicture = app(\AhgCore\Services\DisclosureGate::class)->hasRedactions($id)
+            || (class_exists(\AhgPrivacy\Services\FileScreeningGate::class) && app(\AhgPrivacy\Services\FileScreeningGate::class)->withholds($id));
+        if (! $noPicture) try {
+            $objects = \AhgCore\Services\DigitalObjectService::getForObject($id);
+            $thumb = $objects['master'] ? (\AhgCore\Services\DigitalObjectService::getThumbnailUrl($objects) ?: null) : null;
+        } catch (\Throwable $e) {
+            $thumb = null;
+        }
+
+        return [
+            'title' => (string) ($io->title ?: __('Untitled')),
+            'identifier' => $io->identifier ?: null,
+            'level' => $io->level ?: null,
+            'dates' => $dates ?: null,
+            'scope' => $scope !== '' ? mb_strimwidth($scope, 0, 280, '...') : null,
+            'thumbnail' => $thumb,
+            'children' => (int) \Illuminate\Support\Facades\DB::table('information_object')->where('parent_id', $id)->count(),
+        ];
+    }
+
+    /**
      * Get full initial treeview data for a node (ancestors + current + children/siblings).
      *
      * Used for the sidebar treeview initial render.

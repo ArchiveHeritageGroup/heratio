@@ -11,6 +11,8 @@
 @if(session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
 @if(session('error'))<div class="alert alert-danger">{{ session('error') }}</div>@endif
 
+<p class="mb-3"><a class="btn btn-sm btn-outline-secondary" href="{{ route('records.export', $ioId) }}"><i class="fas fa-file-export me-1" aria-hidden="true"></i>{{ __('Export record with metadata and audit history') }}</a></p>
+
 @if($assignment)
 <div class="card mb-4">
   <div class="card-header" style="background-color:var(--ahg-card-header-bg, #005837);color:var(--ahg-card-header-text, #fff);"><h5 class="mb-0">{{ __('Current Assignment') }}</h5></div>

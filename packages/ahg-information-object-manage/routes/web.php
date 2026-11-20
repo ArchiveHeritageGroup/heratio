@@ -139,6 +139,8 @@ Route::middleware(['auth', 'acl:delete'])->group(function () {
 // Treeview API (public for viewing)
 Route::get('/informationobject/treeview', [TreeviewController::class, 'treeview'])->name('io.treeview');
 Route::get('/informationobject/treeview-data', [TreeviewController::class, 'treeviewData'])->name('io.treeviewData');
+// Hierarchy hover card: a short preview of one record (public: disclosable records only).
+Route::get('/informationobject/treeview-preview/{id}', [TreeviewController::class, 'preview'])->name('io.treeviewPreview')->where('id', '[0-9]+')->middleware('throttle:120,1');
 Route::post('/informationobject/treeview-sort', [TreeviewController::class, 'treeviewSort'])->middleware(['auth', 'acl:update'])->name('io.treeviewSort');
 
 // Export

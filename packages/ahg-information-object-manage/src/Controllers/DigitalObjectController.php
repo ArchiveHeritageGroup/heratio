@@ -779,7 +779,11 @@ class DigitalObjectController extends Controller
     {
         $v = DB::table(\AhgCore\Services\FileVersionService::TABLE)->where('id', $versionId)->where('digital_object_id', $id)->first();
         abort_unless($v, 404);
-        $new = \AhgCore\Services\FileVersionService::restore($versionId);
+        try {
+            $new = \AhgCore\Services\FileVersionService::restore($versionId);
+        } catch (\AhgCore\Services\MediaCheckedOutException $e) {
+            return redirect()->route('io.digitalobject.show', $id)->with('error', $e->getMessage());
+        }
 
         return redirect()->route('io.digitalobject.show', $id)->with($new ? 'success' : 'error', $new
             ? __('Version :v restored as :n.', ['v' => $v->version_major.'.'.$v->version_minor, 'n' => $new->version_major.'.'.$new->version_minor])
@@ -872,6 +876,10 @@ class DigitalObjectController extends Controller
 
         return view('ahg-io-manage::digitalobject.edit-page', [
             'fileVersions' => \AhgCore\Services\FileVersionService::list($id),
+            // heratio#1757: who has the master checked out, if anyone.
+            'checkout' => empty($doRow->parent_id) ? \AhgCore\Services\MediaCheckoutService::active($id) : null,
+            'checkoutAvailable' => empty($doRow->parent_id) && \AhgCore\Services\MediaCheckoutService::available(),
+            'isAdmin' => \AhgCore\Services\AclService::isAdministrator(auth()->user()),
             'do' => $doRow,
             'ioTitle' => $ioTitle,
             'ioSlug' => $ioSlug,
@@ -915,6 +923,15 @@ class DigitalObjectController extends Controller
             }
         }
 
+        // heratio#1757: no replace while someone else has the master checked out.
+        if ($request->hasFile('replace_file')) {
+            try {
+                \AhgCore\Services\MediaCheckoutService::assertNotHeldByOther($id);
+            } catch (\AhgCore\Services\MediaCheckedOutException $e) {
+                return redirect()->route('io.digitalobject.show', $id)->with('error', $e->getMessage());
+            }
+        }
+
         $updates = [];
 
         // Update media type
@@ -951,6 +968,9 @@ class DigitalObjectController extends Controller
         if ($request->hasFile('replace_file')) {
             $file = $request->file('replace_file');
             $current = DigitalObjectService::resolveDiskPath($doRow);
+            if ($current && is_file($current) && ($why = \AhgCore\Services\SharedUploadsGuard::refuse($current))) {
+                return back()->with('error', __('This file is shared with another catalogue and cannot be replaced here (:why).', ['why' => $why]));
+            }
             if ($current && is_file($current)) {
                 $versioned = \AhgCore\Services\FileVersionService::replace(
                     $doRow, $current, $file->getRealPath(),
@@ -964,6 +984,7 @@ class DigitalObjectController extends Controller
                         'byte_size' => filesize($current),
                         'mime_type' => $file->getClientMimeType() ?: $doRow->mime_type,
                     ]);
+                    DigitalObjectService::refreshDerivatives((int) $id);
                 }
             } else {
                 return back()->with('error', __('The current master file was not found on disk, so it cannot be replaced.'));

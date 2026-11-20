@@ -76,6 +76,11 @@ return [
     // Backups path — independently configurable.
     'backups_path' => env('HERATIO_BACKUPS_PATH', env('HERATIO_STORAGE_PATH', base_path('uploads')).'/backups'),
 
+    // HLS segment keys (heratio#1771). Must be OUTSIDE every folder the web
+    // server serves: keys are handed out only by the access-checked
+    // /media-streaming/hls-key route, never as static files.
+    'media_keys_path' => env('HERATIO_MEDIA_KEYS_PATH', storage_path('app/media-keys')),
+
     // OAIS package storage — where SIP/AIP/DIP bundles are assembled and
     // exported to. Sessions can override via ingest_session.output_*_path.
     'packages_path' => env('HERATIO_PACKAGES_PATH', env('HERATIO_STORAGE_PATH', base_path('uploads')).'/packages'),

@@ -205,6 +205,84 @@
       </div>
     </div>
 
+    {{-- heratio#1771: video watermark, encrypted HLS, release clearance --}}
+    @php
+      $__on = fn ($k) => ($settings[$k] ?? 'false') === 'true';
+      $__wmPos = $settings['media_video_watermark_position'] ?? 'bottom-right';
+      $__wmType = $settings['media_video_watermark_type'] ?? 'image';
+      $__posLabels = ['top-left' => __('Top left'), 'top-center' => __('Top centre'), 'top-right' => __('Top right'), 'center' => __('Centre'),
+          'bottom-left' => __('Bottom left'), 'bottom-center' => __('Bottom centre'), 'bottom-right' => __('Bottom right')];
+    @endphp
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>{{ __('Protection') }}</h5>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">{{ __('Video watermark') }}</label>
+          <div class="col-sm-9">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="media_video_watermark_enabled" name="settings[media_video_watermark_enabled]" value="true" {{ $__on('media_video_watermark_enabled') ? 'checked' : '' }}>
+              <label class="form-check-label" for="media_video_watermark_enabled">{{ __('Burn a watermark into the playback copy and HLS of videos whose record carries a watermark') }}</label>
+            </div>
+            <div class="form-text">{{ __('The same rule as image watermarks: security classification, then the record\'s own setting, then the default. The original is never changed, and while a video is watermarked its original goes only to those originals are released to. Applies to playback copies made from now on.') }}</div>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label" for="media_video_watermark_type">{{ __('Watermark') }}</label>
+          <div class="col-sm-9">
+            <select class="form-select" id="media_video_watermark_type" name="settings[media_video_watermark_type]">
+              <option value="image" {{ $__wmType !== 'text' ? 'selected' : '' }}>{{ __('The record\'s watermark image') }}</option>
+              <option value="text" {{ $__wmType === 'text' ? 'selected' : '' }}>{{ __('Text') }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label" for="media_video_watermark_text">{{ __('Watermark text') }}</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" id="media_video_watermark_text" name="settings[media_video_watermark_text]" maxlength="200" value="{{ $settings['media_video_watermark_text'] ?? '' }}">
+            <div class="form-text">{{ __('Empty = the site name. Also used when the watermark image cannot be found.') }}</div>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label" for="media_video_watermark_position">{{ __('Position') }}</label>
+          <div class="col-sm-9">
+            <select class="form-select" id="media_video_watermark_position" name="settings[media_video_watermark_position]">
+              @foreach(\AhgCore\Services\MediaProtection::POSITIONS as $__p)
+                <option value="{{ $__p }}" {{ $__wmPos === $__p ? 'selected' : '' }}>{{ $__posLabels[$__p] ?? $__p }}</option>
+              @endforeach
+            </select>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label" for="media_video_watermark_opacity">{{ __('Opacity') }}</label>
+          <div class="col-sm-9">
+            <input type="number" class="form-control" id="media_video_watermark_opacity" name="settings[media_video_watermark_opacity]" min="0.05" max="1" step="0.05" value="{{ $settings['media_video_watermark_opacity'] ?? '0.4' }}">
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">{{ __('Encrypted streaming') }}</label>
+          <div class="col-sm-9">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="media_hls_encrypt" name="settings[media_hls_encrypt]" value="true" {{ $__on('media_hls_encrypt') ? 'checked' : '' }}>
+              <label class="form-check-label" for="media_hls_encrypt">{{ __('Encrypt HLS segments (AES-128), with a separate key for each rendition') }}</label>
+            </div>
+            <div class="form-text">{{ __('Keys are kept outside the web root and given only to viewers allowed to play the record. This protects the stream in transit; it is not DRM (Widevine, FairPlay).') }}</div>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label">{{ __('Release clearance') }}</label>
+          <div class="col-sm-9">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="media_clearance_required" name="settings[media_clearance_required]" value="true" {{ $__on('media_clearance_required') ? 'checked' : '' }}>
+              <label class="form-check-label" for="media_clearance_required">{{ __('Audio and video play only for staff until cleared for release') }}</label>
+            </div>
+            <div class="form-text">{{ __('Administrators and editors clear media under its player. Media can also be held back one item at a time with this off.') }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="d-flex justify-content-between align-items-center">
       <a href="{{ route('settings.index') }}" class="btn btn-link text-secondary">
         <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Settings') }}

@@ -137,8 +137,58 @@
                     </div>
                     @endif
 
+                    {{-- heratio#1757 / #1758: check out for editing in an outside tool, check back in. --}}
+                    @if($checkoutAvailable ?? false)
+                        @php
+                            $coMine = $checkout && (int) $checkout->user_id === (int) auth()->id();
+                            $coLocked = $checkout && ! $coMine;
+                        @endphp
+                        <hr>
+                        <h6><i class="fas fa-file-export me-1" aria-hidden="true"></i>{{ __('Check out for editing') }}</h6>
+                        @if(! $checkout)
+                            <p class="form-text mt-0">{{ __('Check the master out to edit it in another program. Nobody else can replace it until you check the edited file back in or cancel.') }}</p>
+                            <div class="input-group input-group-sm">
+                                <input type="text" name="checkout_note" form="checkout-form" class="form-control" maxlength="1000" placeholder="{{ __('Why (optional)') }}" aria-label="{{ __('Check-out note') }}">
+                                <button type="submit" form="checkout-form" class="btn atom-btn-white"><i class="fas fa-lock me-1" aria-hidden="true"></i>{{ __('Check out') }}</button>
+                            </div>
+                        @else
+                            <div class="alert {{ $coMine ? 'alert-info' : 'alert-warning' }} py-2 small mb-2">
+                                <i class="fas fa-lock me-1" aria-hidden="true"></i>
+                                {{ $coMine
+                                    ? __('You checked this file out on :when (version :v).', ['when' => $checkout->checked_out_at, 'v' => $checkout->version_at_checkout])
+                                    : __('Checked out to :user on :when (version :v). It cannot be replaced until it is checked in.', ['user' => $checkout->username ?? '#'.$checkout->user_id, 'when' => $checkout->checked_out_at, 'v' => $checkout->version_at_checkout]) }}
+                                @if($checkout->note)<br>{{ __('Note') }}: {{ $checkout->note }}@endif
+                            </div>
+                            @if($coMine || ($isAdmin ?? false))
+                                <div class="mb-2">
+                                    <a href="{{ route('io.digitalobject.checkout.download', $do->id) }}" class="btn btn-sm atom-btn-white"><i class="fas fa-download me-1" aria-hidden="true"></i>{{ __('Download master') }}</a>
+                                    <a href="{{ route('io.digitalobject.checkout.download', [$do->id, 'format' => 'xmp']) }}" class="btn btn-sm atom-btn-white">{{ __('Sidecar (XMP)') }}</a>
+                                    <a href="{{ route('io.digitalobject.checkout.download', [$do->id, 'format' => 'json']) }}" class="btn btn-sm atom-btn-white">{{ __('Sidecar (JSON)') }}</a>
+                                </div>
+                                <label class="form-label small mb-1" for="checkin_file">{{ __('Check in the edited file') }}</label>
+                                <input type="file" id="checkin_file" name="checkin_file" form="checkin-form" class="form-control form-control-sm">
+                                <div class="row g-2 mt-1">
+                                    <div class="col-md-4">
+                                        <select name="version_type" form="checkin-form" class="form-select form-select-sm" aria-label="{{ __('Kind of change') }}">
+                                            <option value="minor">{{ __('Minor change (1.0 to 1.1)') }}</option>
+                                            <option value="major">{{ __('Major change (1.x to 2.0)') }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-8"><input type="text" name="checkin_note" form="checkin-form" class="form-control form-control-sm" maxlength="1000" placeholder="{{ __('What changed (optional)') }}" aria-label="{{ __('Check-in note') }}"></div>
+                                </div>
+                                <div class="mt-2">
+                                    <button type="submit" form="checkin-form" class="btn btn-sm atom-btn-outline-success"><i class="fas fa-file-import me-1" aria-hidden="true"></i>{{ __('Check in') }}</button>
+                                    <button type="submit" form="checkout-cancel-form" class="btn btn-sm atom-btn-outline-danger">{{ __('Cancel check-out') }}</button>
+                                </div>
+                            @endif
+                        @endif
+                    @endif
+
                     <hr>
                     <label class="form-label">{{ __('Replace master file') }}</label>
+                    @if($coLocked ?? false)
+                        <div class="form-text mt-0">{{ __('Not available while the file is checked out to someone else.') }}</div>
+                    @else
                     <input type="file" class="form-control" name="replace_file">
                     <div class="form-text">{{ __('Select a new file to replace the existing master. The current file is kept as a version.') }}</div>
                     {{-- heratio#1759: major or minor version. --}}
@@ -151,6 +201,7 @@
                         </div>
                         <div class="col-md-8"><input type="text" name="version_note" class="form-control form-control-sm" maxlength="1000" placeholder="{{ __('What changed (optional)') }}" aria-label="{{ __('What changed') }}"></div>
                     </div>
+                    @endif
                     @if(($fileVersions ?? collect())->isNotEmpty())
                         <h6 class="mt-3">{{ __('Versions') }}</h6>
                         <table class="table table-sm mb-0">
@@ -314,6 +365,12 @@
     @csrf
     @method('DELETE')
   </form>
+@endif
+
+@if($checkoutAvailable ?? false)
+  <form id="checkout-form" method="post" action="{{ route('io.digitalobject.checkout', $do->id) }}" class="d-none">@csrf</form>
+  <form id="checkin-form" method="post" action="{{ route('io.digitalobject.checkin', $do->id) }}" enctype="multipart/form-data" class="d-none">@csrf</form>
+  <form id="checkout-cancel-form" method="post" action="{{ route('io.digitalobject.checkout.cancel', $do->id) }}" class="d-none" onsubmit="return confirm(@json(__('Cancel this check-out? Nothing is stored and the file is released.')))">@csrf</form>
 @endif
 
 @foreach(($fileVersions ?? collect())->where('is_current', 0) as $v)

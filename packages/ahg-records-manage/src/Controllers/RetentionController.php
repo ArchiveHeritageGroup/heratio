@@ -3,6 +3,7 @@
 namespace AhgRecordsManage\Controllers;
 
 use AhgRecordsManage\Services\DisposalClassService;
+use AhgRecordsManage\Services\RecordExportService;
 use AhgRecordsManage\Services\RetentionScheduleService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -378,5 +379,21 @@ class RetentionController extends Controller
             'assignment' => $assignment,
             'activeClasses' => $activeClasses,
         ]);
+    }
+
+    /**
+     * heratio#1740: download one record with its metadata, records-management
+     * state and audit history as a JSON package.
+     */
+    public function exportRecord(int $ioId, RecordExportService $exporter)
+    {
+        $package = $exporter->export($ioId, (int) auth()->id());
+        if ($package === null) {
+            abort(404, __('Information object not found.'));
+        }
+
+        return response()->json($package, 200, [
+            'Content-Disposition' => 'attachment; filename="record-'.$ioId.'-export.json"',
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 }

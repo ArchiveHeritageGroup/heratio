@@ -77,6 +77,7 @@
                 <div class="mb-3">
                     <label for="reason" class="form-label fw-bold">{{ __('Reason') }}</label>
                     <textarea name="reason" id="reason" class="form-control" rows="3" placeholder="{{ __('Reason for initiating disposal...') }}">{{ old('reason') }}</textarea>
+                    <div class="form-text">{{ __('Required for destruction. It is kept on the destruction certificate.') }}</div>
                     @error('reason')
                         <div class="text-danger small">{{ $message }}</div>
                     @enderror

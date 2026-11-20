@@ -200,6 +200,31 @@ class RecordsLifecycleTest extends TestCase
         $this->assertSame('MASTER v1', file_get_contents($path));
     }
 
+    public function test_replacing_an_image_master_makes_new_derivatives(): void
+    {
+        if (! extension_loaded('gd')) {
+            $this->markTestSkipped('GD not available');
+        }
+        $dir = $this->root.'/archive/r/'.$this->io;
+        mkdir($dir, 0777, true);
+        $img = function (string $file, int $r, int $g, int $b) { $im = imagecreatetruecolor(600, 400); imagefill($im, 0, 0, imagecolorallocate($im, $r, $g, $b)); imagejpeg($im, $file); imagedestroy($im); };
+        $img($dir.'/photo.jpg', 200, 20, 20);
+        $m = $this->objectRow('QubitDigitalObject');
+        DB::table('digital_object')->insert(['id' => $m, 'object_id' => $this->io, 'usage_id' => 140, 'name' => 'photo.jpg', 'path' => '/uploads/r/'.$this->io.'/', 'mime_type' => 'image/jpeg', 'media_type_id' => 136]);
+        \AhgCore\Services\DigitalObjectService::generateDerivativesForMaster($m);
+        $ref = DB::table('digital_object')->where('parent_id', $m)->where('usage_id', 141)->first();
+        $this->assertNotNull($ref, 'fixture: a reference copy exists');
+        $refFile = $dir.'/'.$ref->name;
+        $before = md5_file($refFile);
+
+        $img($this->root.'/new.jpg', 20, 20, 200);
+        FileVersionService::replace(DB::table('digital_object')->where('id', $m)->first(), $dir.'/photo.jpg', $this->root.'/new.jpg');
+
+        $this->assertNotSame($before, md5_file($refFile), 'the reference copy is made from the new file');
+        $this->assertSame(1, DB::table('digital_object')->where('parent_id', $m)->where('usage_id', 141)->count(), 'no duplicate reference rows');
+        $this->assertLessThanOrEqual(1, DB::table('digital_object')->where('parent_id', $m)->where('usage_id', 142)->count());
+    }
+
     public function test_the_edit_page_replace_now_writes_the_file(): void
     {
         $m = $this->files('MASTER v1');

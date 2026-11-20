@@ -3,6 +3,8 @@
 namespace AhgRecordsManage\Services;
 
 use AhgCore\Services\AclService;
+use AhgCore\Services\DigitalObjectService;
+use AhgCore\Services\SharedUploadsGuard;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -38,31 +40,34 @@ class DisposalExecutionService
             return ['success' => false, 'error' => 'Separation of duties: destruction must be executed by someone other than the approver or legal-clearer.'];
         }
 
-        // Verify no active legal hold
-        if (Schema::hasTable('integrity_legal_hold')) {
-            $activeHold = DB::table('integrity_legal_hold')
-                ->where('information_object_id', $action->information_object_id)
-                ->where('status', 'active')
-                ->exists();
+        // Verify no active legal hold on the record or an aggregation above it
+        if (LegalHoldGuard::isHeld((int) $action->information_object_id)) {
+            return ['success' => false, 'error' => __('Cannot execute destruction: the record, or a file or series it belongs to, is under an active legal hold.')];
+        }
 
-            if ($activeHold) {
-                return ['success' => false, 'error' => 'Cannot execute destruction: information object is under active legal hold.'];
+        // heratio#1740: digital_object.path is the web folder (/uploads/r/<id>/),
+        // not the file, so it was never found on disk and nothing was deleted.
+        // Resolve the real file for the master AND its derivatives (reference
+        // copy, thumbnail) - they are copies of the record too.
+        $targets = [];
+        foreach ($this->componentsOf((int) $action->information_object_id) as $do) {
+            $targets[] = [$do, DigitalObjectService::resolveDiskPath($do)];
+        }
+
+        // A file another system's catalogue still uses (shared uploads folder)
+        // is never deleted. Refuse the whole destruction before touching anything.
+        foreach ($targets as [$do, $file]) {
+            if ($file && ($why = SharedUploadsGuard::refuse($file))) {
+                return ['success' => false, 'error' => __('Cannot execute destruction: :file - :reason', ['file' => $do->name, 'reason' => $why])];
             }
         }
 
-        return DB::transaction(function () use ($action, $disposalActionId, $userId) {
+        return DB::transaction(function () use ($action, $disposalActionId, $userId, $targets) {
             $ioId = $action->information_object_id;
             $filesDeleted = [];
             $contentHashes = [];
 
-            // Get digital objects for this IO
-            $digitalObjects = DB::table('digital_object')
-                ->where('object_id', $ioId)
-                ->get();
-
-            foreach ($digitalObjects as $do) {
-                $filePath = $do->path;
-
+            foreach ($targets as [$do, $filePath]) {
                 // Compute final content hash before deletion
                 $hash = null;
                 if ($filePath && file_exists($filePath)) {
@@ -80,11 +85,11 @@ class DisposalExecutionService
                         'path' => $filePath,
                         'hash' => $hash,
                     ];
-                } elseif ($filePath) {
-                    \Log::warning("Disposal destruction: file not found [{$filePath}] for IO [{$ioId}]");
+                } else {
+                    \Log::warning("Disposal destruction: file not found [{$do->path}{$do->name}] for IO [{$ioId}]");
                     $filesDeleted[] = [
                         'digital_object_id' => $do->id,
-                        'path' => $filePath,
+                        'path' => $do->path.$do->name,
                         'hash' => null,
                         'note' => 'File not found on disk',
                     ];
@@ -112,13 +117,25 @@ class DisposalExecutionService
                 'information_object_id' => $ioId,
                 'certificate_number' => $certificateNumber,
                 'destruction_date' => Carbon::now(),
-                'destruction_method' => 'secure_delete',
+                'destruction_method' => 'file_deletion', // the files are unlinked, not overwritten: say so on the certificate
                 'authorized_by' => $authorizedBy,
                 'content_hash' => $combinedHash,
                 'metadata' => json_encode([
                     'files_deleted' => $filesDeleted,
                     'disposal_action_id' => $disposalActionId,
                     'action_type' => $action->action_type,
+                    // heratio#1740: the certificate carries the justification and
+                    // the four-eyes chain, so it stands on its own as evidence.
+                    'reason' => $action->reason,
+                    'disposal_class_id' => $action->disposal_class_id,
+                    'initiated_by' => $action->initiated_by,
+                    'initiated_at' => $action->initiated_at,
+                    'recommended_by' => $action->recommended_by,
+                    'approved_by' => $action->approved_by,
+                    'approved_at' => $action->approved_at,
+                    'legal_cleared_by' => $action->legal_cleared_by,
+                    'legal_cleared_at' => $action->legal_cleared_at,
+                    'executed_by' => $userId,
                 ]),
                 'created_at' => Carbon::now(),
             ]);
@@ -170,6 +187,11 @@ class DisposalExecutionService
 
         if ($action->status !== 'cleared') {
             return ['success' => false, 'error' => 'Disposal action must be in "cleared" status to execute. Current status: '.$action->status];
+        }
+
+        // heratio#1740: a held record may not leave custody either.
+        if (LegalHoldGuard::isHeld((int) $action->information_object_id)) {
+            return ['success' => false, 'error' => __('Cannot execute transfer: the record, or a file or series it belongs to, is under an active legal hold.')];
         }
 
         $ioId = $action->information_object_id;
@@ -342,16 +364,12 @@ class DisposalExecutionService
             $failures[] = 'No destruction certificate found for this disposal action.';
         }
 
-        // 4. Check: all digital_object files for this IO are actually gone from disk
-        $digitalObjects = DB::table('digital_object')
-            ->where('object_id', $action->information_object_id)
-            ->get();
-
+        // 4. Check: all files of the record (masters and derivatives) are gone from disk
         $allFilesGone = true;
-        foreach ($digitalObjects as $do) {
-            if ($do->path && file_exists($do->path)) {
+        foreach ($this->componentsOf((int) $action->information_object_id) as $do) {
+            if ($file = DigitalObjectService::resolveDiskPath($do)) {
                 $allFilesGone = false;
-                $failures[] = 'File still exists on disk: '.$do->path;
+                $failures[] = 'File still exists on disk: '.$file;
             }
         }
         $checks[] = ['name' => 'Digital object files removed from disk', 'passed' => $allFilesGone];
@@ -387,6 +405,20 @@ class DisposalExecutionService
             'checks' => $checks,
             'failures' => $failures,
         ];
+    }
+
+    /**
+     * The record's digital objects: its masters plus their derivatives
+     * (reference copies and thumbnails, which hang off the master by parent_id).
+     */
+    private function componentsOf(int $ioId): \Illuminate\Support\Collection
+    {
+        $masters = DB::table('digital_object')->where('object_id', $ioId)->get();
+        if ($masters->isEmpty()) {
+            return $masters;
+        }
+
+        return $masters->merge(DB::table('digital_object')->whereIn('parent_id', $masters->pluck('id'))->get());
     }
 
     /**

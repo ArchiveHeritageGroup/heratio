@@ -32,6 +32,7 @@ Route::middleware('admin')->group(function () {
     // Record Assignment
     Route::post('/admin/records/assign-class', [RetentionController::class, 'assignClass'])->name('records.assign-class');
     Route::get('/admin/records/record-class/{ioId}', [RetentionController::class, 'recordClass'])->name('records.record-class')->where('ioId', '[0-9]+');
+    Route::get('/admin/records/export/{ioId}', [RetentionController::class, 'exportRecord'])->name('records.export')->where('ioId', '[0-9]+');
 
     // Disposal Workflow (P2.2-P2.3)
     Route::get('/admin/records/disposal/queue', [DisposalController::class, 'queue'])->name('records.disposal.queue');

@@ -56,12 +56,18 @@ class FileVersionService
         if (! self::available() || ! is_file($currentPath)) {
             return null;
         }
+        // heratio#1757: a master checked out to someone else cannot be replaced.
+        MediaCheckoutService::assertNotHeldByOther((int) $master->id);
+        // A file another system's catalogue uses (PSIS on heratio.org) is never written over.
+        if ($why = SharedUploadsGuard::refuse($currentPath)) {
+            throw new \RuntimeException(__('This file is shared with another catalogue and cannot be replaced here (:why).', ['why' => $why]));
+        }
         $dir = self::dir((int) $master->id);
         if (! is_dir($dir) && ! @mkdir($dir, 0775, true) && ! is_dir($dir)) {
             throw new \RuntimeException('cannot create '.$dir);
         }
 
-        return DB::transaction(function () use ($master, $currentPath, $newFile, $major, $note, $newName, $dir) {
+        $version = DB::transaction(function () use ($master, $currentPath, $newFile, $major, $note, $newName, $dir) {
             $current = DB::table(self::TABLE)->where('digital_object_id', $master->id)->where('is_current', 1)->lockForUpdate()->first();
             if (! $current) {
                 // The original becomes 1.0.
@@ -91,6 +97,10 @@ class FileVersionService
 
             return DB::table(self::TABLE)->where('id', $id)->first();
         });
+        // The reference copy, thumbnail and renditions now come from the new file.
+        DigitalObjectService::refreshDerivatives((int) $master->id);
+
+        return $version;
     }
 
     /** Make an older version current again (as a new version, so nothing is lost). */

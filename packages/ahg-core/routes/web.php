@@ -63,6 +63,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/trash', [\AhgCore\Controllers\TrashController::class, 'index'])->name('admin.trash')->middleware('admin');
     Route::post('/admin/trash/{id}/restore', [\AhgCore\Controllers\TrashController::class, 'restore'])->name('admin.trash.restore')->whereNumber('id')->middleware('admin');
     Route::post('/admin/trash/{id}/purge', [\AhgCore\Controllers\TrashController::class, 'purge'])->name('admin.trash.purge')->whereNumber('id')->middleware('admin');
+    // heratio#1757 / #1758: check a master out for editing and back in.
+    Route::get('/admin/media-checkout', [\AhgCore\Controllers\MediaCheckoutController::class, 'index'])->name('admin.media-checkout')->middleware('admin');
+    Route::post('/digitalobject/{id}/checkout', [\AhgCore\Controllers\MediaCheckoutController::class, 'checkout'])->name('io.digitalobject.checkout')->whereNumber('id')->middleware(['acl:update', 'record.unlocked:object']);
+    Route::get('/digitalobject/{id}/checkout/download', [\AhgCore\Controllers\MediaCheckoutController::class, 'download'])->name('io.digitalobject.checkout.download')->whereNumber('id')->middleware('acl:update');
+    Route::post('/digitalobject/{id}/checkin', [\AhgCore\Controllers\MediaCheckoutController::class, 'checkin'])->name('io.digitalobject.checkin')->whereNumber('id')->middleware(['acl:update', 'record.unlocked:object']);
+    Route::post('/digitalobject/{id}/checkout/cancel', [\AhgCore\Controllers\MediaCheckoutController::class, 'cancel'])->name('io.digitalobject.checkout.cancel')->whereNumber('id')->middleware('acl:update');
 });
 
 // heratio#1205 - capture / at-risk register (admin): the records most in need of digitisation or
