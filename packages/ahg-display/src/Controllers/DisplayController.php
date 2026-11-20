@@ -1178,6 +1178,13 @@ class DisplayController extends Controller
         $collectionTitle = $collection ? (string) DB::table('information_object_i18n')->where('id', $this->parentId)->whereIn('culture', [app()->getLocale(), 'en'])->value('title') : '';
         $data['site'] = ['title' => $collection ? ($collectionTitle ?: __('This collection')) : __('Visual graph'), 'generated' => now()->toDateString(),
             'scope' => $collection ? __('Explore this collection') : ($this->queryFilter ? __('Search: :q', ['q' => $this->queryFilter]) : __('Filtered results'))];
+        if ($collection) {
+            // The home screen's introduction: the collection's own description and page.
+            $about = DB::table('information_object_i18n')->where('id', $this->parentId)->whereIn('culture', [app()->getLocale(), 'en'])->value('scope_and_content');
+            $data['site']['about'] = mb_substr(trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags((string) $about), ENT_QUOTES))), 0, 1200);
+            $slug = DB::table('slug')->where('object_id', $this->parentId)->value('slug');
+            $data['site']['url'] = $slug ? url('/'.$slug) : null;
+        }
         $params = $request->except(['view', 'graphLimit', 'page']);
         $live = ['shown' => count($ids), 'total' => $total, 'query' => (string) $this->queryFilter,
             'list' => route('glam.browse', $params),
@@ -2759,6 +2766,9 @@ class DisplayController extends Controller
         $id = (int) DB::table('slug')->where('slug', $slug)->value('object_id');
         abort_unless($id > 1 && DB::table('information_object')->where('id', $id)->exists(), 404);
 
-        return redirect()->route('glam.browse', ['ancestor' => $id, 'view' => 'graph', 'topLevel' => 0, 'type' => 'all']);
+        // ?lang=af opens the explorer in Afrikaans (its interface language switch).
+        $lang = in_array(request('lang'), ['en', 'af'], true) ? ['lang' => request('lang')] : [];
+
+        return redirect()->route('glam.browse', ['ancestor' => $id, 'view' => 'graph', 'topLevel' => 0, 'type' => 'all'] + $lang);
     }
 }

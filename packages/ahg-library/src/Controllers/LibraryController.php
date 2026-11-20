@@ -196,6 +196,7 @@ class LibraryController extends Controller
             'creators' => $creators,
             'subjects' => $subjects,
             'accessPoints' => $this->service->getAccessPoints((int) $item->id),
+            'holdings' => $this->service->getHoldings((int) $item->id),
             'parentItem' => $parentItem,
             'childCount' => $childCount,
             'digitalObjects' => $digitalObjects,

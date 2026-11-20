@@ -376,6 +376,18 @@
     @endif
   @endif
 
+  {{-- The collection explorer: who and what the whole collection mentions --}}
+  @php $__collection = \Route::has('explore.collection') && class_exists(\AhgApi\Services\ExplorerDataService::class) ? \AhgCore\Services\CollectionRoot::of((int) $record->id) : null; @endphp
+  @if($__collection)
+    <div class="card mb-3">
+      <div class="list-group list-group-flush">
+        <a href="{{ route('explore.collection', $__collection->slug) }}" target="_blank" rel="noopener" class="list-group-item list-group-item-action small" title="{{ __('See who and what this collection mentions, and how its records connect') }}">
+          <i class="fas fa-project-diagram me-1"></i> {{ __('Explore this collection') }}
+        </a>
+      </div>
+    </div>
+  @endif
+
   {{-- RiC Actions --}}
   @if(class_exists(\AhgRic\Controllers\RicEntityController::class) && \AhgCore\Services\MenuService::isPluginEnabled('ahgRicExplorerPlugin'))
     <div class="card mb-3">

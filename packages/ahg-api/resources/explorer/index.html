@@ -46,6 +46,31 @@ aside h3 { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; col
 header a { color: var(--primary); }
 footer { padding: 8px 20px; font-size: 12px; color: var(--headtext); background: var(--head); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
 @media (max-width: 900px) { main { grid-template-columns: 1fr; grid-template-rows: 55vh auto; } aside { border-left: 0; border-top: 1px solid var(--rule); } }
+  #home { display: none; flex: 1; overflow: auto; padding: 24px 20px 40px; }
+  body.home #home { display: block; } body.home main, body.home #timeline { display: none; }
+  #home .wrap { max-width: 1180px; margin: 0 auto; }
+  #home .about { font-size: 16px; line-height: 1.6; max-width: 860px; margin: 0 0 14px; }
+  #home .stats { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 22px; }
+  #home .stat { background: var(--panel); border: 1px solid var(--rule); border-top: 3px solid var(--primary); border-radius: 4px; padding: 10px 16px; min-width: 140px; }
+  #home .stat b { display: block; font-size: 26px; font-weight: normal; color: var(--head); }
+  #home .stat span { font-size: 13px; color: var(--muted); }
+  #home .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-bottom: 26px; }
+  #home .col { background: var(--panel); border: 1px solid var(--rule); border-radius: 4px; padding: 12px 16px; }
+  #home h3 { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: normal; margin: 0 0 10px; }
+  #home .col a { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-bottom: 1px dotted var(--rule); color: var(--ink); text-decoration: none; cursor: pointer; }
+  #home .col a:hover { color: var(--accent); }
+  #home .col a small { color: var(--muted); }
+  #home .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 26px; }
+  #home .card { background: var(--panel); border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; cursor: pointer; }
+  #home .card img { display: block; width: 100%; height: 150px; object-fit: cover; background: var(--band); }
+  #home .card div { padding: 6px 8px; font-size: 12px; line-height: 1.35; }
+  #home .card:hover { border-color: var(--primary); }
+  #home .go { display: inline-block; padding: 10px 20px; background: var(--head); color: var(--headtext); border: 0; border-radius: 4px; font: inherit; cursor: pointer; text-decoration: none; margin-right: 10px; }
+  #home .go.alt { background: #fff; color: var(--head); border: 1px solid var(--head); }
+  .lang { display: inline-flex; border: 1px solid var(--rule); border-radius: 4px; overflow: hidden; }
+  .lang button { border: 0; background: #fff; color: var(--ink); padding: 6px 10px; font: inherit; font-size: 13px; cursor: pointer; }
+  .lang button.on { background: var(--head); color: var(--headtext); }
+  .homebtn { padding: 6px 12px; border: 1px solid var(--rule); border-radius: 4px; background: #fff; color: var(--ink); font: inherit; font-size: 14px; cursor: pointer; }
   img.evidence { display: block; max-width: 100%; max-height: 320px; margin: 10px 0; border: 1px solid #d8cfbf; background: #fff; }
   p.excerpt { font-size: 14px; line-height: 1.5; color: #3b342a; margin: 8px 0 12px; }
 </style>
@@ -53,48 +78,98 @@ footer { padding: 8px 20px; font-size: 12px; color: var(--headtext); background:
 <body>
 <header><h1 id="title"></h1><div class="sub" id="scope"></div></header>
 <div class="bar">
-  <div class="search"><input id="q" placeholder="Search a subject, place, name or record title" autocomplete="off"><div class="sugg" id="sugg"></div></div>
+  <div class="search"><input id="q" autocomplete="off"><div class="sugg" id="sugg"></div></div>
+  <button type="button" class="homebtn" id="homebtn"></button>
+  <span class="lang" id="lang" role="group" aria-label="Language"><button type="button" data-lang="en">English</button><button type="button" data-lang="af">Afrikaans</button></span>
   <div id="chips"></div>
 </div>
+<section id="home"><div class="wrap" id="homebody"></div></section>
 <main>
-  <div id="graph"><div id="hint">Search for a name, or pick one of the most-used below, to see how it connects across the records.</div></div>
+  <div id="graph"><div id="hint"></div></div>
   <aside id="side"></aside>
 </main>
 <div id="timeline"></div>
-<footer><span id="made"></span><span>Built from the catalogue's subjects, places and names, as catalogued.</span></footer>
+<footer><span id="made"></span><span id="builtfrom"></span></footer>
 <script src="cytoscape.min.js"></script>
 <script src="data.js"></script>
 <script>
 const D = window.DATA;
-const TYPES = { subject: ['Subjects', '#10373E'], place: ['Places', '#3f6b5a'], name: ['People and bodies', '#9a3f1c'], genre: ['Genres', '#b07d2b'], event: ['Events', '#5b4a7a'] };
+// Interface language: English or Afrikaans. The names, titles and texts stay as catalogued.
+// Chosen with the switch (remembered in this browser) or ?lang=af in the address.
+const I18N = {
+  en: { Subjects: 'Subjects', Places: 'Places', People: 'People and bodies', Genres: 'Genres', Events: 'Events', General: 'General words',
+    generalTip: 'Common words catalogued as subjects or places', search: 'Search a subject, place, name or record title', within: 'Search within these results',
+    hint: 'Search for a name, or pick one of the most-used below, to see how it connects across the records.',
+    home: 'Home', homeTip: 'Back to the overview', builtFrom: "Built from the catalogue's subjects, places and names, as catalogued.",
+    exported: 'Exported :d', builtOn: 'Built from the catalogue on :d', scope: ':r records, :e subjects, places and names',
+    liveScope: 'showing :s of :t results, :e subjects, places and names', more: 'Load 100 more', back: 'Back to the list',
+    whole: 'Search the whole catalogue', go: 'Search', catalogued: 'Catalogued as:', onRecs: 'On :n record', onRecsP: 'On :n records',
+    best40: ' (the map shows the 40 best connected)', andMore: 'and :n more', alongside: 'Appears alongside', wholeThis: 'Search the whole catalogue for this',
+    untitled: '(untitled)', openRec: 'Open the record', linked: 'Linked with', start: 'Where to start',
+    startTip: 'The most-used subjects, places and names in this selection. Click one, or search above.', records: 'records', recordsN: ':n records',
+    noMatch: 'No match in this selection', recs: 'records', people: 'people and bodies', places: 'places', subjects: 'subjects', events: 'events', dates: 'dates',
+    openMap: 'Explore the map', openColl: "Open the collection's record", topPeople: 'Most-named people and bodies', topPlaces: 'Most-named places',
+    topSubjects: 'Most-used subjects', fromRecs: 'From the records',
+    homeTip2: 'Search above for any name, place, subject or record title, or pick one here. Each opens the map of how it connects across the records.' },
+  af: { Subjects: 'Onderwerpe', Places: 'Plekke', People: 'Persone en liggame', Genres: 'Genres', Events: 'Gebeure', General: 'Algemene woorde',
+    generalTip: 'Algemene woorde wat as onderwerpe of plekke gekatalogiseer is', search: "Soek 'n onderwerp, plek, naam of rekordtitel", within: 'Soek binne hierdie resultate',
+    hint: "Soek 'n naam, of kies een van die mees gebruikte hieronder, om te sien hoe dit oor die rekords heen verbind.",
+    home: 'Tuis', homeTip: 'Terug na die oorsig', builtFrom: 'Saamgestel uit die katalogus se onderwerpe, plekke en name, soos gekatalogiseer.',
+    exported: 'Uitgevoer :d', builtOn: 'Saamgestel uit die katalogus op :d', scope: ':r rekords, :e onderwerpe, plekke en name',
+    liveScope: 'wys :s van :t resultate, :e onderwerpe, plekke en name', more: 'Laai nog 100', back: 'Terug na die lys',
+    whole: 'Soek in die hele katalogus', go: 'Soek', catalogued: 'Gekatalogiseer as:', onRecs: 'Op :n rekord', onRecsP: 'Op :n rekords',
+    best40: ' (die kaart wys die 40 met die meeste verbindings)', andMore: 'en nog :n', alongside: 'Verskyn saam met', wholeThis: 'Soek dit in die hele katalogus',
+    untitled: '(sonder titel)', openRec: 'Maak die rekord oop', linked: 'Gekoppel aan', start: 'Waar om te begin',
+    startTip: 'Die mees gebruikte onderwerpe, plekke en name in hierdie seleksie. Klik op een, of soek hierbo.', records: 'rekords', recordsN: ':n rekords',
+    noMatch: 'Geen treffer in hierdie seleksie nie', recs: 'rekords', people: 'persone en liggame', places: 'plekke', subjects: 'onderwerpe', events: 'gebeure', dates: 'datums',
+    openMap: 'Verken die kaart', openColl: 'Maak die versameling se rekord oop', topPeople: 'Mees genoemde persone en liggame', topPlaces: 'Mees genoemde plekke',
+    topSubjects: 'Mees gebruikte onderwerpe', fromRecs: 'Uit die rekords',
+    homeTip2: "Soek hierbo na enige naam, plek, onderwerp of rekordtitel, of kies een hier. Elkeen maak die kaart oop van hoe dit oor die rekords heen verbind." },
+};
+// The site's own scope lines, as the catalogue sends them.
+const SCOPE_AF = { 'Explore this collection': 'Verken hierdie versameling', 'Filtered results': 'Gefiltreerde resultate', 'Visual graph': 'Visuele grafiek', 'This collection': 'Hierdie versameling' };
+const store = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
+const LANG = (() => { const u = new URLSearchParams(location.search).get('lang'); const v = u || store.get('explorer-lang') || D.site.lang || 'en'; return I18N[v] ? v : 'en'; })();
+const LOC = LANG === 'af' ? 'af-ZA' : 'en-GB';
+const t = (k, vars = {}) => Object.entries(vars).reduce((s, [a, b]) => s.replace(':' + a, b), I18N[LANG][k] ?? I18N.en[k] ?? k);
+const tScope = s => LANG === 'af' && SCOPE_AF[s] ? SCOPE_AF[s] : s;
+document.documentElement.lang = LANG;
+document.querySelectorAll('#lang button').forEach(b => { b.classList.toggle('on', b.dataset.lang === LANG);
+  b.onclick = () => { if (b.dataset.lang === LANG) return; store.set('explorer-lang', b.dataset.lang);
+    const u = new URL(location.href); u.searchParams.set('lang', b.dataset.lang); location.href = u.toString(); }; });
+document.getElementById('q').placeholder = t('search');
+document.getElementById('homebtn').innerHTML = '&#8962; ' + t('home'); document.getElementById('homebtn').title = t('homeTip');
+document.getElementById('hint').textContent = t('hint');
+document.getElementById('builtfrom').textContent = t('builtFrom');
+const TYPES = { subject: [t('Subjects'), '#10373E'], place: [t('Places'), '#3f6b5a'], name: [t('People'), '#9a3f1c'], genre: [t('Genres'), '#b07d2b'], event: [t('Events'), '#5b4a7a'] };
 const REC = new Map(D.records.map(r => [r.id, r]));
 const ENT = new Map(D.entities.map(e => [e.id, e]));
 const on = new Set(Object.keys(TYPES));
 // General words (World, President...) the export marked hidden: off the map and the starting list until switched on; search still finds them.
 let general = false;
 const vis = e => on.has(e.type) && (general || !e.hidden);
-const fmt = n => n.toLocaleString('en-GB');
+const fmt = n => n.toLocaleString(LOC);
 const esc = s => String(s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
 const ref = r => [r.ref !== r.title ? esc(r.ref) : '', esc(r.date)].filter(Boolean).join(' &middot; ');
 document.title = D.site.title;
 document.getElementById('title').textContent = D.site.title;
-document.getElementById('scope').textContent = `${D.site.scope ? D.site.scope + ' - ' : ''}${fmt(D.records.length)} records, ${fmt(D.entities.length)} subjects, places and names`;
-document.getElementById('made').textContent = `Exported ${D.site.generated}`;
+document.getElementById('scope').textContent = `${D.site.scope ? tScope(D.site.scope) + ' - ' : ''}${t('scope', { r: fmt(D.records.length), e: fmt(D.entities.length) })}`;
+document.getElementById('made').textContent = t('exported', { d: D.site.generated });
 
 // Served live from a catalogue search (window.LIVE): the box above searches within these results,
 // this one runs a new search across the whole catalogue, and "Load more" widens the selection.
 const L = window.LIVE || null;
-const across = s => { location.href = L.across + '&query=' + encodeURIComponent(s); };
+const across = s => { location.href = L.across + '&query=' + encodeURIComponent(s) + (LANG !== 'en' ? '&lang=' + LANG : ''); };
 if (L) {
-  document.getElementById('q').placeholder = 'Search within these results';
-  document.getElementById('scope').innerHTML = `${esc(D.site.scope)} - showing ${fmt(L.shown)} of ${fmt(L.total)} results, ${fmt(D.entities.length)} subjects, places and names`
-    + (L.more ? ` &middot; <a href="#" id="more">Load 100 more</a>` : '') + ` &middot; <a href="${esc(L.list)}">Back to the list</a>`;
-  if (L.more) document.getElementById('more').onclick = ev => { ev.preventDefault(); location.href = L.more + location.hash; };
+  document.getElementById('q').placeholder = t('within');
+  document.getElementById('scope').innerHTML = `${esc(tScope(D.site.scope))} - ${t('liveScope', { s: fmt(L.shown), t: fmt(L.total), e: fmt(D.entities.length) })}`
+    + (L.more ? ` &middot; <a href="#" id="more">${t('more')}</a>` : '') + ` &middot; <a href="${esc(L.list)}">${t('back')}</a>`;
+  if (L.more) document.getElementById('more').onclick = ev => { ev.preventDefault(); location.href = L.more + (LANG !== 'en' ? '&lang=' + LANG : '') + location.hash; };
   const f = document.createElement('form'); f.className = 'live';
-  f.innerHTML = `<input name="c" placeholder="Search the whole catalogue" value="${esc(L.query)}"><button>Search</button>`;
+  f.innerHTML = `<input name="c" placeholder="${t('whole')}" value="${esc(L.query)}"><button>${t('go')}</button>`;
   f.onsubmit = ev => { ev.preventDefault(); const v = f.c.value.trim(); if (v) across(v); };
   document.querySelector('.bar').appendChild(f);
-  document.getElementById('made').textContent = `Built from the catalogue on ${D.site.generated}`;
+  document.getElementById('made').textContent = t('builtOn', { d: D.site.generated });
 }
 
 const chips = document.getElementById('chips');
@@ -106,8 +181,8 @@ Object.entries(TYPES).forEach(([t, [label, col]]) => {
 });
 const nHidden = D.entities.filter(e => e.hidden).length;
 if (nHidden) {
-  const el = document.createElement('span'); el.className = 'chip off'; el.title = 'Common words catalogued as subjects or places';
-  el.innerHTML = `<span class="dot" style="background:#9b9182"></span>General words <small>${fmt(nHidden)}</small>`;
+  const el = document.createElement('span'); el.className = 'chip off'; el.title = t('generalTip');
+  el.innerHTML = `<span class="dot" style="background:#9b9182"></span>${t('General')} <small>${fmt(nHidden)}</small>`;
   el.onclick = () => { general = !general; el.classList.toggle('off', !general); current ? focus(current, false) : welcome(); };
   chips.appendChild(el);
 }
@@ -129,6 +204,7 @@ cy.on('mouseout', 'node.rec', ev => ev.target.removeClass('hover'));
 const entNode = (e, centre) => ({ data: { id: e.id, label: e.name, color: TYPES[e.type][1], size: centre ? 46 : Math.min(36, 14 + 3 * Math.sqrt(e.recs.length)) }, classes: centre ? 'centre' : '' });
 const recNode = (r, centre) => ({ data: { id: r.id, label: r.ref || r.id, full: `${r.ref || ''}\n${(r.title || '').slice(0, 70)}`, color: '#fff', size: centre ? 44 : 34 }, classes: 'rec' + (centre ? ' centre' : '') });
 function focus(id, push = true) {
+  if (document.body.classList.contains('home')) { document.body.classList.remove('home'); cy.resize(); }
   current = id; document.getElementById('hint').style.display = 'none';
   const els = [], seen = new Set(), add = el => { if (!seen.has(el.data.id)) { seen.add(el.data.id); els.push(el); } };
   const edge = (a, b) => els.push({ data: { id: `${a}|${b}|${els.length}`, source: a, target: b } });
@@ -156,45 +232,45 @@ function focus(id, push = true) {
 }
 
 const side = document.getElementById('side');
-const linkRec = rid => { const r = REC.get(rid); return `<a data-go="${esc(rid)}">${esc(r.title || '(untitled)')}<br><small>${ref(r)}</small></a>`; };
+const linkRec = rid => { const r = REC.get(rid); return `<a data-go="${esc(rid)}">${esc(r.title || t('untitled'))}<br><small>${ref(r)}</small></a>`; };
 const chip = k => { const x = ENT.get(k); return `<span class="chip" data-go="${esc(k)}"><span class="dot" style="background:${TYPES[x.type][1]}"></span>${esc(x.name)}`; };
 function showEntity(e, co) {
   const top = [...co.entries()].sort((a, b) => b[1].length - a[1].length).slice(0, 18);
   side.innerHTML = `<div class="meta"><span class="dot" style="background:${TYPES[e.type][1]}"></span> ${TYPES[e.type][0]}</div>
     <h2>${esc(e.name)}</h2>
-    ${e.variants.length > 1 ? `<div class="meta">Catalogued as: ${e.variants.map(esc).join('; ')}</div>` : ''}
-    <h3>On ${fmt(e.recs.length)} record${e.recs.length > 1 ? 's' : ''}${e.recs.length > 40 ? ' (the map shows the 40 best connected)' : ''}</h3>
-    <div class="list">${e.recs.slice(0, 500).map(linkRec).join('')}${e.recs.length > 500 ? `<small>and ${fmt(e.recs.length - 500)} more</small>` : ''}</div>
-    ${top.length ? `<h3>Appears alongside</h3><div class="tags">${top.map(([k, c]) => chip(k) + ` <small>${c.length}</small></span>`).join('')}</div>` : ''}
-    ${L ? `<a class="btn" data-across="${esc(e.name)}">Search the whole catalogue for this</a>` : ''}`;
+    ${e.variants.length > 1 ? `<div class="meta">${t('catalogued')} ${e.variants.map(esc).join('; ')}</div>` : ''}
+    <h3>${t(e.recs.length > 1 ? 'onRecsP' : 'onRecs', { n: fmt(e.recs.length) })}${e.recs.length > 40 ? t('best40') : ''}</h3>
+    <div class="list">${e.recs.slice(0, 500).map(linkRec).join('')}${e.recs.length > 500 ? `<small>${t('andMore', { n: fmt(e.recs.length - 500) })}</small>` : ''}</div>
+    ${top.length ? `<h3>${t('alongside')}</h3><div class="tags">${top.map(([k, c]) => chip(k) + ` <small>${c.length}</small></span>`).join('')}</div>` : ''}
+    ${L ? `<a class="btn" data-across="${esc(e.name)}">${t('wholeThis')}</a>` : ''}`;
 }
 function showRecord(r) {
   // The evidence in place: the record's picture and the opening of its text.
-  side.innerHTML = `<div class="meta">${ref(r)}</div><h2>${esc(r.title || '(untitled)')}</h2>
+  side.innerHTML = `<div class="meta">${ref(r)}</div><h2>${esc(r.title || t('untitled'))}</h2>
     ${r.img ? `<a href="${esc(r.url || r.img)}" target="_blank" rel="noopener"><img class="evidence" src="${esc(r.img)}" alt="${esc(r.title || '')}" loading="lazy" onerror="this.remove()"></a>` : ''}
     ${r.text ? `<p class="excerpt">${esc(r.text)}</p>` : ''}
-    ${r.url ? `<a class="btn" href="${esc(r.url)}" target="_blank" rel="noopener">Open the record</a>` : ''}
-    ${r.ents.length ? `<h3>Linked with</h3><div class="tags">${r.ents.map(k => chip(k) + '</span>').join('')}</div>` : ''}`;
+    ${r.url ? `<a class="btn" href="${esc(r.url)}" target="_blank" rel="noopener">${t('openRec')}</a>` : ''}
+    ${r.ents.length ? `<h3>${t('linked')}</h3><div class="tags">${r.ents.map(k => chip(k) + '</span>').join('')}</div>` : ''}`;
 }
 side.addEventListener('click', ev => { const t = ev.target.closest('[data-go]'); if (t) focus(t.dataset.go);
   const a = ev.target.closest('[data-across]'); if (a) across(a.dataset.across); });
 function welcome() {
   const top = D.entities.filter(vis).sort((a, b) => b.recs.length - a.recs.length).slice(0, 30);
-  side.innerHTML = `<h2>Where to start</h2><div class="meta">The most-used subjects, places and names in this selection. Click one, or search above.</div>
+  side.innerHTML = `<h2>${t('start')}</h2><div class="meta">${t('startTip')}</div>
     <div class="tags" style="margin-top:12px">${top.map(x => chip(x.id) + ` <small>${fmt(x.recs.length)}</small></span>`).join('')}</div>`;
 }
 
 const q = document.getElementById('q'), sugg = document.getElementById('sugg');
-const index = [...D.entities.map(e => ({ id: e.id, label: e.name, sub: `${TYPES[e.type][0]} - ${fmt(e.recs.length)} records`,
+const index = [...D.entities.map(e => ({ id: e.id, label: e.name, sub: `${TYPES[e.type][0]} - ${t('recordsN', { n: fmt(e.recs.length) })}`,
                                          keys: [e.name, ...e.variants].join(' ').toLowerCase(), color: TYPES[e.type][1], weight: e.recs.length })),
-               ...D.records.map(r => ({ id: r.id, label: r.title || '(untitled)', sub: r.ref, keys: (r.title + ' ' + r.ref).toLowerCase(), color: '#fff', weight: 0 }))];
+               ...D.records.map(r => ({ id: r.id, label: r.title || t('untitled'), sub: r.ref, keys: (r.title + ' ' + r.ref).toLowerCase(), color: '#fff', weight: 0 }))];
 let pick = 0, hits = [];
 q.addEventListener('input', () => {
   const s = q.value.trim().toLowerCase(); pick = 0;
   if (s.length < 2) { sugg.style.display = 'none'; return; }
   hits = index.filter(x => x.keys.includes(s)).sort((a, b) => b.weight - a.weight).slice(0, 14);
   sugg.innerHTML = hits.map((h, i) => `<div data-i="${i}" class="${i === 0 ? 'on' : ''}"><span class="dot" style="background:${h.color};border:1px solid #9b9182"></span>${esc(h.label)} <small>${esc(h.sub)}</small></div>`).join('')
-    || '<div><small>No match in this selection</small></div>';
+    || `<div><small>${t('noMatch')}</small></div>`;
   sugg.style.display = 'block';
 });
 q.addEventListener('keydown', ev => {
@@ -224,7 +300,7 @@ function drawTimeline() {
   const ticks = []; for (let d = new Date(lo); d.getTime() <= hi; years ? d.setUTCFullYear(d.getUTCFullYear() + 1, 0, 1) : d.setUTCMonth(d.getUTCMonth() + 1, 1)) ticks.push(new Date(d));
   const every = Math.ceil(ticks.length / 16);
   el.innerHTML = `<svg viewBox="0 0 ${W} 74" preserveAspectRatio="none"><line x1="${pad}" x2="${W - pad}" y1="44" y2="44" stroke="#d9cfbd"/>
-    ${ticks.filter((_, i) => i % every === 0).map(m => `<text x="${x(m.getTime())}" y="66" font-size="11" fill="#6b6b6b" text-anchor="middle">${years ? m.getUTCFullYear() : m.toLocaleString('en-GB', { month: 'short', year: 'numeric', timeZone: 'UTC' })}</text>`).join('')}
+    ${ticks.filter((_, i) => i % every === 0).map(m => `<text x="${x(m.getTime())}" y="66" font-size="11" fill="#6b6b6b" text-anchor="middle">${years ? m.getUTCFullYear() : m.toLocaleString(LOC, { month: 'short', year: 'numeric', timeZone: 'UTC' })}</text>`).join('')}
     ${DATED.filter(([r]) => shown.has(r.id)).map(([r, t]) => `<line data-go="${esc(r.id)}" x1="${x(t)}" x2="${x(t)}" y1="10" y2="44" stroke="#653332" stroke-width="3" style="cursor:pointer"><title>${esc(r.date + ' - ' + (r.title || ''))}</title></line>`).join('')}
   </svg>`;
 }
@@ -232,8 +308,35 @@ document.getElementById('timeline').addEventListener('click', ev => { const t = 
 window.addEventListener('resize', drawTimeline);
 window.addEventListener('hashchange', () => { const h = decodeURIComponent(location.hash.slice(1)); if (h !== current && (ENT.has(h) || REC.has(h))) focus(h, false); });
 
+// Home screen: what the selection is, how big, who and what it is about, a few
+// of its pictures, and the ways in. The map is one click away.
+function home() {
+  document.body.classList.add('home'); current = null;
+  if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+  const top = t => D.entities.filter(e => e.type === t && vis(e)).sort((a, b) => b.recs.length - a.recs.length).slice(0, 10);
+  const ts = DATED.map(([, t]) => t), span = ts.length ? [new Date(Math.min(...ts)), new Date(Math.max(...ts))] : null;
+  const yr = d => d.getUTCFullYear(), period = span ? (yr(span[0]) === yr(span[1])
+    ? span[0].toLocaleString(LOC, { month: 'long', year: 'numeric', timeZone: 'UTC' }) + (span[0].getUTCMonth() !== span[1].getUTCMonth() ? ' - ' + span[1].toLocaleString(LOC, { month: 'long', year: 'numeric', timeZone: 'UTC' }) : '')
+    : yr(span[0]) + ' - ' + yr(span[1])) : '';
+  const count = t => D.entities.filter(e => e.type === t).length;
+  const stat = (n, label) => n ? `<div class="stat"><b>${typeof n === 'number' ? fmt(n) : esc(n)}</b><span>${label}</span></div>` : '';
+  const col = (t, label) => { const xs = top(t); return xs.length ? `<div class="col"><h3>${label}</h3>${xs.map(e =>
+    `<a data-go="${esc(e.id)}"><span><span class="dot" style="background:${TYPES[e.type][1]}"></span> ${esc(e.name)}</span><small>${fmt(e.recs.length)}</small></a>`).join('')}</div>` : ''; };
+  const pics = D.records.filter(r => r.img).slice(0, 12);
+  document.getElementById('homebody').innerHTML = `
+    ${D.site.about ? `<p class="about">${esc(D.site.about)}</p>` : ''}
+    <div class="stats">${stat(D.records.length, t('recs'))}${stat(count('name'), t('people'))}${stat(count('place'), t('places'))}${stat(count('subject'), t('subjects'))}${stat(count('event'), t('events'))}${stat(period, t('dates'))}</div>
+    <p><button type="button" class="go" id="openmap">${t('openMap')}</button>${D.site.url ? `<a class="go alt" href="${esc(D.site.url)}" target="_blank" rel="noopener">${t('openColl')}</a>` : ''}</p>
+    <div class="cols">${col('name', t('topPeople'))}${col('place', t('topPlaces'))}${col('subject', t('topSubjects'))}${col('event', t('Events'))}</div>
+    ${pics.length ? `<h3>${t('fromRecs')}</h3><div class="gallery">${pics.map(r => `<div class="card" data-go="${esc(r.id)}"><img src="${esc(r.img)}" alt="" loading="lazy" onerror="this.closest('.card').remove()"><div>${esc((r.title || t('untitled')).slice(0, 90))}<br><small>${ref(r)}</small></div></div>`).join('')}</div>` : ''}
+    <p class="meta">${t('homeTip2')}</p>`;
+  document.getElementById('openmap').onclick = () => { document.body.classList.remove('home'); welcome(); cy.resize(); drawTimeline(); };
+}
+document.getElementById('home').addEventListener('click', ev => { const t = ev.target.closest('[data-go]'); if (t) focus(t.dataset.go); });
+document.getElementById('homebtn').onclick = home;
+
 const start = decodeURIComponent(location.hash.slice(1));
-if (start && (ENT.has(start) || REC.has(start))) focus(start, false); else { welcome(); drawTimeline(); }
+if (start && (ENT.has(start) || REC.has(start))) focus(start, false); else { home(); }
 </script>
 </body>
 </html>

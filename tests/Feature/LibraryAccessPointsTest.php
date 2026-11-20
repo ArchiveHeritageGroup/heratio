@@ -70,4 +70,20 @@ class LibraryAccessPointsTest extends TestCase
         $items = app(ActorService::class)->getSubjectOfResourcesPaginated($actor, 1, 10)['items'];
         $this->assertSame([$bookcase, $page], $items->pluck('id')->map(fn ($i) => (int) $i)->all());
     }
+
+    public function test_library_holdings_list_in_shelf_order_with_authors(): void
+    {
+        $case = $this->io(1, 'Test bookcase', 9300000);
+        DB::table('library_item')->insert(['information_object_id' => $case]);
+        $second = $this->io($case, 'Second on the shelf', 9300004);
+        $first = $this->io($case, 'First on the shelf', 9300002);
+        DB::table('information_object')->where('id', $first)->update(['identifier' => 'TST-S1-01']);
+        $li = (int) DB::table('library_item')->insertGetId(['information_object_id' => $first]);
+        DB::table('library_item_creator')->insert(['library_item_id' => $li, 'name' => 'Driesch, Hans', 'role' => 'author', 'sort_order' => 0]);
+
+        $h = app(LibraryService::class)->getHoldings($case);
+        $this->assertSame([$first, $second], $h->pluck('id')->map(fn ($i) => (int) $i)->all());
+        $this->assertSame('Driesch, Hans', $h[0]->authors);
+        $this->assertSame('TST-S1-01', $h[0]->identifier);
+    }
 }

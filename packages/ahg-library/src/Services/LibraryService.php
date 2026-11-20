@@ -959,6 +959,38 @@ class LibraryService
     }
 
     /**
+     * The records directly under a library record, in shelf order (lft), with
+     * their identifier (shelf mark) and authors, for the Library Holdings list.
+     */
+    public function getHoldings(int $informationObjectId): \Illuminate\Support\Collection
+    {
+        $rows = DB::table('information_object as io')
+            ->leftJoin('information_object_i18n as i18n', function ($j) {
+                $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', '=', $this->culture);
+            })
+            ->leftJoin('slug', 'slug.object_id', '=', 'io.id')
+            ->where('io.parent_id', $informationObjectId)
+            ->orderBy('io.lft')
+            ->get(['io.id', 'io.identifier', 'i18n.title', 'slug.slug']);
+        if ($rows->isEmpty()) {
+            return $rows;
+        }
+        $authors = DB::table('library_item as li')
+            ->join('library_item_creator as c', 'c.library_item_id', '=', 'li.id')
+            ->whereIn('li.information_object_id', $rows->pluck('id'))
+            ->orderBy('c.sort_order')
+            ->get(['li.information_object_id', 'c.name'])
+            ->groupBy('information_object_id')
+            ->map(fn ($g) => $g->pluck('name')->unique()->implode('; '));
+
+        return $rows->map(function ($r) use ($authors) {
+            $r->authors = $authors[$r->id] ?? null;
+
+            return $r;
+        });
+    }
+
+    /**
      * The record's own access points, as on an archival description: names
      * (relation type 161 to an actor) and subject, place and genre terms.
      *

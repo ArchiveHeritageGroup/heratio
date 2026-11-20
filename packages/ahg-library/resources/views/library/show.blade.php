@@ -7,10 +7,10 @@
 <style>
   /* Library page sidebar widths. Right column was originally 27%, then two
      33% reductions (27% → 18% → 12%), then user asked for +1cm back. Using
-     calc() so it scales with viewport. Main column absorbs the inverse;
-     left stays at 18%. */
-  .view.library #left-column  { flex: 0 0 auto; width: 18%; max-width: 18%; }
-  .view.library #main-column  { flex: 0 0 auto; width: calc(70% - 2cm); max-width: calc(70% - 2cm); }
+     calc() so it scales with viewport. 20 Nov 2026: main column 20% narrower,
+     the left (holdings) column takes the freed width. */
+  .view.library #left-column  { flex: 0 0 auto; width: calc(32% - 0.4cm); max-width: calc(32% - 0.4cm); }
+  .view.library #main-column  { flex: 0 0 auto; width: calc(56% - 1.6cm); max-width: calc(56% - 1.6cm); }
   .view.library #right-column { flex: 0 0 auto; width: calc(12% + 2cm); max-width: calc(12% + 2cm); }
   @media (max-width: 991.98px) {
     .view.library #left-column,
@@ -52,9 +52,7 @@
 
   {{-- Holdings / hierarchy navigation --}}
   @php
-    $children = \Illuminate\Support\Facades\DB::table('information_object')
-      ->where('parent_id', $item->id)
-      ->get();
+    $children = $holdings ?? collect();
     $totalChildren = $children->count();
     $hasMany = $totalChildren > 10;
   @endphp
@@ -71,7 +69,7 @@
 
   <section class="card mb-3">
     <div class="card-header fw-bold" style="background:var(--ahg-primary);color:#fff;">
-      <i class="fas fa-book me-1"></i> {{ __('Holdings') }}
+      <i class="fas fa-book me-1"></i> {{ __('Library Holdings') }}
       @if($totalChildren > 0)
         <span class="badge bg-light text-dark float-end">{{ $totalChildren }}</span>
       @endif
@@ -95,28 +93,45 @@
 
       {{-- Children --}}
       @if($totalChildren > 0)
-        <div class="{{ $hasMany ? 'has-scroll' : '' }}" style="{{ $hasMany ? 'max-height: 300px; overflow-y: auto;' : '' }}">
-          <ul class="list-group list-group-flush">
+        @if($hasMany)
+          <div class="p-2 border-bottom">
+            <input type="search" class="form-control form-control-sm" id="holdings-filter"
+                   placeholder="{{ __('Filter by title, author or shelf mark') }}" aria-label="{{ __('Filter by title, author or shelf mark') }}">
+          </div>
+        @endif
+        <div class="{{ $hasMany ? 'has-scroll' : '' }}" style="{{ $hasMany ? 'max-height: 60vh; overflow-y: auto;' : '' }}">
+          <ul class="list-group list-group-flush" id="holdings-list">
             @foreach($children as $child)
-              @php
-                $childSlug = \Illuminate\Support\Facades\DB::table('slug')
-                  ->where('object_id', $child->id)
-                  ->value('slug');
-                $childTitle = \Illuminate\Support\Facades\DB::table('information_object_i18n')
-                  ->where('id', $child->id)
-                  ->value('title') ?: '[Untitled]';
-              @endphp
-              <li class="list-group-item list-group-item-action ps-4 py-2">
-                <i class="fas fa-file me-2 text-muted"></i>
-                @if($childSlug)
-                  <a href="{{ route('library.show', $childSlug) }}">{{ $childTitle }}</a>
-                @else
-                  {{ $childTitle }}
-                @endif
+              <li class="list-group-item list-group-item-action py-2 small" data-filter="{{ mb_strtolower(($child->title ?? '').' '.($child->authors ?? '').' '.($child->identifier ?? '')) }}">
+                <div class="d-flex gap-2">
+                  @if($child->identifier)
+                    <span class="text-muted text-nowrap" style="min-width:4.5em;">{{ preg_replace('/^.*-(S\d+-\d+)$/', '$1', $child->identifier) }}</span>
+                  @endif
+                  <div>
+                    @if($child->slug)
+                      <a href="{{ route('library.show', $child->slug) }}">{{ $child->title ?: '[Untitled]' }}</a>
+                    @else
+                      {{ $child->title ?: '[Untitled]' }}
+                    @endif
+                    @if($child->authors)
+                      <div class="text-muted">{{ $child->authors }}</div>
+                    @endif
+                  </div>
+                </div>
               </li>
             @endforeach
           </ul>
         </div>
+        @if($hasMany)
+          <script>
+            document.getElementById('holdings-filter').addEventListener('input', function () {
+              var q = this.value.trim().toLowerCase();
+              document.querySelectorAll('#holdings-list > li').forEach(function (li) {
+                li.style.display = !q || li.dataset.filter.indexOf(q) !== -1 ? '' : 'none';
+              });
+            });
+          </script>
+        @endif
         @if($hasMany)
           <div class="text-center text-muted small mt-2 mb-2">
             <i class="fas fa-arrows-alt-v me-1"></i>{{ __('Scroll to see all :count items', ['count' => $totalChildren]) }}
