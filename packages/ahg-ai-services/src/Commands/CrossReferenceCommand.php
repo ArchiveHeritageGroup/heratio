@@ -1,8 +1,9 @@
 <?php
 
 /**
- * ahg:cross-reference - same-story links, duplicate-leaf QA and grounded
- * entities for one collection (heratio#1524, phase 1).
+ * ahg:cross-reference - same-story links, duplicate-leaf QA, grounded
+ * entities and the gazetteer check of place names for one collection
+ * (heratio#1524).
  *
  * Copyright (C) 2026 Johan Pieterse
  * Plain Sailing Information Systems
@@ -27,6 +28,7 @@
 namespace AhgAiServices\Commands;
 
 use AhgAiServices\Services\CrossReferenceService;
+use AhgAiServices\Services\GazetteerService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -38,11 +40,12 @@ class CrossReferenceCommand extends Command
         {--stock=20 : Ignore phrases shared by more items than this}
         {--entities : Also extract grounded entities through the gateway (one model call per item)}
         {--report= : Write the duplicate-leaf QA report to this CSV file}
+        {--places= : Write the gazetteer review list of the collection\'s place names to this CSV file (see ahg:gazetteer-load)}
         {--dry-run : Report what would be linked; write nothing}';
 
-    protected $description = 'Cross-reference a collection from its text: same-story links, leaves photographed twice, grounded entities';
+    protected $description = 'Cross-reference a collection from its text: same-story links, leaves photographed twice, grounded entities, place-name check';
 
-    public function handle(CrossReferenceService $svc): int
+    public function handle(CrossReferenceService $svc, GazetteerService $gazetteer): int
     {
         $rootId = (int) DB::table('slug')->join('information_object', 'information_object.id', '=', 'slug.object_id')
             ->where('slug.slug', $this->argument('slug'))->value('slug.object_id');
@@ -73,13 +76,13 @@ class CrossReferenceCommand extends Command
             $this->line("QA report: {$path}");
         }
 
-        if ($this->option('dry-run')) {
-            return self::SUCCESS;
+        if (! $this->option('dry-run')) {
+            // One cutting on a leaf photographed twice is not a story printed twice.
+            $links = $svc->withoutLeafRepeats($pairs, $leaves);
+            $this->info($svc->storeLinks(array_keys($texts), $links).' related-description link(s) written.');
         }
 
-        $this->info($svc->storeLinks(array_keys($texts), $pairs).' related-description link(s) written.');
-
-        if ($this->option('entities')) {
+        if ($this->option('entities') && ! $this->option('dry-run')) {
             $bar = $this->output->createProgressBar(count($texts));
             $kept = 0;
             foreach ($texts as $id => $text) {
@@ -89,6 +92,15 @@ class CrossReferenceCommand extends Command
             $bar->finish();
             $this->newLine();
             $this->info("{$kept} grounded entit(ies) kept for review (NER review queue).");
+        }
+
+        if ($path = $this->option('places')) {
+            $places = array_values(array_filter($svc->groupedEntities(array_keys($texts)), fn ($e) => $e['type'] === 'place'));
+            $rows = $gazetteer->check($places);
+            GazetteerService::writeCsv($path, $rows);
+            $count = array_count_values(array_map(fn ($r) => strtok($r['status'], ' '), $rows));
+            $this->line(sprintf('%d place(s): %d found, %d possible misspelling(s), %d not in the gazetteer. Review list: %s',
+                count($rows), $count['found'] ?? 0, $count['possible'] ?? 0, $count['not'] ?? 0, $path));
         }
 
         return self::SUCCESS;

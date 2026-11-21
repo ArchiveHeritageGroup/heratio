@@ -321,6 +321,33 @@ class VectorSearchService
         return array_map('floatval', $vec);
     }
 
+    /**
+     * The stored vectors of many records at once, from the configured
+     * collection (the collection map, heratio#1567). Records without a vector
+     * are left out. A stored-vector read only: no embedding call is made.
+     *
+     * @param  list<int>  $ids
+     * @return array<int, list<float>> record id => vector
+     */
+    public function pointVectors(array $ids): array
+    {
+        $url = rtrim($this->setting('semantic_qdrant_url', 'http://localhost:6333'), '/');
+        $collection = $this->collectionFor(null);
+        $out = [];
+        foreach (array_chunk(array_values(array_map('intval', $ids)), 500) as $chunk) {
+            $resp = $this->httpPost($url.'/collections/'.urlencode($collection).'/points',
+                json_encode(['ids' => $chunk, 'with_vector' => true, 'with_payload' => false]),
+                max(10000, (int) $this->setting('semantic_timeout_ms', 5000)));
+            foreach ((json_decode((string) $resp, true)['result'] ?? []) as $p) {
+                if (isset($p['id']) && is_array($p['vector'] ?? null) && array_is_list($p['vector'])) {
+                    $out[(int) $p['id']] = array_map('floatval', $p['vector']);
+                }
+            }
+        }
+
+        return $out;
+    }
+
     protected function embeddingHealth(): array
     {
         // #1247: probe the gateway, not a node port. The gateway proxies

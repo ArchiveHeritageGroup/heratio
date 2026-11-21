@@ -243,7 +243,7 @@ class ProposalController extends BaseApiController
                     $id = DB::table('ahg_ner_entity')->insertGetId([
                         'extraction_id' => $extractionId, 'object_id' => $objectId,
                         'entity_type' => $e['type'], 'entity_value' => $e['value'],
-                        'confidence' => $e['confidence'] ?? 1.0, 'status' => 'pending', 'created_at' => $now,
+                        'confidence' => $e['confidence'] ?? null, 'status' => 'pending', 'created_at' => $now,
                     ]);
                     if ($e['evidence'] !== '' || $e['sources'] || $e['authority']) {
                         DB::table('ahg_ner_entity_evidence')->insert([

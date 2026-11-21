@@ -14,8 +14,10 @@
  * ("ANC" and "African National Congress" stay apart: merging those is a
  * cataloguing decision, not the exporter's).
  *
- * ponytail: no same-story links (needs item text) and no client branding
- * yet (needs the client's site tokens); both are later parts of #1524.
+ * Same-story links that ahg:cross-reference stored between the records are
+ * included as links (with their share of wording in common), never as text.
+ * --brand takes the client's colours from a saved copy of its site's page or
+ * stylesheet (the CSS custom properties it declares); nothing is fetched.
  *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
  * License: AGPL-3.0-or-later
@@ -39,6 +41,7 @@ class ExplorerExportCommand extends Command
         {--base-url= : Site address the record links point at (default APP_URL)}
         {--hide= : Comma-separated general words kept off the starting list and the map (still searchable)}
         {--title= : Heading shown on the page}
+        {--brand= : A saved page or stylesheet of the client site; its declared colour tokens brand the explorer}
         {--out= : Folder to write (default storage/app/explorer/<slug of the title>)}';
 
     protected $description = 'Export an offline relationship explorer (subjects, places, names) for a collection or a year';
@@ -68,8 +71,20 @@ class ExplorerExportCommand extends Command
         }
         $data = ['site' => ['title' => $title, 'scope' => $this->scopeLabel(), 'generated' => now()->toDateString()]] + $data;
         file_put_contents("$out/data.js", 'window.DATA = '.json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES).";\n");
-        copy(ExplorerDataService::template(), "$out/index.html");
+        $page = file_get_contents(ExplorerDataService::template());
+        if ($brand = $this->option('brand')) {
+            if (! is_readable($brand)) {
+                $this->error("Cannot read {$brand}");
+
+                return self::FAILURE;
+            }
+            $style = ExplorerDataService::brandStyle((string) file_get_contents($brand));
+            $this->line($style === '' ? 'No colour tokens found in the brand file; the default colours are kept.' : 'Branded from '.$brand.'.');
+            $page = str_replace('</head>', $style.'</head>', $page);
+        }
+        file_put_contents("$out/index.html", $page);
         copy(public_path('vendor/cytoscape/cytoscape.min.js'), "$out/cytoscape.min.js");
+        copy(dirname(ExplorerDataService::template()).'/map.js', "$out/map.js"); // the collection map view (heratio#1567)
 
         $this->info(sprintf('%d records, %d names. Written to %s - open index.html in a browser.', count($data['records']), count($data['entities']), $out));
 

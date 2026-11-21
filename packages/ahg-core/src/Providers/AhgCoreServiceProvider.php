@@ -236,12 +236,14 @@ class AhgCoreServiceProvider extends ServiceProvider
                 \AhgCore\Commands\TranslationImportXliffCommand::class,
                 \AhgCore\Commands\TranslationExportXliffCommand::class,
                 \AhgCore\Commands\TranslationCoverageCommand::class,
+                \AhgCore\Commands\TranslationDbReconcileCommand::class, // heratio#1416
                 \AhgCore\Commands\TranslationLintCommand::class,
                 \AhgCore\Commands\TermObjectCollisionsCommand::class, // heratio#1556
                 \AhgCore\Commands\SeedDuplicatesCommand::class, // heratio#1556 clean-up
                 \AhgCore\Commands\TranslationMtBatchCommand::class,
                 \AhgCore\Commands\TranslationLlmFillCommand::class, // heratio#1510
                 \AhgCore\Commands\TranslationReviewImportCommand::class, // heratio#1445
+                \AhgCore\Commands\TranslationReviewExportCommand::class, // heratio#1445
                 \AhgCore\Commands\TranslationExtractCommand::class,
                 \AhgCore\Commands\VocabularyImportCommand::class,
                 \AhgCore\Commands\VocabularyMirrorCommand::class,

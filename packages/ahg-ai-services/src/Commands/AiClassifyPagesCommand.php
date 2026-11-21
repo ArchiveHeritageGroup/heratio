@@ -50,7 +50,7 @@ class AiClassifyPagesCommand extends Command
         foreach (array_unique($ids) as $id) {
             try {
                 $r = $pc->run($id, null, $withDoctype);
-                $this->line(sprintf('%d: %s', $id, $r['error'] ?? sprintf('%d unit(s), flagged: %s', $r['units'], $r['flagged'] ? implode(', ', $r['flagged']) : 'none')));
+                $this->line(sprintf('%d: %s', $id, $r['error'] ?? sprintf('%d unit(s), flagged: %s%s', $r['units'], $r['flagged'] ? implode(', ', $r['flagged']) : 'none', ! empty($r['cleared']) ? ' (every page read: files cleared)' : '')));
             } catch (\Throwable $e) {
                 $this->error("{$id}: ".$e->getMessage());
             }

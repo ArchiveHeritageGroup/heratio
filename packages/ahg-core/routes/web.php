@@ -71,6 +71,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/trash/{id}/purge', [\AhgCore\Controllers\TrashController::class, 'purge'])->name('admin.trash.purge')->whereNumber('id')->middleware('admin');
     // heratio#1757 / #1758: check a master out for editing and back in.
     Route::get('/admin/media-checkout', [\AhgCore\Controllers\MediaCheckoutController::class, 'index'])->name('admin.media-checkout')->middleware('admin');
+    // heratio#1416: interface translation coverage per locale (read-only).
+    Route::get('/admin/ui-translation-coverage', [\AhgCore\Controllers\UiTranslationCoverageController::class, 'index'])->name('admin.ui-translation-coverage')->middleware('admin');
     Route::post('/digitalobject/{id}/checkout', [\AhgCore\Controllers\MediaCheckoutController::class, 'checkout'])->name('io.digitalobject.checkout')->whereNumber('id')->middleware(['acl:update', 'record.unlocked:object']);
     Route::get('/digitalobject/{id}/checkout/download', [\AhgCore\Controllers\MediaCheckoutController::class, 'download'])->name('io.digitalobject.checkout.download')->whereNumber('id')->middleware('acl:update');
     Route::post('/digitalobject/{id}/checkin', [\AhgCore\Controllers\MediaCheckoutController::class, 'checkin'])->name('io.digitalobject.checkin')->whereNumber('id')->middleware(['acl:update', 'record.unlocked:object']);
@@ -506,3 +508,14 @@ Route::middleware(['auth', 'acl:update'])->prefix('admin/faces')->name('faces.')
     Route::post('/search-photo', [\AhgCore\Controllers\FaceRecognitionController::class, 'searchPhoto'])->name('search-photo');
 });
 Route::get('/faces/person/{id}', [\AhgCore\Controllers\FaceRecognitionController::class, 'person'])->whereNumber('id')->name('faces.person');
+
+// heratio#1445 - native-speaker review of machine-translated UI strings.
+// acl:translate at the route; the controller narrows it to translators and admins.
+Route::middleware(['auth', 'acl:translate'])->prefix('admin/translation-review')->name('translation-review.')->group(function () {
+    Route::get('/', [\AhgCore\Controllers\UiStringReviewController::class, 'index'])->name('index');
+    Route::get('/export', [\AhgCore\Controllers\UiStringReviewController::class, 'export'])->name('export');
+    Route::post('/upload', [\AhgCore\Controllers\UiStringReviewController::class, 'upload'])->name('upload');
+    Route::post('/apply', [\AhgCore\Controllers\UiStringReviewController::class, 'apply'])->name('apply');
+    Route::get('/step', [\AhgCore\Controllers\UiStringReviewController::class, 'step'])->name('step');
+    Route::post('/decide', [\AhgCore\Controllers\UiStringReviewController::class, 'decide'])->name('decide');
+});

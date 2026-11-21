@@ -4,7 +4,8 @@
  * ExplorerDataService - the records and names behind the relationship
  * explorer: each record with its subjects, places, genres and people, and each
  * name with the records it appears on (spellings that differ only in case,
- * punctuation, accents or a leading "The" grouped as one).
+ * punctuation, accents or a leading "The" grouped as one), plus the
+ * same-story links ahg:cross-reference found between the records.
  *
  * Shared by the offline export (ahg:explorer-export, heratio#1524) and the live
  * "Visual graph" of a GLAM search, which serve the same page.
@@ -15,6 +16,7 @@
 
 namespace AhgApi\Services;
 
+use AhgAiServices\Services\CrossReferenceService;
 use AhgApi\Services\GraphExplorerService as G;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -61,6 +63,11 @@ class ExplorerDataService
             }
         }
 
+        foreach (self::sameStory(array_keys($records)) as [$a, $b, $pct]) {
+            $records[$a]['same'][] = [(string) $b, $pct];
+            $records[$b]['same'][] = [(string) $a, $pct];
+        }
+
         $entities = [];
         $min = max(1, $min);
         $hide = array_flip(array_map(self::groupKey(...), explode(',', $hide)));
@@ -80,7 +87,10 @@ class ExplorerDataService
             }
         }
 
-        return ['records' => array_values($records), 'entities' => $entities];
+        // The collection map's text neighbours, when switched on (heratio#1567).
+        $vec = CollectionMapService::textVectors(array_map('intval', array_keys($records)));
+
+        return ['records' => array_values($records), 'entities' => $entities] + ($vec ? ['vec' => $vec] : []);
     }
 
     /**
@@ -102,10 +112,44 @@ class ExplorerDataService
             : '';
 
         return str_replace(
-            ['</head>', '<script src="cytoscape.min.js"></script>', '<script src="data.js"></script>'],
+            ['</head>', '<script src="cytoscape.min.js"></script>', '<script src="data.js"></script>', '<script src="map.js"></script>'],
             [$theme.'</head>', '<script src="'.e(asset('vendor/cytoscape/cytoscape.min.js')).'"></script>',
-                '<script>window.DATA = '.$json($data).'; window.LIVE = '.$json($live).';</script>'],
+                '<script>window.DATA = '.$json($data).'; window.LIVE = '.$json($live).';</script>',
+                '<script>'.file_get_contents(dirname(self::template()).'/map.js').'</script>'],
             file_get_contents(self::template()));
+    }
+
+    /** Site token => explorer colour. Divi global colours, a Heratio theme, or the explorer's own names. */
+    private const BRAND_TOKENS = [
+        'gcid-secondary-color' => 'head', 'gcid-primary-color' => 'primary', 'gcid-link-color' => 'accent',
+        'ahg-header-bg' => 'head', 'ahg-header-text' => 'headtext', 'ahg-link-color' => 'accent',
+        'head' => 'head', 'headtext' => 'headtext', 'primary' => 'primary', 'accent' => 'accent',
+    ];
+
+    /**
+     * A client's colours for an exported explorer, read from the CSS custom
+     * properties its site declares (a saved page or stylesheet: Divi's
+     * --gcid-* global colours, a Heratio theme's --ahg-* colours, or --head,
+     * --headtext, --primary and --accent directly). Only plain colour values
+     * are taken; anything else is ignored. Empty when nothing is recognised.
+     */
+    public static function brandStyle(string $source): string
+    {
+        preg_match_all('/--([a-z0-9-]+)\s*:\s*([^;}"\']+)/i', $source, $m, PREG_SET_ORDER);
+        $vars = [];
+        foreach ($m as [, $name, $value]) {
+            $to = self::BRAND_TOKENS[strtolower($name)] ?? null;
+            $value = trim($value);
+            if ($to && ! isset($vars[$to]) && preg_match('/^(#[0-9a-f]{3,8}|rgba?\([0-9.,%\s]+\))$/i', $value)) {
+                $vars[$to] = $value;
+            }
+        }
+        if (! $vars) {
+            return '';
+        }
+        $decl = implode(' ', array_map(fn ($k, $v) => "--{$k}: {$v};", array_keys($vars), $vars));
+
+        return "<style>:root { {$decl} }</style>\n";
     }
 
     public static function template(): string
@@ -184,6 +228,28 @@ class ExplorerDataService
         return $out;
     }
 
+    /**
+     * Same-story links between these records (ahg:cross-reference, heratio#1524):
+     * the link and its share of wording in common, never the text itself.
+     *
+     * @return iterable<array{0:int,1:int,2:int}> [record a, record b, percent]
+     */
+    private static function sameStory(array $ids): iterable
+    {
+        $in = array_flip($ids);
+        foreach (array_chunk($ids, 1000) as $chunk) {
+            $rows = DB::table('relation as r')->join('relation_i18n as ri', 'ri.id', '=', 'r.id')
+                ->where('r.type_id', CrossReferenceService::RELATED_TYPE)->whereIn('r.subject_id', $chunk)
+                ->where('ri.description', 'like', CrossReferenceService::LINK_NOTE.'%')
+                ->get(['r.subject_id', 'r.object_id', 'ri.description']);
+            foreach ($rows as $r) {
+                if (isset($in[$r->object_id])) {
+                    yield [(int) $r->subject_id, (int) $r->object_id, preg_match('/(\d+)%/', (string) $r->description, $m) ? (int) $m[1] : 0];
+                }
+            }
+        }
+    }
+
     /** @return iterable<array{0:int,1:string,2:string}> [record id, type, printed name] */
     private static function names(array $ids): iterable
     {
@@ -210,6 +276,15 @@ class ExplorerDataService
             yield [(int) $r->rid, 'name', (string) $r->name];
         }
 
+        // Museum objects' materials (free text, "silver; wood"), for the collection map (heratio#1567).
+        if (\Illuminate\Support\Facades\Schema::hasTable('museum_metadata')) {
+            foreach (DB::table('museum_metadata')->whereIn('object_id', $ids)->whereNotNull('materials')->get(['object_id', 'materials']) as $r) {
+                foreach (preg_split('/\s*[,;\n]+\s*/u', (string) $r->materials, -1, PREG_SPLIT_NO_EMPTY) as $m) {
+                    yield [(int) $r->object_id, 'material', $m];
+                }
+            }
+        }
+
         // Names read from the records' own text (NER), so records link where the
         // same person, body or place is mentioned - not only where a cataloguer
         // added an access point. Reviewed names only by default: an unreviewed
@@ -223,7 +298,8 @@ class ExplorerDataService
                 ->where(function ($q) use ($minConf) {
                     $q->whereIn('status', ['linked', 'approved', 'accepted']);
                     if ($minConf > 0) {
-                        $q->orWhere(fn ($p) => $p->where('status', 'pending')->where('confidence', '>=', $minConf));
+                        // #1501: the extractor's score, else the evidence score (spaCy gives none).
+                        $q->orWhere(fn ($p) => $p->where('status', 'pending')->whereRaw('COALESCE(confidence, evidence_score) >= ?', [$minConf]));
                     }
                 })
                 ->get(['object_id', 'entity_type', 'entity_value']);

@@ -58,7 +58,8 @@ class AuthorityNerPipelineService
         }
 
         if (! empty($filters['min_confidence'])) {
-            $query->where('ne.confidence', '>=', $filters['min_confidence']);
+            // #1501: the extractor's score, else the evidence score.
+            $query->whereRaw('COALESCE(ne.confidence, ne.evidence_score) >= ?', [(float) $filters['min_confidence']]);
         }
 
         if (! empty($filters['search'])) {

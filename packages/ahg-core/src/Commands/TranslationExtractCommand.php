@@ -201,7 +201,7 @@ class TranslationExtractCommand extends Command
      *
      * @return string[]
      */
-    private function extractKeys(string $contents): array
+    public static function extractKeys(string $contents): array
     {
         $pattern = '/(?:\b__|\btrans|@lang)\(\s*([\'"])((?:\\\\.|(?!\1).)*?)\1/s';
 
@@ -254,7 +254,7 @@ class TranslationExtractCommand extends Command
     /**
      * @return \Generator<string>
      */
-    private function sourceFiles(string $dir): \Generator
+    public static function sourceFiles(string $dir): \Generator
     {
         $iterator = new \RecursiveIteratorIterator(
             new \RecursiveCallbackFilterIterator(

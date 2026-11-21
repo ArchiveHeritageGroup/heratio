@@ -298,9 +298,13 @@ final class PiiScanService
     /**
      * Run a scan and persist a row in ahg_pii_scan_report.
      *
+     * $coverage says what was read: 'metadata' (description fields) or 'files'
+     * (the digital objects' text). Only 'files' can clear a record's files at
+     * the screening gate (heratio#1574).
+     *
      * @return int|null inserted report id, or null when the schema is not ready
      */
-    public function scanAndPersist(string $text, ?int $informationObjectId = null, ?int $userId = null): ?int
+    public function scanAndPersist(string $text, ?int $informationObjectId = null, ?int $userId = null, string $coverage = 'metadata'): ?int
     {
         if (! Schema::hasTable('ahg_pii_scan_report')) {
             return null;
@@ -320,7 +324,9 @@ final class PiiScanService
         // but defence in depth in case the contract drifts.
         $storedFindings = array_slice($findings, 0, self::MAX_FINDINGS);
 
-        return (int) DB::table('ahg_pii_scan_report')->insertGetId([
+        $row = Schema::hasColumn('ahg_pii_scan_report', 'coverage') ? ['coverage' => $coverage] : [];
+
+        return (int) DB::table('ahg_pii_scan_report')->insertGetId($row + [
             'information_object_id' => $informationObjectId,
             'scan_started_at'       => $startedAt,
             'scan_finished_at'      => $finishedAt,

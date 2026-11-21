@@ -17,6 +17,13 @@
  *                     printed word for word in the item's own text, and
  *                     written as pending NER entities for the authority review
  *                     queue.
+ *   groupedEntities() those entities across the collection, grouped by the
+ *                     printed form: titles dropped for grouping only, spellings
+ *                     merged only for one-character OCR slips, and for people
+ *                     the start must match ("A. Joubert" is not "Joubert").
+ *   storeLinks()      writes each same-story link as a related-description
+ *                     relation with its RiC meaning (rico:isAssociatedWith,
+ *                     certainty "probable", the evidence) in ric_relation_meta.
  *
  * Measured on the Brenthurst Library cuttings (October 2026): 4,993 items,
  * 126 same-story links (94 across volumes) and four leaves photographed twice.
@@ -51,6 +58,8 @@ use AhgCore\Services\HierarchyQueryService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class CrossReferenceService
 {
@@ -61,6 +70,12 @@ class CrossReferenceService
     public const LINK_NOTE = 'Same story: ';
 
     private const GRAM = 6;
+
+    /** Titles and ranks, dropped for grouping only ("Gen. Buller" meets "General Buller"). */
+    private const TITLES = '/^(?:(?:the|sir|gen\.?|general|major-general|lieut\.?-?(?:general|colonel)?|lieutenant|col\.?|colonel|major|capt\.?|captain|sergeant|sergt\.?|corporal|trooper|private|commandant|field-cornet|mr\.?|mrs\.?|dr\.?|rev\.?|lord|lady|hon\.?)\s+)+/i';
+
+    /** ahg_ner_entity type => grouping type */
+    private const GROUP_TYPES = ['PERSON' => 'person', 'GPE' => 'place', 'LOC' => 'place', 'FAC' => 'place', 'ORG' => 'org'];
 
     /** @var callable|null fn(string $text): ?array, for tests */
     private $extractor;
@@ -188,11 +203,16 @@ class CrossReferenceService
             $old = DB::table('relation as r')->join('relation_i18n as ri', 'ri.id', '=', 'r.id')
                 ->where('r.type_id', self::RELATED_TYPE)->whereIn('r.subject_id', $ids)->whereIn('r.object_id', $ids)
                 ->where('ri.description', 'like', self::LINK_NOTE.'%')->pluck('r.id')->all();
+            $ric = Schema::hasTable('ric_relation_meta');
             foreach (array_chunk($old, 500) as $chunk) {
+                if ($ric) {
+                    DB::table('ric_relation_meta')->whereIn('relation_id', $chunk)->delete();
+                }
                 DB::table('relation_i18n')->whereIn('id', $chunk)->delete();
                 DB::table('relation')->whereIn('id', $chunk)->delete();
                 DB::table('object')->whereIn('id', $chunk)->delete();
             }
+            $predicate = $ric ? $this->ricPredicate() : null;
             $n = 0;
             foreach ($pairs as $p) {
                 $exists = DB::table('relation')->where('type_id', self::RELATED_TYPE)
@@ -203,13 +223,115 @@ class CrossReferenceService
                 }
                 $id = (int) DB::table('object')->insertGetId(['class_name' => 'QubitRelation', 'created_at' => now(), 'updated_at' => now()]);
                 DB::table('relation')->insert(['id' => $id, 'subject_id' => $p['a'], 'object_id' => $p['b'], 'type_id' => self::RELATED_TYPE, 'source_culture' => 'en']);
-                DB::table('relation_i18n')->insert(['id' => $id, 'culture' => 'en',
-                    'description' => self::LINK_NOTE.round($p['overlap'] * 100).'% of the wording in common (found by text comparison)']);
+                $note = self::LINK_NOTE.round($p['overlap'] * 100).'% of the wording in common (found by text comparison)';
+                DB::table('relation_i18n')->insert(['id' => $id, 'culture' => 'en', 'description' => $note]);
+                if ($ric) {
+                    DB::table('ric_relation_meta')->insert(['relation_id' => $id, 'rico_predicate' => $predicate, 'inverse_predicate' => $predicate,
+                        'domain_class' => 'Record', 'range_class' => 'Record', 'dropdown_code' => 'is_associated_with',
+                        'certainty' => 'probable', 'evidence' => $note]);
+                }
                 $n++;
             }
 
             return $n;
         });
+    }
+
+    /**
+     * Drop pairs that are one physical item on a leaf photographed twice: they
+     * belong in the QA report, not among the same-story links.
+     *
+     * @param  list<array{a: int, b: int}>  $pairs
+     * @param  list<array{page_a: int, page_b: int}>  $leaves
+     */
+    public function withoutLeafRepeats(array $pairs, array $leaves): array
+    {
+        if (! $leaves) {
+            return $pairs;
+        }
+        $twice = [];
+        foreach ($leaves as $l) {
+            $twice[$l['page_a'].':'.$l['page_b']] = true;
+        }
+        $ids = array_unique(array_merge(array_column($pairs, 'a'), array_column($pairs, 'b')));
+        $parent = DB::table('information_object')->whereIn('id', $ids)->pluck('parent_id', 'id')->map('intval')->all();
+
+        return array_values(array_filter($pairs, function ($p) use ($parent, $twice) {
+            $pa = $parent[$p['a']] ?? 0;
+            $pb = $parent[$p['b']] ?? 0;
+
+            return ! isset($twice[min($pa, $pb).':'.max($pa, $pb)]);
+        }));
+    }
+
+    /**
+     * The collection's text-found names (any not rejected), grouped by their
+     * printed form.
+     *
+     * @param  list<int>  $ids
+     * @return list<array{id: string, type: string, name: string, variants: list<string>, items: list<int>}>
+     */
+    public function groupedEntities(array $ids): array
+    {
+        $mentions = [];
+        foreach (array_chunk($ids, 1000) as $chunk) {
+            $rows = DB::table('ahg_ner_entity')->whereIn('object_id', $chunk)->whereIn('entity_type', array_keys(self::GROUP_TYPES))
+                ->where(fn ($q) => $q->whereNull('status')->orWhere('status', '!=', 'rejected'))
+                ->orderBy('id')->get(['object_id', 'entity_type', 'entity_value']);
+            foreach ($rows as $r) {
+                $mentions[] = [(int) $r->object_id, self::GROUP_TYPES[$r->entity_type], (string) $r->entity_value];
+            }
+        }
+
+        return $this->group($mentions);
+    }
+
+    /**
+     * Group mentions by printed form, never by a model's "canonical" form.
+     *
+     * @param  list<array{0: int, 1: string, 2: string}>  $mentions  [item id, type, printed form]
+     * @return list<array{id: string, type: string, name: string, variants: list<string>, items: list<int>}>
+     */
+    public function group(array $mentions): array
+    {
+        $keys = [];
+        $groups = [];
+        foreach ($mentions as [$item, $type, $printed]) {
+            $printed = trim(preg_replace('/\s+/u', ' ', $printed));
+            $k = $this->squash((string) preg_replace(self::TITLES, '', $printed)) ?: $this->squash($printed);
+            if ($k === '') {
+                continue;
+            }
+            $key = null;
+            foreach ($keys[$type] ?? [] as $other) {
+                // An OCR slip, not a different name: near-identical and at most one
+                // character longer or shorter; for people the start must match too.
+                if ($other === $k || (abs(strlen($k) - strlen($other)) <= 1 && ($type !== 'person' || strncmp($k, $other, 2) === 0)
+                    && $this->ratio($k, $other) >= 0.88)) {
+                    $key = $other;
+                    break;
+                }
+            }
+            if ($key === null) {
+                $keys[$type][] = $key = $k;
+            }
+            $g = &$groups["{$type}:{$key}"];
+            $g['printed'][$printed] = ($g['printed'][$printed] ?? 0) + 1;
+            $g['items'][$item] = true;
+            unset($g);
+        }
+        $out = [];
+        foreach ($groups as $id => $g) {
+            $forms = $g['printed'];
+            // Display name: the most often printed form, preferring one not in capitals, then the longer.
+            uksort($forms, fn ($a, $b) => [mb_strtoupper($a) === $a, -$forms[$a], -mb_strlen($a)] <=> [mb_strtoupper($b) === $b, -$forms[$b], -mb_strlen($b)]);
+            $variants = array_map('strval', array_keys($g['printed']));
+            sort($variants);
+            $out[] = ['id' => (string) $id, 'type' => explode(':', (string) $id, 2)[0], 'name' => (string) array_key_first($forms),
+                'variants' => $variants, 'items' => array_map('intval', array_keys($g['items']))];
+        }
+
+        return $out;
     }
 
     /**
@@ -254,6 +376,27 @@ class CrossReferenceService
         return $kept;
     }
 
+    private function squash(string $s): string
+    {
+        return (string) preg_replace('/[^a-z0-9]/', '', Str::lower(Str::ascii($s)));
+    }
+
+    /** Similarity as difflib's ratio: 2 x matching characters / total length. */
+    private function ratio(string $a, string $b): float
+    {
+        similar_text($a, $b, $pct);
+
+        return $pct / 100;
+    }
+
+    private function ricPredicate(): string
+    {
+        $meta = json_decode((string) DB::table('ahg_dropdown')->where('taxonomy', 'ric_relation_type')
+            ->where('code', 'is_associated_with')->value('metadata'), true);
+
+        return (string) ($meta['predicate'] ?? 'rico:isAssociatedWith');
+    }
+
     /** @return array<string, true> 6-gram set of an item's words */
     private function grams(string $text): array
     {
@@ -275,7 +418,7 @@ class CrossReferenceService
         $prompt = "List the people, places, military units and newspapers named in this text. Copy each name exactly as it is printed; do not expand, correct or combine names. Reply as JSON: {\"people\":[],\"places\":[],\"units\":[],\"newspapers\":[]}.\n\nText:\n".mb_substr($text, 0, 12000);
         try {
             $resp = Http::withToken((string) AiServicesSettings::gatewayKey())->timeout(180)
-                ->post('https://ai.theahg.co.za/ai/v1/ollama/api/chat', [
+                ->post(rtrim(AiServicesSettings::apiUrl() ?: 'https://ai.theahg.co.za/ai/v1', '/').'/ollama/api/chat', [
                     'model' => (string) (DB::table('ahg_ai_settings')->where('feature', 'ner')->where('setting_key', 'cross_reference_model')->value('setting_value') ?: 'qwen3:14b'),
                     'stream' => false, 'format' => 'json', 'think' => false, 'options' => ['temperature' => 0],
                     'messages' => [['role' => 'user', 'content' => $prompt]],

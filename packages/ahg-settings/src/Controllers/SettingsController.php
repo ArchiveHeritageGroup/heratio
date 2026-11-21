@@ -3154,10 +3154,23 @@ class SettingsController extends Controller
 
         // #1395(C) - SSRF guard on the request-controlled URL; a blocked/internal
         // host surfaces as a failed test (not a 500).
-        try {
-            app(\AhgCore\Services\SsrfGuard::class)->assertSafeUrl($health);
-        } catch (\Throwable $e) {
-            return response()->json(['success' => false, 'error' => 'URL not allowed'], 200);
+        // The AI gateway an administrator already saved is trusted even when it
+        // resolves to an internal address (on the AHG host ai.theahg.co.za is
+        // 127.0.0.1, so every test of the real gateway was refused). Any other
+        // host still goes through the guard.
+        $savedUrls = [
+            (string) DB::table('ahg_ner_settings')->where('setting_key', 'api_url')->value('setting_value'),
+            class_exists(\AhgAiServices\Support\AiServicesSettings::class) ? (string) \AhgAiServices\Support\AiServicesSettings::apiUrl() : '',
+        ];
+        $savedHosts = array_filter(array_map(fn ($u) => strtolower((string) parse_url($u, PHP_URL_HOST)), $savedUrls));
+        $testHost = strtolower((string) parse_url($health, PHP_URL_HOST));
+        $trusted = $testHost !== '' && in_array($testHost, $savedHosts, true) && in_array(strtolower((string) parse_url($health, PHP_URL_SCHEME)), ['http', 'https'], true);
+        if (! $trusted) {
+            try {
+                app(\AhgCore\Services\SsrfGuard::class)->assertSafeUrl($health);
+            } catch (\Throwable $e) {
+                return response()->json(['success' => false, 'error' => __('This address is on an internal network. Save it as the AI gateway address first, then test it.')], 200);
+            }
         }
 
         $ch = curl_init($health);

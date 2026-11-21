@@ -26,6 +26,7 @@ class AhgDiscoveryServiceProvider extends ServiceProvider
         $this->app->singleton(DiscoveryQueryLogger::class);
         $this->app->singleton(VectorSearchStrategy::class);
         $this->app->singleton(ImageSearchStrategy::class);
+        $this->app->singleton(\AhgDiscovery\Services\ImageEmbeddingService::class);
     }
 
     public function boot(): void
@@ -38,6 +39,7 @@ class AhgDiscoveryServiceProvider extends ServiceProvider
             $this->commands([
                 DiscoveryPruneCommand::class,
                 DiscoverySimulateCommand::class,
+                \AhgDiscovery\Console\ImageEmbedCommand::class,
             ]);
         }
 

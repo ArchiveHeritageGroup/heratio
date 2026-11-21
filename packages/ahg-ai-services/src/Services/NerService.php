@@ -550,7 +550,15 @@ class NerService
             $row['extraction_id'] = $ledgerId;
         }
 
-        return (int) DB::table('ahg_ner_entity')->insertGetId($row);
+        $id = (int) DB::table('ahg_ner_entity')->insertGetId($row);
+
+        // #1501: no extractor score - record the catalogue evidence instead, in
+        // its own column. CPU only; never throws.
+        if ($confidence === null) {
+            app(NerEvidenceScorer::class)->scoreIds([$id]);
+        }
+
+        return $id;
     }
 
     private function createAccessPointsInner(int $informationObjectId, array $entities, ?string $sourceText = null, ?int $ledgerId = null): int

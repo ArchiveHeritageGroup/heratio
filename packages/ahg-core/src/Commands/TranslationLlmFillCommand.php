@@ -21,6 +21,15 @@
  *
  * Afrikaans is refused: per #1410 the LLM must not seed af (use
  * ahg:translation-mt-batch af, which goes to the gateway's NLLB/opus model).
+ * --allow-seed=af lifts that for a deliberate run, e.g. a sample into a
+ * --lang-dir staging copy that is read before anything reaches lang/.
+ *
+ * The site shows ui_string over the lang file, so a key with its own non-stub
+ * ui_string text, or one a person signed off (an approved ui_string_change, a
+ * ui_string_review row), is not sent. The fill writes files only; stale
+ * ui_string rows are cleared by ahg:translation-db-reconcile on each install.
+ * Locales are taken af first, then the other South African languages the
+ * gateway serves, then the rest (--keep-order turns that off).
  *
  * Copyright (C) 2026 Johan Pieterse
  * Plain Sailing Information Systems
@@ -44,6 +53,7 @@
 
 namespace AhgCore\Commands;
 
+use AhgCore\Services\UiCoverageService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -60,6 +70,9 @@ class TranslationLlmFillCommand extends Command
         {--yield-to= : Comma-separated gateway models with priority on the GPU: before each batch, wait while any of them is loaded or was seen loaded within --yield-grace seconds}
         {--yield-grace=180 : Seconds a priority model counts as active after it was last seen loaded}
         {--node= : Gateway node (name or IP) every model call is pinned to via X-AHG-Node; no failover, so the fill never spills onto another node}
+        {--lang-dir= : Read and write the locale files and _meta.json in this directory instead of lang/ (a staging copy); en.json is read from it when present}
+        {--allow-seed= : Comma-separated locales to fill although they are normally refused (af), e.g. for a sample into --lang-dir}
+        {--keep-order : Fill in the order given; by default af goes first, then the other South African languages the gateway serves, then the rest}
         {--dry-run : Count what would be translated; call nothing, write nothing}';
 
     protected $description = 'Fill missing UI strings for one or more locales through the AI gateway LLM route, with placeholder and script checks';
@@ -128,9 +141,14 @@ class TranslationLlmFillCommand extends Command
             $this->deadline = ($t->lessThanOrEqualTo($local) ? $t->addDay() : $t)->getTimestamp();
         }
 
-        $source = json_decode((string) file_get_contents(base_path('lang/en.json')), true) ?: [];
-        foreach (array_filter(array_map('trim', explode(',', (string) $this->argument('locales')))) as $locale) {
-            if (in_array($locale, self::REFUSED, true)) {
+        $source = json_decode((string) file_get_contents(is_file($this->langPath('en.json')) ? $this->langPath('en.json') : base_path('lang/en.json')), true) ?: [];
+        $locales = array_values(array_filter(array_map('trim', explode(',', (string) $this->argument('locales')))));
+        if (! $this->option('keep-order')) {
+            $locales = UiCoverageService::priorityOrder($locales, fn (string $l) => $this->gatewayServes($l));
+        }
+        $allowed = array_filter(array_map('trim', explode(',', (string) $this->option('allow-seed'))));
+        foreach ($locales as $locale) {
+            if (in_array($locale, self::REFUSED, true) && ($locale === 'en' || ! in_array($locale, $allowed, true))) {
                 $this->warn("{$locale}: skipped (the LLM must not seed this locale; see heratio#1410).");
 
                 continue;
@@ -154,9 +172,32 @@ class TranslationLlmFillCommand extends Command
         return getenv('TZ') ?: (trim((string) @file_get_contents('/etc/timezone')) ?: config('app.timezone'));
     }
 
+    /** A file in the locale directory: lang/, or --lang-dir. */
+    private function langPath(string $file): string
+    {
+        $dir = trim((string) $this->option('lang-dir'));
+
+        return ($dir !== '' ? rtrim($dir, '/') : base_path('lang')).'/'.$file;
+    }
+
+    /**
+     * Whether the gateway's translate route lists a real model for the locale
+     * (heratio#1419): decides where a South African language sits in the
+     * order. An unreadable list counts as served (TranslationLanguages' rule),
+     * so a gateway hiccup only changes the order, never what is filled.
+     */
+    private function gatewayServes(string $locale): bool
+    {
+        if (! class_exists(\AhgAiServices\Support\TranslationLanguages::class)) {
+            return false;
+        }
+
+        return \AhgAiServices\Support\TranslationLanguages::gatewaySupports($locale, null, $this->gatewayKey());
+    }
+
     private function fillLocale(string $locale, array $source): void
     {
-        $path = base_path("lang/{$locale}.json");
+        $path = $this->langPath("{$locale}.json");
         $target = is_file($path) ? (json_decode((string) file_get_contents($path), true) ?: []) : [];
         // Strings the model already handed back unchanged (paths, codes, words
         // spelt the same in both languages): the English fallback is right for
@@ -165,8 +206,17 @@ class TranslationLlmFillCommand extends Command
         // Strings the checks have rejected MAX_REJECTIONS times keep the English
         // fallback; re-sending them every night only spends GPU time.
         $rejections = $this->meta()['locales'][$locale]['mt_rejections'] ?? [];
+        // Reviewed and held strings (heratio#1445) are never refilled.
+        $locked = \AhgCore\Services\UiStringReviewService::lockedKeys($locale);
+        // The site shows ui_string over the file (DbAwareLoader). A key with its
+        // own ui_string text is already translated where it is seen, and a key
+        // a person signed off there is never refilled (heratio#1416).
+        $coverage = new UiCoverageService;
+        $db = $coverage->dbMap($locale);
+        $locked += $coverage->protectedKeys($locale, $db);
         $todo = array_values(array_filter(array_keys($source), fn ($k) => preg_match('/\p{L}.*\p{L}/u', (string) $k)
-            && (! isset($target[$k]) || $target[$k] === $k) && ! isset($same[$k])
+            && (! isset($target[$k]) || $target[$k] === $k) && (! isset($db[$k]) || $db[$k] === $k)
+            && ! isset($same[$k]) && ! isset($locked[$k])
             && ($rejections[$k] ?? 0) < self::MAX_REJECTIONS));
         $this->info("{$locale}: ".count($todo).' string(s) to fill');
         if ($this->option('dry-run') || ! $todo) {
@@ -393,7 +443,7 @@ class TranslationLlmFillCommand extends Command
 
     private function meta(): array
     {
-        return json_decode((string) @file_get_contents(base_path('lang/_meta.json')), true) ?: ['locales' => []];
+        return json_decode((string) @file_get_contents($this->langPath('_meta.json')), true) ?: ['locales' => []];
     }
 
     private function recordMeta(string $locale, int $ok, array $same = [], array $rejected = []): void
@@ -401,7 +451,7 @@ class TranslationLlmFillCommand extends Command
         if ($ok === 0 && $same === [] && $rejected === []) {
             return;
         }
-        $path = base_path('lang/_meta.json');
+        $path = $this->langPath('_meta.json');
         $meta = $this->meta();
         $entry = $meta['locales'][$locale] ?? [];
         if ($same) {

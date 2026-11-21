@@ -322,6 +322,7 @@ class TranslationController extends Controller
                 'ok' => false,
                 'error' => $result['error'] ?? 'Translation failed',
                 'http_status' => $result['http_status'] ?? null,
+                'unsupported' => ! empty($result['unsupported']),
             ]);
         }
 
@@ -749,10 +750,27 @@ class TranslationController extends Controller
         $apiKey = $this->getSetting('mt.api_key', '<set in ahg_settings>');
         $timeout = (int) $this->getSetting('mt.timeout_seconds', '60');
 
+        // #1419 - send the gateway contract codes (zu_ZA -> zu, nbl -> nr) and
+        // stop early when the gateway's own list leaves the target out, so an
+        // SA language it cannot serve never comes back as a wrong-language guess.
+        $langs = \AhgAiServices\Support\TranslationLanguages::class;
+        $unsupported = fn () => [
+            'ok' => false,
+            'unsupported' => true,
+            'translation' => null,
+            'http_status' => null,
+            'error' => __('Machine translation into :lang is not available yet. Translate this field by hand.', ['lang' => self::targetLanguages()[class_exists($langs) ? $langs::normalise($targetCulture) : $targetCulture] ?? $targetCulture]),
+            'elapsed_ms' => 0,
+            'endpoint' => $endpoint,
+        ];
+        if (class_exists($langs) && ! $langs::gatewaySupports($targetCulture, $endpoint, $this->resolveMtBearerKey($apiKey))) {
+            return $unsupported();
+        }
+
         $payloadData = [
             'text' => $text,
-            'source' => $sourceCulture,
-            'target' => $targetCulture,
+            'source' => class_exists($langs) ? $langs::normalise($sourceCulture) : $sourceCulture,
+            'target' => class_exists($langs) ? $langs::normalise($targetCulture) : $targetCulture,
         ];
         if ($maxLength !== null) {
             $payloadData['max_length'] = $maxLength;
@@ -819,6 +837,10 @@ class TranslationController extends Controller
         }
 
         $translation = $data['translated'] ?? $data['translatedText'] ?? $data['translation'] ?? null;
+
+        if (class_exists($langs) && $langs::isUnsupportedResponse($status, $data)) {
+            return ['http_status' => $status, 'elapsed_ms' => $elapsedMs] + $unsupported();
+        }
 
         if ($status < 200 || $status >= 300 || !is_string($translation)) {
             return [
@@ -1530,10 +1552,15 @@ class TranslationController extends Controller
         ]);
         try {
             $r = $this->translateText($request->input('text'), 'en', $request->input('locale'));
-            if (!empty($r['ok']) && !empty($r['translated'])) {
-                return response()->json(['ok' => true, 'translated' => $r['translated']]);
+            // #1419 - translateText() returns `translation`, never `translated`.
+            if (!empty($r['ok']) && !empty($r['translation'])) {
+                return response()->json(['ok' => true, 'translated' => $r['translation']]);
             }
-            return response()->json(['ok' => false, 'error' => $r['error'] ?? 'MT backend returned empty'], 502);
+            return response()->json([
+                'ok' => false,
+                'unsupported' => !empty($r['unsupported']),
+                'error' => $r['error'] ?? 'MT backend returned empty',
+            ], !empty($r['unsupported']) ? 422 : 502);
         } catch (\Throwable $e) {
             return response()->json(['ok' => false, 'error' => $e->getMessage()], 502);
         }

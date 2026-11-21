@@ -163,9 +163,14 @@ class TranslationMtBatchCommand extends Command
             ? (json_decode(file_get_contents($jsonPath), true) ?? [])
             : [];
 
-        // Pick keys that actually need MT
+        // Pick keys that actually need MT. Reviewed and held strings
+        // (heratio#1445) are never refilled, --overwrite or not.
+        $locked = \AhgCore\Services\UiStringReviewService::lockedKeys($locale);
         $todo = [];
         foreach ($candidateKeys as $key => $sourceText) {
+            if (isset($locked[$key])) {
+                continue;
+            }
             if (! $overwrite) {
                 $cur = $existing[$key] ?? null;
                 if ($cur !== null && $cur !== '' && $cur !== $key) {

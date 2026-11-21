@@ -772,24 +772,37 @@ class LlmService
         $mode = $aiSet ? $aiSet::translationMode() : 'llm';
         $mtEp = $aiSet ? $aiSet::mtEndpoint() : null;
         if ($mode === 'mt' && $mtEp) {
-            try {
+            // #1419 - gateway contract codes (zu_ZA -> zu, nbl -> nr), and an
+            // explicit "unsupported" from the gateway. SA-language output must
+            // not come from the general LLM (qwen drift), so an unsupported SA
+            // target returns null - the caller keeps the original text.
+            $langs = \AhgAiServices\Support\TranslationLanguages::class;
+            $mtTarget = $langs::normalise($targetLang);
+            $mtKey = (string) ($this->getAiSetting('general', 'api_key', '') ?? '');
+            $unsupported = ! $langs::gatewaySupports($mtTarget, $mtEp, $mtKey);
+            if (! $unsupported) try {
                 // #1250 - the MT endpoint can be the AHG AI gateway, which
                 // requires a Bearer key. Reuse the same gateway-key resolution
                 // the rest of the AI services use (ahg_ner_settings.api_key,
                 // then ahg_ai_settings feature='general' api_key) via the
                 // existing getAiSetting() helper. Only attach when non-empty so
                 // a legacy direct-adapter MT endpoint still works keyless.
-                $mtKey = (string) ($this->getAiSetting('general', 'api_key', '') ?? '');
                 $req = \Illuminate\Support\Facades\Http::timeout($aiSet::mtTimeout())
                     ->asJson();
                 if ($mtKey !== '') {
                     $req = $req->withToken($mtKey);
                 }
+                // #1419 - the stored endpoint already ends in /translate; the
+                // old code appended a second one and every call 404'd.
                 $resp = $req
-                    ->post(rtrim($mtEp, '/') . '/translate', [
+                    ->post($langs::translateUrl($mtEp), [
                         'text'   => $text,
-                        'target' => $targetLang,
+                        'source' => $sourceLang !== '' ? $langs::normalise($sourceLang) : 'en',
+                        'target' => $mtTarget,
                     ]);
+                if ($langs::isUnsupportedResponse($resp->status(), $resp->json())) {
+                    $unsupported = true;
+                }
                 if ($resp->ok()) {
                     $body = $resp->json();
                     // Local MT adapter returns `translation`; the gateway
@@ -807,6 +820,11 @@ class LlmService
                 ]);
             } catch (\Throwable $e) {
                 Log::warning('[ahg-ai] MT endpoint threw; falling back to LLM round-trip: ' . $e->getMessage());
+            }
+            if ($unsupported && $langs::isSaOfficial($mtTarget)) {
+                Log::info('[ahg-ai] no gateway translator for SA language ' . $mtTarget . '; keeping the original text');
+
+                return null;
             }
         }
 
@@ -1628,18 +1646,28 @@ class LlmService
             $headers['Authorization'] = 'Bearer ' . $gatewayKey;
         }
 
+        // A reasoning model (qwen3, deepseek-r1...) spends its token budget
+        // thinking before it answers: with a short limit (a one-line caption,
+        // a document type) it came back empty. Ask it not to think, keep a
+        // floor under the limit in case the switch is ignored, and drop any
+        // thinking text from the answer.
+        $reasoning = (bool) preg_match('/qwen3|deepseek-r1|qwq|thinking/i', $model);
+        $body = [
+            'model'  => $model,
+            'prompt' => $userPrompt,
+            'system' => $systemPrompt,
+            'stream' => false,
+            'options' => [
+                'num_predict'  => $reasoning ? max($maxTokens, 400) : $maxTokens,
+                'temperature'  => $temperature,
+            ],
+        ];
+        if ($reasoning) {
+            $body['think'] = false;
+        }
         $response = Http::timeout($timeout)
             ->withHeaders($headers)
-            ->post($url, [
-                'model'  => $model,
-                'prompt' => $userPrompt,
-                'system' => $systemPrompt,
-                'stream' => false,
-                'options' => [
-                    'num_predict'  => $maxTokens,
-                    'temperature'  => $temperature,
-                ],
-            ]);
+            ->post($url, $body);
 
         $generationTime = round((microtime(true) - $startTime) * 1000);
 
@@ -1658,7 +1686,8 @@ class LlmService
         }
 
         $body      = $response->json();
-        $text      = $body['response'] ?? '';
+        $text      = (string) ($body['response'] ?? '');
+        $text      = trim(preg_replace('#<think>.*?(</think>|$)#s', '', $text));
         $tokensUsed = ($body['prompt_eval_count'] ?? 0) + ($body['eval_count'] ?? 0);
 
         return [

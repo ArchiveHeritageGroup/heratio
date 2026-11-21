@@ -21,6 +21,12 @@
  * Page text is never stored in the provenance rows (it holds the PII being
  * screened); the excerpt names the pages instead.
  *
+ * The screening gate (FileScreeningGate, heratio#1574) trusts only a report
+ * that read the files' text, so a page run writes coverage 'files': a flagged
+ * run withholds the files, and a run that read every page and found nothing
+ * clears them - unless a person has already decided on the record. A page a
+ * reviewer flags by hand withholds the files as a person's decision.
+ *
  * Copyright (C) 2026 Johan Pieterse / Plain Sailing Information Systems
  * License: AGPL-3.0-or-later
  */
@@ -92,13 +98,13 @@ class PageClassifier
     /**
      * Classify and screen every page (or window) of a record's PDF.
      *
-     * @return array{units:int, flagged:list<string>, doctype:bool, report_id:?int, error?:string}
+     * @return array{units:int, flagged:list<string>, doctype:bool, report_id:?int, cleared:bool, error?:string}
      */
     public function run(int $ioId, ?int $userId = null, ?bool $withDoctype = null): array
     {
         $pages = $this->pages->pageTexts($ioId);
         if ($pages === null) {
-            return ['units' => 0, 'flagged' => [], 'doctype' => false, 'report_id' => null, 'error' => 'This record has no PDF master file.'];
+            return ['units' => 0, 'flagged' => [], 'doctype' => false, 'report_id' => null, 'cleared' => false, 'error' => 'This record has no PDF master file.'];
         }
         $window = max(0, (int) AhgSettingsService::get('ai_page_window_words', '0'));
         $units = self::units($pages, $window);
@@ -113,17 +119,21 @@ class PageClassifier
 
         $flagged = [];
         $flaggedText = [];
+        $unread = 0;
+        $complete = true;
         $model = null;
         foreach ($units as $u) {
             $range = $u['from'].'-'.$u['to'];
             if (trim($u['text']) === '') {
                 // No text even after OCR: not "clear" - nobody has read it.
                 $this->record($ioId, "page:{$range}:privacy", 'PII', 'heratio-pii-scan', $this->pii->jurisdiction(), json_encode(['label' => 'unread', 'types' => []]), "pages {$range}", null, $userId, '');
+                $unread++;
                 continue;
             }
             // The redaction suggester's rule: a weak or unvalidated finding (a
             // date with no "born" near it is an invoice date) may not flag.
             $findings = array_values(array_filter($this->pii->scan($u['text']), fn ($f) => ($f['confidence'] ?? 0) >= PiiRedactionSuggester::MIN_CONFIDENCE && ($f['validated'] ?? null) !== false));
+            $complete = $complete && $this->pii->lastScanWasComplete();
             $label = $findings ? 'flagged' : 'clear';
             $kinds = array_values(array_unique(array_column($findings, 'type')));
             $this->record($ioId, "page:{$range}:privacy", 'PII', 'heratio-pii-scan', $this->pii->jurisdiction(),
@@ -144,9 +154,17 @@ class PageClassifier
 
         // The record-level flag: the existing PII scan report, raised from the
         // flagged pages only, pending an archivist's review.
-        $reportId = $flaggedText ? $this->pii->scanAndPersist(implode("\n\n", $flaggedText), $ioId, $userId) : null;
+        $reportId = $flaggedText ? $this->pii->scanAndPersist(implode("\n\n", $flaggedText), $ioId, $userId, 'files') : null;
+        // Every page read, nothing found: a clean files report, which clears
+        // the files at the gate. Not over a person's decision, not with an
+        // unread page, not after a scan that did not run in full.
+        $cleared = false;
+        if (! $flaggedText && $units && $unread === 0 && $complete && ! $this->personDecided($ioId)) {
+            $reportId = $this->pii->scanAndPersist('', $ioId, $userId, 'files');
+            $cleared = $reportId !== null;
+        }
 
-        return ['units' => count($units), 'flagged' => $flagged, 'doctype' => $withDoctype, 'report_id' => $reportId];
+        return ['units' => count($units), 'flagged' => $flagged, 'doctype' => $withDoctype, 'report_id' => $reportId, 'cleared' => $cleared];
     }
 
     /**
@@ -264,16 +282,32 @@ class PageClassifier
     /** A reviewer accepts or corrects one page result; recorded as an override event. */
     public function review(int $inferenceId, string $value, int $userId, ?string $reason = null): void
     {
-        $row = DB::table('ahg_ai_inference')->where('id', $inferenceId)->first(['target_field', 'output_excerpt']);
-        if (! $row || ! preg_match('/^page:\d+-\d+:(privacy|doctype)$/', $row->target_field, $m)) {
+        $row = DB::table('ahg_ai_inference')->where('id', $inferenceId)->first(['target_field', 'output_excerpt', 'target_entity_id']);
+        if (! $row || ! preg_match('/^page:(\d+-\d+):(privacy|doctype)$/', $row->target_field, $m)) {
             throw new \InvalidArgumentException('Not a page result.');
         }
-        $allowed = $m[1] === 'privacy' ? ['flagged', 'clear'] : array_keys(self::types());
+        $allowed = $m[2] === 'privacy' ? ['flagged', 'clear'] : array_keys(self::types());
         if (! in_array($value, $allowed, true)) {
             throw new \InvalidArgumentException('Not a valid value for this page result.');
         }
         $original = (string) ((json_decode((string) $row->output_excerpt, true) ?: [])['label'] ?? '');
         app(\AhgProvenanceAi\Services\OverrideService::class)->record($inferenceId, $original, $value, $userId, $reason);
+
+        // A page flagged by hand flags the record: the files are withheld as
+        // a person's decision (audited). Clearing a page releases nothing;
+        // release stays an explicit decision on the privacy panel.
+        if ($m[2] === 'privacy' && $value === 'flagged') {
+            app(\AhgPrivacy\Services\FileScreeningGate::class)->decide((int) $row->target_entity_id, false, $this->pii->jurisdiction(),
+                trim("Pages {$m[1]} flagged by a reviewer. ".($reason ?? '')));
+        }
+    }
+
+    /** Has a person released, redacted or withheld this record's files? Then a machine run does not overrule it. */
+    private function personDecided(int $ioId): bool
+    {
+        $status = DB::table('ahg_pii_scan_report')->where('information_object_id', $ioId)->orderByDesc('id')->value('status');
+
+        return $status !== null && $status !== \AhgPrivacy\Models\PiiScanReport::STATUS_PENDING;
     }
 
     private function doctype(string $text, array $types, ?string &$model): ?string
@@ -282,13 +316,19 @@ class PageClassifier
         $list = implode("\n", array_map(fn ($c, $l) => "{$c} - {$l}", array_keys($types), $types));
         $res = $this->llm->completeFull(
             "You classify one page of an archival file. Answer with exactly one code from this list and nothing else:\n{$list}",
-            mb_substr($text, 0, 6000), null, ['temperature' => 0, 'max_tokens' => 20],
+            // A reasoning model spends tokens thinking before it answers: with
+            // 20 the gateway's qwen3:8b came back empty and every page read "other".
+            mb_substr($text, 0, 6000), null, ['temperature' => 0, 'max_tokens' => 400],
         );
         if (empty($res['success'])) {
             return null;
         }
         $model = $res['model'] ?? null;
-        $answer = mb_strtolower((string) $res['text']);
+        $answer = mb_strtolower(trim((string) preg_replace('/<think>.*?(<\/think>|$)/s', '', (string) $res['text'])));
+        if ($answer === '') {
+            // No answer is not "other": leave the page unclassified.
+            return null;
+        }
         foreach (array_keys($types) as $code) {
             if (preg_match('/\b'.preg_quote((string) $code, '/').'\b/', $answer)) {
                 return (string) $code;

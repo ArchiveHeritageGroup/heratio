@@ -291,11 +291,25 @@ class AiController extends Controller
         ]);
 
         $text       = $request->input('text');
-        $targetLang = $request->input('target_lang');
+        $langs      = \AhgAiServices\Support\TranslationLanguages::class;
+        $targetLang = $langs::normalise((string) $request->input('target_lang'));
 
         // Try the dedicated translation API first
         $translationEndpoint = $this->llmService->getAiSetting('translate', 'mt.endpoint')
             ?? $this->llmService->getAiSetting('translate', 'mt_endpoint');
+
+        // #1419 - an SA language the gateway cannot serve is refused cleanly:
+        // no wrong-language guess from a shared model, no general-LLM fallback.
+        $unsupportedSa = fn () => response()->json([
+            'success'     => false,
+            'unsupported' => true,
+            'error'       => __('Machine translation into :lang is not available yet. Translate this field by hand.', ['lang' => \AhgCore\Support\LanguageOptions::translationTargets()[$targetLang] ?? $targetLang]),
+        ], 422);
+        $gatewayKey = (string) ($this->llmService->getAiSetting('translate', 'mt.api_key', '') ?: $this->llmService->getAiSetting('general', 'api_key', ''));
+        if ($translationEndpoint && $langs::isSaOfficial($targetLang)
+            && ! $langs::gatewaySupports($targetLang, $translationEndpoint, $gatewayKey)) {
+            return $unsupportedSa();
+        }
 
         if ($translationEndpoint) {
             try {
@@ -311,8 +325,11 @@ class AiController extends Controller
 
                 $payload = [
                     'text'        => $text,
-                    'source_lang' => $sourceLang,
+                    'source_lang' => $langs::normalise((string) $sourceLang),
                     'target_lang' => $targetLang,
+                    // gateway /ai/v1/translate field names
+                    'source'      => $langs::normalise((string) $sourceLang),
+                    'target'      => $targetLang,
                 ];
                 if ($mtProvider !== '') {
                     $payload['provider'] = $mtProvider;
@@ -337,6 +354,9 @@ class AiController extends Controller
                     ->withHeaders($mtHeaders)
                     ->post($translationEndpoint, $payload);
 
+                if ($langs::isSaOfficial($targetLang) && $langs::isUnsupportedResponse($response->status(), $response->json())) {
+                    return $unsupportedSa();
+                }
                 if ($response->successful()) {
                     $body = $response->json();
                     // Accept either response shape: the local MT adapter returns
@@ -674,6 +694,8 @@ class AiController extends Controller
             ->where('object_id', $id)
             ->where('status', 'pending')
             ->orderBy('entity_type')
+            // #1501: likely-wrong first - lowest score, unscored before that.
+            ->orderByRaw('COALESCE(confidence, evidence_score) ASC')
             ->orderBy('entity_value')
             ->get();
 
@@ -696,6 +718,11 @@ class AiController extends Controller
                 'id'              => $entity->id,
                 'value'           => $entity->entity_value,
                 'status'          => $entity->status,
+                // #1501: the extractor's own score, and the separately labelled evidence score.
+                'confidence'      => $entity->confidence !== null ? (float) $entity->confidence : null,
+                'evidence_score'  => isset($entity->evidence_score) ? (float) $entity->evidence_score : null,
+                'evidence_method' => $entity->evidence_method ?? null,
+                'evidence_reasons' => $entity->evidence_reasons ?? null,
                 'exact_matches'   => $matches['exact'],
                 'partial_matches' => $matches['partial'],
             ];
@@ -2187,6 +2214,9 @@ class AiController extends Controller
                         'status'        => 'pending',
                         'created_at'    => now(),
                     ]);
+                    if ($score === null) {
+                        app(\AhgAiServices\Services\NerEvidenceScorer::class)->scoreIds([$nerEntityId]); // #1501
+                    }
 
                     $this->promoteMention(
                         $nerEntityId,
@@ -2230,6 +2260,7 @@ class AiController extends Controller
                         'status'        => 'pending',
                         'created_at'    => now(),
                     ]);
+                    app(\AhgAiServices\Services\NerEvidenceScorer::class)->scoreIds([$nerEntityId]); // #1501
 
                     $this->promoteMention($nerEntityId, $sourceText);
                     $savedEntities++;

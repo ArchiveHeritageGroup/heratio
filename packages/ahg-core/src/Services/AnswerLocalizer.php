@@ -60,6 +60,17 @@ class AnswerLocalizer
             return $englishText;
         }
 
+        // #1419 - gateway contract code (zu_ZA -> zu, nbl -> nr), and stay English
+        // when the gateway's own list leaves the language out: its shared `bnt`
+        // model answers st/tn/ss with the same wrong sentence.
+        $langs = \AhgAiServices\Support\TranslationLanguages::class;
+        if (class_exists($langs)) {
+            $locale = $langs::normalise($locale);
+            if (! $langs::gatewaySupports($locale, $endpoint, $key)) {
+                return $englishText;
+            }
+        }
+
         $cacheKey = 'ahg_answer_loc:'.$locale.':'.md5($englishText);
         $cached = Cache::get($cacheKey);
         if (is_string($cached) && $cached !== '') {

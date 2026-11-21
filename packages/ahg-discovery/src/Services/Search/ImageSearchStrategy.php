@@ -1,29 +1,30 @@
 <?php
 
 /**
- * ImageSearchStrategy - image similarity via Qdrant CLIP collection.
+ * ImageSearchStrategy - image similarity over the Qdrant image collection
+ * (heratio#1272).
  *
- * Two query modes:
- *   1. By uploaded image bytes - the controller sends them to the multimodal
- *      embed endpoint (nomic-embed-vision-v1.5, #1272), then calls {@see searchByVector()}.
- *   2. By an existing IO with a known representative image - call
- *      {@see searchByExistingObject()} which fetches that point's vector from
- *      Qdrant and finds nearest neighbours.
+ * Query modes:
+ *   - by image (uploaded bytes or a file on disk)  - image-to-image
+ *   - by text ("a steam train on a bridge")         - text-to-image
+ *   - by a record already in the index              - "more like this"
+ * All embedding goes through the AHG AI gateway via ImageEmbeddingService.
  *
- * Configurable via ahg_settings:
- *   ahg_discovery_image_enabled       (bool, default 1)
- *   ahg_discovery_image_min_score     (float 0..1, default 0.30)
- *   ahg_discovery_image_pool_size     (int, default 50)
- *   ahg_discovery_image_collection    (default archive_images)
- *   ahg_discovery_image_embed_url     (default https://ai.theahg.co.za/ai/v1, the AHG AI gateway base; #1248/#1272)
- *   ahg_discovery_image_embed_model   (default nomic-embed-vision-v1.5)
- *   semantic_timeout_ms               (default 5000)
+ * Points are master digital objects (point id = digital_object.id); every hit
+ * is mapped back to its record (payload information_object_id) and folded so
+ * a record appears once, at its best score.
  *
- * Graceful when image embed endpoint is offline. Implements
- * SearchStrategyInterface but its search() always returns [] for plain text
- * queries - image search needs an image input. The Discovery controller
- * is expected to call {@see searchByExistingObject()} or {@see searchByVector()}
- * directly when an image context is available.
+ * Visitors only get records that DisclosureGate allows (published, no ICIP,
+ * ODRL, embargo or classification restriction), that carry no PII redaction
+ * regions, and whose files FileScreeningGate does not withhold - a visual
+ * match is itself a disclosure of the image. Staff see every hit.
+ *
+ * Settings (ahg_settings):
+ *   ahg_discovery_image_enabled      (default 1)
+ *   ahg_discovery_image_min_score    (default 0.30)
+ *   ahg_discovery_image_collection   (default archive_images)
+ *   semantic_timeout_ms              (default 5000)
+ * plus the embedder settings read by ImageEmbeddingService.
  *
  * @copyright  Johan Pieterse / Plain Sailing Information Systems
  * @license    AGPL-3.0-or-later
@@ -31,15 +32,16 @@
 
 namespace AhgDiscovery\Services\Search;
 
-use AhgAiServices\Support\AiServicesSettings;
+use AhgCore\Services\AclService;
+use AhgCore\Services\DisclosureGate;
+use AhgDiscovery\Services\ImageEmbeddingService;
 use AhgSearch\Services\VectorSearchService;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class ImageSearchStrategy implements SearchStrategyInterface
 {
-    public function __construct(protected VectorSearchService $vector) {}
+    public function __construct(protected VectorSearchService $vector, protected ImageEmbeddingService $embedder) {}
 
     public function name(): string
     {
@@ -52,186 +54,170 @@ class ImageSearchStrategy implements SearchStrategyInterface
     }
 
     /**
-     * Plain-text invocation is a no-op - image search needs an image input.
-     * The controller sets $context['image_path'] or $context['similar_to_object_id']
-     * to drive the real image pipeline; for the standard text branch return [].
+     * Pipeline entry. With no image context a plain text query is NOT run
+     * here (the text branch of discovery has its own strategies); the
+     * controller sets image_path / similar_to_object_id to drive this one.
      */
     public function search(string $query, array $context): array
     {
         if (! $this->isEnabled()) {
             return [];
         }
+        $limit = (int) ($context['limit'] ?? 50);
         if (! empty($context['similar_to_object_id'])) {
-            return $this->searchByExistingObject((int) $context['similar_to_object_id'], (int) ($context['limit'] ?? 50));
+            return $this->searchByExistingObject((int) $context['similar_to_object_id'], $limit);
         }
         if (! empty($context['image_path'])) {
-            return $this->searchByImagePath((string) $context['image_path'], (int) ($context['limit'] ?? 50));
+            return $this->searchByImagePath((string) $context['image_path'], $limit);
         }
 
         return [];
     }
 
     /**
-     * Find images visually similar to one already indexed in Qdrant.
+     * Images like an indexed point (a master digital object id).
      *
      * @return array<int, array{object_id:int, score:float, source:string}>
      */
-    public function searchByExistingObject(int $objectId, int $limit = 50): array
+    public function searchByExistingObject(int $pointId, int $limit = 50): array
     {
-        $collection = $this->collection();
-        $vec = $this->vector->fetchPointVector($collection, $objectId);
-        if ($vec === null) {
-            return [];
-        }
+        $vec = $this->vector->fetchPointVector($this->collection(), $pointId);
 
-        return $this->searchByVector($vec, $limit, $objectId);
+        return $vec === null ? [] : $this->searchByVector($vec, $limit, $pointId);
     }
 
-    /**
-     * Search by raw image file (path on disk). Embeds via the configured CLIP endpoint.
-     *
-     * @return array<int, array{object_id:int, score:float, source:string}>
-     */
+    /** Records whose images look like this record's image. */
+    public function searchSimilarToRecord(int $ioId, int $limit = 50): array
+    {
+        if (! $this->visible([$ioId])) {
+            return []; // the seed image itself is not disclosable to this viewer
+        }
+        $pointIds = $this->embedder->candidates()->where('d.object_id', $ioId)->orderBy('d.id')->pluck('d.id');
+        foreach ($pointIds as $pointId) {
+            $vec = $this->vector->fetchPointVector($this->collection(), (int) $pointId);
+            if ($vec !== null) {
+                return array_values(array_filter(
+                    $this->searchByVector($vec, $limit + 1, (int) $pointId),
+                    fn ($h) => $h['object_id'] !== $ioId
+                ));
+            }
+        }
+
+        return [];
+    }
+
     public function searchByImagePath(string $imagePath, int $limit = 50): array
     {
         if (! is_file($imagePath) || ! is_readable($imagePath)) {
             return [];
         }
-        $vec = $this->embedImage($imagePath);
-        if ($vec === null) {
-            return [];
-        }
+        $bytes = @file_get_contents($imagePath);
 
-        return $this->searchByVector($vec, $limit);
+        return $bytes === false ? [] : $this->searchByImageBytes($bytes, $limit);
+    }
+
+    public function searchByImageBytes(string $bytes, int $limit = 50): array
+    {
+        $vec = $this->embedder->embedImageBytes($bytes, max(5, (int) ceil($this->timeoutMs() * 4 / 1000)));
+
+        return $vec === null ? [] : $this->searchByVector($vec, $limit);
+    }
+
+    public function searchByText(string $text, int $limit = 50): array
+    {
+        $vec = $this->embedder->embedText($text, max(2, (int) ceil($this->timeoutMs() / 1000)));
+
+        return $vec === null ? [] : $this->searchByVector($vec, $limit);
+    }
+
+    /** True when the last embed failed because the gateway could not serve it. */
+    public function embedderUnavailable(): bool
+    {
+        return $this->embedder->unavailable;
     }
 
     /**
-     * Run a Qdrant search with a pre-computed image vector.
+     * Nearest images to a vector, one row per record, gated for visitors.
      *
-     * @return array<int, array{object_id:int, score:float, source:string}>
+     * @return array<int, array{object_id:int, score:float, source:string, slug:?string, title:?string}>
      */
-    public function searchByVector(array $vector, int $limit = 50, ?int $excludeId = null): array
+    public function searchByVector(array $vector, int $limit = 50, ?int $excludePointId = null): array
     {
-        $collection = $this->collection();
+        $limit = max(1, min(200, $limit));
         $minScore = (float) $this->setting('ahg_discovery_image_min_score', '0.30');
-        $pool = max(1, min(200, $limit));
+        $staff = $this->viewerSeesAll();
 
-        $hits = $this->vector->qdrantSearch($collection, $vector, $this->vector->fetchSize($pool));
+        $hits = $this->vector->qdrantSearch($this->collection(), $vector, $staff ? $limit * 2 : min(300, $limit * 4));
         if ($hits === null) {
             return [];
         }
-        $hits = $this->vector->visibleHits($hits, $pool);
 
-        $out = [];
+        $best = [];
         foreach ($hits as $h) {
-            $id = (int) ($h['id'] ?? 0);
+            $pointId = (int) ($h['id'] ?? 0);
             $score = (float) ($h['score'] ?? 0);
-            if ($id <= 0 || $score < $minScore) {
+            if ($pointId <= 0 || $score < $minScore || $pointId === $excludePointId) {
                 continue;
             }
-            if ($excludeId !== null && $id === $excludeId) {
+            $p = $h['payload'] ?? [];
+            $ioId = (int) ($p['information_object_id'] ?? $p['object_id'] ?? $pointId);
+            if ($ioId <= 1 || (isset($best[$ioId]) && $best[$ioId]['score'] >= $score)) {
                 continue;
             }
-            $out[] = [
-                'object_id' => $id,
+            $best[$ioId] = [
+                'object_id' => $ioId,
                 'score' => round($score, 6),
                 'source' => 'image',
-                'slug' => $h['slug'] ?? null,
-                'title' => $h['title'] ?? null,
+                'slug' => $p['slug'] ?? $h['slug'] ?? null,
+                'title' => $p['title'] ?? $h['title'] ?? null,
             ];
         }
 
-        return $out;
+        if (! $staff && $best !== []) {
+            $best = array_intersect_key($best, array_flip($this->visible(array_keys($best))));
+        }
+        usort($best, fn ($a, $b) => $b['score'] <=> $a['score']);
+
+        return array_slice($best, 0, $limit);
+    }
+
+    /**
+     * The record ids of $ioIds this viewer may be shown an image match for.
+     *
+     * @param  int[]  $ioIds
+     * @return int[]
+     */
+    public function visible(array $ioIds): array
+    {
+        if ($this->viewerSeesAll()) {
+            return $ioIds;
+        }
+        $gate = new DisclosureGate;
+        $redacted = array_flip($gate->redactedIds());
+        $screen = class_exists(\AhgPrivacy\Services\FileScreeningGate::class) ? app(\AhgPrivacy\Services\FileScreeningGate::class) : null;
+
+        return array_values(array_filter($gate->filterIds($ioIds), function ($id) use ($redacted, $screen) {
+            return ! isset($redacted[$id]) && ! ($screen && $screen->withholds($id));
+        }));
     }
 
     /* -------------------------------------------------------------------- */
 
+    protected function viewerSeesAll(): bool
+    {
+        $u = auth()->user();
+
+        return $u !== null && (AclService::isAdministrator($u) || AclService::isEditor($u) || AclService::isContributor($u));
+    }
+
     protected function collection(): string
     {
-        return (string) $this->setting('ahg_discovery_image_collection', 'archive_images');
+        return $this->embedder->collection();
     }
 
-    /** True when a URL points at a raw GPU node rather than the gateway. */
-    protected static function looksLikeNode(string $url): bool
+    protected function timeoutMs(): int
     {
-        return (bool) preg_match('~:11434|://(?:127\.0\.0\.1|localhost|192\.168\.|10\.|172\.(?:1[6-9]|2\d|3[01])\.)~i', $url);
-    }
-
-    /**
-     * Call the multimodal image-embedding endpoint with raw image bytes.
-     *
-     * #1272 embed contract:
-     *   POST {base}/embed/image  { "model": ..., "image": "<base64-bytes>" }
-     *   Authorization: Bearer <ahg_live key>
-     *   -> { "embedding": [768 floats] }
-     *
-     * @return array<int, float>|null
-     */
-    protected function embedImage(string $imagePath): ?array
-    {
-        // Route through the AHG AI gateway (#1248/#1272). The multimodal embedder
-        // is reached at {base}/embed/image. Default is the gateway base; an
-        // explicit ahg_settings 'ahg_discovery_image_embed_url' override is
-        // honoured only if it is not a raw GPU node URL, so a stale node value
-        // can neither bypass the gateway nor be wired direct to a node port.
-        $override = (string) $this->setting('ahg_discovery_image_embed_url', '');
-        $base = ($override !== '' && !self::looksLikeNode($override))
-            ? rtrim($override, '/')
-            : rtrim((AiServicesSettings::apiUrl() ?: 'https://ai.theahg.co.za/ai/v1'), '/');
-        $url = $base.'/embed/image';
-        $model = (string) $this->setting('ahg_discovery_image_embed_model', 'nomic-embed-vision-v1.5');
-        $timeout = (int) $this->setting('semantic_timeout_ms', '5000');
-        $key = $this->resolveApiKey();
-
-        $bytes = @file_get_contents($imagePath);
-        if ($bytes === false) {
-            return null;
-        }
-        $payload = json_encode([
-            'model' => $model,
-            'image' => base64_encode($bytes),
-        ]);
-
-        $headers = ['Content-Type: application/json', 'Accept: application/json'];
-        if (! empty($key)) {
-            $headers[] = 'Authorization: Bearer '.$key;
-        }
-
-        $ch = curl_init($url);
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POSTFIELDS => $payload,
-            CURLOPT_HTTPHEADER => $headers,
-            CURLOPT_TIMEOUT_MS => max(1000, $timeout * 4),
-            CURLOPT_CONNECTTIMEOUT_MS => max(500, min(2000, $timeout)),
-            CURLOPT_CUSTOMREQUEST => 'POST',
-        ]);
-        $resp = curl_exec($ch);
-        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        if ($resp === false || $code < 200 || $code >= 300) {
-            Log::debug('Discovery image embed failed: '.$url.' code='.$code);
-
-            return null;
-        }
-        $decoded = json_decode((string) $resp, true);
-        if (! is_array($decoded) || empty($decoded['embedding']) || ! is_array($decoded['embedding'])) {
-            return null;
-        }
-
-        return array_map('floatval', $decoded['embedding']);
-    }
-
-    /**
-     * Resolve the gateway API key the same way NER/HTR/QdrantRetriever do (#1248).
-     *
-     * ahg_ner_settings.api_key holds the working ahg_live_* key; fall back to
-     * ahg_ai_settings feature='general' 'api_key', then the AiServicesSettings
-     * accessor.
-     */
-    protected function resolveApiKey(): ?string
-    {
-        return AiServicesSettings::gatewayKey();
+        return max(500, (int) $this->setting('semantic_timeout_ms', '5000'));
     }
 
     protected function setting(string $key, ?string $default = null): ?string

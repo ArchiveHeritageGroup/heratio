@@ -109,6 +109,7 @@ footer { padding: 8px 20px; font-size: 12px; color: var(--headtext); background:
 <footer><span id="made"></span><span id="builtfrom"></span></footer>
 <script src="cytoscape.min.js"></script>
 <script src="data.js"></script>
+<script src="map.js"></script>
 <script>
 const D = window.DATA;
 // Interface language: English or Afrikaans. The names, titles and texts stay as catalogued.
@@ -122,7 +123,7 @@ const I18N = {
     liveScope: 'showing :s of :t results, :e subjects, places and names', more: 'Load 100 more', back: 'Back to the list',
     whole: 'Search the whole catalogue', go: 'Search', catalogued: 'Catalogued as:', onRecs: 'On :n record', onRecsP: 'On :n records',
     best40: ' (the map shows the 40 best connected)', andMore: 'and :n more', alongside: 'Appears alongside', wholeThis: 'Search the whole catalogue for this',
-    untitled: '(untitled)', openRec: 'Open the record', linked: 'Linked with', start: 'Where to start',
+    untitled: '(untitled)', openRec: 'Open the record', linked: 'Linked with', same: 'The same story elsewhere', sameTip: ':p% of the wording in common', start: 'Where to start',
     startTip: 'The most-used subjects, places and names in this selection. Click one, or search above.', records: 'records', recordsN: ':n records',
     noMatch: 'No match in this selection', recs: 'records', people: 'people and bodies', places: 'places', subjects: 'subjects', events: 'events', dates: 'dates',
     openMap: 'Explore the map', openColl: "Open the collection's record", topPeople: 'Most-named people and bodies', topPlaces: 'Most-named places',
@@ -136,13 +137,14 @@ const I18N = {
     liveScope: 'wys :s van :t resultate, :e onderwerpe, plekke en name', more: 'Laai nog 100', back: 'Terug na die lys',
     whole: 'Soek in die hele katalogus', go: 'Soek', catalogued: 'Gekatalogiseer as:', onRecs: 'Op :n rekord', onRecsP: 'Op :n rekords',
     best40: ' (die kaart wys die 40 met die meeste verbindings)', andMore: 'en nog :n', alongside: 'Verskyn saam met', wholeThis: 'Soek dit in die hele katalogus',
-    untitled: '(sonder titel)', openRec: 'Maak die rekord oop', linked: 'Gekoppel aan', start: 'Waar om te begin',
+    untitled: '(sonder titel)', openRec: 'Maak die rekord oop', linked: 'Gekoppel aan', same: 'Dieselfde berig elders', sameTip: ':p% van die bewoording gemeen', start: 'Waar om te begin',
     startTip: 'Die mees gebruikte onderwerpe, plekke en name in hierdie seleksie. Klik op een, of soek hierbo.', records: 'rekords', recordsN: ':n rekords',
     noMatch: 'Geen treffer in hierdie seleksie nie', recs: 'rekords', people: 'persone en liggame', places: 'plekke', subjects: 'onderwerpe', events: 'gebeure', dates: 'datums',
     openMap: 'Verken die kaart', openColl: 'Maak die versameling se rekord oop', topPeople: 'Mees genoemde persone en liggame', topPlaces: 'Mees genoemde plekke',
     topSubjects: 'Mees gebruikte onderwerpe', fromRecs: 'Uit die rekords',
     homeTip2: "Soek hierbo na enige naam, plek, onderwerp of rekordtitel, of kies een hier. Elkeen maak die kaart oop van hoe dit oor die rekords heen verbind." },
 };
+if (window.MAP_I18N) for (const l in I18N) Object.assign(I18N[l], MAP_I18N[l] || {}); // the collection map's words (map.js)
 // The site's own scope lines, as the catalogue sends them.
 const SCOPE_AF = { 'Explore this collection': 'Verken hierdie versameling', 'Filtered results': 'Gefiltreerde resultate', 'Visual graph': 'Visuele grafiek', 'This collection': 'Hierdie versameling' };
 const store = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
@@ -158,7 +160,7 @@ document.getElementById('q').placeholder = t('search');
 document.getElementById('homebtn').innerHTML = '&#8962; ' + t('home'); document.getElementById('homebtn').title = t('homeTip');
 document.getElementById('hint').textContent = t('hint');
 document.getElementById('builtfrom').textContent = t('builtFrom');
-const TYPES = { subject: [t('Subjects'), '#10373E'], place: [t('Places'), '#3f6b5a'], name: [t('People'), '#9a3f1c'], genre: [t('Genres'), '#b07d2b'], event: [t('Events'), '#5b4a7a'] };
+const TYPES = { subject: [t('Subjects'), '#10373E'], place: [t('Places'), '#3f6b5a'], name: [t('People'), '#9a3f1c'], genre: [t('Genres'), '#b07d2b'], event: [t('Events'), '#5b4a7a'], material: [t('Materials'), '#5f7d8c'] };
 const REC = new Map(D.records.map(r => [r.id, r]));
 const ENT = new Map(D.entities.map(e => [e.id, e]));
 const on = new Set(Object.keys(TYPES));
@@ -221,6 +223,7 @@ cy.on('mouseout', 'node.rec', ev => ev.target.removeClass('hover'));
 const entNode = (e, centre) => ({ data: { id: e.id, label: e.name, color: TYPES[e.type][1], size: centre ? 46 : Math.min(36, 14 + 3 * Math.sqrt(e.recs.length)) }, classes: centre ? 'centre' : '' });
 const recNode = (r, centre) => ({ data: { id: r.id, label: r.ref || r.id, full: `${r.ref || ''}\n${(r.title || '').slice(0, 70)}`, color: '#fff', size: centre ? 44 : 34 }, classes: 'rec' + (centre ? ' centre' : '') });
 function focus(id, push = true) {
+  if (window.MAPVIEW && MAPVIEW.active()) return MAPVIEW.focus(id, push);
   if (document.body.classList.contains('home')) { document.body.classList.remove('home'); cy.resize(); }
   current = id; document.getElementById('hint').style.display = 'none';
   const els = [], seen = new Set(), add = el => { if (!seen.has(el.data.id)) { seen.add(el.data.id); els.push(el); } };
@@ -239,6 +242,8 @@ function focus(id, push = true) {
     const r = REC.get(id); add(recNode(r, true));
     r.ents.forEach(k => { const e = ENT.get(k); if (!vis(e)) return; add(entNode(e)); edge(id, k);
       e.recs.filter(x => x !== id).slice(0, 6).forEach(x => { add(recNode(REC.get(x))); edge(k, x); }); });
+    // Same-story links (heratio#1524): the record's other printings, found by text comparison.
+    (r.same || []).forEach(([x]) => { if (REC.has(x)) { add(recNode(REC.get(x))); edge(id, x); } });
     showRecord(r);
   }
   cy.elements().remove(); cy.add(els);
@@ -267,7 +272,8 @@ function showRecord(r) {
     ${r.img ? `<a href="${esc(r.url || r.img)}" target="_blank" rel="noopener"><img class="evidence" src="${esc(r.img)}" alt="${esc(r.title || '')}" loading="lazy" onerror="this.remove()"></a>` : ''}
     ${r.text ? `<p class="excerpt">${esc(r.text)}</p>` : ''}
     ${r.url ? `<a class="btn" href="${esc(r.url)}" target="_blank" rel="noopener">${t('openRec')}</a>` : ''}
-    ${r.ents.length ? `<h3>${t('linked')}</h3><div class="tags">${r.ents.map(k => chip(k) + '</span>').join('')}</div>` : ''}`;
+    ${r.ents.length ? `<h3>${t('linked')}</h3><div class="tags">${r.ents.map(k => chip(k) + '</span>').join('')}</div>` : ''}
+    ${(r.same || []).some(([x]) => REC.has(x)) ? `<h3>${t('same')}</h3><div class="list">${r.same.filter(([x]) => REC.has(x)).map(([x, p]) => linkRec(x).replace('</small></a>', ` - ${t('sameTip', { p })}</small></a>`)).join('')}</div>` : ''}`;
 }
 side.addEventListener('click', ev => { const t = ev.target.closest('[data-go]'); if (t) focus(t.dataset.go);
   const a = ev.target.closest('[data-across]'); if (a) across(a.dataset.across); });
@@ -343,7 +349,7 @@ function home() {
   document.getElementById('homebody').innerHTML = `
     ${D.site.about ? `<p class="about">${esc(D.site.about)}</p>` : ''}
     <div class="stats">${stat(D.records.length, t('recs'))}${stat(count('name'), t('people'))}${stat(count('place'), t('places'))}${stat(count('subject'), t('subjects'))}${stat(count('event'), t('events'))}${stat(period, t('dates'))}</div>
-    <p><button type="button" class="go" id="openmap">${t('openMap')}</button>${D.site.url ? `<a class="go alt" href="${esc(D.site.url)}" target="_blank" rel="noopener">${t('openColl')}</a>` : ''}</p>
+    <p><button type="button" class="go" id="openmap">${t('openMap')}</button>${window.MAPVIEW ? `<button type="button" class="go" data-mapview>${t('openPoints')}</button>` : ''}${D.site.url ? `<a class="go alt" href="${esc(D.site.url)}" target="_blank" rel="noopener">${t('openColl')}</a>` : ''}</p>
     <div class="cols">${col('name', t('topPeople'))}${col('place', t('topPlaces'))}${col('subject', t('topSubjects'))}${col('event', t('Events'))}</div>
     ${pics.length ? `<h3>${t('fromRecs')}</h3><div class="gallery">${pics.map(r => `<div class="card" data-go="${esc(r.id)}"><img src="${esc(r.img)}" alt="" loading="lazy" onerror="this.closest('.card').remove()"><div>${esc((r.title || t('untitled')).slice(0, 90))}<br><small>${ref(r)}</small></div></div>`).join('')}</div>` : ''}
     <p class="meta">${t('homeTip2')}</p>`;
@@ -354,6 +360,7 @@ document.getElementById('homebtn').onclick = home;
 
 const start = decodeURIComponent(location.hash.slice(1));
 if (start && (ENT.has(start) || REC.has(start))) focus(start, false); else { home(); }
+if (window.MAPVIEW) MAPVIEW.init();
 </script>
 </body>
 </html>
