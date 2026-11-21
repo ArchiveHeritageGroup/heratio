@@ -140,6 +140,16 @@ class ProtectOriginalsTest extends TestCase
         $this->protect(true);
         $this->gate('scan.jpg')->assertForbidden();
         $this->gate('reference_scan.jpg')->assertNoContent();
+        // Encoded spellings of the protected master are refused too: on the raw
+        // URI fallback, and with nginx's own normalised path (X-Original-Path).
+        $enc = fn (string $raw, ?string $served = null) => $this->withHeaders(['X-Original-URI' => $raw] + ($served !== null ? ['X-Original-Path' => $served] : []))
+            ->get(route('io.privacy.file-check'));
+        $enc('/'.str_replace('/', '%2F', $this->dir).'%2Fscan.jpg')->assertForbidden();
+        $enc('/'.$this->dir.'/sc%61n.jpg')->assertForbidden();
+        $enc('/'.$this->dir.'/x%2F..%2Fscan.jpg')->assertForbidden();
+        $enc('/'.$this->dir.'/x%2F..%2Fscan.jpg', '/'.$this->dir.'/scan.jpg')->assertForbidden();
+        $enc('/whatever', '/'.$this->dir.'/reference_scan.jpg')->assertNoContent();
+        $this->flushHeaders();
         // The IIIF identifier of the same master is refused as well.
         $this->assertTrue(MasterAccess::refusesPath(str_replace('/', '_SL_', $this->dir.'/scan.jpg')));
     }

@@ -119,7 +119,40 @@ class DraftRecordFileGateTest extends TestCase
         $this->gate('public.jpg')->assertNoContent();
         $this->gate('public.c2pa.jpg')->assertNoContent();
         $this->gate('shared.jpg')->assertNoContent();
-        $this->gate('not-a-record-file.png')->assertNoContent();
+        // A file Heratio has no row for, in a shared (non-numeric) folder, is
+        // never served: on heratio.org that folder belongs to PSIS too.
+        $this->gate('not-a-record-file.png')->assertForbidden();
+    }
+
+    public function test_another_systems_files_are_never_served(): void
+    {
+        // heratio.org, 21 Nov 2026: a PSIS draft master and a PSIS zip had no
+        // Heratio row and were served to anyone. Now refused, even to admins,
+        // thumbnails included; Heratio's own numeric folders are unchanged.
+        $u = fn (string $p) => $this->withHeader('X-Original-URI', $p)->get(route('io.privacy.file-check'));
+        $u('/uploads/r/null/6/7/6/676be1/Heratio_Hybrid_Retrieval_Findings.png')->assertForbidden();
+        $u('/uploads/r/null/3/2/2/1/c/d/2025_11_14.zip')->assertForbidden();
+        $u('/uploads/r/north-west-univirsity/a/b/c/scan_142.jpg')->assertForbidden();
+        // Encoded and doubled-slash spellings land in the same folder.
+        $u('/uploads/r/%6Eull/3/2/2/1/c/d/2025_11_14.zip')->assertForbidden();
+        $u('/uploads/r//null/3/2/2/1/c/d/2025_11_14.zip')->assertForbidden();
+        $u('/uploads//r/null/3/2/2/1/c/d/2025_11_14.zip')->assertForbidden();
+        $u('/uploads/r/123%2F..%2Fnull/3/2025_11_14.zip')->assertForbidden();
+        // nginx's own normalised path ($uri) is judged when it is sent.
+        $this->withHeaders(['X-Original-URI' => '/uploads/r/123%2F..%2Fnull/3/2025_11_14.zip', 'X-Original-Path' => '/uploads/r/null/3/2025_11_14.zip'])
+            ->get(route('io.privacy.file-check'))->assertForbidden();
+        $this->flushHeaders();
+        // Where the uploads folder is shared (heratio.org), a gate call that
+        // does not carry nginx's served path fails closed.
+        config(['database.connections.shared_uploads.database' => 'archive']);
+        $u('/uploads/r/123456/own-file.png')->assertForbidden();
+        $this->withHeaders(['X-Original-URI' => '/uploads/r/123456/own-file.png', 'X-Original-Path' => '/uploads/r/123456/own-file.png'])
+            ->get(route('io.privacy.file-check'))->assertNoContent();
+        $this->flushHeaders();
+        config(['database.connections.shared_uploads.database' => '']);
+        $this->actingAs($this->admin());
+        $u('/uploads/r/null/3/2/2/1/c/d/2025_11_14.zip')->assertForbidden();
+        $u('/uploads/r/123456/own-file.png')->assertNoContent();
     }
 
     public function test_staff_who_see_drafts_still_get_the_file(): void

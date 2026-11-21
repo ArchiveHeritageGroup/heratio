@@ -532,8 +532,38 @@ class PrivacyController extends Controller
      */
     public function fileCheck(\Illuminate\Http\Request $request)
     {
-        $uri = (string) $request->header('X-Original-URI', '');
-        $path = ltrim((string) parse_url($uri, PHP_URL_PATH), '/');
+        // SECURITY (21 Nov 2026): judge exactly the file nginx will serve.
+        // nginx serves from $uri (decoded, slashes merged, dot segments
+        // resolved) but used to send only the raw $request_uri, so a request
+        // spelled 123%2F..%2Fnull/x named one folder to this gate and fetched
+        // from another. nginx now also sends X-Original-Path ($uri). Every
+        // check below reads one canonical path, re-encoded per segment because
+        // the checks decode it once themselves.
+        $served = (string) $request->header('X-Original-Path', '');
+        if ($served === '' && \AhgCore\Services\SharedUploadsGuard::enabled()) {
+            // Where the uploads folder is shared, a location that calls this
+            // gate without sending the served path fails closed.
+            return response('', 403);
+        }
+        $raw = (string) parse_url((string) $request->header('X-Original-URI', ''), PHP_URL_PATH);
+        $plain = ltrim((string) preg_replace('#/+#', '/', $served !== '' ? $served : rawurldecode($raw)), '/');
+        // A dot segment left (only possible on the raw fallback) moves the
+        // request into another folder than the one it names: never serve it.
+        if (preg_match('#(^|/)\.\.?(/|$)#', $plain)) {
+            return response('', 403);
+        }
+        $path = implode('/', array_map('rawurlencode', explode('/', $plain)));
+
+        // /uploads/r/ is shared with another system's catalogue on some
+        // installs (heratio.org: PSIS). Outside Heratio's own numeric folders
+        // a file is served only when Heratio's catalogue has a row for it -
+        // otherwise heratio.org handed out the other system's drafts and
+        // restricted files, because a file with no Heratio record was
+        // "unaffected" by every check below. Applies to every viewer.
+        if ($plain !== '' && preg_match('#^uploads/r/(?![0-9]+/)#', $plain)
+            && !app(RedactionRenderService::class)->knowsIdentifier($path)) {
+            return response('', 403);
+        }
 
         $refuse = $path !== ''
             && !RedactionRenderService::viewerCanBypass()

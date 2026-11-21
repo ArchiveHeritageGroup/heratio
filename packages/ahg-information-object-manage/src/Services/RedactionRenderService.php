@@ -285,6 +285,15 @@ class RedactionRenderService
      *
      * @return int[]
      */
+    /**
+     * Whether Heratio's own catalogue has a digital_object row for this file
+     * (or for the copy or master a derived file is judged as).
+     */
+    public function knowsIdentifier(string $identifier): bool
+    {
+        return $this->mastersForIdentifier($identifier) !== [];
+    }
+
     public function recordIdsForIdentifier(string $identifier): array
     {
         $ids = [];

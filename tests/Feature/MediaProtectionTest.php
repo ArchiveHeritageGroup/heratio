@@ -344,7 +344,7 @@ class MediaProtectionTest extends TestCase
         $this->get(route('media-streaming.stream', $master))->assertForbidden();
 
         // Images are not affected by audio/video clearance.
-        $this->gate($base.'some_scan.jpg')->assertNoContent();
+        $this->gate('/uploads/r/'.$io.'/some_scan.jpg')->assertNoContent();
 
         $html = view('theme::components.media-player', ['type' => 'video', 'playerId' => 'p1', 'src' => $base.'master_film.mov',
             'mime' => 'video/quicktime', 'name' => 'film.mov', 'masterUrl' => $base.'master_film.mov', 'masterMime' => 'video/quicktime', 'byteSize' => 1])->render();
