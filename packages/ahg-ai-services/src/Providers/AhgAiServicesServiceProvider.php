@@ -49,7 +49,20 @@ class AhgAiServicesServiceProvider extends ServiceProvider
         $this->app->singleton(SuggestedConnectionsService::class, function ($app) {
             return new SuggestedConnectionsService($app->make(LlmService::class));
         });
+        // heratio#1764: the face_detect 'driver' setting picks the gateway
+        // detector; anything else keeps the Null default. Read only when the
+        // detector is first resolved, never at boot.
         $this->app->singleton(FaceDetectorInterface::class, function ($app) {
+            $driver = null;
+            try {
+                $driver = \Illuminate\Support\Facades\DB::table('ahg_ai_settings')->where('feature', 'face_detect')
+                    ->where('setting_key', 'driver')->value('setting_value');
+            } catch (\Throwable) {
+            }
+            if ($driver === 'gateway') {
+                return new \AhgAiServices\Services\GatewayFaceDetector($app->make(QuotaService::class), $app->make(CostService::class));
+            }
+
             return new NullFaceDetector(
                 $app->make(QuotaService::class),
                 $app->make(CostService::class),

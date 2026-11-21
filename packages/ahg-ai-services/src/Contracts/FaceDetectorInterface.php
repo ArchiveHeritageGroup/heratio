@@ -13,7 +13,8 @@
  *
  * The detector contract intentionally returns plain arrays (not a value
  * object) to keep the wire format identical to the gateway's JSON
- * response: each face is {x, y, w, h, score, attributes?}.
+ * response: each face is {x, y, w, h, score, embedding?, attributes?}
+ * (embedding: the face vector used for matching, heratio#1764).
  *
  * Copyright (C) 2026 Johan Pieterse
  * Plain Sailing Information Systems
@@ -32,7 +33,7 @@ interface FaceDetectorInterface
      * Detect faces in the image at $imagePath.
      *
      * @return array{
-     *     faces: list<array{x:int,y:int,w:int,h:int,score:float,attributes?:array<string,mixed>}>,
+     *     faces: list<array{x:int,y:int,w:int,h:int,score:float,embedding?:list<float>,attributes?:array<string,mixed>}>,
      *     model: string,
      *     duration_ms: int
      * }

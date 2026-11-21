@@ -1,4 +1,6 @@
 {{-- Record sidebar: Publish to platforms + this record's distribution log (heratio#1761). Staff with update permission only. --}}
+{{-- heratio#1743 live events ride on this include so the locked record page needs no second sidebar line. --}}
+@include('ahg-media-streaming::live._record-panel', ['ioId' => $ioId])
 @php
   $ppUser = auth()->user();
   $ppShow = $ppUser && \Illuminate\Support\Facades\Route::has('media-streaming.publish.form')

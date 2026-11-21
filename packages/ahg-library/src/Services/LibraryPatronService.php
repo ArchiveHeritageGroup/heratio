@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use AhgCore\Support\I18nFallback;
 
 class LibraryPatronService
 {
@@ -183,17 +184,14 @@ class LibraryPatronService
         return DB::table('library_checkout as c')
             ->leftJoin('library_copy as cp', 'c.copy_id', '=', 'cp.id')
             ->leftJoin('library_item as li', 'cp.library_item_id', '=', 'li.id')
-            ->leftJoin('information_object_i18n as i18n', function ($j) {
-                $j->on('li.information_object_id', '=', 'i18n.id')
-                  ->where('i18n.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'li.information_object_id', app()->getLocale()))
             ->where('c.patron_id', $patronId)
             ->where('c.status', 'active')
             ->select(
                 'c.id', 'c.copy_id', 'c.checkout_date', 'c.due_date', 'c.renewed_count',
                 'cp.barcode', 'cp.shelf_location',
                 'li.call_number', 'li.isbn',
-                'i18n.title',
+                I18nFallback::col('i18n', 'title', 'title'),
             )
             ->orderBy('c.due_date')
             ->get()
@@ -204,17 +202,14 @@ class LibraryPatronService
     {
         return DB::table('library_hold as h')
             ->leftJoin('library_item as li', 'h.library_item_id', '=', 'li.id')
-            ->leftJoin('information_object_i18n as i18n', function ($j) {
-                $j->on('li.information_object_id', '=', 'i18n.id')
-                  ->where('i18n.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'li.information_object_id', app()->getLocale()))
             ->where('h.patron_id', $patronId)
             ->whereIn('h.status', ['pending', 'ready'])
             ->select(
                 'h.id', 'h.library_item_id', 'h.hold_date', 'h.expiry_date',
                 'h.queue_position', 'h.status',
                 'li.call_number',
-                'i18n.title',
+                I18nFallback::col('i18n', 'title', 'title'),
             )
             ->orderBy('h.hold_date')
             ->get()

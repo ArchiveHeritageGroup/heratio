@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification as LaravelNotification;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use AhgCore\Support\I18nFallback;
 
 class PublishRequestController extends Controller
 {
@@ -135,12 +136,10 @@ class PublishRequestController extends Controller
         if ($row->information_object_id && Schema::hasTable('information_object')) {
             $culture = app()->getLocale();
             $object = DB::table('information_object as io')
-                ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                    $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
                 ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
                 ->where('io.id', '=', $row->information_object_id)
-                ->select('io.id', 'io.identifier', 'ioi.title', 's.slug')
+                ->select('io.id', 'io.identifier', I18nFallback::col('ioi', 'title', 'title'), 's.slug')
                 ->first();
         }
 
@@ -171,15 +170,12 @@ class PublishRequestController extends Controller
         }
 
         $q = DB::table(self::TABLE.' as pr')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('pr.information_object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'pr.information_object_id', app()->getLocale()))
             ->leftJoin('slug as s', 'pr.information_object_id', '=', 's.object_id')
             ->select(
                 'pr.id', 'pr.submitter_email', 'pr.submitter_name', 'pr.status',
                 'pr.created_at', 'pr.decided_at', 'pr.information_object_id',
-                'ioi.title as object_title', 's.slug as object_slug'
+                I18nFallback::col('ioi', 'title', 'object_title'), 's.slug as object_slug'
             )
             ->orderByDesc('pr.created_at');
 

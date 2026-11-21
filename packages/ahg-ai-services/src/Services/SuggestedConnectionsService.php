@@ -27,6 +27,7 @@ namespace AhgAiServices\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Suggested Connections Service - North Star: generative scholarship (#1210).
@@ -298,16 +299,14 @@ class SuggestedConnectionsService
         return DB::table('object_term_relation as a')
             ->join('object_term_relation as b', 'a.term_id', '=', 'b.term_id')
             ->join('term as t', 't.id', '=', 'a.term_id')
-            ->leftJoin('term_i18n as ti', function ($j) use ($locale) {
-                $j->on('ti.id', '=', 't.id')->where('ti.culture', '=', $locale);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 't.id', $locale))
             ->where('a.object_id', $id1)
             ->where('b.object_id', $id2)
             ->whereIn('t.taxonomy_id', self::ACCESS_POINT_TAXONOMIES)
-            ->whereNotNull('ti.name')
+            ->whereNotNull(I18nFallback::col('ti', 'name'))
             ->distinct()
-            ->orderBy('ti.name')
-            ->pluck('ti.name')
+            ->orderBy(I18nFallback::col('ti', 'name'))
+            ->pluck(I18nFallback::col('ti', 'name', 'name'))
             ->all();
     }
 

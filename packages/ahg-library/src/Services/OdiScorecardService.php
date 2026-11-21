@@ -25,6 +25,7 @@ namespace AhgLibrary\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class OdiScorecardService
 {
@@ -123,15 +124,12 @@ class OdiScorecardService
         return DB::table('library_item')
             ->join('information_object', 'library_item.information_object_id', '=', 'information_object.id')
             ->leftJoin('information_object as parent', 'information_object.parent_id', '=', 'parent.id')
-            ->leftJoin('information_object_i18n as parent_i18n', function ($j) use ($culture) {
-                $j->on('parent.id', '=', 'parent_i18n.id')
-                    ->where('parent_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as parent_i18n', 'parent.id', $culture))
             ->whereNotNull('information_object.parent_id')
-            ->groupBy('information_object.parent_id', 'parent_i18n.title')
+            ->groupBy('information_object.parent_id', I18nFallback::col('parent_i18n', 'title'))
             ->select([
                 DB::raw('information_object.parent_id as collection_id'),
-                DB::raw('parent_i18n.title as collection_title'),
+                DB::raw(I18nFallback::col('parent_i18n', 'title', 'collection_title')),
                 DB::raw('COUNT(DISTINCT library_item.id) as item_count'),
             ])
             ->orderBy('information_object.parent_id')

@@ -1,6 +1,7 @@
 <?php
 
 use AhgMediaStreaming\Controllers\CaptionTrackController;
+use AhgMediaStreaming\Controllers\LiveEventController;
 use AhgMediaStreaming\Controllers\MediaStreamController;
 use AhgMediaStreaming\Controllers\PublishPackageController;
 use Illuminate\Support\Facades\Route;
@@ -25,8 +26,32 @@ Route::get('/media-streaming/captions/{trackId}', [CaptionTrackController::class
     ->name('media-streaming.captions')
     ->whereNumber('trackId');
 
+// Live events (heratio#1743): the live playlist, its segments and the event
+// status - public routes, each request checked against the record's media rules.
+Route::get('/media-streaming/live/{eventId}/hls/{file}', [LiveEventController::class, 'hls'])
+    ->name('media-streaming.live.hls')->whereNumber('eventId')->where('file', 'index\.m3u8|seg\d{5}\.ts');
+Route::get('/media-streaming/live/{eventId}/status', [LiveEventController::class, 'status'])
+    ->name('media-streaming.live.status')->whereNumber('eventId');
+
 // Admin-capable routes (auth required)
 Route::middleware('auth')->group(function () {
+    // Live events (heratio#1743): staff with update permission only - every
+    // route, reads too, since the event page shows the stream key.
+    Route::middleware('acl:update')->group(function () {
+        Route::get('/informationobject/{id}/live/create', [LiveEventController::class, 'create'])
+            ->name('media-streaming.live.create')->whereNumber('id');
+        Route::post('/informationobject/{id}/live', [LiveEventController::class, 'store'])
+            ->name('media-streaming.live.store')->whereNumber('id');
+        Route::get('/media-streaming/live/{eventId}', [LiveEventController::class, 'show'])
+            ->name('media-streaming.live.show')->whereNumber('eventId');
+        Route::post('/media-streaming/live/{eventId}/start', [LiveEventController::class, 'start'])
+            ->name('media-streaming.live.start')->whereNumber('eventId');
+        Route::post('/media-streaming/live/{eventId}/stop', [LiveEventController::class, 'stop'])
+            ->name('media-streaming.live.stop')->whereNumber('eventId');
+        Route::get('/admin/live-events', [LiveEventController::class, 'index'])
+            ->name('media-streaming.live.index');
+    });
+
     // Release clearance for audio/video (heratio#1771; admin or editor, checked in the controller)
     Route::post('/media-streaming/clearance/{masterId}', [MediaStreamController::class, 'clearance'])
         ->name('media-streaming.clearance')->whereNumber('masterId')->middleware('acl:update');

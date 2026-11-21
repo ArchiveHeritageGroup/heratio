@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class ExportCsvCommand extends Command
 {
@@ -66,10 +67,7 @@ class ExportCsvCommand extends Command
         fputcsv($output, $headers);
 
         $query = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as i18n', function ($join) use ($culture) {
-                $join->on('io.id', '=', 'i18n.id')
-                    ->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->leftJoin('term_i18n as lod', function ($join) use ($culture) {
                 $join->on('io.level_of_description_id', '=', 'lod.id')
                     ->where('lod.culture', '=', $culture);
@@ -87,11 +85,11 @@ class ExportCsvCommand extends Command
             ->select([
                 'io.id',
                 'io.identifier',
-                'i18n.title',
+                I18nFallback::col('i18n', 'title', 'title'),
                 'lod.name as level_of_description',
-                'i18n.extent_and_medium',
-                'i18n.scope_and_content',
-                'i18n.arrangement',
+                I18nFallback::col('i18n', 'extent_and_medium', 'extent_and_medium'),
+                I18nFallback::col('i18n', 'scope_and_content', 'scope_and_content'),
+                I18nFallback::col('i18n', 'arrangement', 'arrangement'),
                 'io.repository_id',
                 'io.parent_id',
                 DB::raw("COALESCE(ps.name, 'Draft') as publication_status"),
@@ -122,22 +120,16 @@ class ExportCsvCommand extends Command
         fputcsv($output, $headers);
 
         $query = DB::table('actor as a')
-            ->leftJoin('actor_i18n as i18n', function ($join) use ($culture) {
-                $join->on('a.id', '=', 'i18n.id')
-                    ->where('i18n.culture', '=', $culture);
-            })
-            ->leftJoin('term_i18n as et', function ($join) use ($culture) {
-                $join->on('a.entity_type_id', '=', 'et.id')
-                    ->where('et.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as i18n', 'a.id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as et', 'a.entity_type_id', $culture))
             ->whereNotIn('a.id', [3, 4]) // Exclude system actors
             ->select([
                 'a.id',
-                'i18n.authorized_form_of_name',
-                'et.name as entity_type',
-                'i18n.dates_of_existence',
-                'i18n.history',
-                'i18n.places',
+                I18nFallback::col('i18n', 'authorized_form_of_name', 'authorized_form_of_name'),
+                I18nFallback::col('et', 'name', 'entity_type'),
+                I18nFallback::col('i18n', 'dates_of_existence', 'dates_of_existence'),
+                I18nFallback::col('i18n', 'history', 'history'),
+                I18nFallback::col('i18n', 'places', 'places'),
                 DB::raw("'{$culture}' as culture"),
             ])
             ->orderBy('a.id');
@@ -162,21 +154,15 @@ class ExportCsvCommand extends Command
         fputcsv($output, $headers);
 
         $query = DB::table('repository as r')
-            ->leftJoin('actor_i18n as i18n', function ($join) use ($culture) {
-                $join->on('r.id', '=', 'i18n.id')
-                    ->where('i18n.culture', '=', $culture);
-            })
-            ->leftJoin('repository_i18n as ri', function ($join) use ($culture) {
-                $join->on('r.id', '=', 'ri.id')
-                    ->where('ri.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as i18n', 'r.id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'repository_i18n as ri', 'r.id', $culture))
             ->select([
                 'r.id',
-                'i18n.authorized_form_of_name',
+                I18nFallback::col('i18n', 'authorized_form_of_name', 'authorized_form_of_name'),
                 'r.identifier',
-                'i18n.history',
-                'ri.collecting_policies',
-                'ri.buildings',
+                I18nFallback::col('i18n', 'history', 'history'),
+                I18nFallback::col('ri', 'collecting_policies', 'collecting_policies'),
+                I18nFallback::col('ri', 'buildings', 'buildings'),
                 DB::raw("'{$culture}' as culture"),
             ])
             ->orderBy('r.id');
@@ -202,10 +188,7 @@ class ExportCsvCommand extends Command
         fputcsv($output, $headers);
 
         $query = DB::table('accession as a')
-            ->leftJoin('accession_i18n as i18n', function ($join) use ($culture) {
-                $join->on('a.id', '=', 'i18n.id')
-                    ->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n as i18n', 'a.id', $culture))
             ->leftJoin('term_i18n as at', function ($join) use ($culture) {
                 $join->on('a.acquisition_type_id', '=', 'at.id')
                     ->where('at.culture', '=', $culture);
@@ -222,8 +205,8 @@ class ExportCsvCommand extends Command
                 'a.id',
                 'a.identifier',
                 'a.date',
-                'i18n.source_of_acquisition',
-                'i18n.location_information',
+                I18nFallback::col('i18n', 'source_of_acquisition', 'source_of_acquisition'),
+                I18nFallback::col('i18n', 'location_information', 'location_information'),
                 'at.name as acquisition_type',
                 'ps.name as processing_status',
                 'pp.name as processing_priority',

@@ -33,6 +33,7 @@ use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * ResearchEvidenceController - Evidence viewer + AJAX item search.
@@ -61,12 +62,10 @@ class ResearchEvidenceController extends Controller
 
         // Get object info
         $source = DB::table('information_object as io')
-            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
             ->where('io.id', $objectId)
-            ->select('io.id', 'io.identifier', 'i18n.title', 's.slug')
+            ->select('io.id', 'io.identifier', I18nFallback::col('i18n', 'title', 'title'), 's.slug')
             ->first();
 
         if (!$source) {
@@ -84,11 +83,9 @@ class ResearchEvidenceController extends Controller
 
         // Get repository name
         $repo = DB::table('information_object as io2')
-            ->join('actor_i18n as ai', function ($j) use ($culture) {
-                $j->on('ai.id', '=', 'io2.repository_id')->where('ai.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'io2.repository_id', $culture, required: true))
             ->where('io2.id', $objectId)
-            ->select('ai.authorized_form_of_name as name')
+            ->select(I18nFallback::col('ai', 'authorized_form_of_name', 'name'))
             ->first();
         $source->repository = $repo->name ?? null;
 

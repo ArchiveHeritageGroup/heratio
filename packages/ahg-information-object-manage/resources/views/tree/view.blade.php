@@ -44,6 +44,13 @@
         <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
         {{ __('Sync') }}
       </button>
+      @if($canEdit)
+        {{-- heratio#1582: the non-drag way to move (WCAG 2.2 SC 2.5.7). --}}
+        <button type="button" class="btn btn-outline-secondary" id="tree-move-selected" aria-haspopup="dialog">
+          <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
+          {{ __('Move selected...') }}
+        </button>
+      @endif
     </div>
     <a href="{{ url('/' . $resource->slug) }}" class="btn btn-sm btn-outline-primary">
       <i class="bi bi-arrow-return-left" aria-hidden="true"></i>
@@ -56,10 +63,7 @@
   <p class="text-muted small mt-2">
     @if($canEdit)
       <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
-      {{ __('Drag-and-drop a node onto another to re-parent it. Moves are recorded in the audit log.') }}
-    @else
-      <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
-      {{ __('Sign in to enable drag-and-drop re-parenting.') }}
+      {{ __('Drag-and-drop a node onto another to re-parent it, or select a node and use Move selected. Moves are recorded in the audit log.') }}
     @endif
   </p>
 @endsection
@@ -71,13 +75,15 @@
 @push('js')
   <script src="{{ asset('vendor/jquery/3.7.1/jquery.min.js') }}"></script>
   <script src="{{ asset('vendor/jstree/3.3.16/jstree.min.js') }}"></script>
+  @if($canEdit)
+    @include('ahg-io-manage::partials._tree-move-script')
+  @endif
   <script>
   (function () {
     var $tree = jQuery('#io-tree');
     var expandIds = @json($expandIds);
     var currentId = {{ (int) $resource->id }};
     var canEdit = @json($canEdit);
-    var csrfToken = @json(csrf_token());
 
     var pluginList = ['types', 'state', 'wholerow'];
     if (canEdit) {
@@ -123,30 +129,19 @@
       $tree.jstree(true).refresh();
     });
 
-    if (canEdit) {
-      $tree.on('move_node.jstree', function (e, data) {
-        var movedRealId = data.node.data && data.node.data.real_id ? data.node.data.real_id : null;
-        var newParent = $tree.jstree(true).get_node(data.parent);
-        var newParentRealId = (newParent && newParent.data && newParent.data.real_id) ? newParent.data.real_id : null;
-
-        if (!movedRealId || !newParentRealId) {
+    if (canEdit && window.AhgTreeMove) {
+      // heratio#1582: the shared move (permission on both parents, confirm
+      // before leaving the fonds, undo).
+      AhgTreeMove.bindJstree($tree);
+      jQuery('#tree-move-selected').on('click', function () {
+        var inst = $tree.jstree(true);
+        var node = inst.get_node(inst.get_selected()[0]);
+        if (!node || !node.data || !node.data.real_id) {
+          alert(@json(__('Select a node in the tree first.')));
           return;
         }
-
-        jQuery.ajax({
-          url: '{{ url('/informationobject/tree-move') }}',
-          method: 'POST',
-          dataType: 'json',
-          data: {
-            _token: csrfToken,
-            id: movedRealId,
-            new_parent_id: newParentRealId,
-            position: data.position
-          }
-        }).fail(function (xhr) {
-          var msg = (xhr.responseJSON && xhr.responseJSON.error) ? xhr.responseJSON.error : 'Move failed.';
-          alert(msg);
-          $tree.jstree(true).refresh();
+        AhgTreeMove.open({ id: node.data.real_id, title: node.text }, function (res) {
+          if (res && res.ok !== false) { inst.refresh(); }
         });
       });
     }

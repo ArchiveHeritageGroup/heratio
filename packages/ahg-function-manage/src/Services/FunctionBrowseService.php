@@ -26,6 +26,7 @@
 namespace AhgFunctionManage\Services;
 
 use AhgCore\Services\BrowseService;
+use AhgCore\Support\I18nFallback;
 
 class FunctionBrowseService extends BrowseService
 {
@@ -48,11 +49,11 @@ class FunctionBrowseService extends BrowseService
     {
         return [
             'function_object.id',
-            'function_object_i18n.authorized_form_of_name as name',
+            I18nFallback::col('function_object_i18n', 'authorized_form_of_name', 'name'),
             'function_object.description_identifier as identifier',
             'function_object.type_id',
-            'function_object_i18n.classification',
-            'function_object_i18n.dates',
+            I18nFallback::col('function_object_i18n', 'classification', 'classification'),
+            I18nFallback::col('function_object_i18n', 'dates', 'dates'),
             'object.updated_at',
             'slug.slug',
         ];
@@ -61,21 +62,20 @@ class FunctionBrowseService extends BrowseService
     protected function getBaseJoins($query)
     {
         return $query
-            ->join('function_object_i18n', 'function_object.id', '=', 'function_object_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'function_object_i18n', 'function_object.id', $this->culture, required: true))
             ->join('object', 'function_object.id', '=', 'object.id')
-            ->join('slug', 'function_object.id', '=', 'slug.object_id')
-            ->where('function_object_i18n.culture', $this->culture);
+            ->join('slug', 'function_object.id', '=', 'slug.object_id');
     }
 
     protected function applySort($query, string $sort, string $sortDir)
     {
         switch ($sort) {
             case 'alphabetic':
-                $query->orderBy('function_object_i18n.authorized_form_of_name', $sortDir);
+                $query->orderBy(I18nFallback::col('function_object_i18n', 'authorized_form_of_name'), $sortDir);
                 break;
             case 'identifier':
                 $query->orderBy('function_object.description_identifier', $sortDir);
-                $query->orderBy('function_object_i18n.authorized_form_of_name', $sortDir);
+                $query->orderBy(I18nFallback::col('function_object_i18n', 'authorized_form_of_name'), $sortDir);
                 break;
             case 'lastUpdated':
             default:

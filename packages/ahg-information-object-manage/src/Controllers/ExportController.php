@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Response;
 use AhgCore\Support\Concerns\FetchesObjectCreators;
 use AhgCore\Services\HierarchyQueryService;
+use AhgCore\Support\I18nFallback;
 
 class ExportController extends Controller
 {
@@ -727,20 +728,18 @@ class ExportController extends Controller
             return null;
         }
         return DB::table('repository')
-            ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture, required: true))
             ->where('repository.id', $io->repository_id)
-            ->where('actor_i18n.culture', $culture)
-            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
+            ->select('repository.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'))
             ->first();
     }
 
     private function getEvents($io, string $culture)
     {
         return DB::table('event')
-            ->join('event_i18n', 'event.id', '=', 'event_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n', 'event.id', $culture))
             ->where('event.object_id', $io->id)
-            ->where('event_i18n.culture', $culture)
-            ->select('event.id', 'event.type_id', 'event.actor_id', 'event.start_date', 'event.end_date', 'event_i18n.date as date_display')
+            ->select('event.id', 'event.type_id', 'event.actor_id', 'event.start_date', 'event.end_date', I18nFallback::col('event_i18n', 'date', 'date_display'))
             ->get();
     }
 
@@ -748,22 +747,20 @@ class ExportController extends Controller
     private function getAccessPoints($io, int $taxonomyId, string $culture)
     {
         return DB::table('object_term_relation')
-            ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'object_term_relation.term_id', $culture, required: true))
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
             ->where('object_term_relation.object_id', $io->id)
             ->where('term.taxonomy_id', $taxonomyId)
-            ->where('term_i18n.culture', $culture)
-            ->select('term_i18n.name')
+            ->select(I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
     }
 
     private function getNotes($io, string $culture)
     {
         return DB::table('note')
-            ->join('note_i18n', 'note.id', '=', 'note_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'note_i18n', 'note.id', $culture, required: true))
             ->where('note.object_id', $io->id)
-            ->where('note_i18n.culture', $culture)
-            ->select('note.type_id', 'note_i18n.content')
+            ->select('note.type_id', I18nFallback::col('note_i18n', 'content', 'content'))
             ->get();
     }
 
@@ -781,12 +778,11 @@ class ExportController extends Controller
     private function getLanguages($io, string $culture)
     {
         return DB::table('object_term_relation')
-            ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'object_term_relation.term_id', $culture, required: true))
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
             ->where('object_term_relation.object_id', $io->id)
             ->where('term.taxonomy_id', 7)
-            ->where('term_i18n.culture', $culture)
-            ->select('term_i18n.name')
+            ->select(I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
     }
 
@@ -865,11 +861,10 @@ class ExportController extends Controller
     private function getSerializedProperty(int $objectId, string $name, string $culture): ?string
     {
         $raw = DB::table('property')
-            ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'property_i18n', 'property.id', $culture, required: true))
             ->where('property.object_id', $objectId)
             ->where('property.name', $name)
-            ->where('property_i18n.culture', $culture)
-            ->value('property_i18n.value');
+            ->value(I18nFallback::col('property_i18n', 'value', 'value'));
         if (!$raw) {
             return null;
         }
@@ -892,11 +887,10 @@ class ExportController extends Controller
     private function getPlacesOfPublication(int $ioId, string $culture)
     {
         return DB::table('relation')
-            ->join('term_i18n', 'relation.object_id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'relation.object_id', $culture, required: true))
             ->where('relation.subject_id', $ioId)
             ->where('relation.type_id', 162)
-            ->where('term_i18n.culture', $culture)
-            ->select('relation.object_id as place_id', 'term_i18n.name')
+            ->select('relation.object_id as place_id', I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
     }
 

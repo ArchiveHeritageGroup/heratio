@@ -28,6 +28,7 @@
 namespace AhgHeritageManage\Services;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Heritage Search Service.
@@ -147,10 +148,7 @@ class HeritageSearchService
                 $join->on('io.id', '=', 'pub_status.object_id')
                     ->where('pub_status.type_id', '=', 158);
             })
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('io.id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
             ->leftJoin('digital_object as do_master', function ($join) {
                 $join->on('io.id', '=', 'do_master.object_id')
                     ->where('do_master.usage_id', '=', 140);
@@ -159,14 +157,8 @@ class HeritageSearchService
                 $join->on('do_thumb.parent_id', '=', 'do_master.id')
                     ->where('do_thumb.usage_id', '=', 142);
             })
-            ->leftJoin('actor_i18n as repo_ai', function ($join) {
-                $join->on('io.repository_id', '=', 'repo_ai.id')
-                    ->where('repo_ai.culture', '=', $this->culture);
-            })
-            ->leftJoin('term_i18n as lod_ti', function ($join) {
-                $join->on('io.level_of_description_id', '=', 'lod_ti.id')
-                    ->where('lod_ti.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as repo_ai', 'io.repository_id', $this->culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as lod_ti', 'io.level_of_description_id', $this->culture))
             ->where('pub_status.status_id', 160) // Published only
             ->where('io.id', '!=', 1)             // Exclude root
             ->select(
@@ -175,11 +167,11 @@ class HeritageSearchService
                 'io.identifier',
                 'io.level_of_description_id',
                 'io.repository_id',
-                'ioi.title',
-                'ioi.scope_and_content',
-                'ioi.alternate_title',
-                'ioi.archival_history',
-                'ioi.arrangement',
+                I18nFallback::col('ioi', 'title', 'title'),
+                I18nFallback::col('ioi', 'scope_and_content', 'scope_and_content'),
+                I18nFallback::col('ioi', 'alternate_title', 'alternate_title'),
+                I18nFallback::col('ioi', 'archival_history', 'archival_history'),
+                I18nFallback::col('ioi', 'arrangement', 'arrangement'),
                 DB::raw("(SELECT YEAR(ev.start_date) FROM event ev WHERE ev.object_id = io.id LIMIT 1) as io_start_year"),
                 DB::raw("(SELECT YEAR(ev.end_date) FROM event ev WHERE ev.object_id = io.id LIMIT 1) as io_end_year"),
                 'do_master.path as image_path',
@@ -187,8 +179,8 @@ class HeritageSearchService
                 'do_master.mime_type',
                 'do_thumb.path as thumb_child_path',
                 'do_thumb.name as thumb_child_name',
-                'repo_ai.authorized_form_of_name as repository_name',
-                'lod_ti.name as level_of_description',
+                I18nFallback::col('repo_ai', 'authorized_form_of_name', 'repository_name'),
+                I18nFallback::col('lod_ti', 'name', 'level_of_description'),
                 'o.created_at',
                 'o.updated_at'
             );
@@ -215,19 +207,17 @@ class HeritageSearchService
                         ->orWhereExists(function ($sub) use ($pattern) {
                             $sub->select(DB::raw(1))
                                 ->from('object_term_relation as otr_kw')
-                                ->join('term_i18n as ti_kw', 'otr_kw.term_id', '=', 'ti_kw.id')
+                                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti_kw', 'otr_kw.term_id', $this->culture, required: true))
                                 ->whereColumn('otr_kw.object_id', 'io.id')
-                                ->where('ti_kw.culture', $this->culture)
-                                ->where('ti_kw.name', 'LIKE', $pattern);
+                                ->where(I18nFallback::col('ti_kw', 'name'), 'LIKE', $pattern);
                         })
                         // Creator/actor name search
                         ->orWhereExists(function ($sub) use ($pattern) {
                             $sub->select(DB::raw(1))
                                 ->from('relation as rel_kw')
-                                ->join('actor_i18n as ai_kw', 'rel_kw.object_id', '=', 'ai_kw.id')
+                                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai_kw', 'rel_kw.object_id', $this->culture, required: true))
                                 ->whereColumn('rel_kw.subject_id', 'io.id')
-                                ->where('ai_kw.culture', $this->culture)
-                                ->where('ai_kw.authorized_form_of_name', 'LIKE', $pattern);
+                                ->where(I18nFallback::col('ai_kw', 'authorized_form_of_name'), 'LIKE', $pattern);
                         });
                 });
             }
@@ -386,18 +376,15 @@ class HeritageSearchService
                     $join->on('io.id', '=', 'pub_status.object_id')
                         ->where('pub_status.type_id', '=', 158);
                 })
-                ->leftJoin('information_object_i18n as ioi', function ($join) {
-                    $join->on('io.id', '=', 'ioi.id')
-                        ->where('ioi.culture', '=', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
                 ->where('pub_status.status_id', 160)
                 ->where('io.id', '!=', 1)
                 ->where(function ($q) use ($pattern) {
-                    $q->where('ioi.title', 'LIKE', $pattern)
-                        ->orWhere('ioi.scope_and_content', 'LIKE', $pattern)
-                        ->orWhere('ioi.alternate_title', 'LIKE', $pattern)
-                        ->orWhere('ioi.archival_history', 'LIKE', $pattern)
-                        ->orWhere('ioi.arrangement', 'LIKE', $pattern)
+                    $q->where(I18nFallback::col('ioi', 'title'), 'LIKE', $pattern)
+                        ->orWhere(I18nFallback::col('ioi', 'scope_and_content'), 'LIKE', $pattern)
+                        ->orWhere(I18nFallback::col('ioi', 'alternate_title'), 'LIKE', $pattern)
+                        ->orWhere(I18nFallback::col('ioi', 'archival_history'), 'LIKE', $pattern)
+                        ->orWhere(I18nFallback::col('ioi', 'arrangement'), 'LIKE', $pattern)
                         ->orWhere('io.identifier', 'LIKE', $pattern)
                         ->orWhereExists(function ($sub) use ($pattern) {
                             $sub->select(DB::raw(1))
@@ -489,12 +476,11 @@ class HeritageSearchService
         foreach ($idChunks as $chunk) {
             $partial = DB::table('object_term_relation as otr')
                 ->join('term as t', 'otr.term_id', '=', 't.id')
-                ->join('term_i18n as ti', 't.id', '=', 'ti.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 't.id', $this->culture, required: true))
                 ->where('t.taxonomy_id', $taxonomyId)
-                ->where('ti.culture', $this->culture)
                 ->whereIn('otr.object_id', $chunk)
-                ->select('t.id', 'ti.name', DB::raw('COUNT(DISTINCT otr.object_id) as cnt'))
-                ->groupBy('t.id', 'ti.name')
+                ->select('t.id', I18nFallback::col('ti', 'name', 'name'), DB::raw('COUNT(DISTINCT otr.object_id) as cnt'))
+                ->groupBy('t.id', I18nFallback::col('ti', 'name'))
                 ->get();
 
             foreach ($partial as $row) {
@@ -521,13 +507,12 @@ class HeritageSearchService
 
         foreach ($idChunks as $chunk) {
             $partial = DB::table('relation as r')
-                ->join('actor_i18n as ai', 'r.object_id', '=', 'ai.id')
-                ->where('ai.culture', $this->culture)
-                ->whereNotNull('ai.authorized_form_of_name')
-                ->where('ai.authorized_form_of_name', '!=', '')
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'r.object_id', $this->culture, required: true))
+                ->whereNotNull(I18nFallback::col('ai', 'authorized_form_of_name'))
+                ->where(I18nFallback::col('ai', 'authorized_form_of_name'), '!=', '')
                 ->whereIn('r.subject_id', $chunk)
-                ->select('ai.id', 'ai.authorized_form_of_name as name', DB::raw('COUNT(DISTINCT r.subject_id) as cnt'))
-                ->groupBy('ai.id', 'ai.authorized_form_of_name')
+                ->select(I18nFallback::col('ai', 'id', 'id'), I18nFallback::col('ai', 'authorized_form_of_name', 'name'), DB::raw('COUNT(DISTINCT r.subject_id) as cnt'))
+                ->groupBy(I18nFallback::col('ai', 'id'), I18nFallback::col('ai', 'authorized_form_of_name'))
                 ->get();
 
             foreach ($partial as $row) {
@@ -554,16 +539,13 @@ class HeritageSearchService
 
         foreach ($idChunks as $chunk) {
             $partial = DB::table('information_object as io')
-                ->join('actor_i18n as ai', function ($join) {
-                    $join->on('io.repository_id', '=', 'ai.id')
-                        ->where('ai.culture', '=', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'io.repository_id', $this->culture, required: true))
                 ->whereNotNull('io.repository_id')
-                ->whereNotNull('ai.authorized_form_of_name')
-                ->where('ai.authorized_form_of_name', '!=', '')
+                ->whereNotNull(I18nFallback::col('ai', 'authorized_form_of_name'))
+                ->where(I18nFallback::col('ai', 'authorized_form_of_name'), '!=', '')
                 ->whereIn('io.id', $chunk)
-                ->select('io.repository_id', 'ai.authorized_form_of_name as name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
-                ->groupBy('io.repository_id', 'ai.authorized_form_of_name')
+                ->select('io.repository_id', I18nFallback::col('ai', 'authorized_form_of_name', 'name'), DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                ->groupBy('io.repository_id', I18nFallback::col('ai', 'authorized_form_of_name'))
                 ->get();
 
             foreach ($partial as $row) {

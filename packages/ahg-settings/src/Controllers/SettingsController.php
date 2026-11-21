@@ -3818,8 +3818,15 @@ class SettingsController extends Controller
         }
 
         if ($request->isMethod('post')) {
-            $keys = ['face_enabled', 'face_backend'];
-            $checkboxes = ['face_enabled'];
+            // heratio#1764: gateway route, video sampling, match threshold, public search.
+            $request->validate([
+                'face_backend' => 'nullable|in:gateway,azure,noop',
+                'face_gateway_path' => ['nullable', 'string', 'max:255', 'regex:#^/[A-Za-z0-9/_.-]*$#'],
+                'face_video_interval' => 'nullable|numeric|min:1|max:3600',
+                'face_match_threshold' => 'nullable|numeric|min:0.1|max:1',
+            ]);
+            $keys = ['face_enabled', 'face_backend', 'face_gateway_path', 'face_video_interval', 'face_match_threshold', 'face_search_public'];
+            $checkboxes = ['face_enabled', 'face_search_public'];
 
             foreach ($keys as $key) {
                 $value = in_array($key, $checkboxes)

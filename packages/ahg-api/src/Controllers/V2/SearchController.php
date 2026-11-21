@@ -6,6 +6,7 @@ use AhgCore\Constants\TermId;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class SearchController extends BaseApiController
 {
@@ -29,20 +30,19 @@ class SearchController extends BaseApiController
         $searchTerm = '%'.addcslashes($queryStr, '%_\\').'%';
 
         $query = DB::table('information_object as io')
-            ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
             ->join('object', 'io.id', '=', 'object.id')
             ->join('slug', 'io.id', '=', 'slug.object_id')
             ->leftJoin('status', function ($j) {
                 $j->on('io.id', '=', 'status.object_id')->where('status.type_id', TermId::STATUS_TYPE_PUBLICATION);
             })
-            ->where('ioi.culture', $this->culture)
             ->where('io.id', '!=', 1)
             ->where('status.status_id', TermId::PUBLICATION_STATUS_PUBLISHED)
             ->where(function ($q) use ($searchTerm) {
-                $q->where('ioi.title', 'LIKE', $searchTerm)
+                $q->where(I18nFallback::col('ioi', 'title'), 'LIKE', $searchTerm)
                     ->orWhere('io.identifier', 'LIKE', $searchTerm)
-                    ->orWhere('ioi.scope_and_content', 'LIKE', $searchTerm)
-                    ->orWhere('ioi.archival_history', 'LIKE', $searchTerm);
+                    ->orWhere(I18nFallback::col('ioi', 'scope_and_content'), 'LIKE', $searchTerm)
+                    ->orWhere(I18nFallback::col('ioi', 'archival_history'), 'LIKE', $searchTerm);
             });
 
         // #1558 - the same ICIP/TK, ODRL, embargo and classification gate as
@@ -64,8 +64,8 @@ class SearchController extends BaseApiController
         $total = $query->count();
 
         $rows = $query
-            ->select('io.id', 'io.identifier', 'io.level_of_description_id', 'ioi.title', 'slug.slug')
-            ->orderByRaw('CASE WHEN ioi.title LIKE ? THEN 0 ELSE 1 END', [$searchTerm])
+            ->select('io.id', 'io.identifier', 'io.level_of_description_id', I18nFallback::col('ioi', 'title', 'title'), 'slug.slug')
+            ->orderByRaw('CASE WHEN COALESCE(ioi.title, ioi_fb.title) LIKE ? THEN 0 ELSE 1 END', [$searchTerm])
             ->orderByDesc('object.updated_at')
             ->offset($skip)
             ->limit($limit)

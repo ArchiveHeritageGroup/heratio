@@ -31,6 +31,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class ReportBuilderController extends Controller
 {
@@ -601,25 +602,21 @@ class ReportBuilderController extends Controller
             $culture = app()->getLocale();
             if ($type === 'information_object') {
                 $results = DB::table('information_object as io')->tap(fn ($q) => \AhgCore\Support\TenantScope::apply($q, 'io.repository_id'))
-                    ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
-                        $join->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
                     ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
                     ->where(function ($q) use ($query) {
                         $q->where('io.identifier', 'LIKE', "%{$query}%")
-                          ->orWhere('ioi.title', 'LIKE', "%{$query}%");
+                          ->orWhere(I18nFallback::col('ioi', 'title'), 'LIKE', "%{$query}%");
                     })
-                    ->select(['io.id', 'io.identifier', 'ioi.title', 's.slug'])
+                    ->select(['io.id', 'io.identifier', I18nFallback::col('ioi', 'title', 'title'), 's.slug'])
                     ->limit(20)
                     ->get()
                     ->toArray();
             } elseif ($type === 'actor') {
                 $results = DB::table('actor as a')
-                    ->leftJoin('actor_i18n as ai', function ($join) use ($culture) {
-                        $join->on('a.id', '=', 'ai.id')->where('ai.culture', '=', $culture);
-                    })
-                    ->where('ai.authorized_form_of_name', 'LIKE', "%{$query}%")
-                    ->select(['a.id', 'ai.authorized_form_of_name as name'])
+                    ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'a.id', $culture))
+                    ->where(I18nFallback::col('ai', 'authorized_form_of_name'), 'LIKE', "%{$query}%")
+                    ->select(['a.id', I18nFallback::col('ai', 'authorized_form_of_name', 'name')])
                     ->limit(20)
                     ->get()
                     ->toArray();

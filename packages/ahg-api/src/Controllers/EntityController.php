@@ -77,6 +77,7 @@ use Symfony\Component\HttpFoundation\Response;
 use AhgApi\Concerns\NegotiatesRdfFormat;
 use AhgApi\Concerns\ResolvesTermName;
 use AhgApi\Concerns\ResolvesPublisherName;
+use AhgCore\Support\I18nFallback;
 
 class EntityController extends Controller
 {
@@ -309,9 +310,7 @@ class EntityController extends Controller
 
             $row = DB::table('slug as s')
                 ->join('information_object as io', 'io.id', '=', 's.object_id')
-                ->join('information_object_i18n as i18n', function ($j) {
-                    $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $this->culture))
                 ->leftJoin('object as o', 'io.id', '=', 'o.id')
                 ->leftJoin('status as st', function ($j) {
                     $j->on('io.id', '=', 'st.object_id')
@@ -325,8 +324,8 @@ class EntityController extends Controller
                     'io.level_of_description_id',
                     'io.repository_id',
                     'io.parent_id',
-                    'i18n.title',
-                    'i18n.scope_and_content',
+                    I18nFallback::col('i18n', 'title', 'title'),
+                    I18nFallback::col('i18n', 'scope_and_content', 'scope_and_content'),
                     'st.status_id',
                     'o.updated_at'
                 )
@@ -369,15 +368,12 @@ class EntityController extends Controller
     {
         try {
             return DB::table('event')
-                ->join('actor_i18n', function ($j) {
-                    $j->on('event.actor_id', '=', 'actor_i18n.id')
-                        ->where('actor_i18n.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'event.actor_id', $this->culture, required: true))
                 ->where('event.object_id', $objectId)
                 ->whereNotNull('event.actor_id')
-                ->whereNotNull('actor_i18n.authorized_form_of_name')
+                ->whereNotNull(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
                 ->distinct()
-                ->pluck('actor_i18n.authorized_form_of_name')
+                ->pluck(I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'))
                 ->filter()
                 ->map(fn ($v) => (string) $v)
                 ->values()
@@ -396,11 +392,9 @@ class EntityController extends Controller
     {
         try {
             $rows = DB::table('event as e')
-                ->leftJoin('event_i18n as ei', function ($j) {
-                    $j->on('e.id', '=', 'ei.id')->where('ei.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n as ei', 'e.id', $this->culture))
                 ->where('e.object_id', $objectId)
-                ->select('ei.date as display_date', 'e.start_date', 'e.end_date')
+                ->select(I18nFallback::col('ei', 'date', 'display_date'), 'e.start_date', 'e.end_date')
                 ->get();
 
             $dates = [];
@@ -431,14 +425,12 @@ class EntityController extends Controller
         try {
             return DB::table('object_term_relation as otr')
                 ->join('term as t', 'otr.term_id', '=', 't.id')
-                ->join('term_i18n as ti', function ($j) {
-                    $j->on('otr.term_id', '=', 'ti.id')->where('ti.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 'otr.term_id', $this->culture, required: true))
                 ->where('otr.object_id', $objectId)
                 ->where('t.taxonomy_id', $taxonomyId)
-                ->whereNotNull('ti.name')
+                ->whereNotNull(I18nFallback::col('ti', 'name'))
                 ->distinct()
-                ->pluck('ti.name')
+                ->pluck(I18nFallback::col('ti', 'name', 'name'))
                 ->filter()
                 ->map(fn ($v) => (string) $v)
                 ->values()

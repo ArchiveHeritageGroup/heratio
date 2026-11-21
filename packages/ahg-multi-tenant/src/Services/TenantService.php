@@ -17,6 +17,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use AhgCore\Support\I18nFallback;
 
 class TenantService
 {
@@ -170,14 +171,12 @@ class TenantService
         $culture = app()->getLocale();
 
         return DB::table('user as u')
-            ->leftJoin('actor_i18n as ai', function ($j) use ($culture) {
-                $j->on('u.id', '=', 'ai.id')->where('ai.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'u.id', $culture))
             ->leftJoin('ahg_tenant_user as tu', function ($j) {
                 $j->on('u.id', '=', 'tu.user_id')->where('tu.is_super_user', 1);
             })
-            ->select('u.id', 'u.username', 'u.email', 'ai.authorized_form_of_name as name', 'tu.is_super_user', 'tu.tenant_id')
-            ->orderBy('ai.authorized_form_of_name')
+            ->select('u.id', 'u.username', 'u.email', I18nFallback::col('ai', 'authorized_form_of_name', 'name'), 'tu.is_super_user', 'tu.tenant_id')
+            ->orderBy(I18nFallback::col('ai', 'authorized_form_of_name'))
             ->get();
     }
 
@@ -187,12 +186,10 @@ class TenantService
 
         return DB::table('ahg_tenant_user as tu')
             ->leftJoin('user as u', 'tu.user_id', '=', 'u.id')
-            ->leftJoin('actor_i18n as ai', function ($j) use ($culture) {
-                $j->on('u.id', '=', 'ai.id')->where('ai.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'u.id', $culture))
             ->where('tu.tenant_id', $tenantId)
-            ->select('tu.*', 'u.username', 'u.email', 'ai.authorized_form_of_name as name')
-            ->orderBy('ai.authorized_form_of_name')
+            ->select('tu.*', 'u.username', 'u.email', I18nFallback::col('ai', 'authorized_form_of_name', 'name'))
+            ->orderBy(I18nFallback::col('ai', 'authorized_form_of_name'))
             ->get();
     }
 

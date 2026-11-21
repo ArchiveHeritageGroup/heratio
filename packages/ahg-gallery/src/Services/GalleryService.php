@@ -33,6 +33,7 @@ use AhgCore\Services\SettingHelper;
 use AhgCore\Traits\WithCultureFallback;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use AhgCore\Support\I18nFallback;
 
 class GalleryService
 {
@@ -181,9 +182,7 @@ class GalleryService
         $subquery = $params['subquery'] ?? '';
 
         $query = DB::table('information_object as io')
-            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->join('object as obj', 'io.id', '=', 'obj.id')
             ->join('slug', 'io.id', '=', 'slug.object_id')
             ->join('display_object_config as doc', function ($j) {
@@ -204,7 +203,7 @@ class GalleryService
         if ($subquery !== '') {
             $like = '%' . $subquery . '%';
             $query->where(function ($q) use ($like) {
-                $q->where('i18n.title', 'like', $like)
+                $q->where(I18nFallback::col('i18n', 'title'), 'like', $like)
                     ->orWhere('io.identifier', 'like', $like)
                     ->orWhere('mm.creator_identity', 'like', $like)
                     ->orWhere('mm.materials', 'like', $like)
@@ -234,7 +233,7 @@ class GalleryService
                 $query->orderBy('mm.creator_identity', 'asc');
                 break;
             default: // alphabetic
-                $query->orderBy('i18n.title', 'asc');
+                $query->orderBy(I18nFallback::col('i18n', 'title'), 'asc');
                 break;
         }
 
@@ -244,7 +243,7 @@ class GalleryService
                 'io.identifier',
                 'io.repository_id',
                 'io.level_of_description_id',
-                'i18n.title as name',
+                I18nFallback::col('i18n', 'title', 'name'),
                 'slug.slug',
                 'obj.updated_at',
                 'mm.creator_identity',
@@ -262,10 +261,9 @@ class GalleryService
         $repositoryNames = [];
         if (!empty($repoIds)) {
             $repositoryNames = DB::table('repository')
-                ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture, required: true))
                 ->whereIn('repository.id', $repoIds)
-                ->where('actor_i18n.culture', $culture)
-                ->pluck('actor_i18n.authorized_form_of_name', 'repository.id')
+                ->pluck(I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'), 'repository.id')
                 ->toArray();
         }
 
@@ -805,12 +803,10 @@ class GalleryService
             ->join('display_object_config as doc', function ($j) {
                 $j->on('mm.object_id', '=', 'doc.object_id')->where('doc.object_type', '=', 'gallery');
             })
-            ->join('information_object_i18n as i18n', function ($j) {
-                $j->on('mm.object_id', '=', 'i18n.id')->where('i18n.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'mm.object_id', app()->getLocale()))
             ->join('slug', 'mm.object_id', '=', 'slug.object_id')
             ->where('mm.creator_identity', 'like', '%' . $artist->display_name . '%')
-            ->select('mm.object_id as id', 'i18n.title', 'slug.slug', 'mm.work_type', 'mm.creation_date_display', 'mm.materials')
+            ->select('mm.object_id as id', I18nFallback::col('i18n', 'title', 'title'), 'slug.slug', 'mm.work_type', 'mm.creation_date_display', 'mm.materials')
             ->get();
 
         // If artist has an actor_id, get related information from actor_i18n
@@ -870,19 +866,17 @@ class GalleryService
     {
         // Level of description options (taxonomy_id = 34)
         $levels = DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
             ->where('term.taxonomy_id', 34)
-            ->where('term_i18n.culture', $culture)
-            ->orderBy('term_i18n.name')
-            ->select('term.id', 'term_i18n.name')
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
 
         // Repositories
         $repositories = DB::table('repository')
-            ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
-            ->where('actor_i18n.culture', $culture)
-            ->orderBy('actor_i18n.authorized_form_of_name')
-            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture, required: true))
+            ->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
+            ->select('repository.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'))
             ->get();
 
         // Work types for gallery

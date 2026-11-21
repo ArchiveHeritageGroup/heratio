@@ -28,6 +28,7 @@ namespace AhgStatistics\Controllers;
 use AhgStatistics\Services\StatisticsService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use AhgCore\Support\I18nFallback;
 
 class StatisticsController extends Controller
 {
@@ -116,12 +117,10 @@ class StatisticsController extends Controller
 
         $culture = app()->getLocale();
         $object = \Illuminate\Support\Facades\DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
             ->where('io.id', $objectId)
-            ->select('io.id', 'io.identifier', 'ioi.title', 's.slug')
+            ->select('io.id', 'io.identifier', I18nFallback::col('ioi', 'title', 'title'), 's.slug')
             ->first();
 
         abort_unless($object, 404, 'Object not found');
@@ -138,11 +137,9 @@ class StatisticsController extends Controller
 
         $culture = app()->getLocale();
         $repository = \Illuminate\Support\Facades\DB::table('actor as a')
-            ->leftJoin('actor_i18n as ai', function ($j) use ($culture) {
-                $j->on('a.id', '=', 'ai.id')->where('ai.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'a.id', $culture))
             ->where('a.id', $id)
-            ->select('a.id', 'ai.authorized_form_of_name as name')
+            ->select('a.id', I18nFallback::col('ai', 'authorized_form_of_name', 'name'))
             ->first();
 
         abort_unless($repository, 404, 'Repository not found');

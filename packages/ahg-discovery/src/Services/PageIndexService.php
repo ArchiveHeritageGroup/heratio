@@ -8,6 +8,7 @@ use AhgCore\Constants\TermId;
 use AhgCore\Services\SecretCrypto;
 use Illuminate\Support\Facades\DB;
 use AhgDiscovery\Concerns\ResolvesDiscoveryConnection;
+use AhgCore\Support\I18nFallback;
 
 /**
  * PageIndex Service
@@ -397,10 +398,7 @@ class PageIndexService
         $db = $this->discoveryDb();
         $root = $db->table('information_object as i')
             ->join('object as o', 'i.id', '=', 'o.id')
-            ->leftJoin('information_object_i18n as i18n', function ($join) use ($culture) {
-                $join->on('i.id', '=', 'i18n.id')
-                    ->where('i18n.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'i.id', $culture))
             ->where('i.id', $objectId)
             ->select(
                 'i.id',
@@ -409,22 +407,22 @@ class PageIndexService
                 'i.parent_id',
                 'i.lft',
                 'i.rgt',
-                'i18n.title',
-                'i18n.scope_and_content as scopeAndContent',
-                'i18n.archival_history as archivalHistory',
-                'i18n.acquisition',
-                'i18n.arrangement',
-                'i18n.access_conditions as accessConditions',
-                'i18n.reproduction_conditions as reproductionConditions',
-                'i18n.physical_characteristics as physicalCharacteristics',
-                'i18n.finding_aids as findingAids',
-                'i18n.extent_and_medium as extentAndMedium',
-                'i18n.location_of_originals as locationOfOriginals',
-                'i18n.location_of_copies as locationOfCopies',
-                'i18n.related_units_of_description as relatedUnitsOfDescription',
-                'i18n.rules',
-                'i18n.sources',
-                'i18n.revision_history as revisionHistory'
+                I18nFallback::col('i18n', 'title', 'title'),
+                I18nFallback::col('i18n', 'scope_and_content', 'scopeAndContent'),
+                I18nFallback::col('i18n', 'archival_history', 'archivalHistory'),
+                I18nFallback::col('i18n', 'acquisition', 'acquisition'),
+                I18nFallback::col('i18n', 'arrangement', 'arrangement'),
+                I18nFallback::col('i18n', 'access_conditions', 'accessConditions'),
+                I18nFallback::col('i18n', 'reproduction_conditions', 'reproductionConditions'),
+                I18nFallback::col('i18n', 'physical_characteristics', 'physicalCharacteristics'),
+                I18nFallback::col('i18n', 'finding_aids', 'findingAids'),
+                I18nFallback::col('i18n', 'extent_and_medium', 'extentAndMedium'),
+                I18nFallback::col('i18n', 'location_of_originals', 'locationOfOriginals'),
+                I18nFallback::col('i18n', 'location_of_copies', 'locationOfCopies'),
+                I18nFallback::col('i18n', 'related_units_of_description', 'relatedUnitsOfDescription'),
+                I18nFallback::col('i18n', 'rules', 'rules'),
+                I18nFallback::col('i18n', 'sources', 'sources'),
+                I18nFallback::col('i18n', 'revision_history', 'revisionHistory')
             )
             ->first();
 
@@ -438,10 +436,7 @@ class PageIndexService
         // Get children within the nested set range
         $children = $db->table('information_object as i')
             ->join('object as o', 'i.id', '=', 'o.id')
-            ->leftJoin('information_object_i18n as i18n', function ($join) use ($culture) {
-                $join->on('i.id', '=', 'i18n.id')
-                    ->where('i18n.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'i.id', $culture))
             ->where('i.lft', '>', $root->lft)
             ->where('i.rgt', '<', $root->rgt)
             ->select(
@@ -450,10 +445,10 @@ class PageIndexService
                 'i.level_of_description_id',
                 'i.parent_id',
                 'i.lft',
-                'i18n.title',
-                'i18n.scope_and_content as scopeAndContent',
-                'i18n.extent_and_medium as extentAndMedium',
-                'i18n.arrangement'
+                I18nFallback::col('i18n', 'title', 'title'),
+                I18nFallback::col('i18n', 'scope_and_content', 'scopeAndContent'),
+                I18nFallback::col('i18n', 'extent_and_medium', 'extentAndMedium'),
+                I18nFallback::col('i18n', 'arrangement', 'arrangement')
             )
             ->orderBy('i.lft')
             ->limit(500)
@@ -461,34 +456,25 @@ class PageIndexService
 
         // Get events (dates)
         $events = $db->table('event as e')
-            ->leftJoin('event_i18n as ei18n', function ($join) use ($culture) {
-                $join->on('e.id', '=', 'ei18n.id')
-                    ->where('ei18n.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n as ei18n', 'e.id', $culture))
             ->where('e.object_id', $objectId)
-            ->select('ei18n.date', 'ei18n.name as eventType', 'e.start_date', 'e.end_date')
+            ->select(I18nFallback::col('ei18n', 'date', 'date'), I18nFallback::col('ei18n', 'name', 'eventType'), 'e.start_date', 'e.end_date')
             ->get();
 
         // Get creators (via event)
         $creators = $db->table('event as e')
-            ->join('actor_i18n as ai', function ($join) use ($culture) {
-                $join->on('e.actor_id', '=', 'ai.id')
-                    ->where('ai.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'e.actor_id', $culture, required: true))
             ->where('e.object_id', $objectId)
             ->where('e.type_id', TermId::EVENT_TYPE_CREATION)
-            ->select('ai.authorized_form_of_name as name')
+            ->select(I18nFallback::col('ai', 'authorized_form_of_name', 'name'))
             ->get();
 
         // Get repository name
         $repository = $db->table('information_object as i')
             ->join('repository as r', 'i.repository_id', '=', 'r.id')
-            ->join('actor_i18n as ai', function ($join) use ($culture) {
-                $join->on('r.id', '=', 'ai.id')
-                    ->where('ai.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'r.id', $culture, required: true))
             ->where('i.id', $objectId)
-            ->value('ai.authorized_form_of_name');
+            ->value(I18nFallback::col('ai', 'authorized_form_of_name', 'authorized_form_of_name'));
 
         // Build text representation
         $parts = [];

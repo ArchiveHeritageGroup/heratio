@@ -38,6 +38,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class RicController extends Controller
 {
@@ -1078,16 +1079,12 @@ class RicController extends Controller
         $culture = app()->getLocale() === 'en' ? 'en' : app()->getLocale();
 
         $query = DB::table('information_object as io')
-            ->join('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
-            ->leftJoin('term_i18n as lod', function ($j) use ($culture) {
-                $j->on('io.level_of_description_id', '=', 'lod.id')->where('lod.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as lod', 'io.level_of_description_id', $culture))
             ->where('io.id', '>', 1)
             ->where(function ($query) use ($q) {
-                $query->where('ioi.title', 'LIKE', '%' . $q . '%')
+                $query->where(I18nFallback::col('ioi', 'title'), 'LIKE', '%' . $q . '%')
                       ->orWhere('io.identifier', 'LIKE', '%' . $q . '%')
                       ->orWhere('s.slug', 'LIKE', '%' . $q . '%');
             });
@@ -1099,8 +1096,8 @@ class RicController extends Controller
         }
 
         $results = $query
-            ->select('io.id', 'ioi.title', 'io.identifier', 'lod.name as level_of_description', 's.slug')
-            ->orderByRaw('CASE WHEN ioi.title LIKE ? THEN 0 ELSE 1 END', [$q . '%'])
+            ->select('io.id', I18nFallback::col('ioi', 'title', 'title'), 'io.identifier', I18nFallback::col('lod', 'name', 'level_of_description'), 's.slug')
+            ->orderByRaw('CASE WHEN COALESCE(ioi.title, ioi_fb.title) LIKE ? THEN 0 ELSE 1 END', [$q . '%'])
             ->limit(15)
             ->get();
 
@@ -1189,11 +1186,9 @@ class RicController extends Controller
 
         // Get the record info
         $io = DB::table('information_object as io')
-            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->where('io.id', $id)
-            ->select('io.id', 'io.identifier', 'i18n.title')
+            ->select('io.id', 'io.identifier', I18nFallback::col('i18n', 'title', 'title'))
             ->first();
 
         if (!$io) {
@@ -1202,22 +1197,16 @@ class RicController extends Controller
 
         // Get events with dates
         $events = DB::table('event')
-            ->join('event_i18n', function ($j) use ($culture) {
-                $j->on('event.id', '=', 'event_i18n.id')->where('event_i18n.culture', $culture);
-            })
-            ->leftJoin('actor_i18n', function ($j) use ($culture) {
-                $j->on('event.actor_id', '=', 'actor_i18n.id')->where('actor_i18n.culture', $culture);
-            })
-            ->leftJoin('term_i18n as eti', function ($j) use ($culture) {
-                $j->on('event.type_id', '=', 'eti.id')->where('eti.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n', 'event.id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'event.actor_id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as eti', 'event.type_id', $culture))
             ->where('event.object_id', $id)
             ->select(
                 'event.id', 'event.start_date', 'event.end_date', 'event.type_id',
-                'event_i18n.date as date_display',
-                'event_i18n.name as event_name',
-                'actor_i18n.authorized_form_of_name as actor_name',
-                'eti.name as event_type_name'
+                I18nFallback::col('event_i18n', 'date', 'date_display'),
+                I18nFallback::col('event_i18n', 'name', 'event_name'),
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'actor_name'),
+                I18nFallback::col('eti', 'name', 'event_type_name')
             )
             ->orderBy('event.start_date')
             ->get();
@@ -1228,22 +1217,16 @@ class RicController extends Controller
         $descendants = DB::table('information_object as child')
             ->tap(fn ($q) => app(\AhgCore\Services\HierarchyQueryService::class)
                 ->scopeDescendants($q, 'information_object', (int) $id, 'child.id', false))
-            ->join('information_object_i18n as ci', function ($j) use ($culture) {
-                $j->on('ci.id', '=', 'child.id')->where('ci.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ci', 'child.id', $culture))
             ->join('event', 'event.object_id', '=', 'child.id')
-            ->join('event_i18n', function ($j) use ($culture) {
-                $j->on('event.id', '=', 'event_i18n.id')->where('event_i18n.culture', $culture);
-            })
-            ->leftJoin('term_i18n as eti', function ($j) use ($culture) {
-                $j->on('event.type_id', '=', 'eti.id')->where('eti.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n', 'event.id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as eti', 'event.type_id', $culture))
             ->whereNotNull('event.start_date')
             ->select(
-                'child.id as object_id', 'ci.title as object_title',
+                'child.id as object_id', I18nFallback::col('ci', 'title', 'object_title'),
                 'event.start_date', 'event.end_date',
-                'event_i18n.date as date_display',
-                'eti.name as event_type_name'
+                I18nFallback::col('event_i18n', 'date', 'date_display'),
+                I18nFallback::col('eti', 'name', 'event_type_name')
             )
             ->orderBy('event.start_date')
             ->limit(200)
@@ -1531,13 +1514,11 @@ SPARQL;
 
         // Top-level information objects (fonds/collections - parent_id = 1 is root)
         $topLevel = DB::table('information_object as io')
-            ->join('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->where('io.parent_id', 1)
-            ->whereNotNull('ioi.title')
-            ->select('io.id', 'ioi.title', 'slug.slug', 'io.level_of_description_id')
+            ->whereNotNull(I18nFallback::col('ioi', 'title'))
+            ->select('io.id', I18nFallback::col('ioi', 'title', 'title'), 'slug.slug', 'io.level_of_description_id')
             ->limit(50)
             ->get();
 
@@ -1548,13 +1529,11 @@ SPARQL;
 
             // Get creators for each top-level record
             $creators = DB::table('event')
-                ->join('actor_i18n', function ($j) use ($culture) {
-                    $j->on('event.actor_id', '=', 'actor_i18n.id')->where('actor_i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'event.actor_id', $culture, required: true))
                 ->leftJoin('slug as s', 'event.actor_id', '=', 's.object_id')
                 ->where('event.object_id', $io->id)
-                ->whereNotNull('actor_i18n.authorized_form_of_name')
-                ->select('event.actor_id', 'actor_i18n.authorized_form_of_name', 's.slug')
+                ->whereNotNull(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
+                ->select('event.actor_id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'), 's.slug')
                 ->limit(5)
                 ->get();
 
@@ -1569,12 +1548,10 @@ SPARQL;
 
             // Get repository
             $repo = DB::table('information_object as io2')
-                ->join('actor_i18n as ai', function ($j) use ($culture) {
-                    $j->on('io2.repository_id', '=', 'ai.id')->where('ai.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'io2.repository_id', $culture, required: true))
                 ->where('io2.id', $io->id)
                 ->whereNotNull('io2.repository_id')
-                ->value('ai.authorized_form_of_name');
+                ->value(I18nFallback::col('ai', 'authorized_form_of_name', 'authorized_form_of_name'));
 
             if ($repo) {
                 $repoUri = $this->buildRecordUri('corporatebody', $io->id . '-repo', $baseUri, $instanceId);
@@ -1721,22 +1698,18 @@ SPARQL;
         $nodeIndex = [];
 
         $record = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->where('io.id', $recordId)
-            ->select('io.*', 'ioi.title')
+            ->select('io.*', I18nFallback::col('ioi', 'title', 'title'))
             ->first();
 
         if (!$record) {
             // Try digital_object (Instantiation)
             $digObj = DB::table('digital_object as d')
                 ->leftJoin('information_object as io', 'd.object_id', '=', 'io.id')
-                ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                    $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
                 ->where('d.id', $recordId)
-                ->select('d.*', 'ioi.title as parent_title', 'io.id as parent_id')
+                ->select('d.*', I18nFallback::col('ioi', 'title', 'parent_title'), 'io.id as parent_id')
                 ->first();
 
             if ($digObj) {
@@ -1771,14 +1744,10 @@ SPARQL;
 
                 // Find records linked to this actor via events
                 $events = DB::table('event as e')
-                    ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                        $j->on('e.object_id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
-                    })
-                    ->leftJoin('term_i18n as ti', function ($j) use ($culture) {
-                        $j->on('e.type_id', '=', 'ti.id')->where('ti.culture', '=', $culture);
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'e.object_id', $culture))
+                    ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 'e.type_id', $culture))
                     ->where('e.actor_id', $recordId)
-                    ->select('e.object_id', 'ioi.title', 'ti.name as event_type')
+                    ->select('e.object_id', I18nFallback::col('ioi', 'title', 'title'), I18nFallback::col('ti', 'name', 'event_type'))
                     ->limit(20)
                     ->get();
                 foreach ($events as $ev) {
@@ -1803,11 +1772,9 @@ SPARQL;
 
                 // Find records linked to this term via object_term_relation
                 $linked = DB::table('object_term_relation as otr')
-                    ->join('information_object_i18n as ioi', function ($j) use ($culture) {
-                        $j->on('otr.object_id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'otr.object_id', $culture))
                     ->where('otr.term_id', $recordId)
-                    ->select('otr.object_id', 'ioi.title')
+                    ->select('otr.object_id', I18nFallback::col('ioi', 'title', 'title'))
                     ->limit(20)
                     ->get();
                 foreach ($linked as $link) {
@@ -1837,14 +1804,10 @@ SPARQL;
         // Creators via events
         $events = DB::table('event as e')
             ->leftJoin('actor as a', 'e.actor_id', '=', 'a.id')
-            ->leftJoin('actor_i18n as ai', function ($j) use ($culture) {
-                $j->on('a.id', '=', 'ai.id')->where('ai.culture', '=', $culture);
-            })
-            ->leftJoin('term_i18n as ti', function ($j) use ($culture) {
-                $j->on('e.type_id', '=', 'ti.id')->where('ti.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'a.id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 'e.type_id', $culture))
             ->where('e.object_id', $recordId)
-            ->select('a.id as actor_id', 'ai.authorized_form_of_name', 'e.type_id', 'ti.name as event_type')
+            ->select('a.id as actor_id', I18nFallback::col('ai', 'authorized_form_of_name', 'authorized_form_of_name'), 'e.type_id', I18nFallback::col('ti', 'name', 'event_type'))
             ->get();
 
         foreach ($events as $event) {
@@ -1882,13 +1845,11 @@ SPARQL;
         // Subject access points
         $subjects = DB::table('object_term_relation as otr')
             ->join('term as t', 'otr.term_id', '=', 't.id')
-            ->join('term_i18n as ti', function ($j) use ($culture) {
-                $j->on('t.id', '=', 'ti.id')->where('ti.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 't.id', $culture, required: true))
             ->join('taxonomy as tax', 't.taxonomy_id', '=', 'tax.id')
             ->where('otr.object_id', $recordId)
             ->whereIn('tax.id', [35, 42, 43]) // subjects, places, genres
-            ->select('t.id as term_id', 'ti.name as term_name', 'tax.id as taxonomy_id')
+            ->select('t.id as term_id', I18nFallback::col('ti', 'name', 'term_name'), 'tax.id as taxonomy_id')
             ->get();
 
         foreach ($subjects as $subject) {
@@ -1920,11 +1881,9 @@ SPARQL;
         // Parent/child relations
         if (isset($record->parent_id) && $record->parent_id && $record->parent_id > 1) {
             $parent = DB::table('information_object as io')
-                ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                    $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
                 ->where('io.id', $record->parent_id)
-                ->select('io.id', 'ioi.title')
+                ->select('io.id', I18nFallback::col('ioi', 'title', 'title'))
                 ->first();
 
             if ($parent) {
@@ -1948,14 +1907,10 @@ SPARQL;
 
         // RiC-O: hasCreationDate / hasAccumulationDate - temporal date modelling (rico:Date nodes)
         $dateEvents = DB::table('event as e')
-            ->leftJoin('event_i18n as ei', function ($j) use ($culture) {
-                $j->on('e.id', '=', 'ei.id')->where('ei.culture', '=', $culture);
-            })
-            ->leftJoin('term_i18n as ti', function ($j) use ($culture) {
-                $j->on('e.type_id', '=', 'ti.id')->where('ti.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n as ei', 'e.id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 'e.type_id', $culture))
             ->where('e.object_id', $recordId)
-            ->select('e.id as event_id', 'e.type_id', 'e.start_date', 'e.end_date', 'ei.date as date_display', 'ti.name as event_type_name')
+            ->select('e.id as event_id', 'e.type_id', 'e.start_date', 'e.end_date', I18nFallback::col('ei', 'date', 'date_display'), I18nFallback::col('ti', 'name', 'event_type_name'))
             ->get();
 
         foreach ($dateEvents as $de) {
@@ -1989,11 +1944,9 @@ SPARQL;
         // RiC-O: hasOrHadHolder - map from repository_id
         if (isset($record->repository_id) && $record->repository_id) {
             $repo = DB::table('repository as r')
-                ->leftJoin('actor_i18n as ai', function ($j) use ($culture) {
-                    $j->on('r.id', '=', 'ai.id')->where('ai.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'r.id', $culture))
                 ->where('r.id', $record->repository_id)
-                ->select('r.id', 'ai.authorized_form_of_name')
+                ->select('r.id', I18nFallback::col('ai', 'authorized_form_of_name', 'authorized_form_of_name'))
                 ->first();
 
             if ($repo) {
@@ -2023,21 +1976,11 @@ SPARQL;
                 $j->on(DB::raw("CASE WHEN r.subject_id = {$recordId} THEN r.object_id ELSE r.subject_id END"), '=', 'o_other.id');
             })
             ->leftJoin('ric_relation_meta as rm', 'r.id', '=', 'rm.relation_id')
-            ->leftJoin('actor_i18n as ai_s', function ($j) use ($culture) {
-                $j->on('r.subject_id', '=', 'ai_s.id')->where('ai_s.culture', '=', $culture);
-            })
-            ->leftJoin('actor_i18n as ai_o', function ($j) use ($culture) {
-                $j->on('r.object_id', '=', 'ai_o.id')->where('ai_o.culture', '=', $culture);
-            })
-            ->leftJoin('information_object_i18n as ioi_s', function ($j) use ($culture) {
-                $j->on('r.subject_id', '=', 'ioi_s.id')->where('ioi_s.culture', '=', $culture);
-            })
-            ->leftJoin('information_object_i18n as ioi_o', function ($j) use ($culture) {
-                $j->on('r.object_id', '=', 'ioi_o.id')->where('ioi_o.culture', '=', $culture);
-            })
-            ->leftJoin('term_i18n as ti_r', function ($j) use ($culture) {
-                $j->on('r.type_id', '=', 'ti_r.id')->where('ti_r.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai_s', 'r.subject_id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai_o', 'r.object_id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi_s', 'r.subject_id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi_o', 'r.object_id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti_r', 'r.type_id', $culture))
             ->where(function ($q) use ($recordId) {
                 $q->where('r.subject_id', $recordId)
                   ->orWhere('r.object_id', $recordId);
@@ -2047,11 +1990,11 @@ SPARQL;
                 'r.id as relation_id', 'r.subject_id', 'r.object_id', 'r.type_id',
                 'rm.rico_predicate', 'rm.inverse_predicate',
                 'o_other.class_name as other_class',
-                'ai_s.authorized_form_of_name as subject_name',
-                'ai_o.authorized_form_of_name as object_name',
-                'ioi_s.title as subject_title',
-                'ioi_o.title as object_title',
-                'ti_r.name as relation_type'
+                I18nFallback::col('ai_s', 'authorized_form_of_name', 'subject_name'),
+                I18nFallback::col('ai_o', 'authorized_form_of_name', 'object_name'),
+                I18nFallback::col('ioi_s', 'title', 'subject_title'),
+                I18nFallback::col('ioi_o', 'title', 'object_title'),
+                I18nFallback::col('ti_r', 'name', 'relation_type')
             )
             ->limit(30)
             ->get();

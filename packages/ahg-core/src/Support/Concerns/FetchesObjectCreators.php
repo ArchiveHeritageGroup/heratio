@@ -8,6 +8,7 @@
 namespace AhgCore\Support\Concerns;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Fetch an information object's creators (event.type_id 111) as {name,
@@ -19,13 +20,12 @@ trait FetchesObjectCreators
     private function getCreators($io, string $culture)
     {
         return DB::table('event')
-            ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'event.actor_id', $culture, required: true))
             ->join('actor', 'event.actor_id', '=', 'actor.id')
             ->where('event.object_id', $io->id)
             ->where('event.type_id', 111)
-            ->where('actor_i18n.culture', $culture)
             ->whereNotNull('event.actor_id')
-            ->select('actor_i18n.authorized_form_of_name as name', 'actor.entity_type_id')
+            ->select(I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'), 'actor.entity_type_id')
             ->distinct()
             ->get();
     }

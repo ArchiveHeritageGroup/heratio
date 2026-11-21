@@ -35,6 +35,7 @@ use AhgResearch\Services\OdrlService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * ResearchOdrlPoliciesController - ODRL rights-policy admin + supporting AJAX
@@ -92,12 +93,9 @@ class ResearchOdrlPoliciesController extends Controller
         $map = [
             'archival_description' => [
                 'query' => fn () => DB::table('information_object')
-                    ->join('information_object_i18n', function ($j) use ($culture) {
-                        $j->on('information_object.id', '=', 'information_object_i18n.id')
-                          ->where('information_object_i18n.culture', '=', $culture);
-                    })
-                    ->where('information_object_i18n.title', 'LIKE', "%{$query}%")
-                    ->select('information_object.id', 'information_object_i18n.title as name')
+                    ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
+                    ->where(I18nFallback::col('information_object_i18n', 'title'), 'LIKE', "%{$query}%")
+                    ->select('information_object.id', I18nFallback::col('information_object_i18n', 'title', 'name'))
                     ->limit(20)->get(),
             ],
             'collection' => [

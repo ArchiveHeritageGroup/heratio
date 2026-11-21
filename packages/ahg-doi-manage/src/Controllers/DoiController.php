@@ -31,6 +31,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class DoiController extends Controller
 {
@@ -59,17 +60,14 @@ class DoiController extends Controller
         }
 
         $recentDois = DB::table('ahg_doi')
-            ->leftJoin('information_object_i18n', function ($join) use ($culture) {
-                $join->on('ahg_doi.information_object_id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'ahg_doi.information_object_id', $culture))
             ->select([
                 'ahg_doi.id',
                 'ahg_doi.doi',
                 'ahg_doi.information_object_id',
                 'ahg_doi.status',
                 'ahg_doi.minted_at',
-                'information_object_i18n.title as record_title',
+                I18nFallback::col('information_object_i18n', 'title', 'record_title'),
             ])
             ->orderByDesc('ahg_doi.created_at')
             ->limit(10)
@@ -106,10 +104,7 @@ class DoiController extends Controller
         $status = $request->get('status', '');
 
         $query = DB::table('ahg_doi')
-            ->leftJoin('information_object_i18n', function ($join) use ($culture) {
-                $join->on('ahg_doi.information_object_id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $culture);
-            });
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'ahg_doi.information_object_id', $culture));
 
         if ($status && in_array($status, ['draft', 'registered', 'findable'])) {
             $query->where('ahg_doi.status', $status);
@@ -123,7 +118,7 @@ class DoiController extends Controller
             'ahg_doi.information_object_id',
             'ahg_doi.status',
             'ahg_doi.minted_at',
-            'information_object_i18n.title as record_title',
+            I18nFallback::col('information_object_i18n', 'title', 'record_title'),
         ])
             ->orderByDesc('ahg_doi.minted_at')
             ->offset(($page - 1) * $limit)
@@ -169,10 +164,7 @@ class DoiController extends Controller
         ];
 
         $query = DB::table('ahg_doi_queue')
-            ->leftJoin('information_object_i18n', function ($join) use ($culture) {
-                $join->on('ahg_doi_queue.information_object_id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $culture);
-            });
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'ahg_doi_queue.information_object_id', $culture));
 
         if ($status && in_array($status, ['pending', 'processing', 'completed', 'failed'])) {
             $query->where('ahg_doi_queue.status', $status);
@@ -189,7 +181,7 @@ class DoiController extends Controller
             'ahg_doi_queue.scheduled_at',
             'ahg_doi_queue.last_error as error_message',
             'ahg_doi_queue.created_at',
-            'information_object_i18n.title as record_title',
+            I18nFallback::col('information_object_i18n', 'title', 'record_title'),
         ])
             ->orderByDesc('ahg_doi_queue.created_at')
             ->offset(($page - 1) * $limit)
@@ -225,10 +217,7 @@ class DoiController extends Controller
         $culture = app()->getLocale();
 
         $doi = DB::table('ahg_doi')
-            ->leftJoin('information_object_i18n', function ($join) use ($culture) {
-                $join->on('ahg_doi.information_object_id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'ahg_doi.information_object_id', $culture))
             ->where('ahg_doi.id', $id)
             ->select([
                 'ahg_doi.id',
@@ -238,7 +227,7 @@ class DoiController extends Controller
                 'ahg_doi.minted_at',
                 'ahg_doi.updated_at',
                 'ahg_doi.created_at',
-                'information_object_i18n.title as record_title',
+                I18nFallback::col('information_object_i18n', 'title', 'record_title'),
             ])
             ->first();
 
@@ -355,17 +344,11 @@ class DoiController extends Controller
         // By repository breakdown
         $byRepository = DB::table('ahg_doi')
             ->join('information_object', 'ahg_doi.information_object_id', '=', 'information_object.id')
-            ->leftJoin('repository_i18n', function ($join) use ($culture) {
-                $join->on('information_object.repository_id', '=', 'repository_i18n.id')
-                    ->where('repository_i18n.culture', '=', $culture);
-            })
-            ->leftJoin('actor_i18n', function ($join) use ($culture) {
-                $join->on('information_object.repository_id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'repository_i18n', 'information_object.repository_id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'information_object.repository_id', $culture))
             ->selectRaw("COALESCE(actor_i18n.authorized_form_of_name, '[No repository]') as repository_name")
             ->selectRaw('COUNT(ahg_doi.id) as doi_count')
-            ->groupByRaw("COALESCE(actor_i18n.authorized_form_of_name, '[No repository]')")
+            ->groupByRaw("COALESCE(COALESCE(actor_i18n.authorized_form_of_name, actor_i18n_fb.authorized_form_of_name), '[No repository]')")
             ->orderByDesc('doi_count')
             ->get()
             ->map(fn ($row) => (array) $row)

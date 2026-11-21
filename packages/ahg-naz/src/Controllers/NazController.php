@@ -30,6 +30,7 @@ use AhgCore\Services\EncryptionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class NazController extends Controller
 {
@@ -191,16 +192,13 @@ class NazController extends Controller
             ->get();
 
         $expiringClosures = DB::table('naz_closure_period as cp')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('cp.information_object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'cp.information_object_id', app()->getLocale()))
             ->where('cp.status', 'active')
             ->whereNotNull('cp.end_date')
             ->where('cp.end_date', '<=', now()->addYear())
             ->orderBy('cp.end_date')
             ->limit(5)
-            ->select('cp.*', 'ioi.title as record_title')
+            ->select('cp.*', I18nFallback::col('ioi', 'title', 'record_title'))
             ->get();
 
         $compliance = [
@@ -297,10 +295,8 @@ class NazController extends Controller
     {
         $query = DB::table('naz_closure_period as cp')
             ->leftJoin('information_object as io', 'cp.information_object_id', '=', 'io.id')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', app()->getLocale());
-            })
-            ->select('cp.*', 'ioi.title as io_title');
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', app()->getLocale()))
+            ->select('cp.*', I18nFallback::col('ioi', 'title', 'io_title'));
 
         if ($status = $request->get('status')) {
             $query->where('cp.status', $status);
@@ -412,10 +408,8 @@ class NazController extends Controller
     {
         $query = DB::table('naz_protected_record as pr')
             ->leftJoin('information_object as io', 'pr.information_object_id', '=', 'io.id')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', app()->getLocale());
-            })
-            ->select('pr.*', 'ioi.title as io_title');
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', app()->getLocale()))
+            ->select('pr.*', I18nFallback::col('ioi', 'title', 'io_title'));
 
         if ($status = $request->get('status')) {
             $query->where('pr.status', $status);

@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use AhgApi\Concerns\PaginatesApiResponse;
+use AhgCore\Support\I18nFallback;
 
 class RepositoryApiController extends Controller
 {
@@ -33,10 +34,9 @@ class RepositoryApiController extends Controller
         $offset = ($page - 1) * $limit;
 
         $query = DB::table('repository')
-            ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $this->culture, required: true))
             ->join('object', 'repository.id', '=', 'object.id')
             ->join('slug', 'repository.id', '=', 'slug.object_id')
-            ->where('actor_i18n.culture', $this->culture)
             ->where('object.class_name', 'QubitRepository');
 
         $total = $query->count();
@@ -50,7 +50,7 @@ class RepositoryApiController extends Controller
                 $query->orderBy('repository.identifier', $sortDir === 'desc' ? 'desc' : 'asc');
                 break;
             default: // alphabetic
-                $query->orderBy('actor_i18n.authorized_form_of_name', $sortDir === 'desc' ? 'desc' : 'asc');
+                $query->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'), $sortDir === 'desc' ? 'desc' : 'asc');
                 break;
         }
 
@@ -58,7 +58,7 @@ class RepositoryApiController extends Controller
             ->select([
                 'repository.id',
                 'repository.identifier',
-                'actor_i18n.authorized_form_of_name',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'),
                 'object.created_at',
                 'object.updated_at',
                 'slug.slug',
@@ -114,14 +114,8 @@ class RepositoryApiController extends Controller
             ->join('actor', 'repository.id', '=', 'actor.id')
             ->join('object', 'repository.id', '=', 'object.id')
             ->join('slug', 'repository.id', '=', 'slug.object_id')
-            ->leftJoin('actor_i18n', function ($j) {
-                $j->on('repository.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $this->culture);
-            })
-            ->leftJoin('repository_i18n', function ($j) {
-                $j->on('repository.id', '=', 'repository_i18n.id')
-                    ->where('repository_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $this->culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'repository_i18n', 'repository.id', $this->culture))
             ->where('repository.id', $objectId)
             ->where('object.class_name', 'QubitRepository')
             ->select([
@@ -136,35 +130,35 @@ class RepositoryApiController extends Controller
                 'actor.corporate_body_identifiers',
                 'actor.source_standard',
                 // Actor i18n (ISAAR)
-                'actor_i18n.authorized_form_of_name',
-                'actor_i18n.dates_of_existence',
-                'actor_i18n.history',
-                'actor_i18n.places',
-                'actor_i18n.legal_status',
-                'actor_i18n.functions',
-                'actor_i18n.mandates',
-                'actor_i18n.internal_structures',
-                'actor_i18n.general_context',
-                'actor_i18n.institution_responsible_identifier',
-                'actor_i18n.rules',
-                'actor_i18n.sources',
-                'actor_i18n.revision_history',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'),
+                I18nFallback::col('actor_i18n', 'dates_of_existence', 'dates_of_existence'),
+                I18nFallback::col('actor_i18n', 'history', 'history'),
+                I18nFallback::col('actor_i18n', 'places', 'places'),
+                I18nFallback::col('actor_i18n', 'legal_status', 'legal_status'),
+                I18nFallback::col('actor_i18n', 'functions', 'functions'),
+                I18nFallback::col('actor_i18n', 'mandates', 'mandates'),
+                I18nFallback::col('actor_i18n', 'internal_structures', 'internal_structures'),
+                I18nFallback::col('actor_i18n', 'general_context', 'general_context'),
+                I18nFallback::col('actor_i18n', 'institution_responsible_identifier', 'institution_responsible_identifier'),
+                I18nFallback::col('actor_i18n', 'rules', 'rules'),
+                I18nFallback::col('actor_i18n', 'sources', 'sources'),
+                I18nFallback::col('actor_i18n', 'revision_history', 'revision_history'),
                 // Repository i18n (ISDIAH)
-                'repository_i18n.geocultural_context',
-                'repository_i18n.collecting_policies',
-                'repository_i18n.buildings',
-                'repository_i18n.holdings',
-                'repository_i18n.finding_aids',
-                'repository_i18n.opening_times',
-                'repository_i18n.access_conditions',
-                'repository_i18n.disabled_access',
-                'repository_i18n.research_services',
-                'repository_i18n.reproduction_services',
-                'repository_i18n.public_facilities',
-                'repository_i18n.desc_institution_identifier',
-                'repository_i18n.desc_rules',
-                'repository_i18n.desc_sources',
-                'repository_i18n.desc_revision_history',
+                I18nFallback::col('repository_i18n', 'geocultural_context', 'geocultural_context'),
+                I18nFallback::col('repository_i18n', 'collecting_policies', 'collecting_policies'),
+                I18nFallback::col('repository_i18n', 'buildings', 'buildings'),
+                I18nFallback::col('repository_i18n', 'holdings', 'holdings'),
+                I18nFallback::col('repository_i18n', 'finding_aids', 'finding_aids'),
+                I18nFallback::col('repository_i18n', 'opening_times', 'opening_times'),
+                I18nFallback::col('repository_i18n', 'access_conditions', 'access_conditions'),
+                I18nFallback::col('repository_i18n', 'disabled_access', 'disabled_access'),
+                I18nFallback::col('repository_i18n', 'research_services', 'research_services'),
+                I18nFallback::col('repository_i18n', 'reproduction_services', 'reproduction_services'),
+                I18nFallback::col('repository_i18n', 'public_facilities', 'public_facilities'),
+                I18nFallback::col('repository_i18n', 'desc_institution_identifier', 'desc_institution_identifier'),
+                I18nFallback::col('repository_i18n', 'desc_rules', 'desc_rules'),
+                I18nFallback::col('repository_i18n', 'desc_sources', 'desc_sources'),
+                I18nFallback::col('repository_i18n', 'desc_revision_history', 'desc_revision_history'),
                 // Object
                 'object.created_at',
                 'object.updated_at',
@@ -181,10 +175,7 @@ class RepositoryApiController extends Controller
 
         // Contact information
         $contacts = DB::table('contact_information')
-            ->leftJoin('contact_information_i18n', function ($j) {
-                $j->on('contact_information.id', '=', 'contact_information_i18n.id')
-                    ->where('contact_information_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'contact_information_i18n', 'contact_information.id', $this->culture))
             ->where('contact_information.actor_id', $repo->id)
             ->select([
                 'contact_information.primary_contact',
@@ -198,10 +189,10 @@ class RepositoryApiController extends Controller
                 'contact_information.country_code',
                 'contact_information.longitude',
                 'contact_information.latitude',
-                'contact_information_i18n.contact_type',
-                'contact_information_i18n.city',
-                'contact_information_i18n.region',
-                'contact_information_i18n.note',
+                I18nFallback::col('contact_information_i18n', 'contact_type', 'contact_type'),
+                I18nFallback::col('contact_information_i18n', 'city', 'city'),
+                I18nFallback::col('contact_information_i18n', 'region', 'region'),
+                I18nFallback::col('contact_information_i18n', 'note', 'note'),
             ])
             ->get();
 

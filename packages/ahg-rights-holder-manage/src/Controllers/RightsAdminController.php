@@ -29,6 +29,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class RightsAdminController extends Controller
 {
@@ -49,11 +50,8 @@ class RightsAdminController extends Controller
         if (Schema::hasTable('embargo')) {
             $culture = app()->getLocale();
             $embargoes = DB::table('embargo')
-                ->leftJoin('information_object_i18n', function ($j) use ($culture) {
-                    $j->on('embargo.object_id', '=', 'information_object_i18n.id')
-                        ->where('information_object_i18n.culture', '=', $culture);
-                })
-                ->select('embargo.*', 'information_object_i18n.title')
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'embargo.object_id', $culture))
+                ->select('embargo.*', I18nFallback::col('information_object_i18n', 'title', 'title'))
                 ->orderBy('embargo.created_at', 'desc')
                 ->get();
         }
@@ -142,20 +140,16 @@ class RightsAdminController extends Controller
 
         $culture = app()->getLocale();
         $byBasis = DB::table('rights')
-            ->leftJoin('term_i18n', function ($j) use ($culture) {
-                $j->on('rights.basis_id', '=', 'term_i18n.id')->where('term_i18n.culture', '=', $culture);
-            })
-            ->select('term_i18n.name', DB::raw('COUNT(*) as count'))
-            ->groupBy('term_i18n.name')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'rights.basis_id', $culture))
+            ->select(I18nFallback::col('term_i18n', 'name', 'name'), DB::raw('COUNT(*) as count'))
+            ->groupBy(I18nFallback::col('term_i18n', 'name'))
             ->orderBy('count', 'desc')
             ->get();
 
         $byHolder = DB::table('rights')
-            ->join('actor_i18n', function ($j) use ($culture) {
-                $j->on('rights.rights_holder_id', '=', 'actor_i18n.id')->where('actor_i18n.culture', '=', $culture);
-            })
-            ->select('actor_i18n.authorized_form_of_name as name', DB::raw('COUNT(*) as count'))
-            ->groupBy('actor_i18n.authorized_form_of_name')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'rights.rights_holder_id', $culture, required: true))
+            ->select(I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'), DB::raw('COUNT(*) as count'))
+            ->groupBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
             ->orderBy('count', 'desc')
             ->limit(20)
             ->get();

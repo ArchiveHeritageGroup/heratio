@@ -34,6 +34,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 /**
  * ResearchAssessmentsController - Researcher source-assessment listing.
@@ -79,14 +80,10 @@ class ResearchAssessmentsController extends Controller
         $culture = app()->getLocale();
 
         $source = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('ioi.id', '=', 'io.id')->where('ioi.culture', '=', $culture);
-            })
-            ->leftJoin('actor_i18n as ri', function ($j) use ($culture) {
-                $j->on('ri.id', '=', 'io.repository_id')->where('ri.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ri', 'io.repository_id', $culture))
             ->where('io.id', $objectId)
-            ->select('io.id', 'ioi.title', 'ri.authorized_form_of_name as repository')
+            ->select('io.id', I18nFallback::col('ioi', 'title', 'title'), I18nFallback::col('ri', 'authorized_form_of_name', 'repository'))
             // Creation dates live on event/event_i18n, not on the description
             // row - selecting a dates_of_creation column that does not exist
             // would have made the Date line permanently 'N/A', which is the
@@ -154,12 +151,10 @@ class ResearchAssessmentsController extends Controller
         $culture = app()->getLocale();
 
         $objectInfo = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('ioi.id', '=', 'io.id')->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
             ->where('io.id', $objectId)
-            ->select('io.id', 'ioi.title', 's.slug')
+            ->select('io.id', I18nFallback::col('ioi', 'title', 'title'), 's.slug')
             ->first();
         abort_unless($objectInfo, 404);
 
@@ -208,12 +203,10 @@ class ResearchAssessmentsController extends Controller
         $culture = app()->getLocale();
 
         $assessments = DB::table('research_source_assessment as sa')
-            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('sa.object_id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'sa.object_id', $culture))
             ->leftJoin('slug as s', 'sa.object_id', '=', 's.object_id')
             ->leftJoin('research_researcher as r', 'sa.researcher_id', '=', 'r.id')
-            ->select('sa.*', 'ioi.title as object_title', 's.slug as object_slug',
+            ->select('sa.*', I18nFallback::col('ioi', 'title', 'object_title'), 's.slug as object_slug',
                 DB::raw("CONCAT(r.first_name, ' ', r.last_name) as researcher_name"))
             ->orderByDesc('sa.assessed_at')
             ->limit(100)

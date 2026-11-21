@@ -36,6 +36,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
+use AhgCore\Support\I18nFallback;
 
 class QdrantIndexCommand extends Command
 {
@@ -145,9 +146,7 @@ class QdrantIndexCommand extends Command
         while ($remaining > 0) {
             $take = min($chunkSize, $remaining);
             $rows = $cn->table('information_object as io')
-                ->leftJoin('information_object_i18n as ioi', function ($j) use ($cultureDefault) {
-                    $j->on('ioi.id', '=', 'io.id')->where('ioi.culture', '=', $cultureDefault);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $cultureDefault))
                 ->leftJoin('slug', 'slug.object_id', '=', 'io.id')
                 ->where('io.id', '!=', 1)
                 ->orderBy('io.id')
@@ -155,7 +154,7 @@ class QdrantIndexCommand extends Command
                 ->limit($take)
                 ->select(
                     'io.id', 'io.parent_id',
-                    'ioi.title', 'ioi.scope_and_content',
+                    I18nFallback::col('ioi', 'title', 'title'), I18nFallback::col('ioi', 'scope_and_content', 'scope_and_content'),
                     'slug.slug'
                 )
                 ->get();

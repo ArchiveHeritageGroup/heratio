@@ -27,6 +27,7 @@ namespace AhgUserManage\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use AhgCore\Support\I18nFallback;
 
 class UserService
 {
@@ -88,10 +89,7 @@ class UserService
             ->join('actor', 'user.id', '=', 'actor.id')
             ->join('object', 'user.id', '=', 'object.id')
             ->join('slug', 'user.id', '=', 'slug.object_id')
-            ->leftJoin('actor_i18n', function ($j) {
-                $j->on('user.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'user.id', $this->culture))
             ->where('user.id', $id)
             ->select($select)
             ->first();
@@ -105,10 +103,7 @@ class UserService
 
         // Attach contact information
         $user->contact = DB::table('contact_information')
-            ->leftJoin('contact_information_i18n', function ($j) {
-                $j->on('contact_information.id', '=', 'contact_information_i18n.id')
-                    ->where('contact_information_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'contact_information_i18n', 'contact_information.id', $this->culture))
             ->where('contact_information.actor_id', $user->id)
             ->select(
                 'contact_information.id',
@@ -119,9 +114,9 @@ class UserService
                 'contact_information.country_code',
                 'contact_information.website',
                 'contact_information.contact_note',
-                'contact_information_i18n.city',
-                'contact_information_i18n.region',
-                'contact_information_i18n.note'
+                I18nFallback::col('contact_information_i18n', 'city', 'city'),
+                I18nFallback::col('contact_information_i18n', 'region', 'region'),
+                I18nFallback::col('contact_information_i18n', 'note', 'note')
             )
             ->first();
 
@@ -138,12 +133,9 @@ class UserService
     {
         return DB::table('acl_user_group')
             ->join('acl_group', 'acl_user_group.group_id', '=', 'acl_group.id')
-            ->leftJoin('acl_group_i18n', function ($join) {
-                $join->on('acl_group.id', '=', 'acl_group_i18n.id')
-                    ->where('acl_group_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'acl_group_i18n', 'acl_group.id', $this->culture))
             ->where('acl_user_group.user_id', $userId)
-            ->select(['acl_group.id', 'acl_group_i18n.name'])
+            ->select(['acl_group.id', I18nFallback::col('acl_group_i18n', 'name', 'name')])
             ->get()
             ->all();
     }
@@ -213,12 +205,9 @@ class UserService
     public function getAssignableGroups(): array
     {
         return DB::table('acl_group')
-            ->leftJoin('acl_group_i18n', function ($join) {
-                $join->on('acl_group.id', '=', 'acl_group_i18n.id')
-                    ->where('acl_group_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'acl_group_i18n', 'acl_group.id', $this->culture))
             ->where('acl_group.id', '>', 99)
-            ->select(['acl_group.id', 'acl_group_i18n.name'])
+            ->select(['acl_group.id', I18nFallback::col('acl_group_i18n', 'name', 'name')])
             ->orderBy('acl_group.id')
             ->get()
             ->all();

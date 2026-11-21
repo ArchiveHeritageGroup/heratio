@@ -27,6 +27,7 @@
 
 namespace AhgInformationObjectManage\Services;
 
+use AhgCore\Support\I18nFallback;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -61,23 +62,13 @@ class TreeviewService
     public function preview(int $id): ?array
     {
         $io = \Illuminate\Support\Facades\DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as c', function ($j) {
-                $j->on('c.id', '=', 'io.id')->where('c.culture', '=', $this->culture);
-            })
-            ->leftJoin('information_object_i18n as e', function ($j) {
-                $j->on('e.id', '=', 'io.id')->where('e.culture', '=', 'en');
-            })
-            ->leftJoin('term_i18n as lc', function ($j) {
-                $j->on('lc.id', '=', 'io.level_of_description_id')->where('lc.culture', '=', $this->culture);
-            })
-            ->leftJoin('term_i18n as le', function ($j) {
-                $j->on('le.id', '=', 'io.level_of_description_id')->where('le.culture', '=', 'en');
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as c', 'io.id', $this->culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as lc', 'io.level_of_description_id', $this->culture))
             ->where('io.id', $id)->where('io.id', '>', self::ROOT_ID)
             ->first(['io.id', 'io.identifier',
-                \Illuminate\Support\Facades\DB::raw('COALESCE(c.title, e.title) as title'),
-                \Illuminate\Support\Facades\DB::raw('COALESCE(c.scope_and_content, e.scope_and_content) as scope'),
-                \Illuminate\Support\Facades\DB::raw('COALESCE(lc.name, le.name) as level')]);
+                I18nFallback::col('c', 'title', 'title'),
+                I18nFallback::col('c', 'scope_and_content', 'scope'),
+                I18nFallback::col('lc', 'name', 'level')]);
         if (! $io) {
             return null;
         }
@@ -129,16 +120,13 @@ class TreeviewService
         $numberOfSiblings = $limit;
 
         $node = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('io.id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
             ->where('io.id', $id)
             ->select(
                 'io.id', 'io.identifier', 'io.lft', 'io.rgt',
                 'io.parent_id', 'io.level_of_description_id',
-                'ioi.title', 's.slug', self::hasChildrenColumn()
+                I18nFallback::col('ioi', 'title', 'title'), 's.slug', self::hasChildrenColumn()
             )
             ->first();
 
@@ -209,16 +197,13 @@ class TreeviewService
         $isAuthenticated = auth()->check();
 
         $query = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('io.id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
             ->where('io.parent_id', $parentId)
             ->select(
                 'io.id', 'io.identifier', 'io.lft', 'io.rgt',
                 'io.parent_id', 'io.level_of_description_id',
-                'ioi.title', 's.slug', self::hasChildrenColumn()
+                I18nFallback::col('ioi', 'title', 'title'), 's.slug', self::hasChildrenColumn()
             );
 
         // Publication status filtering for unauthenticated users
@@ -248,7 +233,7 @@ class TreeviewService
         switch ($sortToken) {
             case 'alphabetic':
             case 'title':
-                $query->orderBy('ioi.title');
+                $query->orderBy(I18nFallback::col('ioi', 'title'));
                 break;
             case 'identifier':
                 $query->orderBy('io.identifier');
@@ -297,16 +282,13 @@ class TreeviewService
         }
 
         $rows = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('io.id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
             ->whereIn('io.id', $ids)
             ->select(
                 'io.id', 'io.identifier', 'io.lft', 'io.rgt',
                 'io.parent_id', 'io.level_of_description_id',
-                'ioi.title', 's.slug', self::hasChildrenColumn()
+                I18nFallback::col('ioi', 'title', 'title'), 's.slug', self::hasChildrenColumn()
             )
             ->get()
             ->keyBy('id');
@@ -341,17 +323,14 @@ class TreeviewService
         }
 
         $query = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('io.id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
             ->where('io.parent_id', $node->parent_id)
             ->where('io.id', '!=', $node->id)
             ->select(
                 'io.id', 'io.identifier', 'io.lft', 'io.rgt',
                 'io.parent_id', 'io.level_of_description_id',
-                'ioi.title', 's.slug', self::hasChildrenColumn()
+                I18nFallback::col('ioi', 'title', 'title'), 's.slug', self::hasChildrenColumn()
             );
 
         // Publication status filtering for unauthenticated users
@@ -443,6 +422,12 @@ class TreeviewService
             ->first();
 
         if (!$node || !$after || $node->parent_id !== $after->parent_id) {
+            return false;
+        }
+        // Without nested-set bounds the shifts below would move unrelated
+        // records (a null width is 1); TreeMoveService orders those by
+        // sibling order instead.
+        if (!($node->lft > 0 && $node->rgt > 0 && $after->lft > 0 && $after->rgt > 0)) {
             return false;
         }
 

@@ -60,7 +60,10 @@
     <button class="btn atom-btn-secondary" type="submit">{{ __('Search') }}</button>
   </div>
   @if(!empty($searchSyntaxHelp))
-    <div class="form-text">{{ __('All words must match. Use "quotes" for a phrase, "word1 word2"~5 for words near each other, | for or, - to exclude, and * at the end of a word for its beginnings.') }}</div>
+    <div class="form-text">{{ __('All words must match. Use "quotes" for a phrase, AND, OR and NOT (or | and -), * and ? as wildcards, word~ for close spellings and /regex/ for a pattern.') }}
+      <a href="{{ url('/help/article/search-syntax-and-close-matches') }}">{{ __('Search tips') }}</a></div>
+  @else
+    <div class="form-text"><a href="{{ url('/help/article/search-syntax-and-close-matches') }}">{{ __('Search tips') }}</a></div>
   @endif
 </form>
 
@@ -200,6 +203,16 @@
   </div>
 @endif
 
+{{-- heratio#1583: close matches from the index when the exact search found nothing --}}
+@if(!empty($closeMatchesFor))
+  <div class="alert alert-info alert-dismissible fade show mb-2" role="alert">
+    <i class="fas fa-spell-check me-1"></i>
+    {{ __('Showing close matches for') }} <strong>"{{ $closeMatchesFor }}"</strong>.
+    <a href="{{ glamBrowseUrl($fp, ['query' => $closeMatchesFor, 'noCorrect' => 1]) }}" class="alert-link">{{ __('Exact matches only') }}</a>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ __('Close') }}"></button>
+  </div>
+@endif
+
 {{-- "Did you mean" suggestion --}}
 @if(!empty($didYouMean))
   <div class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
@@ -318,6 +331,22 @@
       </a>
     @endif
   @endif
+
+  {{-- heratio#1581: staff open these results (or the whole collection) as an editable grid. --}}
+  @auth
+    @if(\AhgCore\Services\AclService::hasPermission(auth()->id(), 'update'))
+      @php
+        $__gridIds = collect($objects ?? [])->pluck('id')->filter()->map(fn ($v) => (int) $v)->implode(',');
+        $__gridCollection = request('ancestor') ?: request('collection');
+      @endphp
+      @if($__gridCollection || $__gridIds !== '')
+        <a href="{{ route('informationobject.grid', $__gridCollection ? ['collection' => $__gridCollection] : ['ids' => $__gridIds]) }}"
+           class="btn atom-btn-outline-success btn-sm" title="{{ $__gridCollection ? __('Edit this collection as a grid') : __('Edit the descriptions on this page as a grid') }}">
+          <i class="fas fa-table" aria-hidden="true"></i> {{ __('Edit as grid') }}
+        </a>
+      @endif
+    @endif
+  @endauth
 
   {{-- Limit dropdown --}}
   <div class="dropdown">

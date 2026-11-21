@@ -28,6 +28,7 @@
 namespace AhgCondition\Services;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class ConditionService
 {
@@ -50,11 +51,8 @@ class ConditionService
     public function getRecentChecks(int $limit = 20): \Illuminate\Support\Collection
     {
         return DB::table('spectrum_condition_check as cc')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('ioi.id', '=', 'cc.object_id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
-            ->select('cc.*', 'ioi.title as object_title')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'cc.object_id', $this->culture))
+            ->select('cc.*', I18nFallback::col('ioi', 'title', 'object_title'))
             ->orderByDesc('cc.check_date')
             ->limit($limit)
             ->get();
@@ -83,12 +81,9 @@ class ConditionService
     public function getConditionCheck(int $id): ?object
     {
         return DB::table('spectrum_condition_check as cc')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('ioi.id', '=', 'cc.object_id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'cc.object_id', $this->culture))
             ->leftJoin('slug', 'cc.object_id', '=', 'slug.object_id')
-            ->select('cc.*', 'ioi.title as object_title', 'slug.slug as object_slug')
+            ->select('cc.*', I18nFallback::col('ioi', 'title', 'object_title'), 'slug.slug as object_slug')
             ->where('cc.id', $id)
             ->first();
     }
@@ -441,11 +436,8 @@ class ConditionService
     public function getConditionChecks(array $filters = []): \Illuminate\Support\Collection
     {
         $query = DB::table('spectrum_condition_check as cc')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('ioi.id', '=', 'cc.object_id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
-            ->select('cc.*', 'ioi.title as object_title');
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'cc.object_id', $this->culture))
+            ->select('cc.*', I18nFallback::col('ioi', 'title', 'object_title'));
 
         if (!empty($filters['condition'])) {
             $query->where('cc.overall_condition', $filters['condition']);

@@ -44,6 +44,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class ModificationsController extends Controller
 {
@@ -58,12 +59,10 @@ class ModificationsController extends Controller
         $culture = app()->getLocale();
 
         $resource = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
             ->where('s.slug', $slug)
-            ->select('io.id', 'io.identifier', 'i18n.title', 's.slug')
+            ->select('io.id', 'io.identifier', I18nFallback::col('i18n', 'title', 'title'), 's.slug')
             ->first();
 
         if (!$resource) {

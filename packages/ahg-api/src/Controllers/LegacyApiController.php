@@ -29,6 +29,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class LegacyApiController extends Controller
 {
@@ -55,27 +56,26 @@ class LegacyApiController extends Controller
         $searchTerm = '%'.$queryStr.'%';
 
         $query = DB::table('information_object as io')
-            ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
             ->join('slug', 'io.id', '=', 'slug.object_id')
             ->leftJoin('status', function ($j) {
                 $j->on('io.id', '=', 'status.object_id')->where('status.type_id', 158);
             })
-            ->where('ioi.culture', $this->culture)
             ->where('io.id', '!=', 1)
             ->where('status.status_id', 160)
             ->whereNotIn('io.id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds()) // #1384/#1389 ICIP/TK + ODRL
             ->where(function ($q) use ($searchTerm) {
-                $q->where('ioi.title', 'LIKE', $searchTerm)
+                $q->where(I18nFallback::col('ioi', 'title'), 'LIKE', $searchTerm)
                     ->orWhere('io.identifier', 'LIKE', $searchTerm)
-                    ->orWhere('ioi.scope_and_content', 'LIKE', $searchTerm);
+                    ->orWhere(I18nFallback::col('ioi', 'scope_and_content'), 'LIKE', $searchTerm);
             });
 
         $total = $query->count();
 
         $results = $query
-            ->select('io.id', 'ioi.title', 'io.identifier', 'slug.slug',
+            ->select('io.id', I18nFallback::col('ioi', 'title', 'title'), 'io.identifier', 'slug.slug',
                 'io.level_of_description_id', 'io.repository_id')
-            ->orderByRaw('CASE WHEN ioi.title LIKE ? THEN 0 ELSE 1 END', [$searchTerm])
+            ->orderByRaw('CASE WHEN COALESCE(ioi.title, ioi_fb.title) LIKE ? THEN 0 ELSE 1 END', [$searchTerm])
             ->offset($skip)
             ->limit($limit)
             ->get();
@@ -238,14 +238,10 @@ class LegacyApiController extends Controller
         }
 
         $children = DB::table('information_object as io')
-            ->join('information_object_i18n as ioi', function ($j) {
-                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', $this->culture);
-            })
-            ->leftJoin('term_i18n as lod', function ($j) {
-                $j->on('io.level_of_description_id', '=', 'lod.id')->where('lod.culture', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as lod', 'io.level_of_description_id', $this->culture))
             ->where('io.parent_id', $parentId)
-            ->select('io.id', 'io.identifier', 'io.lft', 'io.rgt', 'ioi.title', 'lod.name as level')
+            ->select('io.id', 'io.identifier', 'io.lft', 'io.rgt', I18nFallback::col('ioi', 'title', 'title'), I18nFallback::col('lod', 'name', 'level'))
             ->orderBy('io.lft')
             ->limit(11) // Fetch one extra to detect truncation
             ->get();

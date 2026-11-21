@@ -44,6 +44,20 @@ return [
             'after_commit' => false,
         ],
 
+        // Live stream ingest (heratio#1743). One job runs for the whole live
+        // event (up to live_max_hours), so it gets its own connection with a
+        // retry_after longer than any event - otherwise the database queue
+        // would hand the still-running job to a second worker. Work it with
+        // its own worker: queue:work live --queue=live --timeout=0 --tries=1
+        'live' => [
+            'driver' => 'database',
+            'connection' => env('DB_QUEUE_CONNECTION'),
+            'table' => env('DB_QUEUE_TABLE', 'jobs'),
+            'queue' => 'live',
+            'retry_after' => (int) env('LIVE_QUEUE_RETRY_AFTER', 86400),
+            'after_commit' => false,
+        ],
+
         'beanstalkd' => [
             'driver' => 'beanstalkd',
             'host' => env('BEANSTALKD_QUEUE_HOST', 'localhost'),

@@ -8,6 +8,7 @@
 namespace AhgApi\Concerns;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Resolve a repository id to its publisher name (the repository actor's
@@ -26,11 +27,9 @@ trait ResolvesPublisherName
 
         try {
             $name = DB::table('repository as r')
-                ->join('actor_i18n as ai', function ($j) {
-                    $j->on('r.id', '=', 'ai.id')->where('ai.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'r.id', $this->culture, required: true))
                 ->where('r.id', (int) $repositoryId)
-                ->value('ai.authorized_form_of_name');
+                ->value(I18nFallback::col('ai', 'authorized_form_of_name', 'authorized_form_of_name'));
 
             return $name ? (string) $name : null;
         } catch (\Throwable $e) {

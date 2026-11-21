@@ -52,6 +52,7 @@ namespace AhgApi\Services;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class GraphExplorerService
 {
@@ -183,9 +184,7 @@ class GraphExplorerService
 
             $row = DB::table('slug as s')
                 ->join('information_object as io', 'io.id', '=', 's.object_id')
-                ->join('information_object_i18n as i18n', function ($j) {
-                    $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $this->culture))
                 ->leftJoin('status as st', function ($j) {
                     $j->on('io.id', '=', 'st.object_id')
                         ->where('st.type_id', '=', self::STATUS_TYPE_PUBLICATION);
@@ -198,8 +197,8 @@ class GraphExplorerService
                     'io.level_of_description_id',
                     'io.repository_id',
                     'io.parent_id',
-                    'i18n.title',
-                    'i18n.scope_and_content',
+                    I18nFallback::col('i18n', 'title', 'title'),
+                    I18nFallback::col('i18n', 'scope_and_content', 'scope_and_content'),
                     'st.status_id'
                 )
                 ->first();
@@ -231,11 +230,9 @@ class GraphExplorerService
     {
         try {
             $rows = DB::table('event as e')
-                ->leftJoin('event_i18n as ei', function ($j) {
-                    $j->on('e.id', '=', 'ei.id')->where('ei.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n as ei', 'e.id', $this->culture))
                 ->where('e.object_id', $objectId)
-                ->select('ei.date as display_date', 'e.start_date', 'e.end_date')
+                ->select(I18nFallback::col('ei', 'date', 'display_date'), 'e.start_date', 'e.end_date')
                 ->get();
         } catch (\Throwable $e) {
             return [];
@@ -269,14 +266,12 @@ class GraphExplorerService
             }
 
             $q = DB::table('event as e')
-                ->join('actor_i18n as ai', function ($j) {
-                    $j->on('e.actor_id', '=', 'ai.id')->where('ai.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'e.actor_id', $this->culture, required: true))
                 ->leftJoin('slug as s', 's.object_id', '=', 'e.actor_id')
                 ->where('e.object_id', $objectId)
                 ->whereNotNull('e.actor_id')
                 ->where('e.actor_id', '!=', self::ROOT_ID)
-                ->whereNotNull('ai.authorized_form_of_name');
+                ->whereNotNull(I18nFallback::col('ai', 'authorized_form_of_name'));
 
             if (Schema::hasTable('repository')) {
                 $q->whereNotIn('e.actor_id', function ($sub) {
@@ -286,7 +281,7 @@ class GraphExplorerService
 
             $rows = $q->distinct()
                 ->limit(self::MAX_PER_GROUP)
-                ->get(['ai.authorized_form_of_name as label', 's.slug']);
+                ->get([I18nFallback::col('ai', 'authorized_form_of_name', 'label'), 's.slug']);
         } catch (\Throwable $e) {
             return [];
         }
@@ -309,17 +304,15 @@ class GraphExplorerService
 
             $rows = DB::table('object_term_relation as otr')
                 ->join('term as t', 'otr.term_id', '=', 't.id')
-                ->join('term_i18n as ti', function ($j) {
-                    $j->on('otr.term_id', '=', 'ti.id')->where('ti.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 'otr.term_id', $this->culture, required: true))
                 ->leftJoin('slug as s', 's.object_id', '=', 'otr.term_id')
                 ->where('otr.object_id', $objectId)
                 ->where('t.taxonomy_id', $taxonomyId)
                 ->where('t.id', '!=', self::ROOT_ID)
-                ->whereNotNull('ti.name')
+                ->whereNotNull(I18nFallback::col('ti', 'name'))
                 ->distinct()
                 ->limit(self::MAX_PER_GROUP)
-                ->get(['ti.name as label', 's.slug']);
+                ->get([I18nFallback::col('ti', 'name', 'label'), 's.slug']);
         } catch (\Throwable $e) {
             return [];
         }
@@ -341,12 +334,10 @@ class GraphExplorerService
 
         try {
             $row = DB::table('repository as r')
-                ->join('actor_i18n as ai', function ($j) {
-                    $j->on('r.id', '=', 'ai.id')->where('ai.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'r.id', $this->culture, required: true))
                 ->leftJoin('slug as s', 's.object_id', '=', 'r.id')
                 ->where('r.id', (int) $repositoryId)
-                ->first(['ai.authorized_form_of_name as label', 's.slug']);
+                ->first([I18nFallback::col('ai', 'authorized_form_of_name', 'label'), 's.slug']);
         } catch (\Throwable $e) {
             return null;
         }
@@ -470,9 +461,7 @@ class GraphExplorerService
 
             $query = DB::table('slug as s')
                 ->join('actor as a', 'a.id', '=', 's.object_id')
-                ->leftJoin('actor_i18n as ai', function ($j) {
-                    $j->on('a.id', '=', 'ai.id')->where('ai.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'a.id', $this->culture))
                 ->where('s.slug', $slug)
                 ->where('a.id', '!=', self::ROOT_ID);
 
@@ -485,9 +474,9 @@ class GraphExplorerService
             $row = $query->first([
                 'a.id',
                 'a.entity_type_id',
-                'ai.authorized_form_of_name as name',
-                'ai.dates_of_existence',
-                'ai.history',
+                I18nFallback::col('ai', 'authorized_form_of_name', 'name'),
+                I18nFallback::col('ai', 'dates_of_existence', 'dates_of_existence'),
+                I18nFallback::col('ai', 'history', 'history'),
             ]);
         } catch (\Throwable $e) {
             return null;
@@ -625,12 +614,10 @@ class GraphExplorerService
 
             $row = DB::table('slug as s')
                 ->join('term as t', 't.id', '=', 's.object_id')
-                ->leftJoin('term_i18n as ti', function ($j) {
-                    $j->on('t.id', '=', 'ti.id')->where('ti.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 't.id', $this->culture))
                 ->where('s.slug', $slug)
                 ->where('t.id', '!=', self::ROOT_ID)
-                ->first(['t.id', 't.taxonomy_id', 't.parent_id', 'ti.name']);
+                ->first(['t.id', 't.taxonomy_id', 't.parent_id', I18nFallback::col('ti', 'name', 'name')]);
         } catch (\Throwable $e) {
             return null;
         }
@@ -662,11 +649,9 @@ class GraphExplorerService
         try {
             $row = DB::table('term as t')
                 ->join('slug as s', 's.object_id', '=', 't.id')
-                ->leftJoin('term_i18n as ti', function ($j) {
-                    $j->on('t.id', '=', 'ti.id')->where('ti.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 't.id', $this->culture))
                 ->where('t.id', $parentId)
-                ->first(['ti.name as label', 's.slug']);
+                ->first([I18nFallback::col('ti', 'name', 'label'), 's.slug']);
         } catch (\Throwable $e) {
             return null;
         }
@@ -693,14 +678,12 @@ class GraphExplorerService
         try {
             $rows = DB::table('term as t')
                 ->join('slug as s', 's.object_id', '=', 't.id')
-                ->leftJoin('term_i18n as ti', function ($j) {
-                    $j->on('t.id', '=', 'ti.id')->where('ti.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 't.id', $this->culture))
                 ->where('t.parent_id', $termId)
                 ->where('t.id', '!=', self::ROOT_ID)
                 ->orderBy('t.id')
                 ->limit(self::MAX_PER_GROUP)
-                ->get(['ti.name as label', 's.slug']);
+                ->get([I18nFallback::col('ti', 'name', 'label'), 's.slug']);
         } catch (\Throwable $e) {
             return [];
         }
@@ -727,9 +710,7 @@ class GraphExplorerService
             $rows = DB::table('object_term_relation as otr')
                 ->join('information_object as io', 'io.id', '=', 'otr.object_id')
                 ->join('slug as s', 's.object_id', '=', 'io.id')
-                ->join('information_object_i18n as i18n', function ($j) {
-                    $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $this->culture))
                 ->join('status as st', function ($j) {
                     $j->on('io.id', '=', 'st.object_id')
                         ->where('st.type_id', '=', self::STATUS_TYPE_PUBLICATION)
@@ -740,7 +721,7 @@ class GraphExplorerService
                 ->distinct()
                 ->orderBy('s.slug')
                 ->limit(self::MAX_PER_GROUP)
-                ->get(['i18n.title as label', 's.slug']);
+                ->get([I18nFallback::col('i18n', 'title', 'label'), 's.slug']);
         } catch (\Throwable $e) {
             return [];
         }
@@ -783,9 +764,7 @@ class GraphExplorerService
 
                 return DB::table('information_object as io')
                     ->join('slug as s', 's.object_id', '=', 'io.id')
-                    ->join('information_object_i18n as i18n', function ($j) {
-                        $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $this->culture);
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $this->culture))
                     ->join('status as st', function ($j) {
                         $j->on('io.id', '=', 'st.object_id')
                             ->where('st.type_id', '=', self::STATUS_TYPE_PUBLICATION)
@@ -793,7 +772,7 @@ class GraphExplorerService
                     })
                     ->whereIn('io.id', array_keys($degree))
                     ->where('io.id', '!=', self::ROOT_ID)
-                    ->get(['io.id', 's.slug', 'i18n.title as label'])
+                    ->get(['io.id', 's.slug', I18nFallback::col('i18n', 'title', 'label')])
                     ->map(fn ($r) => (object) ['slug' => $r->slug, 'label' => $r->label, 'degree' => (int) $degree[$r->id]])
                     ->sortByDesc('degree')->take(max(1, $limit))->values()->all();
             });
@@ -838,19 +817,17 @@ class GraphExplorerService
             if (Schema::hasTable('information_object_i18n') && Schema::hasTable('slug') && Schema::hasTable('status')) {
                 $rows = DB::table('information_object as io')
                     ->join('slug as s', 's.object_id', '=', 'io.id')
-                    ->join('information_object_i18n as i18n', function ($j) {
-                        $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $this->culture);
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $this->culture))
                     ->join('status as st', function ($j) {
                         $j->on('io.id', '=', 'st.object_id')
                             ->where('st.type_id', '=', self::STATUS_TYPE_PUBLICATION)
                             ->where('st.status_id', '=', self::STATUS_PUBLISHED);
                     })
                     ->where('io.id', '!=', self::ROOT_ID)
-                    ->where('i18n.title', 'like', $like)
-                    ->orderBy('i18n.title')
+                    ->where(I18nFallback::col('i18n', 'title'), 'like', $like)
+                    ->orderBy(I18nFallback::col('i18n', 'title'))
                     ->limit($limit)
-                    ->get(['i18n.title as label', 's.slug']);
+                    ->get([I18nFallback::col('i18n', 'title', 'label'), 's.slug']);
                 foreach ($this->toConnections($rows, 'record') as $c) {
                     $out[] = $c;
                 }
@@ -864,19 +841,17 @@ class GraphExplorerService
             if (Schema::hasTable('actor_i18n') && Schema::hasTable('slug')) {
                 $q = DB::table('actor as a')
                     ->join('slug as s', 's.object_id', '=', 'a.id')
-                    ->join('actor_i18n as ai', function ($j) {
-                        $j->on('a.id', '=', 'ai.id')->where('ai.culture', $this->culture);
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'a.id', $this->culture, required: true))
                     ->where('a.id', '!=', self::ROOT_ID)
-                    ->where('ai.authorized_form_of_name', 'like', $like);
+                    ->where(I18nFallback::col('ai', 'authorized_form_of_name'), 'like', $like);
                 if (Schema::hasTable('repository')) {
                     $q->whereNotIn('a.id', function ($sub) {
                         $sub->from('repository')->select('id');
                     });
                 }
-                $rows = $q->orderBy('ai.authorized_form_of_name')
+                $rows = $q->orderBy(I18nFallback::col('ai', 'authorized_form_of_name'))
                     ->limit($limit)
-                    ->get(['ai.authorized_form_of_name as label', 's.slug']);
+                    ->get([I18nFallback::col('ai', 'authorized_form_of_name', 'label'), 's.slug']);
                 foreach ($this->toConnections($rows, 'actor') as $c) {
                     $out[] = $c;
                 }
@@ -890,15 +865,13 @@ class GraphExplorerService
             if (Schema::hasTable('term_i18n') && Schema::hasTable('slug')) {
                 $rows = DB::table('term as t')
                     ->join('slug as s', 's.object_id', '=', 't.id')
-                    ->join('term_i18n as ti', function ($j) {
-                        $j->on('t.id', '=', 'ti.id')->where('ti.culture', $this->culture);
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 't.id', $this->culture, required: true))
                     ->whereIn('t.taxonomy_id', [self::TAXONOMY_SUBJECT, self::TAXONOMY_PLACE, self::TAXONOMY_GENRE])
                     ->where('t.id', '!=', self::ROOT_ID)
-                    ->where('ti.name', 'like', $like)
-                    ->orderBy('ti.name')
+                    ->where(I18nFallback::col('ti', 'name'), 'like', $like)
+                    ->orderBy(I18nFallback::col('ti', 'name'))
                     ->limit($limit)
-                    ->get(['ti.name as label', 's.slug']);
+                    ->get([I18nFallback::col('ti', 'name', 'label'), 's.slug']);
                 foreach ($this->toConnections($rows, 'term') as $c) {
                     $out[] = $c;
                 }
@@ -935,9 +908,7 @@ class GraphExplorerService
         try {
             $rows = DB::table('information_object as io')
                 ->join('slug as s', 's.object_id', '=', 'io.id')
-                ->join('information_object_i18n as i18n', function ($j) {
-                    $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $this->culture))
                 ->join('status as st', function ($j) {
                     $j->on('io.id', '=', 'st.object_id')
                         ->where('st.type_id', '=', self::STATUS_TYPE_PUBLICATION)
@@ -947,7 +918,7 @@ class GraphExplorerService
                 ->where('io.id', '!=', self::ROOT_ID)
                 ->orderBy('io.lft')
                 ->limit(max(1, $limit))
-                ->get(['i18n.title as label', 's.slug']);
+                ->get([I18nFallback::col('i18n', 'title', 'label'), 's.slug']);
         } catch (\Throwable $e) {
             return [];
         }

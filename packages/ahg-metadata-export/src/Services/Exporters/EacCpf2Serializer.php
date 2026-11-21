@@ -30,6 +30,7 @@
 namespace AhgMetadataExport\Services\Exporters;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class EacCpf2Serializer
 {
@@ -135,17 +136,14 @@ class EacCpf2Serializer
 
         // Fetch other names
         $otherNames = DB::table('other_name')
-            ->join('other_name_i18n', function ($join) use ($culture) {
-                $join->on('other_name.id', '=', 'other_name_i18n.id')
-                    ->where('other_name_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'other_name_i18n', 'other_name.id', $culture, required: true))
             ->where('other_name.object_id', $actorId)
             ->select(
                 'other_name.id',
                 'other_name.type_id',
-                'other_name_i18n.name',
-                'other_name_i18n.note',
-                'other_name_i18n.dates'
+                I18nFallback::col('other_name_i18n', 'name', 'name'),
+                I18nFallback::col('other_name_i18n', 'note', 'note'),
+                I18nFallback::col('other_name_i18n', 'dates', 'dates')
             )
             ->get();
 

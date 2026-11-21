@@ -5,6 +5,7 @@ namespace AhgApi\Controllers\V2;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class TaxonomyController extends BaseApiController
 {
@@ -14,11 +15,10 @@ class TaxonomyController extends BaseApiController
     public function index(): JsonResponse
     {
         $taxonomies = DB::table('taxonomy')
-            ->join('taxonomy_i18n', 'taxonomy.id', '=', 'taxonomy_i18n.id')
-            ->where('taxonomy_i18n.culture', $this->culture)
+            ->tap(fn ($q) => I18nFallback::join($q, 'taxonomy_i18n', 'taxonomy.id', $this->culture, required: true))
             ->where('taxonomy.id', '!=', 1)
-            ->select('taxonomy.id', 'taxonomy_i18n.name', 'taxonomy.usage')
-            ->orderBy('taxonomy_i18n.name')
+            ->select('taxonomy.id', I18nFallback::col('taxonomy_i18n', 'name', 'name'), 'taxonomy.usage')
+            ->orderBy(I18nFallback::col('taxonomy_i18n', 'name'))
             ->get();
 
         // Term counts
@@ -51,17 +51,16 @@ class TaxonomyController extends BaseApiController
         $offset = $this->listOffset($request, $page, $limit);
 
         $query = DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
-            ->where('term.taxonomy_id', $id)
-            ->where('term_i18n.culture', $this->culture);
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture, required: true))
+            ->where('term.taxonomy_id', $id);
         // ?search= - every word must appear in the name, in any order (PSIS).
         $this->whereWords($query, 'term_i18n.name', (string) $request->get('search', ''));
 
         $total = $query->count();
 
         $rows = $query
-            ->select('term.id', 'term.parent_id', 'term_i18n.name')
-            ->orderBy('term_i18n.name')
+            ->select('term.id', 'term.parent_id', I18nFallback::col('term_i18n', 'name', 'name'))
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->offset($offset)
             ->limit($limit)
             ->get();

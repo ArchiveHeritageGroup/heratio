@@ -18,6 +18,7 @@ namespace AhgRecordsManage\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class DestructionCertificateService
 {
@@ -51,12 +52,9 @@ class DestructionCertificateService
         // Get repository name
         $repoName = DB::table('information_object')
             ->join('repository', 'information_object.repository_id', '=', 'repository.id')
-            ->join('actor_i18n', function ($join) use ($culture) {
-                $join->on('repository.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture, required: true))
             ->where('information_object.id', $ioId)
-            ->value('actor_i18n.authorized_form_of_name') ?? 'Unknown Repository';
+            ->value(I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name')) ?? 'Unknown Repository';
 
         $certNumber = $this->getCertificateNumber();
         $destructionDate = now();
@@ -164,13 +162,10 @@ class DestructionCertificateService
         $total = DB::table('destruction_certificate')->count();
 
         $data = DB::table('destruction_certificate')
-            ->leftJoin('information_object_i18n', function ($join) use ($culture) {
-                $join->on('destruction_certificate.information_object_id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'destruction_certificate.information_object_id', $culture))
             ->select([
                 'destruction_certificate.*',
-                'information_object_i18n.title as io_title',
+                I18nFallback::col('information_object_i18n', 'title', 'io_title'),
             ])
             ->orderBy('destruction_certificate.created_at', 'desc')
             ->offset(($page - 1) * $perPage)
@@ -198,21 +193,15 @@ class DestructionCertificateService
         $culture = app()->getLocale();
 
         return DB::table('destruction_certificate')
-            ->leftJoin('information_object_i18n', function ($join) use ($culture) {
-                $join->on('destruction_certificate.information_object_id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'destruction_certificate.information_object_id', $culture))
             ->leftJoin('information_object', 'destruction_certificate.information_object_id', '=', 'information_object.id')
             ->leftJoin('repository', 'information_object.repository_id', '=', 'repository.id')
-            ->leftJoin('actor_i18n', function ($join) use ($culture) {
-                $join->on('repository.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture))
             ->where('destruction_certificate.id', $id)
             ->select([
                 'destruction_certificate.*',
-                'information_object_i18n.title as io_title',
-                'actor_i18n.authorized_form_of_name as repository_name',
+                I18nFallback::col('information_object_i18n', 'title', 'io_title'),
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'repository_name'),
             ])
             ->first();
     }

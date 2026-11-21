@@ -33,6 +33,7 @@ use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * ResearchAdminReferenceController - Admin reference/config screens.
@@ -207,14 +208,11 @@ class ResearchAdminReferenceController extends Controller
         $mostViewed = [];
         try {
             $mostViewed = DB::table('research_activity_log as a')
-                ->leftJoin('information_object_i18n as ioi', function ($j) {
-                    $j->on('ioi.id', '=', 'a.object_id')
-                        ->where('ioi.culture', '=', app()->getLocale());
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'a.object_id', app()->getLocale()))
                 ->where('a.activity_type', 'view')
                 ->whereBetween('a.created_at', [$dateFrom, $dateTo . ' 23:59:59'])
-                ->select('ioi.title', DB::raw('COUNT(*) as view_count'))
-                ->groupBy('a.object_id', 'ioi.title')
+                ->select(I18nFallback::col('ioi', 'title', 'title'), DB::raw('COUNT(*) as view_count'))
+                ->groupBy('a.object_id', I18nFallback::col('ioi', 'title'))
                 ->orderByDesc('view_count')
                 ->limit(10)
                 ->get()->toArray();
@@ -224,13 +222,10 @@ class ResearchAdminReferenceController extends Controller
         $mostCited = [];
         try {
             $mostCited = DB::table('research_citation_log as c')
-                ->leftJoin('information_object_i18n as ioi', function ($j) {
-                    $j->on('ioi.id', '=', 'c.object_id')
-                        ->where('ioi.culture', '=', app()->getLocale());
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'c.object_id', app()->getLocale()))
                 ->whereBetween('c.created_at', [$dateFrom, $dateTo . ' 23:59:59'])
-                ->select('ioi.title', DB::raw('COUNT(*) as citation_count'))
-                ->groupBy('c.object_id', 'ioi.title')
+                ->select(I18nFallback::col('ioi', 'title', 'title'), DB::raw('COUNT(*) as citation_count'))
+                ->groupBy('c.object_id', I18nFallback::col('ioi', 'title'))
                 ->orderByDesc('citation_count')
                 ->limit(10)
                 ->get()->toArray();

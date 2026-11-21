@@ -29,6 +29,7 @@ namespace AhgAiChatbot\Services;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class ChatbotSkillService
 {
@@ -337,17 +338,14 @@ class ChatbotSkillService
         $like = '%'.$term.'%';
 
         return DB::table('library_item as li')
-            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('li.information_object_id', '=', 'i18n.id')
-                    ->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'li.information_object_id', $culture))
             ->where(function ($w) use ($term, $like) {
                 $w->where('li.isbn', $term)
                     ->orWhere('li.call_number', $term)
-                    ->orWhere('i18n.title', 'LIKE', $like);
+                    ->orWhere(I18nFallback::col('i18n', 'title'), 'LIKE', $like);
             })
-            ->select('li.id', 'li.isbn', 'li.call_number', 'i18n.title')
-            ->orderBy('i18n.title')
+            ->select('li.id', 'li.isbn', 'li.call_number', I18nFallback::col('i18n', 'title', 'title'))
+            ->orderBy(I18nFallback::col('i18n', 'title'))
             ->first();
     }
 

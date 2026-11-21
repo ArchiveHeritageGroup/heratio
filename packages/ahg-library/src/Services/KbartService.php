@@ -28,6 +28,7 @@ namespace AhgLibrary\Services;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Generator;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Implements the NISO KBART (KBART 1.2 / ANSI/NISO Z39.83) standard for
@@ -152,10 +153,7 @@ class KbartService
 
         $query = DB::table('library_item')
             ->join('information_object', 'library_item.information_object_id', '=', 'information_object.id')
-            ->leftJoin('information_object_i18n', function ($j) use ($culture) {
-                $j->on('information_object.id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
             ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
             ->leftJoin('library_item_creator', 'library_item.id', '=', 'library_item_creator.library_item_id');
 
@@ -170,7 +168,7 @@ class KbartService
         // ONLY_FULL_GROUP_BY sql_mode instead of erroring out.
         $query->select([
                 'library_item.id as library_item_id',
-                DB::raw('ANY_VALUE(information_object_i18n.title) as publication_title'),
+                DB::raw('ANY_VALUE(COALESCE(information_object_i18n.title, information_object_i18n_fb.title)) as publication_title'),
                 'library_item.isbn',
                 'library_item.issn as print_identifier',
                 $hasEisbn

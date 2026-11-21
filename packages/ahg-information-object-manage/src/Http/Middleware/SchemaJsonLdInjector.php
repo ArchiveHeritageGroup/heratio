@@ -29,6 +29,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
+use AhgCore\Support\I18nFallback;
 
 class SchemaJsonLdInjector
 {
@@ -105,12 +106,10 @@ class SchemaJsonLdInjector
 
         // What kind of entity does this slug attach to? Try IO first.
         $io = DB::table('information_object as i')
-            ->join('information_object_i18n as i18n', function ($j) {
-                $j->on('i.id', '=', 'i18n.id')->where('i18n.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'i.id', app()->getLocale()))
             ->where('i.id', $objectId)
             ->select('i.id', 'i.identifier', 'i.parent_id',
-                    'i18n.title', 'i18n.scope_and_content')
+                    I18nFallback::col('i18n', 'title', 'title'), I18nFallback::col('i18n', 'scope_and_content', 'scope_and_content'))
             ->first();
         if ($io) {
             // Schema.org markup is public data for search engines, so it follows
@@ -127,11 +126,9 @@ class SchemaJsonLdInjector
         // Try actor (used for actor + repository + donor + rights_holder)
         if (Schema::hasTable('actor') && Schema::hasTable('actor_i18n')) {
             $actor = DB::table('actor as a')
-                ->join('actor_i18n as ai', function ($j) {
-                    $j->on('a.id', '=', 'ai.id')->where('ai.culture', '=', app()->getLocale());
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'a.id', app()->getLocale(), required: true))
                 ->where('a.id', $objectId)
-                ->select('a.id', 'a.entity_type_id', 'ai.authorized_form_of_name', 'ai.history')
+                ->select('a.id', 'a.entity_type_id', I18nFallback::col('ai', 'authorized_form_of_name', 'authorized_form_of_name'), I18nFallback::col('ai', 'history', 'history'))
                 ->first();
             if ($actor) {
                 return $this->buildActorJsonLd($actor, $slug, $request);

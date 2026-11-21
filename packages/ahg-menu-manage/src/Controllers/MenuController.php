@@ -28,6 +28,7 @@ namespace AhgMenuManage\Controllers;
 use AhgMenuManage\Services\MenuService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use AhgCore\Support\I18nFallback;
 
 class MenuController extends Controller
 {
@@ -65,10 +66,7 @@ class MenuController extends Controller
         // Get children from the tree (direct children only)
         $culture = app()->getLocale();
         $children = \Illuminate\Support\Facades\DB::table('menu')
-            ->leftJoin('menu_i18n', function ($join) use ($culture) {
-                $join->on('menu.id', '=', 'menu_i18n.id')
-                    ->where('menu_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'menu_i18n', 'menu.id', $culture))
             ->where('menu.parent_id', $id)
             ->select([
                 'menu.id',
@@ -81,8 +79,8 @@ class MenuController extends Controller
                 'menu.updated_at',
                 'menu.source_culture',
                 'menu.serial_number',
-                'menu_i18n.label',
-                'menu_i18n.description',
+                I18nFallback::col('menu_i18n', 'label', 'label'),
+                I18nFallback::col('menu_i18n', 'description', 'description'),
             ])
             ->orderBy('menu.id');
         $children = app(\AhgCore\Services\HierarchyQueryService::class)

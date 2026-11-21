@@ -13,6 +13,7 @@ namespace AhgAccessionManage\Services;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
+use AhgCore\Support\I18nFallback;
 
 /**
  * CAAIS 1.0 (Canadian Archival Accession Information Standard, Canadian Council
@@ -158,12 +159,10 @@ class CaaisProfileService
     public function repositoryOptions(): array
     {
         return DB::table('repository')
-            ->join('actor_i18n', function ($j) {
-                $j->on('repository.id', '=', 'actor_i18n.id')->where('actor_i18n.culture', '=', $this->culture);
-            })
-            ->whereNotNull('actor_i18n.authorized_form_of_name')
-            ->orderBy('actor_i18n.authorized_form_of_name')
-            ->pluck('actor_i18n.authorized_form_of_name', 'repository.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $this->culture, required: true))
+            ->whereNotNull(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
+            ->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
+            ->pluck(I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'), 'repository.id')
             ->all();
     }
 

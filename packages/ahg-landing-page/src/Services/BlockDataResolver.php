@@ -28,6 +28,7 @@ namespace AhgLandingPage\Services;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 /**
  * The per-block-type data resolver - the last of #1478.
@@ -210,14 +211,12 @@ class BlockDataResolver
         $culture = app()->getLocale();
 
         $rows = $this->publishedIoQuery()
-            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
             ->leftJoin('object as o', 'o.id', '=', 'io.id')
             ->orderByDesc('o.created_at')
             ->limit($limit)
-            ->select('io.id', 'i18n.title', 's.slug', 'o.created_at')
+            ->select('io.id', I18nFallback::col('i18n', 'title', 'title'), 's.slug', 'o.created_at')
             ->get();
 
         return $this->withThumbnails($rows);
@@ -234,9 +233,7 @@ class BlockDataResolver
         $culture = app()->getLocale();
 
         $q = $this->publishedIoQuery()
-            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id');
 
         if (! empty($config['repository_id'])) {
@@ -244,13 +241,13 @@ class BlockDataResolver
         }
 
         if (($config['sort'] ?? 'title') === 'title') {
-            $q->orderBy('i18n.title');
+            $q->orderBy(I18nFallback::col('i18n', 'title'));
         } else {
             $q->orderByDesc('io.id');
         }
 
         return $q->limit($limit)
-            ->select('io.id', 'i18n.title', 's.slug', DB::raw('0 as hits'))
+            ->select('io.id', I18nFallback::col('i18n', 'title', 'title'), 's.slug', DB::raw('0 as hits'))
             ->get()
             ->all();
     }
@@ -275,9 +272,7 @@ class BlockDataResolver
                 $j->on('thumb.parent_id', '=', 'master.id')
                     ->where('thumb.usage_id', '=', self::USAGE_THUMBNAIL);
             })
-            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            });
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture));
 
         $collection = $config['collection_id'] ?? null;
         if (! empty($collection)) {
@@ -293,7 +288,7 @@ class BlockDataResolver
         }
 
         return $q->limit($limit)
-            ->select('i18n.title', 'thumb.path', 'thumb.name')
+            ->select(I18nFallback::col('i18n', 'title', 'title'), 'thumb.path', 'thumb.name')
             ->get()
             ->map(fn ($r) => [
                 'title' => $r->title ?? '',
@@ -319,15 +314,11 @@ class BlockDataResolver
 
         $q = DB::table('repository as r')
             ->join('contact_information as ci', 'ci.actor_id', '=', 'r.id')
-            ->leftJoin('actor_i18n as ai', function ($j) use ($culture) {
-                $j->on('ai.id', '=', 'r.id')->where('ai.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'r.id', $culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'r.id')
             // city lives in contact_information_i18n, not contact_information -
             // the base table has street_address and postal_code but no city.
-            ->leftJoin('contact_information_i18n as cii', function ($j) use ($culture) {
-                $j->on('cii.id', '=', 'ci.id')->where('cii.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'contact_information_i18n as cii', 'ci.id', $culture))
             ->whereNotNull('ci.latitude')
             ->whereNotNull('ci.longitude');
 
@@ -338,11 +329,11 @@ class BlockDataResolver
 
         return $q->select(
             'r.id',
-            'ai.authorized_form_of_name as name',
+            I18nFallback::col('ai', 'authorized_form_of_name', 'name'),
             's.slug',
             'ci.latitude',
             'ci.longitude',
-            'cii.city',
+            I18nFallback::col('cii', 'city', 'city'),
             'ci.street_address'
         )->get()->all();
     }

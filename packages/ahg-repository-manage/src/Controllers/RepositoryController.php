@@ -33,6 +33,7 @@ use AhgRepositoryManage\Services\RepositoryService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class RepositoryController extends Controller
 {
@@ -83,22 +84,18 @@ class RepositoryController extends Controller
 
         // Thematic area options for advanced search dropdown (full list from taxonomy)
         $thematicAreaOptions = \Illuminate\Support\Facades\DB::table('term')
-            ->join('term_i18n', function ($j) use ($culture) {
-                $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
             ->where('term.taxonomy_id', 72)
-            ->orderBy('term_i18n.name')
-            ->select('term.id', 'term_i18n.name')
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
 
         // Repository types for advanced search dropdown
         $repositoryTypes = \Illuminate\Support\Facades\DB::table('term')
-            ->join('term_i18n', function ($j) use ($culture) {
-                $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
             ->where('term.taxonomy_id', 37)
-            ->orderBy('term_i18n.name')
-            ->select('term.id', 'term_i18n.name')
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
 
         // ── Filter tags (active filter pills) ──
@@ -475,10 +472,7 @@ class RepositoryController extends Controller
 
         // Get system admin email
         $adminEmail = DB::table('user')
-            ->join('actor_i18n', function ($j) {
-                $j->on('user.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'user.id', app()->getLocale(), required: true))
             ->orderBy('user.id')
             ->value('user.email') ?? '';
 
@@ -502,16 +496,13 @@ class RepositoryController extends Controller
         $limit = $request->get('limit', 10);
 
         $results = DB::table('actor')
-            ->join('actor_i18n', function ($j) use ($culture) {
-                $j->on('actor.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $culture, required: true))
             ->join('repository', 'repository.id', '=', 'actor.id')
             ->join('slug', 'slug.object_id', '=', 'actor.id')
-            ->where('actor_i18n.authorized_form_of_name', 'LIKE', '%'.$query.'%')
+            ->where(I18nFallback::col('actor_i18n', 'authorized_form_of_name'), 'LIKE', '%'.$query.'%')
             ->select(
                 'actor.id',
-                'actor_i18n.authorized_form_of_name as name',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'),
                 'slug.slug'
             )
             ->limit($limit)

@@ -31,6 +31,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use AhgCore\Support\I18nFallback;
 
 class JobController extends Controller
 {
@@ -138,14 +139,8 @@ class JobController extends Controller
         $job = DB::table('job')
             ->join('object', 'job.id', '=', 'object.id')
             ->leftJoin('user', 'job.user_id', '=', 'user.id')
-            ->leftJoin('actor_i18n', function ($join) use ($culture) {
-                $join->on('user.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
-            ->leftJoin('term_i18n as status_term', function ($join) use ($culture) {
-                $join->on('job.status_id', '=', 'status_term.id')
-                    ->where('status_term.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'user.id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as status_term', 'job.status_id', $culture))
             ->where('job.id', $id)
             ->select([
                 'job.id',
@@ -156,9 +151,9 @@ class JobController extends Controller
                 'job.output',
                 'job.object_id',
                 'object.created_at',
-                'actor_i18n.authorized_form_of_name as user_name',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'user_name'),
                 'user.username',
-                'status_term.name as status_name',
+                I18nFallback::col('status_term', 'name', 'status_name'),
             ])
             ->first();
 
@@ -209,18 +204,12 @@ class JobController extends Controller
         $jobs = DB::table('job')
             ->join('object', 'job.id', '=', 'object.id')
             ->leftJoin('user', 'job.user_id', '=', 'user.id')
-            ->leftJoin('actor_i18n', function ($join) use ($culture) {
-                $join->on('user.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
-            ->leftJoin('term_i18n as status_term', function ($join) use ($culture) {
-                $join->on('job.status_id', '=', 'status_term.id')
-                    ->where('status_term.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'user.id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as status_term', 'job.status_id', $culture))
             ->select([
                 'job.name',
-                'status_term.name as status_name',
-                'actor_i18n.authorized_form_of_name as user_name',
+                I18nFallback::col('status_term', 'name', 'status_name'),
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'user_name'),
                 'user.username',
                 'object.created_at',
                 'job.completed_at',

@@ -478,6 +478,7 @@ class DigitalObjectService
             self::generatePdfDerivatives($masterId, $objectId, $masterPath, $safeName, $webPath, $uploadDir, $mimeType);
         } elseif (($preview = self::previewSource($masterPath, $mimeType)) !== null) {
             self::generatePdfDerivatives($masterId, $objectId, $preview['path'], $safeName, $webPath, $uploadDir, $mimeType);
+            OfficeDisplayCopyService::store($masterId, $preview['path']); // heratio#1627, no-op unless office
             self::removePreviewTmp($preview['tmp']);
         } elseif (! self::queueMediaDerivatives($masterId, $mediaTypeId, $mimeType)) {
             self::generateGenericDerivatives($masterId, $objectId, $mimeType, $safeName, $webPath, $uploadDir);
@@ -1356,6 +1357,9 @@ class DigitalObjectService
             } elseif (MediaProtection::isAudioVideo($master)) {
                 // Clean copies from the new file: old HLS and keys removed, no duplicate rows.
                 \AhgCore\Jobs\RegenerateMediaJob::dispatch($masterId);
+            } elseif (self::isOfficeDocument((string) $master->name, (string) $master->mime_type)) {
+                // heratio#1627: a new PDF display copy and page pictures, written over the old ones.
+                \AhgCore\Jobs\GenerateOfficePdfJob::dispatch($masterId, true);
             } else {
                 self::queueMediaDerivatives($masterId, $mediaTypeId ? (int) $mediaTypeId : null, $master->mime_type);
             }
@@ -1461,6 +1465,7 @@ class DigitalObjectService
             self::generatePdfDerivatives($masterId, (int) $master->object_id, $masterPath, $safeName, $webPath, $uploadDir, $mimeType);
         } elseif (($preview = self::previewSource($masterPath, $mimeType)) !== null) {
             self::generatePdfDerivatives($masterId, (int) $master->object_id, $preview['path'], $safeName, $webPath, $uploadDir, $mimeType);
+            OfficeDisplayCopyService::store($masterId, $preview['path']); // heratio#1627, no-op unless office
             self::removePreviewTmp($preview['tmp']);
         } elseif (! self::queueMediaDerivatives($masterId, $mediaTypeId, $mimeType)) {
             self::generateGenericDerivatives($masterId, $master->object_id, $mimeType, $safeName, $webPath, $uploadDir);
@@ -1716,14 +1721,20 @@ class DigitalObjectService
      * Returns ['path' => file to render, 'tmp' => directory to remove or null],
      * or null when the type has no preview route or the conversion failed.
      */
-    protected static function previewSource(string $masterPath, string $mimeType): ?array
+    /** Word, Excel, PowerPoint, OpenDocument or RTF, by extension or MIME type. */
+    public static function isOfficeDocument(string $name, string $mimeType): bool
     {
-        $ext = strtolower(pathinfo($masterPath, PATHINFO_EXTENSION));
-        $isPostScript = in_array($mimeType, self::POSTSCRIPT_PREVIEW_MIMES, true) || in_array($ext, ['ai', 'eps', 'ps'], true);
-        $isOffice = in_array($ext, self::OFFICE_PREVIEW_EXTENSIONS, true)
+        return in_array(strtolower(pathinfo($name, PATHINFO_EXTENSION)), self::OFFICE_PREVIEW_EXTENSIONS, true)
             || str_starts_with($mimeType, 'application/vnd.openxmlformats-officedocument.')
             || str_starts_with($mimeType, 'application/vnd.oasis.opendocument.')
             || in_array($mimeType, ['application/msword', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/rtf'], true);
+    }
+
+    public static function previewSource(string $masterPath, string $mimeType): ?array
+    {
+        $ext = strtolower(pathinfo($masterPath, PATHINFO_EXTENSION));
+        $isPostScript = in_array($mimeType, self::POSTSCRIPT_PREVIEW_MIMES, true) || in_array($ext, ['ai', 'eps', 'ps'], true);
+        $isOffice = self::isOfficeDocument($masterPath, $mimeType);
         if (! $isOffice && ! $isPostScript && $ext !== 'indd') {
             return null;
         }
@@ -1759,7 +1770,7 @@ class DigitalObjectService
         return null;
     }
 
-    protected static function removePreviewTmp(?string $dir): void
+    public static function removePreviewTmp(?string $dir): void
     {
         if (! $dir || ! str_starts_with($dir, sys_get_temp_dir().'/ahg-preview-') || ! is_dir($dir)) {
             return;

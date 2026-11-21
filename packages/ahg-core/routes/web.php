@@ -32,6 +32,12 @@ Route::get('/index.php/tts/pdfText', [TtsController::class, 'pdfText'])->name('t
 Route::get('/index.php/ahgVoice/getSettings', [VoiceController::class, 'getSettings'])->name('voice.settings');
 Route::get('/ahgVoice/getSettings', [VoiceController::class, 'getSettings'])->name('voice.settings.modern');
 
+// heratio#1767 - server speech-to-text fallback for voice search (browsers without
+// the speech API). Public like voice search itself; sign-in, size, type and rate
+// limits are enforced in the controller from the voice_stt_* settings.
+Route::get('/voice/stt/config', [\AhgCore\Controllers\VoiceSttController::class, 'config'])->name('voice.stt.config');
+Route::post('/voice/stt', [\AhgCore\Controllers\VoiceSttController::class, 'transcribe'])->name('voice.stt.transcribe');
+
 // IIIF viewer settings endpoint (closes audit issue #81). The master
 // layout injects window.AHG_IIIF synchronously so the viewer init can
 // read it without a fetch; this endpoint exists for any future
@@ -483,3 +489,20 @@ Route::prefix('clipboard')->name('clipboard.')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/object/{slug}/import-select', fn ($slug) => view('ahg-core::object-import-select', ['slug' => $slug]))->name('object.importSelect');
 });
+
+// heratio#1764 - face recognition: people, naming, matching, search. Staff only
+// (acl:update); faces are personal information. The person page is outside the
+// group because the face_search_public setting can open it (controller decides).
+Route::middleware(['auth', 'acl:update'])->prefix('admin/faces')->name('faces.')->group(function () {
+    Route::get('/', [\AhgCore\Controllers\FaceRecognitionController::class, 'index'])->name('index');
+    Route::post('/people', [\AhgCore\Controllers\FaceRecognitionController::class, 'storePerson'])->name('people.store');
+    Route::post('/person/{id}', [\AhgCore\Controllers\FaceRecognitionController::class, 'updatePerson'])->whereNumber('id')->name('person.update');
+    Route::get('/object/{id}', [\AhgCore\Controllers\FaceRecognitionController::class, 'object'])->whereNumber('id')->name('object');
+    Route::get('/face/{id}/image', [\AhgCore\Controllers\FaceRecognitionController::class, 'image'])->whereNumber('id')->name('face.image');
+    Route::post('/face/{id}/name', [\AhgCore\Controllers\FaceRecognitionController::class, 'name'])->whereNumber('id')->name('face.name');
+    Route::post('/face/{id}/confirm', [\AhgCore\Controllers\FaceRecognitionController::class, 'confirm'])->whereNumber('id')->name('face.confirm');
+    Route::post('/face/{id}/reject', [\AhgCore\Controllers\FaceRecognitionController::class, 'reject'])->whereNumber('id')->name('face.reject');
+    Route::post('/face/{id}/unassign', [\AhgCore\Controllers\FaceRecognitionController::class, 'unassign'])->whereNumber('id')->name('face.unassign');
+    Route::post('/search-photo', [\AhgCore\Controllers\FaceRecognitionController::class, 'searchPhoto'])->name('search-photo');
+});
+Route::get('/faces/person/{id}', [\AhgCore\Controllers\FaceRecognitionController::class, 'person'])->whereNumber('id')->name('faces.person');

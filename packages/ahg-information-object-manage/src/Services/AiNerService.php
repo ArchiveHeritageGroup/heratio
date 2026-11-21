@@ -29,6 +29,7 @@ namespace AhgInformationObjectManage\Services;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Service for AI/NER entity extraction and review operations.
@@ -83,10 +84,7 @@ class AiNerService
             $query = DB::table('ahg_ner_entity')
                 ->join('information_object', 'ahg_ner_entity.object_id', '=', 'information_object.id')
                 ->join('slug', 'information_object.id', '=', 'slug.object_id')
-                ->leftJoin('information_object_i18n', function ($join) use ($culture) {
-                    $join->on('information_object.id', '=', 'information_object_i18n.id')
-                         ->where('information_object_i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
                 ->where('ahg_ner_entity.status', 'pending');
 
             if ($objectId) {
@@ -96,7 +94,7 @@ class AiNerService
             return $query
                 ->select(
                     'ahg_ner_entity.object_id as id',
-                    'information_object_i18n.title',
+                    I18nFallback::col('information_object_i18n', 'title', 'title'),
                     'slug.slug',
                     DB::raw('COUNT(CASE WHEN ahg_ner_entity.status = \'pending\' THEN 1 END) as pending_count'),
                     DB::raw('(SELECT COUNT(*) FROM ahg_ner_entity AS ae2 WHERE ae2.object_id = ahg_ner_entity.object_id AND ae2.status = \'approved\') as approved_count'),
@@ -104,7 +102,7 @@ class AiNerService
                 )
                 ->groupBy(
                     'ahg_ner_entity.object_id',
-                    'information_object_i18n.title',
+                    I18nFallback::col('information_object_i18n', 'title'),
                     'slug.slug'
                 )
                 ->orderBy('pending_count', 'desc')
@@ -138,10 +136,7 @@ class AiNerService
         try {
             return DB::table('ahg_ner_entity_link')
                 ->join('ahg_ner_entity', 'ahg_ner_entity.id', '=', 'ahg_ner_entity_link.entity_id')
-                ->leftJoin('actor_i18n', function ($join) {
-                    $join->on('actor_i18n.id', '=', 'ahg_ner_entity_link.actor_id')
-                         ->where('actor_i18n.culture', '=', app()->getLocale());
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'ahg_ner_entity_link.actor_id', app()->getLocale()))
                 ->where('ahg_ner_entity.object_id', $objectId)
                 ->select(
                     'ahg_ner_entity_link.id as link_id',
@@ -154,7 +149,7 @@ class AiNerService
                     'ahg_ner_entity.entity_type',
                     'ahg_ner_entity.entity_value',
                     'ahg_ner_entity.status as entity_status',
-                    'actor_i18n.authorized_form_of_name as actor_name'
+                    I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'actor_name')
                 )
                 ->orderBy('ahg_ner_entity.entity_type')
                 ->get();

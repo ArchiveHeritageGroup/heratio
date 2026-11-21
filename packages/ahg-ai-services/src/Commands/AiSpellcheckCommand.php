@@ -19,6 +19,7 @@ use AhgAiServices\Services\LlmService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Throwable;
+use AhgCore\Support\I18nFallback;
 
 class AiSpellcheckCommand extends Command
 {
@@ -44,14 +45,12 @@ class AiSpellcheckCommand extends Command
         }
 
         $query = DB::table('information_object as io')
-            ->join('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('ioi.id', '=', 'io.id')->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->where('io.id', '!=', 1)
-            ->whereNotNull('ioi.scope_and_content')
-            ->where('ioi.scope_and_content', '!=', '')
+            ->whereNotNull(I18nFallback::col('ioi', 'scope_and_content'))
+            ->where(I18nFallback::col('ioi', 'scope_and_content'), '!=', '')
             ->orderBy('io.id')
-            ->select('io.id', 'ioi.scope_and_content');
+            ->select('io.id', I18nFallback::col('ioi', 'scope_and_content', 'scope_and_content'));
 
         if ($this->option('object')) {
             $query->where('io.id', (int) $this->option('object'));

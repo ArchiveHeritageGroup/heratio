@@ -35,6 +35,7 @@ use AhgStorageManage\Services\StorageService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class StorageController extends Controller
 {
@@ -286,14 +287,11 @@ class StorageController extends Controller
         $culture = app()->getLocale();
         $informationObjects = DB::table('relation')
             ->join('information_object', 'relation.subject_id', '=', 'information_object.id')
-            ->leftJoin('information_object_i18n', function ($j) use ($culture) {
-                $j->on('information_object.id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('relation.object_id', $storage->id)
             ->where('relation.type_id', 151) // HAS_PHYSICAL_OBJECT (was 179 = Artwork component)
-            ->select('information_object_i18n.title', 'slug.slug')
+            ->select(I18nFallback::col('information_object_i18n', 'title', 'title'), 'slug.slug')
             ->get();
 
         return view('ahg-storage-manage::delete', [
@@ -321,14 +319,10 @@ class StorageController extends Controller
     {
         $culture = app()->getLocale();
         $rows = DB::table('physical_object')
-            ->join('physical_object_i18n', 'physical_object.id', '=', 'physical_object_i18n.id')
-            ->leftJoin('term_i18n', function ($j) use ($culture) {
-                $j->on('physical_object.type_id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $culture);
-            })
-            ->where('physical_object_i18n.culture', $culture)
-            ->select('physical_object_i18n.name', 'term_i18n.name as type', 'physical_object_i18n.location')
-            ->orderBy('physical_object_i18n.name')
+            ->tap(fn ($q) => I18nFallback::join($q, 'physical_object_i18n', 'physical_object.id', $culture, required: true))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'physical_object.type_id', $culture))
+            ->select(I18nFallback::col('physical_object_i18n', 'name', 'name'), I18nFallback::col('term_i18n', 'name', 'type'), I18nFallback::col('physical_object_i18n', 'location', 'location'))
+            ->orderBy(I18nFallback::col('physical_object_i18n', 'name'))
             ->get();
 
         return new \Symfony\Component\HttpFoundation\StreamedResponse(function () use ($rows) {
@@ -391,10 +385,7 @@ class StorageController extends Controller
                 // Get linked information objects with AtoM box-list columns
                 $items = DB::table('relation')
                     ->join('information_object', 'relation.subject_id', '=', 'information_object.id')
-                    ->leftJoin('information_object_i18n', function ($j) use ($culture) {
-                        $j->on('information_object.id', '=', 'information_object_i18n.id')
-                            ->where('information_object_i18n.culture', '=', $culture);
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
                     ->join('slug', 'information_object.id', '=', 'slug.object_id')
                     ->where('relation.object_id', $storage->id)
                     ->where('relation.type_id', 151)
@@ -402,8 +393,8 @@ class StorageController extends Controller
                         'information_object.id',
                         'information_object.identifier',
                         'information_object.parent_id',
-                        'information_object_i18n.title',
-                        'information_object_i18n.access_conditions',
+                        I18nFallback::col('information_object_i18n', 'title', 'title'),
+                        I18nFallback::col('information_object_i18n', 'access_conditions', 'access_conditions'),
                         'slug.slug',
                     ])
                     ->get();
@@ -415,20 +406,14 @@ class StorageController extends Controller
 
                     // Get dates
                     $item->dates = DB::table('event')
-                        ->leftJoin('event_i18n', function ($j) use ($culture) {
-                            $j->on('event.id', '=', 'event_i18n.id')
-                                ->where('event_i18n.culture', '=', $culture);
-                        })
-                        ->leftJoin('term_i18n', function ($j) use ($culture) {
-                            $j->on('event.type_id', '=', 'term_i18n.id')
-                                ->where('term_i18n.culture', '=', $culture);
-                        })
+                        ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n', 'event.id', $culture))
+                        ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'event.type_id', $culture))
                         ->where('event.object_id', $item->id)
                         ->select([
-                            'event_i18n.date as date_display',
+                            I18nFallback::col('event_i18n', 'date', 'date_display'),
                             'event.start_date',
                             'event.end_date',
-                            'term_i18n.name as type_name',
+                            I18nFallback::col('term_i18n', 'name', 'type_name'),
                         ])
                         ->get();
 
@@ -470,10 +455,9 @@ class StorageController extends Controller
             // If this is the top-level IO with a repository, prepend repository identifier
             if ($row->repository_id) {
                 $repoIdentifier = DB::table('repository')
-                    ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
+                    ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture, required: true))
                     ->where('repository.id', $row->repository_id)
-                    ->where('actor_i18n.culture', $culture)
-                    ->value('actor_i18n.authorized_form_of_name');
+                    ->value(I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'));
                 if ($repoIdentifier) {
                     $repoId = DB::table('repository')->where('id', $row->repository_id)->value('identifier');
                     if ($repoId) {

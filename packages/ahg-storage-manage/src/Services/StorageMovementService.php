@@ -16,6 +16,7 @@ namespace AhgStorageManage\Services;
 
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Port of the AtoM ahgStorageManagePlugin StorageMovementService, on the same
@@ -174,12 +175,10 @@ class StorageMovementService
     {
         return $this->rows(
             DB::table('ahg_physical_object_location as pol')
-                ->leftJoin('physical_object_i18n as i', function ($join) {
-                    $join->on('i.id', '=', 'pol.physical_object_id')->where('i.culture', '=', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'physical_object_i18n as i', 'pol.physical_object_id', $this->culture))
                 ->where('pol.location_id', $locationId)
-                ->orderBy('i.name')
-                ->select('pol.physical_object_id', 'pol.location_id', 'pol.updated_at', 'i.name')
+                ->orderBy(I18nFallback::col('i', 'name'))
+                ->select('pol.physical_object_id', 'pol.location_id', 'pol.updated_at', I18nFallback::col('i', 'name', 'name'))
         );
     }
 
@@ -196,15 +195,13 @@ class StorageMovementService
             DB::table('ahg_storage_location_closure as c')
                 ->join('ahg_physical_object_location as pol', 'pol.location_id', '=', 'c.descendant')
                 ->join('ahg_storage_location as l', 'l.id', '=', 'pol.location_id')
-                ->leftJoin('physical_object_i18n as i', function ($join) {
-                    $join->on('i.id', '=', 'pol.physical_object_id')->where('i.culture', '=', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'physical_object_i18n as i', 'pol.physical_object_id', $this->culture))
                 ->where('c.ancestor', $locationId)
                 ->orderBy('c.depth')
                 ->orderBy('l.name')
-                ->orderBy('i.name')
+                ->orderBy(I18nFallback::col('i', 'name'))
                 ->select(
-                    'pol.physical_object_id', 'pol.location_id', 'pol.updated_at', 'i.name',
+                    'pol.physical_object_id', 'pol.location_id', 'pol.updated_at', I18nFallback::col('i', 'name', 'name'),
                     'l.name as location_name', 'l.slug as location_slug', 'l.location_type', 'c.depth'
                 )
         );
@@ -223,22 +220,20 @@ class StorageMovementService
     {
         $query = DB::table('physical_object as p')
             ->leftJoin('ahg_physical_object_location as pol', 'pol.physical_object_id', '=', 'p.id')
-            ->leftJoin('physical_object_i18n as i', function ($join) {
-                $join->on('i.id', '=', 'p.id')->where('i.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'physical_object_i18n as i', 'p.id', $this->culture))
             ->whereNull('pol.physical_object_id');
 
         $search = trim($search);
         if ($search !== '') {
-            $query->where('i.name', 'LIKE', '%'.addcslashes($search, '%_\\').'%');
+            $query->where(I18nFallback::col('i', 'name'), 'LIKE', '%'.addcslashes($search, '%_\\').'%');
         }
 
         $total = (clone $query)->count();
 
         return [
             'rows' => $this->rows(
-                $query->orderBy('i.name')->orderBy('p.id')->limit(max(1, $limit))
-                    ->select('p.id as physical_object_id', 'i.name')
+                $query->orderBy(I18nFallback::col('i', 'name'))->orderBy('p.id')->limit(max(1, $limit))
+                    ->select('p.id as physical_object_id', I18nFallback::col('i', 'name', 'name'))
             ),
             'total' => (int) $total,
         ];

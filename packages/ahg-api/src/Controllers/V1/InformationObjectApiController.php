@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use AhgApi\Concerns\PaginatesApiResponse;
+use AhgCore\Support\I18nFallback;
 
 class InformationObjectApiController extends Controller
 {
@@ -37,14 +38,13 @@ class InformationObjectApiController extends Controller
         $offset = ($page - 1) * $limit;
 
         $query = DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $this->culture))
             ->join('object', 'information_object.id', '=', 'object.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->leftJoin('status', function ($j) {
                 $j->on('information_object.id', '=', 'status.object_id')
                     ->where('status.type_id', '=', 158);
             })
-            ->where('information_object_i18n.culture', $this->culture)
             ->where('information_object.id', '!=', 1) // Exclude root
             ->where('status.status_id', '=', 160) // Published only
             ->whereNotIn('information_object.id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds()); // #1384/#1389 ICIP/TK + ODRL
@@ -67,7 +67,7 @@ class InformationObjectApiController extends Controller
         switch ($sort) {
             case 'alphabetic':
             case 'title':
-                $query->orderBy('information_object_i18n.title', $sortDir);
+                $query->orderBy(I18nFallback::col('information_object_i18n', 'title'), $sortDir);
                 break;
             case 'identifier':
                 $query->orderBy('information_object.identifier', $sortDir);
@@ -84,7 +84,7 @@ class InformationObjectApiController extends Controller
                 'information_object.level_of_description_id',
                 'information_object.repository_id',
                 'information_object.parent_id',
-                'information_object_i18n.title',
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
                 'object.created_at',
                 'object.updated_at',
                 'slug.slug',
@@ -97,22 +97,14 @@ class InformationObjectApiController extends Controller
         $levelIds = $rows->pluck('level_of_description_id')->filter()->unique()->values()->toArray();
         $levelNames = [];
         if (! empty($levelIds)) {
-            $levelNames = DB::table('term_i18n')
-                ->whereIn('id', $levelIds)
-                ->where('culture', $this->culture)
-                ->pluck('name', 'id')
-                ->toArray();
+            $levelNames = I18nFallback::pluck('term_i18n', $levelIds, 'name', $this->culture);
         }
 
         // Resolve repository names
         $repoIds = $rows->pluck('repository_id')->filter()->unique()->values()->toArray();
         $repoNames = [];
         if (! empty($repoIds)) {
-            $repoNames = DB::table('actor_i18n')
-                ->whereIn('id', $repoIds)
-                ->where('culture', $this->culture)
-                ->pluck('authorized_form_of_name', 'id')
-                ->toArray();
+            $repoNames = I18nFallback::pluck('actor_i18n', $repoIds, 'authorized_form_of_name', $this->culture);
         }
 
         $data = $rows->map(function ($row) use ($levelNames, $repoNames) {
@@ -154,22 +146,21 @@ class InformationObjectApiController extends Controller
         $searchTerm = '%'.$queryStr.'%';
 
         $query = DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $this->culture))
             ->join('object', 'information_object.id', '=', 'object.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->leftJoin('status', function ($j) {
                 $j->on('information_object.id', '=', 'status.object_id')
                     ->where('status.type_id', '=', 158);
             })
-            ->where('information_object_i18n.culture', $this->culture)
             ->where('information_object.id', '!=', 1)
             ->where('status.status_id', '=', 160)
             ->whereNotIn('information_object.id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds()) // #1384/#1389 ICIP/TK + ODRL
             ->where(function ($q) use ($searchTerm) {
-                $q->where('information_object_i18n.title', 'LIKE', $searchTerm)
+                $q->where(I18nFallback::col('information_object_i18n', 'title'), 'LIKE', $searchTerm)
                     ->orWhere('information_object.identifier', 'LIKE', $searchTerm)
-                    ->orWhere('information_object_i18n.scope_and_content', 'LIKE', $searchTerm)
-                    ->orWhere('information_object_i18n.archival_history', 'LIKE', $searchTerm);
+                    ->orWhere(I18nFallback::col('information_object_i18n', 'scope_and_content'), 'LIKE', $searchTerm)
+                    ->orWhere(I18nFallback::col('information_object_i18n', 'archival_history'), 'LIKE', $searchTerm);
             });
 
         $total = $query->count();
@@ -180,11 +171,11 @@ class InformationObjectApiController extends Controller
                 'information_object.identifier',
                 'information_object.level_of_description_id',
                 'information_object.repository_id',
-                'information_object_i18n.title',
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
                 'object.updated_at',
                 'slug.slug',
             ])
-            ->orderByRaw('CASE WHEN information_object_i18n.title LIKE ? THEN 0 ELSE 1 END', [$searchTerm])
+            ->orderByRaw('CASE WHEN COALESCE(information_object_i18n.title, information_object_i18n_fb.title) LIKE ? THEN 0 ELSE 1 END', [$searchTerm])
             ->orderBy('object.updated_at', 'desc')
             ->offset($offset)
             ->limit($limit)
@@ -194,11 +185,7 @@ class InformationObjectApiController extends Controller
         $levelIds = $rows->pluck('level_of_description_id')->filter()->unique()->values()->toArray();
         $levelNames = [];
         if (! empty($levelIds)) {
-            $levelNames = DB::table('term_i18n')
-                ->whereIn('id', $levelIds)
-                ->where('culture', $this->culture)
-                ->pluck('name', 'id')
-                ->toArray();
+            $levelNames = I18nFallback::pluck('term_i18n', $levelIds, 'name', $this->culture);
         }
 
         $data = $rows->map(function ($row) use ($levelNames) {
@@ -235,7 +222,7 @@ class InformationObjectApiController extends Controller
         }
 
         $io = DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $this->culture))
             ->join('object', 'information_object.id', '=', 'object.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->leftJoin('status', function ($j) {
@@ -246,7 +233,6 @@ class InformationObjectApiController extends Controller
             ->where('information_object.id', '!=', 1) // Exclude root
             ->where('status.status_id', '=', 160) // Published only - never leak drafts to anon
             ->whereNotIn('information_object.id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds()) // #1384/#1389 ICIP/TK + ODRL
-            ->where('information_object_i18n.culture', $this->culture)
             ->select([
                 'information_object.id',
                 'information_object.identifier',
@@ -263,27 +249,27 @@ class InformationObjectApiController extends Controller
                 'information_object.lft',
                 'information_object.rgt',
                 'information_object.source_culture',
-                'information_object_i18n.title',
-                'information_object_i18n.alternate_title',
-                'information_object_i18n.edition',
-                'information_object_i18n.extent_and_medium',
-                'information_object_i18n.archival_history',
-                'information_object_i18n.acquisition',
-                'information_object_i18n.scope_and_content',
-                'information_object_i18n.appraisal',
-                'information_object_i18n.accruals',
-                'information_object_i18n.arrangement',
-                'information_object_i18n.access_conditions',
-                'information_object_i18n.reproduction_conditions',
-                'information_object_i18n.physical_characteristics',
-                'information_object_i18n.finding_aids',
-                'information_object_i18n.location_of_originals',
-                'information_object_i18n.location_of_copies',
-                'information_object_i18n.related_units_of_description',
-                'information_object_i18n.institution_responsible_identifier',
-                'information_object_i18n.rules',
-                'information_object_i18n.sources',
-                'information_object_i18n.revision_history',
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
+                I18nFallback::col('information_object_i18n', 'alternate_title', 'alternate_title'),
+                I18nFallback::col('information_object_i18n', 'edition', 'edition'),
+                I18nFallback::col('information_object_i18n', 'extent_and_medium', 'extent_and_medium'),
+                I18nFallback::col('information_object_i18n', 'archival_history', 'archival_history'),
+                I18nFallback::col('information_object_i18n', 'acquisition', 'acquisition'),
+                I18nFallback::col('information_object_i18n', 'scope_and_content', 'scope_and_content'),
+                I18nFallback::col('information_object_i18n', 'appraisal', 'appraisal'),
+                I18nFallback::col('information_object_i18n', 'accruals', 'accruals'),
+                I18nFallback::col('information_object_i18n', 'arrangement', 'arrangement'),
+                I18nFallback::col('information_object_i18n', 'access_conditions', 'access_conditions'),
+                I18nFallback::col('information_object_i18n', 'reproduction_conditions', 'reproduction_conditions'),
+                I18nFallback::col('information_object_i18n', 'physical_characteristics', 'physical_characteristics'),
+                I18nFallback::col('information_object_i18n', 'finding_aids', 'finding_aids'),
+                I18nFallback::col('information_object_i18n', 'location_of_originals', 'location_of_originals'),
+                I18nFallback::col('information_object_i18n', 'location_of_copies', 'location_of_copies'),
+                I18nFallback::col('information_object_i18n', 'related_units_of_description', 'related_units_of_description'),
+                I18nFallback::col('information_object_i18n', 'institution_responsible_identifier', 'institution_responsible_identifier'),
+                I18nFallback::col('information_object_i18n', 'rules', 'rules'),
+                I18nFallback::col('information_object_i18n', 'sources', 'sources'),
+                I18nFallback::col('information_object_i18n', 'revision_history', 'revision_history'),
                 'object.created_at',
                 'object.updated_at',
                 'slug.slug',
@@ -300,30 +286,23 @@ class InformationObjectApiController extends Controller
         // Level of description
         $levelName = null;
         if ($io->level_of_description_id) {
-            $levelName = DB::table('term_i18n')
-                ->where('id', $io->level_of_description_id)
-                ->where('culture', $this->culture)
-                ->value('name');
+            $levelName = I18nFallback::value('term_i18n', $io->level_of_description_id, 'name', $this->culture);
         }
 
         // Repository
         $repository = null;
         if ($io->repository_id) {
             $repository = DB::table('repository')
-                ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $this->culture, required: true))
                 ->join('slug as repo_slug', 'repository.id', '=', 'repo_slug.object_id')
                 ->where('repository.id', $io->repository_id)
-                ->where('actor_i18n.culture', $this->culture)
-                ->select('repository.id', 'actor_i18n.authorized_form_of_name as name', 'repo_slug.slug')
+                ->select('repository.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'), 'repo_slug.slug')
                 ->first();
         }
 
         // Events
         $events = DB::table('event')
-            ->leftJoin('event_i18n', function ($j) {
-                $j->on('event.id', '=', 'event_i18n.id')
-                    ->where('event_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n', 'event.id', $this->culture))
             ->where('event.object_id', $io->id)
             ->select(
                 'event.id',
@@ -331,8 +310,8 @@ class InformationObjectApiController extends Controller
                 'event.actor_id',
                 'event.start_date',
                 'event.end_date',
-                'event_i18n.date as date_display',
-                'event_i18n.name as event_name'
+                I18nFallback::col('event_i18n', 'date', 'date_display'),
+                I18nFallback::col('event_i18n', 'name', 'event_name')
             )
             ->get();
 
@@ -340,22 +319,14 @@ class InformationObjectApiController extends Controller
         $eventTypeIds = $events->pluck('type_id')->filter()->unique()->values()->toArray();
         $eventTypeNames = [];
         if (! empty($eventTypeIds)) {
-            $eventTypeNames = DB::table('term_i18n')
-                ->whereIn('id', $eventTypeIds)
-                ->where('culture', $this->culture)
-                ->pluck('name', 'id')
-                ->toArray();
+            $eventTypeNames = I18nFallback::pluck('term_i18n', $eventTypeIds, 'name', $this->culture);
         }
 
         // Resolve actor names for events
         $actorIds = $events->pluck('actor_id')->filter()->unique()->values()->toArray();
         $actorNames = [];
         if (! empty($actorIds)) {
-            $actorNames = DB::table('actor_i18n')
-                ->whereIn('id', $actorIds)
-                ->where('culture', $this->culture)
-                ->pluck('authorized_form_of_name', 'id')
-                ->toArray();
+            $actorNames = I18nFallback::pluck('actor_i18n', $actorIds, 'authorized_form_of_name', $this->culture);
         }
 
         $eventsData = $events->map(function ($event) use ($eventTypeNames, $actorNames) {
@@ -374,17 +345,16 @@ class InformationObjectApiController extends Controller
         // Creators (creation events)
         $creators = DB::table('event')
             ->join('actor', 'event.actor_id', '=', 'actor.id')
-            ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'event.actor_id', $this->culture, required: true))
             ->join('slug as creator_slug', 'event.actor_id', '=', 'creator_slug.object_id')
             ->where('event.object_id', $io->id)
             ->where('event.type_id', 111)
-            ->where('actor_i18n.culture', $this->culture)
             ->whereNotNull('event.actor_id')
             ->select(
                 'event.actor_id as id',
-                'actor_i18n.authorized_form_of_name as name',
-                'actor_i18n.dates_of_existence',
-                'actor_i18n.history',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'),
+                I18nFallback::col('actor_i18n', 'dates_of_existence', 'dates_of_existence'),
+                I18nFallback::col('actor_i18n', 'history', 'history'),
                 'actor.entity_type_id',
                 'creator_slug.slug'
             )
@@ -402,38 +372,34 @@ class InformationObjectApiController extends Controller
 
         // Subject access points (taxonomy 35)
         $subjects = DB::table('object_term_relation')
-            ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'object_term_relation.term_id', $this->culture, required: true))
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
             ->where('object_term_relation.object_id', $io->id)
             ->where('term.taxonomy_id', 35)
-            ->where('term_i18n.culture', $this->culture)
-            ->pluck('term_i18n.name');
+            ->pluck(I18nFallback::col('term_i18n', 'name', 'name'));
 
         // Place access points (taxonomy 42)
         $places = DB::table('object_term_relation')
-            ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'object_term_relation.term_id', $this->culture, required: true))
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
             ->where('object_term_relation.object_id', $io->id)
             ->where('term.taxonomy_id', 42)
-            ->where('term_i18n.culture', $this->culture)
-            ->pluck('term_i18n.name');
+            ->pluck(I18nFallback::col('term_i18n', 'name', 'name'));
 
         // Genre access points (taxonomy 78)
         $genres = DB::table('object_term_relation')
-            ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'object_term_relation.term_id', $this->culture, required: true))
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
             ->where('object_term_relation.object_id', $io->id)
             ->where('term.taxonomy_id', 78)
-            ->where('term_i18n.culture', $this->culture)
-            ->pluck('term_i18n.name');
+            ->pluck(I18nFallback::col('term_i18n', 'name', 'name'));
 
         // Name access points (via relation table)
         $nameAccessPoints = DB::table('relation')
-            ->join('actor_i18n', 'relation.object_id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'relation.object_id', $this->culture, required: true))
             ->where('relation.subject_id', $io->id)
             ->where('relation.type_id', 161)
-            ->where('actor_i18n.culture', $this->culture)
-            ->pluck('actor_i18n.authorized_form_of_name');
+            ->pluck(I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'));
 
         // Publication status
         $publicationStatus = null;
@@ -442,28 +408,20 @@ class InformationObjectApiController extends Controller
             ->where('type_id', 158)
             ->first();
         if ($statusRow && $statusRow->status_id) {
-            $publicationStatus = DB::table('term_i18n')
-                ->where('id', $statusRow->status_id)
-                ->where('culture', $this->culture)
-                ->value('name');
+            $publicationStatus = I18nFallback::value('term_i18n', $statusRow->status_id, 'name', $this->culture);
         }
 
         // Notes
         $notes = DB::table('note')
-            ->join('note_i18n', 'note.id', '=', 'note_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'note_i18n', 'note.id', $this->culture, required: true))
             ->where('note.object_id', $io->id)
-            ->where('note_i18n.culture', $this->culture)
-            ->select('note.type_id', 'note_i18n.content')
+            ->select('note.type_id', I18nFallback::col('note_i18n', 'content', 'content'))
             ->get();
 
         $noteTypeIds = $notes->pluck('type_id')->filter()->unique()->values()->toArray();
         $noteTypeNames = [];
         if (! empty($noteTypeIds)) {
-            $noteTypeNames = DB::table('term_i18n')
-                ->whereIn('id', $noteTypeIds)
-                ->where('culture', $this->culture)
-                ->pluck('name', 'id')
-                ->toArray();
+            $noteTypeNames = I18nFallback::pluck('term_i18n', $noteTypeIds, 'name', $this->culture);
         }
 
         $notesData = $notes->map(function ($note) use ($noteTypeNames) {
@@ -881,7 +839,7 @@ class InformationObjectApiController extends Controller
         $currentId = $io->parent_id;
         while ($currentId && $currentId != 1) {
             $ancestor = DB::table('information_object as io')
-                ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
                 ->join('slug', 'io.id', '=', 'slug.object_id')
                 ->leftJoin('status', function ($j) {
                     $j->on('io.id', '=', 'status.object_id')
@@ -889,8 +847,7 @@ class InformationObjectApiController extends Controller
                 })
                 ->where('io.id', $currentId)
                 ->where('status.status_id', '=', 160) // Published ancestors only
-                ->where('ioi.culture', $this->culture)
-                ->select('io.id', 'io.parent_id', 'io.level_of_description_id', 'ioi.title', 'slug.slug')
+                ->select('io.id', 'io.parent_id', 'io.level_of_description_id', I18nFallback::col('ioi', 'title', 'title'), 'slug.slug')
                 ->first();
 
             if (! $ancestor) {
@@ -907,7 +864,7 @@ class InformationObjectApiController extends Controller
 
         // Get immediate children (published only - drafts are never exposed)
         $children = DB::table('information_object as io')
-            ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
             ->join('slug', 'io.id', '=', 'slug.object_id')
             ->leftJoin('status', function ($j) {
                 $j->on('io.id', '=', 'status.object_id')
@@ -915,8 +872,7 @@ class InformationObjectApiController extends Controller
             })
             ->where('io.parent_id', $objectId)
             ->where('status.status_id', '=', 160)
-            ->where('ioi.culture', $this->culture)
-            ->select('io.id', 'io.level_of_description_id', 'io.lft', 'io.rgt', 'ioi.title', 'slug.slug')
+            ->select('io.id', 'io.level_of_description_id', 'io.lft', 'io.rgt', I18nFallback::col('ioi', 'title', 'title'), 'slug.slug')
             ->orderBy('io.lft')
             ->get()
             ->map(function ($child) {
@@ -980,7 +936,7 @@ class InformationObjectApiController extends Controller
         // Get immediate children (published only - never leak draft children or
         // their publication_status_id to an anonymous caller).
         $children = DB::table('information_object as io')
-            ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
             ->join('slug', 'io.id', '=', 'slug.object_id')
             ->leftJoin('status', function ($j) {
                 $j->on('io.id', '=', 'status.object_id')
@@ -988,8 +944,7 @@ class InformationObjectApiController extends Controller
             })
             ->where('io.parent_id', $objectId)
             ->where('status.status_id', '=', 160)
-            ->where('ioi.culture', $this->culture)
-            ->select('io.id', 'io.level_of_description_id', 'ioi.title', 'slug.slug', 'status.status_id')
+            ->select('io.id', 'io.level_of_description_id', I18nFallback::col('ioi', 'title', 'title'), 'slug.slug', 'status.status_id')
             ->orderBy('io.lft')
             ->get()
             ->map(function ($child) {
@@ -1041,10 +996,7 @@ class InformationObjectApiController extends Controller
             return null;
         }
 
-        return DB::table('term_i18n')
-            ->where('id', $termId)
-            ->where('culture', $this->culture)
-            ->value('name');
+        return I18nFallback::value('term_i18n', $termId, 'name', $this->culture);
     }
 
 }

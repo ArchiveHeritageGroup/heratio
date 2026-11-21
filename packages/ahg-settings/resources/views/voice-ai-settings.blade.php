@@ -135,6 +135,85 @@
       </div>
     </div>
 
+    {{-- Server speech-to-text fallback (heratio#1767) --}}
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-wave-square me-2"></i>{{ __('Server Speech-to-Text (Voice Search Fallback)') }}</h5>
+      </div>
+      <div class="card-body">
+        <p class="form-text mt-0">{{ __('Browsers without built-in speech recognition, such as Firefox, record a short clip and send it to the AI gateway for transcription. The recognised text runs through the same voice commands, including "search for ...". Users of other browsers can choose server recognition in the voice commands help.') }}</p>
+        <div class="alert alert-info small py-2">
+          <i class="fas fa-user-shield me-1"></i>{{ __('Privacy: recordings are not stored. The audio is sent to the AI gateway for transcription only, and the temporary file is deleted when the request ends.') }}
+        </div>
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" id="voice_commands_enabled"
+                 name="settings[voice_commands_enabled]" value="true"
+                 {{ ($settings['voice_commands_enabled'] ?? 'true') === 'true' ? 'checked' : '' }}>
+          <label class="form-check-label" for="voice_commands_enabled"><strong>{{ __('Voice commands') }}</strong></label>
+          <div class="form-text">{{ __('Show the microphone button and voice commands on every page. Off removes them from the site.') }}</div>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="voice_stt_enabled"
+                     name="settings[voice_stt_enabled]" value="true"
+                     {{ ($settings['voice_stt_enabled'] ?? 'true') === 'true' ? 'checked' : '' }}>
+              <label class="form-check-label" for="voice_stt_enabled">
+                <strong>{{ __('Enable Server Speech-to-Text') }}</strong>
+              </label>
+            </div>
+            <div class="form-text">{{ __('Takes effect only once a transcription model is set.') }}</div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="voice_stt_require_auth"
+                     name="settings[voice_stt_require_auth]" value="true"
+                     {{ ($settings['voice_stt_require_auth'] ?? 'false') === 'true' ? 'checked' : '' }}>
+              <label class="form-check-label" for="voice_stt_require_auth">
+                <strong>{{ __('Signed-in Users Only') }}</strong>
+              </label>
+            </div>
+            <div class="form-text">{{ __('When off, visitors can use voice search too.') }}</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="voice_stt_model">{{ __('Transcription Model') }}</label>
+            <input type="text" class="form-control" id="voice_stt_model"
+                   name="settings[voice_stt_model]"
+                   value="{{ e($settings['voice_stt_model'] ?? '') }}" placeholder="whisper-large-v3">
+            <div class="form-text">{{ __('Model name the AI gateway serves for transcription. Leave empty to keep the server fallback off.') }}</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="voice_stt_path">{{ __('Gateway Transcription Route') }}</label>
+            <input type="text" class="form-control" id="voice_stt_path"
+                   name="settings[voice_stt_path]"
+                   value="{{ e($settings['voice_stt_path'] ?? '/ai/v1/audio/transcriptions') }}" placeholder="/ai/v1/audio/transcriptions">
+            <div class="form-text">{{ __('A path on the AI gateway, joined to the gateway address in AI Services settings.') }}</div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="voice_stt_max_seconds">{{ __('Longest Recording (seconds)') }}</label>
+            <input type="number" class="form-control" id="voice_stt_max_seconds" name="settings[voice_stt_max_seconds]"
+                   value="{{ e($settings['voice_stt_max_seconds'] ?? '15') }}" min="3" max="60">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="voice_stt_max_kb">{{ __('Largest Upload (KB)') }}</label>
+            <input type="number" class="form-control" id="voice_stt_max_kb" name="settings[voice_stt_max_kb]"
+                   value="{{ e($settings['voice_stt_max_kb'] ?? '1024') }}" min="64" max="10240">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="voice_stt_rate_limit">{{ __('Recordings per Minute') }}</label>
+            <input type="number" class="form-control" id="voice_stt_rate_limit" name="settings[voice_stt_rate_limit]"
+                   value="{{ e($settings['voice_stt_rate_limit'] ?? '10') }}" min="1" max="600">
+            <div class="form-text">{{ __('Per user, or per IP address for visitors.') }}</div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label" for="voice_stt_timeout">{{ __('Gateway Timeout (seconds)') }}</label>
+            <input type="number" class="form-control" id="voice_stt_timeout" name="settings[voice_stt_timeout]"
+                   value="{{ e($settings['voice_stt_timeout'] ?? '20') }}" min="3" max="120">
+          </div>
+        </div>
+      </div>
+    </div>
+
     {{-- AI Image Description --}}
     <div class="card mb-4">
       <div class="card-header">

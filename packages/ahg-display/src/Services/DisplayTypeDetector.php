@@ -28,6 +28,7 @@
 namespace AhgDisplay\Services;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class DisplayTypeDetector
 {
@@ -116,11 +117,9 @@ class DisplayTypeDetector
 
         $culture = app()->getLocale();
         $object = DB::table('information_object as io')
-            ->leftJoin('term_i18n as level', function ($j) use ($culture) {
-                $j->on('io.level_of_description_id', '=', 'level.id')->where('level.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as level', 'io.level_of_description_id', $culture))
             ->where('io.id', $objectId)
-            ->select('io.*', 'level.name as level_name')
+            ->select('io.*', I18nFallback::col('level', 'name', 'level_name'))
             ->first();
 
         if (!$object) {
@@ -203,11 +202,9 @@ class DisplayTypeDetector
     protected static function detectByEvents(int $objectId, string $culture): ?string
     {
         $events = DB::table('event as e')
-            ->join('term_i18n as t', function ($j) use ($culture) {
-                $j->on('e.type_id', '=', 't.id')->where('t.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as t', 'e.type_id', $culture, required: true))
             ->where('e.object_id', $objectId)
-            ->pluck('t.name')
+            ->pluck(I18nFallback::col('t', 'name', 'name'))
             ->map(fn($n) => strtolower($n))
             ->toArray();
 
@@ -222,11 +219,9 @@ class DisplayTypeDetector
     protected static function detectByMediaType(int $objectId, string $culture): ?string
     {
         $mediaType = DB::table('digital_object as do')
-            ->join('term_i18n as t', function ($j) use ($culture) {
-                $j->on('do.media_type_id', '=', 't.id')->where('t.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as t', 'do.media_type_id', $culture, required: true))
             ->where('do.object_id', $objectId)
-            ->value('t.name');
+            ->value(I18nFallback::col('t', 'name', 'name'));
 
         if (!$mediaType) {
             return null;
@@ -260,21 +255,17 @@ class DisplayTypeDetector
 
         $profile = DB::table('display_object_profile as dop')
             ->join('display_profile as dp', 'dop.profile_id', '=', 'dp.id')
-            ->join('display_profile_i18n as dpi', function ($j) use ($culture) {
-                $j->on('dp.id', '=', 'dpi.id')->where('dpi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'display_profile_i18n as dpi', 'dp.id', $culture, required: true))
             ->where('dop.object_id', $objectId)
-            ->select('dp.*', 'dpi.name', 'dpi.description')
+            ->select('dp.*', I18nFallback::col('dpi', 'name', 'name'), I18nFallback::col('dpi', 'description', 'description'))
             ->first();
 
         if (!$profile) {
             $profile = DB::table('display_profile as dp')
-                ->join('display_profile_i18n as dpi', function ($j) use ($culture) {
-                    $j->on('dp.id', '=', 'dpi.id')->where('dpi.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'display_profile_i18n as dpi', 'dp.id', $culture, required: true))
                 ->where('dp.domain', $type)
                 ->where('dp.is_default', 1)
-                ->select('dp.*', 'dpi.name', 'dpi.description')
+                ->select('dp.*', I18nFallback::col('dpi', 'name', 'name'), I18nFallback::col('dpi', 'description', 'description'))
                 ->first();
         }
 

@@ -4,18 +4,18 @@ namespace AhgCore\Repositories;
 
 use AhgCore\Contracts\PlaceRepository;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class MysqlPlaceRepository implements PlaceRepository
 {
     public function findById(int $id, string $culture = 'en'): ?object
     {
         return DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
             ->leftJoin('slug', 'term.id', '=', 'slug.object_id')
             ->where('term.id', $id)
             ->where('term.taxonomy_id', 42) // Places taxonomy
-            ->where('term_i18n.culture', $culture)
-            ->select('term.*', 'term_i18n.*', 'slug.slug')
+            ->select('term.*', I18nFallback::col('term_i18n', 'name', 'name'), I18nFallback::col('term_i18n', 'name_sort', 'name_sort'), 'slug.slug')
             ->first();
     }
 
@@ -50,13 +50,12 @@ class MysqlPlaceRepository implements PlaceRepository
     public function getChildren(int $id, string $culture = 'en'): array
     {
         return DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
             ->leftJoin('slug', 'term.id', '=', 'slug.object_id')
             ->where('term.parent_id', $id)
             ->where('term.taxonomy_id', 42)
-            ->where('term_i18n.culture', $culture)
-            ->select('term.id', 'term_i18n.name', 'slug.slug')
-            ->orderBy('term_i18n.name')
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'), 'slug.slug')
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->get()
             ->toArray();
     }

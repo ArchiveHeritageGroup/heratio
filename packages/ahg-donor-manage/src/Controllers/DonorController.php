@@ -31,6 +31,7 @@ use AhgDonorManage\Services\DonorBrowseService;
 use AhgDonorManage\Services\DonorService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use AhgCore\Support\I18nFallback;
 
 class DonorController extends Controller
 {
@@ -311,12 +312,9 @@ class DonorController extends Controller
         try {
             if (\Schema::hasTable('donor_agreement')) {
                 $record = \DB::table('donor_agreement as da')
-                    ->leftJoin('donor_agreement_i18n as dai', function ($join) {
-                        $join->on('da.id', '=', 'dai.id')
-                            ->where('dai.culture', '=', app()->getLocale());
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'donor_agreement_i18n as dai', 'da.id', app()->getLocale()))
                     ->where('da.id', $id)
-                    ->select(['da.*', 'dai.title as i18n_title', 'dai.description as i18n_description'])
+                    ->select(['da.*', I18nFallback::col('dai', 'title', 'i18n_title'), I18nFallback::col('dai', 'description', 'i18n_description')])
                     ->first();
 
                 if ($record) {
@@ -576,15 +574,12 @@ class DonorController extends Controller
         if (strlen($query) >= 2) {
             try {
                 $results = \DB::table('accession as a')
-                    ->leftJoin('accession_i18n as ai', function ($join) {
-                        $join->on('a.id', '=', 'ai.id')
-                            ->where('ai.culture', '=', app()->getLocale());
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n as ai', 'a.id', app()->getLocale()))
                     ->where(function ($q) use ($query) {
                         $q->where('a.identifier', 'LIKE', "%{$query}%")
-                            ->orWhere('ai.title', 'LIKE', "%{$query}%");
+                            ->orWhere(I18nFallback::col('ai', 'title'), 'LIKE', "%{$query}%");
                     })
-                    ->select(['a.id', 'a.identifier', 'ai.title'])
+                    ->select(['a.id', 'a.identifier', I18nFallback::col('ai', 'title', 'title')])
                     ->limit(20)
                     ->get()
                     ->toArray();
@@ -604,16 +599,13 @@ class DonorController extends Controller
         if (strlen($query) >= 2) {
             try {
                 $results = \DB::table('information_object as io')
-                    ->leftJoin('information_object_i18n as ioi', function ($join) {
-                        $join->on('io.id', '=', 'ioi.id')
-                            ->where('ioi.culture', '=', app()->getLocale());
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', app()->getLocale()))
                     ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
                     ->where(function ($q) use ($query) {
                         $q->where('io.identifier', 'LIKE', "%{$query}%")
-                            ->orWhere('ioi.title', 'LIKE', "%{$query}%");
+                            ->orWhere(I18nFallback::col('ioi', 'title'), 'LIKE', "%{$query}%");
                     })
-                    ->select(['io.id', 'io.identifier', 'ioi.title', 's.slug'])
+                    ->select(['io.id', 'io.identifier', I18nFallback::col('ioi', 'title', 'title'), 's.slug'])
                     ->limit(20)
                     ->get()
                     ->toArray();

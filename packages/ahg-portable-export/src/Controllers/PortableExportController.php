@@ -30,6 +30,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class PortableExportController extends Controller
 {
@@ -83,12 +84,9 @@ class PortableExportController extends Controller
 
         // Repositories for the Step 1 dropdown - name comes from actor_i18n
         $repositories = DB::table('repository')
-            ->join('actor_i18n', function ($j) use ($culture) {
-                $j->on('repository.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
-            ->select(['repository.id', 'actor_i18n.authorized_form_of_name as name'])
-            ->orderBy('actor_i18n.authorized_form_of_name')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture, required: true))
+            ->select(['repository.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name')])
+            ->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
             ->get();
 
         // Past exports for the bottom table (only when the table exists)
@@ -487,17 +485,15 @@ class PortableExportController extends Controller
 
         $culture = app()->getLocale();
         $results = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->where('io.parent_id', 1) // top-level fonds/collections
             ->tap(fn ($w) => \AhgCore\Support\TenantScope::apply($w, 'io.repository_id')) // GHSA-fqxh-fv8c-mq23
             ->where(function ($w) use ($q) {
-                $w->where('ioi.title', 'LIKE', '%'.$q.'%')
+                $w->where(I18nFallback::col('ioi', 'title'), 'LIKE', '%'.$q.'%')
                     ->orWhere('io.identifier', 'LIKE', '%'.$q.'%');
             })
-            ->select(['ioi.title', 'io.identifier', 'slug.slug'])
+            ->select([I18nFallback::col('ioi', 'title', 'title'), 'io.identifier', 'slug.slug'])
             ->limit(15)
             ->get();
 

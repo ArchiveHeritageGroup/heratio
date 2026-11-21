@@ -35,6 +35,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use AhgCore\Support\I18nFallback;
 
 class AccessionController extends Controller
 {
@@ -53,22 +54,13 @@ class AccessionController extends Controller
         $culture = app()->getLocale();
 
         $rows = DB::table('accession')
-            ->join('accession_i18n', function ($j) use ($culture) {
-                $j->on('accession.id', '=', 'accession_i18n.id')
-                    ->where('accession_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n', 'accession.id', $culture))
             ->join('object', 'accession.id', '=', 'object.id')
             ->leftJoin('slug', function ($j) {
                 $j->on('accession.id', '=', 'slug.object_id');
             })
-            ->leftJoin('term_i18n as status_term', function ($j) use ($culture) {
-                $j->on('accession.processing_status_id', '=', 'status_term.id')
-                    ->where('status_term.culture', '=', $culture);
-            })
-            ->leftJoin('term_i18n as priority_term', function ($j) use ($culture) {
-                $j->on('accession.processing_priority_id', '=', 'priority_term.id')
-                    ->where('priority_term.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as status_term', 'accession.processing_status_id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as priority_term', 'accession.processing_priority_id', $culture))
             ->whereNotIn('accession.processing_status_id', function ($q) {
                 // Exclude "Complete" status (term 163 in default AtoM taxonomy)
                 $q->select('id')->from('term')->where('taxonomy_id', 90);
@@ -76,10 +68,10 @@ class AccessionController extends Controller
             ->select([
                 'accession.id',
                 'accession.identifier',
-                'accession_i18n.title',
+                I18nFallback::col('accession_i18n', 'title', 'title'),
                 'accession.date',
-                'status_term.name as status_name',
-                'priority_term.name as priority_name',
+                I18nFallback::col('status_term', 'name', 'status_name'),
+                I18nFallback::col('priority_term', 'name', 'priority_name'),
                 'slug.slug',
                 'object.created_at',
                 'object.updated_at',
@@ -99,21 +91,15 @@ class AccessionController extends Controller
         $total = DB::table('accession')->count();
 
         $byStatus = DB::table('accession')
-            ->leftJoin('term_i18n', function ($j) use ($culture) {
-                $j->on('accession.processing_status_id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $culture);
-            })
-            ->select(DB::raw('COALESCE(term_i18n.name, "Unassigned") as status_name'), DB::raw('COUNT(*) as cnt'))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'accession.processing_status_id', $culture))
+            ->select(DB::raw('COALESCE(COALESCE(term_i18n.name, term_i18n_fb.name), "Unassigned") as status_name'), DB::raw('COUNT(*) as cnt'))
             ->groupBy('status_name')
             ->orderByDesc('cnt')
             ->get();
 
         $byPriority = DB::table('accession')
-            ->leftJoin('term_i18n', function ($j) use ($culture) {
-                $j->on('accession.processing_priority_id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $culture);
-            })
-            ->select(DB::raw('COALESCE(term_i18n.name, "Unassigned") as priority_name'), DB::raw('COUNT(*) as cnt'))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'accession.processing_priority_id', $culture))
+            ->select(DB::raw('COALESCE(COALESCE(term_i18n.name, term_i18n_fb.name), "Unassigned") as priority_name'), DB::raw('COUNT(*) as cnt'))
             ->groupBy('priority_name')
             ->orderByDesc('cnt')
             ->get();
@@ -136,26 +122,20 @@ class AccessionController extends Controller
         $culture = app()->getLocale();
 
         $rows = DB::table('accession')
-            ->join('accession_i18n', function ($j) use ($culture) {
-                $j->on('accession.id', '=', 'accession_i18n.id')
-                    ->where('accession_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n', 'accession.id', $culture))
             ->join('object', 'accession.id', '=', 'object.id')
             ->leftJoin('slug', function ($j) {
                 $j->on('accession.id', '=', 'slug.object_id');
             })
-            ->leftJoin('term_i18n as type_term', function ($j) use ($culture) {
-                $j->on('accession.acquisition_type_id', '=', 'type_term.id')
-                    ->where('type_term.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as type_term', 'accession.acquisition_type_id', $culture))
             ->select([
                 'accession.id',
                 'accession.identifier',
-                'accession_i18n.title',
+                I18nFallback::col('accession_i18n', 'title', 'title'),
                 'accession.date',
-                'accession_i18n.received_extent_units',
-                'accession_i18n.appraisal',
-                'type_term.name as acquisition_type',
+                I18nFallback::col('accession_i18n', 'received_extent_units', 'received_extent_units'),
+                I18nFallback::col('accession_i18n', 'appraisal', 'appraisal'),
+                I18nFallback::col('type_term', 'name', 'acquisition_type'),
                 'slug.slug',
             ])
             ->orderBy('accession.identifier')
@@ -199,23 +179,16 @@ class AccessionController extends Controller
         $culture = app()->getLocale();
 
         $rows = DB::table('accession')
-            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n', 'accession.id', $culture))
             ->join('object', 'accession.id', '=', 'object.id')
-            ->leftJoin('term_i18n as status_term', function ($j) use ($culture) {
-                $j->on('accession.processing_status_id', '=', 'status_term.id')
-                    ->where('status_term.culture', '=', $culture);
-            })
-            ->leftJoin('term_i18n as priority_term', function ($j) use ($culture) {
-                $j->on('accession.processing_priority_id', '=', 'priority_term.id')
-                    ->where('priority_term.culture', '=', $culture);
-            })
-            ->where('accession_i18n.culture', $culture)
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as status_term', 'accession.processing_status_id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as priority_term', 'accession.processing_priority_id', $culture))
             ->select([
                 'accession.identifier',
-                'accession_i18n.title',
+                I18nFallback::col('accession_i18n', 'title', 'title'),
                 'accession.date',
-                'status_term.name as status',
-                'priority_term.name as priority',
+                I18nFallback::col('status_term', 'name', 'status'),
+                I18nFallback::col('priority_term', 'name', 'priority'),
                 'object.created_at',
                 'object.updated_at',
             ])
@@ -976,11 +949,10 @@ class AccessionController extends Controller
     public function appraisal(int $id)
     {
         $accession = DB::table('accession')
-            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n', 'accession.id', app()->getLocale()))
             ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
             ->where('accession.id', $id)
-            ->where('accession_i18n.culture', app()->getLocale())
-            ->select('accession.*', 'accession_i18n.title', 'slug.slug')
+            ->select('accession.*', I18nFallback::col('accession_i18n', 'title', 'title'), 'slug.slug')
             ->first();
         if (! $accession) {
             abort(404);
@@ -1005,11 +977,10 @@ class AccessionController extends Controller
     public function valuation(int $id)
     {
         $accession = DB::table('accession')
-            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n', 'accession.id', app()->getLocale()))
             ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
             ->where('accession.id', $id)
-            ->where('accession_i18n.culture', app()->getLocale())
-            ->select('accession.*', 'accession_i18n.title', 'slug.slug')
+            ->select('accession.*', I18nFallback::col('accession_i18n', 'title', 'title'), 'slug.slug')
             ->first();
         if (! $accession) {
             abort(404);
@@ -1025,11 +996,10 @@ class AccessionController extends Controller
     public function containers(int $id)
     {
         $accession = DB::table('accession')
-            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n', 'accession.id', app()->getLocale()))
             ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
             ->where('accession.id', $id)
-            ->where('accession_i18n.culture', app()->getLocale())
-            ->select('accession.*', 'accession_i18n.title', 'slug.slug')
+            ->select('accession.*', I18nFallback::col('accession_i18n', 'title', 'title'), 'slug.slug')
             ->first();
         if (! $accession) {
             abort(404);
@@ -1042,11 +1012,10 @@ class AccessionController extends Controller
     public function rights(int $id)
     {
         $accession = DB::table('accession')
-            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n', 'accession.id', app()->getLocale()))
             ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
             ->where('accession.id', $id)
-            ->where('accession_i18n.culture', app()->getLocale())
-            ->select('accession.*', 'accession_i18n.title', 'slug.slug')
+            ->select('accession.*', I18nFallback::col('accession_i18n', 'title', 'title'), 'slug.slug')
             ->first();
         if (! $accession) {
             abort(404);
@@ -1135,12 +1104,10 @@ class AccessionController extends Controller
         $culture = app()->getLocale();
         $scopes = Schema::hasTable('term')
             ? DB::table('term')
-                ->join('term_i18n', function ($j) use ($culture) {
-                    $j->on('term_i18n.id', '=', 'term.id')->where('term_i18n.culture', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
                 ->where('term.taxonomy_id', self::TAXONOMY_DEACCESSION_SCOPE)
-                ->orderBy('term_i18n.name')
-                ->pluck('term_i18n.name', 'term.id')
+                ->orderBy(I18nFallback::col('term_i18n', 'name'))
+                ->pluck(I18nFallback::col('term_i18n', 'name', 'name'), 'term.id')
             : collect();
 
         $deaccessions = $this->service->getDeaccessions($id);
@@ -1328,11 +1295,10 @@ class AccessionController extends Controller
     private function fetchAccessionForPanel(int $id): ?object
     {
         return DB::table('accession')
-            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n', 'accession.id', app()->getLocale()))
             ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
             ->where('accession.id', $id)
-            ->where('accession_i18n.culture', app()->getLocale())
-            ->select('accession.*', 'accession_i18n.title', 'slug.slug')
+            ->select('accession.*', I18nFallback::col('accession_i18n', 'title', 'title'), 'slug.slug')
             ->first();
     }
 
@@ -1368,11 +1334,10 @@ class AccessionController extends Controller
     public function checklist(int $id)
     {
         $accession = DB::table('accession')
-            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n', 'accession.id', app()->getLocale()))
             ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
             ->where('accession.id', $id)
-            ->where('accession_i18n.culture', app()->getLocale())
-            ->select('accession.*', 'accession_i18n.title', 'slug.slug')
+            ->select('accession.*', I18nFallback::col('accession_i18n', 'title', 'title'), 'slug.slug')
             ->first();
         if (! $accession) {
             abort(404);
@@ -1423,11 +1388,10 @@ class AccessionController extends Controller
     public function queueDetail(int $id)
     {
         $accession = DB::table('accession')
-            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n', 'accession.id', app()->getLocale()))
             ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
             ->where('accession.id', $id)
-            ->where('accession_i18n.culture', app()->getLocale())
-            ->select('accession.*', 'accession_i18n.title', 'slug.slug')
+            ->select('accession.*', I18nFallback::col('accession_i18n', 'title', 'title'), 'slug.slug')
             ->first();
         if (! $accession) {
             abort(404);
@@ -1439,11 +1403,10 @@ class AccessionController extends Controller
     public function timeline(int $id)
     {
         $accession = DB::table('accession')
-            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n', 'accession.id', app()->getLocale()))
             ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
             ->where('accession.id', $id)
-            ->where('accession_i18n.culture', app()->getLocale())
-            ->select('accession.*', 'accession_i18n.title', 'slug.slug')
+            ->select('accession.*', I18nFallback::col('accession_i18n', 'title', 'title'), 'slug.slug')
             ->first();
         if (! $accession) {
             abort(404);

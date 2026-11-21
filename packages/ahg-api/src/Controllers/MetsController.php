@@ -96,6 +96,7 @@ use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
 use AhgApi\Concerns\ResolvesEventMeta;
 use AhgApi\Concerns\ResolvesTermName;
+use AhgCore\Support\I18nFallback;
 
 class MetsController extends Controller
 {
@@ -387,9 +388,7 @@ class MetsController extends Controller
 
             $query = DB::table('information_object as io')
                 ->join('slug as s', 's.object_id', '=', 'io.id')
-                ->join('information_object_i18n as i18n', function ($j) {
-                    $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $this->culture))
                 ->leftJoin('status as st', function ($j) {
                     $j->on('io.id', '=', 'st.object_id')
                         ->where('st.type_id', '=', self::STATUS_TYPE_PUBLICATION);
@@ -409,8 +408,8 @@ class MetsController extends Controller
                 'io.level_of_description_id',
                 'io.repository_id',
                 's.slug',
-                'i18n.title',
-                'i18n.scope_and_content',
+                I18nFallback::col('i18n', 'title', 'title'),
+                I18nFallback::col('i18n', 'scope_and_content', 'scope_and_content'),
                 'st.status_id'
             )->first();
         } catch (\Throwable $e) {
@@ -488,11 +487,9 @@ class MetsController extends Controller
 
         try {
             $name = DB::table('repository as r')
-                ->join('actor_i18n as ai', function ($j) {
-                    $j->on('r.id', '=', 'ai.id')->where('ai.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'r.id', $this->culture, required: true))
                 ->where('r.id', (int) $repositoryId)
-                ->value('ai.authorized_form_of_name');
+                ->value(I18nFallback::col('ai', 'authorized_form_of_name', 'authorized_form_of_name'));
 
             return $name ? trim((string) $name) : '';
         } catch (\Throwable $e) {

@@ -31,6 +31,7 @@ use AhgCore\Traits\WithCultureFallback;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use AhgCore\Support\I18nFallback;
 
 class RepositoryService
 {
@@ -157,10 +158,7 @@ class RepositoryService
     public function getContacts(int $repoId): \Illuminate\Support\Collection
     {
         $rows = DB::table('contact_information')
-            ->leftJoin('contact_information_i18n', function ($j) {
-                $j->on('contact_information.id', '=', 'contact_information_i18n.id')
-                    ->where('contact_information_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'contact_information_i18n', 'contact_information.id', $this->culture))
             ->where('contact_information.actor_id', $repoId)
             ->select([
                 'contact_information.id',
@@ -176,10 +174,10 @@ class RepositoryService
                 'contact_information.longitude',
                 'contact_information.latitude',
                 'contact_information.contact_note',
-                'contact_information_i18n.contact_type',
-                'contact_information_i18n.city',
-                'contact_information_i18n.region',
-                'contact_information_i18n.note',
+                I18nFallback::col('contact_information_i18n', 'contact_type', 'contact_type'),
+                I18nFallback::col('contact_information_i18n', 'city', 'city'),
+                I18nFallback::col('contact_information_i18n', 'region', 'region'),
+                I18nFallback::col('contact_information_i18n', 'note', 'note'),
             ])
             ->get();
 
@@ -240,15 +238,12 @@ class RepositoryService
     public function getOtherNames(int $repoId): \Illuminate\Support\Collection
     {
         return DB::table('other_name')
-            ->leftJoin('other_name_i18n', function ($j) {
-                $j->on('other_name.id', '=', 'other_name_i18n.id')
-                    ->where('other_name_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'other_name_i18n', 'other_name.id', $this->culture))
             ->where('other_name.object_id', $repoId)
             ->select(
                 'other_name.id',
                 'other_name.type_id',
-                'other_name_i18n.name'
+                I18nFallback::col('other_name_i18n', 'name', 'name')
             )
             ->get();
     }
@@ -260,13 +255,10 @@ class RepositoryService
     {
         return DB::table('object_term_relation')
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
-            ->leftJoin('term_i18n', function ($j) {
-                $j->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture))
             ->where('object_term_relation.object_id', $repoId)
             ->where('term.taxonomy_id', 38) // Repository Types
-            ->select('term.id', 'term_i18n.name')
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
     }
 
@@ -276,13 +268,10 @@ class RepositoryService
     public function getLanguages(int $repoId): array
     {
         $row = DB::table('property')
-            ->leftJoin('property_i18n', function ($j) {
-                $j->on('property.id', '=', 'property_i18n.id')
-                    ->where('property_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'property_i18n', 'property.id', $this->culture))
             ->where('property.object_id', $repoId)
             ->where('property.name', 'language')
-            ->value('property_i18n.value');
+            ->value(I18nFallback::col('property_i18n', 'value', 'value'));
 
         if (! $row) {
             return [];
@@ -302,13 +291,10 @@ class RepositoryService
     public function getScripts(int $repoId): array
     {
         $row = DB::table('property')
-            ->leftJoin('property_i18n', function ($j) {
-                $j->on('property.id', '=', 'property_i18n.id')
-                    ->where('property_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'property_i18n', 'property.id', $this->culture))
             ->where('property.object_id', $repoId)
             ->where('property.name', 'script')
-            ->value('property_i18n.value');
+            ->value(I18nFallback::col('property_i18n', 'value', 'value'));
 
         if (! $row) {
             return [];
@@ -328,11 +314,10 @@ class RepositoryService
     public function getMaintenanceNotes(int $repoId): ?string
     {
         return DB::table('note')
-            ->join('note_i18n', 'note.id', '=', 'note_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'note_i18n', 'note.id', $this->culture, required: true))
             ->where('note.object_id', $repoId)
             ->where('note.type_id', 174)
-            ->where('note_i18n.culture', $this->culture)
-            ->value('note_i18n.content');
+            ->value(I18nFallback::col('note_i18n', 'content', 'content'));
     }
 
     /**
@@ -342,13 +327,10 @@ class RepositoryService
     {
         return DB::table('object_term_relation')
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
-            ->leftJoin('term_i18n', function ($j) {
-                $j->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture))
             ->where('object_term_relation.object_id', $repoId)
             ->where('term.taxonomy_id', 72) // Thematic Area
-            ->select('term.id', 'term_i18n.name')
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
     }
 
@@ -359,13 +341,10 @@ class RepositoryService
     {
         return DB::table('object_term_relation')
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
-            ->leftJoin('term_i18n', function ($j) {
-                $j->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture))
             ->where('object_term_relation.object_id', $repoId)
             ->where('term.taxonomy_id', 73) // Geographic Subregion
-            ->select('term.id', 'term_i18n.name')
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
     }
 
@@ -375,20 +354,17 @@ class RepositoryService
     public function getHoldingsPaginated(int $repoId, int $perPage = 10, int $page = 1): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         return DB::table('information_object')
-            ->leftJoin('information_object_i18n', function ($j) {
-                $j->on('information_object.id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $this->culture))
             ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('information_object.repository_id', $repoId)
             ->where('information_object.parent_id', 1) // top-level only
             ->where('information_object.id', '!=', 1)
             ->select(
                 'information_object.id',
-                'information_object_i18n.title',
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
                 'slug.slug'
             )
-            ->orderBy('information_object_i18n.title')
+            ->orderBy(I18nFallback::col('information_object_i18n', 'title'))
             ->paginate($perPage, ['*'], 'holdings_page', $page);
     }
 
@@ -401,10 +377,7 @@ class RepositoryService
     public function getMaintainedActors(int $repoId, int $perPage = 10, int $page = 1): ?array
     {
         $pager = DB::table('actor')
-            ->leftJoin('actor_i18n', function ($j) {
-                $j->on('actor.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $this->culture))
             ->leftJoin('slug', 'actor.id', '=', 'slug.object_id')
             ->join('object', 'actor.id', '=', 'object.id')
             ->where('object.class_name', 'QubitActor')
@@ -427,10 +400,10 @@ class RepositoryService
             ->where('actor.id', '!=', 3) // Exclude ROOT actor
             ->select(
                 'actor.id',
-                'actor_i18n.authorized_form_of_name',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'),
                 'slug.slug'
             )
-            ->orderBy('actor_i18n.authorized_form_of_name')
+            ->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
             ->paginate($perPage, ['*'], 'actors_page', $page);
 
         if ($pager->total() === 0) {
@@ -455,13 +428,10 @@ class RepositoryService
     {
         $termLookup = function (int $taxonomyId) {
             return DB::table('term')
-                ->leftJoin('term_i18n', function ($j) {
-                    $j->on('term.id', '=', 'term_i18n.id')
-                        ->where('term_i18n.culture', '=', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture))
                 ->where('term.taxonomy_id', $taxonomyId)
-                ->select('term.id', 'term_i18n.name')
-                ->orderBy('term_i18n.name')
+                ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
+                ->orderBy(I18nFallback::col('term_i18n', 'name'))
                 ->get();
         };
 
@@ -1165,12 +1135,9 @@ class RepositoryService
     public function getRepositorySetting(int $repositoryId, string $name): ?string
     {
         return DB::table('setting')
-            ->join('setting_i18n', function ($j) {
-                $j->on('setting.id', '=', 'setting_i18n.id')
-                    ->where('setting_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'setting_i18n', 'setting.id', $this->culture, required: true))
             ->where('setting.name', $name)
             ->where('setting.scope', 'repository_'.$repositoryId)
-            ->value('setting_i18n.value');
+            ->value(I18nFallback::col('setting_i18n', 'value', 'value'));
     }
 }

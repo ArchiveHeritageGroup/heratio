@@ -22,6 +22,7 @@ namespace AhgMetadataExport\Services\Exporters;
 
 use Illuminate\Support\Facades\DB;
 use AhgMetadataExport\Services\Exporters\Concerns\LoadsScalarProperty;
+use AhgCore\Support\I18nFallback;
 
 class ModsSerializer
 {
@@ -295,11 +296,10 @@ class ModsSerializer
     private function loadPlacesOfPublication(int $ioId, string $culture)
     {
         return DB::table('relation')
-            ->join('term_i18n', 'relation.object_id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'relation.object_id', $culture, required: true))
             ->where('relation.subject_id', $ioId)
             ->where('relation.type_id', 162)
-            ->where('term_i18n.culture', $culture)
-            ->select('relation.object_id as place_id', 'term_i18n.name')
+            ->select('relation.object_id as place_id', I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
     }
 

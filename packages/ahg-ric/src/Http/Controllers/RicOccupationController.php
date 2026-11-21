@@ -21,6 +21,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
+use AhgCore\Support\I18nFallback;
 
 class RicOccupationController extends Controller
 {
@@ -35,14 +36,11 @@ class RicOccupationController extends Controller
 
         $query = RicOccupation::query()
             ->leftJoin('actor', 'ric_occupation.actor_id', '=', 'actor.id')
-            ->leftJoin('actor_i18n', function ($j) {
-                $j->on('actor_i18n.id', '=', 'actor.id')
-                  ->where('actor_i18n.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', app()->getLocale()))
             ->select([
                 'ric_occupation.*',
                 'actor.slug as actor_slug',
-                'actor_i18n.authorized_form_of_name as actor_name',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'actor_name'),
             ])
             ->orderBy('ric_occupation.is_current', 'desc')
             ->orderBy('ric_occupation.start_date', 'desc');
@@ -175,12 +173,10 @@ class RicOccupationController extends Controller
         $culture = app()->getLocale();
 
         return DB::table('actor as a')
-            ->leftJoin('actor_i18n as i18n', function ($j) use ($culture) {
-                $j->on('i18n.id', '=', 'a.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as i18n', 'a.id', $culture))
             ->select([
                 'a.id',
-                DB::raw("COALESCE(i18n.authorized_form_of_name, CONCAT('Actor #', a.id)) as name"),
+                DB::raw("COALESCE(COALESCE(i18n.authorized_form_of_name, i18n_fb.authorized_form_of_name), CONCAT('Actor #', a.id)) as name"),
             ])
             ->orderBy('name')
             ->limit(2000)

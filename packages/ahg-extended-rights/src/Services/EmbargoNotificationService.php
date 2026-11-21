@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 /**
  * EmbargoNotificationService - Handles email notifications for embargo events.
@@ -255,13 +256,10 @@ class EmbargoNotificationService
     public function getObjectInfo(int $objectId): array
     {
         $result = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('io.id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->where('io.id', $objectId)
-            ->select(['ioi.title', 'slug.slug'])
+            ->select([I18nFallback::col('ioi', 'title', 'title'), 'slug.slug'])
             ->first();
 
         return [

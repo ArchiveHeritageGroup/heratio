@@ -45,6 +45,7 @@ namespace AhgFederation\Edm;
 use Illuminate\Support\Facades\DB;
 use AhgCore\Support\Concerns\FetchesRepositoryActor;
 use AhgCore\Support\Concerns\FetchesObjectTerms;
+use AhgCore\Support\I18nFallback;
 
 class EdmSerializer
 {
@@ -414,18 +415,16 @@ class EdmSerializer
     protected function fetchIo(int $objectId, string $culture)
     {
         return DB::table('information_object as io')
-            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
             ->leftJoin('object as o', 'o.id', '=', 'io.id')
             ->where('io.id', $objectId)
             ->select([
                 'io.id', 'io.identifier', 'io.repository_id',
                 'io.source_culture',
-                'i18n.title', 'i18n.scope_and_content',
-                'i18n.extent_and_medium', 'i18n.access_conditions',
-                'i18n.reproduction_conditions',
+                I18nFallback::col('i18n', 'title', 'title'), I18nFallback::col('i18n', 'scope_and_content', 'scope_and_content'),
+                I18nFallback::col('i18n', 'extent_and_medium', 'extent_and_medium'), I18nFallback::col('i18n', 'access_conditions', 'access_conditions'),
+                I18nFallback::col('i18n', 'reproduction_conditions', 'reproduction_conditions'),
                 'o.updated_at', 's.slug',
             ])
             ->first();
@@ -435,13 +434,12 @@ class EdmSerializer
     protected function fetchCreators($io, string $culture)
     {
         return DB::table('event')
-            ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'event.actor_id', $culture, required: true))
             ->join('actor', 'event.actor_id', '=', 'actor.id')
             ->where('event.object_id', $io->id)
             ->where('event.type_id', 111)
-            ->where('actor_i18n.culture', $culture)
             ->whereNotNull('event.actor_id')
-            ->select('actor_i18n.authorized_form_of_name as name',
+            ->select(I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'),
                 'actor.entity_type_id', 'actor.id as actor_id')
             ->distinct()
             ->get()
@@ -451,14 +449,11 @@ class EdmSerializer
     protected function fetchEvents($io, string $culture): array
     {
         return DB::table('event')
-            ->leftJoin('event_i18n', function ($j) use ($culture) {
-                $j->on('event.id', '=', 'event_i18n.id')
-                    ->where('event_i18n.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n', 'event.id', $culture))
             ->where('event.object_id', $io->id)
             ->select('event.id', 'event.type_id', 'event.actor_id',
                 'event.start_date', 'event.end_date',
-                'event_i18n.date as date_display')
+                I18nFallback::col('event_i18n', 'date', 'date_display'))
             ->get()
             ->all();
     }
@@ -491,11 +486,9 @@ class EdmSerializer
         try {
             return DB::table('relation as r')
                 ->join('ric_place as p', 'r.object_id', '=', 'p.id')
-                ->leftJoin('ric_place_i18n as pi', function ($j) use ($culture) {
-                    $j->on('p.id', '=', 'pi.id')->where('pi.culture', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'ric_place_i18n as pi', 'p.id', $culture))
                 ->where('r.subject_id', $ioId)
-                ->select('p.id', 'p.latitude', 'p.longitude', 'pi.name')
+                ->select('p.id', 'p.latitude', 'p.longitude', I18nFallback::col('pi', 'name', 'name'))
                 ->get()
                 ->all();
         } catch (\Throwable $e) {

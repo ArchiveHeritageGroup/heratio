@@ -31,8 +31,8 @@
  *   2. POST /informationobject/tree-sync/{id}    - re-fetch a single subtree
  *      (children of {id}) as jstree JSON. Used by the "Sync" button after
  *      external edits.
- *   3. POST /informationobject/tree-move         - move-by-drag: parent_id
- *      update with full nested-set lft/rgt rewrite of the moved subtree.
+ *   3. POST /informationobject/tree-move         - move-by-drag, now served by
+ *      TreeMoveController (heratio#1582).
  *
  * Lock note: NEVER reached from show.blade.php. The show-page sidebar uses
  * the existing partials/_treeview.blade.php + TreeviewController endpoints
@@ -46,6 +46,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class TreeViewPageController extends Controller
 {
@@ -59,12 +60,10 @@ class TreeViewPageController extends Controller
         $culture = app()->getLocale();
 
         $resource = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
             ->where('s.slug', $slug)
-            ->select('io.id', 'io.identifier', 'i18n.title', 's.slug')
+            ->select('io.id', 'io.identifier', I18nFallback::col('i18n', 'title', 'title'), 's.slug')
             ->first();
 
         if (!$resource) {
@@ -82,7 +81,7 @@ class TreeViewPageController extends Controller
             'resource' => $resource,
             'ancestors' => $ancestors,
             'expandIds' => $expandIds,
-            'canEdit' => auth()->check(),
+            'canEdit' => \AhgCore\Services\AclService::hasPermission(auth()->id(), 'update', (int) $resource->id),
         ]);
     }
 
@@ -148,94 +147,5 @@ class TreeViewPageController extends Controller
             'parent_id' => $id,
             'children' => $nodes,
         ]);
-    }
-
-    /**
-     * POST /informationobject/tree-move
-     *
-     * Body: { id: <node_id>, new_parent_id: <parent_id>, position?: <int> }
-     *
-     * Re-parents the node and rebuilds the lft/rgt range for the moved
-     * subtree. Transactional - rolls back if any step fails.
-     *
-     * NOTE: We do not allow:
-     *   - moving the root (id=1) anywhere
-     *   - moving a node into its own descendant (would create a cycle)
-     *   - moving anything to be a child of itself
-     */
-    public function move(Request $request): JsonResponse
-    {
-        $id = (int) $request->input('id', 0);
-        $newParentId = (int) $request->input('new_parent_id', 0);
-
-        if (!$id || !$newParentId) {
-            return response()->json([
-                'ok' => false,
-                'error' => 'Missing required parameters: id, new_parent_id',
-            ], 422);
-        }
-
-        if ($id === self::ROOT_ID) {
-            return response()->json([
-                'ok' => false,
-                'error' => 'Cannot move the root node.',
-            ], 422);
-        }
-
-        if ($id === $newParentId) {
-            return response()->json([
-                'ok' => false,
-                'error' => 'A node cannot be its own parent.',
-            ], 422);
-        }
-
-        $node = DB::table('information_object')
-            ->where('id', $id)
-            ->select('id', 'lft', 'rgt', 'parent_id')
-            ->first();
-
-        $newParent = DB::table('information_object')
-            ->where('id', $newParentId)
-            ->select('id', 'lft', 'rgt', 'parent_id')
-            ->first();
-
-        if (!$node || !$newParent) {
-            return response()->json([
-                'ok' => false,
-                'error' => 'Node or new parent not found.',
-            ], 404);
-        }
-
-        // Forbid moves into the node's own subtree, bounds or not (heratio#1541).
-        if (app(\AhgCore\Services\HierarchyQueryService::class)->isWithin('information_object', (int) $newParent->id, (int) $node->id)) {
-            return response()->json([
-                'ok' => false,
-                'error' => 'Cannot move a node into its own descendant.',
-            ], 422);
-        }
-
-        if ($node->parent_id === $newParent->id) {
-            // No-op: same parent.
-            return response()->json([
-                'ok' => true,
-                'noop' => true,
-            ]);
-        }
-
-        try {
-            // #1533: one shared move (nested set, closure, sibling order, audit, ES).
-            \AhgInformationObjectManage\Services\InformationObjectService::moveUnder((int) $id, (int) $newParentId);
-
-            return response()->json([
-                'ok' => true,
-                'id' => $id,
-                'new_parent_id' => $newParentId,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'ok' => false,
-                'error' => 'Move failed: ' . $e->getMessage(),
-            ], 500);
-        }
     }
 }

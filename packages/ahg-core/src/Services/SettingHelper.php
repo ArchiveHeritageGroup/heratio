@@ -26,6 +26,7 @@
 namespace AhgCore\Services;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class SettingHelper
 {
@@ -85,13 +86,10 @@ class SettingHelper
 
         try {
             $value = DB::table('setting')
-                ->leftJoin('setting_i18n', function ($j) use ($culture) {
-                    $j->on('setting.id', '=', 'setting_i18n.id')
-                        ->where('setting_i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'setting_i18n', 'setting.id', $culture))
                 ->where('setting.name', $name)
                 ->whereNull('setting.scope')
-                ->value('setting_i18n.value');
+                ->value(I18nFallback::col('setting_i18n', 'value', 'value'));
         } catch (\Exception $e) {
             $value = null;
         }
@@ -121,13 +119,10 @@ class SettingHelper
         }
 
         $value = DB::table('setting')
-            ->leftJoin('setting_i18n', function ($j) use ($culture) {
-                $j->on('setting.id', '=', 'setting_i18n.id')
-                    ->where('setting_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'setting_i18n', 'setting.id', $culture))
             ->where('setting.name', $name)
             ->where('setting.scope', $scope)
-            ->value('setting_i18n.value');
+            ->value(I18nFallback::col('setting_i18n', 'value', 'value'));
 
         self::$cache[$key] = $value ?? $default;
 
@@ -169,12 +164,9 @@ class SettingHelper
     {
         try {
             $settings = DB::table('setting')
-                ->leftJoin('setting_i18n', function ($j) use ($culture) {
-                    $j->on('setting.id', '=', 'setting_i18n.id')
-                        ->where('setting_i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'setting_i18n', 'setting.id', $culture))
                 ->where('setting.scope', 'element_visibility')
-                ->select('setting.name', 'setting_i18n.value')
+                ->select('setting.name', I18nFallback::col('setting_i18n', 'value', 'value'))
                 ->get();
 
             foreach ($settings as $row) {

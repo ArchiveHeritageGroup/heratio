@@ -35,6 +35,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use AhgCore\Support\I18nFallback;
 
 class ShareLinkIssueController extends Controller
 {
@@ -162,10 +163,7 @@ class ShareLinkIssueController extends Controller
     {
         $token = DB::table('information_object_share_token as t')
             ->leftJoin('information_object as io', 'io.id', '=', 't.information_object_id')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('ioi.id', '=', 'io.id')
-                    ->where('ioi.culture', '=', app()->getLocale() ?: 'en');
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', app()->getLocale() ?: 'en'))
             ->where('t.id', $tokenId)
             ->select(
                 't.id as token_id',
@@ -175,7 +173,7 @@ class ShareLinkIssueController extends Controller
                 't.recipient_email',
                 't.max_access',
                 'io.slug as record_slug',
-                'ioi.title as record_title'
+                I18nFallback::col('ioi', 'title', 'record_title')
             )
             ->first();
         if (! $token) {

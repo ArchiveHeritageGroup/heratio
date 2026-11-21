@@ -26,6 +26,7 @@
 namespace AhgStatistics\Services;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class StatisticsService
 {
@@ -123,16 +124,13 @@ class StatisticsService
         $culture = app()->getLocale();
 
         return DB::table('ahg_usage_event as e')->where('e.is_bot', 0)
-            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('e.object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'e.object_id', $culture))
             ->leftJoin('slug as s', 'e.object_id', '=', 's.object_id')
             ->where('e.event_type', $eventType)
             ->whereBetween('e.created_at', [$startDate, $endDate.' 23:59:59'])
             ->whereNotNull('e.object_id')
-            ->select('e.object_id', 'ioi.title', 's.slug', DB::raw('COUNT(*) as count'))
-            ->groupBy('e.object_id', 'ioi.title', 's.slug')
+            ->select('e.object_id', I18nFallback::col('ioi', 'title', 'title'), 's.slug', DB::raw('COUNT(*) as count'))
+            ->groupBy('e.object_id', I18nFallback::col('ioi', 'title'), 's.slug')
             ->orderByDesc('count')
             ->limit($limit)
             ->get();

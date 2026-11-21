@@ -33,6 +33,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Heritage asset reports: asset register, valuation report and movement
@@ -81,13 +82,11 @@ class HeritageReportController extends Controller
             $assets = DB::table('heritage_asset as ha')
                 ->leftJoin('heritage_asset_class as hc', 'ha.asset_class_id', '=', 'hc.id')
                 ->leftJoin('information_object as io', 'io.id', '=', DB::raw('COALESCE(ha.information_object_id, ha.object_id)'))
-                ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                    $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
                 ->whereNotNull('ha.last_valuation_date')
                 ->orderByDesc('ha.last_valuation_date')
                 ->limit(100)
-                ->get(['ha.*', 'hc.name as class_name', 'io.identifier', 'ioi.title']);
+                ->get(['ha.*', 'hc.name as class_name', 'io.identifier', I18nFallback::col('ioi', 'title', 'title')]);
         }
 
         return view('ahg-heritage-manage::heritage-report.valuation', [

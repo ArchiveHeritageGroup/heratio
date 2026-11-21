@@ -17,6 +17,7 @@ namespace AhgRecordsManage\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use AhgCore\Support\I18nFallback;
 
 class ReviewScheduleService
 {
@@ -29,9 +30,7 @@ class ReviewScheduleService
     public function listQueue(array $filters = []): array
     {
         $q = DB::table('rm_review_schedule as r')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('ioi.id', '=', 'r.information_object_id')->where('ioi.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'r.information_object_id', app()->getLocale()))
             ->leftJoin('slug', 'slug.object_id', '=', 'r.information_object_id')
             ->leftJoin('rm_disposal_class as dc', 'dc.id', '=', 'r.disposal_class_id')
             ->select(
@@ -39,7 +38,7 @@ class ReviewScheduleService
                 'r.review_due_date', 'r.review_completed_date', 'r.status', 'r.assigned_to',
                 'r.decision', 'r.decision_notes', 'r.next_review_due_date',
                 'r.created_at', 'r.updated_at',
-                'ioi.title as record_title',
+                I18nFallback::col('ioi', 'title', 'record_title'),
                 'slug.slug as record_slug',
                 'dc.title as disposal_class_title',
                 'dc.class_ref as disposal_class_ref'
@@ -80,14 +79,12 @@ class ReviewScheduleService
     public function get(int $id): ?object
     {
         return DB::table('rm_review_schedule as r')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('ioi.id', '=', 'r.information_object_id')->where('ioi.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'r.information_object_id', app()->getLocale()))
             ->leftJoin('slug', 'slug.object_id', '=', 'r.information_object_id')
             ->leftJoin('rm_disposal_class as dc', 'dc.id', '=', 'r.disposal_class_id')
             ->select(
                 'r.*',
-                'ioi.title as record_title',
+                I18nFallback::col('ioi', 'title', 'record_title'),
                 'slug.slug as record_slug',
                 'dc.title as disposal_class_title',
                 'dc.class_ref as disposal_class_ref',

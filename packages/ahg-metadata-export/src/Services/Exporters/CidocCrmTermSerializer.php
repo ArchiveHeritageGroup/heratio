@@ -59,6 +59,7 @@
 namespace AhgMetadataExport\Services\Exporters;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class CidocCrmTermSerializer
 {
@@ -121,15 +122,12 @@ class CidocCrmTermSerializer
         }
 
         return DB::table('term')
-            ->join('term_i18n', function ($j) use ($culture) {
-                $j->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
             ->leftJoin('slug as s', 's.object_id', '=', 'term.id')
             ->where('term.id', $termId)
             ->select([
                 'term.id', 'term.taxonomy_id', 'term.parent_id',
-                'term_i18n.name', 's.slug',
+                I18nFallback::col('term_i18n', 'name', 'name'), 's.slug',
             ])
             ->first();
     }
@@ -137,14 +135,11 @@ class CidocCrmTermSerializer
     private function fetchChildren(int $termId, string $culture)
     {
         return DB::table('term')
-            ->join('term_i18n', function ($j) use ($culture) {
-                $j->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
             ->leftJoin('slug as s', 's.object_id', '=', 'term.id')
             ->where('term.parent_id', $termId)
-            ->select(['term.id', 'term_i18n.name', 's.slug'])
-            ->orderBy('term_i18n.name')
+            ->select(['term.id', I18nFallback::col('term_i18n', 'name', 'name'), 's.slug'])
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->get();
     }
 
@@ -156,9 +151,7 @@ class CidocCrmTermSerializer
     {
         $q = DB::table('object_term_relation as otr')
             ->join('information_object as io', 'otr.object_id', '=', 'io.id')
-            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
             ->where('otr.term_id', $termId);
 
@@ -172,7 +165,7 @@ class CidocCrmTermSerializer
             })->where('io.id', '>', 1);
         }
 
-        return $q->select(['io.id', 'i18n.title', 's.slug'])->distinct()->get();
+        return $q->select(['io.id', I18nFallback::col('i18n', 'title', 'title'), 's.slug'])->distinct()->get();
     }
 
     // -----------------------------------------------------------------

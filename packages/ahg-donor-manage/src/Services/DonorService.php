@@ -29,6 +29,7 @@ use AhgCore\Constants\TermId;
 use AhgCore\Services\EncryptionService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use AhgCore\Support\I18nFallback;
 
 class DonorService
 {
@@ -117,10 +118,7 @@ class DonorService
             ->join('actor', 'donor.id', '=', 'actor.id')
             ->join('object', 'donor.id', '=', 'object.id')
             ->join('slug', 'donor.id', '=', 'slug.object_id')
-            ->leftJoin('actor_i18n', function ($j) {
-                $j->on('donor.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'donor.id', $this->culture))
             ->where('donor.id', $id)
             ->where('object.class_name', 'QubitDonor')
             ->select([
@@ -129,19 +127,19 @@ class DonorService
                 'actor.description_identifier',
                 'actor.corporate_body_identifiers',
                 'actor.source_culture',
-                'actor_i18n.authorized_form_of_name',
-                'actor_i18n.dates_of_existence',
-                'actor_i18n.history',
-                'actor_i18n.places',
-                'actor_i18n.legal_status',
-                'actor_i18n.functions',
-                'actor_i18n.mandates',
-                'actor_i18n.internal_structures',
-                'actor_i18n.general_context',
-                'actor_i18n.institution_responsible_identifier',
-                'actor_i18n.rules',
-                'actor_i18n.sources',
-                'actor_i18n.revision_history',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'),
+                I18nFallback::col('actor_i18n', 'dates_of_existence', 'dates_of_existence'),
+                I18nFallback::col('actor_i18n', 'history', 'history'),
+                I18nFallback::col('actor_i18n', 'places', 'places'),
+                I18nFallback::col('actor_i18n', 'legal_status', 'legal_status'),
+                I18nFallback::col('actor_i18n', 'functions', 'functions'),
+                I18nFallback::col('actor_i18n', 'mandates', 'mandates'),
+                I18nFallback::col('actor_i18n', 'internal_structures', 'internal_structures'),
+                I18nFallback::col('actor_i18n', 'general_context', 'general_context'),
+                I18nFallback::col('actor_i18n', 'institution_responsible_identifier', 'institution_responsible_identifier'),
+                I18nFallback::col('actor_i18n', 'rules', 'rules'),
+                I18nFallback::col('actor_i18n', 'sources', 'sources'),
+                I18nFallback::col('actor_i18n', 'revision_history', 'revision_history'),
                 'object.created_at',
                 'object.updated_at',
                 'slug.slug',
@@ -152,10 +150,7 @@ class DonorService
     public function getContacts(int $donorId): \Illuminate\Support\Collection
     {
         $rows = DB::table('contact_information')
-            ->leftJoin('contact_information_i18n', function ($j) {
-                $j->on('contact_information.id', '=', 'contact_information_i18n.id')
-                    ->where('contact_information_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'contact_information_i18n', 'contact_information.id', $this->culture))
             ->where('contact_information.actor_id', $donorId)
             ->select([
                 'contact_information.id', 'contact_information.primary_contact',
@@ -165,8 +160,8 @@ class DonorService
                 'contact_information.postal_code', 'contact_information.country_code',
                 'contact_information.longitude', 'contact_information.latitude',
                 'contact_information.contact_note',
-                'contact_information_i18n.contact_type', 'contact_information_i18n.city',
-                'contact_information_i18n.region', 'contact_information_i18n.note',
+                I18nFallback::col('contact_information_i18n', 'contact_type', 'contact_type'), I18nFallback::col('contact_information_i18n', 'city', 'city'),
+                I18nFallback::col('contact_information_i18n', 'region', 'region'), I18nFallback::col('contact_information_i18n', 'note', 'note'),
             ])
             ->get();
 
@@ -197,17 +192,14 @@ class DonorService
     {
         return DB::table('relation')
             ->join('information_object', 'relation.subject_id', '=', 'information_object.id')
-            ->leftJoin('information_object_i18n', function ($j) {
-                $j->on('information_object.id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $this->culture))
             ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('relation.object_id', $donorId)
             ->where('relation.type_id', TermId::RELATION_DONOR)
             ->select([
                 'information_object.id',
                 'information_object.identifier',
-                'information_object_i18n.title',
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
                 'slug.slug',
             ])
             ->get();
@@ -259,14 +251,11 @@ class DonorService
         // relation.object_id = donor.id, relation.subject_id = accession.id, type_id = TermId::RELATION_DONOR
         return DB::table('relation')
             ->join('accession', 'relation.subject_id', '=', 'accession.id')
-            ->leftJoin('accession_i18n', function ($j) {
-                $j->on('accession.id', '=', 'accession_i18n.id')
-                    ->where('accession_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n', 'accession.id', $this->culture))
             ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
             ->where('relation.object_id', $donorId)
             ->where('relation.type_id', TermId::RELATION_DONOR)
-            ->select('accession.id', 'accession.identifier', 'accession_i18n.title', 'slug.slug')
+            ->select('accession.id', 'accession.identifier', I18nFallback::col('accession_i18n', 'title', 'title'), 'slug.slug')
             ->get();
     }
 

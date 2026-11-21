@@ -26,6 +26,7 @@
 namespace AhgAiServices\Services;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * AI > Relationship review over ahg_relationship_proposal (heratio#1563), as
@@ -44,17 +45,13 @@ class RelationshipProposalService
         $culture = app()->getLocale();
         $page = DB::table('ahg_relationship_proposal as p')
             ->leftJoin('slug as s', 's.object_id', '=', 'p.object_id')
-            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('ioi.id', '=', 'p.object_id')->where('ioi.culture', $culture);
-            })
-            ->leftJoin('term_i18n as ti', function ($j) use ($culture) {
-                $j->on('ti.id', '=', 'p.type_id')->where('ti.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'p.object_id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 'p.type_id', $culture))
             ->leftJoin('user as u', 'u.id', '=', 'p.created_by')
             ->leftJoin('user as r', 'r.id', '=', 'p.reviewed_by')
             ->where('p.status', $status)
             ->orderByDesc('p.id')
-            ->select('p.*', 's.slug', 'ioi.title', 'ti.name as relation', 'u.username as proposer', 'r.username as reviewer')
+            ->select('p.*', 's.slug', I18nFallback::col('ioi', 'title', 'title'), I18nFallback::col('ti', 'name', 'relation'), 'u.username as proposer', 'r.username as reviewer')
             ->paginate($perPage)->withQueryString();
         $page->getCollection()->transform(function ($r) use ($culture) {
             $r->subject = $this->resolveSide($r->subject_actor_id, $r->subject_entity_id, $culture);

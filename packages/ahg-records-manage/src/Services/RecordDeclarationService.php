@@ -5,6 +5,7 @@ namespace AhgRecordsManage\Services;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class RecordDeclarationService
 {
@@ -161,15 +162,12 @@ class RecordDeclarationService
         $culture = app()->getLocale();
 
         return DB::table('record_declaration as rd')
-            ->leftJoin('information_object_i18n as io_i18n', function ($join) use ($culture) {
-                $join->on('rd.information_object_id', '=', 'io_i18n.id')
-                    ->where('io_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as io_i18n', 'rd.information_object_id', $culture))
             ->leftJoin('user as u', 'rd.declared_by', '=', 'u.id')
             ->where('rd.status', 'pending_approval')
             ->select([
                 'rd.*',
-                'io_i18n.title as io_title',
+                I18nFallback::col('io_i18n', 'title', 'io_title'),
                 'u.username as declared_by_name',
             ])
             ->orderBy('rd.created_at', 'desc')
@@ -189,10 +187,7 @@ class RecordDeclarationService
         $culture = app()->getLocale();
 
         $query = DB::table('record_declaration as rd')
-            ->leftJoin('information_object_i18n as io_i18n', function ($join) use ($culture) {
-                $join->on('rd.information_object_id', '=', 'io_i18n.id')
-                    ->where('io_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as io_i18n', 'rd.information_object_id', $culture))
             ->leftJoin('user as u', 'rd.declared_by', '=', 'u.id')
             ->where('rd.status', $status);
 
@@ -200,7 +195,7 @@ class RecordDeclarationService
 
         $data = $query->select([
             'rd.*',
-            'io_i18n.title as io_title',
+            I18nFallback::col('io_i18n', 'title', 'io_title'),
             'u.username as declared_by_name',
         ])
             ->orderBy('rd.created_at', 'desc')
@@ -229,17 +224,14 @@ class RecordDeclarationService
         $culture = app()->getLocale();
 
         $query = DB::table('record_declaration as rd')
-            ->leftJoin('information_object_i18n as io_i18n', function ($join) use ($culture) {
-                $join->on('rd.information_object_id', '=', 'io_i18n.id')
-                    ->where('io_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as io_i18n', 'rd.information_object_id', $culture))
             ->leftJoin('user as u', 'rd.declared_by', '=', 'u.id');
 
         $total = $query->count();
 
         $data = $query->select([
             'rd.*',
-            'io_i18n.title as io_title',
+            I18nFallback::col('io_i18n', 'title', 'io_title'),
             'u.username as declared_by_name',
         ])
             ->orderBy('rd.created_at', 'desc')

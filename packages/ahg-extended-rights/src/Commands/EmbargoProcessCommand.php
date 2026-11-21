@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class EmbargoProcessCommand extends Command
 {
@@ -83,15 +84,12 @@ class EmbargoProcessCommand extends Command
         $culture = config('app.locale', 'en');
 
         $expiredEmbargoes = DB::table('embargo as e')
-            ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
-                $join->on('e.object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'e.object_id', $culture))
             ->where('e.status', 'active')
             ->where('e.auto_release', true)
             ->whereNotNull('e.end_date')
             ->where('e.end_date', '<', $today)
-            ->select(['e.*', 'ioi.title as object_title'])
+            ->select(['e.*', I18nFallback::col('ioi', 'title', 'object_title')])
             ->get();
 
         $results = [
@@ -178,17 +176,14 @@ class EmbargoProcessCommand extends Command
             $targetDate = date('Y-m-d', strtotime("+{$days} days"));
 
             $expiringEmbargoes = DB::table('embargo as e')
-                ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
-                    $join->on('e.object_id', '=', 'ioi.id')
-                        ->where('ioi.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'e.object_id', $culture))
                 ->where('e.status', 'active')
                 ->where('e.end_date', $targetDate)
                 ->where(function ($q) use ($days) {
                     $q->whereNull('e.notify_days_before')
                         ->orWhere('e.notify_days_before', '>=', $days);
                 })
-                ->select(['e.*', 'ioi.title as object_title'])
+                ->select(['e.*', I18nFallback::col('ioi', 'title', 'object_title')])
                 ->get();
 
             if ($expiringEmbargoes->isEmpty()) {

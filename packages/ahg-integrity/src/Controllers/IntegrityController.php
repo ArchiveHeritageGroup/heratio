@@ -34,6 +34,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class IntegrityController extends Controller
 {
@@ -101,15 +102,12 @@ class IntegrityController extends Controller
 
         // Get repositories for filter dropdown
         $repositories = DB::table('repository')
-            ->join('actor_i18n', function ($join) use ($culture) {
-                $join->on('repository.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture, required: true))
             ->select([
                 'repository.id',
-                'actor_i18n.authorized_form_of_name as name',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'),
             ])
-            ->orderBy('actor_i18n.authorized_form_of_name')
+            ->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
             ->get();
 
         // Get recent verification runs
@@ -153,15 +151,12 @@ class IntegrityController extends Controller
         if (Schema::hasTable('integrity_ledger')) {
             $repoBreakdown = DB::table('integrity_ledger')
                 ->whereNotNull('integrity_ledger.repository_id')
-                ->join('actor_i18n', function ($j) use ($culture) {
-                    $j->on('integrity_ledger.repository_id', '=', 'actor_i18n.id')
-                        ->where('actor_i18n.culture', '=', $culture);
-                })
-                ->select('actor_i18n.authorized_form_of_name as name',
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'integrity_ledger.repository_id', $culture, required: true))
+                ->select(I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'),
                     DB::raw('COUNT(*) as total'),
                     DB::raw("SUM(CASE WHEN integrity_ledger.outcome = 'pass' THEN 1 ELSE 0 END) as passed"),
                     DB::raw("SUM(CASE WHEN integrity_ledger.outcome = 'fail' THEN 1 ELSE 0 END) as failed"))
-                ->groupBy('actor_i18n.authorized_form_of_name')
+                ->groupBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
                 ->orderBy('total', 'desc')
                 ->limit(10)
                 ->get()->toArray();
@@ -241,12 +236,9 @@ class IntegrityController extends Controller
         $counts = $this->legalHoldService->getHoldCounts();
         $culture = app()->getLocale();
         $repositories = DB::table('repository')
-            ->join('actor_i18n', function ($join) use ($culture) {
-                $join->on('repository.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
-            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
-            ->orderBy('actor_i18n.authorized_form_of_name')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture, required: true))
+            ->select('repository.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'))
+            ->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
             ->get();
 
         return view('ahg-integrity::integrity.holds', [
@@ -596,12 +588,9 @@ return redirect()->route('integrity.schedules')->with('success', __('Schedule up
 
         $culture = app()->getLocale();
         $repositories = DB::table('repository')
-            ->join('actor_i18n', function ($join) use ($culture) {
-                $join->on('repository.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
-            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
-            ->orderBy('actor_i18n.authorized_form_of_name')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture, required: true))
+            ->select('repository.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'))
+            ->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
             ->get();
 
         return view('ahg-integrity::integrity.vital-records', [

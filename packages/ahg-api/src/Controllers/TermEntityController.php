@@ -74,6 +74,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
 use AhgApi\Concerns\NegotiatesRdfFormat;
+use AhgCore\Support\I18nFallback;
 
 class TermEntityController extends Controller
 {
@@ -266,12 +267,10 @@ class TermEntityController extends Controller
 
             $row = DB::table('slug as s')
                 ->join('term as t', 't.id', '=', 's.object_id')
-                ->leftJoin('term_i18n as ti', function ($j) {
-                    $j->on('t.id', '=', 'ti.id')->where('ti.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 't.id', $this->culture))
                 ->where('s.slug', $slug)
                 ->where('t.id', '!=', self::ROOT_ID)
-                ->select('t.id', 't.taxonomy_id', 't.parent_id', 'ti.name')
+                ->select('t.id', 't.taxonomy_id', 't.parent_id', I18nFallback::col('ti', 'name', 'name'))
                 ->first();
         } catch (\Throwable $e) {
             return null;

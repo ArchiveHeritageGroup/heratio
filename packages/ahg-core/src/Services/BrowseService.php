@@ -25,6 +25,7 @@
 
 namespace AhgCore\Services;
 
+use AhgCore\Support\I18nFallback;
 use Illuminate\Support\Facades\DB;
 
 abstract class BrowseService
@@ -57,10 +58,11 @@ abstract class BrowseService
         $table = $this->getTable();
 
         return $query
-            ->join($this->getI18nTable(), "{$table}.id", '=', $this->getI18nTable().'.id')
+            // heratio#1608: current culture, else the fallback culture, so a
+            // record with no row in the interface language is still listed.
+            ->tap(fn ($q) => I18nFallback::join($q, $this->getI18nTable(), "{$table}.id", $this->culture))
             ->join('object', "{$table}.id", '=', 'object.id')
-            ->join('slug', "{$table}.id", '=', 'slug.object_id')
-            ->where($this->getI18nTable().'.culture', $this->culture);
+            ->join('slug', "{$table}.id", '=', 'slug.object_id');
     }
 
     protected function getBaseSelect(): array
@@ -71,7 +73,7 @@ abstract class BrowseService
 
         return [
             "{$table}.id",
-            "{$i18nTable}.{$nameCol} as name",
+            I18nFallback::col($i18nTable, $nameCol, 'name'),
             'object.updated_at',
             'slug.slug',
         ];
@@ -93,11 +95,11 @@ abstract class BrowseService
 
         switch ($sort) {
             case 'alphabetic':
-                $query->orderBy("{$i18nTable}.{$nameCol}", $sortDir);
+                $query->orderBy(I18nFallback::col($i18nTable, $nameCol), $sortDir);
                 break;
             case 'identifier':
                 $query->orderBy('actor.description_identifier', $sortDir);
-                $query->orderBy("{$i18nTable}.{$nameCol}", $sortDir);
+                $query->orderBy(I18nFallback::col($i18nTable, $nameCol), $sortDir);
                 break;
             case 'lastUpdated':
             default:
@@ -113,7 +115,7 @@ abstract class BrowseService
         if ($subquery !== '') {
             $i18nTable = $this->getI18nTable();
             $nameCol = $this->getI18nNameColumn();
-            $query->where("{$i18nTable}.{$nameCol}", 'LIKE', "%{$subquery}%");
+            $query->where(I18nFallback::col($i18nTable, $nameCol), 'LIKE', "%{$subquery}%");
         }
 
         return $query;

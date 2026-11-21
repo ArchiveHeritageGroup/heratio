@@ -20,6 +20,7 @@ use AhgAiServices\Services\LlmService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Throwable;
+use AhgCore\Support\I18nFallback;
 
 class AiTranslateCommand extends Command
 {
@@ -57,9 +58,7 @@ class AiTranslateCommand extends Command
         }
 
         $query = DB::table('information_object as io')
-            ->join('information_object_i18n as src', function ($j) use ($from) {
-                $j->on('src.id', '=', 'io.id')->where('src.culture', '=', $from);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as src', 'io.id', $from))
             ->where('io.id', '!=', 1)
             ->orderBy('io.id')
             ->select('io.id', ...array_map(fn ($f) => "src.{$f} as {$f}", self::FIELDS));

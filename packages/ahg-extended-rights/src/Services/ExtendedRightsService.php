@@ -30,6 +30,7 @@ namespace AhgExtendedRights\Services;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 /**
  * ExtendedRightsService
@@ -86,32 +87,26 @@ class ExtendedRightsService
         }
 
         return DB::table('rights_record as r')
-            ->leftJoin('rights_record_i18n as ri', function ($join) {
-                $join->on('r.id', '=', 'ri.id')
-                    ->where('ri.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'rights_record_i18n as ri', 'r.id', $this->culture))
             ->leftJoin('rights_statement as rs', 'r.rights_statement_id', '=', 'rs.id')
             ->leftJoin('rights_statement_i18n as rsi', function ($join) {
                 $join->on('rs.id', '=', 'rsi.rights_statement_id')
                     ->where('rsi.culture', '=', $this->culture);
             })
             ->leftJoin('rights_cc_license as cc', 'r.cc_license_id', '=', 'cc.id')
-            ->leftJoin('rights_cc_license_i18n as cci', function ($join) {
-                $join->on('cc.id', '=', 'cci.id')
-                    ->where('cci.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'rights_cc_license_i18n as cci', 'cc.id', $this->culture))
             ->where('r.object_id', $objectId)
             ->select([
                 'r.*',
-                'ri.rights_note',
-                'ri.restriction_note',
+                I18nFallback::col('ri', 'rights_note', 'rights_note'),
+                I18nFallback::col('ri', 'restriction_note', 'restriction_note'),
                 'rs.code as rights_statement_code',
                 'rs.uri as rights_statement_uri',
                 'rsi.name as rights_statement_name',
                 'cc.code as cc_license_code',
                 'cc.uri as cc_license_uri',
                 'cc.badge_url as cc_badge_url',
-                'cci.name as cc_license_name',
+                I18nFallback::col('cci', 'name', 'cc_license_name'),
             ])
             ->orderBy('r.created_at', 'desc')
             ->get();
@@ -127,12 +122,9 @@ class ExtendedRightsService
         }
 
         $record = DB::table('rights_record as r')
-            ->leftJoin('rights_record_i18n as ri', function ($join) {
-                $join->on('r.id', '=', 'ri.id')
-                    ->where('ri.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'rights_record_i18n as ri', 'r.id', $this->culture))
             ->where('r.id', $id)
-            ->select(['r.*', 'ri.rights_note', 'ri.restriction_note'])
+            ->select(['r.*', I18nFallback::col('ri', 'rights_note', 'rights_note'), I18nFallback::col('ri', 'restriction_note', 'restriction_note')])
             ->first();
 
         if ($record) {
@@ -248,12 +240,9 @@ class ExtendedRightsService
         }
 
         return DB::table('rights_grant as g')
-            ->leftJoin('rights_grant_i18n as gi', function ($join) {
-                $join->on('g.id', '=', 'gi.id')
-                    ->where('gi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'rights_grant_i18n as gi', 'g.id', $this->culture))
             ->where('g.rights_record_id', $recordId)
-            ->select(['g.*', 'gi.restriction_note'])
+            ->select(['g.*', I18nFallback::col('gi', 'restriction_note', 'restriction_note')])
             ->get();
     }
 
@@ -308,15 +297,12 @@ class ExtendedRightsService
         }
 
         $query = DB::table('embargo as e')
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('e.object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'e.object_id', $this->culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'e.object_id')
             ->select([
                 'e.*',
                 'e.reason as reason_note',
-                'ioi.title as object_title',
+                I18nFallback::col('ioi', 'title', 'object_title'),
                 's.slug',
             ]);
 
@@ -337,16 +323,13 @@ class ExtendedRightsService
         }
 
         return DB::table('embargo as e')
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('e.object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'e.object_id', $this->culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'e.object_id')
             ->where(fn ($q) => \AhgCore\Support\EmbargoScope::current($q, 'e'))
             ->whereNotNull('e.end_date')
             ->whereRaw('e.end_date <= DATE_ADD(NOW(), INTERVAL ? DAY)', [$days])
             ->where('e.end_date', '>=', now()->toDateString())
-            ->select(['e.*', 'ioi.title as object_title', 's.slug'])
+            ->select(['e.*', I18nFallback::col('ioi', 'title', 'object_title'), 's.slug'])
             ->orderBy('e.end_date')
             ->get();
     }
@@ -358,15 +341,12 @@ class ExtendedRightsService
         }
 
         return DB::table('embargo as e')
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('e.object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'e.object_id', $this->culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'e.object_id')
             ->where('e.status', 'active')
             ->whereNotNull('e.review_date')
             ->where('e.review_date', '<=', now()->toDateString())
-            ->select(['e.*', 'ioi.title as object_title', 's.slug'])
+            ->select(['e.*', I18nFallback::col('ioi', 'title', 'object_title'), 's.slug'])
             ->orderBy('e.review_date')
             ->get();
     }
@@ -560,20 +540,14 @@ class ExtendedRightsService
         }
 
         $query = DB::table('rights_orphan_work as o')
-            ->leftJoin('rights_orphan_work_i18n as oi', function ($join) {
-                $join->on('o.id', '=', 'oi.id')
-                    ->where('oi.culture', '=', $this->culture);
-            })
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('o.object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'rights_orphan_work_i18n as oi', 'o.id', $this->culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'o.object_id', $this->culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'o.object_id')
             ->select([
                 'o.*',
-                'oi.notes',
-                'oi.search_summary',
-                'ioi.title as object_title',
+                I18nFallback::col('oi', 'notes', 'notes'),
+                I18nFallback::col('oi', 'search_summary', 'search_summary'),
+                I18nFallback::col('ioi', 'title', 'object_title'),
                 's.slug',
             ]);
 
@@ -591,12 +565,9 @@ class ExtendedRightsService
         }
 
         return DB::table('rights_orphan_work as o')
-            ->leftJoin('rights_orphan_work_i18n as oi', function ($join) {
-                $join->on('o.id', '=', 'oi.id')
-                    ->where('oi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'rights_orphan_work_i18n as oi', 'o.id', $this->culture))
             ->where('o.object_id', $objectId)
-            ->select(['o.*', 'oi.notes', 'oi.search_summary'])
+            ->select(['o.*', I18nFallback::col('oi', 'notes', 'notes'), I18nFallback::col('oi', 'search_summary', 'search_summary')])
             ->first();
     }
 
@@ -607,12 +578,9 @@ class ExtendedRightsService
         }
 
         return DB::table('rights_orphan_work as o')
-            ->leftJoin('rights_orphan_work_i18n as oi', function ($join) {
-                $join->on('o.id', '=', 'oi.id')
-                    ->where('oi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'rights_orphan_work_i18n as oi', 'o.id', $this->culture))
             ->where('o.id', $id)
-            ->select(['o.*', 'oi.notes', 'oi.search_summary'])
+            ->select(['o.*', I18nFallback::col('oi', 'notes', 'notes'), I18nFallback::col('oi', 'search_summary', 'search_summary')])
             ->first();
     }
 
@@ -706,12 +674,9 @@ class ExtendedRightsService
         }
 
         return DB::table('rights_tk_label as tl')
-            ->leftJoin('rights_tk_label_i18n as tli', function ($join) {
-                $join->on('tl.id', '=', 'tli.id')
-                    ->where('tli.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'rights_tk_label_i18n as tli', 'tl.id', $this->culture))
             ->where('tl.is_active', 1)
-            ->select(['tl.*', 'tli.name', 'tli.description', 'tli.usage_protocol'])
+            ->select(['tl.*', I18nFallback::col('tli', 'name', 'name'), I18nFallback::col('tli', 'description', 'description'), I18nFallback::col('tli', 'usage_protocol', 'usage_protocol')])
             ->orderBy('tl.category')
             ->orderBy('tl.sort_order')
             ->get();
@@ -768,10 +733,7 @@ class ExtendedRightsService
 
         return DB::table('icip_tk_label as otl')
             ->join('icip_tk_label_type as tl', 'otl.label_type_id', '=', 'tl.id')
-            ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
-                $join->on('ioi.id', '=', 'otl.information_object_id')
-                    ->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'otl.information_object_id', $culture))
             ->leftJoin('slug', 'slug.object_id', '=', 'otl.information_object_id')
             ->select([
                 'otl.*',
@@ -781,7 +743,7 @@ class ExtendedRightsService
                 'tl.code',
                 'tl.name',
                 'tl.category',
-                'ioi.title as object_title',
+                I18nFallback::col('ioi', 'title', 'object_title'),
                 'slug.slug as object_slug',
             ])
             ->orderByDesc('otl.created_at')
@@ -882,12 +844,9 @@ class ExtendedRightsService
         }
 
         return DB::table('rights_cc_license as cc')
-            ->leftJoin('rights_cc_license_i18n as cci', function ($join) {
-                $join->on('cc.id', '=', 'cci.id')
-                    ->where('cci.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'rights_cc_license_i18n as cci', 'cc.id', $this->culture))
             ->where('cc.is_active', 1)
-            ->select(['cc.*', 'cci.name', 'cci.description', 'cci.human_readable'])
+            ->select(['cc.*', I18nFallback::col('cci', 'name', 'name'), I18nFallback::col('cci', 'description', 'description'), I18nFallback::col('cci', 'human_readable', 'human_readable')])
             ->orderBy('cc.sort_order')
             ->get();
     }

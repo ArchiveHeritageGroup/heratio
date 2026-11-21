@@ -28,6 +28,7 @@ namespace AhgCore\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class MediaCheckoutService
 {
@@ -67,12 +68,10 @@ class MediaCheckoutService
             ->leftJoin('user as u', 'u.id', '=', 'c.user_id')
             ->leftJoin('digital_object as d', 'd.id', '=', 'c.digital_object_id')
             ->leftJoin('slug as s', 's.object_id', '=', 'c.information_object_id')
-            ->leftJoin('information_object_i18n as i', function ($j) {
-                $j->on('i.id', '=', 'c.information_object_id')->where('i.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i', 'c.information_object_id', app()->getLocale()))
             ->whereNotNull('c.active_digital_object_id')
             ->orderByDesc('c.checked_out_at')
-            ->get(['c.*', 'u.username', 'd.name as file_name', 's.slug', 'i.title']);
+            ->get(['c.*', 'u.username', 'd.name as file_name', 's.slug', I18nFallback::col('i', 'title', 'title')]);
     }
 
     /**
@@ -208,8 +207,8 @@ class MediaCheckoutService
         $dates = [];
         if ($ioId) {
             $events = DB::table('event as e')
-                ->leftJoin('event_i18n as ei', fn ($j) => $j->on('ei.id', '=', 'e.id')->where('ei.culture', '=', $culture))
-                ->where('e.object_id', $ioId)->orderBy('e.id')->get(['e.start_date', 'e.end_date', 'ei.date']);
+                ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n as ei', 'e.id', $culture))
+                ->where('e.object_id', $ioId)->orderBy('e.id')->get(['e.start_date', 'e.end_date', I18nFallback::col('ei', 'date', 'date')]);
             foreach ($events as $e) {
                 foreach ([$e->start_date, $e->end_date] as $d) {
                     if ($d && ! in_array($d, $dates, true)) {

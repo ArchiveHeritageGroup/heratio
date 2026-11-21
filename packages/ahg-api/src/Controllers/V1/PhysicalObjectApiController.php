@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class PhysicalObjectApiController extends Controller
 {
@@ -24,26 +25,20 @@ class PhysicalObjectApiController extends Controller
 
         $query = DB::table('physical_object as po')
             ->join('object', 'po.id', '=', 'object.id')
-            ->leftJoin('physical_object_i18n as po_i18n', function ($join) {
-                $join->on('po.id', '=', 'po_i18n.id')
-                    ->where('po_i18n.culture', '=', $this->culture);
-            })
-            ->leftJoin('term_i18n as type_term', function ($join) {
-                $join->on('po.type_id', '=', 'type_term.id')
-                    ->where('type_term.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'physical_object_i18n as po_i18n', 'po.id', $this->culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as type_term', 'po.type_id', $this->culture))
             ->leftJoin('slug', 'po.id', '=', 'slug.object_id');
 
         $total = $query->count();
         $results = $query
             ->select(
                 'po.id', 'po.type_id',
-                'po_i18n.name', 'po_i18n.location', 'po_i18n.description',
-                'type_term.name as type_name',
+                I18nFallback::col('po_i18n', 'name', 'name'), I18nFallback::col('po_i18n', 'location', 'location'), I18nFallback::col('po_i18n', 'description', 'description'),
+                I18nFallback::col('type_term', 'name', 'type_name'),
                 'slug.slug',
                 'object.created_at', 'object.updated_at'
             )
-            ->orderBy('po_i18n.name', $sortDir)
+            ->orderBy(I18nFallback::col('po_i18n', 'name'), $sortDir)
             ->offset(($page - 1) * $limit)
             ->limit($limit)
             ->get();
@@ -55,17 +50,11 @@ class PhysicalObjectApiController extends Controller
     {
         $po = DB::table('physical_object as po')
             ->join('object', 'po.id', '=', 'object.id')
-            ->leftJoin('physical_object_i18n as po_i18n', function ($join) {
-                $join->on('po.id', '=', 'po_i18n.id')
-                    ->where('po_i18n.culture', '=', $this->culture);
-            })
-            ->leftJoin('term_i18n as type_term', function ($join) {
-                $join->on('po.type_id', '=', 'type_term.id')
-                    ->where('type_term.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'physical_object_i18n as po_i18n', 'po.id', $this->culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as type_term', 'po.type_id', $this->culture))
             ->join('slug', 'po.id', '=', 'slug.object_id')
             ->where('slug.slug', $slug)
-            ->select('po.*', 'po_i18n.*', 'type_term.name as type_name', 'slug.slug', 'object.created_at', 'object.updated_at')
+            ->select('po.*', I18nFallback::col('po_i18n', 'name', 'name'), I18nFallback::col('po_i18n', 'description', 'description'), I18nFallback::col('po_i18n', 'location', 'location'), I18nFallback::col('type_term', 'name', 'type_name'), 'slug.slug', 'object.created_at', 'object.updated_at')
             ->first();
 
         if (! $po) {
@@ -74,13 +63,10 @@ class PhysicalObjectApiController extends Controller
 
         // Get linked information objects
         $po->linked_descriptions = DB::table('relation')
-            ->join('information_object_i18n', function ($join) {
-                $join->on('relation.subject_id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'relation.subject_id', $this->culture))
             ->leftJoin('slug', 'relation.subject_id', '=', 'slug.object_id')
             ->where('relation.object_id', $po->id)
-            ->select('relation.subject_id as id', 'information_object_i18n.title', 'slug.slug')
+            ->select('relation.subject_id as id', I18nFallback::col('information_object_i18n', 'title', 'title'), 'slug.slug')
             ->get();
 
         return response()->json($po);

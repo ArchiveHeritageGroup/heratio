@@ -29,6 +29,7 @@ use AhgCore\Pagination\SimplePager;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class FeedbackController extends Controller
 {
@@ -148,26 +149,17 @@ class FeedbackController extends Controller
 
         // Stats (counts for sidebar)
         $totalCount = DB::table('feedback')
-            ->join('feedback_i18n', function ($j) use ($culture) {
-                $j->on('feedback.id', '=', 'feedback_i18n.id')
-                    ->where('feedback_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'feedback_i18n', 'feedback.id', $culture, required: true))
             ->count();
 
         $pendingCount = DB::table('feedback')
-            ->join('feedback_i18n', function ($j) use ($culture) {
-                $j->on('feedback.id', '=', 'feedback_i18n.id')
-                    ->where('feedback_i18n.culture', '=', $culture);
-            })
-            ->where('feedback_i18n.status', '=', 'pending')
+            ->tap(fn ($q) => I18nFallback::join($q, 'feedback_i18n', 'feedback.id', $culture, required: true))
+            ->where(I18nFallback::col('feedback_i18n', 'status'), '=', 'pending')
             ->count();
 
         $completedCount = DB::table('feedback')
-            ->join('feedback_i18n', function ($j) use ($culture) {
-                $j->on('feedback.id', '=', 'feedback_i18n.id')
-                    ->where('feedback_i18n.culture', '=', $culture);
-            })
-            ->where('feedback_i18n.status', '=', 'completed')
+            ->tap(fn ($q) => I18nFallback::join($q, 'feedback_i18n', 'feedback.id', $culture, required: true))
+            ->where(I18nFallback::col('feedback_i18n', 'status'), '=', 'completed')
             ->count();
 
         // Sort

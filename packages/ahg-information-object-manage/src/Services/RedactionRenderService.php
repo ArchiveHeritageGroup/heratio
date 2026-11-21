@@ -44,6 +44,13 @@ class RedactionRenderService
             return null;
         }
         $sourcePath = $this->resolveAbsolutePath($master);
+        $fileType = $this->fileTypeFor($master);
+        // heratio#1627: an office master is redacted on its PDF display copy,
+        // the pages the viewer shows.
+        if ($fileType === 'unsupported' && ($pdfCopy = \AhgCore\Services\OfficeDisplayCopyService::pdfFor((int) $master->id))) {
+            $sourcePath = $this->resolveAbsolutePath($pdfCopy);
+            $fileType = 'pdf';
+        }
         if (!$sourcePath || !file_exists($sourcePath)) {
             Log::warning('[redaction] master file missing on disk', ['io_id' => $ioId, 'path' => $sourcePath]);
             return null;
@@ -55,7 +62,6 @@ class RedactionRenderService
         }
 
         $hash = $this->regionsHash($regions);
-        $fileType = $this->fileTypeFor($master);
 
         // Cache hit?
         $cached = DB::table('privacy_redaction_cache')

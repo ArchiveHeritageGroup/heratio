@@ -35,6 +35,7 @@ use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class LibraryController extends Controller
 {
@@ -165,25 +166,19 @@ class LibraryController extends Controller
         $repository = null;
         if ($item->repository_id) {
             $repository = DB::table('repository')
-                ->join('actor_i18n', function ($j) {
-                    $j->on('repository.id', '=', 'actor_i18n.id')
-                       ->where('actor_i18n.culture', '=', app()->getLocale());
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', app()->getLocale(), required: true))
                 ->where('repository.id', $item->repository_id)
-                ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
+                ->select('repository.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'))
                 ->first();
         }
 
         // Physical objects
         $physicalObjects = DB::table('relation')
             ->join('physical_object', 'relation.subject_id', '=', 'physical_object.id')
-            ->leftJoin('physical_object_i18n', function ($j) {
-                $j->on('physical_object.id', '=', 'physical_object_i18n.id')
-                   ->where('physical_object_i18n.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'physical_object_i18n', 'physical_object.id', app()->getLocale()))
             ->where('relation.object_id', $item->id)
             ->where('relation.type_id', 131)
-            ->select('physical_object.id', 'physical_object.type_id', 'physical_object_i18n.name', 'physical_object_i18n.location')
+            ->select('physical_object.id', 'physical_object.type_id', I18nFallback::col('physical_object_i18n', 'name', 'name'), I18nFallback::col('physical_object_i18n', 'location', 'location'))
             ->get();
 
         // Item physical location (single row from information_object_physical_location)

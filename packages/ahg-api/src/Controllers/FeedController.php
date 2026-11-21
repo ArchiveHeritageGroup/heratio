@@ -59,6 +59,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
+use AhgCore\Support\I18nFallback;
 
 class FeedController extends Controller
 {
@@ -308,11 +309,9 @@ class FeedController extends Controller
         if (! empty($row->repository_id)) {
             try {
                 $name = DB::table('repository as r')
-                    ->join('actor_i18n as ai', function ($j) {
-                        $j->on('r.id', '=', 'ai.id')->where('ai.culture', $this->culture);
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'r.id', $this->culture, required: true))
                     ->where('r.id', (int) $row->repository_id)
-                    ->value('ai.authorized_form_of_name');
+                    ->value(I18nFallback::col('ai', 'authorized_form_of_name', 'authorized_form_of_name'));
                 if (! empty($name)) {
                     return (string) $name;
                 }
@@ -324,12 +323,10 @@ class FeedController extends Controller
         // Creator actor via an event row on this object. Single cheap lookup.
         try {
             $creator = DB::table('event as e')
-                ->join('actor_i18n as ai', function ($j) {
-                    $j->on('e.actor_id', '=', 'ai.id')->where('ai.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'e.actor_id', $this->culture, required: true))
                 ->where('e.object_id', (int) $row->id)
                 ->whereNotNull('e.actor_id')
-                ->value('ai.authorized_form_of_name');
+                ->value(I18nFallback::col('ai', 'authorized_form_of_name', 'authorized_form_of_name'));
 
             return $creator ? (string) $creator : null;
         } catch (\Throwable $e) {

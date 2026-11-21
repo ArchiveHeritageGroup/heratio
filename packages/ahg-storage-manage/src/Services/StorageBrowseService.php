@@ -28,6 +28,7 @@ namespace AhgStorageManage\Services;
 use AhgCore\Services\BrowseService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class StorageBrowseService extends BrowseService
 {
@@ -50,9 +51,9 @@ class StorageBrowseService extends BrowseService
     {
         return [
             'physical_object.id',
-            'physical_object_i18n.name as name',
+            I18nFallback::col('physical_object_i18n', 'name', 'name'),
             'physical_object.type_id',
-            'physical_object_i18n.location',
+            I18nFallback::col('physical_object_i18n', 'location', 'location'),
             // heratio#1545 - the flat location fields, for the Location column of
             // a box not yet in the storage location tree.
             'poe.building', 'poe.floor', 'poe.room', 'poe.aisle', 'poe.bay', 'poe.rack', 'poe.shelf',
@@ -64,11 +65,10 @@ class StorageBrowseService extends BrowseService
     protected function getBaseJoins($query)
     {
         return $query
-            ->join('physical_object_i18n', 'physical_object.id', '=', 'physical_object_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'physical_object_i18n', 'physical_object.id', $this->culture, required: true))
             ->join('object', 'physical_object.id', '=', 'object.id')
             ->join('slug', 'physical_object.id', '=', 'slug.object_id')
-            ->leftJoin('physical_object_extended as poe', 'poe.physical_object_id', '=', 'physical_object.id')
-            ->where('physical_object_i18n.culture', $this->culture);
+            ->leftJoin('physical_object_extended as poe', 'poe.physical_object_id', '=', 'physical_object.id');
     }
 
     /** heratio#1545 - search covers the name, the old free text, building, room and shelf. */
@@ -77,8 +77,8 @@ class StorageBrowseService extends BrowseService
         if ($subquery !== '') {
             $like = '%'.addcslashes($subquery, '%_\\').'%';
             $query->where(function ($q) use ($like) {
-                $q->where('physical_object_i18n.name', 'LIKE', $like)
-                    ->orWhere('physical_object_i18n.location', 'LIKE', $like)
+                $q->where(I18nFallback::col('physical_object_i18n', 'name'), 'LIKE', $like)
+                    ->orWhere(I18nFallback::col('physical_object_i18n', 'location'), 'LIKE', $like)
                     ->orWhere('poe.building', 'LIKE', $like)
                     ->orWhere('poe.room', 'LIKE', $like)
                     ->orWhere('poe.shelf', 'LIKE', $like);
@@ -181,15 +181,15 @@ class StorageBrowseService extends BrowseService
                 $dir = $sort === 'locationDown' ? 'desc' : ($sort === 'location' ? $sortDir : 'asc');
                 $query->orderByRaw("COALESCE(poe.building, '') = '' asc")
                     ->orderBy('poe.building', $dir)->orderBy('poe.floor', $dir)->orderBy('poe.room', $dir)
-                    ->orderBy('physical_object_i18n.location', $dir);
+                    ->orderBy(I18nFallback::col('physical_object_i18n', 'location'), $dir);
                 break;
             case 'nameDown':
-                $query->orderBy('physical_object_i18n.name', 'desc');
+                $query->orderBy(I18nFallback::col('physical_object_i18n', 'name'), 'desc');
                 break;
             case 'alphabetic':
             case 'nameUp':
             default:
-                $query->orderBy('physical_object_i18n.name', $sortDir);
+                $query->orderBy(I18nFallback::col('physical_object_i18n', 'name'), $sortDir);
                 break;
         }
 

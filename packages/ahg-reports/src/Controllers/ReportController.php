@@ -36,6 +36,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use AhgCore\Support\I18nFallback;
 
 class ReportController extends Controller
 {
@@ -352,10 +353,7 @@ class ReportController extends Controller
         // Build query for records with coordinate data
         $query = DB::table('information_object as io')->tap(fn ($q) => \AhgCore\Support\TenantScope::apply($q, 'io.repository_id'))
             ->join('object as o', 'io.id', '=', 'o.id')
-            ->join('information_object_i18n as ioi', function ($join) use ($culture) {
-                $join->on('io.id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->leftJoin('property as plat', function ($join) {
                 $join->on('io.id', '=', 'plat.object_id')
                     ->where('plat.name', 'like', '%latitude%');
@@ -364,22 +362,16 @@ class ReportController extends Controller
                 $join->on('io.id', '=', 'plng.object_id')
                     ->where('plng.name', 'like', '%longitude%');
             })
-            ->leftJoin('term_i18n as lod', function ($join) use ($culture) {
-                $join->on('io.level_of_description_id', '=', 'lod.id')
-                    ->where('lod.culture', '=', $culture);
-            })
-            ->leftJoin('actor_i18n as ri', function ($join) use ($culture) {
-                $join->on('io.repository_id', '=', 'ri.id')
-                    ->where('ri.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as lod', 'io.level_of_description_id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ri', 'io.repository_id', $culture))
             ->select([
                 'io.id',
                 'io.identifier',
-                'ioi.title',
+                I18nFallback::col('ioi', 'title', 'title'),
                 DB::raw('plat.source_culture as latitude'),
                 DB::raw('plng.source_culture as longitude'),
-                'lod.name as level_of_description',
-                'ri.authorized_form_of_name as repository',
+                I18nFallback::col('lod', 'name', 'level_of_description'),
+                I18nFallback::col('ri', 'authorized_form_of_name', 'repository'),
             ]);
 
         if ($requireCoordinates) {
@@ -415,14 +407,11 @@ class ReportController extends Controller
                 $query->whereExists(function ($sub) use ($subjectList, $culture) {
                     $sub->select(DB::raw(1))
                         ->from('object_term_relation as otr')
-                        ->join('term_i18n as sti', function ($join) use ($culture) {
-                            $join->on('otr.term_id', '=', 'sti.id')
-                                ->where('sti.culture', '=', $culture);
-                        })
+                        ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as sti', 'otr.term_id', $culture, required: true))
                         ->whereColumn('otr.object_id', 'io.id')
                         ->where(function ($q) use ($subjectList) {
                             foreach ($subjectList as $term) {
-                                $q->orWhere('sti.name', 'like', '%' . $term . '%');
+                                $q->orWhere(I18nFallback::col('sti', 'name'), 'like', '%' . $term . '%');
                             }
                         });
                 });
@@ -431,24 +420,18 @@ class ReportController extends Controller
 
         // Place terms for multiselect
         $placeTerms = DB::table('term')
-            ->join('term_i18n', function ($join) use ($culture) {
-                $join->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
             ->where('term.taxonomy_id', 42)
-            ->orderBy('term_i18n.name')
-            ->select('term.id', 'term_i18n.name')
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
 
         // Levels of description for dropdown
         $levels = DB::table('term')
-            ->join('term_i18n', function ($join) use ($culture) {
-                $join->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
             ->where('term.taxonomy_id', 34)
-            ->orderBy('term_i18n.name')
-            ->select('term.id', 'term_i18n.name')
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
 
         // Handle exports
@@ -681,11 +664,8 @@ class ReportController extends Controller
 
         try {
             $query = DB::table('accession')
-                ->leftJoin('accession_i18n', function ($j) {
-                    $j->on('accession.id', '=', 'accession_i18n.id')
-                      ->where('accession_i18n.culture', '=', $params['culture'] ?? 'en');
-                })
-                ->select('accession.id', 'accession.identifier', 'accession_i18n.title', 'accession_i18n.scope_and_content as scope', 'accession.created_at', 'accession.updated_at');
+                ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n', 'accession.id', $params['culture'] ?? 'en'))
+                ->select('accession.id', 'accession.identifier', I18nFallback::col('accession_i18n', 'title', 'title'), I18nFallback::col('accession_i18n', 'scope_and_content', 'scope'), 'accession.created_at', 'accession.updated_at');
 
             if (!empty($params['dateStart'])) {
                 $query->where('accession.created_at', '>=', $params['dateStart']);
@@ -712,11 +692,8 @@ class ReportController extends Controller
 
         try {
             $results = DB::table('actor')
-                ->leftJoin('actor_i18n', function ($j) {
-                    $j->on('actor.id', '=', 'actor_i18n.id')
-                      ->where('actor_i18n.culture', '=', $request->input('culture', 'en'));
-                })
-                ->select('actor.id', 'actor.description_identifier as identifier', 'actor_i18n.authorized_form_of_name as name', 'actor.entity_type_id', 'actor.created_at', 'actor.updated_at')
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $request->input('culture', 'en')))
+                ->select('actor.id', 'actor.description_identifier as identifier', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'), 'actor.entity_type_id', 'actor.created_at', 'actor.updated_at')
                 ->where('actor.id', '!=', 1)
                 ->orderByDesc('actor.created_at')
                 ->paginate(25);
@@ -738,11 +715,8 @@ class ReportController extends Controller
         try {
             $results = DB::table('donor')
                 ->join('actor', 'donor.id', '=', 'actor.id')
-                ->leftJoin('actor_i18n', function ($j) {
-                    $j->on('actor.id', '=', 'actor_i18n.id')
-                      ->where('actor_i18n.culture', '=', $request->input('culture', 'en'));
-                })
-                ->select('donor.id', 'actor_i18n.authorized_form_of_name as name', 'actor.created_at', 'actor.updated_at')
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $request->input('culture', 'en')))
+                ->select('donor.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'), 'actor.created_at', 'actor.updated_at')
                 ->orderByDesc('actor.created_at')
                 ->paginate(25);
         } catch (\Exception $e) {

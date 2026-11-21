@@ -32,6 +32,7 @@ use AhgCore\Pagination\SimplePager;
 use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use AhgCore\Support\I18nFallback;
 
 class DamController extends Controller
 {
@@ -199,11 +200,10 @@ class DamController extends Controller
         $repository = null;
         if (!empty($asset->repository_id)) {
             $repository = \Illuminate\Support\Facades\DB::table('repository')
-                ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture, required: true))
                 ->join('slug', 'repository.id', '=', 'slug.object_id')
                 ->where('repository.id', $asset->repository_id)
-                ->where('actor_i18n.culture', $culture)
-                ->select('repository.id', 'actor_i18n.authorized_form_of_name as name', 'slug.slug')
+                ->select('repository.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'), 'slug.slug')
                 ->first();
         }
 
@@ -230,16 +230,13 @@ class DamController extends Controller
         if (!empty($carouselIds)) {
             $childThumbnails = ! $carouselOn ? collect() : \Illuminate\Support\Facades\DB::table('digital_object')
                 ->join('slug', 'digital_object.object_id', '=', 'slug.object_id')
-                ->join('information_object_i18n', function ($join) use ($culture) {
-                    $join->on('digital_object.object_id', '=', 'information_object_i18n.id')
-                         ->where('information_object_i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'digital_object.object_id', $culture))
                 ->whereIn('digital_object.object_id', $carouselIds)
                 ->where('digital_object.usage_id', 142)
                 ->select(
                     'digital_object.id', 'digital_object.object_id', 'digital_object.name',
                     'digital_object.path', 'digital_object.mime_type', 'digital_object.byte_size',
-                    'slug.slug', 'information_object_i18n.title'
+                    'slug.slug', I18nFallback::col('information_object_i18n', 'title', 'title')
                 )
                 ->orderBy('digital_object.object_id')
                 ->limit(10)

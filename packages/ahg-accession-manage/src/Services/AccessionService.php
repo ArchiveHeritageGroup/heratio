@@ -28,6 +28,7 @@ namespace AhgAccessionManage\Services;
 use AhgCore\Constants\TermId;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use AhgCore\Support\I18nFallback;
 
 class AccessionService
 {
@@ -59,10 +60,7 @@ class AccessionService
         return DB::table('accession')
             ->join('object', 'accession.id', '=', 'object.id')
             ->join('slug', 'accession.id', '=', 'slug.object_id')
-            ->leftJoin('accession_i18n', function ($j) {
-                $j->on('accession.id', '=', 'accession_i18n.id')
-                    ->where('accession_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n', 'accession.id', $this->culture))
             ->where('accession.id', $id)
             ->select([
                 'accession.id',
@@ -73,15 +71,15 @@ class AccessionService
                 'accession.processing_status_id',
                 'accession.resource_type_id',
                 'accession.source_culture',
-                'accession_i18n.title',
-                'accession_i18n.scope_and_content',
-                'accession_i18n.appraisal',
-                'accession_i18n.archival_history',
-                'accession_i18n.location_information',
-                'accession_i18n.physical_characteristics',
-                'accession_i18n.processing_notes',
-                'accession_i18n.received_extent_units',
-                'accession_i18n.source_of_acquisition',
+                I18nFallback::col('accession_i18n', 'title', 'title'),
+                I18nFallback::col('accession_i18n', 'scope_and_content', 'scope_and_content'),
+                I18nFallback::col('accession_i18n', 'appraisal', 'appraisal'),
+                I18nFallback::col('accession_i18n', 'archival_history', 'archival_history'),
+                I18nFallback::col('accession_i18n', 'location_information', 'location_information'),
+                I18nFallback::col('accession_i18n', 'physical_characteristics', 'physical_characteristics'),
+                I18nFallback::col('accession_i18n', 'processing_notes', 'processing_notes'),
+                I18nFallback::col('accession_i18n', 'received_extent_units', 'received_extent_units'),
+                I18nFallback::col('accession_i18n', 'source_of_acquisition', 'source_of_acquisition'),
                 'object.created_at',
                 'object.updated_at',
                 'slug.slug',
@@ -96,14 +94,13 @@ class AccessionService
     public function getDonors(int $accessionId): \Illuminate\Support\Collection
     {
         return DB::table('relation')
-            ->join('actor_i18n', 'relation.object_id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'relation.object_id', $this->culture, required: true))
             ->join('slug', 'relation.object_id', '=', 'slug.object_id')
             ->where('relation.subject_id', $accessionId)
             ->where('relation.type_id', TermId::RELATION_DONOR)
-            ->where('actor_i18n.culture', $this->culture)
             ->select([
                 'relation.object_id as id',
-                'actor_i18n.authorized_form_of_name as name',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'),
                 'slug.slug',
             ])
             ->get();
@@ -234,17 +231,16 @@ class AccessionService
     public function getDeaccessions(int $accessionId): \Illuminate\Support\Collection
     {
         return DB::table('deaccession')
-            ->join('deaccession_i18n', 'deaccession.id', '=', 'deaccession_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'deaccession_i18n', 'deaccession.id', $this->culture))
             ->where('deaccession.accession_id', $accessionId)
-            ->where('deaccession_i18n.culture', $this->culture)
             ->select([
                 'deaccession.id',
                 'deaccession.identifier',
                 'deaccession.date',
                 'deaccession.scope_id',
-                'deaccession_i18n.description',
-                'deaccession_i18n.extent',
-                'deaccession_i18n.reason',
+                I18nFallback::col('deaccession_i18n', 'description', 'description'),
+                I18nFallback::col('deaccession_i18n', 'extent', 'extent'),
+                I18nFallback::col('deaccession_i18n', 'reason', 'reason'),
             ])
             ->get();
     }
@@ -256,13 +252,10 @@ class AccessionService
     {
         $termLookup = function (int $taxonomyId) {
             return DB::table('term')
-                ->leftJoin('term_i18n', function ($j) {
-                    $j->on('term.id', '=', 'term_i18n.id')
-                        ->where('term_i18n.culture', '=', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture))
                 ->where('term.taxonomy_id', $taxonomyId)
-                ->select('term.id', 'term_i18n.name')
-                ->orderBy('term_i18n.name')
+                ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
+                ->orderBy(I18nFallback::col('term_i18n', 'name'))
                 ->get();
         };
 
@@ -524,17 +517,14 @@ class AccessionService
     {
         return DB::table('relation')
             ->join('accession', 'relation.subject_id', '=', 'accession.id')
-            ->leftJoin('accession_i18n', function ($j) {
-                $j->on('accession.id', '=', 'accession_i18n.id')
-                    ->where('accession_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n', 'accession.id', $this->culture))
             ->join('slug', 'accession.id', '=', 'slug.object_id')
             ->where('relation.object_id', $accessionId)
             ->where('relation.type_id', TermId::RELATION_ACCRUAL)
             ->select([
                 'accession.id',
                 'accession.identifier',
-                'accession_i18n.title',
+                I18nFallback::col('accession_i18n', 'title', 'title'),
                 'slug.slug',
             ])
             ->get();
@@ -547,17 +537,14 @@ class AccessionService
     {
         return DB::table('relation')
             ->join('accession', 'relation.object_id', '=', 'accession.id')
-            ->leftJoin('accession_i18n', function ($j) {
-                $j->on('accession.id', '=', 'accession_i18n.id')
-                    ->where('accession_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n', 'accession.id', $this->culture))
             ->join('slug', 'accession.id', '=', 'slug.object_id')
             ->where('relation.subject_id', $accessionId)
             ->where('relation.type_id', TermId::RELATION_ACCRUAL)
             ->select([
                 'accession.id',
                 'accession.identifier',
-                'accession_i18n.title',
+                I18nFallback::col('accession_i18n', 'title', 'title'),
                 'slug.slug',
             ])
             ->get();
@@ -571,14 +558,13 @@ class AccessionService
     public function getCreators(int $accessionId): \Illuminate\Support\Collection
     {
         return DB::table('relation')
-            ->join('actor_i18n', 'relation.subject_id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'relation.subject_id', $this->culture, required: true))
             ->join('slug', 'relation.subject_id', '=', 'slug.object_id')
             ->where('relation.object_id', $accessionId)
             ->where('relation.type_id', TermId::RELATION_CREATION)
-            ->where('actor_i18n.culture', $this->culture)
             ->select([
                 'relation.subject_id as id',
-                'actor_i18n.authorized_form_of_name as name',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'),
                 'slug.slug',
             ])
             ->get();
@@ -590,21 +576,15 @@ class AccessionService
     public function getDates(int $accessionId): \Illuminate\Support\Collection
     {
         return DB::table('event')
-            ->leftJoin('event_i18n', function ($j) {
-                $j->on('event.id', '=', 'event_i18n.id')
-                    ->where('event_i18n.culture', '=', $this->culture);
-            })
-            ->leftJoin('term_i18n', function ($j) {
-                $j->on('event.type_id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n', 'event.id', $this->culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'event.type_id', $this->culture))
             ->where('event.object_id', $accessionId)
             ->select([
                 'event.id',
                 'event.start_date',
                 'event.end_date',
-                'event_i18n.date as date_display',
-                'term_i18n.name as type_name',
+                I18nFallback::col('event_i18n', 'date', 'date_display'),
+                I18nFallback::col('term_i18n', 'name', 'type_name'),
             ])
             ->get();
     }
@@ -615,33 +595,24 @@ class AccessionService
     public function getAccessionEvents(int $accessionId): \Illuminate\Support\Collection
     {
         $events = DB::table('accession_event')
-            ->leftJoin('accession_event_i18n', function ($j) {
-                $j->on('accession_event.id', '=', 'accession_event_i18n.id')
-                    ->where('accession_event_i18n.culture', '=', $this->culture);
-            })
-            ->leftJoin('term_i18n', function ($j) {
-                $j->on('accession_event.type_id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_event_i18n', 'accession_event.id', $this->culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'accession_event.type_id', $this->culture))
             ->where('accession_event.accession_id', $accessionId)
             ->select([
                 'accession_event.id',
                 'accession_event.type_id',
                 'accession_event.date',
-                'term_i18n.name as type_name',
-                'accession_event_i18n.agent',
+                I18nFallback::col('term_i18n', 'name', 'type_name'),
+                I18nFallback::col('accession_event_i18n', 'agent', 'agent'),
             ])
             ->get();
 
         // Get notes from the note table for each event
         foreach ($events as $event) {
             $event->note = DB::table('note')
-                ->leftJoin('note_i18n', function ($j) {
-                    $j->on('note.id', '=', 'note_i18n.id')
-                        ->where('note_i18n.culture', '=', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'note_i18n', 'note.id', $this->culture))
                 ->where('note.object_id', $event->id)
-                ->value('note_i18n.content');
+                ->value(I18nFallback::col('note_i18n', 'content', 'content'));
         }
 
         return $events;
@@ -733,15 +704,12 @@ class AccessionService
     public function getAlternativeIdentifiers(int $accessionId): \Illuminate\Support\Collection
     {
         return DB::table('other_name')
-            ->leftJoin('other_name_i18n', function ($j) {
-                $j->on('other_name.id', '=', 'other_name_i18n.id')
-                    ->where('other_name_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'other_name_i18n', 'other_name.id', $this->culture))
             ->where('other_name.object_id', $accessionId)
             ->select([
                 'other_name.id',
                 'other_name.type_id',
-                'other_name_i18n.name as identifier',
+                I18nFallback::col('other_name_i18n', 'name', 'identifier'),
                 DB::raw("(SELECT ti.name FROM term_i18n ti WHERE ti.id = other_name.type_id AND ti.culture = '{$this->culture}' LIMIT 1) as label"),
             ])
             ->get();
@@ -755,16 +723,13 @@ class AccessionService
     public function getInformationObjects(int $accessionId): \Illuminate\Support\Collection
     {
         return DB::table('relation')
-            ->join('information_object_i18n', function ($j) {
-                $j->on('relation.subject_id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'relation.subject_id', $this->culture))
             ->join('slug', 'relation.subject_id', '=', 'slug.object_id')
             ->where('relation.object_id', $accessionId)
             ->where('relation.type_id', TermId::RELATION_ACCESSION)
             ->select([
                 'relation.subject_id as id',
-                'information_object_i18n.title',
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
                 'slug.slug',
             ])
             ->get();
@@ -777,22 +742,16 @@ class AccessionService
     {
         return DB::table('relation')
             ->join('rights', 'relation.object_id', '=', 'rights.id')
-            ->leftJoin('rights_i18n', function ($j) {
-                $j->on('rights.id', '=', 'rights_i18n.id')
-                    ->where('rights_i18n.culture', '=', $this->culture);
-            })
-            ->leftJoin('term_i18n', function ($j) {
-                $j->on('rights.basis_id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'rights_i18n', 'rights.id', $this->culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'rights.basis_id', $this->culture))
             ->where('relation.subject_id', $accessionId)
             ->where('relation.type_id', TermId::RELATION_RIGHT)
             ->select([
                 'rights.id',
                 'rights.start_date',
                 'rights.end_date',
-                'term_i18n.name as basis_name',
-                'rights_i18n.rights_note',
+                I18nFallback::col('term_i18n', 'name', 'basis_name'),
+                I18nFallback::col('rights_i18n', 'rights_note', 'rights_note'),
             ])
             ->get();
     }
@@ -810,14 +769,8 @@ class AccessionService
         // "Link physical storage" flow never appeared.)
         return DB::table('relation')
             ->join('physical_object', 'relation.object_id', '=', 'physical_object.id')
-            ->leftJoin('physical_object_i18n', function ($j) {
-                $j->on('physical_object.id', '=', 'physical_object_i18n.id')
-                    ->where('physical_object_i18n.culture', '=', $this->culture);
-            })
-            ->leftJoin('term_i18n', function ($j) {
-                $j->on('physical_object.type_id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'physical_object_i18n', 'physical_object.id', $this->culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'physical_object.type_id', $this->culture))
             ->join('slug', 'physical_object.id', '=', 'slug.object_id')
             ->where('relation.subject_id', $accessionId)
             // NB: the physical-storage feature actually stores this relation as
@@ -831,9 +784,9 @@ class AccessionService
             ->where('relation.type_id', 151)
             ->select([
                 'physical_object.id',
-                'physical_object_i18n.name',
-                'physical_object_i18n.location',
-                'term_i18n.name as type_name',
+                I18nFallback::col('physical_object_i18n', 'name', 'name'),
+                I18nFallback::col('physical_object_i18n', 'location', 'location'),
+                I18nFallback::col('term_i18n', 'name', 'type_name'),
                 'slug.slug',
             ])
             ->get();
@@ -947,10 +900,9 @@ class AccessionService
         }
 
         return DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture, required: true))
             ->where('term.taxonomy_id', 64)
-            ->whereRaw('LOWER(term_i18n.name) = ?', [strtolower($name)])
-            ->where('term_i18n.culture', $this->culture)
+            ->whereRaw('LOWER(COALESCE(term_i18n.name, term_i18n_fb.name)) = ?', [strtolower($name)])
             ->value('term.id') ?: null;
     }
 

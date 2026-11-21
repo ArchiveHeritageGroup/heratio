@@ -26,6 +26,7 @@
 namespace AhgFederation\Services;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class FederationService
 {
@@ -95,12 +96,10 @@ class FederationService
 
         return DB::table('federation_vocab_sync as vs')
             ->leftJoin('federation_peer as p', 'vs.peer_id', '=', 'p.id')
-            ->leftJoin('taxonomy_i18n as ti', function ($j) use ($culture) {
-                $j->on('vs.taxonomy_id', '=', 'ti.id')->where('ti.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'taxonomy_i18n as ti', 'vs.taxonomy_id', $culture))
             ->orderBy('p.name')
-            ->orderBy('ti.name')
-            ->select('vs.*', 'p.name as peer_name', 'ti.name as taxonomy_name')
+            ->orderBy(I18nFallback::col('ti', 'name'))
+            ->select('vs.*', 'p.name as peer_name', I18nFallback::col('ti', 'name', 'taxonomy_name'))
             ->get();
     }
 

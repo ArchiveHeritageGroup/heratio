@@ -19,6 +19,7 @@ namespace AhgRic\Services;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use AhgCore\Support\I18nFallback;
 
 class RicEntityService
 {
@@ -209,14 +210,11 @@ class RicEntityService
         return DB::table('ric_place')
             ->join('object', 'ric_place.id', '=', 'object.id')
             ->join('slug', 'ric_place.id', '=', 'slug.object_id')
-            ->leftJoin('ric_place_i18n', function ($j) {
-                $j->on('ric_place.id', '=', 'ric_place_i18n.id')
-                    ->where('ric_place_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_place_i18n', 'ric_place.id', $this->culture))
             ->where('ric_place.id', $id)
             ->select([
                 'ric_place.*',
-                'ric_place_i18n.name', 'ric_place_i18n.description', 'ric_place_i18n.address',
+                I18nFallback::col('ric_place_i18n', 'name', 'name'), I18nFallback::col('ric_place_i18n', 'description', 'description'), I18nFallback::col('ric_place_i18n', 'address', 'address'),
                 'object.created_at', 'object.updated_at',
                 'slug.slug',
             ])
@@ -242,11 +240,9 @@ class RicEntityService
     public function listPlacesForPicker(?int $excludeId = null): array
     {
         $query = DB::table('ric_place as p')
-            ->leftJoin('ric_place_i18n as i18n', function ($j) {
-                $j->on('p.id', '=', 'i18n.id')->where('i18n.culture', $this->culture);
-            })
-            ->select('p.id', 'i18n.name')
-            ->orderBy('i18n.name');
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_place_i18n as i18n', 'p.id', $this->culture))
+            ->select('p.id', I18nFallback::col('i18n', 'name', 'name'))
+            ->orderBy(I18nFallback::col('i18n', 'name'));
         if ($excludeId !== null) {
             $query->where('p.id', '!=', $excludeId);
         }
@@ -325,15 +321,12 @@ class RicEntityService
         return DB::table('ric_rule')
             ->join('object', 'ric_rule.id', '=', 'object.id')
             ->join('slug', 'ric_rule.id', '=', 'slug.object_id')
-            ->leftJoin('ric_rule_i18n', function ($j) {
-                $j->on('ric_rule.id', '=', 'ric_rule_i18n.id')
-                    ->where('ric_rule_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_rule_i18n', 'ric_rule.id', $this->culture))
             ->where('ric_rule.id', $id)
             ->select([
                 'ric_rule.*',
-                'ric_rule_i18n.title', 'ric_rule_i18n.description',
-                'ric_rule_i18n.legislation', 'ric_rule_i18n.sources',
+                I18nFallback::col('ric_rule_i18n', 'title', 'title'), I18nFallback::col('ric_rule_i18n', 'description', 'description'),
+                I18nFallback::col('ric_rule_i18n', 'legislation', 'legislation'), I18nFallback::col('ric_rule_i18n', 'sources', 'sources'),
                 'object.created_at', 'object.updated_at',
                 'slug.slug',
             ])
@@ -421,19 +414,13 @@ class RicEntityService
         return DB::table('ric_activity')
             ->join('object', 'ric_activity.id', '=', 'object.id')
             ->join('slug', 'ric_activity.id', '=', 'slug.object_id')
-            ->leftJoin('ric_activity_i18n', function ($j) {
-                $j->on('ric_activity.id', '=', 'ric_activity_i18n.id')
-                    ->where('ric_activity_i18n.culture', '=', $this->culture);
-            })
-            ->leftJoin('ric_place_i18n', function ($j) {
-                $j->on('ric_activity.place_id', '=', 'ric_place_i18n.id')
-                    ->where('ric_place_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_activity_i18n', 'ric_activity.id', $this->culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_place_i18n', 'ric_activity.place_id', $this->culture))
             ->where('ric_activity.id', $id)
             ->select([
                 'ric_activity.*',
-                'ric_activity_i18n.name', 'ric_activity_i18n.description', 'ric_activity_i18n.date_display',
-                'ric_place_i18n.name as place_name',
+                I18nFallback::col('ric_activity_i18n', 'name', 'name'), I18nFallback::col('ric_activity_i18n', 'description', 'description'), I18nFallback::col('ric_activity_i18n', 'date_display', 'date_display'),
+                I18nFallback::col('ric_place_i18n', 'name', 'place_name'),
                 'object.created_at', 'object.updated_at',
                 'slug.slug',
             ])
@@ -525,16 +512,13 @@ class RicEntityService
         return DB::table('ric_instantiation')
             ->join('object', 'ric_instantiation.id', '=', 'object.id')
             ->join('slug', 'ric_instantiation.id', '=', 'slug.object_id')
-            ->leftJoin('ric_instantiation_i18n', function ($j) {
-                $j->on('ric_instantiation.id', '=', 'ric_instantiation_i18n.id')
-                    ->where('ric_instantiation_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_instantiation_i18n', 'ric_instantiation.id', $this->culture))
             ->where('ric_instantiation.id', $id)
             ->select([
                 'ric_instantiation.*',
-                'ric_instantiation_i18n.title', 'ric_instantiation_i18n.description',
-                'ric_instantiation_i18n.technical_characteristics',
-                'ric_instantiation_i18n.production_technical_characteristics',
+                I18nFallback::col('ric_instantiation_i18n', 'title', 'title'), I18nFallback::col('ric_instantiation_i18n', 'description', 'description'),
+                I18nFallback::col('ric_instantiation_i18n', 'technical_characteristics', 'technical_characteristics'),
+                I18nFallback::col('ric_instantiation_i18n', 'production_technical_characteristics', 'production_technical_characteristics'),
                 'object.created_at', 'object.updated_at',
                 'slug.slug',
             ])
@@ -697,10 +681,7 @@ class RicEntityService
     {
         $outgoing = DB::table('relation')
             ->leftJoin('ric_relation_meta', 'relation.id', '=', 'ric_relation_meta.relation_id')
-            ->leftJoin('term_i18n', function ($j) {
-                $j->on('relation.type_id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'relation.type_id', $this->culture))
             ->where('relation.subject_id', $entityId)
             ->select([
                 'relation.id',
@@ -713,16 +694,13 @@ class RicEntityService
                 'ric_relation_meta.rico_predicate',
                 'ric_relation_meta.dropdown_code',
                 'ric_relation_meta.certainty',
-                'term_i18n.name as legacy_type_name',
+                I18nFallback::col('term_i18n', 'name', 'legacy_type_name'),
             ])
             ->get();
 
         $incoming = DB::table('relation')
             ->leftJoin('ric_relation_meta', 'relation.id', '=', 'ric_relation_meta.relation_id')
-            ->leftJoin('term_i18n', function ($j) {
-                $j->on('relation.type_id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'relation.type_id', $this->culture))
             ->where('relation.object_id', $entityId)
             ->select([
                 'relation.id',
@@ -735,7 +713,7 @@ class RicEntityService
                 'ric_relation_meta.inverse_predicate as rico_predicate',
                 'ric_relation_meta.dropdown_code',
                 'ric_relation_meta.certainty',
-                'term_i18n.name as legacy_type_name',
+                I18nFallback::col('term_i18n', 'name', 'legacy_type_name'),
             ])
             ->get();
 
@@ -771,15 +749,12 @@ class RicEntityService
         $activities = collect();
         if (!empty($relatedIds)) {
             $activities = DB::table('ric_activity')
-                ->leftJoin('ric_activity_i18n', function ($j) {
-                    $j->on('ric_activity.id', '=', 'ric_activity_i18n.id')
-                        ->where('ric_activity_i18n.culture', '=', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'ric_activity_i18n', 'ric_activity.id', $this->culture))
                 ->leftJoin('slug', 'ric_activity.id', '=', 'slug.object_id')
                 ->whereIn('ric_activity.id', $relatedIds)
                 ->select([
                     'ric_activity.id', 'ric_activity.type_id', 'ric_activity.start_date', 'ric_activity.end_date',
-                    'ric_activity_i18n.name', 'ric_activity_i18n.description', 'ric_activity_i18n.date_display',
+                    I18nFallback::col('ric_activity_i18n', 'name', 'name'), I18nFallback::col('ric_activity_i18n', 'description', 'description'), I18nFallback::col('ric_activity_i18n', 'date_display', 'date_display'),
                     'slug.slug',
                 ])
                 ->get();
@@ -787,10 +762,7 @@ class RicEntityService
 
         // Instantiations: linked via record_id OR via relation
         $instantiations = DB::table('ric_instantiation')
-            ->leftJoin('ric_instantiation_i18n', function ($j) {
-                $j->on('ric_instantiation.id', '=', 'ric_instantiation_i18n.id')
-                    ->where('ric_instantiation_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_instantiation_i18n', 'ric_instantiation.id', $this->culture))
             ->leftJoin('slug', 'ric_instantiation.id', '=', 'slug.object_id')
             ->where(function ($q) use ($recordId, $relatedIds) {
                 $q->where('ric_instantiation.record_id', $recordId);
@@ -801,7 +773,7 @@ class RicEntityService
             ->select([
                 'ric_instantiation.id', 'ric_instantiation.carrier_type', 'ric_instantiation.mime_type',
                 'ric_instantiation.extent_value', 'ric_instantiation.extent_unit',
-                'ric_instantiation_i18n.title', 'ric_instantiation_i18n.description',
+                I18nFallback::col('ric_instantiation_i18n', 'title', 'title'), I18nFallback::col('ric_instantiation_i18n', 'description', 'description'),
                 'slug.slug',
             ])
             ->distinct()
@@ -811,15 +783,12 @@ class RicEntityService
         $places = collect();
         if (!empty($relatedIds)) {
             $places = DB::table('ric_place')
-                ->leftJoin('ric_place_i18n', function ($j) {
-                    $j->on('ric_place.id', '=', 'ric_place_i18n.id')
-                        ->where('ric_place_i18n.culture', '=', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'ric_place_i18n', 'ric_place.id', $this->culture))
                 ->leftJoin('slug', 'ric_place.id', '=', 'slug.object_id')
                 ->whereIn('ric_place.id', $relatedIds)
                 ->select([
                     'ric_place.id', 'ric_place.type_id', 'ric_place.latitude', 'ric_place.longitude',
-                    'ric_place_i18n.name', 'ric_place_i18n.description',
+                    I18nFallback::col('ric_place_i18n', 'name', 'name'), I18nFallback::col('ric_place_i18n', 'description', 'description'),
                     'slug.slug',
                 ])
                 ->get();
@@ -829,15 +798,12 @@ class RicEntityService
         $rules = collect();
         if (!empty($relatedIds)) {
             $rules = DB::table('ric_rule')
-                ->leftJoin('ric_rule_i18n', function ($j) {
-                    $j->on('ric_rule.id', '=', 'ric_rule_i18n.id')
-                        ->where('ric_rule_i18n.culture', '=', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'ric_rule_i18n', 'ric_rule.id', $this->culture))
                 ->leftJoin('slug', 'ric_rule.id', '=', 'slug.object_id')
                 ->whereIn('ric_rule.id', $relatedIds)
                 ->select([
                     'ric_rule.id', 'ric_rule.type_id', 'ric_rule.jurisdiction',
-                    'ric_rule_i18n.title', 'ric_rule_i18n.description',
+                    I18nFallback::col('ric_rule_i18n', 'title', 'title'), I18nFallback::col('ric_rule_i18n', 'description', 'description'),
                     'slug.slug',
                 ])
                 ->get();
@@ -964,12 +930,9 @@ class RicEntityService
         if (in_array('place', $types)) {
             $results = $results->merge(
                 DB::table('ric_place')
-                    ->join('ric_place_i18n', function ($j) {
-                        $j->on('ric_place.id', '=', 'ric_place_i18n.id')
-                            ->where('ric_place_i18n.culture', '=', $this->culture);
-                    })
-                    ->where('ric_place_i18n.name', 'like', $q)
-                    ->select(['ric_place.id', 'ric_place_i18n.name as label', DB::raw("'Place' as type")])
+                    ->tap(fn ($q) => I18nFallback::join($q, 'ric_place_i18n', 'ric_place.id', $this->culture, required: true))
+                    ->where(I18nFallback::col('ric_place_i18n', 'name'), 'like', $q)
+                    ->select(['ric_place.id', I18nFallback::col('ric_place_i18n', 'name', 'label'), DB::raw("'Place' as type")])
                     ->limit($limit)
                     ->get()
             );
@@ -978,12 +941,9 @@ class RicEntityService
         if (in_array('rule', $types)) {
             $results = $results->merge(
                 DB::table('ric_rule')
-                    ->join('ric_rule_i18n', function ($j) {
-                        $j->on('ric_rule.id', '=', 'ric_rule_i18n.id')
-                            ->where('ric_rule_i18n.culture', '=', $this->culture);
-                    })
-                    ->where('ric_rule_i18n.title', 'like', $q)
-                    ->select(['ric_rule.id', 'ric_rule_i18n.title as label', DB::raw("'Rule' as type")])
+                    ->tap(fn ($q) => I18nFallback::join($q, 'ric_rule_i18n', 'ric_rule.id', $this->culture, required: true))
+                    ->where(I18nFallback::col('ric_rule_i18n', 'title'), 'like', $q)
+                    ->select(['ric_rule.id', I18nFallback::col('ric_rule_i18n', 'title', 'label'), DB::raw("'Rule' as type")])
                     ->limit($limit)
                     ->get()
             );
@@ -992,12 +952,9 @@ class RicEntityService
         if (in_array('activity', $types)) {
             $results = $results->merge(
                 DB::table('ric_activity')
-                    ->join('ric_activity_i18n', function ($j) {
-                        $j->on('ric_activity.id', '=', 'ric_activity_i18n.id')
-                            ->where('ric_activity_i18n.culture', '=', $this->culture);
-                    })
-                    ->where('ric_activity_i18n.name', 'like', $q)
-                    ->select(['ric_activity.id', 'ric_activity_i18n.name as label', DB::raw("'Activity' as type")])
+                    ->tap(fn ($q) => I18nFallback::join($q, 'ric_activity_i18n', 'ric_activity.id', $this->culture, required: true))
+                    ->where(I18nFallback::col('ric_activity_i18n', 'name'), 'like', $q)
+                    ->select(['ric_activity.id', I18nFallback::col('ric_activity_i18n', 'name', 'label'), DB::raw("'Activity' as type")])
                     ->limit($limit)
                     ->get()
             );
@@ -1006,12 +963,9 @@ class RicEntityService
         if (in_array('instantiation', $types)) {
             $results = $results->merge(
                 DB::table('ric_instantiation')
-                    ->join('ric_instantiation_i18n', function ($j) {
-                        $j->on('ric_instantiation.id', '=', 'ric_instantiation_i18n.id')
-                            ->where('ric_instantiation_i18n.culture', '=', $this->culture);
-                    })
-                    ->where('ric_instantiation_i18n.title', 'like', $q)
-                    ->select(['ric_instantiation.id', 'ric_instantiation_i18n.title as label', DB::raw("'Instantiation' as type")])
+                    ->tap(fn ($q) => I18nFallback::join($q, 'ric_instantiation_i18n', 'ric_instantiation.id', $this->culture, required: true))
+                    ->where(I18nFallback::col('ric_instantiation_i18n', 'title'), 'like', $q)
+                    ->select(['ric_instantiation.id', I18nFallback::col('ric_instantiation_i18n', 'title', 'label'), DB::raw("'Instantiation' as type")])
                     ->limit($limit)
                     ->get()
             );
@@ -1019,16 +973,13 @@ class RicEntityService
 
         if (in_array('actor', $types)) {
             $actorQuery = DB::table('actor')
-                ->join('actor_i18n', function ($j) {
-                    $j->on('actor.id', '=', 'actor_i18n.id')
-                        ->where('actor_i18n.culture', '=', $this->culture);
-                })
-                ->where('actor_i18n.authorized_form_of_name', 'like', $q);
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $this->culture, required: true))
+                ->where(I18nFallback::col('actor_i18n', 'authorized_form_of_name'), 'like', $q);
             // Guests must not see draft / embargoed authority records.
             \AhgCore\Services\AclService::addActorVisibilityCriteria($actorQuery, 'actor.id');
             $results = $results->merge(
                 $actorQuery
-                    ->select(['actor.id', 'actor_i18n.authorized_form_of_name as label', DB::raw("'Agent' as type")])
+                    ->select(['actor.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'label'), DB::raw("'Agent' as type")])
                     ->limit($limit)
                     ->get()
             );
@@ -1036,17 +987,14 @@ class RicEntityService
 
         if (in_array('io', $types)) {
             $ioQuery = DB::table('information_object')
-                ->join('information_object_i18n', function ($j) {
-                    $j->on('information_object.id', '=', 'information_object_i18n.id')
-                        ->where('information_object_i18n.culture', '=', $this->culture);
-                })
-                ->where('information_object_i18n.title', 'like', $q)
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $this->culture))
+                ->where(I18nFallback::col('information_object_i18n', 'title'), 'like', $q)
                 ->where('information_object.id', '!=', 1); // skip root
             // Guests must not see draft (unpublished) descriptions.
             \AhgCore\Services\AclService::addFilterDraftsCriteria($ioQuery, 'information_object.id');
             $results = $results->merge(
                 $ioQuery
-                    ->select(['information_object.id', 'information_object_i18n.title as label', DB::raw("'Record' as type")])
+                    ->select(['information_object.id', I18nFallback::col('information_object_i18n', 'title', 'label'), DB::raw("'Record' as type")])
                     ->limit($limit)
                     ->get()
             );

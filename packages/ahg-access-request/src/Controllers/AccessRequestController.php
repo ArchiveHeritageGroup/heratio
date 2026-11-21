@@ -29,6 +29,7 @@ use AhgAccessRequest\Services\AccessRequestService;
 use AhgCore\Services\AclService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use AhgCore\Support\I18nFallback;
 
 class AccessRequestController extends Controller
 {
@@ -115,13 +116,11 @@ class AccessRequestController extends Controller
                     $j->on('lvl.id', '=', 'io.level_of_description_id')
                         ->where('lvl.culture', '=', $culture);
                 })
-                ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                    $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
                 ->whereIn('lvl.name', self::COLLECTION_LEVELS)
                 ->where('io.id', '>', 1)
-                ->select('io.id', 'i18n.title', 'lvl.name as level_name')
-                ->orderBy('i18n.title')
+                ->select('io.id', I18nFallback::col('i18n', 'title', 'title'), 'lvl.name as level_name')
+                ->orderBy(I18nFallback::col('i18n', 'title'))
                 ->limit(500)
                 ->get()
                 ->filter(fn ($r) => trim((string) $r->title) !== '')

@@ -29,6 +29,7 @@ namespace AhgMetadataExport\Services\Exporters;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class EacFSerializer
 {
@@ -126,10 +127,7 @@ class EacFSerializer
 
             if ($ricActivityIds->isNotEmpty()) {
                 $ricActivities = DB::table('ric_activity')
-                    ->leftJoin('ric_activity_i18n', function ($join) use ($culture) {
-                        $join->on('ric_activity.id', '=', 'ric_activity_i18n.id')
-                            ->where('ric_activity_i18n.culture', '=', $culture);
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'ric_activity_i18n', 'ric_activity.id', $culture))
                     ->whereIn('ric_activity.id', $ricActivityIds->toArray())
                     ->select(
                         'ric_activity.id',
@@ -137,9 +135,9 @@ class EacFSerializer
                         'ric_activity.start_date',
                         'ric_activity.end_date',
                         'ric_activity.place_id',
-                        'ric_activity_i18n.name as activity_name',
-                        'ric_activity_i18n.description as activity_description',
-                        'ric_activity_i18n.date_display'
+                        I18nFallback::col('ric_activity_i18n', 'name', 'activity_name'),
+                        I18nFallback::col('ric_activity_i18n', 'description', 'activity_description'),
+                        I18nFallback::col('ric_activity_i18n', 'date_display', 'date_display')
                     )
                     ->get();
             }

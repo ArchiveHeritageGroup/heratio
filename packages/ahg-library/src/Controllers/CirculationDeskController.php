@@ -33,6 +33,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class CirculationDeskController extends Controller
 {
@@ -124,10 +125,7 @@ class CirculationDeskController extends Controller
         // Attempt to match a copy barcode first.
         $copy = DB::table('library_copy as cp')
             ->leftJoin('library_item as li', 'cp.library_item_id', '=', 'li.id')
-            ->leftJoin('information_object_i18n as i18n', function ($j) use ($request) {
-                $j->on('li.information_object_id', '=', 'i18n.id')
-                  ->where('i18n.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'li.information_object_id', app()->getLocale()))
             ->where('cp.barcode', $barcode)
             ->select(
                 'cp.id as copy_id',
@@ -137,7 +135,7 @@ class CirculationDeskController extends Controller
                 'li.id as item_id',
                 'li.call_number',
                 'li.information_object_id',
-                'i18n.title',
+                I18nFallback::col('i18n', 'title', 'title'),
             )
             ->first();
 
@@ -431,14 +429,11 @@ class CirculationDeskController extends Controller
         return DB::table('library_checkout as c')
             ->leftJoin('library_copy as cp', 'c.copy_id', '=', 'cp.id')
             ->leftJoin('library_item as li', 'cp.library_item_id', '=', 'li.id')
-            ->leftJoin('information_object_i18n as i18n', function ($j) {
-                $j->on('li.information_object_id', '=', 'i18n.id')
-                  ->where('i18n.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'li.information_object_id', app()->getLocale()))
             ->where('c.patron_id', $patronId)
             ->where('c.status', 'returned')
             ->select('c.id', 'c.checkout_date', 'c.due_date', 'c.return_date',
-                     'cp.barcode', 'li.call_number', 'i18n.title')
+                     'cp.barcode', 'li.call_number', I18nFallback::col('i18n', 'title', 'title'))
             ->orderByDesc('c.checkout_date')
             ->limit(100)
             ->get()

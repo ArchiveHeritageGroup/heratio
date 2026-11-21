@@ -29,6 +29,9 @@
       // Same rule as TreeviewService::getChildren: these three sort; anything else is the manual order.
       && ! in_array(\AhgCore\Support\GlobalSettings::sortTreeviewInformationObject(), ['alphabetic', 'title', 'identifier'], true)
       && \AhgCore\Services\AclService::check($io, 'update');
+  // Moving to another parent (the "Move..." picker, or dropping onto a node)
+  // does not depend on the sort, only on update permission. Visitors never see it.
+  $__canMove = auth()->check() && \AhgCore\Services\AclService::check($io, 'update');
 @endphp
 
 @switch($__treeviewType)
@@ -181,7 +184,11 @@
   #treeview-tree .tv-dragging { opacity: .5; }
   #treeview-tree .tv-drop-before { box-shadow: inset 0 2px 0 var(--bs-primary, #0d6efd); }
   #treeview-tree .tv-drop-after { box-shadow: inset 0 -2px 0 var(--bs-primary, #0d6efd); }
+  #treeview-tree .tv-drop-into { outline: 2px dashed var(--bs-primary, #0d6efd); outline-offset: -2px; }
 </style>
+@if($__canMove)
+  @include('ahg-io-manage::partials._tree-move-script')
+@endif
 
 <script nonce="{{ csp_nonce() }}">
 document.addEventListener('DOMContentLoaded', function() {
@@ -195,16 +202,18 @@ document.addEventListener('DOMContentLoaded', function() {
   // heratio#1582: sibling reorder for editors (drag-and-drop, plus up/down
   // buttons as the non-drag way required by WCAG 2.2 SC 2.5.7).
   var canReorder = {{ $__canReorder ? 'true' : 'false' }};
+  var canMove = {{ $__canMove ? 'true' : 'false' }} && !!window.AhgTreeMove;
   var sortUrl = '{{ route("io.treeviewSort") }}';
   var tvText = {!! json_encode([
       'up' => __('Move up'),
       'down' => __('Move down'),
+      'moveTo' => __('Move...'),
       'moved' => __('Moved.'),
       'failed' => __('Could not move this description.'),
   ]) !!};
   var status = null;
   var dragged = null;
-  if (canReorder) {
+  if (canReorder || canMove) {
     tree.classList.add('tv-reorderable');
     status = document.createElement('div');
     status.className = 'small text-muted mt-1';
@@ -336,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function() {
       ' <a href="' + showUrl + node.slug + '" class="text-decoration-none">' +
       escapeHtml(titleText) + '</a></span>';
 
-    if (canReorder) {
+    if (canReorder || canMove) {
       makeReorderable(li, titleText);
     }
 
@@ -474,7 +483,7 @@ document.addEventListener('DOMContentLoaded', function() {
     span.draggable = true;
     li.dataset.id = span.dataset.id;
 
-    ['up', 'down'].forEach(function (dir) {
+    (canReorder ? ['up', 'down'] : []).forEach(function (dir) {
       var b = document.createElement('button');
       b.type = 'button';
       b.className = 'tv-move';
@@ -492,6 +501,23 @@ document.addEventListener('DOMContentLoaded', function() {
       span.appendChild(b);
     });
 
+    // heratio#1582: "Move..." to another parent, the non-drag way (WCAG 2.2 SC 2.5.7).
+    if (canMove) {
+      var mv = document.createElement('button');
+      mv.type = 'button';
+      mv.className = 'tv-move tv-move-to';
+      mv.title = tvText.moveTo;
+      mv.setAttribute('aria-label', tvText.moveTo + ' ' + titleText);
+      mv.setAttribute('aria-haspopup', 'dialog');
+      mv.innerHTML = '<i class="fas fa-share" aria-hidden="true"></i>';
+      mv.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.AhgTreeMove.open({ id: li.dataset.id, title: titleText }, afterMove);
+      });
+      span.appendChild(mv);
+    }
+
     span.addEventListener('dragstart', function (e) {
       e.stopPropagation();
       dragged = li;
@@ -504,31 +530,51 @@ document.addEventListener('DOMContentLoaded', function() {
       dragged = null;
       clearDropMarks();
     });
+    // The top and bottom quarter of a row reorder among siblings; the middle
+    // drops the record into this node as its last child (another parent).
+    function dropZone(e) {
+      if (!dragged || dragged === li || dragged.contains(li)) { return null; }
+      var r = span.getBoundingClientRect();
+      var y = (e.clientY - r.top) / (r.height || 1);
+      var sibling = dragged.parentElement === li.parentElement;
+      if (canMove && (!sibling || !canReorder || (y > 0.25 && y < 0.75))) { return 'into'; }
+      if (sibling && canReorder) { return y < 0.5 ? 'before' : 'after'; }
+      return null;
+    }
     span.addEventListener('dragover', function (e) {
-      if (!dragged || dragged === li || dragged.parentElement !== li.parentElement) { return; }
+      var zone = dropZone(e);
+      if (!zone) { return; }
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
-      var r = span.getBoundingClientRect();
-      var before = e.clientY < r.top + r.height / 2;
       clearDropMarks();
-      span.classList.add(before ? 'tv-drop-before' : 'tv-drop-after');
+      span.classList.add('tv-drop-' + zone);
     });
     span.addEventListener('dragleave', function () {
-      span.classList.remove('tv-drop-before', 'tv-drop-after');
+      span.classList.remove('tv-drop-before', 'tv-drop-after', 'tv-drop-into');
     });
     span.addEventListener('drop', function (e) {
-      if (!dragged || dragged === li || dragged.parentElement !== li.parentElement) { return; }
+      var zone = dropZone(e);
+      if (!zone) { return; }
       e.preventDefault();
-      var before = span.classList.contains('tv-drop-before');
       clearDropMarks();
-      moveNode(dragged, li, before ? 'before' : 'after', null);
+      if (zone === 'into') {
+        window.AhgTreeMove.move({ id: dragged.dataset.id, new_parent_id: li.dataset.id }, afterMove);
+        return;
+      }
+      moveNode(dragged, li, zone, null);
     });
   }
 
   function clearDropMarks() {
-    tree.querySelectorAll('.tv-drop-before, .tv-drop-after').forEach(function (el) {
-      el.classList.remove('tv-drop-before', 'tv-drop-after');
+    tree.querySelectorAll('.tv-drop-before, .tv-drop-after, .tv-drop-into').forEach(function (el) {
+      el.classList.remove('tv-drop-before', 'tv-drop-after', 'tv-drop-into');
     });
+  }
+
+  // After a move to another parent (or its undo) the tree is redrawn from the
+  // server: the record may now sit anywhere in the hierarchy.
+  function afterMove(res) {
+    if (res && res.ok !== false) { loadTreeview(); }
   }
 
   // The first sibling cannot move up and the last cannot move down.
@@ -575,7 +621,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Lists are filled by several loaders (initial render, expand, load more,
   // load siblings); one observer keeps every list's buttons right.
-  if (canReorder && window.MutationObserver) {
+  if ((canReorder || canMove) && window.MutationObserver) {
     new MutationObserver(function (muts) {
       var seen = [];
       muts.forEach(function (m) {

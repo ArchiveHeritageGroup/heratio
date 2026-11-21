@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class DisposalController extends Controller
 {
@@ -57,12 +58,9 @@ class DisposalController extends Controller
         $culture = app()->getLocale();
 
         $io = DB::table('information_object')
-            ->leftJoin('information_object_i18n', function ($join) use ($culture) {
-                $join->on('information_object.id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
             ->where('information_object.id', $ioId)
-            ->select('information_object.id', 'information_object_i18n.title')
+            ->select('information_object.id', I18nFallback::col('information_object_i18n', 'title', 'title'))
             ->first();
 
         if (! $io) {
@@ -297,10 +295,7 @@ class DisposalController extends Controller
         if (! $request->input('status')) {
             $culture = app()->getLocale();
             $query = DB::table('rm_disposal_action as da')
-                ->leftJoin('information_object_i18n as io_i18n', function ($join) use ($culture) {
-                    $join->on('da.information_object_id', '=', 'io_i18n.id')
-                        ->where('io_i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as io_i18n', 'da.information_object_id', $culture))
                 ->leftJoin('user as init_user', 'da.initiated_by', '=', 'init_user.id')
                 ->leftJoin('actor_i18n as init_actor', function ($join) {
                     $join->on('init_user.id', '=', 'init_actor.id')
@@ -311,7 +306,7 @@ class DisposalController extends Controller
             $total = $query->count();
             $items = $query->select([
                 'da.*',
-                'io_i18n.title as io_title',
+                I18nFallback::col('io_i18n', 'title', 'io_title'),
                 'init_actor.authorized_form_of_name as initiated_by_name',
             ])
                 ->orderBy('da.updated_at', 'desc')

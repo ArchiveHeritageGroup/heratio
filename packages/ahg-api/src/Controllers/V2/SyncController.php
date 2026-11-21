@@ -5,6 +5,7 @@ namespace AhgApi\Controllers\V2;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class SyncController extends BaseApiController
 {
@@ -30,12 +31,11 @@ class SyncController extends BaseApiController
         if (in_array('informationobject', $types)) {
             $ioChanges = DB::table('information_object as io')
                 ->join('object', 'io.id', '=', 'object.id')
-                ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
                 ->join('slug', 'io.id', '=', 'slug.object_id')
-                ->where('ioi.culture', $this->culture)
                 ->where('io.id', '!=', 1)
                 ->where('object.updated_at', '>=', $since)
-                ->select('io.id', 'slug.slug', 'ioi.title', 'io.identifier',
+                ->select('io.id', 'slug.slug', I18nFallback::col('ioi', 'title', 'title'), 'io.identifier',
                     'object.created_at', 'object.updated_at')
                 ->orderBy('object.updated_at')
                 ->limit($limit)
@@ -56,13 +56,12 @@ class SyncController extends BaseApiController
         if (in_array('actor', $types)) {
             $actorChanges = DB::table('actor')
                 ->join('object', 'actor.id', '=', 'object.id')
-                ->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $this->culture, required: true))
                 ->join('slug', 'actor.id', '=', 'slug.object_id')
-                ->where('actor_i18n.culture', $this->culture)
                 ->where('object.class_name', 'QubitActor')
                 ->where('actor.parent_id', '!=', 0)
                 ->where('object.updated_at', '>=', $since)
-                ->select('actor.id', 'slug.slug', 'actor_i18n.authorized_form_of_name as name',
+                ->select('actor.id', 'slug.slug', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'),
                     'object.created_at', 'object.updated_at')
                 ->orderBy('object.updated_at')
                 ->limit($limit)

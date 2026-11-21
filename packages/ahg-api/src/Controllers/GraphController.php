@@ -57,6 +57,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
+use AhgCore\Support\I18nFallback;
 
 class GraphController extends Controller
 {
@@ -365,14 +366,12 @@ class GraphController extends Controller
                     ->where('st.status_id', '=', self::STATUS_PUBLISHED);
             })
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
-            ->leftJoin('information_object_i18n as i18n', function ($j) {
-                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $this->culture))
             ->where('io.id', '>', $after)
             ->where('io.id', '!=', 1) // exclude synthetic root
             ->orderBy('io.id')
             ->limit($size + 1) // one extra row to detect a next page
-            ->select('io.id', 'io.level_of_description_id', 's.slug', 'i18n.title')
+            ->select('io.id', 'io.level_of_description_id', 's.slug', I18nFallback::col('i18n', 'title', 'title'))
             ->get();
 
         $hasMore = $rows->count() > $size;
@@ -821,9 +820,7 @@ class GraphController extends Controller
     protected function loadNode(int $objectId): ?array
     {
         $row = DB::table('information_object as io')
-            ->join('information_object_i18n as i18n', function ($j) {
-                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $this->culture))
             ->join('object as o', 'io.id', '=', 'o.id')
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
             ->leftJoin('status as st', function ($j) {
@@ -837,8 +834,8 @@ class GraphController extends Controller
                 'io.identifier',
                 'io.level_of_description_id',
                 'io.repository_id',
-                'i18n.title',
-                'i18n.scope_and_content',
+                I18nFallback::col('i18n', 'title', 'title'),
+                I18nFallback::col('i18n', 'scope_and_content', 'scope_and_content'),
                 's.slug',
                 'st.status_id',
                 'o.updated_at'

@@ -28,6 +28,7 @@ namespace AhgTermTaxonomy\Services;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use AhgCore\Support\I18nFallback;
 
 class TermService
 {
@@ -251,11 +252,10 @@ class TermService
     public function getScopeNote(int $termId, string $culture): ?object
     {
         return DB::table('note')
-            ->join('note_i18n', 'note.id', '=', 'note_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'note_i18n', 'note.id', $culture, required: true))
             ->where('note.object_id', $termId)
             ->where('note.type_id', self::SCOPE_NOTE_TYPE_ID)
-            ->where('note_i18n.culture', $culture)
-            ->select('note.id', 'note_i18n.content')
+            ->select('note.id', I18nFallback::col('note_i18n', 'content', 'content'))
             ->first();
     }
 
@@ -275,14 +275,13 @@ class TermService
     public function getTaxonomies(string $culture): \Illuminate\Support\Collection
     {
         return DB::table('taxonomy')
-            ->join('taxonomy_i18n', 'taxonomy.id', '=', 'taxonomy_i18n.id')
-            ->where('taxonomy_i18n.culture', $culture)
+            ->tap(fn ($q) => I18nFallback::join($q, 'taxonomy_i18n', 'taxonomy.id', $culture, required: true))
             ->select([
                 'taxonomy.id',
-                'taxonomy_i18n.name as name',
-                'taxonomy_i18n.note as note',
+                I18nFallback::col('taxonomy_i18n', 'name', 'name'),
+                I18nFallback::col('taxonomy_i18n', 'note', 'note'),
             ])
-            ->orderBy('taxonomy_i18n.name', 'asc')
+            ->orderBy(I18nFallback::col('taxonomy_i18n', 'name'), 'asc')
             ->get();
     }
 
@@ -292,16 +291,15 @@ class TermService
     public function getTermsForTaxonomy(int $taxonomyId, string $culture): \Illuminate\Support\Collection
     {
         return DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
             ->join('slug', 'term.id', '=', 'slug.object_id')
             ->where('term.taxonomy_id', $taxonomyId)
-            ->where('term_i18n.culture', $culture)
             ->select([
                 'term.id',
-                'term_i18n.name',
+                I18nFallback::col('term_i18n', 'name', 'name'),
                 'slug.slug',
             ])
-            ->orderBy('term_i18n.name', 'asc')
+            ->orderBy(I18nFallback::col('term_i18n', 'name'), 'asc')
             ->get();
     }
 

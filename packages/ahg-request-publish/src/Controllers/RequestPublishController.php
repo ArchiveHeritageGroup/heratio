@@ -31,6 +31,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class RequestPublishController extends Controller
 {
@@ -78,34 +79,22 @@ class RequestPublishController extends Controller
 
         // Status counts
         $allCount = DB::table('request_to_publish as rtp')
-            ->join('request_to_publish_i18n as i18n', function ($j) use ($culture) {
-                $j->on('rtp.id', '=', 'i18n.id')
-                    ->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'request_to_publish_i18n as i18n', 'rtp.id', $culture, required: true))
             ->count();
 
         $pendingCount = DB::table('request_to_publish as rtp')
-            ->join('request_to_publish_i18n as i18n', function ($j) use ($culture) {
-                $j->on('rtp.id', '=', 'i18n.id')
-                    ->where('i18n.culture', '=', $culture);
-            })
-            ->where('i18n.status_id', self::STATUS_PENDING)
+            ->tap(fn ($q) => I18nFallback::join($q, 'request_to_publish_i18n as i18n', 'rtp.id', $culture, required: true))
+            ->where(I18nFallback::col('i18n', 'status_id'), self::STATUS_PENDING)
             ->count();
 
         $approvedCount = DB::table('request_to_publish as rtp')
-            ->join('request_to_publish_i18n as i18n', function ($j) use ($culture) {
-                $j->on('rtp.id', '=', 'i18n.id')
-                    ->where('i18n.culture', '=', $culture);
-            })
-            ->where('i18n.status_id', self::STATUS_APPROVED)
+            ->tap(fn ($q) => I18nFallback::join($q, 'request_to_publish_i18n as i18n', 'rtp.id', $culture, required: true))
+            ->where(I18nFallback::col('i18n', 'status_id'), self::STATUS_APPROVED)
             ->count();
 
         $rejectedCount = DB::table('request_to_publish as rtp')
-            ->join('request_to_publish_i18n as i18n', function ($j) use ($culture) {
-                $j->on('rtp.id', '=', 'i18n.id')
-                    ->where('i18n.culture', '=', $culture);
-            })
-            ->where('i18n.status_id', self::STATUS_REJECTED)
+            ->tap(fn ($q) => I18nFallback::join($q, 'request_to_publish_i18n as i18n', 'rtp.id', $culture, required: true))
+            ->where(I18nFallback::col('i18n', 'status_id'), self::STATUS_REJECTED)
             ->count();
 
         // Build main query

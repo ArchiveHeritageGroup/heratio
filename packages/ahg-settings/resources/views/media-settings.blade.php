@@ -293,6 +293,48 @@
       </div>
     </div>
 
+    {{-- heratio#1743 live streaming. These keys live in the media group, so they must stay on this form: saving it writes every key of the group. --}}
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-tower-broadcast me-2"></i>{{ __('Live streaming') }}</h5>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label" for="live_ingest_host">{{ __('Ingest host') }}</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" id="live_ingest_host" name="settings[live_ingest_host]" maxlength="255" value="{{ $settings['live_ingest_host'] ?? '' }}">
+            <div class="form-text">{{ __('The host name or address encoders send live streams to. Empty = the host in the site address.') }}</div>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label" for="live_ingest_port">{{ __('Ingest port (RTMP)') }}</label>
+          <div class="col-sm-9">
+            <input type="number" class="form-control" id="live_ingest_port" name="settings[live_ingest_port]" min="1" max="65535" value="{{ $settings['live_ingest_port'] ?? '1935' }}">
+            <div class="form-text">{{ __('One live event at a time per port. The firewall must allow this port from the encoder\'s network.') }}</div>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label" for="live_wait_minutes">{{ __('Wait for the encoder (minutes)') }}</label>
+          <div class="col-sm-9">
+            <input type="number" class="form-control" id="live_wait_minutes" name="settings[live_wait_minutes]" min="1" max="1440" value="{{ $settings['live_wait_minutes'] ?? '60' }}">
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label" for="live_max_hours">{{ __('Longest event (hours)') }}</label>
+          <div class="col-sm-9">
+            <input type="number" class="form-control" id="live_max_hours" name="settings[live_max_hours]" min="1" max="12" value="{{ $settings['live_max_hours'] ?? '8' }}">
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-3 col-form-label" for="live_queue">{{ __('Worker queue') }}</label>
+          <div class="col-sm-9">
+            <input type="text" class="form-control" id="live_queue" name="settings[live_queue]" maxlength="50" value="{{ $settings['live_queue'] ?? 'live' }}">
+            <div class="form-text">{{ __('The ingest job runs for the whole event, so this queue needs its own long-running worker.') }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="d-flex justify-content-between align-items-center">
       <a href="{{ route('settings.index') }}" class="btn btn-link text-secondary">
         <i class="fas fa-arrow-left me-1"></i>{{ __('Back to Settings') }}

@@ -32,6 +32,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class ResearcherSubmissionController extends Controller
 {
@@ -62,10 +63,7 @@ class ResearcherSubmissionController extends Controller
 
         $recentQuery = DB::table('researcher_submission')
             ->leftJoin('user', 'researcher_submission.user_id', '=', 'user.id')
-            ->leftJoin('actor_i18n', function ($join) use ($culture) {
-                $join->on('user.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'user.id', $culture))
             ->select([
                 'researcher_submission.id',
                 'researcher_submission.title',
@@ -74,7 +72,7 @@ class ResearcherSubmissionController extends Controller
                 'researcher_submission.total_items',
                 'researcher_submission.total_files',
                 'researcher_submission.updated_at',
-                'actor_i18n.authorized_form_of_name as user_name',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'user_name'),
                 'user.username',
             ])
             ->orderBy('researcher_submission.updated_at', 'desc')
@@ -122,10 +120,7 @@ class ResearcherSubmissionController extends Controller
 
         $query = DB::table('researcher_submission')
             ->leftJoin('user', 'researcher_submission.user_id', '=', 'user.id')
-            ->leftJoin('actor_i18n', function ($join) {
-                $join->on('user.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', app()->getLocale());
-            });
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'user.id', app()->getLocale()));
 
         if (! $isAdmin) {
             $query->where('researcher_submission.user_id', $user->id);
@@ -146,7 +141,7 @@ class ResearcherSubmissionController extends Controller
             'researcher_submission.total_files',
             'researcher_submission.created_at',
             'researcher_submission.updated_at',
-            'actor_i18n.authorized_form_of_name as researcher_name',
+            I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'researcher_name'),
             'user.username',
         ])
             ->orderBy('researcher_submission.updated_at', 'desc')
@@ -182,10 +177,7 @@ class ResearcherSubmissionController extends Controller
 
         $query = DB::table('researcher_submission')
             ->leftJoin('user', 'researcher_submission.user_id', '=', 'user.id')
-            ->leftJoin('actor_i18n', function ($join) {
-                $join->on('user.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'user.id', app()->getLocale()))
             ->whereIn('researcher_submission.status', ['submitted', 'under_review']);
 
         if (! $isAdmin) {
@@ -203,7 +195,7 @@ class ResearcherSubmissionController extends Controller
             'researcher_submission.total_files',
             'researcher_submission.created_at',
             'researcher_submission.updated_at',
-            'actor_i18n.authorized_form_of_name as researcher_name',
+            I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'researcher_name'),
             'user.username',
         ])
             ->orderBy('researcher_submission.updated_at', 'desc')
@@ -235,12 +227,9 @@ class ResearcherSubmissionController extends Controller
         $culture = app()->getLocale();
 
         $repositories = DB::table('repository')
-            ->join('actor_i18n', function ($join) use ($culture) {
-                $join->on('repository.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
-            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
-            ->orderBy('actor_i18n.authorized_form_of_name', 'asc')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture, required: true))
+            ->select('repository.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'))
+            ->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'), 'asc')
             ->get();
 
         return view('ahg-researcher-manage::new-submission', [
@@ -420,11 +409,9 @@ class ResearcherSubmissionController extends Controller
     {
         try {
             return DB::table('research_annotation as a')
-                ->leftJoin('information_object_i18n as io', function ($j) {
-                    $j->on('a.object_id', '=', 'io.id')->where('io.culture', '=', app()->getLocale());
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as io', 'a.object_id', app()->getLocale()))
                 ->where('a.researcher_id', $researcherId)
-                ->select('a.*', 'io.title as object_title')
+                ->select('a.*', I18nFallback::col('io', 'title', 'object_title'))
                 ->orderBy('a.created_at', 'desc')
                 ->limit($limit)
                 ->get()

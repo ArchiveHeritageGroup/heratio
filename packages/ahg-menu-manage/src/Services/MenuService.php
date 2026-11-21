@@ -27,6 +27,7 @@ namespace AhgMenuManage\Services;
 
 use AhgCore\Services\HierarchyQueryService;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Menu CRUD Service
@@ -74,10 +75,7 @@ class MenuService
     public function getTree(): array
     {
         $query = DB::table('menu as m')
-            ->leftJoin('menu_i18n as mi', function ($join) {
-                $join->on('m.id', '=', 'mi.id')
-                    ->where('mi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'menu_i18n as mi', 'm.id', $this->culture))
             ->select(
                 'm.id',
                 'm.parent_id',
@@ -86,8 +84,8 @@ class MenuService
                 'm.lft',
                 'm.rgt',
                 'm.source_culture',
-                'mi.label',
-                'mi.description'
+                I18nFallback::col('mi', 'label', 'label'),
+                I18nFallback::col('mi', 'description', 'description')
             );
         $hierarchy = app(HierarchyQueryService::class);
         $hierarchy->applySiblingOrder($query, 'menu', 'm.id', 'm.lft');
@@ -120,10 +118,7 @@ class MenuService
     public function getById(int $id): ?array
     {
         $menu = DB::table('menu as m')
-            ->leftJoin('menu_i18n as mi', function ($join) {
-                $join->on('m.id', '=', 'mi.id')
-                    ->where('mi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'menu_i18n as mi', 'm.id', $this->culture))
             ->where('m.id', $id)
             ->select(
                 'm.id',
@@ -136,8 +131,8 @@ class MenuService
                 'm.serial_number',
                 'm.created_at',
                 'm.updated_at',
-                'mi.label',
-                'mi.description'
+                I18nFallback::col('mi', 'label', 'label'),
+                I18nFallback::col('mi', 'description', 'description')
             )
             ->first();
 

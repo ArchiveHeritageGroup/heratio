@@ -81,6 +81,14 @@ return [
     // /media-streaming/hls-key route, never as static files.
     'media_keys_path' => env('HERATIO_MEDIA_KEYS_PATH', storage_path('app/media-keys')),
 
+    // Live streams (heratio#1743): the rolling HLS segments and the full
+    // recording of each live event while it runs. Keep it OUTSIDE the uploads
+    // path and every folder the web server serves - segments are handed out
+    // only by the access-checked /media-streaming/live route. When the event
+    // ends the recording becomes the record's digital object (in the uploads
+    // path, the normal way) and the event folder is removed.
+    'live_path' => env('HERATIO_LIVE_PATH', storage_path('app/live')),
+
     // OAIS package storage — where SIP/AIP/DIP bundles are assembled and
     // exported to. Sessions can override via ingest_session.output_*_path.
     'packages_path' => env('HERATIO_PACKAGES_PATH', env('HERATIO_STORAGE_PATH', base_path('uploads')).'/packages'),

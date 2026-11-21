@@ -13,6 +13,7 @@ namespace AhgArchivematica\Services;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Kicks off an Archivematica transfer for a Heratio information_object and
@@ -266,12 +267,9 @@ class TransferService
         // information_object (DipMatcher's identifier strategy). Without it the
         // DIP round-trips but cannot be linked to its source record.
         $ioRow = DB::table('information_object')
-            ->leftJoin('information_object_i18n', function ($j) {
-                $j->on('information_object.id', '=', 'information_object_i18n.id')
-                  ->where('information_object_i18n.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', app()->getLocale()))
             ->where('information_object.id', $objectId)
-            ->select('information_object.identifier', 'information_object_i18n.title')
+            ->select('information_object.identifier', I18nFallback::col('information_object_i18n', 'title', 'title'))
             ->first();
         $ident = (string) ($ioRow->identifier ?? '');
         if ($ident !== '') {

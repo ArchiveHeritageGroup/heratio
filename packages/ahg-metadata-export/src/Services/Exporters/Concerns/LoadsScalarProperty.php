@@ -8,6 +8,7 @@
 namespace AhgMetadataExport\Services\Exporters\Concerns;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Load a scalar property value (unserialising a stored string/array to text).
@@ -19,11 +20,10 @@ trait LoadsScalarProperty
     private function loadProperty(int $ioId, string $name, string $culture): string
     {
         $raw = DB::table('property')
-            ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'property_i18n', 'property.id', $culture, required: true))
             ->where('property.object_id', $ioId)
             ->where('property.name', $name)
-            ->where('property_i18n.culture', $culture)
-            ->value('property_i18n.value');
+            ->value(I18nFallback::col('property_i18n', 'value', 'value'));
         if (! $raw) {
             return '';
         }

@@ -30,6 +30,7 @@ namespace AhgIiifCollection\Services;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use AhgCore\Services\HierarchyQueryService;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Service for managing IIIF Collections (manifest groupings).
@@ -115,16 +116,13 @@ class IiifCollectionService
     {
         return DB::table('iiif_collection_item as ci')
             ->leftJoin('information_object as io', 'ci.object_id', '=', 'io.id')
-            ->leftJoin('information_object_i18n as i18n', function ($join) {
-                $join->on('io.id', '=', 'i18n.id')
-                    ->where('i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $this->culture))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->where('ci.collection_id', $collectionId)
             ->select(
                 'ci.*',
                 'io.identifier',
-                'i18n.title as object_title',
+                I18nFallback::col('i18n', 'title', 'object_title'),
                 'slug.slug'
             )
             ->orderBy('ci.sort_order')
@@ -427,18 +425,15 @@ class IiifCollectionService
     public function searchObjects(string $query): array
     {
         return DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as i18n', function ($join) {
-                $join->on('io.id', '=', 'i18n.id')
-                    ->where('i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $this->culture))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->leftJoin('digital_object as do', 'io.id', '=', 'do.object_id')
             ->where(function ($q) use ($query) {
-                $q->where('i18n.title', 'LIKE', "%{$query}%")
+                $q->where(I18nFallback::col('i18n', 'title'), 'LIKE', "%{$query}%")
                     ->orWhere('io.identifier', 'LIKE', "%{$query}%");
             })
             ->whereNotNull('do.id')
-            ->select('io.id', 'io.identifier', 'i18n.title', 'slug.slug')
+            ->select('io.id', 'io.identifier', I18nFallback::col('i18n', 'title', 'title'), 'slug.slug')
             ->limit(50)
             ->get()
             ->all();
@@ -456,17 +451,14 @@ class IiifCollectionService
         }
 
         $objects = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as i18n', function ($join) {
-                $join->on('io.id', '=', 'i18n.id')
-                    ->where('i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $this->culture))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->leftJoin('digital_object as do', 'io.id', '=', 'do.object_id')
             ->where(function ($q) use ($query) {
-                $q->where('i18n.title', 'LIKE', "%{$query}%")
+                $q->where(I18nFallback::col('i18n', 'title'), 'LIKE', "%{$query}%")
                     ->orWhere('io.identifier', 'LIKE', "%{$query}%");
             })
-            ->select('io.id', 'io.identifier', 'i18n.title', 'slug.slug', 'io.lft', 'io.rgt', 'do.id as has_digital')
+            ->select('io.id', 'io.identifier', I18nFallback::col('i18n', 'title', 'title'), 'slug.slug', 'io.lft', 'io.rgt', 'do.id as has_digital')
             ->orderByRaw('`do`.id IS NOT NULL DESC')
             ->limit(30)
             ->get();
@@ -1124,10 +1116,7 @@ class IiifCollectionService
     private function loadObjectAndDigitalObjects(string $slug): ?array
     {
         $object = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as i18n', function ($join) {
-                $join->on('io.id', '=', 'i18n.id')
-                    ->where('i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $this->culture))
             ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
             ->where('s.slug', $slug)
             // Only records the viewer may read: published and not restricted
@@ -1138,8 +1127,8 @@ class IiifCollectionService
             ->select(
                 'io.id',
                 'io.identifier',
-                'i18n.title',
-                'i18n.reproduction_conditions',
+                I18nFallback::col('i18n', 'title', 'title'),
+                I18nFallback::col('i18n', 'reproduction_conditions', 'reproduction_conditions'),
                 's.slug'
             )
             ->first();

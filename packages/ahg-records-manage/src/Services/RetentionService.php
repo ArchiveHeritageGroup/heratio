@@ -5,6 +5,7 @@ namespace AhgRecordsManage\Services;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class RetentionService
 {
@@ -148,10 +149,7 @@ class RetentionService
         $culture = app()->getLocale();
 
         $query = DB::table('integrity_disposition_queue as dq')
-            ->leftJoin('information_object_i18n as io_i18n', function ($join) use ($culture) {
-                $join->on('dq.information_object_id', '=', 'io_i18n.id')
-                    ->where('io_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as io_i18n', 'dq.information_object_id', $culture))
             ->leftJoin('integrity_retention_policy as rp', 'dq.policy_id', '=', 'rp.id');
 
         if ($policyId) {
@@ -162,7 +160,7 @@ class RetentionService
 
         $data = $query->select([
             'dq.*',
-            'io_i18n.title as io_title',
+            I18nFallback::col('io_i18n', 'title', 'io_title'),
             'rp.name as policy_name',
         ])
             ->orderBy('dq.eligible_at', 'desc')
@@ -223,16 +221,13 @@ class RetentionService
         $culture = app()->getLocale();
 
         $query = DB::table('retention_trigger_event as rte')
-            ->leftJoin('information_object_i18n as io_i18n', function ($join) use ($culture) {
-                $join->on('rte.information_object_id', '=', 'io_i18n.id')
-                    ->where('io_i18n.culture', '=', $culture);
-            });
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as io_i18n', 'rte.information_object_id', $culture));
 
         $total = $query->count();
 
         $data = $query->select([
             'rte.*',
-            'io_i18n.title as io_title',
+            I18nFallback::col('io_i18n', 'title', 'io_title'),
         ])
             ->orderBy('rte.event_date', 'desc')
             ->offset(($page - 1) * $perPage)

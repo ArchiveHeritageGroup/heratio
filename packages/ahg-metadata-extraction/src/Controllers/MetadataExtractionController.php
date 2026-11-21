@@ -29,6 +29,7 @@ use AhgMetadataExtraction\Services\MetadataExtractionService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Metadata Extraction Controller.
@@ -73,10 +74,7 @@ class MetadataExtractionController extends Controller
         // Build digital objects query
         $query = DB::table('digital_object as do')
             ->join('information_object as io', 'do.object_id', '=', 'io.id')
-            ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
-                $join->on('io.id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->select(
                 'do.id',
                 'do.name',
@@ -84,7 +82,7 @@ class MetadataExtractionController extends Controller
                 'do.mime_type',
                 'do.byte_size',
                 'do.object_id',
-                'ioi.title as record_title'
+                I18nFallback::col('ioi', 'title', 'record_title')
             )
             ->whereNotNull('do.path');
 
@@ -153,10 +151,7 @@ class MetadataExtractionController extends Controller
 
         $digitalObject = DB::table('digital_object as do')
             ->join('information_object as io', 'do.object_id', '=', 'io.id')
-            ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
-                $join->on('io.id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->where('do.id', $id)
             ->select(
                 'do.id',
@@ -165,7 +160,7 @@ class MetadataExtractionController extends Controller
                 'do.mime_type',
                 'do.byte_size',
                 'do.object_id',
-                'ioi.title as record_title',
+                I18nFallback::col('ioi', 'title', 'record_title'),
                 'io.slug'
             )
             ->first();

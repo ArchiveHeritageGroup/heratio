@@ -142,24 +142,25 @@ class TreeviewController extends Controller
             return response()->json(['error' => 'Missing or invalid parameters: id, target, position'], 400);
         }
 
-        // The route's acl:update is a global permission; reordering rewrites this
-        // record's place in the hierarchy, so check update on the record itself too.
-        $node = \Illuminate\Support\Facades\DB::table('information_object')->where('id', $id)->first();
-        if (!$node || !\AhgCore\Services\AclService::check($node, 'update')) {
-            return response()->json(['error' => 'Insufficient permissions'], 403);
+        // heratio#1582: one move for every tree surface. The sibling becomes a
+        // position under the shared parent; TreeMoveService checks update on
+        // the record and its parent, and orders records without nested-set
+        // bounds by sibling order (the lft shift alone could not).
+        $node = \Illuminate\Support\Facades\DB::table('information_object')->where('id', $id)->first(['id', 'parent_id']);
+        $after = \Illuminate\Support\Facades\DB::table('information_object')->where('id', $target)->first(['id', 'parent_id']);
+        if (!$node || !$after || (int) $node->parent_id !== (int) $after->parent_id || $id === $target) {
+            return response()->json(['error' => 'Move failed. Nodes must be siblings.'], 422);
         }
 
-        $culture = app()->getLocale();
-        $service = new TreeviewService($culture);
+        $moves = app(\AhgInformationObjectManage\Services\TreeMoveService::class);
+        $others = array_values(array_diff($moves->childIds((int) $node->parent_id), [$id]));
+        $index = (int) array_search($target, $others, true) + ($position === 'after' ? 1 : 0);
+        $result = $moves->move($id, (int) $node->parent_id, $index, false, \Illuminate\Support\Facades\Auth::id());
 
-        $success = $position === 'before'
-            ? $service->moveBefore($id, $target)
-            : $service->moveAfter($id, $target);
-
-        if ($success) {
-            return response()->json(['success' => true]);
+        if ($result['ok']) {
+            return response()->json(['success' => true] + $result);
         }
 
-        return response()->json(['error' => 'Move failed. Nodes must be siblings.'], 422);
+        return response()->json(['error' => $result['status'] === 403 ? 'Insufficient permissions' : $result['error']], $result['status']);
     }
 }

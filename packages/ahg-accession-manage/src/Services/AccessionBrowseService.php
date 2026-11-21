@@ -27,6 +27,7 @@ namespace AhgAccessionManage\Services;
 
 use AhgCore\Services\BrowseService;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class AccessionBrowseService extends BrowseService
 {
@@ -49,7 +50,7 @@ class AccessionBrowseService extends BrowseService
     {
         return [
             'accession.id',
-            'accession_i18n.title as name',
+            I18nFallback::col('accession_i18n', 'title', 'name'),
             'accession.identifier',
             'accession.date as accession_date',
             'accession.processing_status_id',
@@ -64,21 +65,20 @@ class AccessionBrowseService extends BrowseService
     protected function getBaseJoins($query)
     {
         return $query
-            ->join('accession_i18n', 'accession.id', '=', 'accession_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n', 'accession.id', $this->culture))
             ->join('object', 'accession.id', '=', 'object.id')
-            ->join('slug', 'accession.id', '=', 'slug.object_id')
-            ->where('accession_i18n.culture', $this->culture);
+            ->join('slug', 'accession.id', '=', 'slug.object_id');
     }
 
     protected function applySort($query, string $sort, string $sortDir)
     {
         switch ($sort) {
             case 'alphabetic':
-                $query->orderBy('accession_i18n.title', $sortDir);
+                $query->orderBy(I18nFallback::col('accession_i18n', 'title'), $sortDir);
                 break;
             case 'identifier':
                 $query->orderBy('accession.identifier', $sortDir);
-                $query->orderBy('accession_i18n.title', $sortDir);
+                $query->orderBy(I18nFallback::col('accession_i18n', 'title'), $sortDir);
                 break;
             case 'date':
                 $query->orderBy('accession.date', $sortDir);
@@ -96,7 +96,7 @@ class AccessionBrowseService extends BrowseService
     {
         if ($subquery !== '') {
             $query->where(function ($q) use ($subquery) {
-                $q->where('accession_i18n.title', 'LIKE', "%{$subquery}%")
+                $q->where(I18nFallback::col('accession_i18n', 'title'), 'LIKE', "%{$subquery}%")
                     ->orWhere('accession.identifier', 'LIKE', "%{$subquery}%");
             });
         }

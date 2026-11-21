@@ -28,6 +28,7 @@ namespace AhgFederation\Services;
 use AhgTermTaxonomy\Services\TermService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class VocabSyncService
 {
@@ -92,11 +93,9 @@ class VocabSyncService
         $culture = $culture ?: app()->getLocale();
 
         $taxonomy = DB::table('taxonomy as t')
-            ->leftJoin('taxonomy_i18n as ti', function ($j) use ($culture) {
-                $j->on('t.id', '=', 'ti.id')->where('ti.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'taxonomy_i18n as ti', 't.id', $culture))
             ->where('t.id', $taxonomyId)
-            ->select('t.id', 't.usage', 'ti.name')
+            ->select('t.id', 't.usage', I18nFallback::col('ti', 'name', 'name'))
             ->first();
 
         if (! $taxonomy) {
@@ -104,11 +103,9 @@ class VocabSyncService
         }
 
         $terms = DB::table('term as t')
-            ->leftJoin('term_i18n as ti', function ($j) use ($culture) {
-                $j->on('t.id', '=', 'ti.id')->where('ti.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 't.id', $culture))
             ->where('t.taxonomy_id', $taxonomyId)
-            ->select('t.id', 't.parent_id', 't.code', 'ti.name')
+            ->select('t.id', 't.parent_id', 't.code', I18nFallback::col('ti', 'name', 'name'))
             ->orderBy('t.lft')
             ->get();
 
@@ -609,11 +606,9 @@ class VocabSyncService
 
         $q = DB::table('federation_vocab_sync as vs')
             ->join('taxonomy as t', 'vs.taxonomy_id', '=', 't.id')
-            ->leftJoin('taxonomy_i18n as ti', function ($j) use ($culture) {
-                $j->on('t.id', '=', 'ti.id')->where('ti.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'taxonomy_i18n as ti', 't.id', $culture))
             ->where('vs.peer_id', $peerId)
-            ->select('vs.*', 'ti.name as taxonomy_name');
+            ->select('vs.*', I18nFallback::col('ti', 'name', 'taxonomy_name'));
 
         if ($taxonomyId) {
             $q->where('vs.taxonomy_id', $taxonomyId);
@@ -627,11 +622,9 @@ class VocabSyncService
         $culture = $culture ?: app()->getLocale();
 
         return DB::table('taxonomy as t')
-            ->leftJoin('taxonomy_i18n as ti', function ($j) use ($culture) {
-                $j->on('t.id', '=', 'ti.id')->where('ti.culture', '=', $culture);
-            })
-            ->select('t.id', 'ti.name', DB::raw('(SELECT COUNT(*) FROM term WHERE taxonomy_id = t.id) as term_count'))
-            ->orderBy('ti.name')
+            ->tap(fn ($q) => I18nFallback::join($q, 'taxonomy_i18n as ti', 't.id', $culture))
+            ->select('t.id', I18nFallback::col('ti', 'name', 'name'), DB::raw('(SELECT COUNT(*) FROM term WHERE taxonomy_id = t.id) as term_count'))
+            ->orderBy(I18nFallback::col('ti', 'name'))
             ->get();
     }
 }

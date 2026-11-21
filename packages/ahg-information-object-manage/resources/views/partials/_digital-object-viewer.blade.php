@@ -95,6 +95,12 @@
 
       $masterMediaType = $masterObj ? \AhgCore\Services\DigitalObjectService::getMediaType($masterObj) : null;
       $isPdf = $masterObj && $masterObj->mime_type === 'application/pdf';
+      // heratio#1627: an office master with a PDF display copy shows in the PDF viewer.
+      $__officePdf = (! $isPdf && $masterObj && \AhgCore\Services\DigitalObjectService::isOfficeDocument((string) $masterObj->name, (string) ($masterObj->mime_type ?? '')))
+          ? \AhgCore\Services\OfficeDisplayCopyService::pdfFor((int) $masterObj->id) : null;
+      if ($__officePdf) {
+          $isPdf = true;
+      }
 
       // Non-native formats that need streaming/transcoding (matching AtoM's needs_streaming list)
       $nonNativeVideo = ['video/x-ms-wmv', 'video/x-ms-asf', 'video/x-msvideo', 'video/quicktime',
@@ -181,8 +187,12 @@
           $pdfDisplayUrl = $masterUrl;
           $__pdfIsMaster = true;   // display URL is still the raw master
           if (!($__hasRedactions && !$__isAdminViewer)) {
-              $__webPdf = \AhgCore\Services\DigitalObjectService::getWebPdfUrl((int) $io->id);
+              $__webPdf = $__officePdf ? \AhgCore\Services\DigitalObjectService::getUrl($__officePdf) : \AhgCore\Services\DigitalObjectService::getWebPdfUrl((int) $io->id);
               if ($__webPdf) { $pdfDisplayUrl = $__webPdf; $__pdfIsMaster = false; }
+              // Those who may not have the original file get the PDF copy to open and download.
+              if ($__officePdf && ! $__canSeeOriginal) { $__openUrl = $__webPdf; }
+          } elseif ($__officePdf) {
+              $__pdfIsMaster = false; // the redacted stream is made from the PDF copy
           }
           // Public gate: a not-logged-in viewer must not get the master PDF
           // inline either. A web-optimized reference PDF is a derivative and is
@@ -197,14 +207,14 @@
           <div class="pdf-wrapper">
             <div class="pdf-toolbar mb-2 d-flex justify-content-between align-items-center">
               <span class="badge bg-danger">
-                <i class="fas fa-file-pdf me-1"></i>{{ __('PDF Document') }}
+                <i class="fas fa-file-pdf me-1"></i>{{ $__officePdf ? __('Document (PDF copy)') : __('PDF Document') }}
               </span>
               <div class="btn-group btn-group-sm">
                 @if($__showOriginalCtl)
                   <a href="{{ $__openUrl }}" target="_blank" class="btn atom-btn-white" title="{{ $__canSeeOriginal ? __('Open in new tab') : __('Open reference copy in new tab') }}">
                     <i class="fas fa-external-link-alt"></i>
                   </a>
-                  <a href="{{ $__openUrl }}" download class="btn atom-btn-white" title="{{ $__canSeeOriginal ? __('Download PDF') : __('Download reference copy') }}">
+                  <a href="{{ $__openUrl }}" download class="btn atom-btn-white" title="{{ $__canSeeOriginal ? ($__officePdf ? __('Download original') : __('Download PDF')) : __('Download reference copy') }}">
                     <i class="fas fa-download"></i>
                   </a>
                 @endif

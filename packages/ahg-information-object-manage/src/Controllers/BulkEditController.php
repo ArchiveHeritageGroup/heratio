@@ -32,6 +32,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use AhgCore\Support\I18nFallback;
 
 class BulkEditController extends Controller
 {
@@ -150,16 +151,16 @@ class BulkEditController extends Controller
     private function options(): array
     {
         $culture = app()->getLocale();
-        $terms = fn (int $taxonomy) => DB::table('term')->join('term_i18n', 'term_i18n.id', '=', 'term.id')
-            ->where('term.taxonomy_id', $taxonomy)->where('term_i18n.culture', $culture)
-            ->orderBy('term_i18n.name')->pluck('term_i18n.name', 'term.id');
+        $terms = fn (int $taxonomy) => DB::table('term')->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
+            ->where('term.taxonomy_id', $taxonomy)
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))->pluck(I18nFallback::col('term_i18n', 'name', 'name'), 'term.id');
 
         return [
             'columns' => BulkEditService::TEXT_COLUMNS,
             'setFields' => BulkEditService::SET_FIELDS,
-            'repositories' => DB::table('repository')->join('actor_i18n', 'actor_i18n.id', '=', 'repository.id')
-                ->where('actor_i18n.culture', $culture)->orderBy('actor_i18n.authorized_form_of_name')
-                ->pluck('actor_i18n.authorized_form_of_name', 'repository.id'),
+            'repositories' => DB::table('repository')->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture, required: true))
+                ->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
+                ->pluck(I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'), 'repository.id'),
             'levels' => $terms(34),
             'statuses' => $terms(60),
         ];

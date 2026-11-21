@@ -27,6 +27,7 @@ namespace AhgCore\Support\Concerns;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Read an object's property / property_i18n values (the read counterpart to
@@ -43,11 +44,10 @@ trait LoadsObjectProperties
     private function loadSerializedProperty(int $objectId, string $name, string $culture): Collection
     {
         $raw = DB::table('property')
-            ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'property_i18n', 'property.id', $culture, required: true))
             ->where('property.object_id', $objectId)
             ->where('property.name', $name)
-            ->where('property_i18n.culture', $culture)
-            ->value('property_i18n.value');
+            ->value(I18nFallback::col('property_i18n', 'value', 'value'));
 
         if ($raw) {
             $decoded = @unserialize($raw, ['allowed_classes' => false]);
@@ -65,10 +65,9 @@ trait LoadsObjectProperties
     private function loadProperty(int $objectId, string $name, string $culture): ?string
     {
         return DB::table('property')
-            ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'property_i18n', 'property.id', $culture, required: true))
             ->where('property.object_id', $objectId)
             ->where('property.name', $name)
-            ->where('property_i18n.culture', $culture)
-            ->value('property_i18n.value');
+            ->value(I18nFallback::col('property_i18n', 'value', 'value'));
     }
 }

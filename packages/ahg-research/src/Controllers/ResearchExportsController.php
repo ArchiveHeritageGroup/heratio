@@ -33,6 +33,7 @@ use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * ResearchExportsController - Researcher notes + collection finding-aid exports.
@@ -170,24 +171,18 @@ class ResearchExportsController extends Controller
 
         return DB::table('research_collection_item as ci')
             ->join('information_object as io', 'ci.object_id', '=', 'io.id')
-            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
-            })
-            ->leftJoin('term_i18n as lod', function ($j) use ($culture) {
-                $j->on('io.level_of_description_id', '=', 'lod.id')->where('lod.culture', '=', $culture);
-            })
-            ->leftJoin('actor_i18n as repo', function ($j) use ($culture) {
-                $j->on('io.repository_id', '=', 'repo.id')->where('repo.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as lod', 'io.level_of_description_id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as repo', 'io.repository_id', $culture))
             ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
             ->where('ci.collection_id', $collectionId)
             ->select(
                 'io.id', 'io.identifier', 's.slug',
-                'ioi.title', 'ioi.scope_and_content', 'ioi.extent_and_medium',
-                'ioi.archival_history', 'ioi.arrangement', 'ioi.access_conditions',
-                'ioi.reproduction_conditions', 'ioi.physical_characteristics',
-                'lod.name as level_of_description',
-                'repo.authorized_form_of_name as repository_name',
+                I18nFallback::col('ioi', 'title', 'title'), I18nFallback::col('ioi', 'scope_and_content', 'scope_and_content'), I18nFallback::col('ioi', 'extent_and_medium', 'extent_and_medium'),
+                I18nFallback::col('ioi', 'archival_history', 'archival_history'), I18nFallback::col('ioi', 'arrangement', 'arrangement'), I18nFallback::col('ioi', 'access_conditions', 'access_conditions'),
+                I18nFallback::col('ioi', 'reproduction_conditions', 'reproduction_conditions'), I18nFallback::col('ioi', 'physical_characteristics', 'physical_characteristics'),
+                I18nFallback::col('lod', 'name', 'level_of_description'),
+                I18nFallback::col('repo', 'authorized_form_of_name', 'repository_name'),
                 'ci.notes as researcher_notes', 'ci.created_at'
             )
             ->orderBy('ci.created_at')

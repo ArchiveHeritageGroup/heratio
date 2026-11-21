@@ -28,6 +28,7 @@
 namespace AhgDisplay\Services;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class DisplayService
 {
@@ -59,17 +60,13 @@ class DisplayService
     {
         $culture = app()->getLocale();
         return DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
-            ->leftJoin('term_i18n as level', function ($j) use ($culture) {
-                $j->on('io.level_of_description_id', '=', 'level.id')->where('level.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as level', 'io.level_of_description_id', $culture))
             ->where('io.id', $objectId)
-            ->select('io.*', 'i18n.title', 'i18n.scope_and_content', 'i18n.extent_and_medium',
-                'i18n.archival_history', 'i18n.acquisition', 'i18n.arrangement',
-                'i18n.access_conditions', 'i18n.reproduction_conditions',
-                'level.name as level_name')
+            ->select('io.*', I18nFallback::col('i18n', 'title', 'title'), I18nFallback::col('i18n', 'scope_and_content', 'scope_and_content'), I18nFallback::col('i18n', 'extent_and_medium', 'extent_and_medium'),
+                I18nFallback::col('i18n', 'archival_history', 'archival_history'), I18nFallback::col('i18n', 'acquisition', 'acquisition'), I18nFallback::col('i18n', 'arrangement', 'arrangement'),
+                I18nFallback::col('i18n', 'access_conditions', 'access_conditions'), I18nFallback::col('i18n', 'reproduction_conditions', 'reproduction_conditions'),
+                I18nFallback::col('level', 'name', 'level_name'))
             ->first();
     }
 
@@ -92,11 +89,9 @@ class DisplayService
 
         $culture = app()->getLocale();
         return DB::table('display_field as df')
-            ->leftJoin('display_field_i18n as dfi', function ($j) use ($culture) {
-                $j->on('df.id', '=', 'dfi.id')->where('dfi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'display_field_i18n as dfi', 'df.id', $culture))
             ->whereIn('df.code', $fieldCodes)
-            ->select('df.*', 'dfi.name', 'dfi.help_text')
+            ->select('df.*', I18nFallback::col('dfi', 'name', 'name'), I18nFallback::col('dfi', 'help_text', 'help_text'))
             ->orderByRaw('FIELD(df.code, "' . implode('","', $fieldCodes) . '")')
             ->get()
             ->toArray();
@@ -106,10 +101,8 @@ class DisplayService
     {
         $culture = app()->getLocale();
         $query = DB::table('display_level as dl')
-            ->leftJoin('display_level_i18n as dli', function ($j) use ($culture) {
-                $j->on('dl.id', '=', 'dli.id')->where('dli.culture', '=', $culture);
-            })
-            ->select('dl.*', 'dli.name', 'dli.description')
+            ->tap(fn ($q) => I18nFallback::join($q, 'display_level_i18n as dli', 'dl.id', $culture))
+            ->select('dl.*', I18nFallback::col('dli', 'name', 'name'), I18nFallback::col('dli', 'description', 'description'))
             ->orderBy('dl.sort_order');
 
         if ($domain) {
@@ -123,10 +116,8 @@ class DisplayService
     {
         $culture = app()->getLocale();
         return DB::table('display_collection_type as dct')
-            ->leftJoin('display_collection_type_i18n as dcti', function ($j) use ($culture) {
-                $j->on('dct.id', '=', 'dcti.id')->where('dcti.culture', '=', $culture);
-            })
-            ->select('dct.*', 'dcti.name', 'dcti.description')
+            ->tap(fn ($q) => I18nFallback::join($q, 'display_collection_type_i18n as dcti', 'dct.id', $culture))
+            ->select('dct.*', I18nFallback::col('dcti', 'name', 'name'), I18nFallback::col('dcti', 'description', 'description'))
             ->orderBy('dct.sort_order')
             ->get()
             ->toArray();

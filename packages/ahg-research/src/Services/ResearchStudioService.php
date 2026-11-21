@@ -33,6 +33,7 @@ use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx as XlsxWriter;
 use RuntimeException;
+use AhgCore\Support\I18nFallback;
 
 /**
  * ResearchStudioService
@@ -165,16 +166,14 @@ class ResearchStudioService
         }
 
         $rows = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', app()->getLocale()))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->whereIn('io.id', $sourceObjectIds)
             ->select(
                 'io.id',
                 'io.identifier',
-                'ioi.title',
-                'ioi.scope_and_content',
+                I18nFallback::col('ioi', 'title', 'title'),
+                I18nFallback::col('ioi', 'scope_and_content', 'scope_and_content'),
                 'slug.slug'
             )
             ->get();

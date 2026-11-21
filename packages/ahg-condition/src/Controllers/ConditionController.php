@@ -30,6 +30,7 @@ namespace AhgCondition\Controllers;
 use AhgCondition\Services\ConditionService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use AhgCore\Support\I18nFallback;
 
 class ConditionController extends Controller
 {
@@ -63,12 +64,9 @@ class ConditionController extends Controller
         }
 
         $rows = \Illuminate\Support\Facades\DB::table('spectrum_condition_check as cc')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('ioi.id', '=', 'cc.object_id')
-                    ->where('ioi.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'cc.object_id', app()->getLocale()))
             ->whereIn('cc.overall_condition', $atRiskLevels)
-            ->select('cc.*', 'ioi.title as object_title')
+            ->select('cc.*', I18nFallback::col('ioi', 'title', 'object_title'))
             ->orderByDesc('cc.check_date')
             ->limit(200)
             ->get();

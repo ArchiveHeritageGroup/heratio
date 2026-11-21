@@ -31,6 +31,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 /**
  * EmbargoService - Comprehensive embargo management for archival records
@@ -126,10 +127,7 @@ class EmbargoService
 
         $query = DB::table('embargo as e')
             ->leftJoin('information_object as io', 'e.object_id', '=', 'io.id')
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('io.id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->where(fn ($q) => \AhgCore\Support\EmbargoScope::current($q, 'e'));
 
@@ -141,7 +139,7 @@ class EmbargoService
         return $query
             ->select([
                 'e.*',
-                'ioi.title as object_title',
+                I18nFallback::col('ioi', 'title', 'object_title'),
                 'slug.slug as object_slug',
             ])
             ->orderByDesc('e.created_at')
@@ -162,10 +160,7 @@ class EmbargoService
 
         return DB::table('embargo as e')
             ->leftJoin('information_object as io', 'e.object_id', '=', 'io.id')
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('io.id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->where(fn ($q) => \AhgCore\Support\EmbargoScope::current($q, 'e'))
             ->where('e.auto_release', true)
@@ -173,7 +168,7 @@ class EmbargoService
             ->whereBetween('e.end_date', [$now, $future])
             ->select([
                 'e.*',
-                'ioi.title as object_title',
+                I18nFallback::col('ioi', 'title', 'object_title'),
                 'slug.slug as object_slug',
             ])
             ->orderBy('e.end_date')

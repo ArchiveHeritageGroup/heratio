@@ -70,9 +70,25 @@ Route::middleware('auth')->group(function () {
     Route::post('/informationobject/tree-sync/{id}', [TreeViewPageController::class, 'sync'])
         ->name('informationobject.tree-sync')
         ->where('id', '[0-9]+');
-    Route::post('/informationobject/tree-move', [TreeViewPageController::class, 'move'])
+    // heratio#1582: one move for drag-and-drop and the keyboard "Move..." picker.
+    Route::post('/informationobject/tree-move', [\AhgInformationObjectManage\Controllers\TreeMoveController::class, 'move'])
         ->middleware('acl:update')
         ->name('informationobject.tree-move');
+    Route::get('/informationobject/tree-move/targets', [\AhgInformationObjectManage\Controllers\TreeMoveController::class, 'targets'])
+        ->middleware('acl:update')
+        ->name('informationobject.tree-move.targets');
+    Route::get('/informationobject/tree-move/children/{id}', [\AhgInformationObjectManage\Controllers\TreeMoveController::class, 'children'])
+        ->middleware('acl:update')
+        ->name('informationobject.tree-move.children')
+        ->where('id', '[0-9]+');
+
+    // heratio#1581: grid editing of descriptions, one row saved at a time.
+    Route::get('/informationobject/grid', [\AhgInformationObjectManage\Controllers\DescriptionGridController::class, 'index'])
+        ->middleware('acl:update')
+        ->name('informationobject.grid');
+    Route::post('/informationobject/grid/save', [\AhgInformationObjectManage\Controllers\DescriptionGridController::class, 'save'])
+        ->middleware('acl:update')
+        ->name('informationobject.grid.save');
 });
 
 // 5. AJAX live slug preview. No auth - same as the existing identifier

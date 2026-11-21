@@ -31,6 +31,7 @@ use AhgExtendedRights\Services\ExtendedRightsService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * RightsController
@@ -283,11 +284,10 @@ class RightsController extends Controller
         }
 
         $resource = DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('information_object.id', $objectId)
-            ->where('information_object_i18n.culture', $culture)
-            ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
+            ->select('information_object.id', I18nFallback::col('information_object_i18n', 'title', 'title'), 'slug.slug')
             ->first();
 
         if (!$resource) {

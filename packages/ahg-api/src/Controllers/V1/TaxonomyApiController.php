@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class TaxonomyApiController extends Controller
 {
@@ -24,14 +25,13 @@ class TaxonomyApiController extends Controller
     public function index(): JsonResponse
     {
         $taxonomies = DB::table('taxonomy')
-            ->join('taxonomy_i18n', 'taxonomy.id', '=', 'taxonomy_i18n.id')
-            ->where('taxonomy_i18n.culture', $this->culture)
+            ->tap(fn ($q) => I18nFallback::join($q, 'taxonomy_i18n', 'taxonomy.id', $this->culture, required: true))
             ->where('taxonomy.id', '!=', 1) // Exclude root
-            ->orderBy('taxonomy_i18n.name')
+            ->orderBy(I18nFallback::col('taxonomy_i18n', 'name'))
             ->select([
                 'taxonomy.id',
-                'taxonomy_i18n.name',
-                'taxonomy_i18n.note',
+                I18nFallback::col('taxonomy_i18n', 'name', 'name'),
+                I18nFallback::col('taxonomy_i18n', 'note', 'note'),
                 'taxonomy.usage',
                 'taxonomy.source_culture',
             ])
@@ -77,17 +77,14 @@ class TaxonomyApiController extends Controller
         // If no taxonomyId, list all terms
         if ($taxonomyId === null) {
             $terms = DB::table('term')
-                ->leftJoin('term_i18n', function ($j) {
-                    $j->on('term.id', '=', 'term_i18n.id')
-                        ->where('term_i18n.culture', '=', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture))
                 ->where('term.id', '!=', 1) // Exclude root
-                ->orderBy('term_i18n.name')
+                ->orderBy(I18nFallback::col('term_i18n', 'name'))
                 ->select([
                     'term.id',
                     'term.taxonomy_id',
                     'term.parent_id',
-                    'term_i18n.name',
+                    I18nFallback::col('term_i18n', 'name', 'name'),
                     'term.code',
                     'term.source_culture',
                 ])
@@ -114,10 +111,9 @@ class TaxonomyApiController extends Controller
 
         // Verify taxonomy exists
         $taxonomy = DB::table('taxonomy')
-            ->join('taxonomy_i18n', 'taxonomy.id', '=', 'taxonomy_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'taxonomy_i18n', 'taxonomy.id', $this->culture, required: true))
             ->where('taxonomy.id', $taxonomyId)
-            ->where('taxonomy_i18n.culture', $this->culture)
-            ->select('taxonomy.id', 'taxonomy_i18n.name')
+            ->select('taxonomy.id', I18nFallback::col('taxonomy_i18n', 'name', 'name'))
             ->first();
 
         if (! $taxonomy) {
@@ -128,16 +124,13 @@ class TaxonomyApiController extends Controller
         }
 
         $terms = DB::table('term')
-            ->leftJoin('term_i18n', function ($j) {
-                $j->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture))
             ->where('term.taxonomy_id', $taxonomyId)
-            ->orderBy('term_i18n.name')
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->select([
                 'term.id',
                 'term.parent_id',
-                'term_i18n.name',
+                I18nFallback::col('term_i18n', 'name', 'name'),
                 'term.code',
                 'term.source_culture',
             ])
@@ -176,16 +169,13 @@ class TaxonomyApiController extends Controller
         }
 
         $results = DB::table('term')
-            ->leftJoin('term_i18n', function ($j) {
-                $j->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture))
             ->where('term.id', '!=', 1)
-            ->where('term_i18n.name', 'like', "%{$query}%")
+            ->where(I18nFallback::col('term_i18n', 'name'), 'like', "%{$query}%")
             ->select([
                 'term.id',
                 'term.taxonomy_id',
-                'term_i18n.name',
+                I18nFallback::col('term_i18n', 'name', 'name'),
                 'term.code',
             ])
             ->limit(20)
@@ -211,16 +201,13 @@ class TaxonomyApiController extends Controller
         $termId = (int) $id;
 
         $term = DB::table('term')
-            ->leftJoin('term_i18n', function ($j) {
-                $j->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture))
             ->where('term.id', $termId)
             ->select([
                 'term.id',
                 'term.taxonomy_id',
                 'term.parent_id',
-                'term_i18n.name',
+                I18nFallback::col('term_i18n', 'name', 'name'),
                 'term.code',
                 'term.source_culture',
             ])

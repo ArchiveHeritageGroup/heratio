@@ -32,6 +32,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use AhgCore\Support\Concerns\FetchesRepositoryActor;
+use AhgCore\Support\I18nFallback;
 
 class EadFindingAidCommand extends Command
 {
@@ -105,19 +106,17 @@ class EadFindingAidCommand extends Command
     private function fetchIo(int $ioId, string $culture)
     {
         return DB::table('information_object as io')
-            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->leftJoin('object as o', 'o.id', '=', 'io.id')
             ->where('io.id', $ioId)
             ->select([
                 'io.id', 'io.identifier', 'io.repository_id', 'io.lft', 'io.rgt',
-                'i18n.title', 'i18n.scope_and_content', 'i18n.extent_and_medium',
-                'i18n.archival_history', 'i18n.acquisition',
-                'i18n.access_conditions', 'i18n.reproduction_conditions',
-                'i18n.arrangement', 'i18n.related_units_of_description',
-                'i18n.finding_aids', 'i18n.physical_characteristics',
-                'i18n.location_of_originals', 'i18n.location_of_copies',
+                I18nFallback::col('i18n', 'title', 'title'), I18nFallback::col('i18n', 'scope_and_content', 'scope_and_content'), I18nFallback::col('i18n', 'extent_and_medium', 'extent_and_medium'),
+                I18nFallback::col('i18n', 'archival_history', 'archival_history'), I18nFallback::col('i18n', 'acquisition', 'acquisition'),
+                I18nFallback::col('i18n', 'access_conditions', 'access_conditions'), I18nFallback::col('i18n', 'reproduction_conditions', 'reproduction_conditions'),
+                I18nFallback::col('i18n', 'arrangement', 'arrangement'), I18nFallback::col('i18n', 'related_units_of_description', 'related_units_of_description'),
+                I18nFallback::col('i18n', 'finding_aids', 'finding_aids'), I18nFallback::col('i18n', 'physical_characteristics', 'physical_characteristics'),
+                I18nFallback::col('i18n', 'location_of_originals', 'location_of_originals'), I18nFallback::col('i18n', 'location_of_copies', 'location_of_copies'),
                 'o.created_at', 'o.updated_at',
             ])
             ->first();
@@ -135,12 +134,11 @@ class EadFindingAidCommand extends Command
     private function fetchCreators($io, string $culture)
     {
         return DB::table('event')
-            ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'event.actor_id', $culture, required: true))
             ->where('event.object_id', $io->id)
             ->where('event.type_id', 111)
-            ->where('actor_i18n.culture', $culture)
             ->whereNotNull('event.actor_id')
-            ->select('actor_i18n.authorized_form_of_name as name')
+            ->select(I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'))
             ->distinct()
             ->get();
     }
@@ -158,14 +156,12 @@ class EadFindingAidCommand extends Command
         }
 
         $query = DB::table('information_object as io')
-            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->whereIn('io.id', $descendantIds)
             ->tap(fn ($q) => app(\AhgCore\Services\HierarchyQueryService::class)->applySiblingOrder($q, 'information_object', 'io.id', 'io.lft'))
             ->select(
                 'io.id', 'io.parent_id', 'io.identifier', 'io.lft', 'io.rgt', 'io.level_of_description_id',
-                'i18n.title', 'i18n.scope_and_content', 'i18n.extent_and_medium'
+                I18nFallback::col('i18n', 'title', 'title'), I18nFallback::col('i18n', 'scope_and_content', 'scope_and_content'), I18nFallback::col('i18n', 'extent_and_medium', 'extent_and_medium')
             );
 
         // #1388 - never list a restricted-protocol descendant in the finding aid.

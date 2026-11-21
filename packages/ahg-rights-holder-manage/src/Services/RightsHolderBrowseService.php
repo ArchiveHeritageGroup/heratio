@@ -26,6 +26,7 @@
 namespace AhgRightsHolderManage\Services;
 
 use AhgCore\Services\BrowseService;
+use AhgCore\Support\I18nFallback;
 
 class RightsHolderBrowseService extends BrowseService
 {
@@ -48,7 +49,7 @@ class RightsHolderBrowseService extends BrowseService
     {
         return [
             'rights_holder.id',
-            'actor_i18n.authorized_form_of_name as name',
+            I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'),
             'object.updated_at',
             'slug.slug',
         ];
@@ -57,10 +58,9 @@ class RightsHolderBrowseService extends BrowseService
     protected function getBaseJoins($query)
     {
         return $query
-            ->join('actor_i18n', 'rights_holder.id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'rights_holder.id', $this->culture, required: true))
             ->join('object', 'rights_holder.id', '=', 'object.id')
-            ->join('slug', 'rights_holder.id', '=', 'slug.object_id')
-            ->where('actor_i18n.culture', $this->culture);
+            ->join('slug', 'rights_holder.id', '=', 'slug.object_id');
     }
 
     protected function transformRow($row): array

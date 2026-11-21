@@ -30,6 +30,7 @@ namespace AhgReports\Services;
 use AhgCore\Constants\TermId;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class ReportService
 {
@@ -102,16 +103,13 @@ class ReportService
 
         $query = DB::table('accession')
             ->join('object', 'accession.id', '=', 'object.id')
-            ->leftJoin('accession_i18n', function ($join) use ($culture) {
-                $join->on('accession.id', '=', 'accession_i18n.id')
-                    ->where('accession_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n', 'accession.id', $culture))
             ->select(
                 'accession.id', 'accession.identifier', 'accession.date as accession_date',
                 'accession.acquisition_type_id', 'accession.resource_type_id',
                 'accession.processing_status_id',
-                'accession_i18n.title', 'accession_i18n.scope_and_content',
-                'accession_i18n.appraisal', 'accession_i18n.processing_notes',
+                I18nFallback::col('accession_i18n', 'title', 'title'), I18nFallback::col('accession_i18n', 'scope_and_content', 'scope_and_content'),
+                I18nFallback::col('accession_i18n', 'appraisal', 'appraisal'), I18nFallback::col('accession_i18n', 'processing_notes', 'processing_notes'),
                 'accession_i18n.culture',
                 'object.created_at', 'object.updated_at'
             );
@@ -148,39 +146,30 @@ class ReportService
 
         $query = DB::table('information_object as io')->tap(fn ($q) => \AhgCore\Support\TenantScope::apply($q, 'io.repository_id'))
             ->join('object', 'io.id', '=', 'object.id')
-            ->leftJoin('information_object_i18n as io_i18n', function ($join) use ($culture) {
-                $join->on('io.id', '=', 'io_i18n.id')
-                    ->where('io_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as io_i18n', 'io.id', $culture))
             ->leftJoin('status', function ($join) {
                 $join->on('io.id', '=', 'status.object_id')
                     ->where('status.type_id', '=', TermId::STATUS_TYPE_PUBLICATION);
             })
-            ->leftJoin('term_i18n as level_term', function ($join) use ($culture) {
-                $join->on('io.level_of_description_id', '=', 'level_term.id')
-                    ->where('level_term.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as level_term', 'io.level_of_description_id', $culture))
             ->where('io.id', '!=', 1)
-            ->leftJoin('actor_i18n as repo_actor_i18n', function ($join) use ($culture) {
-                $join->on('io.repository_id', '=', 'repo_actor_i18n.id')
-                    ->where('repo_actor_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as repo_actor_i18n', 'io.repository_id', $culture))
             ->select(
                 'io.id', 'io.identifier', 'io.level_of_description_id',
-                'io_i18n.title', 'io_i18n.alternate_title',
-                'io_i18n.extent_and_medium', 'io_i18n.archival_history',
-                'io_i18n.acquisition', 'io_i18n.scope_and_content',
-                'io_i18n.appraisal', 'io_i18n.accruals', 'io_i18n.arrangement',
-                'io_i18n.access_conditions', 'io_i18n.reproduction_conditions',
-                'io_i18n.physical_characteristics', 'io_i18n.finding_aids',
-                'io_i18n.location_of_originals', 'io_i18n.location_of_copies',
-                'io_i18n.related_units_of_description',
-                'io_i18n.institution_responsible_identifier',
-                'io_i18n.rules', 'io_i18n.sources', 'io_i18n.revision_history',
+                I18nFallback::col('io_i18n', 'title', 'title'), I18nFallback::col('io_i18n', 'alternate_title', 'alternate_title'),
+                I18nFallback::col('io_i18n', 'extent_and_medium', 'extent_and_medium'), I18nFallback::col('io_i18n', 'archival_history', 'archival_history'),
+                I18nFallback::col('io_i18n', 'acquisition', 'acquisition'), I18nFallback::col('io_i18n', 'scope_and_content', 'scope_and_content'),
+                I18nFallback::col('io_i18n', 'appraisal', 'appraisal'), I18nFallback::col('io_i18n', 'accruals', 'accruals'), I18nFallback::col('io_i18n', 'arrangement', 'arrangement'),
+                I18nFallback::col('io_i18n', 'access_conditions', 'access_conditions'), I18nFallback::col('io_i18n', 'reproduction_conditions', 'reproduction_conditions'),
+                I18nFallback::col('io_i18n', 'physical_characteristics', 'physical_characteristics'), I18nFallback::col('io_i18n', 'finding_aids', 'finding_aids'),
+                I18nFallback::col('io_i18n', 'location_of_originals', 'location_of_originals'), I18nFallback::col('io_i18n', 'location_of_copies', 'location_of_copies'),
+                I18nFallback::col('io_i18n', 'related_units_of_description', 'related_units_of_description'),
+                I18nFallback::col('io_i18n', 'institution_responsible_identifier', 'institution_responsible_identifier'),
+                I18nFallback::col('io_i18n', 'rules', 'rules'), I18nFallback::col('io_i18n', 'sources', 'sources'), I18nFallback::col('io_i18n', 'revision_history', 'revision_history'),
                 'io_i18n.culture',
-                'level_term.name as level_name',
+                I18nFallback::col('level_term', 'name', 'level_name'),
                 'status.status_id as publication_status_id',
-                'repo_actor_i18n.authorized_form_of_name as repository_name',
+                I18nFallback::col('repo_actor_i18n', 'authorized_form_of_name', 'repository_name'),
                 'object.created_at', 'object.updated_at'
             );
 
@@ -217,23 +206,17 @@ class ReportService
 
         $query = DB::table('actor')
             ->join('object', 'actor.id', '=', 'object.id')
-            ->leftJoin('actor_i18n', function ($join) use ($culture) {
-                $join->on('actor.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
-            ->leftJoin('term_i18n as type_term', function ($join) use ($culture) {
-                $join->on('actor.entity_type_id', '=', 'type_term.id')
-                    ->where('type_term.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as type_term', 'actor.entity_type_id', $culture))
             ->leftJoin('slug', function ($join) {
                 $join->on('actor.id', '=', 'slug.object_id');
             })
             ->where('object.class_name', 'QubitActor')
             ->select(
                 'actor.id', 'actor.entity_type_id', 'actor.description_identifier',
-                'actor_i18n.authorized_form_of_name', 'actor_i18n.dates_of_existence',
-                'actor_i18n.history',
-                'type_term.name as entity_type_name',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'), I18nFallback::col('actor_i18n', 'dates_of_existence', 'dates_of_existence'),
+                I18nFallback::col('actor_i18n', 'history', 'history'),
+                I18nFallback::col('type_term', 'name', 'entity_type_name'),
                 'slug.slug',
                 'object.created_at', 'object.updated_at'
             );
@@ -269,20 +252,14 @@ class ReportService
 
         $query = DB::table('donor')
             ->join('object', 'donor.id', '=', 'object.id')
-            ->leftJoin('actor_i18n', function ($join) use ($culture) {
-                $join->on('donor.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'donor.id', $culture))
             ->leftJoin('contact_information', 'donor.id', '=', 'contact_information.actor_id')
-            ->leftJoin('contact_information_i18n', function ($join) use ($culture) {
-                $join->on('contact_information.id', '=', 'contact_information_i18n.id')
-                    ->where('contact_information_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'contact_information_i18n', 'contact_information.id', $culture))
             ->select(
                 'donor.id',
-                'actor_i18n.authorized_form_of_name',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'),
                 'contact_information.email', 'contact_information.telephone',
-                'contact_information_i18n.city', 'contact_information_i18n.region',
+                I18nFallback::col('contact_information_i18n', 'city', 'city'), I18nFallback::col('contact_information_i18n', 'region', 'region'),
                 'object.created_at', 'object.updated_at'
             );
 
@@ -310,28 +287,22 @@ class ReportService
 
         $query = DB::table('repository')
             ->join('object', 'repository.id', '=', 'object.id')
-            ->leftJoin('actor_i18n', function ($join) use ($culture) {
-                $join->on('repository.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
-            ->leftJoin('repository_i18n', function ($join) use ($culture) {
-                $join->on('repository.id', '=', 'repository_i18n.id')
-                    ->where('repository_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'repository_i18n', 'repository.id', $culture))
             ->select(
                 'repository.id', 'repository.identifier',
                 'repository.desc_status_id', 'repository.desc_detail_id',
                 'repository.desc_identifier',
-                'actor_i18n.authorized_form_of_name',
-                'repository_i18n.geocultural_context', 'repository_i18n.collecting_policies',
-                'repository_i18n.buildings', 'repository_i18n.holdings',
-                'repository_i18n.finding_aids', 'repository_i18n.opening_times',
-                'repository_i18n.access_conditions', 'repository_i18n.disabled_access',
-                'repository_i18n.research_services', 'repository_i18n.reproduction_services',
-                'repository_i18n.public_facilities',
-                'repository_i18n.desc_institution_identifier',
-                'repository_i18n.desc_rules', 'repository_i18n.desc_sources',
-                'repository_i18n.desc_revision_history',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'),
+                I18nFallback::col('repository_i18n', 'geocultural_context', 'geocultural_context'), I18nFallback::col('repository_i18n', 'collecting_policies', 'collecting_policies'),
+                I18nFallback::col('repository_i18n', 'buildings', 'buildings'), I18nFallback::col('repository_i18n', 'holdings', 'holdings'),
+                I18nFallback::col('repository_i18n', 'finding_aids', 'finding_aids'), I18nFallback::col('repository_i18n', 'opening_times', 'opening_times'),
+                I18nFallback::col('repository_i18n', 'access_conditions', 'access_conditions'), I18nFallback::col('repository_i18n', 'disabled_access', 'disabled_access'),
+                I18nFallback::col('repository_i18n', 'research_services', 'research_services'), I18nFallback::col('repository_i18n', 'reproduction_services', 'reproduction_services'),
+                I18nFallback::col('repository_i18n', 'public_facilities', 'public_facilities'),
+                I18nFallback::col('repository_i18n', 'desc_institution_identifier', 'desc_institution_identifier'),
+                I18nFallback::col('repository_i18n', 'desc_rules', 'desc_rules'), I18nFallback::col('repository_i18n', 'desc_sources', 'desc_sources'),
+                I18nFallback::col('repository_i18n', 'desc_revision_history', 'desc_revision_history'),
                 'object.created_at', 'object.updated_at'
             );
 
@@ -359,19 +330,13 @@ class ReportService
 
         $query = DB::table('physical_object')
             ->join('object', 'physical_object.id', '=', 'object.id')
-            ->leftJoin('physical_object_i18n', function ($join) use ($culture) {
-                $join->on('physical_object.id', '=', 'physical_object_i18n.id')
-                    ->where('physical_object_i18n.culture', '=', $culture);
-            })
-            ->leftJoin('term_i18n as type_term', function ($join) use ($culture) {
-                $join->on('physical_object.type_id', '=', 'type_term.id')
-                    ->where('type_term.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'physical_object_i18n', 'physical_object.id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as type_term', 'physical_object.type_id', $culture))
             ->select(
                 'physical_object.id', 'physical_object.type_id',
-                'physical_object_i18n.name', 'physical_object_i18n.location',
-                'physical_object_i18n.description', 'physical_object_i18n.culture',
-                'type_term.name as type_name',
+                I18nFallback::col('physical_object_i18n', 'name', 'name'), I18nFallback::col('physical_object_i18n', 'location', 'location'),
+                I18nFallback::col('physical_object_i18n', 'description', 'description'), 'physical_object_i18n.culture',
+                I18nFallback::col('type_term', 'name', 'type_name'),
                 'object.created_at', 'object.updated_at'
             );
 
@@ -479,15 +444,12 @@ class ReportService
 
         $query = DB::table('taxonomy')
             ->join('object', 'taxonomy.id', '=', 'object.id')
-            ->leftJoin('taxonomy_i18n', function ($join) use ($culture) {
-                $join->on('taxonomy.id', '=', 'taxonomy_i18n.id')
-                    ->where('taxonomy_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'taxonomy_i18n', 'taxonomy.id', $culture))
             ->where('taxonomy.id', '!=', 1)
             ->where('taxonomy.usage', '!=', 'taxonomyOfTaxonomies')
             ->select(
                 'taxonomy.id', 'taxonomy.usage',
-                'taxonomy_i18n.name', 'taxonomy_i18n.note',
+                I18nFallback::col('taxonomy_i18n', 'name', 'name'), I18nFallback::col('taxonomy_i18n', 'note', 'note'),
                 'object.created_at', 'object.updated_at',
                 DB::raw('(SELECT COUNT(*) FROM term WHERE term.taxonomy_id = taxonomy.id) as term_count')
             );
@@ -515,26 +477,20 @@ class ReportService
     public function getLevelsOfDescription(string $culture = 'en'): \Illuminate\Support\Collection
     {
         return DB::table('term')
-            ->join('term_i18n', function ($join) use ($culture) {
-                $join->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
             ->where('term.taxonomy_id', 34)
-            ->select('term.id', 'term_i18n.name')
-            ->orderBy('term_i18n.name')
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->get();
     }
 
     public function getEntityTypes(string $culture = 'en'): \Illuminate\Support\Collection
     {
         return DB::table('term')
-            ->join('term_i18n', function ($join) use ($culture) {
-                $join->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
             ->where('term.taxonomy_id', 32)
-            ->select('term.id', 'term_i18n.name')
-            ->orderBy('term_i18n.name')
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->get();
     }
 

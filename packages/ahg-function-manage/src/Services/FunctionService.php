@@ -27,6 +27,7 @@ namespace AhgFunctionManage\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use AhgCore\Support\I18nFallback;
 
 class FunctionService
 {
@@ -66,10 +67,7 @@ class FunctionService
         $row = DB::table('function_object')
             ->join('object', 'function_object.id', '=', 'object.id')
             ->join('slug', 'function_object.id', '=', 'slug.object_id')
-            ->leftJoin('function_object_i18n', function ($j) {
-                $j->on('function_object.id', '=', 'function_object_i18n.id')
-                    ->where('function_object_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'function_object_i18n', 'function_object.id', $this->culture))
             ->where('function_object.id', $id)
             ->select([
                 'function_object.id',
@@ -79,16 +77,16 @@ class FunctionService
                 'function_object.description_identifier',
                 'function_object.source_standard',
                 'function_object.source_culture',
-                'function_object_i18n.authorized_form_of_name',
-                'function_object_i18n.classification',
-                'function_object_i18n.dates',
-                'function_object_i18n.description',
-                'function_object_i18n.history',
-                'function_object_i18n.legislation',
-                'function_object_i18n.institution_identifier',
-                'function_object_i18n.revision_history',
-                'function_object_i18n.rules',
-                'function_object_i18n.sources',
+                I18nFallback::col('function_object_i18n', 'authorized_form_of_name', 'authorized_form_of_name'),
+                I18nFallback::col('function_object_i18n', 'classification', 'classification'),
+                I18nFallback::col('function_object_i18n', 'dates', 'dates'),
+                I18nFallback::col('function_object_i18n', 'description', 'description'),
+                I18nFallback::col('function_object_i18n', 'history', 'history'),
+                I18nFallback::col('function_object_i18n', 'legislation', 'legislation'),
+                I18nFallback::col('function_object_i18n', 'institution_identifier', 'institution_identifier'),
+                I18nFallback::col('function_object_i18n', 'revision_history', 'revision_history'),
+                I18nFallback::col('function_object_i18n', 'rules', 'rules'),
+                I18nFallback::col('function_object_i18n', 'sources', 'sources'),
                 'object.created_at',
                 'object.updated_at',
                 'object.serial_number',
@@ -118,13 +116,10 @@ class FunctionService
     protected function getOtherNameValue(int $objectId, int $typeId): ?string
     {
         return DB::table('other_name')
-            ->leftJoin('other_name_i18n', function ($j) {
-                $j->on('other_name.id', '=', 'other_name_i18n.id')
-                    ->where('other_name_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'other_name_i18n', 'other_name.id', $this->culture))
             ->where('other_name.object_id', $objectId)
             ->where('other_name.type_id', $typeId)
-            ->value('other_name_i18n.name');
+            ->value(I18nFallback::col('other_name_i18n', 'name', 'name'));
     }
 
     /**
@@ -133,13 +128,10 @@ class FunctionService
     protected function getMaintenanceNote(int $objectId): ?string
     {
         return DB::table('note')
-            ->leftJoin('note_i18n', function ($j) {
-                $j->on('note.id', '=', 'note_i18n.id')
-                    ->where('note_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'note_i18n', 'note.id', $this->culture))
             ->where('note.object_id', $objectId)
             ->where('note.type_id', self::MAINTENANCE_NOTE_ID)
-            ->value('note_i18n.content');
+            ->value(I18nFallback::col('note_i18n', 'content', 'content'));
     }
 
     /**
@@ -178,20 +170,17 @@ class FunctionService
     private function namesOfType(int $functionId, string $typeName): \Illuminate\Support\Collection
     {
         return DB::table('other_name')
-            ->join('other_name_i18n', function ($j) {
-                $j->on('other_name.id', '=', 'other_name_i18n.id')
-                    ->where('other_name_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'other_name_i18n', 'other_name.id', $this->culture, required: true))
             ->join('term_i18n as type_i18n', function ($j) use ($typeName) {
                 $j->on('other_name.type_id', '=', 'type_i18n.id')
                     ->where('type_i18n.culture', '=', $this->culture)
                     ->where('type_i18n.name', '=', $typeName);
             })
             ->where('other_name.object_id', $functionId)
-            ->whereNotNull('other_name_i18n.name')
-            ->where('other_name_i18n.name', '!=', '')
+            ->whereNotNull(I18nFallback::col('other_name_i18n', 'name'))
+            ->where(I18nFallback::col('other_name_i18n', 'name'), '!=', '')
             ->orderBy('other_name.id')
-            ->pluck('other_name_i18n.name');
+            ->pluck(I18nFallback::col('other_name_i18n', 'name', 'name'));
     }
 
     /**
@@ -219,13 +208,10 @@ class FunctionService
     private function propertyArray(int $functionId, string $name): array
     {
         $raw = DB::table('property')
-            ->leftJoin('property_i18n', function ($j) {
-                $j->on('property.id', '=', 'property_i18n.id')
-                    ->where('property_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'property_i18n', 'property.id', $this->culture))
             ->where('property.object_id', $functionId)
             ->where('property.name', $name)
-            ->value('property_i18n.value');
+            ->value(I18nFallback::col('property_i18n', 'value', 'value'));
 
         if (! $raw) {
             return [];
@@ -288,23 +274,17 @@ class FunctionService
         return DB::table('relation')
             ->join('actor', $actorSide, '=', 'actor.id')
             ->join('object', 'actor.id', '=', 'object.id')
-            ->leftJoin('actor_i18n', function ($j) {
-                $j->on('actor.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $this->culture))
             ->leftJoin('slug', 'actor.id', '=', 'slug.object_id')
-            ->leftJoin('relation_i18n', function ($j) {
-                $j->on('relation.id', '=', 'relation_i18n.id')
-                    ->where('relation_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'relation_i18n', 'relation.id', $this->culture))
             ->where($functionSide, $functionId)
             ->where('object.class_name', 'QubitActor')
             ->select(
                 'actor.id',
                 'actor.description_identifier',
-                'actor_i18n.authorized_form_of_name',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'),
                 'slug.slug',
-                'relation_i18n.description as relation_description',
+                I18nFallback::col('relation_i18n', 'description', 'relation_description'),
                 $this->relationDatesExpression()
             )
             ->get();
@@ -337,19 +317,13 @@ class FunctionService
     {
         $asSubject = DB::table('relation')
             ->join('function_object', 'relation.object_id', '=', 'function_object.id')
-            ->leftJoin('function_object_i18n', function ($j) {
-                $j->on('function_object.id', '=', 'function_object_i18n.id')
-                    ->where('function_object_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'function_object_i18n', 'function_object.id', $this->culture))
             ->join('slug', 'function_object.id', '=', 'slug.object_id')
-            ->leftJoin('relation_i18n', function ($j) {
-                $j->on('relation.id', '=', 'relation_i18n.id')
-                    ->where('relation_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'relation_i18n', 'relation.id', $this->culture))
             ->where('relation.subject_id', $functionId)
             ->select([
                 'function_object.id',
-                'function_object_i18n.authorized_form_of_name',
+                I18nFallback::col('function_object_i18n', 'authorized_form_of_name', 'authorized_form_of_name'),
                 'slug.slug',
                 $this->relationDatesExpression(),
             ])
@@ -357,19 +331,13 @@ class FunctionService
 
         $asObject = DB::table('relation')
             ->join('function_object', 'relation.subject_id', '=', 'function_object.id')
-            ->leftJoin('function_object_i18n', function ($j) {
-                $j->on('function_object.id', '=', 'function_object_i18n.id')
-                    ->where('function_object_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'function_object_i18n', 'function_object.id', $this->culture))
             ->join('slug', 'function_object.id', '=', 'slug.object_id')
-            ->leftJoin('relation_i18n', function ($j) {
-                $j->on('relation.id', '=', 'relation_i18n.id')
-                    ->where('relation_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'relation_i18n', 'relation.id', $this->culture))
             ->where('relation.object_id', $functionId)
             ->select([
                 'function_object.id',
-                'function_object_i18n.authorized_form_of_name',
+                I18nFallback::col('function_object_i18n', 'authorized_form_of_name', 'authorized_form_of_name'),
                 'slug.slug',
                 $this->relationDatesExpression(),
             ])
@@ -385,20 +353,14 @@ class FunctionService
     {
         return DB::table('relation')
             ->join('information_object', 'relation.object_id', '=', 'information_object.id')
-            ->leftJoin('information_object_i18n', function ($j) {
-                $j->on('information_object.id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $this->culture))
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
-            ->leftJoin('relation_i18n', function ($j) {
-                $j->on('relation.id', '=', 'relation_i18n.id')
-                    ->where('relation_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'relation_i18n', 'relation.id', $this->culture))
             ->where('relation.subject_id', $functionId)
             ->where('information_object.id', '!=', 1)
             ->select([
                 'information_object.id',
-                'information_object_i18n.title',
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
                 'slug.slug',
                 $this->relationDatesExpression(),
             ])
@@ -414,13 +376,10 @@ class FunctionService
     {
         $termLookup = function (int $taxonomyId) {
             return DB::table('term')
-                ->leftJoin('term_i18n', function ($j) {
-                    $j->on('term.id', '=', 'term_i18n.id')
-                        ->where('term_i18n.culture', '=', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture))
                 ->where('term.taxonomy_id', $taxonomyId)
-                ->select('term.id', 'term_i18n.name')
-                ->orderBy('term_i18n.name')
+                ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
+                ->orderBy(I18nFallback::col('term_i18n', 'name'))
                 ->get();
         };
 

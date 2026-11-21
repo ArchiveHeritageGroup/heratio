@@ -27,6 +27,7 @@ namespace AhgResearch\Services;
 
 use Illuminate\Support\Facades\DB;
 use SimpleXMLElement;
+use AhgCore\Support\I18nFallback;
 
 /**
  * CitationService
@@ -88,21 +89,17 @@ class CitationService
     private function loadRecord(int $objectId): ?object
     {
         $row = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', app()->getLocale());
-            })
-            ->leftJoin('actor_i18n as repo', function ($j) {
-                $j->on('io.repository_id', '=', 'repo.id')->where('repo.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', app()->getLocale()))
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as repo', 'io.repository_id', app()->getLocale()))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->where('io.id', $objectId)
             ->select(
                 'io.id',
                 'io.identifier',
-                'ioi.title',
-                'ioi.scope_and_content',
-                'ioi.extent_and_medium',
-                'repo.authorized_form_of_name as repository_name',
+                I18nFallback::col('ioi', 'title', 'title'),
+                I18nFallback::col('ioi', 'scope_and_content', 'scope_and_content'),
+                I18nFallback::col('ioi', 'extent_and_medium', 'extent_and_medium'),
+                I18nFallback::col('repo', 'authorized_form_of_name', 'repository_name'),
                 'slug.slug'
             )
             ->first();
@@ -110,20 +107,16 @@ class CitationService
         if (!$row) return null;
 
         $creators = DB::table('event as e')
-            ->join('actor_i18n as ai', function ($j) {
-                $j->on('e.actor_id', '=', 'ai.id')->where('ai.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'e.actor_id', app()->getLocale(), required: true))
             ->where('e.object_id', $objectId)
             ->where('e.type_id', 111) // creation - see TermId::EVENT_TYPE_CREATION
-            ->pluck('ai.authorized_form_of_name')
+            ->pluck(I18nFallback::col('ai', 'authorized_form_of_name', 'authorized_form_of_name'))
             ->toArray();
 
         $dateRow = DB::table('event as e')
-            ->leftJoin('event_i18n as ei', function ($j) {
-                $j->on('e.id', '=', 'ei.id')->where('ei.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n as ei', 'e.id', app()->getLocale()))
             ->where('e.object_id', $objectId)
-            ->select('e.start_date', 'ei.date as date_display')
+            ->select('e.start_date', I18nFallback::col('ei', 'date', 'date_display'))
             ->first();
 
         $row->creators     = $creators;

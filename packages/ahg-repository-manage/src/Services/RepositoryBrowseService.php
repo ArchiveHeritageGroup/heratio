@@ -28,6 +28,7 @@ namespace AhgRepositoryManage\Services;
 use AhgCore\Services\BrowseService;
 use AhgCore\Traits\WithCultureFallback;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class RepositoryBrowseService extends BrowseService
 {
@@ -145,13 +146,10 @@ class RepositoryBrowseService extends BrowseService
         if ($row->id) {
             $ta = DB::table('object_term_relation')
                 ->join('term', 'object_term_relation.term_id', '=', 'term.id')
-                ->join('term_i18n', function ($j) {
-                    $j->on('term.id', '=', 'term_i18n.id')
-                        ->where('term_i18n.culture', '=', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture, required: true))
                 ->where('object_term_relation.object_id', $row->id)
                 ->where('term.taxonomy_id', 72)
-                ->value('term_i18n.name');
+                ->value(I18nFallback::col('term_i18n', 'name', 'name'));
             $thematicArea = $ta ?: '';
         }
 
@@ -187,15 +185,12 @@ class RepositoryBrowseService extends BrowseService
         $rows = DB::table('repository')
             ->join('object_term_relation', 'repository.id', '=', 'object_term_relation.object_id')
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
-            ->join('term_i18n', function ($j) {
-                $j->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture, required: true))
             ->where('term.taxonomy_id', 72) // Thematic area taxonomy
             ->where('repository.id', '!=', 6)
-            ->select('term.id', 'term_i18n.name', DB::raw('COUNT(*) as cnt'))
-            ->groupBy('term.id', 'term_i18n.name')
-            ->orderBy('term_i18n.name')
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'), DB::raw('COUNT(*) as cnt'))
+            ->groupBy('term.id', I18nFallback::col('term_i18n', 'name'))
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->get();
 
         $facets = [];
@@ -213,16 +208,13 @@ class RepositoryBrowseService extends BrowseService
     {
         $rows = DB::table('repository')
             ->join('contact_information', 'repository.id', '=', 'contact_information.actor_id')
-            ->join('contact_information_i18n', function ($j) {
-                $j->on('contact_information.id', '=', 'contact_information_i18n.id')
-                    ->where('contact_information_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'contact_information_i18n', 'contact_information.id', $this->culture, required: true))
             ->where('repository.id', '!=', 6)
-            ->whereNotNull('contact_information_i18n.region')
-            ->where('contact_information_i18n.region', '!=', '')
-            ->select('contact_information_i18n.region', DB::raw('COUNT(DISTINCT repository.id) as cnt'))
-            ->groupBy('contact_information_i18n.region')
-            ->orderBy('contact_information_i18n.region')
+            ->whereNotNull(I18nFallback::col('contact_information_i18n', 'region'))
+            ->where(I18nFallback::col('contact_information_i18n', 'region'), '!=', '')
+            ->select(I18nFallback::col('contact_information_i18n', 'region', 'region'), DB::raw('COUNT(DISTINCT repository.id) as cnt'))
+            ->groupBy(I18nFallback::col('contact_information_i18n', 'region'))
+            ->orderBy(I18nFallback::col('contact_information_i18n', 'region'))
             ->get();
 
         return $rows->toArray();
@@ -236,15 +228,12 @@ class RepositoryBrowseService extends BrowseService
         $rows = DB::table('repository')
             ->join('object_term_relation', 'repository.id', '=', 'object_term_relation.object_id')
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
-            ->join('term_i18n', function ($j) {
-                $j->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture, required: true))
             ->where('term.taxonomy_id', 38) // Repository type taxonomy
             ->where('repository.id', '!=', 6)
-            ->select('term.id', 'term_i18n.name', DB::raw('COUNT(DISTINCT repository.id) as cnt'))
-            ->groupBy('term.id', 'term_i18n.name')
-            ->orderBy('term_i18n.name')
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'), DB::raw('COUNT(DISTINCT repository.id) as cnt'))
+            ->groupBy('term.id', I18nFallback::col('term_i18n', 'name'))
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->get();
 
         $facets = [];
@@ -265,15 +254,12 @@ class RepositoryBrowseService extends BrowseService
         $rows = DB::table('repository')
             ->join('object_term_relation', 'repository.id', '=', 'object_term_relation.object_id')
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
-            ->join('term_i18n', function ($j) {
-                $j->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture, required: true))
             ->where('term.taxonomy_id', 73) // Geographic subregion taxonomy
             ->where('repository.id', '!=', 6)
-            ->select('term.id', 'term_i18n.name', DB::raw('COUNT(DISTINCT repository.id) as cnt'))
-            ->groupBy('term.id', 'term_i18n.name')
-            ->orderBy('term_i18n.name')
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'), DB::raw('COUNT(DISTINCT repository.id) as cnt'))
+            ->groupBy('term.id', I18nFallback::col('term_i18n', 'name'))
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->get();
 
         $facets = [];
@@ -319,16 +305,13 @@ class RepositoryBrowseService extends BrowseService
     {
         $rows = DB::table('repository')
             ->join('contact_information', 'repository.id', '=', 'contact_information.actor_id')
-            ->join('contact_information_i18n', function ($j) {
-                $j->on('contact_information.id', '=', 'contact_information_i18n.id')
-                    ->where('contact_information_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'contact_information_i18n', 'contact_information.id', $this->culture, required: true))
             ->where('repository.id', '!=', 6)
-            ->whereNotNull('contact_information_i18n.city')
-            ->where('contact_information_i18n.city', '!=', '')
-            ->select('contact_information_i18n.city as locality', DB::raw('COUNT(DISTINCT repository.id) as cnt'))
-            ->groupBy('contact_information_i18n.city')
-            ->orderBy('contact_information_i18n.city')
+            ->whereNotNull(I18nFallback::col('contact_information_i18n', 'city'))
+            ->where(I18nFallback::col('contact_information_i18n', 'city'), '!=', '')
+            ->select(I18nFallback::col('contact_information_i18n', 'city', 'locality'), DB::raw('COUNT(DISTINCT repository.id) as cnt'))
+            ->groupBy(I18nFallback::col('contact_information_i18n', 'city'))
+            ->orderBy(I18nFallback::col('contact_information_i18n', 'city'))
             ->get();
 
         $facets = [];
@@ -387,12 +370,9 @@ class RepositoryBrowseService extends BrowseService
                 $query->whereExists(function ($sub) use ($params) {
                     $sub->select(DB::raw(1))
                         ->from('contact_information')
-                        ->join('contact_information_i18n', function ($j) {
-                            $j->on('contact_information.id', '=', 'contact_information_i18n.id')
-                                ->where('contact_information_i18n.culture', '=', $this->culture);
-                        })
+                        ->tap(fn ($q) => I18nFallback::join($q, 'contact_information_i18n', 'contact_information.id', $this->culture, required: true))
                         ->whereColumn('contact_information.actor_id', 'repository.id')
-                        ->where('contact_information_i18n.city', 'LIKE', '%'.$params['locality'].'%');
+                        ->where(I18nFallback::col('contact_information_i18n', 'city'), 'LIKE', '%'.$params['locality'].'%');
                 });
             }
 

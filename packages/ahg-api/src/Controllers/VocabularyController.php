@@ -85,6 +85,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
+use AhgCore\Support\I18nFallback;
 
 class VocabularyController extends Controller
 {
@@ -453,16 +454,14 @@ class VocabularyController extends Controller
             }
 
             $q = DB::table('term as t')
-                ->leftJoin('term_i18n as ti', function ($j) {
-                    $j->on('t.id', '=', 'ti.id')->where('ti.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 't.id', $this->culture))
                 ->leftJoin('slug as s', 's.object_id', '=', 't.id')
                 ->where('t.taxonomy_id', $taxonomyId)
                 ->where('t.id', '!=', self::ROOT_ID)
                 ->whereNotNull('t.parent_id')
                 ->orderByRaw('COALESCE(t.lft, t.id)')
                 ->limit(self::MAX_SCHEME_CONCEPTS)
-                ->select('t.id', 't.taxonomy_id', 't.parent_id', 't.code', 't.lft', 't.rgt', 'ti.name', 's.slug');
+                ->select('t.id', 't.taxonomy_id', 't.parent_id', 't.code', 't.lft', 't.rgt', I18nFallback::col('ti', 'name', 'name'), 's.slug');
 
             $rows = $q->get();
         } catch (\Throwable $e) {
@@ -524,14 +523,12 @@ class VocabularyController extends Controller
             }
 
             $row = DB::table('term as t')
-                ->leftJoin('term_i18n as ti', function ($j) {
-                    $j->on('t.id', '=', 'ti.id')->where('ti.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 't.id', $this->culture))
                 ->leftJoin('slug as s', 's.object_id', '=', 't.id')
                 ->where('t.id', $id)
                 ->where('t.taxonomy_id', $taxonomyId)
                 ->whereNotNull('t.parent_id')
-                ->select('t.id', 't.taxonomy_id', 't.parent_id', 't.code', 't.lft', 't.rgt', 'ti.name', 's.slug')
+                ->select('t.id', 't.taxonomy_id', 't.parent_id', 't.code', 't.lft', 't.rgt', I18nFallback::col('ti', 'name', 'name'), 's.slug')
                 ->first();
         } catch (\Throwable $e) {
             return null;
@@ -657,12 +654,10 @@ class VocabularyController extends Controller
             }
 
             $content = DB::table('note as n')
-                ->join('note_i18n as ni', function ($j) {
-                    $j->on('n.id', '=', 'ni.id')->where('ni.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'note_i18n as ni', 'n.id', $this->culture, required: true))
                 ->where('n.object_id', $termId)
                 ->where('n.type_id', self::NOTE_SCOPE)
-                ->value('ni.content');
+                ->value(I18nFallback::col('ni', 'content', 'content'));
         } catch (\Throwable $e) {
             return null;
         }

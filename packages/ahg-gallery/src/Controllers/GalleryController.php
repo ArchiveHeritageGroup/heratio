@@ -37,6 +37,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class GalleryController extends Controller
 {
@@ -72,10 +73,9 @@ class GalleryController extends Controller
 
         // Get list of repositories for filter dropdown
         $repositories = DB::table('repository')
-            ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
-            ->where('actor_i18n.culture', $culture)
-            ->orderBy('actor_i18n.authorized_form_of_name')
-            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture, required: true))
+            ->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
+            ->select('repository.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'))
             ->get();
 
         return view('ahg-gallery::gallery.browse', [
@@ -129,11 +129,10 @@ class GalleryController extends Controller
         $repository = null;
         if ($artwork->repository_id) {
             $repository = DB::table('repository')
-                ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture, required: true))
                 ->join('slug', 'repository.id', '=', 'slug.object_id')
                 ->where('repository.id', $artwork->repository_id)
-                ->where('actor_i18n.culture', $culture)
-                ->select('repository.id', 'actor_i18n.authorized_form_of_name as name', 'slug.slug')
+                ->select('repository.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'), 'slug.slug')
                 ->first();
         }
 
@@ -142,33 +141,31 @@ class GalleryController extends Controller
 
         // Events (dates)
         $events = DB::table('event')
-            ->join('event_i18n', 'event.id', '=', 'event_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n', 'event.id', $culture))
             ->where('event.object_id', $artwork->id)
-            ->where('event_i18n.culture', $culture)
             ->select(
                 'event.id',
                 'event.type_id',
                 'event.actor_id',
                 'event.start_date',
                 'event.end_date',
-                'event_i18n.date as date_display',
-                'event_i18n.name as event_name'
+                I18nFallback::col('event_i18n', 'date', 'date_display'),
+                I18nFallback::col('event_i18n', 'name', 'event_name')
             )
             ->get();
 
         // Creators (creation events)
         $creators = DB::table('event')
             ->join('actor', 'event.actor_id', '=', 'actor.id')
-            ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'event.actor_id', $culture, required: true))
             ->join('slug', 'event.actor_id', '=', 'slug.object_id')
             ->where('event.object_id', $artwork->id)
             ->where('event.type_id', TermId::EVENT_TYPE_CREATION)
-            ->where('actor_i18n.culture', $culture)
             ->whereNotNull('event.actor_id')
             ->select(
                 'event.actor_id as id',
-                'actor_i18n.authorized_form_of_name as name',
-                'actor_i18n.history',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'),
+                I18nFallback::col('actor_i18n', 'history', 'history'),
                 'slug.slug'
             )
             ->distinct()
@@ -176,10 +173,9 @@ class GalleryController extends Controller
 
         // Notes
         $notes = DB::table('note')
-            ->join('note_i18n', 'note.id', '=', 'note_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'note_i18n', 'note.id', $culture, required: true))
             ->where('note.object_id', $artwork->id)
-            ->where('note_i18n.culture', $culture)
-            ->select('note.id', 'note.type_id', 'note_i18n.content')
+            ->select('note.id', 'note.type_id', I18nFallback::col('note_i18n', 'content', 'content'))
             ->get();
 
         $noteTypeIds = $notes->pluck('type_id')->filter()->unique()->values()->toArray();
@@ -194,32 +190,29 @@ class GalleryController extends Controller
 
         // Subject access points (taxonomy_id = 35)
         $subjects = DB::table('object_term_relation')
-            ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'object_term_relation.term_id', $culture, required: true))
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
             ->where('object_term_relation.object_id', $artwork->id)
             ->where('term.taxonomy_id', 35)
-            ->where('term_i18n.culture', $culture)
-            ->select('term_i18n.name')
+            ->select(I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
 
         // Place access points (taxonomy_id = 42)
         $places = DB::table('object_term_relation')
-            ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'object_term_relation.term_id', $culture, required: true))
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
             ->where('object_term_relation.object_id', $artwork->id)
             ->where('term.taxonomy_id', 42)
-            ->where('term_i18n.culture', $culture)
-            ->select('term_i18n.name')
+            ->select(I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
 
         // Genre access points (taxonomy_id = 78)
         $genres = DB::table('object_term_relation')
-            ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'object_term_relation.term_id', $culture, required: true))
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
             ->where('object_term_relation.object_id', $artwork->id)
             ->where('term.taxonomy_id', 78)
-            ->where('term_i18n.culture', $culture)
-            ->select('term_i18n.name')
+            ->select(I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
 
         // Publication status
@@ -241,11 +234,10 @@ class GalleryController extends Controller
         // AtoM: subject=physical_object, object=artwork(IO), type=RELATION_HAS_PHYSICAL_OBJECT.
         $physicalObjects = DB::table('relation')
             ->join('physical_object', 'relation.subject_id', '=', 'physical_object.id')
-            ->join('physical_object_i18n', 'physical_object.id', '=', 'physical_object_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'physical_object_i18n', 'physical_object.id', $culture, required: true))
             ->where('relation.object_id', $artwork->id)
             ->where('relation.type_id', TermId::RELATION_HAS_PHYSICAL_OBJECT)
-            ->where('physical_object_i18n.culture', $culture)
-            ->select('physical_object.id', 'physical_object_i18n.name', 'physical_object_i18n.location', 'physical_object.type_id')
+            ->select('physical_object.id', I18nFallback::col('physical_object_i18n', 'name', 'name'), I18nFallback::col('physical_object_i18n', 'location', 'location'), 'physical_object.type_id')
             ->get();
 
         // Level name
@@ -262,11 +254,10 @@ class GalleryController extends Controller
         $parentId = $artwork->parent_id;
         while ($parentId && $parentId != 1) {
             $parent = DB::table('information_object')
-                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
                 ->join('slug', 'information_object.id', '=', 'slug.object_id')
                 ->where('information_object.id', $parentId)
-                ->where('information_object_i18n.culture', $culture)
-                ->select('information_object.id', 'information_object.parent_id', 'information_object_i18n.title', 'slug.slug')
+                ->select('information_object.id', 'information_object.parent_id', I18nFallback::col('information_object_i18n', 'title', 'title'), 'slug.slug')
                 ->first();
             if (!$parent) {
                 break;
@@ -312,16 +303,13 @@ class GalleryController extends Controller
         if (!empty($carouselIds)) {
             $childThumbnails = ! $carouselOn ? collect() : DB::table('digital_object')
                 ->join('slug', 'digital_object.object_id', '=', 'slug.object_id')
-                ->join('information_object_i18n', function ($join) use ($culture) {
-                    $join->on('digital_object.object_id', '=', 'information_object_i18n.id')
-                         ->where('information_object_i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'digital_object.object_id', $culture))
                 ->whereIn('digital_object.object_id', $carouselIds)
                 ->where('digital_object.usage_id', 142)
                 ->select(
                     'digital_object.id', 'digital_object.object_id', 'digital_object.name',
                     'digital_object.path', 'digital_object.mime_type', 'digital_object.byte_size',
-                    'slug.slug', 'information_object_i18n.title'
+                    'slug.slug', I18nFallback::col('information_object_i18n', 'title', 'title')
                 )
                 ->orderBy('digital_object.object_id')
                 ->limit(10)

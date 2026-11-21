@@ -42,6 +42,7 @@ use AhgCore\Services\SettingHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class ActorController extends Controller
 {
@@ -268,13 +269,10 @@ class ActorController extends Controller
         $parentActor = null;
         if ($actor->parent_id && !in_array((int) $actor->parent_id, [3, \AhgCore\Models\Repository::ROOT_ID], true)) { // 3 = actor root; some records point at the repository root (6)
             $parentActor = DB::table('actor')
-                ->join('actor_i18n', function ($j) {
-                    $j->on('actor.id', '=', 'actor_i18n.id')
-                        ->where('actor_i18n.culture', '=', app()->getLocale());
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', app()->getLocale(), required: true))
                 ->join('slug', 'actor.id', '=', 'slug.object_id')
                 ->where('actor.id', $actor->parent_id)
-                ->select('actor.id', 'actor_i18n.authorized_form_of_name', 'slug.slug')
+                ->select('actor.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'), 'slug.slug')
                 ->first();
         }
 
@@ -967,12 +965,9 @@ class ActorController extends Controller
         $limit = (int) $request->get('limit', 10);
 
         $builder = DB::table('actor')
-            ->join('actor_i18n', function ($j) use ($culture) {
-                $j->on('actor.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $culture, required: true))
             ->join('slug', 'slug.object_id', '=', 'actor.id')
-            ->where('actor_i18n.authorized_form_of_name', 'LIKE', '%'.$query.'%');
+            ->where(I18nFallback::col('actor_i18n', 'authorized_form_of_name'), 'LIKE', '%'.$query.'%');
 
         // Guests must not see draft or embargoed authority records.
         \AhgCore\Services\AclService::addActorVisibilityCriteria($builder, 'actor.id');
@@ -980,7 +975,7 @@ class ActorController extends Controller
         $results = $builder
             ->select(
                 'actor.id',
-                'actor_i18n.authorized_form_of_name as name',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'),
                 'slug.slug'
             )
             ->limit($limit)
@@ -1666,19 +1661,10 @@ class ActorController extends Controller
         $page = max(1, (int) $request->get('page', 1));
 
         $base = DB::table('event')
-            ->leftJoin('event_i18n', function ($j) use ($culture) {
-                $j->on('event.id', '=', 'event_i18n.id')
-                    ->where('event_i18n.culture', '=', $culture);
-            })
-            ->leftJoin('term_i18n as type_i18n', function ($j) use ($culture) {
-                $j->on('event.type_id', '=', 'type_i18n.id')
-                    ->where('type_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n', 'event.id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as type_i18n', 'event.type_id', $culture))
             ->leftJoin('information_object', 'event.object_id', '=', 'information_object.id')
-            ->leftJoin('information_object_i18n as io_i18n', function ($j) use ($culture) {
-                $j->on('information_object.id', '=', 'io_i18n.id')
-                    ->where('io_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as io_i18n', 'information_object.id', $culture))
             ->leftJoin('slug as io_slug', 'information_object.id', '=', 'io_slug.object_id')
             ->where('event.actor_id', $actor->id);
 
@@ -1690,12 +1676,12 @@ class ActorController extends Controller
                 'event.type_id',
                 'event.start_date',
                 'event.end_date',
-                'event_i18n.date as date_display',
-                'event_i18n.name as event_name',
-                'event_i18n.description as event_description',
-                'type_i18n.name as type_name',
+                I18nFallback::col('event_i18n', 'date', 'date_display'),
+                I18nFallback::col('event_i18n', 'name', 'event_name'),
+                I18nFallback::col('event_i18n', 'description', 'event_description'),
+                I18nFallback::col('type_i18n', 'name', 'type_name'),
                 'information_object.id as io_id',
-                'io_i18n.title as io_title',
+                I18nFallback::col('io_i18n', 'title', 'io_title'),
                 'io_slug.slug as io_slug',
             )
             ->orderByRaw('COALESCE(event.start_date, "9999-12-31") asc')

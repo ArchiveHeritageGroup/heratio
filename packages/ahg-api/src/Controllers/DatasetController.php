@@ -66,6 +66,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use AhgApi\Concerns\ResolvesTermName;
 use AhgApi\Concerns\ResolvesPublisherName;
 use AhgApi\Concerns\FetchesSubjectTerms;
+use AhgCore\Support\I18nFallback;
 
 class DatasetController extends Controller
 {
@@ -355,11 +356,9 @@ class DatasetController extends Controller
     {
         try {
             $rows = DB::table('event as e')
-                ->leftJoin('event_i18n as ei', function ($j) {
-                    $j->on('e.id', '=', 'ei.id')->where('ei.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n as ei', 'e.id', $this->culture))
                 ->where('e.object_id', $objectId)
-                ->select('ei.date as display_date', 'e.start_date', 'e.end_date')
+                ->select(I18nFallback::col('ei', 'date', 'display_date'), 'e.start_date', 'e.end_date')
                 ->get();
 
             $dates = [];

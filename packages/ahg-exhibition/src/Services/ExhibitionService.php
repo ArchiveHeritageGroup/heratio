@@ -28,6 +28,7 @@ namespace AhgExhibition\Services;
 use AhgCore\Services\AhgSettingsService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class ExhibitionService
 {
@@ -461,14 +462,11 @@ class ExhibitionService
 
         $rows = DB::table('exhibition_object as eo')
             ->leftJoin('information_object as io', 'io.id', '=', 'eo.information_object_id')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('eo.information_object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'eo.information_object_id', $this->culture))
             ->leftJoin('exhibition_section as es', 'es.id', '=', 'eo.section_id')
             ->leftJoin('slug', 'eo.information_object_id', '=', 'slug.object_id')
             ->where('eo.exhibition_id', $exhibitionId)
-            ->select('eo.*', 'io.identifier', 'ioi.title as object_title', 'slug.slug',
+            ->select('eo.*', 'io.identifier', I18nFallback::col('ioi', 'title', 'object_title'), 'slug.slug',
                 'es.title as section_title', 'es.gallery_name')
             ->orderBy('eo.section_id')
             ->orderBy('eo.sequence_order')
@@ -603,16 +601,14 @@ class ExhibitionService
         return DB::table('exhibition_object as eo')
             ->leftJoin('exhibition_section as es', 'es.id', '=', 'eo.section_id')
             ->leftJoin('information_object as io', 'io.id', '=', 'eo.information_object_id')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('ioi.id', '=', 'io.id')->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
             ->leftJoin('slug', 'slug.object_id', '=', 'io.id')
             ->where('eo.exhibition_id', $exhibitionId)
             ->orderBy('es.sequence_order')
             ->orderBy('eo.sequence_order')
             ->select(
                 'eo.id', 'eo.information_object_id', 'slug.slug', 'io.identifier',
-                'ioi.title as object_title', 'es.id as section_id', 'es.title as section_title',
+                I18nFallback::col('ioi', 'title', 'object_title'), 'es.id as section_id', 'es.title as section_title',
                 'es.gallery_name', 'eo.display_position', 'eo.status', 'eo.insurance_value',
                 'eo.requires_loan', 'eo.lender_institution', 'eo.label_text', 'eo.installation_notes'
             )
@@ -692,14 +688,12 @@ class ExhibitionService
         // The view shows the object each stop is at; join its title and slug.
         return DB::table('exhibition_storyline_stop as ss')
             ->leftJoin('exhibition_object as eo', 'eo.id', '=', 'ss.exhibition_object_id')
-            ->leftJoin('information_object_i18n as ioi', function ($j) {
-                $j->on('ioi.id', '=', 'eo.information_object_id')->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'eo.information_object_id', $this->culture))
             ->leftJoin('slug', 'slug.object_id', '=', 'eo.information_object_id')
             ->where('ss.storyline_id', $storylineId)
             ->orderBy('ss.sequence_order')
             ->orderBy('ss.id')
-            ->select('ss.*', 'ioi.title as object_title', 'slug.slug as object_slug')
+            ->select('ss.*', I18nFallback::col('ioi', 'title', 'object_title'), 'slug.slug as object_slug')
             ->get();
     }
 
@@ -806,15 +800,13 @@ class ExhibitionService
         $like = '%'.addcslashes($query, '%_\\').'%';
 
         $rows = DB::table('information_object as io')
-            ->join('information_object_i18n as ioi', function ($j) {
-                $j->on('ioi.id', '=', 'io.id')->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
             ->where('io.id', '!=', 1)
             ->whereNotIn('io.id', $existing ?: [0])
             ->where(function ($q) use ($like) {
-                $q->where('io.identifier', 'LIKE', $like)->orWhere('ioi.title', 'LIKE', $like);
+                $q->where('io.identifier', 'LIKE', $like)->orWhere(I18nFallback::col('ioi', 'title'), 'LIKE', $like);
             })
-            ->select('io.id', 'io.identifier', 'ioi.title')
+            ->select('io.id', 'io.identifier', I18nFallback::col('ioi', 'title', 'title'))
             ->limit($limit)
             ->get();
 

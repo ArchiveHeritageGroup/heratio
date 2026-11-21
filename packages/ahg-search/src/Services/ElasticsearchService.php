@@ -30,6 +30,7 @@ use AhgSearch\Support\SearchCursor;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use AhgCore\Support\I18nFallback;
 
 class ElasticsearchService
 {
@@ -401,6 +402,104 @@ class ElasticsearchService
 
     public function matchingIoIds(string $query, string $culture = 'en', int $limit = 10000): ?array
     {
+        $fields = $this->browseSearchFields($culture);
+        $url = "{$this->host}/{$this->indexPrefix}qubitinformationobject/_search";
+
+        // heratio#1583: AND/OR/NOT, ? and inner * wildcards and /regex/ go to
+        // query_string under a time limit. If the index rejects the syntax,
+        // the same text is tried again as plain words.
+        $attempts = BrowseQueryBuilder::usesAdvancedSyntax($query)
+            ? [BrowseQueryBuilder::text($query, $fields), BrowseQueryBuilder::text(BrowseQueryBuilder::plainWords($query), $fields)]
+            : [BrowseQueryBuilder::text($query, $fields, '100%'), BrowseQueryBuilder::text($query, $fields, '2<-1')];
+
+        foreach ($attempts as $i => $q) {
+            try {
+                $response = Http::timeout(5)->post($url, BrowseQueryBuilder::idSearchBody($q, $limit));
+            } catch (\Throwable $e) {
+                return null;
+            }
+            if (! $response->successful()) {
+                // A syntax error in the advanced form: retry as plain words.
+                if ($i === 0 && isset($q['query_string']) && $response->status() === 400) {
+                    continue;
+                }
+
+                return null;
+            }
+            $total = (int) $response->json('hits.total.value', 0);
+            if ($total > $limit) {
+                return null;
+            }
+            if ($total > 0) {
+                return array_map(fn ($h) => (int) $h['_id'], $response->json('hits.hits', []));
+            }
+            if (isset($q['query_string'])) {
+                return []; // the advanced form answered: nothing matches
+            }
+        }
+
+        return [];
+    }
+
+    /**
+     * heratio#1583: the close-match retry for a search that found nothing -
+     * every word with fuzziness AUTO over the same fields. Best match first.
+     * Null when the index cannot answer or matches more than $limit.
+     *
+     * @return array<int,int>|null
+     */
+    public function fuzzyMatchingIoIds(string $query, string $culture = 'en', int $limit = 10000): ?array
+    {
+        if (BrowseQueryBuilder::plainWords($query) === '') {
+            return [];
+        }
+        try {
+            $response = Http::timeout(5)->post(
+                "{$this->host}/{$this->indexPrefix}qubitinformationobject/_search",
+                BrowseQueryBuilder::idSearchBody(BrowseQueryBuilder::fuzzy($query, $this->browseSearchFields($culture)), $limit)
+            );
+        } catch (\Throwable $e) {
+            return null;
+        }
+        if (! $response->successful() || (int) $response->json('hits.total.value', 0) > $limit) {
+            return null;
+        }
+
+        return array_map(fn ($h) => (int) $h['_id'], $response->json('hits.hits', []));
+    }
+
+    /**
+     * heratio#1583: did-you-mean for the browse search box, from the phrase
+     * suggester, kept only when the suggestion matches a published record
+     * outside $restrictedIds. Null when there is none or the index is down.
+     *
+     * @param  array<int,int>  $restrictedIds
+     */
+    public function browseSuggestion(string $query, array $restrictedIds = []): ?string
+    {
+        if (mb_strlen(BrowseQueryBuilder::plainWords($query)) < 3) {
+            return null;
+        }
+        try {
+            $response = Http::timeout(5)->post(
+                "{$this->host}/{$this->indexPrefix}qubitinformationobject/_search",
+                BrowseQueryBuilder::suggest($query, $restrictedIds)
+            );
+        } catch (\Throwable $e) {
+            return null;
+        }
+
+        return $response->successful() ? BrowseQueryBuilder::suggestionFrom((array) $response->json(), $query) : null;
+    }
+
+    /**
+     * The fields the browse search box searches: catalogue fields first, then
+     * `transcript` (heratio#1763) at a low weight. `all` is never searched.
+     *
+     * @return array<int,string>
+     */
+    protected function browseSearchFields(string $culture): array
+    {
         $fields = [];
         foreach (array_unique([$culture, 'en']) as $c) {
             array_push($fields, "i18n.{$c}.title^3", "i18n.{$c}.scopeAndContent", "creators.i18n.{$c}.authorizedFormOfName^2");
@@ -411,36 +510,7 @@ class ElasticsearchService
         array_push($fields, 'identifier^2', 'referenceCode^2', 'isbn^3', 'callNumber^2', 'seriesTitle', 'summary', 'contentsNote');
         $fields[] = 'transcript^0.5';
 
-        $url = "{$this->host}/{$this->indexPrefix}qubitinformationobject/_search";
-        foreach (['all' => '100%', 'most' => '2<-1'] as $msm) {
-            try {
-                $response = Http::timeout(5)->post($url, [
-                    'size' => $limit,
-                    '_source' => false,
-                    'track_total_hits' => true,
-                    'query' => ['simple_query_string' => [
-                        'query' => $query,
-                        'fields' => $fields,
-                        'default_operator' => 'OR',
-                        'minimum_should_match' => $msm,
-                    ]],
-                ]);
-            } catch (\Throwable $e) {
-                return null;
-            }
-            if (! $response->successful()) {
-                return null;
-            }
-            $total = (int) $response->json('hits.total.value', 0);
-            if ($total > $limit) {
-                return null;
-            }
-            if ($total > 0) {
-                return array_map(fn ($h) => (int) $h['_id'], $response->json('hits.hits', []));
-            }
-        }
-
-        return [];
+        return $fields;
     }
 
     /**
@@ -899,14 +969,11 @@ class ElasticsearchService
     public function getRepositoryList(string $culture = 'en'): array
     {
         return DB::table('actor')
-            ->join('actor_i18n', function ($join) use ($culture) {
-                $join->on('actor.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $culture, required: true))
             ->join('repository', 'repository.id', '=', 'actor.id')
             ->where('actor.id', '!=', 6) // ROOT_ID
-            ->orderBy('actor_i18n.authorized_form_of_name', 'asc')
-            ->pluck('actor_i18n.authorized_form_of_name', 'actor.id')
+            ->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'), 'asc')
+            ->pluck(I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'), 'actor.id')
             ->toArray();
     }
 
@@ -917,12 +984,9 @@ class ElasticsearchService
     {
         // Taxonomy ID 34 = level of description
         return DB::table('term')
-            ->leftJoin('term_i18n', function ($join) use ($culture) {
-                $join->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture))
             ->where('term.taxonomy_id', '=', 34)
-            ->pluck('term_i18n.name', 'term.id')
+            ->pluck(I18nFallback::col('term_i18n', 'name', 'name'), 'term.id')
             ->filter()
             ->toArray();
     }
@@ -934,12 +998,9 @@ class ElasticsearchService
     {
         // Taxonomy ID 46 = media type
         return DB::table('term')
-            ->leftJoin('term_i18n', function ($join) use ($culture) {
-                $join->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture))
             ->where('term.taxonomy_id', '=', 46)
-            ->pluck('term_i18n.name', 'term.id')
+            ->pluck(I18nFallback::col('term_i18n', 'name', 'name'), 'term.id')
             ->filter()
             ->toArray();
     }
@@ -1307,10 +1368,7 @@ class ElasticsearchService
         string $sort, int $page, int $limit, string $culture
     ): array {
         $qb = DB::table('information_object as io')
-            ->join('information_object_i18n as io_i18n', function ($join) use ($culture) {
-                $join->on('io.id', '=', 'io_i18n.id')
-                    ->where('io_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as io_i18n', 'io.id', $culture))
             ->leftJoin('slug', function ($join) {
                 $join->on('slug.object_id', '=', 'io.id');
             })
@@ -1334,9 +1392,9 @@ class ElasticsearchService
                 foreach ($words as $word) {
                     $like = '%'.$word.'%';
                     $q->where(function ($inner) use ($like) {
-                        $inner->orWhere('io_i18n.title', 'LIKE', $like)
-                            ->orWhere('io_i18n.scope_and_content', 'LIKE', $like)
-                            ->orWhere('io_i18n.archival_history', 'LIKE', $like)
+                        $inner->orWhere(I18nFallback::col('io_i18n', 'title'), 'LIKE', $like)
+                            ->orWhere(I18nFallback::col('io_i18n', 'scope_and_content'), 'LIKE', $like)
+                            ->orWhere(I18nFallback::col('io_i18n', 'archival_history'), 'LIKE', $like)
                             ->orWhere('io.identifier', 'LIKE', $like);
                     });
                 }
@@ -1398,10 +1456,10 @@ class ElasticsearchService
         // Sorting
         switch ($sort) {
             case 'titleAsc':
-                $qb->orderBy('io_i18n.title', 'asc');
+                $qb->orderBy(I18nFallback::col('io_i18n', 'title'), 'asc');
                 break;
             case 'titleDesc':
-                $qb->orderBy('io_i18n.title', 'desc');
+                $qb->orderBy(I18nFallback::col('io_i18n', 'title'), 'desc');
                 break;
             case 'dateAsc':
                 $qb->orderBy('object.created_at', 'asc');
@@ -1419,14 +1477,14 @@ class ElasticsearchService
                 $qb->orderBy('object.updated_at', 'desc');
                 break;
             default: // relevance - for DB just use title
-                $qb->orderBy('io_i18n.title', 'asc');
+                $qb->orderBy(I18nFallback::col('io_i18n', 'title'), 'asc');
                 break;
         }
 
         $rows = $qb
             ->select([
                 'io.id',
-                'io_i18n.title',
+                I18nFallback::col('io_i18n', 'title', 'title'),
                 'slug.slug',
                 'io.identifier',
                 'io.level_of_description_id',
@@ -1436,7 +1494,7 @@ class ElasticsearchService
             ])
             // List every selected column so the dedupe groupBy satisfies
             // ONLY_FULL_GROUP_BY (matches the GLAM browse pattern).
-            ->groupBy('io.id', 'io_i18n.title', 'slug.slug', 'io.identifier', 'io.level_of_description_id', 'io.repository_id', 'object.created_at', 'object.updated_at')
+            ->groupBy('io.id', I18nFallback::col('io_i18n', 'title'), 'slug.slug', 'io.identifier', 'io.level_of_description_id', 'io.repository_id', 'object.created_at', 'object.updated_at')
             ->offset(($page - 1) * $limit)
             ->limit($limit)
             ->get();
@@ -1545,14 +1603,11 @@ class ElasticsearchService
 
         // Repository aggregation
         $repos = DB::table('information_object as io')
-            ->join('actor_i18n', function ($join) use ($culture) {
-                $join->on('io.repository_id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'io.repository_id', $culture, required: true))
             ->where('io.id', '!=', 1)
             ->whereNotNull('io.repository_id')
-            ->select('io.repository_id as id', 'actor_i18n.authorized_form_of_name as label', DB::raw('COUNT(*) as cnt'))
-            ->groupBy('io.repository_id', 'actor_i18n.authorized_form_of_name')
+            ->select('io.repository_id as id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'label'), DB::raw('COUNT(*) as cnt'))
+            ->groupBy('io.repository_id', I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
             ->orderByDesc('cnt')
             ->limit(50)
             ->get();
@@ -1563,14 +1618,11 @@ class ElasticsearchService
 
         // Level aggregation
         $levels = DB::table('information_object as io')
-            ->leftJoin('term_i18n', function ($join) use ($culture) {
-                $join->on('io.level_of_description_id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'io.level_of_description_id', $culture))
             ->where('io.id', '!=', 1)
             ->whereNotNull('io.level_of_description_id')
-            ->select('io.level_of_description_id as id', 'term_i18n.name as label', DB::raw('COUNT(*) as cnt'))
-            ->groupBy('io.level_of_description_id', 'term_i18n.name')
+            ->select('io.level_of_description_id as id', I18nFallback::col('term_i18n', 'name', 'label'), DB::raw('COUNT(*) as cnt'))
+            ->groupBy('io.level_of_description_id', I18nFallback::col('term_i18n', 'name'))
             ->orderByDesc('cnt')
             ->limit(50)
             ->get();
@@ -1581,13 +1633,10 @@ class ElasticsearchService
 
         // Media type aggregation
         $media = DB::table('digital_object as do_tbl')
-            ->leftJoin('term_i18n', function ($join) use ($culture) {
-                $join->on('do_tbl.media_type_id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'do_tbl.media_type_id', $culture))
             ->whereNotNull('do_tbl.media_type_id')
-            ->select('do_tbl.media_type_id as id', 'term_i18n.name as label', DB::raw('COUNT(*) as cnt'))
-            ->groupBy('do_tbl.media_type_id', 'term_i18n.name')
+            ->select('do_tbl.media_type_id as id', I18nFallback::col('term_i18n', 'name', 'label'), DB::raw('COUNT(*) as cnt'))
+            ->groupBy('do_tbl.media_type_id', I18nFallback::col('term_i18n', 'name'))
             ->orderByDesc('cnt')
             ->limit(20)
             ->get();

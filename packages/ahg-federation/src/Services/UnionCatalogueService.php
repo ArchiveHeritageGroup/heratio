@@ -45,6 +45,7 @@ namespace AhgFederation\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class UnionCatalogueService
 {
@@ -372,40 +373,31 @@ class UnionCatalogueService
                 $j->on('io.id', '=', 'st.object_id')
                     ->where('st.type_id', '=', self::STATUS_TYPE_PUBLICATION);
             })
-            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
-            ->leftJoin('term_i18n as lvl', function ($j) use ($culture) {
-                $j->on('io.level_of_description_id', '=', 'lvl.id')
-                    ->where('lvl.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as lvl', 'io.level_of_description_id', $culture))
             ->leftJoin('repository as repo', 'io.repository_id', '=', 'repo.id')
-            ->leftJoin('actor_i18n as repoi', function ($j) use ($culture) {
-                $j->on('repo.id', '=', 'repoi.id')->where('repoi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as repoi', 'repo.id', $culture))
             ->leftJoin('event as ev', function ($j) {
                 $j->on('io.id', '=', 'ev.object_id');
             })
-            ->leftJoin('event_i18n as evi', function ($j) use ($culture) {
-                $j->on('ev.id', '=', 'evi.id')->where('evi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n as evi', 'ev.id', $culture))
             ->where('st.status_id', '=', self::STATUS_PUBLISHED)
             ->where('io.id', '>', $afterId)
             ->where('io.id', '>', 1)
             ->whereNotIn('io.id', app(\AhgCore\Services\DisclosureGate::class)->restrictedIds()) // #1384/#1389 ICIP/TK + ODRL
-            ->groupBy('io.id', 'io.level_of_description_id', 'i18n.title',
-                'lvl.name', 'repoi.authorized_form_of_name', 's.slug')
+            ->groupBy('io.id', 'io.level_of_description_id', I18nFallback::col('i18n', 'title'),
+                I18nFallback::col('lvl', 'name'), I18nFallback::col('repoi', 'authorized_form_of_name'), 's.slug')
             ->orderBy('io.id')
             ->limit($batch)
             ->select([
                 'io.id',
                 'io.level_of_description_id',
-                'i18n.title as title',
-                'lvl.name as level_label',
-                'repoi.authorized_form_of_name as repository_name',
+                I18nFallback::col('i18n', 'title', 'title'),
+                I18nFallback::col('lvl', 'name', 'level_label'),
+                I18nFallback::col('repoi', 'authorized_form_of_name', 'repository_name'),
                 's.slug as slug',
-                DB::raw('MIN(evi.date) as date_display'),
+                DB::raw('MIN(COALESCE(evi.date, evi_fb.date)) as date_display'),
             ])
             ->get();
     }

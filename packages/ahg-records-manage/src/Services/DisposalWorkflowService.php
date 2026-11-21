@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use AhgRecordsManage\Services\Concerns\WritesDisposalAuditLog;
+use AhgCore\Support\I18nFallback;
 
 class DisposalWorkflowService
 {
@@ -89,10 +90,7 @@ class DisposalWorkflowService
         $culture = app()->getLocale();
 
         $query = DB::table('rm_disposal_action as da')
-            ->leftJoin('information_object_i18n as io_i18n', function ($join) use ($culture) {
-                $join->on('da.information_object_id', '=', 'io_i18n.id')
-                    ->where('io_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as io_i18n', 'da.information_object_id', $culture))
             ->leftJoin('user as init_user', 'da.initiated_by', '=', 'init_user.id')
             ->leftJoin('actor_i18n as init_actor', function ($join) {
                 $join->on('init_user.id', '=', 'init_actor.id')
@@ -120,7 +118,7 @@ class DisposalWorkflowService
 
         $data = $query->select([
             'da.*',
-            'io_i18n.title as io_title',
+            I18nFallback::col('io_i18n', 'title', 'io_title'),
             'init_actor.authorized_form_of_name as initiated_by_name',
         ])
             ->orderBy('da.initiated_at', 'desc')
@@ -300,10 +298,7 @@ class DisposalWorkflowService
         $culture = app()->getLocale();
 
         $action = DB::table('rm_disposal_action as da')
-            ->leftJoin('information_object_i18n as io_i18n', function ($join) use ($culture) {
-                $join->on('da.information_object_id', '=', 'io_i18n.id')
-                    ->where('io_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as io_i18n', 'da.information_object_id', $culture))
             ->leftJoin('user as init_user', 'da.initiated_by', '=', 'init_user.id')
             ->leftJoin('actor_i18n as init_actor', function ($join) {
                 $join->on('init_user.id', '=', 'init_actor.id')
@@ -332,7 +327,7 @@ class DisposalWorkflowService
             ->where('da.id', $id)
             ->select([
                 'da.*',
-                'io_i18n.title as io_title',
+                I18nFallback::col('io_i18n', 'title', 'io_title'),
                 'init_actor.authorized_form_of_name as initiated_by_name',
                 'rec_actor.authorized_form_of_name as recommended_by_name',
                 'app_actor.authorized_form_of_name as approved_by_name',

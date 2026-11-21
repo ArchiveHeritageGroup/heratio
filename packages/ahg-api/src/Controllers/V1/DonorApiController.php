@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class DonorApiController extends Controller
 {
@@ -25,10 +26,7 @@ class DonorApiController extends Controller
 
         $query = DB::table('donor')
             ->join('object', 'donor.id', '=', 'object.id')
-            ->leftJoin('actor_i18n', function ($join) {
-                $join->on('donor.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'donor.id', $this->culture))
             ->leftJoin('slug', 'donor.id', '=', 'slug.object_id');
 
         $orderCol = match ($sort) {
@@ -40,7 +38,7 @@ class DonorApiController extends Controller
         $results = $query
             ->select(
                 'donor.id',
-                'actor_i18n.authorized_form_of_name',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'),
                 'slug.slug',
                 'object.created_at', 'object.updated_at'
             )
@@ -56,13 +54,10 @@ class DonorApiController extends Controller
     {
         $donor = DB::table('donor')
             ->join('object', 'donor.id', '=', 'object.id')
-            ->leftJoin('actor_i18n', function ($join) {
-                $join->on('donor.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'donor.id', $this->culture))
             ->join('slug', 'donor.id', '=', 'slug.object_id')
             ->where('slug.slug', $slug)
-            ->select('donor.id', 'actor_i18n.*', 'slug.slug', 'object.created_at', 'object.updated_at')
+            ->select('donor.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'), I18nFallback::col('actor_i18n', 'dates_of_existence', 'dates_of_existence'), I18nFallback::col('actor_i18n', 'history', 'history'), I18nFallback::col('actor_i18n', 'places', 'places'), I18nFallback::col('actor_i18n', 'legal_status', 'legal_status'), I18nFallback::col('actor_i18n', 'functions', 'functions'), I18nFallback::col('actor_i18n', 'mandates', 'mandates'), I18nFallback::col('actor_i18n', 'internal_structures', 'internal_structures'), I18nFallback::col('actor_i18n', 'general_context', 'general_context'), I18nFallback::col('actor_i18n', 'institution_responsible_identifier', 'institution_responsible_identifier'), I18nFallback::col('actor_i18n', 'rules', 'rules'), I18nFallback::col('actor_i18n', 'sources', 'sources'), I18nFallback::col('actor_i18n', 'revision_history', 'revision_history'), 'slug.slug', 'object.created_at', 'object.updated_at')
             ->first();
 
         if (! $donor) {

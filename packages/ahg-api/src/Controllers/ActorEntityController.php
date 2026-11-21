@@ -72,6 +72,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
 use AhgApi\Concerns\NegotiatesRdfFormat;
+use AhgCore\Support\I18nFallback;
 
 class ActorEntityController extends Controller
 {
@@ -265,9 +266,7 @@ class ActorEntityController extends Controller
 
             $query = DB::table('slug as s')
                 ->join('actor as a', 'a.id', '=', 's.object_id')
-                ->leftJoin('actor_i18n as ai', function ($j) {
-                    $j->on('a.id', '=', 'ai.id')->where('ai.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'a.id', $this->culture))
                 ->where('s.slug', $slug)
                 ->where('a.id', '!=', self::ROOT_ID);
 
@@ -283,9 +282,9 @@ class ActorEntityController extends Controller
             $row = $query->select(
                 'a.id',
                 'a.entity_type_id',
-                'ai.authorized_form_of_name as name',
-                'ai.dates_of_existence',
-                'ai.history'
+                I18nFallback::col('ai', 'authorized_form_of_name', 'name'),
+                I18nFallback::col('ai', 'dates_of_existence', 'dates_of_existence'),
+                I18nFallback::col('ai', 'history', 'history')
             )->first();
         } catch (\Throwable $e) {
             return null;

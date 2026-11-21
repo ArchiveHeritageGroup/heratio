@@ -25,6 +25,7 @@ namespace AhgMetadataExport\Services\Exporters;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class ProvOSerializer
 {
@@ -138,11 +139,9 @@ class ProvOSerializer
     private function buildEntity(int $informationObjectId, string $culture): array
     {
         $row = DB::table('information_object as i')
-            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('i.id', '=', 'i18n.id')->where('i18n.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'i.id', $culture))
             ->where('i.id', $informationObjectId)
-            ->select('i.id', 'i.identifier', 'i18n.title')
+            ->select('i.id', 'i.identifier', I18nFallback::col('i18n', 'title', 'title'))
             ->first();
 
         return [

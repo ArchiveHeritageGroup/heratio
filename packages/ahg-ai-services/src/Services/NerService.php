@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use AhgCore\Support\I18nFallback;
 
 /**
  * NER (Named Entity Recognition) Service
@@ -715,18 +716,15 @@ class NerService
         return DB::table('ahg_ner_entity')
             ->join('information_object', 'ahg_ner_entity.object_id', '=', 'information_object.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
-            ->leftJoin('information_object_i18n', function ($join) use ($culture) {
-                $join->on('information_object.id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
             ->where('ahg_ner_entity.status', 'pending')
             ->select(
                 'information_object.id',
                 'slug.slug',
-                'information_object_i18n.title',
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
                 DB::raw('COUNT(*) as pending_count')
             )
-            ->groupBy('information_object.id', 'slug.slug', 'information_object_i18n.title')
+            ->groupBy('information_object.id', 'slug.slug', I18nFallback::col('information_object_i18n', 'title'))
             ->orderBy('pending_count', 'desc')
             ->limit($limit)
             ->get()

@@ -32,6 +32,7 @@ use AhgIiifCollection\Services\IiifCollectionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 /**
  * IIIF Collection Management Controller.
@@ -324,14 +325,13 @@ class IiifCollectionController extends Controller
     {
         $culture = app()->getLocale();
         $object = DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('slug.slug', $slug)
-            ->where('information_object_i18n.culture', $culture)
             // Only records the viewer may read (published, not restricted; staff
             // excepted) - GHSA-pfhq-87fh-gqfp, #1363.
             ->tap(fn ($q) => \AhgIiifCollection\Support\IiifAccess::scope($q, 'information_object.id'))
-            ->select('information_object.id', 'information_object_i18n.title', 'slug.slug')
+            ->select('information_object.id', I18nFallback::col('information_object_i18n', 'title', 'title'), 'slug.slug')
             ->first();
         if (!$object) abort(404);
         $manifestUrl = route('iiif-collection.object-manifest', $slug);

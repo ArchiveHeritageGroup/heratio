@@ -31,6 +31,7 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
 use XMLWriter;
+use AhgCore\Support\I18nFallback;
 
 class TransferPackageService
 {
@@ -230,9 +231,7 @@ class TransferPackageService
     private function loadIoDetail(int $ioId, string $culture): ?array
     {
         $row = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->leftJoin('retention_assignment as ra', 'io.id', '=', 'ra.information_object_id')
             ->leftJoin('retention_schedule as rs', 'ra.retention_schedule_id', '=', 'rs.id')
             ->leftJoin('disposal_action as da', function ($j) {
@@ -244,9 +243,9 @@ class TransferPackageService
             ->select(
                 'io.id',
                 'io.identifier',
-                'ioi.title',
-                'ioi.scope_and_content',
-                'ioi.extent_and_medium',
+                I18nFallback::col('ioi', 'title', 'title'),
+                I18nFallback::col('ioi', 'scope_and_content', 'scope_and_content'),
+                I18nFallback::col('ioi', 'extent_and_medium', 'extent_and_medium'),
                 'rs.code as schedule_code',
                 'rs.title as schedule_title',
                 'da.id as disposal_action_id'

@@ -33,6 +33,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class DedupeController extends Controller
 {
@@ -65,14 +66,8 @@ class DedupeController extends Controller
         $culture = app()->getLocale();
 
         $topPending = DB::table('ahg_duplicate_detection as d')
-            ->leftJoin('information_object_i18n as a_i18n', function ($join) use ($culture) {
-                $join->on('d.record_a_id', '=', 'a_i18n.id')
-                    ->where('a_i18n.culture', '=', $culture);
-            })
-            ->leftJoin('information_object_i18n as b_i18n', function ($join) use ($culture) {
-                $join->on('d.record_b_id', '=', 'b_i18n.id')
-                    ->where('b_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as a_i18n', 'd.record_a_id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as b_i18n', 'd.record_b_id', $culture))
             ->where('d.status', 'pending')
             ->orderByDesc('d.similarity_score')
             ->limit(10)
@@ -83,8 +78,8 @@ class DedupeController extends Controller
                 'd.similarity_score',
                 'd.detection_method',
                 'd.detected_at',
-                'a_i18n.title as record_a_title',
-                'b_i18n.title as record_b_title',
+                I18nFallback::col('a_i18n', 'title', 'record_a_title'),
+                I18nFallback::col('b_i18n', 'title', 'record_b_title'),
             ])
             ->get();
 
@@ -212,52 +207,34 @@ class DedupeController extends Controller
         }
 
         $recordA = DB::table('information_object')
-            ->join('information_object_i18n', function ($join) use ($culture) {
-                $join->on('information_object.id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $culture);
-            })
-            ->leftJoin('actor_i18n as repo_ai', function ($join) use ($culture) {
-                $join->on('information_object.repository_id', '=', 'repo_ai.id')
-                    ->where('repo_ai.culture', '=', $culture);
-            })
-            ->leftJoin('term_i18n as level_term', function ($join) use ($culture) {
-                $join->on('information_object.level_of_description_id', '=', 'level_term.id')
-                    ->where('level_term.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as repo_ai', 'information_object.repository_id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as level_term', 'information_object.level_of_description_id', $culture))
             ->where('information_object.id', $duplicate->record_a_id)
             ->select([
                 'information_object.id',
                 'information_object.identifier',
-                'information_object_i18n.title',
-                'information_object_i18n.extent_and_medium as extent',
-                'information_object_i18n.scope_and_content',
-                'level_term.name as level_of_description',
-                'repo_ai.authorized_form_of_name as repository',
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
+                I18nFallback::col('information_object_i18n', 'extent_and_medium', 'extent'),
+                I18nFallback::col('information_object_i18n', 'scope_and_content', 'scope_and_content'),
+                I18nFallback::col('level_term', 'name', 'level_of_description'),
+                I18nFallback::col('repo_ai', 'authorized_form_of_name', 'repository'),
             ])
             ->first();
 
         $recordB = DB::table('information_object')
-            ->join('information_object_i18n', function ($join) use ($culture) {
-                $join->on('information_object.id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $culture);
-            })
-            ->leftJoin('actor_i18n as repo_ai', function ($join) use ($culture) {
-                $join->on('information_object.repository_id', '=', 'repo_ai.id')
-                    ->where('repo_ai.culture', '=', $culture);
-            })
-            ->leftJoin('term_i18n as level_term', function ($join) use ($culture) {
-                $join->on('information_object.level_of_description_id', '=', 'level_term.id')
-                    ->where('level_term.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as repo_ai', 'information_object.repository_id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as level_term', 'information_object.level_of_description_id', $culture))
             ->where('information_object.id', $duplicate->record_b_id)
             ->select([
                 'information_object.id',
                 'information_object.identifier',
-                'information_object_i18n.title',
-                'information_object_i18n.extent_and_medium as extent',
-                'information_object_i18n.scope_and_content',
-                'level_term.name as level_of_description',
-                'repo_ai.authorized_form_of_name as repository',
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
+                I18nFallback::col('information_object_i18n', 'extent_and_medium', 'extent'),
+                I18nFallback::col('information_object_i18n', 'scope_and_content', 'scope_and_content'),
+                I18nFallback::col('level_term', 'name', 'level_of_description'),
+                I18nFallback::col('repo_ai', 'authorized_form_of_name', 'repository'),
             ])
             ->first();
 
@@ -355,11 +332,8 @@ class DedupeController extends Controller
 
         // Repository name lives on actor_i18n (CTI: repository is-a actor).
         $rules = DB::table('ahg_duplicate_rule as r')
-            ->leftJoin('actor_i18n as ai', function ($join) use ($culture) {
-                $join->on('r.repository_id', '=', 'ai.id')
-                    ->where('ai.culture', '=', $culture);
-            })
-            ->select('r.*', 'ai.authorized_form_of_name as repository_name')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'r.repository_id', $culture))
+            ->select('r.*', I18nFallback::col('ai', 'authorized_form_of_name', 'repository_name'))
             ->orderBy('r.priority')
             ->get();
 
@@ -380,12 +354,9 @@ class DedupeController extends Controller
         $culture = app()->getLocale();
 
         $repositories = DB::table('repository')
-            ->join('actor_i18n', function ($join) use ($culture) {
-                $join->on('repository.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
-            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
-            ->orderBy('actor_i18n.authorized_form_of_name')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture, required: true))
+            ->select('repository.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'))
+            ->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
             ->get();
 
         return view('ahg-dedupe::scan', [
@@ -538,12 +509,9 @@ class DedupeController extends Controller
         $culture = app()->getLocale();
 
         $repositories = DB::table('repository')
-            ->join('actor_i18n', function ($join) use ($culture) {
-                $join->on('repository.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
-            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
-            ->orderBy('actor_i18n.authorized_form_of_name')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture, required: true))
+            ->select('repository.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'))
+            ->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
             ->get();
 
         $defaultThreshold = (float) AhgSettingsService::get('authority_dedup_threshold', '0.80');
@@ -721,13 +689,10 @@ class DedupeController extends Controller
         $falsePositiveRate = $totalDetected > 0 ? round(($totalDismissed / $totalDetected) * 100, 1) : 0;
 
         $topClusters = DB::table('ahg_duplicate_detection as d')
-            ->leftJoin('information_object_i18n as a_i18n', function ($join) use ($culture) {
-                $join->on('d.record_a_id', '=', 'a_i18n.id')
-                    ->where('a_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as a_i18n', 'd.record_a_id', $culture))
             ->where('d.status', 'pending')
-            ->select('d.record_a_id', 'a_i18n.title', DB::raw('COUNT(*) as duplicate_count'))
-            ->groupBy('d.record_a_id', 'a_i18n.title')
+            ->select('d.record_a_id', I18nFallback::col('a_i18n', 'title', 'title'), DB::raw('COUNT(*) as duplicate_count'))
+            ->groupBy('d.record_a_id', I18nFallback::col('a_i18n', 'title'))
             ->orderByDesc('duplicate_count')
             ->limit(10)
             ->get();
@@ -814,16 +779,13 @@ class DedupeController extends Controller
 
         // Search for similar titles using LIKE
         $matches = DB::table('information_object as io')
-            ->join('information_object_i18n as ioi', function ($join) use ($culture) {
-                $join->on('io.id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
-            ->where('ioi.title', 'LIKE', '%'.$title.'%')
+            ->where(I18nFallback::col('ioi', 'title'), 'LIKE', '%'.$title.'%')
             ->select([
                 'io.id',
                 'io.identifier',
-                'ioi.title',
+                I18nFallback::col('ioi', 'title', 'title'),
                 'slug.slug',
             ])
             ->limit(10)

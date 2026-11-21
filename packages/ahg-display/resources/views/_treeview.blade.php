@@ -127,6 +127,10 @@ $rootId = 1; // InformationObject::ROOT_ID
 
     </div>
   @else
+    @php
+      // Staff with update permission only; visitors and plain accounts never drag.
+      $__fwCanMove = auth()->check() && \AhgCore\Services\AclService::check($resource, 'update');
+    @endphp
     <div id="fullwidth-treeview-active" data-treeview-alert-close="{{ __('Close') }}" hidden>
       <input type="button" id="fullwidth-treeview-more-button" class="btn btn-sm atom-btn-white" data-label="{{ __('%1% more') }}" value="" />
       <input type="button" id="fullwidth-treeview-reset-button" class="btn btn-sm atom-btn-white" value="{{ __('Reset') }}" />
@@ -137,9 +141,14 @@ $rootId = 1; // InformationObject::ROOT_ID
         data-opened-text="{{ config('app.ui_label_fullTreeviewCollapseOpenedButtonText', 'Collapse') }}"
         data-closed-text="{{ config('app.ui_label_fullTreeviewCollapseClosedButtonText', 'Expand') }}"
         data-items-per-page="{{ $itemsPerPage ?? 25 }}"
-        data-enable-dnd="{{ auth()->check() ? 'yes' : 'no' }}">
+        data-enable-dnd="{{ $__fwCanMove ? 'yes' : 'no' }}">
       </span>
     </div>
+    @if($__fwCanMove)
+      {{-- heratio#1582: the bundle posts drops to a route that does not exist;
+           this script replaces its move_node handler with the shared move. --}}
+      @include('ahg-io-manage::partials._tree-move-script')
+    @endif
   @endif
 
   <div class="tab-pane fade{{ $treeviewType !== 'sidebar' ? ' show active' : '' }}" id="treeview-search" role="tabpanel" aria-labelledby="treeview-search-tab">

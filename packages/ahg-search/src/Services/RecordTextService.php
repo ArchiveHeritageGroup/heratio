@@ -25,6 +25,8 @@ use Illuminate\Support\Facades\Schema;
  * ponytail: a PDF's own embedded text layer is not read here (it would mean
  * running pdftotext on every file in a full reindex); PDFs are covered once
  * they are OCR'd or page-indexed. Upgrade path: a cached text sidecar per file.
+ * (An office document's PDF display copy does carry its text, extracted once
+ * when the copy is made - the extracted_text property below.)
  */
 class RecordTextService
 {
@@ -39,7 +41,10 @@ class RecordTextService
             return [];
         }
         $gate = class_exists(\AhgPrivacy\Services\FileScreeningGate::class) ? app(\AhgPrivacy\Services\FileScreeningGate::class) : null;
-        $ioIds = array_values(array_filter($ioIds, fn ($id) => ! $gate || ! $gate->withholds($id)));
+        // A record with redaction regions gets no file text either: the words
+        // behind a redaction box would otherwise still be findable by search.
+        $disclosure = class_exists(\AhgCore\Services\DisclosureGate::class) ? app(\AhgCore\Services\DisclosureGate::class) : null;
+        $ioIds = array_values(array_filter($ioIds, fn ($id) => (! $gate || ! $gate->withholds($id)) && (! $disclosure || ! $disclosure->hasRedactions((int) $id))));
         if ($ioIds === []) {
             return [];
         }
@@ -74,10 +79,11 @@ class RecordTextService
         $byDo('media_caption_track', 'vtt_content', fn ($v) => self::vttText((string) $v));
         $byDo('image_alt_text', 'alt_text');
 
-        // Reviewed transcripts, kept as a property of the file.
+        // Reviewed transcripts, and the text of an office document's PDF
+        // display copy (heratio#1627), kept as properties of the file.
         if ($doIds && Schema::hasTable('property')) {
             $rows = DB::table('property as p')->join('property_i18n as pi', 'pi.id', '=', 'p.id')
-                ->whereIn('p.object_id', $doIds)->where('p.name', 'transcript')->get(['p.object_id', 'pi.value']);
+                ->whereIn('p.object_id', $doIds)->whereIn('p.name', ['transcript', 'extracted_text'])->get(['p.object_id', 'pi.value']);
             foreach ($rows as $r) {
                 $add($dos[$r->object_id], $r->value);
             }

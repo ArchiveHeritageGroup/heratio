@@ -30,6 +30,7 @@ use AhgCore\Services\SettingHelper;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Service for serializing AtoM entities to RiC-O JSON-LD format.
@@ -326,15 +327,11 @@ class RicSerializationService
     {
         $culture = app()->getLocale() ?: 'en';
         $actor = DB::table('actor as a')
-            ->leftJoin('actor_i18n as i18n', function ($j) use ($culture) {
-                $j->on('a.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
-            ->leftJoin('term_i18n as et_i18n', function ($j) use ($culture) {
-                $j->on('a.entity_type_id', '=', 'et_i18n.id')->where('et_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as i18n', 'a.id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as et_i18n', 'a.entity_type_id', $culture))
             ->leftJoin('slug', 'a.id', '=', 'slug.object_id')
             ->where('a.id', $actorId)
-            ->select('a.*', 'i18n.*', 'et_i18n.name as entity_type_name', 'slug.slug')
+            ->select('a.*', I18nFallback::col('i18n', 'authorized_form_of_name', 'authorized_form_of_name'), I18nFallback::col('i18n', 'dates_of_existence', 'dates_of_existence'), I18nFallback::col('i18n', 'history', 'history'), I18nFallback::col('i18n', 'places', 'places'), I18nFallback::col('i18n', 'legal_status', 'legal_status'), I18nFallback::col('i18n', 'functions', 'functions'), I18nFallback::col('i18n', 'mandates', 'mandates'), I18nFallback::col('i18n', 'internal_structures', 'internal_structures'), I18nFallback::col('i18n', 'general_context', 'general_context'), I18nFallback::col('i18n', 'institution_responsible_identifier', 'institution_responsible_identifier'), I18nFallback::col('i18n', 'rules', 'rules'), I18nFallback::col('i18n', 'sources', 'sources'), I18nFallback::col('i18n', 'revision_history', 'revision_history'), I18nFallback::col('et_i18n', 'name', 'entity_type_name'), 'slug.slug')
             ->first();
 
         if (!$actor) {
@@ -484,15 +481,11 @@ class RicSerializationService
     {
         $culture = app()->getLocale() ?: 'en';
         $repo = DB::table('actor as a')
-            ->leftJoin('actor_i18n as i18n', function ($j) use ($culture) {
-                $j->on('a.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
-            ->leftJoin('repository_i18n as repo_i18n', function ($j) use ($culture) {
-                $j->on('a.id', '=', 'repo_i18n.id')->where('repo_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as i18n', 'a.id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'repository_i18n as repo_i18n', 'a.id', $culture))
             ->leftJoin('slug', 'a.id', '=', 'slug.object_id')
             ->where('a.id', $repositoryId)
-            ->select('a.*', 'i18n.*', 'repo_i18n.*', 'slug.slug')
+            ->select('a.*', I18nFallback::col('i18n', 'authorized_form_of_name', 'authorized_form_of_name'), I18nFallback::col('i18n', 'dates_of_existence', 'dates_of_existence'), I18nFallback::col('i18n', 'history', 'history'), I18nFallback::col('i18n', 'places', 'places'), I18nFallback::col('i18n', 'legal_status', 'legal_status'), I18nFallback::col('i18n', 'functions', 'functions'), I18nFallback::col('i18n', 'mandates', 'mandates'), I18nFallback::col('i18n', 'internal_structures', 'internal_structures'), I18nFallback::col('i18n', 'general_context', 'general_context'), I18nFallback::col('i18n', 'institution_responsible_identifier', 'institution_responsible_identifier'), I18nFallback::col('i18n', 'rules', 'rules'), I18nFallback::col('i18n', 'sources', 'sources'), I18nFallback::col('i18n', 'revision_history', 'revision_history'), I18nFallback::col('repo_i18n', 'geocultural_context', 'geocultural_context'), I18nFallback::col('repo_i18n', 'collecting_policies', 'collecting_policies'), I18nFallback::col('repo_i18n', 'buildings', 'buildings'), I18nFallback::col('repo_i18n', 'holdings', 'holdings'), I18nFallback::col('repo_i18n', 'finding_aids', 'finding_aids'), I18nFallback::col('repo_i18n', 'opening_times', 'opening_times'), I18nFallback::col('repo_i18n', 'access_conditions', 'access_conditions'), I18nFallback::col('repo_i18n', 'disabled_access', 'disabled_access'), I18nFallback::col('repo_i18n', 'research_services', 'research_services'), I18nFallback::col('repo_i18n', 'reproduction_services', 'reproduction_services'), I18nFallback::col('repo_i18n', 'public_facilities', 'public_facilities'), I18nFallback::col('repo_i18n', 'desc_institution_identifier', 'desc_institution_identifier'), I18nFallback::col('repo_i18n', 'desc_rules', 'desc_rules'), I18nFallback::col('repo_i18n', 'desc_sources', 'desc_sources'), I18nFallback::col('repo_i18n', 'desc_revision_history', 'desc_revision_history'), I18nFallback::col('repo_i18n', 'desc_language', 'desc_language'), I18nFallback::col('repo_i18n', 'desc_script', 'desc_script'), 'slug.slug')
             ->first();
 
         if (!$repo) {
@@ -543,22 +536,17 @@ class RicSerializationService
         $culture = app()->getLocale() ?: 'en';
 
         $place = DB::table('ric_place as p')
-            ->leftJoin('ric_place_i18n as i18n', function ($j) use ($culture) {
-                $j->on('p.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_place_i18n as i18n', 'p.id', $culture))
             ->leftJoin('ric_place as parent', 'p.parent_id', '=', 'parent.id')
-            ->leftJoin('ric_place_i18n as parent_i18n', function ($j) use ($culture) {
-                $j->on('parent.id', '=', 'parent_i18n.id')
-                  ->where('parent_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_place_i18n as parent_i18n', 'parent.id', $culture))
             ->where('p.id', $placeId)
             ->select([
                 'p.*',
-                'i18n.name',
-                'i18n.description',
-                'i18n.address',
+                I18nFallback::col('i18n', 'name', 'name'),
+                I18nFallback::col('i18n', 'description', 'description'),
+                I18nFallback::col('i18n', 'address', 'address'),
                 'parent.id as parent_place_id',
-                'parent_i18n.name as parent_name',
+                I18nFallback::col('parent_i18n', 'name', 'parent_name'),
             ])
             ->first();
 
@@ -626,16 +614,14 @@ class RicSerializationService
         $culture = app()->getLocale() ?: 'en';
 
         $rule = DB::table('ric_rule as r')
-            ->leftJoin('ric_rule_i18n as i18n', function ($j) use ($culture) {
-                $j->on('r.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_rule_i18n as i18n', 'r.id', $culture))
             ->where('r.id', $ruleId)
             ->select([
                 'r.*',
-                'i18n.title',
-                'i18n.description',
-                'i18n.legislation',
-                'i18n.sources',
+                I18nFallback::col('i18n', 'title', 'title'),
+                I18nFallback::col('i18n', 'description', 'description'),
+                I18nFallback::col('i18n', 'legislation', 'legislation'),
+                I18nFallback::col('i18n', 'sources', 'sources'),
             ])
             ->first();
 
@@ -718,21 +704,17 @@ class RicSerializationService
         $culture = app()->getLocale() ?: 'en';
 
         $act = DB::table('ric_activity as a')
-            ->leftJoin('ric_activity_i18n as i18n', function ($j) use ($culture) {
-                $j->on('a.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_activity_i18n as i18n', 'a.id', $culture))
             ->leftJoin('ric_place as p', 'a.place_id', '=', 'p.id')
-            ->leftJoin('ric_place_i18n as p_i18n', function ($j) use ($culture) {
-                $j->on('p.id', '=', 'p_i18n.id')->where('p_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_place_i18n as p_i18n', 'p.id', $culture))
             ->where('a.id', $activityId)
             ->select([
                 'a.*',
-                'i18n.name',
-                'i18n.description',
-                'i18n.date_display',
+                I18nFallback::col('i18n', 'name', 'name'),
+                I18nFallback::col('i18n', 'description', 'description'),
+                I18nFallback::col('i18n', 'date_display', 'date_display'),
                 'p.id as place_ric_id',
-                'p_i18n.name as place_name',
+                I18nFallback::col('p_i18n', 'name', 'place_name'),
             ])
             ->first();
 
@@ -805,23 +787,19 @@ class RicSerializationService
         $culture = app()->getLocale() ?: 'en';
 
         $inst = DB::table('ric_instantiation as ri')
-            ->leftJoin('ric_instantiation_i18n as i18n', function ($j) use ($culture) {
-                $j->on('ri.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_instantiation_i18n as i18n', 'ri.id', $culture))
             ->leftJoin('information_object as io', 'ri.record_id', '=', 'io.id')
             ->leftJoin('slug as io_slug', 'io.id', '=', 'io_slug.object_id')
-            ->leftJoin('information_object_i18n as io_i18n', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'io_i18n.id')->where('io_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as io_i18n', 'io.id', $culture))
             ->where('ri.id', $instantiationId)
             ->select([
                 'ri.*',
-                'i18n.title',
-                'i18n.description',
-                'i18n.technical_characteristics',
-                'i18n.production_technical_characteristics',
+                I18nFallback::col('i18n', 'title', 'title'),
+                I18nFallback::col('i18n', 'description', 'description'),
+                I18nFallback::col('i18n', 'technical_characteristics', 'technical_characteristics'),
+                I18nFallback::col('i18n', 'production_technical_characteristics', 'production_technical_characteristics'),
                 'io_slug.slug as record_slug',
-                'io_i18n.title as record_title',
+                I18nFallback::col('io_i18n', 'title', 'record_title'),
             ])
             ->first();
 
@@ -900,11 +878,9 @@ class RicSerializationService
             && \Illuminate\Support\Facades\Schema::hasTable('security_level')) {
             $security = DB::table('security_access_condition_link as sacl')
                 ->join('security_level as sl', 'sacl.classification_id', '=', 'sl.id')
-                ->leftJoin('security_level_i18n as sl_i18n', function ($j) use ($culture) {
-                    $j->on('sl.id', '=', 'sl_i18n.id')->where('sl_i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'security_level_i18n as sl_i18n', 'sl.id', $culture))
                 ->where('sacl.object_id', $entityId)
-                ->select('sl_i18n.name', 'sl.classification', 'sl.level_value')
+                ->select(I18nFallback::col('sl_i18n', 'name', 'name'), 'sl.classification', 'sl.level_value')
                 ->first();
         }
 
@@ -1453,14 +1429,12 @@ class RicSerializationService
         $culture = $options['culture'] ?? 'en';
 
         $thing = DB::table('ric_thing as rt')
-            ->leftJoin('ric_thing_i18n as rti', function ($j) use ($culture) {
-                $j->on('rt.id', '=', 'rti.id')->where('rti.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_thing_i18n as rti', 'rt.id', $culture))
             ->leftJoin('physical_object_extended as poe', 'rt.physical_object_id', '=', 'poe.physical_object_id')
             ->where('rt.id', $thingId)
             ->select([
                 'rt.*',
-                'rti.name', 'rti.description', 'rti.condition_note',
+                I18nFallback::col('rti', 'name', 'name'), I18nFallback::col('rti', 'description', 'description'), I18nFallback::col('rti', 'condition_note', 'condition_note'),
                 'poe.barcode', 'poe.building', 'poe.floor', 'poe.room',
                 'poe.aisle', 'poe.bay', 'poe.rack', 'poe.shelf', 'poe.position',
                 'poe.total_capacity', 'poe.used_capacity', 'poe.capacity_unit',
@@ -1521,12 +1495,10 @@ class RicSerializationService
 
         // Current location (from ric_thing_location)
         $currentLocation = DB::table('ric_thing_location as rtl')
-            ->join('ric_place_i18n as rpi', function ($j) use ($culture) {
-                $j->on('rtl.ric_place_id', '=', 'rpi.id')->where('rpi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_place_i18n as rpi', 'rtl.ric_place_id', $culture, required: true))
             ->where('rtl.ric_thing_id', $thingId)
             ->where('rtl.is_current', 1)
-            ->select('rtl.ric_place_id', 'rpi.name as place_name', 'rtl.start_date')
+            ->select('rtl.ric_place_id', I18nFallback::col('rpi', 'name', 'place_name'), 'rtl.start_date')
             ->first();
 
         if ($currentLocation) {
@@ -1556,11 +1528,9 @@ class RicSerializationService
         // Contained instantiations
         $instantiations = DB::table('ric_thing_instantiation as rti2')
             ->join('ric_instantiation as ri', 'rti2.ric_instantiation_id', '=', 'ri.id')
-            ->leftJoin('ric_instantiation_i18n as rii', function ($j) use ($culture) {
-                $j->on('ri.id', '=', 'rii.id')->where('rii.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_instantiation_i18n as rii', 'ri.id', $culture))
             ->where('rti2.ric_thing_id', $thingId)
-            ->select('ri.id', 'ri.record_id', 'rii.title', 'rti2.sequence_number')
+            ->select('ri.id', 'ri.record_id', I18nFallback::col('rii', 'title', 'title'), 'rti2.sequence_number')
             ->orderBy('rti2.sequence_number')
             ->get();
 

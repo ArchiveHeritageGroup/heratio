@@ -73,6 +73,7 @@ namespace AhgMetadataExport\Services\Exporters;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class CidocCrmActorSerializer
 {
@@ -133,16 +134,13 @@ class CidocCrmActorSerializer
     private function fetchActor(int $actorId, string $culture)
     {
         return DB::table('actor')
-            ->join('actor_i18n', function ($j) use ($culture) {
-                $j->on('actor.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $culture, required: true))
             ->leftJoin('slug as s', 's.object_id', '=', 'actor.id')
             ->where('actor.id', $actorId)
             ->select([
                 'actor.id', 'actor.entity_type_id',
-                'actor_i18n.authorized_form_of_name as name',
-                'actor_i18n.history', 'actor_i18n.dates_of_existence',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'),
+                I18nFallback::col('actor_i18n', 'history', 'history'), I18nFallback::col('actor_i18n', 'dates_of_existence', 'dates_of_existence'),
                 's.slug',
             ])
             ->first();
@@ -157,9 +155,7 @@ class CidocCrmActorSerializer
     {
         $q = DB::table('event')
             ->join('information_object as io', 'event.object_id', '=', 'io.id')
-            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
             ->where('event.actor_id', $actorId)
             ->where('event.type_id', self::EVENT_TYPE_CREATION)
@@ -176,7 +172,7 @@ class CidocCrmActorSerializer
         }
 
         return $q->select([
-            'io.id', 'i18n.title', 's.slug',
+            'io.id', I18nFallback::col('i18n', 'title', 'title'), 's.slug',
         ])->distinct()->get();
     }
 
@@ -185,17 +181,14 @@ class CidocCrmActorSerializer
     private function fetchExistenceEvents(int $actorId, string $culture)
     {
         return DB::table('event')
-            ->leftJoin('event_i18n', function ($j) use ($culture) {
-                $j->on('event.id', '=', 'event_i18n.id')
-                    ->where('event_i18n.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n', 'event.id', $culture))
             ->where('event.actor_id', $actorId)
             ->whereNull('event.object_id')
             ->where(function ($w) {
                 $w->whereNotNull('event.start_date')->orWhereNotNull('event.end_date');
             })
             ->select('event.id', 'event.type_id', 'event.start_date',
-                'event.end_date', 'event_i18n.date as date_display')
+                'event.end_date', I18nFallback::col('event_i18n', 'date', 'date_display'))
             ->get();
     }
 

@@ -21,6 +21,7 @@ namespace AhgMetadataExport\Services\Exporters;
 
 use Illuminate\Support\Facades\DB;
 use AhgCore\Support\Concerns\FetchesRepositoryActor;
+use AhgCore\Support\I18nFallback;
 
 trait InformationObjectFetcher
 {
@@ -48,9 +49,7 @@ trait InformationObjectFetcher
     private function fetchIoIn(int $objectId, string $culture)
     {
         return DB::table('information_object as io')
-            ->join('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
             ->leftJoin('object as o', 'o.id', '=', 'io.id')
             ->where('io.id', $objectId)
@@ -58,13 +57,13 @@ trait InformationObjectFetcher
                 'io.id', 'io.identifier', 'io.level_of_description_id',
                 'io.repository_id', 'io.parent_id', 'io.lft', 'io.rgt',
                 'io.source_culture',
-                'i18n.title', 'i18n.extent_and_medium', 'i18n.archival_history',
-                'i18n.acquisition', 'i18n.scope_and_content', 'i18n.appraisal',
-                'i18n.accruals', 'i18n.arrangement', 'i18n.access_conditions',
-                'i18n.reproduction_conditions', 'i18n.physical_characteristics',
-                'i18n.finding_aids', 'i18n.location_of_originals',
-                'i18n.location_of_copies', 'i18n.related_units_of_description',
-                'i18n.rules', 'i18n.sources', 'i18n.revision_history',
+                I18nFallback::col('i18n', 'title', 'title'), I18nFallback::col('i18n', 'extent_and_medium', 'extent_and_medium'), I18nFallback::col('i18n', 'archival_history', 'archival_history'),
+                I18nFallback::col('i18n', 'acquisition', 'acquisition'), I18nFallback::col('i18n', 'scope_and_content', 'scope_and_content'), I18nFallback::col('i18n', 'appraisal', 'appraisal'),
+                I18nFallback::col('i18n', 'accruals', 'accruals'), I18nFallback::col('i18n', 'arrangement', 'arrangement'), I18nFallback::col('i18n', 'access_conditions', 'access_conditions'),
+                I18nFallback::col('i18n', 'reproduction_conditions', 'reproduction_conditions'), I18nFallback::col('i18n', 'physical_characteristics', 'physical_characteristics'),
+                I18nFallback::col('i18n', 'finding_aids', 'finding_aids'), I18nFallback::col('i18n', 'location_of_originals', 'location_of_originals'),
+                I18nFallback::col('i18n', 'location_of_copies', 'location_of_copies'), I18nFallback::col('i18n', 'related_units_of_description', 'related_units_of_description'),
+                I18nFallback::col('i18n', 'rules', 'rules'), I18nFallback::col('i18n', 'sources', 'sources'), I18nFallback::col('i18n', 'revision_history', 'revision_history'),
                 'o.created_at', 'o.updated_at', 's.slug',
             ])
             ->first();
@@ -74,27 +73,23 @@ trait InformationObjectFetcher
     protected function fetchEvents($io, string $culture)
     {
         return DB::table('event')
-            ->leftJoin('event_i18n', function ($j) use ($culture) {
-                $j->on('event.id', '=', 'event_i18n.id')
-                    ->where('event_i18n.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n', 'event.id', $culture))
             ->where('event.object_id', $io->id)
             ->select('event.id', 'event.type_id', 'event.actor_id',
                 'event.start_date', 'event.end_date',
-                'event_i18n.date as date_display')
+                I18nFallback::col('event_i18n', 'date', 'date_display'))
             ->get();
     }
 
     protected function fetchCreators($io, string $culture)
     {
         return DB::table('event')
-            ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'event.actor_id', $culture, required: true))
             ->join('actor', 'event.actor_id', '=', 'actor.id')
             ->where('event.object_id', $io->id)
             ->where('event.type_id', 111)
-            ->where('actor_i18n.culture', $culture)
             ->whereNotNull('event.actor_id')
-            ->select('actor_i18n.authorized_form_of_name as name',
+            ->select(I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'),
                 'actor.entity_type_id', 'actor.id as actor_id')
             ->distinct()
             ->get();
@@ -103,22 +98,20 @@ trait InformationObjectFetcher
     protected function fetchAccessPoints($io, int $taxonomyId, string $culture)
     {
         return DB::table('object_term_relation')
-            ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'object_term_relation.term_id', $culture, required: true))
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
             ->where('object_term_relation.object_id', $io->id)
             ->where('term.taxonomy_id', $taxonomyId)
-            ->where('term_i18n.culture', $culture)
-            ->select('term_i18n.name')
+            ->select(I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
     }
 
     protected function fetchNotes($io, string $culture)
     {
         return DB::table('note')
-            ->join('note_i18n', 'note.id', '=', 'note_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'note_i18n', 'note.id', $culture, required: true))
             ->where('note.object_id', $io->id)
-            ->where('note_i18n.culture', $culture)
-            ->select('note.type_id', 'note_i18n.content')
+            ->select('note.type_id', I18nFallback::col('note_i18n', 'content', 'content'))
             ->get();
     }
 
@@ -137,12 +130,11 @@ trait InformationObjectFetcher
     protected function fetchLanguages($io, string $culture)
     {
         return DB::table('object_term_relation')
-            ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'object_term_relation.term_id', $culture, required: true))
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
             ->where('object_term_relation.object_id', $io->id)
             ->where('term.taxonomy_id', 7)
-            ->where('term_i18n.culture', $culture)
-            ->select('term_i18n.name')
+            ->select(I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
     }
 
@@ -152,18 +144,17 @@ trait InformationObjectFetcher
         // nestRows() below renumbers lft/rgt so the serializers nest by them.
         $hierarchy = app(\AhgCore\Services\HierarchyQueryService::class);
         $query = DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
             ->tap(fn ($q) => $hierarchy->scopeDescendants($q, 'information_object', (int) $io->id, 'information_object.id', false))
-            ->where('information_object_i18n.culture', $culture)
             ->tap(fn ($q) => $hierarchy->applySiblingOrder($q, 'information_object', 'information_object.id', 'information_object.lft'))
             ->select([
                 'information_object.id', 'information_object.parent_id', 'information_object.identifier',
                 'information_object.level_of_description_id',
                 'information_object.lft', 'information_object.rgt',
-                'information_object_i18n.title',
-                'information_object_i18n.scope_and_content',
-                'information_object_i18n.extent_and_medium',
-                'information_object_i18n.arrangement',
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
+                I18nFallback::col('information_object_i18n', 'scope_and_content', 'scope_and_content'),
+                I18nFallback::col('information_object_i18n', 'extent_and_medium', 'extent_and_medium'),
+                I18nFallback::col('information_object_i18n', 'arrangement', 'arrangement'),
             ]);
 
         // This subtree is reached anonymously via public OAI-PMH / EAD export, so

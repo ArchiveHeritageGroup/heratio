@@ -30,6 +30,7 @@ namespace AhgDam\Services;
 use AhgCore\Traits\WithCultureFallback;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use AhgCore\Support\I18nFallback;
 
 class DamService
 {
@@ -174,10 +175,7 @@ class DamService
                 $j->on('io.id', '=', 'doc.object_id')
                     ->where('doc.object_type', '=', 'dam');
             })
-            ->leftJoin('information_object_i18n as i18n', function ($j) {
-                $j->on('io.id', '=', 'i18n.id')
-                    ->where('i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $this->culture))
             ->leftJoin('dam_iptc_metadata as iptc', 'io.id', '=', 'iptc.object_id');
 
         // Guests see only published assets (status 158/160) - draft-leak fix (#1358).
@@ -197,7 +195,7 @@ class DamService
         // Search
         if ($subquery !== '') {
             $baseQuery->where(function ($q) use ($subquery) {
-                $q->where('i18n.title', 'like', "%{$subquery}%")
+                $q->where(I18nFallback::col('i18n', 'title'), 'like', "%{$subquery}%")
                     ->orWhere('iptc.keywords', 'like', "%{$subquery}%")
                     ->orWhere('iptc.creator', 'like', "%{$subquery}%")
                     ->orWhere('iptc.headline', 'like', "%{$subquery}%")
@@ -211,7 +209,7 @@ class DamService
         // Sort
         switch ($sort) {
             case 'alphabetic':
-                $baseQuery->orderBy('i18n.title', $sortDir);
+                $baseQuery->orderBy(I18nFallback::col('i18n', 'title'), $sortDir);
                 break;
             case 'identifier':
                 $baseQuery->orderBy('io.identifier', $sortDir);
@@ -229,7 +227,7 @@ class DamService
             ->select([
                 'io.id',
                 'io.identifier',
-                'i18n.title as name',
+                I18nFallback::col('i18n', 'title', 'name'),
                 'iptc.asset_type',
                 'iptc.creator',
                 'iptc.date_created',
@@ -655,16 +653,13 @@ class DamService
                 $j->on('io.id', '=', 'doc.object_id')
                     ->where('doc.object_type', '=', 'dam');
             })
-            ->leftJoin('information_object_i18n as i18n', function ($j) {
-                $j->on('io.id', '=', 'i18n.id')
-                    ->where('i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $this->culture))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->leftJoin('dam_iptc_metadata as iptc', 'io.id', '=', 'iptc.object_id')
             ->select([
                 'io.id',
                 'io.identifier',
-                'i18n.title',
+                I18nFallback::col('i18n', 'title', 'title'),
                 'slug.slug',
                 'o.created_at',
                 'o.updated_at',
@@ -688,23 +683,17 @@ class DamService
     {
         // Repositories
         $repositories = DB::table('repository as r')
-            ->join('actor_i18n as ai', function ($j) {
-                $j->on('r.id', '=', 'ai.id')
-                    ->where('ai.culture', '=', $this->culture);
-            })
-            ->select('r.id', 'ai.authorized_form_of_name as name')
-            ->whereNotNull('ai.authorized_form_of_name')
-            ->orderBy('ai.authorized_form_of_name')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'r.id', $this->culture, required: true))
+            ->select('r.id', I18nFallback::col('ai', 'authorized_form_of_name', 'name'))
+            ->whereNotNull(I18nFallback::col('ai', 'authorized_form_of_name'))
+            ->orderBy(I18nFallback::col('ai', 'authorized_form_of_name'))
             ->get();
 
         // Levels of description
         $levels = DB::table('term')
-            ->join('term_i18n', function ($j) {
-                $j->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture, required: true))
             ->where('term.taxonomy_id', 34)
-            ->select('term.id', 'term_i18n.name')
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
             ->orderBy('term.lft')
             ->get();
 
@@ -714,13 +703,10 @@ class DamService
                 $j->on('io.id', '=', 'doc.object_id')
                     ->where('doc.object_type', '=', 'dam');
             })
-            ->leftJoin('information_object_i18n as i18n', function ($j) {
-                $j->on('io.id', '=', 'i18n.id')
-                    ->where('i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $this->culture))
             ->where('io.parent_id', 1)
-            ->select('io.id', 'i18n.title', 'io.identifier')
-            ->orderBy('i18n.title')
+            ->select('io.id', I18nFallback::col('i18n', 'title', 'title'), 'io.identifier')
+            ->orderBy(I18nFallback::col('i18n', 'title'))
             ->get();
 
         return [
@@ -756,14 +742,11 @@ class DamService
     public function getRelatedItems(int $objectId): \Illuminate\Support\Collection
     {
         return DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as i18n', function ($j) {
-                $j->on('io.id', '=', 'i18n.id')
-                    ->where('i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $this->culture))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->where('io.parent_id', $objectId)
-            ->select('io.id', 'i18n.title', 'slug.slug', 'io.identifier')
-            ->orderBy('i18n.title')
+            ->select('io.id', I18nFallback::col('i18n', 'title', 'title'), 'slug.slug', 'io.identifier')
+            ->orderBy(I18nFallback::col('i18n', 'title'))
             ->limit(20)
             ->get();
     }

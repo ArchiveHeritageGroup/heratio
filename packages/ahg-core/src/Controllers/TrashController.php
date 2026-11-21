@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class TrashController extends Controller
 {
@@ -24,11 +25,9 @@ class TrashController extends Controller
             ? DB::table(DigitalObjectTrash::TABLE.' as t')
                 ->leftJoin('user as u', 'u.id', '=', 't.deleted_by')
                 ->leftJoin('slug as s', 's.object_id', '=', 't.information_object_id')
-                ->leftJoin('information_object_i18n as i', function ($j) {
-                    $j->on('i.id', '=', 't.information_object_id')->where('i.culture', '=', app()->getLocale());
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i', 't.information_object_id', app()->getLocale()))
                 ->where('t.status', $status)->orderByDesc('t.deleted_at')
-                ->select('t.*', 'u.username as deleted_by_name', 's.slug', 'i.title')
+                ->select('t.*', 'u.username as deleted_by_name', 's.slug', I18nFallback::col('i', 'title', 'title'))
                 ->paginate(50)->withQueryString()
             : collect();
 

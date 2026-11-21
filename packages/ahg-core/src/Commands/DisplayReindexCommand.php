@@ -20,6 +20,7 @@ use AhgCore\Constants\TermId;
 use Illuminate\Console\Command;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class DisplayReindexCommand extends Command
 {
@@ -126,11 +127,9 @@ class DisplayReindexCommand extends Command
 
             case 'creator':
                 $q->join('event as ef', 'ef.object_id', '=', 'io.id')
-                    ->join('actor_i18n as ai', function ($j) use ($culture) {
-                        $j->on('ef.actor_id', '=', 'ai.id')->where('ai.culture', '=', $culture);
-                    })
-                    ->select('ef.actor_id as facet_id', 'ai.authorized_form_of_name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
-                    ->groupBy('ef.actor_id', 'ai.authorized_form_of_name');
+                    ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'ef.actor_id', $culture, required: true))
+                    ->select('ef.actor_id as facet_id', I18nFallback::col('ai', 'authorized_form_of_name', 'facet_name'), DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                    ->groupBy('ef.actor_id', I18nFallback::col('ai', 'authorized_form_of_name'));
                 break;
 
             case 'subject':
@@ -152,21 +151,17 @@ class DisplayReindexCommand extends Command
                 break;
 
             case 'level':
-                $q->join('term_i18n as til', function ($j) use ($culture) {
-                    $j->on('io.level_of_description_id', '=', 'til.id')->where('til.culture', '=', $culture);
-                })
+                $q->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as til', 'io.level_of_description_id', $culture, required: true))
                     ->whereNotNull('io.level_of_description_id')
-                    ->select('io.level_of_description_id as facet_id', 'til.name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
-                    ->groupBy('io.level_of_description_id', 'til.name');
+                    ->select('io.level_of_description_id as facet_id', I18nFallback::col('til', 'name', 'facet_name'), DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                    ->groupBy('io.level_of_description_id', I18nFallback::col('til', 'name'));
                 break;
 
             case 'repository':
-                $q->join('actor_i18n as rai', function ($j) use ($culture) {
-                    $j->on('io.repository_id', '=', 'rai.id')->where('rai.culture', '=', $culture);
-                })
+                $q->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as rai', 'io.repository_id', $culture, required: true))
                     ->whereNotNull('io.repository_id')
-                    ->select('io.repository_id as facet_id', 'rai.authorized_form_of_name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
-                    ->groupBy('io.repository_id', 'rai.authorized_form_of_name');
+                    ->select('io.repository_id as facet_id', I18nFallback::col('rai', 'authorized_form_of_name', 'facet_name'), DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                    ->groupBy('io.repository_id', I18nFallback::col('rai', 'authorized_form_of_name'));
                 break;
 
             case 'media_type':

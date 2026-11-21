@@ -36,6 +36,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use AhgCore\Support\I18nFallback;
 
 /**
  * AI Services Controller
@@ -1920,12 +1921,9 @@ class AiController extends Controller
 
         $object = DB::table('information_object')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
-            ->leftJoin('information_object_i18n', function ($join) use ($culture) {
-                $join->on('information_object.id', '=', 'information_object_i18n.id')
-                     ->where('information_object_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
             ->where('information_object.id', $job->object_id)
-            ->select('slug.slug', 'information_object_i18n.title')
+            ->select('slug.slug', I18nFallback::col('information_object_i18n', 'title', 'title'))
             ->first();
 
         return response()->json([
@@ -1985,23 +1983,20 @@ class AiController extends Controller
     private function getInformationObject(int $id, string $culture = 'en'): ?object
     {
         return DB::table('information_object')
-            ->leftJoin('information_object_i18n', function ($join) use ($culture) {
-                $join->on('information_object.id', '=', 'information_object_i18n.id')
-                     ->where('information_object_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
             ->where('information_object.id', $id)
             ->select(
                 'information_object.id',
                 'information_object.parent_id',
                 'information_object.repository_id',
                 'information_object.level_of_description_id',
-                'information_object_i18n.title',
-                'information_object_i18n.scope_and_content as scopeAndContent',
-                'information_object_i18n.archival_history as archivalHistory',
-                'information_object_i18n.extent_and_medium as extentAndMedium',
-                'information_object_i18n.arrangement',
-                'information_object_i18n.physical_characteristics as physicalCharacteristics',
-                'information_object_i18n.acquisition'
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
+                I18nFallback::col('information_object_i18n', 'scope_and_content', 'scopeAndContent'),
+                I18nFallback::col('information_object_i18n', 'archival_history', 'archivalHistory'),
+                I18nFallback::col('information_object_i18n', 'extent_and_medium', 'extentAndMedium'),
+                I18nFallback::col('information_object_i18n', 'arrangement', 'arrangement'),
+                I18nFallback::col('information_object_i18n', 'physical_characteristics', 'physicalCharacteristics'),
+                I18nFallback::col('information_object_i18n', 'acquisition', 'acquisition')
             )
             ->first();
     }
@@ -2754,16 +2749,13 @@ class AiController extends Controller
         $culture = app()->getLocale();
         $results = DB::table('information_object as io')
             ->join('object as o', 'io.id', '=', 'o.id')
-            ->leftJoin('information_object_i18n as i18n', function ($join) use ($culture) {
-                $join->on('io.id', '=', 'i18n.id')
-                     ->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->where('o.class_name', 'QubitInformationObject')
             ->where('io.id', '!=', 1)
-            ->where('i18n.title', 'like', '%' . $query . '%')
-            ->orderBy('i18n.title')
+            ->where(I18nFallback::col('i18n', 'title'), 'like', '%' . $query . '%')
+            ->orderBy(I18nFallback::col('i18n', 'title'))
             ->limit(20)
-            ->select('io.id', 'i18n.title')
+            ->select('io.id', I18nFallback::col('i18n', 'title', 'title'))
             ->get()
             ->map(function ($row) {
                 return [
@@ -3023,12 +3015,12 @@ class AiController extends Controller
     public function conditionView(int $id)
     {
         $a = DB::table('ahg_ai_condition_assessment as a')
-            ->leftJoin('information_object_i18n as io', fn ($j) => $j->on('io.id', '=', 'a.information_object_id')->where('io.culture', '=', app()->getLocale()))
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as io', 'a.information_object_id', app()->getLocale()))
             ->leftJoin('slug as s', 's.object_id', '=', 'a.information_object_id')
             ->leftJoin('user as u', 'u.id', '=', 'a.created_by')
             ->leftJoin('user as r', 'r.id', '=', 'a.confirmed_by')
             ->where('a.id', $id)
-            ->first(['a.*', 'io.title as object_title', 's.slug as object_slug', 'u.username as proposed_by', 'r.username as decided_by']);
+            ->first(['a.*', I18nFallback::col('io', 'title', 'object_title'), 's.slug as object_slug', 'u.username as proposed_by', 'r.username as decided_by']);
         abort_unless($a, 404);
         $status = $a->review_status ?? ($a->is_confirmed ? 'confirmed' : 'pending');
         $damages = DB::table('ahg_ai_condition_damage')->where('assessment_id', $id)->orderBy('id')->get();

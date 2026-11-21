@@ -26,6 +26,7 @@
 namespace AhgDonorManage\Services;
 
 use AhgCore\Services\BrowseService;
+use AhgCore\Support\I18nFallback;
 
 class DonorBrowseService extends BrowseService
 {
@@ -48,7 +49,7 @@ class DonorBrowseService extends BrowseService
     {
         return [
             'donor.id',
-            'actor_i18n.authorized_form_of_name as name',
+            I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'),
             'actor.description_identifier as identifier',
             'object.updated_at',
             'slug.slug',
@@ -58,11 +59,10 @@ class DonorBrowseService extends BrowseService
     protected function getBaseJoins($query)
     {
         return $query
-            ->join('actor_i18n', 'donor.id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'donor.id', $this->culture, required: true))
             ->join('object', 'donor.id', '=', 'object.id')
             ->join('slug', 'donor.id', '=', 'slug.object_id')
-            ->leftJoin('actor', 'donor.id', '=', 'actor.id')
-            ->where('actor_i18n.culture', $this->culture);
+            ->leftJoin('actor', 'donor.id', '=', 'actor.id');
     }
 
     protected function transformRow($row): array

@@ -28,6 +28,7 @@
 namespace AhgMetadataExport\Services\Exporters;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class EagSerializer
 {
@@ -123,10 +124,7 @@ class EagSerializer
 
         // Fetch contact information
         $contacts = DB::table('contact_information')
-            ->leftJoin('contact_information_i18n', function ($join) use ($culture) {
-                $join->on('contact_information.id', '=', 'contact_information_i18n.id')
-                    ->where('contact_information_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'contact_information_i18n', 'contact_information.id', $culture))
             ->where('contact_information.actor_id', $repositoryId)
             ->select(
                 'contact_information.id',
@@ -142,9 +140,9 @@ class EagSerializer
                 'contact_information.latitude',
                 'contact_information.primary_contact',
                 'contact_information.contact_note',
-                'contact_information_i18n.city',
-                'contact_information_i18n.region',
-                'contact_information_i18n.note'
+                I18nFallback::col('contact_information_i18n', 'city', 'city'),
+                I18nFallback::col('contact_information_i18n', 'region', 'region'),
+                I18nFallback::col('contact_information_i18n', 'note', 'note')
             )
             ->get();
 
@@ -167,12 +165,9 @@ class EagSerializer
 
         // Fetch other names for the repository (as actor)
         $otherNames = DB::table('other_name')
-            ->join('other_name_i18n', function ($join) use ($culture) {
-                $join->on('other_name.id', '=', 'other_name_i18n.id')
-                    ->where('other_name_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'other_name_i18n', 'other_name.id', $culture, required: true))
             ->where('other_name.object_id', $repositoryId)
-            ->select('other_name_i18n.name', 'other_name.type_id')
+            ->select(I18nFallback::col('other_name_i18n', 'name', 'name'), 'other_name.type_id')
             ->get();
 
         // Build root <eag> element

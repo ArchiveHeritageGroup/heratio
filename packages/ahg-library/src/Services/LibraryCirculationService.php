@@ -30,6 +30,7 @@ use AhgLibrary\Support\LibrarySettings;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class LibraryCirculationService
 {
@@ -556,10 +557,7 @@ class LibraryCirculationService
             ->join('library_patron as p', 'c.patron_id', '=', 'p.id')
             ->leftJoin('library_copy as cp', 'c.copy_id', '=', 'cp.id')
             ->leftJoin('library_item as li', 'cp.library_item_id', '=', 'li.id')
-            ->leftJoin('information_object_i18n as i18n', function ($j) {
-                $j->on('li.information_object_id', '=', 'i18n.id')
-                  ->where('i18n.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'li.information_object_id', app()->getLocale()))
             ->where('c.status', 'active')
             ->whereDate('c.due_date', '<', date('Y-m-d'));
 
@@ -568,7 +566,7 @@ class LibraryCirculationService
         $rows = $q->select(
             'c.id', 'c.due_date', 'c.checkout_date', 'c.patron_id',
             'p.first_name', 'p.last_name', 'p.email', 'p.card_number',
-            'cp.barcode', 'li.call_number', 'i18n.title',
+            'cp.barcode', 'li.call_number', I18nFallback::col('i18n', 'title', 'title'),
         )
             ->orderBy('c.due_date')
             ->get()
@@ -639,10 +637,7 @@ class LibraryCirculationService
             ->leftJoin('library_patron as p', 'c.patron_id', '=', 'p.id')
             ->leftJoin('library_copy as cp', 'c.copy_id', '=', 'cp.id')
             ->leftJoin('library_item as li', 'cp.library_item_id', '=', 'li.id')
-            ->leftJoin('information_object_i18n as i18n', function ($j) {
-                $j->on('li.information_object_id', '=', 'i18n.id')
-                  ->where('i18n.culture', '=', app()->getLocale());
-            });
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'li.information_object_id', app()->getLocale()));
 
         if (!empty($filters['status'])) {
             $q->where('c.status', $filters['status']);
@@ -661,7 +656,7 @@ class LibraryCirculationService
         return $q->select(
             'c.id', 'c.checkout_date', 'c.due_date', 'c.status', 'c.renewed_count',
             'p.first_name', 'p.last_name', 'p.card_number',
-            'cp.barcode', 'li.call_number', 'i18n.title',
+            'cp.barcode', 'li.call_number', I18nFallback::col('i18n', 'title', 'title'),
         )
             ->orderByDesc('c.checkout_date')
             ->limit($filters['limit'] ?? 200)

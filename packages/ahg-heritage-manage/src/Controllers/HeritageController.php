@@ -34,6 +34,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use AhgCore\Services\HierarchyQueryService;
 use AhgHeritageManage\Support\TimelinePeriodLabel;
+use AhgCore\Support\I18nFallback;
 
 class HeritageController extends Controller
 {
@@ -88,24 +89,21 @@ class HeritageController extends Controller
         $creators = collect();
         try {
             $creators = DB::table('actor')
-                ->leftJoin('actor_i18n', function ($join) use ($culture) {
-                    $join->on('actor.id', '=', 'actor_i18n.id')
-                        ->where('actor_i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $culture))
                 ->leftJoin('slug', function ($join) {
                     $join->on('actor.id', '=', 'slug.object_id');
                 })
                 ->leftJoin('relation', 'actor.id', '=', 'relation.object_id')
-                ->select('actor.id', 'slug.slug', 'actor_i18n.authorized_form_of_name as name')
+                ->select('actor.id', 'slug.slug', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'))
                 ->selectRaw('COUNT(relation.id) as item_count')
-                ->whereNotNull('actor_i18n.authorized_form_of_name')
-                ->where('actor_i18n.authorized_form_of_name', '!=', '')
+                ->whereNotNull(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
+                ->where(I18nFallback::col('actor_i18n', 'authorized_form_of_name'), '!=', '')
                 // Only creators with a resolvable slug; the landing view builds
                 // route('actor.show', ['slug' => ...]) which throws a
                 // UrlGenerationException when the slug is null/empty (#1290).
                 ->whereNotNull('slug.slug')
                 ->where('slug.slug', '!=', '')
-                ->groupBy('actor.id', 'slug.slug', 'actor_i18n.authorized_form_of_name')
+                ->groupBy('actor.id', 'slug.slug', I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
                 ->orderByDesc('item_count')
                 ->limit(10)
                 ->get();
@@ -142,10 +140,7 @@ class HeritageController extends Controller
                     $join->on('information_object.id', '=', 'pub_status.object_id')
                         ->where('pub_status.type_id', '=', 158);
                 })
-                ->leftJoin('information_object_i18n', function ($join) use ($culture) {
-                    $join->on('information_object.id', '=', 'information_object_i18n.id')
-                        ->where('information_object_i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
                 ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
                 ->leftJoin('digital_object', function ($join) {
                     $join->on('information_object.id', '=', 'digital_object.object_id')
@@ -158,7 +153,7 @@ class HeritageController extends Controller
                 ->select(
                     'information_object.id',
                     'slug.slug',
-                    'information_object_i18n.title',
+                    I18nFallback::col('information_object_i18n', 'title', 'title'),
                     'digital_object.path as image_path',
                     'digital_object.name as image_name',
                     'digital_object.mime_type',
@@ -356,10 +351,7 @@ class HeritageController extends Controller
                 if ($currentPeriod) {
                     $baseQuery = DB::table('information_object as io')
                         ->join('object', 'io.id', '=', 'object.id')
-                        ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
-                            $join->on('io.id', '=', 'ioi.id')
-                                ->where('ioi.culture', '=', $culture);
-                        })
+                        ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
                         ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
                         ->join('status as pub', function ($join) {
                             $join->on('io.id', '=', 'pub.object_id')
@@ -382,7 +374,7 @@ class HeritageController extends Controller
                     $totalItems = (clone $baseQuery)->distinct('io.id')->count('io.id');
 
                     $items = $baseQuery
-                        ->select('io.id', 'ioi.title', 's.slug')
+                        ->select('io.id', I18nFallback::col('ioi', 'title', 'title'), 's.slug')
                         ->distinct()
                         ->offset($offset)
                         ->limit($limit)
@@ -425,23 +417,20 @@ class HeritageController extends Controller
         if (strlen($query) >= 2) {
             try {
                 $creators = DB::table('actor as a')
-                    ->join('actor_i18n as ai', function ($join) use ($culture) {
-                        $join->on('a.id', '=', 'ai.id')
-                            ->where('ai.culture', '=', $culture);
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'a.id', $culture, required: true))
                     ->join('slug as s', 'a.id', '=', 's.object_id')
                     ->leftJoin('relation as r', function ($join) {
                         $join->on('a.id', '=', 'r.object_id');
                     })
-                    ->where('ai.authorized_form_of_name', 'LIKE', "%{$query}%")
+                    ->where(I18nFallback::col('ai', 'authorized_form_of_name'), 'LIKE', "%{$query}%")
                     ->where('a.id', '!=', 3) // Exclude root actor
                     ->select(
                         'a.id',
-                        'ai.authorized_form_of_name as name',
+                        I18nFallback::col('ai', 'authorized_form_of_name', 'name'),
                         's.slug',
                         DB::raw('COUNT(DISTINCT r.id) as item_count')
                     )
-                    ->groupBy('a.id', 'ai.authorized_form_of_name', 's.slug')
+                    ->groupBy('a.id', I18nFallback::col('ai', 'authorized_form_of_name'), 's.slug')
                     ->orderByRaw('COUNT(DISTINCT r.id) DESC')
                     ->limit(15)
                     ->get();
@@ -504,10 +493,7 @@ class HeritageController extends Controller
                             $join->on('otr.term_id', '=', 'ti.id')
                                 ->where('ti.culture', '=', $culture);
                         })
-                        ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
-                            $join->on('io.id', '=', 'ioi.id')
-                                ->where('ioi.culture', '=', $culture);
-                        })
+                        ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
                         ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
                         ->join('status as pub', function ($join) {
                             $join->on('io.id', '=', 'pub.object_id')
@@ -523,7 +509,7 @@ class HeritageController extends Controller
                     $totalItems = (clone $baseQuery)->distinct('io.id')->count('io.id');
 
                     $items = $baseQuery
-                        ->select('io.id', 'ioi.title', 's.slug')
+                        ->select('io.id', I18nFallback::col('ioi', 'title', 'title'), 's.slug')
                         ->distinct()
                         ->offset($offset)
                         ->limit($limit)
@@ -755,10 +741,7 @@ class HeritageController extends Controller
                 } else {
                     // Get archival collection (information_object) details
                     $collection = DB::table('information_object as io')
-                        ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
-                            $join->on('io.id', '=', 'ioi.id')
-                                ->where('ioi.culture', '=', $culture);
-                        })
+                        ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
                         ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
                         ->leftJoin('digital_object as do', function ($join) {
                             $join->on('io.id', '=', 'do.object_id')
@@ -770,7 +753,7 @@ class HeritageController extends Controller
                         })
                         ->where('io.id', $item->source_id)
                         ->select([
-                            'io.id', 'ioi.title', 'ioi.scope_and_content as description',
+                            'io.id', I18nFallback::col('ioi', 'title', 'title'), I18nFallback::col('ioi', 'scope_and_content', 'description'),
                             's.slug', 'do.path as thumb_path', 'do.name as thumb_name',
                             'do_thumb.path as thumb_child_path', 'do_thumb.name as thumb_child_name',
                             'io.lft', 'io.rgt',
@@ -1154,13 +1137,10 @@ class HeritageController extends Controller
                         ];
                     } else {
                         $source = DB::table('information_object as io')
-                            ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
-                                $join->on('io.id', '=', 'ioi.id')
-                                    ->where('ioi.culture', '=', $culture);
-                            })
+                            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
                             ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
                             ->where('io.id', $fc->source_id)
-                            ->select('io.*', 'ioi.title', 'ioi.scope_and_content as description', 's.slug')
+                            ->select('io.*', I18nFallback::col('ioi', 'title', 'title'), I18nFallback::col('ioi', 'scope_and_content', 'description'), 's.slug')
                             ->first();
 
                         $collection = (object) [
@@ -1258,10 +1238,7 @@ class HeritageController extends Controller
 
         $item = DB::table('information_object as io')
             ->join('slug as s', 'io.id', '=', 's.object_id')
-            ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
-                $join->on('io.id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->leftJoin('digital_object as do', function ($join) {
                 $join->on('io.id', '=', 'do.object_id')
                     ->where('do.usage_id', '=', 140);
@@ -1270,8 +1247,8 @@ class HeritageController extends Controller
             ->select(
                 'io.id',
                 's.slug',
-                'ioi.title',
-                'ioi.scope_and_content',
+                I18nFallback::col('ioi', 'title', 'title'),
+                I18nFallback::col('ioi', 'scope_and_content', 'scope_and_content'),
                 'do.path as thumbnail_path',
                 'do.name as thumbnail_name',
                 'do.mime_type'
@@ -1344,13 +1321,11 @@ class HeritageController extends Controller
             $culture = app()->getLocale();
 
             $requests = DB::table('heritage_access_request as r')
-                ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                    $j->on('ioi.id', '=', 'r.object_id')->where('ioi.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'r.object_id', $culture))
                 ->leftJoin('slug as s', 's.object_id', '=', 'r.object_id')
                 ->where('r.user_id', Auth::id())
                 ->orderByDesc('r.created_at')
-                ->select('r.*', 'ioi.title as object_title', 's.slug',
+                ->select('r.*', I18nFallback::col('ioi', 'title', 'object_title'), 's.slug',
                     DB::raw('r.purpose_text as purpose_name'))
                 ->get();
         }
@@ -1368,12 +1343,9 @@ class HeritageController extends Controller
 
         $object = DB::table('information_object as io')
             ->join('slug as s', 'io.id', '=', 's.object_id')
-            ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
-                $join->on('io.id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->where('s.slug', $slug)
-            ->select('io.*', 'ioi.title', 's.slug')
+            ->select('io.*', I18nFallback::col('ioi', 'title', 'title'), 's.slug')
             ->first();
 
         if (!$object) {
@@ -1875,12 +1847,9 @@ class HeritageController extends Controller
 
         $item = DB::table('information_object as io')
             ->join('slug as s', 'io.id', '=', 's.object_id')
-            ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
-                $join->on('io.id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->where('s.slug', $slug)
-            ->select('io.*', 'ioi.title', 's.slug')
+            ->select('io.*', I18nFallback::col('ioi', 'title', 'title'), 's.slug')
             ->first();
 
         if (!$item) {
@@ -2177,10 +2146,7 @@ class HeritageController extends Controller
 
                 if ($cat) {
                     $baseQuery = DB::table('information_object as io')
-                        ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
-                            $join->on('io.id', '=', 'ioi.id')
-                                ->where('ioi.culture', '=', $culture);
-                        })
+                        ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
                         ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
                         ->join('status as pub', function ($join) {
                             $join->on('io.id', '=', 'pub.object_id')
@@ -2200,7 +2166,7 @@ class HeritageController extends Controller
 
                     $total = (clone $baseQuery)->distinct('io.id')->count('io.id');
                     $items = $baseQuery
-                        ->select('io.id', 'ioi.title', 's.slug')
+                        ->select('io.id', I18nFallback::col('ioi', 'title', 'title'), 's.slug')
                         ->distinct()
                         ->offset($offset)
                         ->limit($limit)
@@ -2270,10 +2236,7 @@ class HeritageController extends Controller
 
                 if ($period) {
                     $baseQuery = DB::table('information_object as io')
-                        ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
-                            $join->on('io.id', '=', 'ioi.id')
-                                ->where('ioi.culture', '=', $culture);
-                        })
+                        ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
                         ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
                         ->join('status as pub', function ($join) {
                             $join->on('io.id', '=', 'pub.object_id')
@@ -2294,7 +2257,7 @@ class HeritageController extends Controller
 
                     $total = (clone $baseQuery)->distinct('io.id')->count('io.id');
                     $items = $baseQuery
-                        ->select('io.id', 'ioi.title', 's.slug')
+                        ->select('io.id', I18nFallback::col('ioi', 'title', 'title'), 's.slug')
                         ->distinct()
                         ->offset($offset)
                         ->limit($limit)

@@ -38,6 +38,7 @@ use AhgDisplay\Services\DisplayService;
 use AhgDisplay\Services\DisplayTypeDetector;
 use AhgDisplay\Services\TitleSortService;
 use AhgDisplay\Repositories\UserBrowseSettingsRepository;
+use AhgCore\Support\I18nFallback;
 
 class DisplayController extends Controller
 {
@@ -78,6 +79,8 @@ class DisplayController extends Controller
     protected ?string $circulationStatusFilter = null;
     protected ?string $queryFilter = null;
     protected ?array $queryFilterTerms = null;
+    /** heratio#1583: close-match ids from the index when the search found nothing; replaces the text match. */
+    protected ?array $fuzzyMatchIds = null;
     /** Vector-search matches for ?semantic=1, best first; already filtered to what the viewer may see. */
     protected array $semanticIds = [];
     protected ?string $titleFilter = null;
@@ -211,9 +214,6 @@ class DisplayController extends Controller
 
         $semanticEnabled = $this->loadFilters($request);
 
-        // Fuzzy search correction - skipped (FuzzySearchService not yet migrated)
-        $didYouMean = null;
-        $correctedQuery = null;
         $originalQuery = $this->queryFilter;
         $esAssistedSearch = false;
         $searchSyntaxHelp = $this->searchUsesEs();
@@ -221,6 +221,13 @@ class DisplayController extends Controller
         if ($viewMode === 'graph' && class_exists(\AhgApi\Services\ExplorerDataService::class)) {
             return $this->graphView($request);
         }
+
+        // heratio#1583: a search that finds nothing gets a did-you-mean and,
+        // where one finds anything, close matches or the corrected query -
+        // always labelled, never applied silently. Runs before the facets so
+        // they count what is shown.
+        ['didYouMean' => $didYouMean, 'correctedQuery' => $correctedQuery, 'closeMatchesFor' => $closeMatchesFor]
+            = $this->searchCorrection($request, $culture);
 
         // Load facets: live counts scoped to current filters when filters active,
         // otherwise use cached counts for performance
@@ -296,9 +303,6 @@ class DisplayController extends Controller
 
         $this->applyFilters($countQuery);
         $total = $this->cachedCount($countQuery);
-
-        // ES fuzzy fallback - skipped (Elasticsearch not yet migrated)
-        // Placeholder for future: if $total === 0 && $this->queryFilter, try ES fuzzy
 
         $totalPages = (int) ceil($total / $limit);
 
@@ -402,7 +406,7 @@ class DisplayController extends Controller
                     // With Elasticsearch on, its 200 best matches lead in its own
                     // order (#1575); otherwise title matches lead.
                     $esRanked = $this->queryFilter && $this->searchUsesEs()
-                        ? array_slice($this->resolveTextMatchIds($this->queryFilterTerms ?: $this->queryFilter) ?? [], 0, 200)
+                        ? array_slice($this->fuzzyMatchIds ?? $this->resolveTextMatchIds($this->queryFilterTerms ?: $this->queryFilter) ?? [], 0, 200)
                         : [];
                     if ($esRanked) {
                         $marks = implode(',', array_fill(0, count($esRanked), '?'));
@@ -643,7 +647,7 @@ class DisplayController extends Controller
             'subjectFilter', 'placeFilter', 'genreFilter', 'levelFilter', 'mediaFilter',
             'repoFilter', 'queryFilter', 'filterParams', 'discoveryMode',
             'discoveryExpanded', 'discoveryMeta', 'correctedQuery', 'didYouMean',
-            'originalQuery', 'esAssistedSearch', 'searchSyntaxHelp', 'brokenItems',
+            'originalQuery', 'esAssistedSearch', 'searchSyntaxHelp', 'closeMatchesFor', 'brokenItems',
             'materialTypes', 'conditionGrades', 'acquisitionMethods', 'circulationStatuses',
             'materialTypeFilter', 'conditionGradeFilter', 'acquisitionMethodFilter', 'circulationStatusFilter'
         ));
@@ -1633,7 +1637,10 @@ class DisplayController extends Controller
         TenantScope::apply($query, 'io.repository_id');
 
         // Text search filters - use OR logic for semantic search
-        if ($this->queryFilter) {
+        if ($this->queryFilter && $this->fuzzyMatchIds !== null) {
+            // heratio#1583: the labelled close-match retry; same filters otherwise.
+            $query->whereIn('io.id', $this->fuzzyMatchIds);
+        } elseif ($this->queryFilter) {
             $terms = $this->queryFilterTerms ?: $this->queryFilter;
             if ($this->semanticIds) {
                 $query->where(function ($w) use ($terms) {
@@ -1673,11 +1680,9 @@ class DisplayController extends Controller
             $query->whereExists(function ($sub) {
                 $sub->select(DB::raw(1))
                     ->from('event as e')
-                    ->join('actor_i18n as ai', function ($j) {
-                        $j->on('e.actor_id', '=', 'ai.id')->where('ai.culture', '=', app()->getLocale());
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'e.actor_id', app()->getLocale(), required: true))
                     ->whereRaw('e.object_id = io.id')
-                    ->where('ai.authorized_form_of_name', 'like', '%' . $this->creatorSearchFilter . '%');
+                    ->where(I18nFallback::col('ai', 'authorized_form_of_name'), 'like', '%' . $this->creatorSearchFilter . '%');
             });
         }
 
@@ -1686,12 +1691,10 @@ class DisplayController extends Controller
                 $sub->select(DB::raw(1))
                     ->from('object_term_relation as otr')
                     ->join('term as t', 'otr.term_id', '=', 't.id')
-                    ->join('term_i18n as ti', function ($j) {
-                        $j->on('t.id', '=', 'ti.id')->where('ti.culture', '=', app()->getLocale());
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 't.id', app()->getLocale(), required: true))
                     ->whereRaw('otr.object_id = io.id')
                     ->where('t.taxonomy_id', 35)
-                    ->where('ti.name', 'like', '%' . $this->subjectSearchFilter . '%');
+                    ->where(I18nFallback::col('ti', 'name'), 'like', '%' . $this->subjectSearchFilter . '%');
             });
         }
 
@@ -1700,12 +1703,10 @@ class DisplayController extends Controller
                 $sub->select(DB::raw(1))
                     ->from('object_term_relation as otr')
                     ->join('term as t', 'otr.term_id', '=', 't.id')
-                    ->join('term_i18n as ti', function ($j) {
-                        $j->on('t.id', '=', 'ti.id')->where('ti.culture', '=', app()->getLocale());
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 't.id', app()->getLocale(), required: true))
                     ->whereRaw('otr.object_id = io.id')
                     ->where('t.taxonomy_id', 42)
-                    ->where('ti.name', 'like', '%' . $this->placeSearchFilter . '%');
+                    ->where(I18nFallback::col('ti', 'name'), 'like', '%' . $this->placeSearchFilter . '%');
             });
         }
 
@@ -1714,12 +1715,10 @@ class DisplayController extends Controller
                 $sub->select(DB::raw(1))
                     ->from('object_term_relation as otr')
                     ->join('term as t', 'otr.term_id', '=', 't.id')
-                    ->join('term_i18n as ti', function ($j) {
-                        $j->on('t.id', '=', 'ti.id')->where('ti.culture', '=', app()->getLocale());
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 't.id', app()->getLocale(), required: true))
                     ->whereRaw('otr.object_id = io.id')
                     ->where('t.taxonomy_id', 78)
-                    ->where('ti.name', 'like', '%' . $this->genreSearchFilter . '%');
+                    ->where(I18nFallback::col('ti', 'name'), 'like', '%' . $this->genreSearchFilter . '%');
             });
         }
 
@@ -1972,11 +1971,9 @@ class DisplayController extends Controller
 
             case 'creator':
                 $query->join('event as ef', 'ef.object_id', '=', 'io.id')
-                    ->join('actor_i18n as ai', function ($j) use ($culture) {
-                        $j->on('ef.actor_id', '=', 'ai.id')->where('ai.culture', '=', $culture);
-                    })
-                    ->select('ef.actor_id as facet_id', 'ai.authorized_form_of_name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
-                    ->groupBy('ef.actor_id', 'ai.authorized_form_of_name');
+                    ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'ef.actor_id', $culture, required: true))
+                    ->select('ef.actor_id as facet_id', I18nFallback::col('ai', 'authorized_form_of_name', 'facet_name'), DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                    ->groupBy('ef.actor_id', I18nFallback::col('ai', 'authorized_form_of_name'));
                 break;
 
             case 'subject':
@@ -1984,15 +1981,15 @@ class DisplayController extends Controller
                     $query->join('ahg_io_facet_denorm as fd_s', function ($j) {
                             $j->on('fd_s.io_id', '=', 'io.id')->where('fd_s.taxonomy_id', '=', 35);
                         })
-                        ->join('term_i18n as tis', function ($j) use ($culture) { $j->on('fd_s.term_id', '=', 'tis.id')->where('tis.culture', '=', $culture); })
-                        ->select('fd_s.term_id as facet_id', 'tis.name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
-                        ->groupBy('fd_s.term_id', 'tis.name');
+                        ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as tis', 'fd_s.term_id', $culture, required: true))
+                        ->select('fd_s.term_id as facet_id', I18nFallback::col('tis', 'name', 'facet_name'), DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                        ->groupBy('fd_s.term_id', I18nFallback::col('tis', 'name'));
                 } else {
                     $query->join('object_term_relation as otr_s', 'otr_s.object_id', '=', 'io.id')
                         ->join('term as ts', function ($j) { $j->on('otr_s.term_id', '=', 'ts.id')->where('ts.taxonomy_id', '=', 35); })
-                        ->join('term_i18n as tis', function ($j) use ($culture) { $j->on('ts.id', '=', 'tis.id')->where('tis.culture', '=', $culture); })
-                        ->select('ts.id as facet_id', 'tis.name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
-                        ->groupBy('ts.id', 'tis.name');
+                        ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as tis', 'ts.id', $culture, required: true))
+                        ->select('ts.id as facet_id', I18nFallback::col('tis', 'name', 'facet_name'), DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                        ->groupBy('ts.id', I18nFallback::col('tis', 'name'));
                 }
                 break;
 
@@ -2001,15 +1998,15 @@ class DisplayController extends Controller
                     $query->join('ahg_io_facet_denorm as fd_p', function ($j) {
                             $j->on('fd_p.io_id', '=', 'io.id')->where('fd_p.taxonomy_id', '=', 42);
                         })
-                        ->join('term_i18n as tip', function ($j) use ($culture) { $j->on('fd_p.term_id', '=', 'tip.id')->where('tip.culture', '=', $culture); })
-                        ->select('fd_p.term_id as facet_id', 'tip.name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
-                        ->groupBy('fd_p.term_id', 'tip.name');
+                        ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as tip', 'fd_p.term_id', $culture, required: true))
+                        ->select('fd_p.term_id as facet_id', I18nFallback::col('tip', 'name', 'facet_name'), DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                        ->groupBy('fd_p.term_id', I18nFallback::col('tip', 'name'));
                 } else {
                     $query->join('object_term_relation as otr_p', 'otr_p.object_id', '=', 'io.id')
                         ->join('term as tp', function ($j) { $j->on('otr_p.term_id', '=', 'tp.id')->where('tp.taxonomy_id', '=', 42); })
-                        ->join('term_i18n as tip', function ($j) use ($culture) { $j->on('tp.id', '=', 'tip.id')->where('tip.culture', '=', $culture); })
-                        ->select('tp.id as facet_id', 'tip.name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
-                        ->groupBy('tp.id', 'tip.name');
+                        ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as tip', 'tp.id', $culture, required: true))
+                        ->select('tp.id as facet_id', I18nFallback::col('tip', 'name', 'facet_name'), DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                        ->groupBy('tp.id', I18nFallback::col('tip', 'name'));
                 }
                 break;
 
@@ -2018,34 +2015,30 @@ class DisplayController extends Controller
                     $query->join('ahg_io_facet_denorm as fd_g', function ($j) {
                             $j->on('fd_g.io_id', '=', 'io.id')->where('fd_g.taxonomy_id', '=', 78);
                         })
-                        ->join('term_i18n as tig', function ($j) use ($culture) { $j->on('fd_g.term_id', '=', 'tig.id')->where('tig.culture', '=', $culture); })
-                        ->select('fd_g.term_id as facet_id', 'tig.name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
-                        ->groupBy('fd_g.term_id', 'tig.name');
+                        ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as tig', 'fd_g.term_id', $culture, required: true))
+                        ->select('fd_g.term_id as facet_id', I18nFallback::col('tig', 'name', 'facet_name'), DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                        ->groupBy('fd_g.term_id', I18nFallback::col('tig', 'name'));
                 } else {
                     $query->join('object_term_relation as otr_g', 'otr_g.object_id', '=', 'io.id')
                         ->join('term as tg', function ($j) { $j->on('otr_g.term_id', '=', 'tg.id')->where('tg.taxonomy_id', '=', 78); })
-                        ->join('term_i18n as tig', function ($j) use ($culture) { $j->on('tg.id', '=', 'tig.id')->where('tig.culture', '=', $culture); })
-                        ->select('tg.id as facet_id', 'tig.name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
-                        ->groupBy('tg.id', 'tig.name');
+                        ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as tig', 'tg.id', $culture, required: true))
+                        ->select('tg.id as facet_id', I18nFallback::col('tig', 'name', 'facet_name'), DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                        ->groupBy('tg.id', I18nFallback::col('tig', 'name'));
                 }
                 break;
 
             case 'level':
-                $query->join('term_i18n as til', function ($j) use ($culture) {
-                        $j->on('io.level_of_description_id', '=', 'til.id')->where('til.culture', '=', $culture);
-                    })
+                $query->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as til', 'io.level_of_description_id', $culture, required: true))
                     ->whereNotNull('io.level_of_description_id')
-                    ->select('io.level_of_description_id as facet_id', 'til.name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
-                    ->groupBy('io.level_of_description_id', 'til.name');
+                    ->select('io.level_of_description_id as facet_id', I18nFallback::col('til', 'name', 'facet_name'), DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                    ->groupBy('io.level_of_description_id', I18nFallback::col('til', 'name'));
                 break;
 
             case 'repository':
-                $query->join('actor_i18n as rai', function ($j) use ($culture) {
-                        $j->on('io.repository_id', '=', 'rai.id')->where('rai.culture', '=', $culture);
-                    })
+                $query->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as rai', 'io.repository_id', $culture, required: true))
                     ->whereNotNull('io.repository_id')
-                    ->select('io.repository_id as facet_id', 'rai.authorized_form_of_name as facet_name', DB::raw('COUNT(DISTINCT io.id) as cnt'))
-                    ->groupBy('io.repository_id', 'rai.authorized_form_of_name');
+                    ->select('io.repository_id as facet_id', I18nFallback::col('rai', 'authorized_form_of_name', 'facet_name'), DB::raw('COUNT(DISTINCT io.id) as cnt'))
+                    ->groupBy('io.repository_id', I18nFallback::col('rai', 'authorized_form_of_name'));
                 break;
 
             case 'material_type':
@@ -2342,6 +2335,89 @@ class DisplayController extends Controller
         }
 
         return self::$textMatchIdCache[$cacheKey] = $this->scanTextMatchIds($terms);
+    }
+
+    /**
+     * heratio#1583: what to do when the search box finds nothing.
+     *
+     * Index path: the phrase suggester gives the did-you-mean, and the search
+     * is re-run with every word fuzzy (fuzziness AUTO); its results are shown
+     * under "Showing close matches for ...". Database path, or the index
+     * cannot answer: the cached vocabulary of published, disclosable words
+     * corrects each misspelt word; the corrected query is run through the same
+     * filters and, when it finds records, shown under "Showing results for X -
+     * search instead for Y" (ahg_display_search_autocorrect, default on);
+     * otherwise it is offered as a link.
+     *
+     * Skipped for ?noCorrect=1, semantic searches, and when
+     * ahg_display_search_correction is off.
+     *
+     * @return array{didYouMean: ?string, correctedQuery: ?string, closeMatchesFor: ?string}
+     */
+    protected function searchCorrection(Request $request, string $culture): array
+    {
+        $out = ['didYouMean' => null, 'correctedQuery' => null, 'closeMatchesFor' => null];
+        $this->fuzzyMatchIds = null;
+        if (! $this->queryFilter || $this->queryFilterTerms || $this->semanticIds || $request->boolean('noCorrect')
+            || ! \AhgCore\Services\AhgSettingsService::getBool('ahg_display_search_correction', true)
+            || $this->searchTotal() > 0) {
+            return $out;
+        }
+        $original = $this->queryFilter;
+
+        if ($this->searchUsesEs()) {
+            $es = app(\AhgSearch\Services\ElasticsearchService::class);
+            $ids = $es->fuzzyMatchingIoIds($original, $culture, self::ES_MATCH_LIMIT);
+            if ($ids !== null) {
+                $restricted = $this->viewerIsStaff() ? [] : app(\AhgCore\Services\DisclosureGate::class)->restrictedIds();
+                $out['didYouMean'] = $es->browseSuggestion($original, $restricted);
+                if ($ids) {
+                    $this->fuzzyMatchIds = $ids;
+                    if ($this->searchTotal() > 0) {
+                        $out['closeMatchesFor'] = $original;
+
+                        return $out;
+                    }
+                    $this->fuzzyMatchIds = null;
+                }
+
+                return $out;
+            }
+            // The index cannot answer: the search itself fell back to the
+            // database scans, so the correction does too.
+        }
+
+        $suggestion = app(\AhgDisplay\Services\SearchVocabularyService::class)->correct($original, $culture);
+        if ($suggestion === null || mb_strtolower($suggestion) === mb_strtolower($original)) {
+            return $out;
+        }
+        if (\AhgCore\Services\AhgSettingsService::getBool('ahg_display_search_autocorrect', true)) {
+            $this->queryFilter = $suggestion;
+            if ($this->searchTotal() > 0) {
+                $out['correctedQuery'] = $suggestion;
+
+                return $out;
+            }
+            $this->queryFilter = $original;
+        }
+        $out['didYouMean'] = $suggestion;
+
+        return $out;
+    }
+
+    /**
+     * The result count for the current filters, through the count cache, so
+     * the browse count that follows with the same filters is a cache hit.
+     */
+    protected function searchTotal(): int
+    {
+        $q = DB::table('information_object as io')->where('io.id', '>', 1);
+        if ($this->typeFilter) {
+            $q->leftJoin('display_object_config as doc', 'io.id', '=', 'doc.object_id');
+        }
+        $this->applyFilters($q);
+
+        return $this->cachedCount($q);
     }
 
     /**

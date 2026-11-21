@@ -24,6 +24,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use AhgCore\Support\I18nFallback;
 
 class LibraryOpacSearchService
 {
@@ -434,16 +435,13 @@ class LibraryOpacSearchService
 
         $q = DB::table('library_item as li')
             ->leftJoin('information_object as io', 'li.information_object_id', '=', 'io.id')
-            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'i18n.id')
-                  ->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->leftJoin('library_copy as cp', 'li.id', '=', 'cp.library_item_id')
             ->tap(fn ($q) => $this->publicOnly($q))
             ->select([
                 'li.id',
-                'i18n.title',
+                I18nFallback::col('i18n', 'title', 'title'),
                 'li.subtitle',
                 'li.responsibility_statement as creator',
                 'li.isbn',
@@ -461,7 +459,7 @@ class LibraryOpacSearchService
                 DB::raw('COUNT(cp.id) as total_copies'),
                 DB::raw("SUM(CASE WHEN cp.status = 'available' THEN 1 ELSE 0 END) as available_copies"),
             ])
-            ->groupBy('li.id', 'i18n.title', 'li.subtitle', 'li.responsibility_statement',
+            ->groupBy('li.id', I18nFallback::col('i18n', 'title'), 'li.subtitle', 'li.responsibility_statement',
                       'li.isbn', 'li.issn', 'li.publisher', 'li.publication_date',
                       'li.language', 'li.material_type',
                       'li.call_number', 'li.pagination', 'li.cover_url', 'slug.slug', 'li.summary');
@@ -470,7 +468,7 @@ class LibraryOpacSearchService
         if ($query !== '') {
             $like = '%' . $query . '%';
             $q->where(function ($w) use ($like) {
-                $w->where('i18n.title', 'LIKE', $like)
+                $w->where(I18nFallback::col('i18n', 'title'), 'LIKE', $like)
                   ->orWhere('li.isbn', 'LIKE', $like)
                   ->orWhere('li.call_number', 'LIKE', $like)
                   ->orWhere('li.publisher', 'LIKE', $like)
@@ -501,15 +499,15 @@ class LibraryOpacSearchService
 
         // Sorting
         switch ($sort) {
-            case 'title_asc':  $q->orderBy('i18n.title', 'asc');  break;
-            case 'title_desc': $q->orderBy('i18n.title', 'desc'); break;
+            case 'title_asc':  $q->orderBy(I18nFallback::col('i18n', 'title'), 'asc');  break;
+            case 'title_desc': $q->orderBy(I18nFallback::col('i18n', 'title'), 'desc'); break;
             case 'year_desc':  $q->orderByRaw(self::YEAR_SQL.' desc'); break;
             case 'year_asc':   $q->orderByRaw(self::YEAR_SQL.' asc');  break;
             case 'popular':
                 $q->orderByRaw('total_copies DESC');
                 break;
             default:
-                $q->orderBy('i18n.title', 'asc');
+                $q->orderBy(I18nFallback::col('i18n', 'title'), 'asc');
         }
 
         // Build aggregations from DB (sidebar facets - independent queries)

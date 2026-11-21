@@ -26,6 +26,7 @@
 namespace AhgAiServices\Services;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * AI > Suggest review over ahg_description_suggestion (heratio#1559, #1564):
@@ -52,14 +53,12 @@ class DescriptionSuggestionService
         $culture = app()->getLocale();
         $page = DB::table('ahg_description_suggestion as s')
             ->leftJoin('slug', 'slug.object_id', '=', 's.object_id')
-            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('ioi.id', '=', 's.object_id')->where('ioi.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 's.object_id', $culture))
             ->leftJoin('user as u', 'u.id', '=', 's.created_by')
             ->leftJoin('user as r', 'r.id', '=', 's.reviewed_by')
             ->where('s.status', $status)
             ->orderByDesc('s.id')
-            ->select('s.*', 'slug.slug', 'ioi.title as record_title', 'u.username as proposer', 'r.username as reviewer')
+            ->select('s.*', 'slug.slug', I18nFallback::col('ioi', 'title', 'record_title'), 'u.username as proposer', 'r.username as reviewer')
             ->paginate($perPage)->withQueryString();
         $page->getCollection()->transform(function ($row) {
             $row->meta = json_decode((string) $row->source_data, true) ?: [];

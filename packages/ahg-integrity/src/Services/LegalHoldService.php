@@ -18,6 +18,7 @@ namespace AhgIntegrity\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class LegalHoldService
 {
@@ -176,10 +177,7 @@ class LegalHoldService
 
         $query = DB::table('integrity_legal_hold')
             ->leftJoin('information_object', 'integrity_legal_hold.information_object_id', '=', 'information_object.id')
-            ->leftJoin('information_object_i18n', function ($join) use ($culture) {
-                $join->on('information_object.id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
             ->where('integrity_legal_hold.status', 'active');
 
         if ($repositoryId) {

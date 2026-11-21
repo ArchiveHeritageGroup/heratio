@@ -442,6 +442,8 @@
     @include('ahg-io-manage::partials._treeview', ['io' => $io])
   @endif
   @include('ahg-information-object-manage::partials._redaction-overlay')
+  {{-- heratio#1743 live event: player while live, "Starts at" before, "Ended" after (media access rules apply). --}}
+  @includeIf('ahg-media-streaming::live._record-player', ['ioId' => $io->id])
   @include('ahg-information-object-manage::partials._digital-object-viewer')
   {{-- #1447 - additional digital objects attached to this description (gallery + attach form) --}}
   @include('ahg-information-object-manage::partials._attached-objects')

@@ -2,7 +2,9 @@
 
 namespace AhgMediaStreaming\Providers;
 
+use AhgMediaStreaming\Console\LiveIngestCommand;
 use AhgMediaStreaming\Services\CaptionTrackService;
+use AhgMediaStreaming\Services\LiveStreamService;
 use AhgMediaStreaming\Services\PublishPackageService;
 use AhgMediaStreaming\Services\StreamingService;
 use AhgMediaStreaming\Services\TranscodingService;
@@ -23,6 +25,7 @@ class AhgMediaStreamingServiceProvider extends ServiceProvider
 
         $this->app->singleton(CaptionTrackService::class);
         $this->app->singleton(PublishPackageService::class);
+        $this->app->singleton(LiveStreamService::class);
     }
 
     public function boot(): void
@@ -32,6 +35,10 @@ class AhgMediaStreamingServiceProvider extends ServiceProvider
 
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-media-streaming');
         $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([LiveIngestCommand::class]); // heratio#1743 live ingest worker
+        }
 
         // #757 caption tracks: auto-inject active tracks into the media-player
         // Blade component whenever a caller has not supplied them. Avoids

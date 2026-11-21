@@ -32,6 +32,7 @@ use AhgUserManage\Services\UserService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class UserController extends Controller
 {
@@ -85,11 +86,10 @@ class UserController extends Controller
 
         $culture = app()->getLocale();
         $apiKeys = DB::table('property')
-            ->join('property_i18n', 'property.id', '=', 'property_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'property_i18n', 'property.id', $culture, required: true))
             ->where('property.object_id', $user->id)
             ->whereIn('property.name', ['RestApiKey', 'OaiApiKey'])
-            ->where('property_i18n.culture', $culture)
-            ->pluck('property_i18n.value', 'property.name');
+            ->pluck(I18nFallback::col('property_i18n', 'value', 'value'), 'property.name');
 
         $viewData = [
             'user' => $user,
@@ -316,13 +316,10 @@ class UserController extends Controller
         try {
             $culture = app()->getLocale();
             $groups = \DB::table('acl_group')
-                ->leftJoin('acl_group_i18n', function ($join) use ($culture) {
-                    $join->on('acl_group.id', '=', 'acl_group_i18n.id')
-                        ->where('acl_group_i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'acl_group_i18n', 'acl_group.id', $culture))
                 ->where('acl_group.id', '>', 99)
-                ->select(['acl_group.id', 'acl_group_i18n.name'])
-                ->orderBy('acl_group_i18n.name')
+                ->select(['acl_group.id', I18nFallback::col('acl_group_i18n', 'name', 'name')])
+                ->orderBy(I18nFallback::col('acl_group_i18n', 'name'))
                 ->get();
         } catch (\Exception $e) {
             // ignore

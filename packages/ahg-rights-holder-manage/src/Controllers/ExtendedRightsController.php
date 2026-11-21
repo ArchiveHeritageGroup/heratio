@@ -29,6 +29,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class ExtendedRightsController extends Controller
 {
@@ -179,12 +180,9 @@ class ExtendedRightsController extends Controller
         if (Schema::hasTable('embargo')) {
             $embargoes = DB::table('embargo')
                 ->where('is_active', true)
-                ->leftJoin('information_object_i18n', function ($j) {
-                    $j->on('embargo.object_id', '=', 'information_object_i18n.id')
-                        ->where('information_object_i18n.culture', '=', app()->getLocale());
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'embargo.object_id', app()->getLocale()))
                 ->leftJoin('slug', 'embargo.object_id', '=', 'slug.object_id')
-                ->select('embargo.*', 'information_object_i18n.title', 'slug.slug')
+                ->select('embargo.*', I18nFallback::col('information_object_i18n', 'title', 'title'), 'slug.slug')
                 ->orderBy('embargo.created_at', 'desc')
                 ->get();
         }
@@ -202,12 +200,9 @@ class ExtendedRightsController extends Controller
                 ->whereNotNull('end_date')
                 ->where('end_date', '>=', now())
                 ->where('end_date', '<=', now()->addDays($days))
-                ->leftJoin('information_object_i18n', function ($j) {
-                    $j->on('embargo.object_id', '=', 'information_object_i18n.id')
-                        ->where('information_object_i18n.culture', '=', app()->getLocale());
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'embargo.object_id', app()->getLocale()))
                 ->leftJoin('slug', 'embargo.object_id', '=', 'slug.object_id')
-                ->select('embargo.*', 'information_object_i18n.title', 'slug.slug')
+                ->select('embargo.*', I18nFallback::col('information_object_i18n', 'title', 'title'), 'slug.slug')
                 ->orderBy('embargo.end_date')
                 ->get()
                 ->map(function ($e) {
@@ -224,11 +219,10 @@ class ExtendedRightsController extends Controller
     {
         $culture = app()->getLocale();
         $topLevelRecords = DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
             ->where('information_object.parent_id', 1)
-            ->where('information_object_i18n.culture', $culture)
-            ->select('information_object.id', 'information_object_i18n.title', 'information_object.identifier')
-            ->orderBy('information_object_i18n.title')
+            ->select('information_object.id', I18nFallback::col('information_object_i18n', 'title', 'title'), 'information_object.identifier')
+            ->orderBy(I18nFallback::col('information_object_i18n', 'title'))
             ->limit(500)
             ->get();
 

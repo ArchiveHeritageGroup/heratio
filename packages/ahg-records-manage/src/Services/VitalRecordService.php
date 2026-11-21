@@ -5,6 +5,7 @@ namespace AhgRecordsManage\Services;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class VitalRecordService
 {
@@ -100,10 +101,7 @@ class VitalRecordService
 
         $query = DB::table('vital_record as vr')
             ->join('information_object as io', 'vr.information_object_id', '=', 'io.id')
-            ->leftJoin('information_object_i18n as io_i18n', function ($join) use ($culture) {
-                $join->on('vr.information_object_id', '=', 'io_i18n.id')
-                    ->where('io_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as io_i18n', 'vr.information_object_id', $culture))
             ->where('vr.is_active', 1);
 
         if ($repositoryId) {
@@ -114,7 +112,7 @@ class VitalRecordService
 
         $data = $query->select([
             'vr.*',
-            'io_i18n.title as io_title',
+            I18nFallback::col('io_i18n', 'title', 'io_title'),
             'io.repository_id',
         ])
             ->orderBy('vr.next_review_date', 'asc')
@@ -143,15 +141,12 @@ class VitalRecordService
         $culture = app()->getLocale();
 
         return DB::table('vital_record as vr')
-            ->leftJoin('information_object_i18n as io_i18n', function ($join) use ($culture) {
-                $join->on('vr.information_object_id', '=', 'io_i18n.id')
-                    ->where('io_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as io_i18n', 'vr.information_object_id', $culture))
             ->where('vr.is_active', 1)
             ->where('vr.next_review_date', '<=', Carbon::now()->toDateString())
             ->select([
                 'vr.*',
-                'io_i18n.title as io_title',
+                I18nFallback::col('io_i18n', 'title', 'io_title'),
             ])
             ->orderBy('vr.next_review_date', 'asc')
             ->get()

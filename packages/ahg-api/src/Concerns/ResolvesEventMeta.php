@@ -26,6 +26,7 @@
 namespace AhgApi\Concerns;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Resolve an object's primary display date and creator names from the
@@ -42,11 +43,9 @@ trait ResolvesEventMeta
     {
         try {
             $rows = DB::table('event as e')
-                ->leftJoin('event_i18n as ei', function ($j) {
-                    $j->on('e.id', '=', 'ei.id')->where('ei.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n as ei', 'e.id', $this->culture))
                 ->where('e.object_id', $objectId)
-                ->select('ei.date as display_date', 'e.start_date', 'e.end_date')
+                ->select(I18nFallback::col('ei', 'date', 'display_date'), 'e.start_date', 'e.end_date')
                 ->get();
 
             foreach ($rows as $r) {
@@ -71,15 +70,12 @@ trait ResolvesEventMeta
     {
         try {
             return DB::table('event')
-                ->join('actor_i18n', function ($j) {
-                    $j->on('event.actor_id', '=', 'actor_i18n.id')
-                        ->where('actor_i18n.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'event.actor_id', $this->culture, required: true))
                 ->where('event.object_id', $objectId)
                 ->whereNotNull('event.actor_id')
-                ->whereNotNull('actor_i18n.authorized_form_of_name')
+                ->whereNotNull(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
                 ->distinct()
-                ->pluck('actor_i18n.authorized_form_of_name')
+                ->pluck(I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'))
                 ->map(fn ($v) => trim((string) $v))
                 ->filter()
                 ->values()

@@ -31,6 +31,7 @@ use AhgCore\Constants\TermId;
 use AhgCore\Services\BrowseService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use AhgCore\Support\I18nFallback;
 
 class InformationObjectBrowseService extends BrowseService
 {
@@ -56,14 +57,14 @@ class InformationObjectBrowseService extends BrowseService
     {
         return [
             'information_object.id',
-            'information_object_i18n.title as name',
+            I18nFallback::col('information_object_i18n', 'title', 'name'),
             'information_object.level_of_description_id',
             'information_object.repository_id',
             'information_object.parent_id',
             'information_object.identifier',
             'object.updated_at',
             'slug.slug',
-            'information_object_i18n.scope_and_content',
+            I18nFallback::col('information_object_i18n', 'scope_and_content', 'scope_and_content'),
             DB::raw('(SELECT do_thumb.path FROM digital_object do_master JOIN digital_object do_thumb ON do_thumb.parent_id = do_master.id AND do_thumb.usage_id = 113 WHERE do_master.object_id = information_object.id LIMIT 1) as thumbnail_path'),
         ];
     }
@@ -71,10 +72,9 @@ class InformationObjectBrowseService extends BrowseService
     protected function getBaseJoins($query)
     {
         $query = $query
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $this->culture))
             ->join('object', 'information_object.id', '=', 'object.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
-            ->where('information_object_i18n.culture', $this->culture)
             ->where('information_object.id', '!=', 1); // Exclude root
 
         // Apply active filters
@@ -204,14 +204,14 @@ class InformationObjectBrowseService extends BrowseService
             if ($findingAidStatus === 'yes') {
                 // Has a finding aid: finding_aids field is not null and not empty
                 $query->where(function ($q) {
-                    $q->whereNotNull('information_object_i18n.finding_aids')
-                      ->where('information_object_i18n.finding_aids', '!=', '');
+                    $q->whereNotNull(I18nFallback::col('information_object_i18n', 'finding_aids'))
+                      ->where(I18nFallback::col('information_object_i18n', 'finding_aids'), '!=', '');
                 });
             } elseif ($findingAidStatus === 'no') {
                 // Does not have a finding aid
                 $query->where(function ($q) {
-                    $q->whereNull('information_object_i18n.finding_aids')
-                      ->orWhere('information_object_i18n.finding_aids', '=', '');
+                    $q->whereNull(I18nFallback::col('information_object_i18n', 'finding_aids'))
+                      ->orWhere(I18nFallback::col('information_object_i18n', 'finding_aids'), '=', '');
                 });
             }
         }
@@ -245,11 +245,7 @@ class InformationObjectBrowseService extends BrowseService
             $levelIds = array_filter(array_unique(array_column($result['hits'], 'level_of_description_id')));
             $levelNames = [];
             if (!empty($levelIds)) {
-                $levelNames = DB::table('term_i18n')
-                    ->whereIn('id', $levelIds)
-                    ->where('culture', $this->culture)
-                    ->pluck('name', 'id')
-                    ->toArray();
+                $levelNames = I18nFallback::pluck('term_i18n', $levelIds, 'name', $this->culture);
             }
             $result['levelNames'] = $levelNames;
 
@@ -258,10 +254,9 @@ class InformationObjectBrowseService extends BrowseService
             $repositoryNames = [];
             if (!empty($repoIds)) {
                 $repositoryNames = DB::table('repository')
-                    ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
+                    ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $this->culture, required: true))
                     ->whereIn('repository.id', $repoIds)
-                    ->where('actor_i18n.culture', $this->culture)
-                    ->pluck('actor_i18n.authorized_form_of_name', 'repository.id')
+                    ->pluck(I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'), 'repository.id')
                     ->toArray();
             }
             $result['repositoryNames'] = $repositoryNames;
@@ -273,11 +268,10 @@ class InformationObjectBrowseService extends BrowseService
             $parentInfo = [];
             if (!empty($parentIds)) {
                 $parentInfo = DB::table('information_object')
-                    ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+                    ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $this->culture))
                     ->join('slug', 'information_object.id', '=', 'slug.object_id')
                     ->whereIn('information_object.id', $parentIds)
-                    ->where('information_object_i18n.culture', $this->culture)
-                    ->select('information_object.id', 'information_object_i18n.title as name', 'slug.slug')
+                    ->select('information_object.id', I18nFallback::col('information_object_i18n', 'title', 'name'), 'slug.slug')
                     ->get()
                     ->keyBy('id')
                     ->map(fn ($row) => ['name' => $row->name, 'slug' => $row->slug])
@@ -295,28 +289,28 @@ class InformationObjectBrowseService extends BrowseService
             $like = '%' . addcslashes($subquery, '%_') . '%';
             $query->where(function ($q) use ($like) {
                 // Information object i18n fields (all text columns)
-                $q->where('information_object_i18n.title', 'LIKE', $like)
+                $q->where(I18nFallback::col('information_object_i18n', 'title'), 'LIKE', $like)
                   ->orWhere('information_object.identifier', 'LIKE', $like)
-                  ->orWhere('information_object_i18n.alternate_title', 'LIKE', $like)
-                  ->orWhere('information_object_i18n.edition', 'LIKE', $like)
-                  ->orWhere('information_object_i18n.scope_and_content', 'LIKE', $like)
-                  ->orWhere('information_object_i18n.archival_history', 'LIKE', $like)
-                  ->orWhere('information_object_i18n.extent_and_medium', 'LIKE', $like)
-                  ->orWhere('information_object_i18n.acquisition', 'LIKE', $like)
-                  ->orWhere('information_object_i18n.appraisal', 'LIKE', $like)
-                  ->orWhere('information_object_i18n.accruals', 'LIKE', $like)
-                  ->orWhere('information_object_i18n.arrangement', 'LIKE', $like)
-                  ->orWhere('information_object_i18n.access_conditions', 'LIKE', $like)
-                  ->orWhere('information_object_i18n.reproduction_conditions', 'LIKE', $like)
-                  ->orWhere('information_object_i18n.physical_characteristics', 'LIKE', $like)
-                  ->orWhere('information_object_i18n.finding_aids', 'LIKE', $like)
-                  ->orWhere('information_object_i18n.location_of_originals', 'LIKE', $like)
-                  ->orWhere('information_object_i18n.location_of_copies', 'LIKE', $like)
-                  ->orWhere('information_object_i18n.related_units_of_description', 'LIKE', $like)
-                  ->orWhere('information_object_i18n.rules', 'LIKE', $like)
-                  ->orWhere('information_object_i18n.sources', 'LIKE', $like)
-                  ->orWhere('information_object_i18n.revision_history', 'LIKE', $like)
-                  ->orWhere('information_object_i18n.institution_responsible_identifier', 'LIKE', $like);
+                  ->orWhere(I18nFallback::col('information_object_i18n', 'alternate_title'), 'LIKE', $like)
+                  ->orWhere(I18nFallback::col('information_object_i18n', 'edition'), 'LIKE', $like)
+                  ->orWhere(I18nFallback::col('information_object_i18n', 'scope_and_content'), 'LIKE', $like)
+                  ->orWhere(I18nFallback::col('information_object_i18n', 'archival_history'), 'LIKE', $like)
+                  ->orWhere(I18nFallback::col('information_object_i18n', 'extent_and_medium'), 'LIKE', $like)
+                  ->orWhere(I18nFallback::col('information_object_i18n', 'acquisition'), 'LIKE', $like)
+                  ->orWhere(I18nFallback::col('information_object_i18n', 'appraisal'), 'LIKE', $like)
+                  ->orWhere(I18nFallback::col('information_object_i18n', 'accruals'), 'LIKE', $like)
+                  ->orWhere(I18nFallback::col('information_object_i18n', 'arrangement'), 'LIKE', $like)
+                  ->orWhere(I18nFallback::col('information_object_i18n', 'access_conditions'), 'LIKE', $like)
+                  ->orWhere(I18nFallback::col('information_object_i18n', 'reproduction_conditions'), 'LIKE', $like)
+                  ->orWhere(I18nFallback::col('information_object_i18n', 'physical_characteristics'), 'LIKE', $like)
+                  ->orWhere(I18nFallback::col('information_object_i18n', 'finding_aids'), 'LIKE', $like)
+                  ->orWhere(I18nFallback::col('information_object_i18n', 'location_of_originals'), 'LIKE', $like)
+                  ->orWhere(I18nFallback::col('information_object_i18n', 'location_of_copies'), 'LIKE', $like)
+                  ->orWhere(I18nFallback::col('information_object_i18n', 'related_units_of_description'), 'LIKE', $like)
+                  ->orWhere(I18nFallback::col('information_object_i18n', 'rules'), 'LIKE', $like)
+                  ->orWhere(I18nFallback::col('information_object_i18n', 'sources'), 'LIKE', $like)
+                  ->orWhere(I18nFallback::col('information_object_i18n', 'revision_history'), 'LIKE', $like)
+                  ->orWhere(I18nFallback::col('information_object_i18n', 'institution_responsible_identifier'), 'LIKE', $like);
 
                 // Notes (note_i18n.content via note.object_id)
                 $q->orWhereExists(function ($sub) use ($like) {

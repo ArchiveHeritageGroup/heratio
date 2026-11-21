@@ -28,6 +28,7 @@ namespace AhgLibrary\Services;
 use AhgLibrary\Support\LibrarySettings;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class LibraryOpacService
 {
@@ -43,15 +44,13 @@ class LibraryOpacService
 
         $q = DB::table('library_item as li')
             ->leftJoin('information_object as io', 'li.information_object_id', '=', 'io.id')
-            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id');
 
         if ($query !== '') {
             $like = '%' . $query . '%';
             $q->where(function ($w) use ($like) {
-                $w->where('i18n.title', 'LIKE', $like)
+                $w->where(I18nFallback::col('i18n', 'title'), 'LIKE', $like)
                     ->orWhere('li.isbn', 'LIKE', $like)
                     ->orWhere('li.call_number', 'LIKE', $like)
                     ->orWhere('li.publisher', 'LIKE', $like)
@@ -69,9 +68,9 @@ class LibraryOpacService
         return $q->select(
                 'li.id', 'li.isbn', 'li.call_number', 'li.material_type', 'li.publisher',
                 'li.publication_date', 'li.cover_url', 'li.responsibility_statement',
-                'i18n.title', 'slug.slug',
+                I18nFallback::col('i18n', 'title', 'title'), 'slug.slug',
             )
-            ->orderBy('i18n.title')
+            ->orderBy(I18nFallback::col('i18n', 'title'))
             ->paginate($perPage)
             ->appends(['q' => $query] + $filters);
     }
@@ -120,18 +119,16 @@ class LibraryOpacService
 
         return DB::table('library_item as li')
             ->leftJoin('information_object as io', 'li.information_object_id', '=', 'io.id')
-            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->leftJoin('library_copy as cp', 'li.id', '=', 'cp.library_item_id')
             ->whereNotNull('cp.acquisition_date')
             ->select(
                 'li.id', 'li.isbn', 'li.cover_url', 'li.responsibility_statement',
-                'i18n.title', 'slug.slug',
+                I18nFallback::col('i18n', 'title', 'title'), 'slug.slug',
                 DB::raw('MAX(cp.acquisition_date) as latest_acquisition'),
             )
-            ->groupBy('li.id', 'li.isbn', 'li.cover_url', 'li.responsibility_statement', 'i18n.title', 'slug.slug')
+            ->groupBy('li.id', 'li.isbn', 'li.cover_url', 'li.responsibility_statement', I18nFallback::col('i18n', 'title'), 'slug.slug')
             ->orderByDesc('latest_acquisition')
             ->limit($limit)
             ->get()
@@ -151,17 +148,15 @@ class LibraryOpacService
         return DB::table('library_checkout as c')
             ->join('library_copy as cp', 'c.copy_id', '=', 'cp.id')
             ->join('library_item as li', 'cp.library_item_id', '=', 'li.id')
-            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('li.information_object_id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'li.information_object_id', $culture))
             ->leftJoin('slug', 'li.information_object_id', '=', 'slug.object_id')
             ->where('c.checkout_date', '>=', $cutoff)
             ->select(
                 'li.id', 'li.isbn', 'li.cover_url',
-                'i18n.title', 'slug.slug',
+                I18nFallback::col('i18n', 'title', 'title'), 'slug.slug',
                 DB::raw('COUNT(c.id) as checkout_count'),
             )
-            ->groupBy('li.id', 'li.isbn', 'li.cover_url', 'i18n.title', 'slug.slug')
+            ->groupBy('li.id', 'li.isbn', 'li.cover_url', I18nFallback::col('i18n', 'title'), 'slug.slug')
             ->orderByDesc('checkout_count')
             ->limit($limit)
             ->get()

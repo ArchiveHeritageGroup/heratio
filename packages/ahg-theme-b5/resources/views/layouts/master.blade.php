@@ -506,7 +506,7 @@
          in our CSP script-src allowlist (and jsdelivr is) - see HeratioCspPreset. --}}
     <script src="{{ asset('vendor/d3/7/d3.min.js') }}"></script>
 
-    {{-- Base JS (display-mode + voiceCommands already in theme bundle - don't load standalone) --}}
+    {{-- Base JS (voice JS is loaded further down with the voice partial) --}}
     <script src="{{ asset('vendor/ahg-theme-b5/js/base.js') }}"></script>
     {{-- Clipboard toggle handled by AtoM theme bundle; this adds server sync --}}
     <script src="{{ asset('vendor/ahg-core/js/clipboard-sync.js') }}?v={{ time() }}"></script>
@@ -517,9 +517,19 @@
          The partial renders nothing unless it is switched on in Settings > Features. --}}
     @include('theme::partials.whatsapp-bubble')
 
-    {{-- Voice Commands (CSS + data partials only - JS class is in the theme bundle) --}}
+    {{-- Voice Commands. The JS is NOT in the theme bundle (checked 2026-11-20, heratio#1767:
+         ahgThemeB5Plugin.bundle.*.js has no voice code), so it is loaded here, once.
+         voiceSttFallback.js must follow voiceCommands.js: it adds the server speech-to-text
+         path for browsers without the speech API. --}}
+    {{-- Settings > Voice & AI > "Voice commands" switches all of it off (default on). --}}
+    @if(\AhgCore\Services\AhgSettingsService::get('voice_commands_enabled', 'true') !== 'false')
     @include('theme::partials.voice-commands')
     <link rel="stylesheet" href="{{ asset('vendor/ahg-theme-b5/css/voiceCommands.css') }}">
+    <script src="{{ asset('vendor/ahg-theme-b5/js/voiceCommandRegistry.js') }}"></script>
+    <script src="{{ asset('vendor/ahg-theme-b5/js/voiceCommandTranslations.js') }}"></script>
+    <script src="{{ asset('vendor/ahg-theme-b5/js/voiceCommands.js') }}"></script>
+    <script src="{{ asset('vendor/ahg-theme-b5/js/voiceSttFallback.js') }}"></script>
+    @endif
 
     @stack('js')
 

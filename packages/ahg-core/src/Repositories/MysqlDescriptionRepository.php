@@ -4,28 +4,27 @@ namespace AhgCore\Repositories;
 
 use AhgCore\Contracts\DescriptionRepository;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class MysqlDescriptionRepository implements DescriptionRepository
 {
     public function findById(int $id, string $culture = 'en'): ?object
     {
         return DB::table('information_object as io')
-            ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->where('io.id', $id)
-            ->where('ioi.culture', $culture)
-            ->select('io.*', 'ioi.*', 'slug.slug')
+            ->select('io.*', I18nFallback::col('ioi', 'title', 'title'), I18nFallback::col('ioi', 'alternate_title', 'alternate_title'), I18nFallback::col('ioi', 'edition', 'edition'), I18nFallback::col('ioi', 'extent_and_medium', 'extent_and_medium'), I18nFallback::col('ioi', 'archival_history', 'archival_history'), I18nFallback::col('ioi', 'acquisition', 'acquisition'), I18nFallback::col('ioi', 'scope_and_content', 'scope_and_content'), I18nFallback::col('ioi', 'appraisal', 'appraisal'), I18nFallback::col('ioi', 'accruals', 'accruals'), I18nFallback::col('ioi', 'arrangement', 'arrangement'), I18nFallback::col('ioi', 'access_conditions', 'access_conditions'), I18nFallback::col('ioi', 'reproduction_conditions', 'reproduction_conditions'), I18nFallback::col('ioi', 'physical_characteristics', 'physical_characteristics'), I18nFallback::col('ioi', 'finding_aids', 'finding_aids'), I18nFallback::col('ioi', 'location_of_originals', 'location_of_originals'), I18nFallback::col('ioi', 'location_of_copies', 'location_of_copies'), I18nFallback::col('ioi', 'related_units_of_description', 'related_units_of_description'), I18nFallback::col('ioi', 'institution_responsible_identifier', 'institution_responsible_identifier'), I18nFallback::col('ioi', 'rules', 'rules'), I18nFallback::col('ioi', 'sources', 'sources'), I18nFallback::col('ioi', 'revision_history', 'revision_history'), 'slug.slug')
             ->first();
     }
 
     public function findBySlug(string $slug, string $culture = 'en'): ?object
     {
         return DB::table('information_object as io')
-            ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->join('slug', 'io.id', '=', 'slug.object_id')
             ->where('slug.slug', $slug)
-            ->where('ioi.culture', $culture)
-            ->select('io.*', 'ioi.*', 'slug.slug')
+            ->select('io.*', I18nFallback::col('ioi', 'title', 'title'), I18nFallback::col('ioi', 'alternate_title', 'alternate_title'), I18nFallback::col('ioi', 'edition', 'edition'), I18nFallback::col('ioi', 'extent_and_medium', 'extent_and_medium'), I18nFallback::col('ioi', 'archival_history', 'archival_history'), I18nFallback::col('ioi', 'acquisition', 'acquisition'), I18nFallback::col('ioi', 'scope_and_content', 'scope_and_content'), I18nFallback::col('ioi', 'appraisal', 'appraisal'), I18nFallback::col('ioi', 'accruals', 'accruals'), I18nFallback::col('ioi', 'arrangement', 'arrangement'), I18nFallback::col('ioi', 'access_conditions', 'access_conditions'), I18nFallback::col('ioi', 'reproduction_conditions', 'reproduction_conditions'), I18nFallback::col('ioi', 'physical_characteristics', 'physical_characteristics'), I18nFallback::col('ioi', 'finding_aids', 'finding_aids'), I18nFallback::col('ioi', 'location_of_originals', 'location_of_originals'), I18nFallback::col('ioi', 'location_of_copies', 'location_of_copies'), I18nFallback::col('ioi', 'related_units_of_description', 'related_units_of_description'), I18nFallback::col('ioi', 'institution_responsible_identifier', 'institution_responsible_identifier'), I18nFallback::col('ioi', 'rules', 'rules'), I18nFallback::col('ioi', 'sources', 'sources'), I18nFallback::col('ioi', 'revision_history', 'revision_history'), 'slug.slug')
             ->first();
     }
 
@@ -42,11 +41,10 @@ class MysqlDescriptionRepository implements DescriptionRepository
     public function getChildren(int $id, string $culture = 'en', int $limit = 50): array
     {
         return DB::table('information_object as io')
-            ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->where('io.parent_id', $id)
-            ->where('ioi.culture', $culture)
-            ->select('io.id', 'ioi.title', 'slug.slug', 'io.lft')
+            ->select('io.id', I18nFallback::col('ioi', 'title', 'title'), 'slug.slug', 'io.lft')
             ->orderBy('io.lft')
             ->limit($limit)
             ->get()
@@ -60,11 +58,10 @@ class MysqlDescriptionRepository implements DescriptionRepository
 
         while ($current && $current->parent_id && $current->parent_id > 1) {
             $parent = DB::table('information_object as io')
-                ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
                 ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
                 ->where('io.id', $current->parent_id)
-                ->where('ioi.culture', $culture)
-                ->select('io.id', 'io.parent_id', 'ioi.title', 'slug.slug')
+                ->select('io.id', 'io.parent_id', I18nFallback::col('ioi', 'title', 'title'), 'slug.slug')
                 ->first();
 
             if (! $parent) {
@@ -102,12 +99,11 @@ class MysqlDescriptionRepository implements DescriptionRepository
     public function getCreators(int $id, string $culture = 'en'): array
     {
         return DB::table('event')
-            ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'event.actor_id', $culture, required: true))
             ->leftJoin('slug', 'event.actor_id', '=', 'slug.object_id')
             ->where('event.object_id', $id)
-            ->where('actor_i18n.culture', $culture)
-            ->whereNotNull('actor_i18n.authorized_form_of_name')
-            ->select('event.actor_id as id', 'actor_i18n.authorized_form_of_name as name', 'slug.slug', 'event.type_id')
+            ->whereNotNull(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
+            ->select('event.actor_id as id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'), 'slug.slug', 'event.type_id')
             ->get()
             ->toArray();
     }

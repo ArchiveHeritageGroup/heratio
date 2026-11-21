@@ -34,6 +34,7 @@ use AhgResearch\Services\ResearchService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * ResearchAnnotationsController - Researcher notes / annotations for the research portal.
@@ -74,12 +75,10 @@ class ResearchAnnotationsController extends Controller
         $culture = app()->getLocale();
 
         $object = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('ioi.id', '=', 'io.id')->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
             ->where('io.id', $objectId)
-            ->select('io.id', 'io.identifier', 'ioi.title', 's.slug')
+            ->select('io.id', 'io.identifier', I18nFallback::col('ioi', 'title', 'title'), 's.slug')
             ->first();
         abort_unless($object, 404);
 

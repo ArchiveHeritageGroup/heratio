@@ -5,6 +5,7 @@ namespace AhgExtendedRights\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class EmbargoReportCommand extends Command
 {
@@ -103,14 +104,11 @@ class EmbargoReportCommand extends Command
         $culture = config('app.locale', 'en');
 
         $embargoes = DB::table('embargo as e')
-            ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
-                $join->on('e.object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'e.object_id', $culture))
             ->leftJoin('slug', 'e.object_id', '=', 'slug.object_id')
             ->where('e.status', 'active')
             ->select([
-                'e.id', 'e.object_id', 'ioi.title as object_title', 'slug.slug',
+                'e.id', 'e.object_id', I18nFallback::col('ioi', 'title', 'object_title'), 'slug.slug',
                 'e.embargo_type', 'e.reason', 'e.start_date', 'e.end_date',
                 'e.auto_release', 'e.created_at',
             ])
@@ -160,16 +158,13 @@ class EmbargoReportCommand extends Command
         $cutoff = date('Y-m-d', strtotime("-{$days} days"));
 
         $embargoes = DB::table('embargo as e')
-            ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
-                $join->on('e.object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'e.object_id', $culture))
             ->leftJoin('slug', 'e.object_id', '=', 'slug.object_id')
             ->leftJoin('user', 'user.id', '=', 'e.lifted_by')
             ->where('e.status', 'lifted')
             ->where('e.lifted_at', '>=', $cutoff)
             ->select([
-                'e.id', 'e.object_id', 'ioi.title as object_title', 'slug.slug',
+                'e.id', 'e.object_id', I18nFallback::col('ioi', 'title', 'object_title'), 'slug.slug',
                 'e.embargo_type', 'e.lifted_at', 'e.lift_reason', 'user.username as lifted_by',
             ])
             ->orderByDesc('e.lifted_at')
@@ -190,16 +185,13 @@ class EmbargoReportCommand extends Command
         $today = date('Y-m-d');
 
         $embargoes = DB::table('embargo as e')
-            ->leftJoin('information_object_i18n as ioi', function ($join) use ($culture) {
-                $join->on('e.object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'e.object_id', $culture))
             ->leftJoin('slug', 'e.object_id', '=', 'slug.object_id')
             ->where('e.status', 'active')
             ->whereNotNull('e.end_date')
             ->where('e.end_date', '<', $today)
             ->select([
-                'e.id', 'e.object_id', 'ioi.title as object_title', 'slug.slug',
+                'e.id', 'e.object_id', I18nFallback::col('ioi', 'title', 'object_title'), 'slug.slug',
                 'e.embargo_type', 'e.reason', 'e.end_date', 'e.auto_release',
             ])
             ->orderBy('e.end_date')

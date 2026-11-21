@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class AccessionApiController extends Controller
 {
@@ -25,10 +26,7 @@ class AccessionApiController extends Controller
 
         $query = DB::table('accession')
             ->join('object', 'accession.id', '=', 'object.id')
-            ->leftJoin('accession_i18n', function ($join) {
-                $join->on('accession.id', '=', 'accession_i18n.id')
-                    ->where('accession_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n', 'accession.id', $this->culture))
             ->leftJoin('slug', function ($join) {
                 $join->on('accession.id', '=', 'slug.object_id');
             });
@@ -43,7 +41,7 @@ class AccessionApiController extends Controller
         $results = $query
             ->select(
                 'accession.id', 'accession.identifier', 'accession.date',
-                'accession_i18n.title', 'accession_i18n.scope_and_content',
+                I18nFallback::col('accession_i18n', 'title', 'title'), I18nFallback::col('accession_i18n', 'scope_and_content', 'scope_and_content'),
                 'slug.slug',
                 'object.created_at', 'object.updated_at'
             )
@@ -64,10 +62,7 @@ class AccessionApiController extends Controller
     {
         $accession = DB::table('accession')
             ->join('object', 'accession.id', '=', 'object.id')
-            ->leftJoin('accession_i18n', function ($join) {
-                $join->on('accession.id', '=', 'accession_i18n.id')
-                    ->where('accession_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n', 'accession.id', $this->culture))
             ->join('slug', function ($join) {
                 $join->on('accession.id', '=', 'slug.object_id');
             })
@@ -75,7 +70,7 @@ class AccessionApiController extends Controller
             ->select(
                 'accession.id', 'accession.identifier', 'accession.date',
                 'accession.source_culture',
-                'accession_i18n.*',
+                I18nFallback::col('accession_i18n', 'appraisal', 'appraisal'), I18nFallback::col('accession_i18n', 'archival_history', 'archival_history'), I18nFallback::col('accession_i18n', 'location_information', 'location_information'), I18nFallback::col('accession_i18n', 'physical_characteristics', 'physical_characteristics'), I18nFallback::col('accession_i18n', 'processing_notes', 'processing_notes'), I18nFallback::col('accession_i18n', 'received_extent_units', 'received_extent_units'), I18nFallback::col('accession_i18n', 'scope_and_content', 'scope_and_content'), I18nFallback::col('accession_i18n', 'source_of_acquisition', 'source_of_acquisition'), I18nFallback::col('accession_i18n', 'title', 'title'),
                 'slug.slug',
                 'object.created_at', 'object.updated_at'
             )
@@ -87,13 +82,10 @@ class AccessionApiController extends Controller
 
         // Get linked donors via relation table
         $donors = DB::table('relation')
-            ->join('actor_i18n', function ($join) {
-                $join->on('relation.subject_id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'relation.subject_id', $this->culture, required: true))
             ->where('relation.object_id', $accession->id)
             ->where('relation.type_id', 173) // accession-donor relation
-            ->select('relation.subject_id as id', 'actor_i18n.authorized_form_of_name')
+            ->select('relation.subject_id as id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'))
             ->get();
 
         $accession->donors = $donors;

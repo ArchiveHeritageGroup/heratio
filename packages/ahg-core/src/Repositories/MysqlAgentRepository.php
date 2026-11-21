@@ -4,40 +4,38 @@ namespace AhgCore\Repositories;
 
 use AhgCore\Contracts\AgentRepository;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class MysqlAgentRepository implements AgentRepository
 {
     public function findById(int $id, string $culture = 'en'): ?object
     {
         return DB::table('actor')
-            ->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $culture, required: true))
             ->leftJoin('slug', 'actor.id', '=', 'slug.object_id')
             ->where('actor.id', $id)
-            ->where('actor_i18n.culture', $culture)
-            ->select('actor.*', 'actor_i18n.*', 'slug.slug')
+            ->select('actor.*', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'), I18nFallback::col('actor_i18n', 'dates_of_existence', 'dates_of_existence'), I18nFallback::col('actor_i18n', 'history', 'history'), I18nFallback::col('actor_i18n', 'places', 'places'), I18nFallback::col('actor_i18n', 'legal_status', 'legal_status'), I18nFallback::col('actor_i18n', 'functions', 'functions'), I18nFallback::col('actor_i18n', 'mandates', 'mandates'), I18nFallback::col('actor_i18n', 'internal_structures', 'internal_structures'), I18nFallback::col('actor_i18n', 'general_context', 'general_context'), I18nFallback::col('actor_i18n', 'institution_responsible_identifier', 'institution_responsible_identifier'), I18nFallback::col('actor_i18n', 'rules', 'rules'), I18nFallback::col('actor_i18n', 'sources', 'sources'), I18nFallback::col('actor_i18n', 'revision_history', 'revision_history'), 'slug.slug')
             ->first();
     }
 
     public function findBySlug(string $slug, string $culture = 'en'): ?object
     {
         return DB::table('actor')
-            ->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $culture, required: true))
             ->join('slug', 'actor.id', '=', 'slug.object_id')
             ->where('slug.slug', $slug)
-            ->where('actor_i18n.culture', $culture)
-            ->select('actor.*', 'actor_i18n.*', 'slug.slug')
+            ->select('actor.*', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'), I18nFallback::col('actor_i18n', 'dates_of_existence', 'dates_of_existence'), I18nFallback::col('actor_i18n', 'history', 'history'), I18nFallback::col('actor_i18n', 'places', 'places'), I18nFallback::col('actor_i18n', 'legal_status', 'legal_status'), I18nFallback::col('actor_i18n', 'functions', 'functions'), I18nFallback::col('actor_i18n', 'mandates', 'mandates'), I18nFallback::col('actor_i18n', 'internal_structures', 'internal_structures'), I18nFallback::col('actor_i18n', 'general_context', 'general_context'), I18nFallback::col('actor_i18n', 'institution_responsible_identifier', 'institution_responsible_identifier'), I18nFallback::col('actor_i18n', 'rules', 'rules'), I18nFallback::col('actor_i18n', 'sources', 'sources'), I18nFallback::col('actor_i18n', 'revision_history', 'revision_history'), 'slug.slug')
             ->first();
     }
 
     public function getCreatedDescriptions(int $id, string $culture = 'en', int $limit = 50): array
     {
         return DB::table('event')
-            ->join('information_object_i18n as ioi', 'event.object_id', '=', 'ioi.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'event.object_id', $culture))
             ->leftJoin('slug', 'event.object_id', '=', 'slug.object_id')
             ->where('event.actor_id', $id)
-            ->where('ioi.culture', $culture)
-            ->whereNotNull('ioi.title')
-            ->select('event.object_id as id', 'ioi.title', 'slug.slug', 'event.type_id')
+            ->whereNotNull(I18nFallback::col('ioi', 'title'))
+            ->select('event.object_id as id', I18nFallback::col('ioi', 'title', 'title'), 'slug.slug', 'event.type_id')
             ->distinct()
             ->limit($limit)
             ->get()

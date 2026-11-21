@@ -34,6 +34,7 @@ namespace AhgBiblioBf\Services;
 
 use AhgMetadataExport\Services\Exporters\InformationObjectFetcher;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class BibframeSerializer
 {
@@ -393,10 +394,9 @@ class BibframeSerializer
     private function fetchActor(int $actorId, string $culture): ?object
     {
         return DB::table('actor')
-            ->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $culture, required: true))
             ->where('actor.id', $actorId)
-            ->where('actor_i18n.culture', $culture)
-            ->select('actor.id', 'actor.entity_type_id', 'actor_i18n.authorized_form_of_name as name')
+            ->select('actor.id', 'actor.entity_type_id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'))
             ->first();
     }
 

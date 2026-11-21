@@ -30,6 +30,7 @@ namespace AhgInformationObjectManage\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Migrated from /usr/share/nginx/archive/atom-ahg-plugins/ahgResearchPlugin/
@@ -411,12 +412,10 @@ class ResearchController extends Controller
 
         // Get dates (date_display is in event_i18n.date, not event table)
         $dates = DB::table('event')
-            ->join('event_i18n', function ($j) use ($culture) {
-                $j->on('event.id', '=', 'event_i18n.id')->where('event_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n', 'event.id', $culture))
             ->where('event.object_id', $io->id)
-            ->whereNotNull('event_i18n.date')
-            ->select('event_i18n.date as date_display')
+            ->whereNotNull(I18nFallback::col('event_i18n', 'date'))
+            ->select(I18nFallback::col('event_i18n', 'date', 'date_display'))
             ->first();
 
         return view('ahg-io-manage::research.citation', [

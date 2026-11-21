@@ -41,6 +41,9 @@
                          'chapters' | 'metadata'), srclang (BCP-47), label
                          (display name), default (bool). Empty array = no
                          tracks. (default [])
+      $hlsSrc          - video-only HLS playlist URL to play first, for a
+                         stream that has no file in /uploads (a live event,
+                         heratio#1743). Default: the HLS made beside $src.
 --}}
 
 @php
@@ -49,6 +52,7 @@
     $showDownload   ??= true;
     $poster         ??= null;
     $tracks         ??= [];
+    $hlsSrc         ??= null;
 
     $__playerType = \App\Support\MediaSettings::playerType();
     $__media      = \App\Support\MediaSettings::payload();
@@ -62,7 +66,7 @@
     // playback copy beside a master (the next <source> when the master will
     // not play, first when no browser plays it - AMR, WMA, AIFF).
     $__alt      = \AhgCore\Services\MediaDerivativeService::playbackAlternates((string) $src, $type);
-    $__hls      = $__alt['hls'];
+    $__hls      = $hlsSrc ?: $__alt['hls'];
     $__fallback = $__alt['fallback'];
     if ($__fallback && in_array(strtolower((string) $mime), \AhgCore\Services\MediaDerivativeService::BROWSER_UNPLAYABLE_AUDIO, true)) {
         [$src, $mime, $__fallback] = [$__fallback[0], $__fallback[1], [$src, $mime]];

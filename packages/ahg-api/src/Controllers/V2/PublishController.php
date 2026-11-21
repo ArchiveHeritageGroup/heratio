@@ -7,6 +7,7 @@ use AhgCore\Constants\TermId;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class PublishController extends BaseApiController
 {
@@ -26,11 +27,10 @@ class PublishController extends BaseApiController
         }
 
         $io = DB::table('information_object as io')
-            ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
             ->where('io.id', $id)
-            ->where('ioi.culture', $this->culture)
             ->select('io.id', 'io.identifier', 'io.level_of_description_id', 'io.repository_id',
-                'ioi.title', 'ioi.scope_and_content')
+                I18nFallback::col('ioi', 'title', 'title'), I18nFallback::col('ioi', 'scope_and_content', 'scope_and_content'))
             ->first();
 
         $blockers = [];
@@ -72,10 +72,9 @@ class PublishController extends BaseApiController
         // Check readiness (unless forced)
         if (! $force) {
             $io = DB::table('information_object as io')
-                ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
                 ->where('io.id', $id)
-                ->where('ioi.culture', $this->culture)
-                ->select('ioi.title', 'io.level_of_description_id')
+                ->select(I18nFallback::col('ioi', 'title', 'title'), 'io.level_of_description_id')
                 ->first();
 
             if (empty($io->title) || empty($io->level_of_description_id)) {

@@ -36,6 +36,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class HierarchyDataController extends Controller
 {
@@ -75,15 +76,13 @@ class HierarchyDataController extends Controller
         $canSeeDrafts = auth()->check() && \AhgCore\Services\AclService::canAdmin(auth()->id());
 
         $query = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
             ->where('io.parent_id', $rootId)
             ->select(
                 'io.id', 'io.identifier', 'io.lft', 'io.rgt',
                 'io.parent_id', 'io.level_of_description_id',
-                'ioi.title', 's.slug',
+                I18nFallback::col('ioi', 'title', 'title'), 's.slug',
                 DB::raw('EXISTS (SELECT 1 FROM information_object c WHERE c.parent_id = io.id) AS has_children')
             )
             ->orderBy('io.lft');

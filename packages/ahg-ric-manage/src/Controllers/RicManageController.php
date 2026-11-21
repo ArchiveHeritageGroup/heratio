@@ -19,6 +19,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use AhgCore\Support\Concerns\LoadsObjectProperties;
+use AhgCore\Support\I18nFallback;
 
 class RicManageController extends Controller
 {
@@ -410,14 +411,12 @@ class RicManageController extends Controller
         $hasSource = \Illuminate\Support\Facades\Schema::hasColumn('ric_instantiation', 'source');
 
         return DB::table('ric_instantiation as ri')
-            ->leftJoin('ric_instantiation_i18n as rii', function ($j) use ($culture) {
-                $j->on('ri.id', '=', 'rii.id')->where('rii.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_instantiation_i18n as rii', 'ri.id', $culture))
             ->where('ri.record_id', $ioId)
             ->when($hasSource, fn ($q) => $q->where('ri.source', 'manual'))
             ->orderBy('ri.id')
             ->select('ri.id', 'ri.carrier_type', 'ri.mime_type', 'ri.extent_value', 'ri.extent_unit',
-                     'rii.title', 'rii.description')
+                     I18nFallback::col('rii', 'title', 'title'), I18nFallback::col('rii', 'description', 'description'))
             ->get();
     }
 
@@ -428,14 +427,12 @@ class RicManageController extends Controller
     private function nonCreatorEvents(int $ioId, string $culture)
     {
         return DB::table('event as e')
-            ->leftJoin('event_i18n as ei', function ($j) use ($culture) {
-                $j->on('e.id', '=', 'ei.id')->where('ei.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n as ei', 'e.id', $culture))
             ->where('e.object_id', $ioId)
             ->where('e.type_id', '!=', 111)
             ->orderBy('e.id')
             ->select('e.id', 'e.type_id', 'e.start_date', 'e.end_date',
-                     'ei.date as date_display', 'ei.name as agent', 'ei.description')
+                     I18nFallback::col('ei', 'date', 'date_display'), I18nFallback::col('ei', 'name', 'agent'), I18nFallback::col('ei', 'description', 'description'))
             ->get();
     }
 
@@ -580,26 +577,25 @@ class RicManageController extends Controller
 
         if ($slug) {
             $io = DB::table('information_object')
-                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
                 ->join('slug', 'information_object.id', '=', 'slug.object_id')
-                ->where('slug.slug', $slug)->where('information_object_i18n.culture', $culture)
-                ->select('information_object.*', 'information_object_i18n.*', 'slug.slug')->first();
+                ->where('slug.slug', $slug)
+                ->select('information_object.*', I18nFallback::col('information_object_i18n', 'title', 'title'), I18nFallback::col('information_object_i18n', 'alternate_title', 'alternate_title'), I18nFallback::col('information_object_i18n', 'edition', 'edition'), I18nFallback::col('information_object_i18n', 'extent_and_medium', 'extent_and_medium'), I18nFallback::col('information_object_i18n', 'archival_history', 'archival_history'), I18nFallback::col('information_object_i18n', 'acquisition', 'acquisition'), I18nFallback::col('information_object_i18n', 'scope_and_content', 'scope_and_content'), I18nFallback::col('information_object_i18n', 'appraisal', 'appraisal'), I18nFallback::col('information_object_i18n', 'accruals', 'accruals'), I18nFallback::col('information_object_i18n', 'arrangement', 'arrangement'), I18nFallback::col('information_object_i18n', 'access_conditions', 'access_conditions'), I18nFallback::col('information_object_i18n', 'reproduction_conditions', 'reproduction_conditions'), I18nFallback::col('information_object_i18n', 'physical_characteristics', 'physical_characteristics'), I18nFallback::col('information_object_i18n', 'finding_aids', 'finding_aids'), I18nFallback::col('information_object_i18n', 'location_of_originals', 'location_of_originals'), I18nFallback::col('information_object_i18n', 'location_of_copies', 'location_of_copies'), I18nFallback::col('information_object_i18n', 'related_units_of_description', 'related_units_of_description'), I18nFallback::col('information_object_i18n', 'institution_responsible_identifier', 'institution_responsible_identifier'), I18nFallback::col('information_object_i18n', 'rules', 'rules'), I18nFallback::col('information_object_i18n', 'sources', 'sources'), I18nFallback::col('information_object_i18n', 'revision_history', 'revision_history'), 'slug.slug')->first();
             if ($io) {
                 $data['io'] = $io;
                 $data['existingInstantiations'] = $this->manualInstantiations((int) $io->id, $culture);
                 $data['existingEvents'] = $this->nonCreatorEvents((int) $io->id, $culture);
                 foreach ([['subjects', 35], ['places', 42], ['genres', 78]] as [$key, $tax]) {
                     $data[$key] = DB::table('object_term_relation')
-                        ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
+                        ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'object_term_relation.term_id', $culture, required: true))
                         ->join('term', 'object_term_relation.term_id', '=', 'term.id')
                         ->where('object_term_relation.object_id', $io->id)->where('term.taxonomy_id', $tax)
-                        ->where('term_i18n.culture', $culture)->select('term.id as term_id', 'term_i18n.name')->get();
+                        ->select('term.id as term_id', I18nFallback::col('term_i18n', 'name', 'name'))->get();
                 }
                 $data['nameAccessPoints'] = DB::table('relation')
-                    ->join('actor_i18n', 'relation.object_id', '=', 'actor_i18n.id')
+                    ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'relation.object_id', $culture, required: true))
                     ->where('relation.subject_id', $io->id)->where('relation.type_id', 161)
-                    ->where('actor_i18n.culture', $culture)
-                    ->select('relation.object_id as actor_id', 'actor_i18n.authorized_form_of_name as name')->get();
+                    ->select('relation.object_id as actor_id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'))->get();
                 $st = DB::table('status')->where('object_id', $io->id)->where('type_id', 158)->value('status_id');
                 $data['publicationStatusId'] = $st ? (int) $st : null;
             }
@@ -671,11 +667,10 @@ class RicManageController extends Controller
     {
         $termList = function (int $taxonomyId) use ($culture) {
             return DB::table('term')
-                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
                 ->where('term.taxonomy_id', $taxonomyId)
-                ->where('term_i18n.culture', $culture)
-                ->orderBy('term_i18n.name')
-                ->select('term.id', 'term_i18n.name')
+                ->orderBy(I18nFallback::col('term_i18n', 'name'))
+                ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
                 ->get();
         };
 
@@ -686,15 +681,14 @@ class RicManageController extends Controller
         // taxonomy-34 list on a minimal install without the mapping table.
         $levels = \Illuminate\Support\Facades\Schema::hasTable('level_of_description_sector')
             ? DB::table('term')
-                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
                 ->join('level_of_description_sector as lds', function ($j) {
                     $j->on('term.id', '=', 'lds.term_id')->where('lds.sector', '=', 'archive');
                 })
                 ->where('term.taxonomy_id', 34)
-                ->where('term_i18n.culture', $culture)
                 ->orderBy('lds.display_order')
                 ->distinct()
-                ->select('term.id', 'term_i18n.name', 'lds.display_order')
+                ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'), 'lds.display_order')
                 ->get()
             : $termList(34);
         $descriptionStatuses = $termList(44);
@@ -705,10 +699,9 @@ class RicManageController extends Controller
         $eventTypes = $termList(40);
 
         $repositories = DB::table('repository')
-            ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
-            ->where('actor_i18n.culture', $culture)
-            ->orderBy('actor_i18n.authorized_form_of_name')
-            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture, required: true))
+            ->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
+            ->select('repository.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'))
             ->get();
 
         return compact('levels', 'repositories', 'descriptionStatuses', 'descriptionDetails', 'displayStandards', 'eventTypes');

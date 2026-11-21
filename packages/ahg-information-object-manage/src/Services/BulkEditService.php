@@ -43,6 +43,7 @@ namespace AhgInformationObjectManage\Services;
 use AhgCore\Services\EncryptionService;
 use AhgCore\Services\HierarchyQueryService;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class BulkEditService
 {
@@ -291,9 +292,9 @@ class BulkEditService
     {
         $parentId = (int) ($scope['ancestor_id'] ?? 0);
         $children = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as i', fn ($j) => $j->on('i.id', '=', 'io.id')->where('i.culture', app()->getLocale()))
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i', 'io.id', app()->getLocale()))
             ->where('io.parent_id', $parentId)->orderBy('io.lft')->orderBy('io.id')
-            ->get(['io.id', 'io.identifier', 'i.title']);
+            ->get(['io.id', 'io.identifier', I18nFallback::col('i', 'title', 'title')]);
         $before = $children->pluck('id')->map('intval')->all();
         $key = fn ($c) => (string) ($c->identifier ?? '') !== '' ? (string) $c->identifier : (string) ($c->title ?? '');
         $sorted = $children->all();

@@ -35,6 +35,7 @@ use Illuminate\Support\Facades\Auth;
 use AhgSpectrum\Services\SpectrumNotificationService;
 use AhgSpectrum\Services\SpectrumWorkflowService;
 use AhgSpectrum\Services\SpectrumSettings;
+use AhgCore\Support\I18nFallback;
 
 class SpectrumController extends Controller
 {
@@ -1192,14 +1193,12 @@ class SpectrumController extends Controller
                 'io.id as object_id',
                 'io.identifier',
                 'io.repository_id',
-                'ioi18n.title as object_title',
+                I18nFallback::col('ioi18n', 'title', 'object_title'),
                 'slug.slug',
                 'assigner.username as assigned_by_name',
             ])
             ->leftJoin('information_object as io', 'sws.record_id', '=', 'io.id')
-            ->leftJoin('information_object_i18n as ioi18n', function ($join) use ($culture) {
-                $join->on('io.id', '=', 'ioi18n.id')->where('ioi18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi18n', 'io.id', $culture))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->leftJoin('user as assigner', 'sws.assigned_by', '=', 'assigner.id')
             ->where('sws.assigned_to', $userId);
@@ -1273,13 +1272,11 @@ class SpectrumController extends Controller
             $culture = $this->getCulture();
 
             $entries = DB::table('spectrum_object_entry as e')
-                ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                    $j->on('e.object_id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'e.object_id', $culture))
                 ->leftJoin('slug as s', 'e.object_id', '=', 's.object_id')
                 ->select(
                     'e.*',
-                    'i18n.title as object_title',
+                    I18nFallback::col('i18n', 'title', 'object_title'),
                     's.slug'
                 )
                 ->orderBy('e.entry_date', 'desc')
@@ -1299,13 +1296,11 @@ class SpectrumController extends Controller
             $culture = $this->getCulture();
 
             $acquisitions = DB::table('spectrum_acquisition as a')
-                ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                    $j->on('a.object_id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'a.object_id', $culture))
                 ->leftJoin('slug as s', 'a.object_id', '=', 's.object_id')
                 ->select(
                     'a.*',
-                    'i18n.title as object_title',
+                    I18nFallback::col('i18n', 'title', 'object_title'),
                     's.slug'
                 )
                 ->orderBy('a.acquisition_date', 'desc')
@@ -1356,13 +1351,11 @@ class SpectrumController extends Controller
             $culture = $this->getCulture();
 
             $checks = DB::table('spectrum_condition_check as c')
-                ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                    $j->on('c.object_id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'c.object_id', $culture))
                 ->leftJoin('slug as s', 'c.object_id', '=', 's.object_id')
                 ->select(
                     'c.*',
-                    'i18n.title as object_title',
+                    I18nFallback::col('i18n', 'title', 'object_title'),
                     's.slug'
                 )
                 ->orderBy('c.check_date', 'desc')
@@ -1382,13 +1375,11 @@ class SpectrumController extends Controller
             $culture = $this->getCulture();
 
             $treatments = DB::table('spectrum_conservation as c')
-                ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                    $j->on('c.object_id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'c.object_id', $culture))
                 ->leftJoin('slug as s', 'c.object_id', '=', 's.object_id')
                 ->select(
                     'c.*',
-                    'i18n.title as object_title',
+                    I18nFallback::col('i18n', 'title', 'object_title'),
                     's.slug'
                 )
                 ->orderBy('c.treatment_date', 'desc')
@@ -1408,13 +1399,11 @@ class SpectrumController extends Controller
             $culture = $this->getCulture();
 
             $valuations = DB::table('spectrum_valuation as v')
-                ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                    $j->on('v.object_id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'v.object_id', $culture))
                 ->leftJoin('slug as s', 'v.object_id', '=', 's.object_id')
                 ->select(
                     'v.*',
-                    'i18n.title as object_title',
+                    I18nFallback::col('i18n', 'title', 'object_title'),
                     's.slug'
                 )
                 ->orderBy('v.valuation_date', 'desc')
@@ -1436,11 +1425,9 @@ class SpectrumController extends Controller
         if (Schema::hasTable('spectrum_condition_check')) {
             $recentEvents = DB::table('spectrum_condition_check as c')
                 ->leftJoin('information_object as io', 'c.object_id', '=', 'io.id')
-                ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                    $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
                 ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
-                ->select('c.*', 'i18n.title', 's.slug')
+                ->select('c.*', I18nFallback::col('i18n', 'title', 'title'), 's.slug')
                 ->orderBy('c.check_date', 'desc')
                 ->limit(20)
                 ->get()
@@ -1555,12 +1542,10 @@ class SpectrumController extends Controller
 
         if (Schema::hasTable('spectrum_condition_check')) {
             $riskItems = DB::table('spectrum_condition_check as c')
-                ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                    $j->on('c.object_id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'c.object_id', $culture))
                 ->leftJoin('slug as s', 'c.object_id', '=', 's.object_id')
                 ->whereIn('c.overall_condition', ['critical', 'poor'])
-                ->select('c.*', 'i18n.title', 's.slug')
+                ->select('c.*', I18nFallback::col('i18n', 'title', 'title'), 's.slug')
                 ->orderBy('c.check_date', 'desc')
                 ->get()
                 ->toArray();
@@ -1789,10 +1774,8 @@ class SpectrumController extends Controller
             case 'condition':
                 if (Schema::hasTable('spectrum_condition_check')) {
                     $q = DB::table('spectrum_condition_check as c')
-                        ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                            $j->on('c.object_id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-                        })
-                        ->select('c.*', 'i18n.title as object_title')
+                        ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'c.object_id', $culture))
+                        ->select('c.*', I18nFallback::col('i18n', 'title', 'object_title'))
                         ->orderBy('c.check_date', 'desc');
                     if ($objectId) { $q->where('c.object_id', $objectId); }
                     $data = $q->get()->toArray();
@@ -1802,10 +1785,8 @@ class SpectrumController extends Controller
             case 'valuation':
                 if (Schema::hasTable('spectrum_valuation')) {
                     $q = DB::table('spectrum_valuation as v')
-                        ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                            $j->on('v.object_id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-                        })
-                        ->select('v.*', 'i18n.title as object_title')
+                        ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'v.object_id', $culture))
+                        ->select('v.*', I18nFallback::col('i18n', 'title', 'object_title'))
                         ->orderBy('v.valuation_date', 'desc');
                     if ($objectId) { $q->where('v.object_id', $objectId); }
                     $data = $q->get()->toArray();
@@ -1815,10 +1796,8 @@ class SpectrumController extends Controller
             case 'movement':
                 if (Schema::hasTable('spectrum_movement')) {
                     $q = DB::table('spectrum_movement as m')
-                        ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                            $j->on('m.object_id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-                        })
-                        ->select('m.*', 'i18n.title as object_title')
+                        ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'm.object_id', $culture))
+                        ->select('m.*', I18nFallback::col('i18n', 'title', 'object_title'))
                         ->orderBy('m.movement_date', 'desc');
                     if ($objectId) { $q->where('m.object_id', $objectId); }
                     $data = $q->get()->toArray();
@@ -1828,19 +1807,15 @@ class SpectrumController extends Controller
             case 'loan':
                 if (Schema::hasTable('spectrum_loan_in')) {
                     $qIn = DB::table('spectrum_loan_in as l')
-                        ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                            $j->on('l.object_id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-                        })
-                        ->select('l.*', 'i18n.title as object_title', DB::raw("'IN' as direction"));
+                        ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'l.object_id', $culture))
+                        ->select('l.*', I18nFallback::col('i18n', 'title', 'object_title'), DB::raw("'IN' as direction"));
                     if ($objectId) { $qIn->where('l.object_id', $objectId); }
                     $loansIn = $qIn->get()->toArray();
                 }
                 if (Schema::hasTable('spectrum_loan_out')) {
                     $qOut = DB::table('spectrum_loan_out as l')
-                        ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                            $j->on('l.object_id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-                        })
-                        ->select('l.*', 'i18n.title as object_title', DB::raw("'OUT' as direction"));
+                        ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'l.object_id', $culture))
+                        ->select('l.*', I18nFallback::col('i18n', 'title', 'object_title'), DB::raw("'OUT' as direction"));
                     if ($objectId) { $qOut->where('l.object_id', $objectId); }
                     $loansOut = $qOut->get()->toArray();
                 }

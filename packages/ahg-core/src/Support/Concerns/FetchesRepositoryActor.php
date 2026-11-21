@@ -8,6 +8,7 @@
 namespace AhgCore\Support\Concerns;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Fetch an information object's repository actor {id, name} in a culture.
@@ -22,10 +23,9 @@ trait FetchesRepositoryActor
             return null;
         }
         return DB::table('repository')
-            ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture, required: true))
             ->where('repository.id', $io->repository_id)
-            ->where('actor_i18n.culture', $culture)
-            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
+            ->select('repository.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'))
             ->first();
     }
 }

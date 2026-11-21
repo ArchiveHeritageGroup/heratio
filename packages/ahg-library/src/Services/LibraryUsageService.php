@@ -28,6 +28,7 @@ namespace AhgLibrary\Services;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Cache;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Manages COUNTER 5 usage statistics and SUSHI partner subscriptions.
@@ -400,14 +401,11 @@ class LibraryUsageService
                 $rows = DB::table('library_usage_stats as us')
                     ->join('library_item as li', 'us.library_item_id', '=', 'li.id')
                     ->join('information_object as io', 'li.information_object_id', '=', 'io.id')
-                    ->leftJoin('information_object_i18n as ioi', function ($j) {
-                        $j->on('io.id', '=', 'ioi.id')
-                            ->where('ioi.culture', '=', app()->getLocale());
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', app()->getLocale()))
                     ->whereBetween('us.stat_date', [$fromDate, $toDate])
                     ->select(
                         'us.library_item_id as item_id',
-                        'ioi.title as item_name',
+                        I18nFallback::col('ioi', 'title', 'item_name'),
                         'li.isbn',
                         'li.issn',
                         'us.metric_type',
@@ -438,10 +436,7 @@ class LibraryUsageService
                 $query = DB::table('library_usage_stats as us')
                     ->join('library_item as li', 'us.library_item_id', '=', 'li.id')
                     ->join('information_object as io', 'li.information_object_id', '=', 'io.id')
-                    ->leftJoin('information_object_i18n as ioi', function ($j) {
-                        $j->on('io.id', '=', 'ioi.id')
-                            ->where('ioi.culture', '=', app()->getLocale());
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', app()->getLocale()))
                     ->whereBetween('us.stat_date', [$fromDate, $toDate])
                     ->whereNotNull('li.issn'); // Journals only.
 
@@ -453,7 +448,7 @@ class LibraryUsageService
                 $rows = $query
                     ->select(
                         'li.issn',
-                        'ioi.title as item_name',
+                        I18nFallback::col('ioi', 'title', 'item_name'),
                         'us.metric_type',
                         DB::raw('SUM(us.count) as total_count')
                     )
@@ -484,14 +479,11 @@ class LibraryUsageService
                 $rows = DB::table('library_usage_stats as us')
                     ->join('library_item as li', 'us.library_item_id', '=', 'li.id')
                     ->join('information_object as io', 'li.information_object_id', '=', 'io.id')
-                    ->leftJoin('information_object_i18n as ioi', function ($j) {
-                        $j->on('io.id', '=', 'ioi.id')
-                            ->where('ioi.culture', '=', app()->getLocale());
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', app()->getLocale()))
                     ->whereBetween('us.stat_date', [$fromDate, $toDate])
                     // MAX() is the portable substitute for MySQL-only ANY_VALUE():
                     // identical behaviour on MySQL and on SQLite (package test driver).
-                    ->select(DB::raw('MAX(ioi.title) as item_name'), 'us.metric_type', DB::raw('SUM(us.count) as total_count'))
+                    ->select(DB::raw('MAX(COALESCE(ioi.title, ioi_fb.title)) as item_name'), 'us.metric_type', DB::raw('SUM(us.count) as total_count'))
                     ->groupBy('us.library_item_id', 'us.metric_type')
                     ->get();
 

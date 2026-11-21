@@ -40,6 +40,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class BundleWorkerCommand extends Command
 {
@@ -628,23 +629,21 @@ TXT;
 
         // Information objects (with i18n fields and slug)
         $ios = empty($ioIds) ? collect() : DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->leftJoin('slug', 'slug.object_id', '=', 'io.id')
             ->whereIn('io.id', $ioIds)
             ->select(
                 'io.id', 'io.identifier', 'io.parent_id', 'io.repository_id',
                 'io.level_of_description_id', 'io.lft', 'io.rgt', 'io.source_standard',
                 'slug.slug',
-                'i18n.title', 'i18n.alternate_title', 'i18n.edition',
-                'i18n.scope_and_content', 'i18n.access_conditions',
-                'i18n.physical_characteristics', 'i18n.extent_and_medium',
-                'i18n.archival_history', 'i18n.acquisition',
-                'i18n.appraisal', 'i18n.accruals', 'i18n.arrangement',
-                'i18n.reproduction_conditions', 'i18n.finding_aids',
-                'i18n.location_of_originals', 'i18n.location_of_copies',
-                'i18n.related_units_of_description'
+                I18nFallback::col('i18n', 'title', 'title'), I18nFallback::col('i18n', 'alternate_title', 'alternate_title'), I18nFallback::col('i18n', 'edition', 'edition'),
+                I18nFallback::col('i18n', 'scope_and_content', 'scope_and_content'), I18nFallback::col('i18n', 'access_conditions', 'access_conditions'),
+                I18nFallback::col('i18n', 'physical_characteristics', 'physical_characteristics'), I18nFallback::col('i18n', 'extent_and_medium', 'extent_and_medium'),
+                I18nFallback::col('i18n', 'archival_history', 'archival_history'), I18nFallback::col('i18n', 'acquisition', 'acquisition'),
+                I18nFallback::col('i18n', 'appraisal', 'appraisal'), I18nFallback::col('i18n', 'accruals', 'accruals'), I18nFallback::col('i18n', 'arrangement', 'arrangement'),
+                I18nFallback::col('i18n', 'reproduction_conditions', 'reproduction_conditions'), I18nFallback::col('i18n', 'finding_aids', 'finding_aids'),
+                I18nFallback::col('i18n', 'location_of_originals', 'location_of_originals'), I18nFallback::col('i18n', 'location_of_copies', 'location_of_copies'),
+                I18nFallback::col('i18n', 'related_units_of_description', 'related_units_of_description')
             )
             ->orderBy('io.lft')
             ->get();
@@ -664,11 +663,9 @@ TXT;
         // Repositories referenced by these IOs
         $repoIds = $ios->pluck('repository_id')->filter()->unique()->values();
         $repos = $repoIds->isEmpty() ? collect() : DB::table('repository as r')
-            ->leftJoin('actor_i18n as ai', function ($j) use ($culture) {
-                $j->on('ai.id', '=', 'r.id')->where('ai.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'r.id', $culture))
             ->whereIn('r.id', $repoIds)
-            ->select('r.id', 'ai.authorized_form_of_name as name', 'ai.history')
+            ->select('r.id', I18nFallback::col('ai', 'authorized_form_of_name', 'name'), I18nFallback::col('ai', 'history', 'history'))
             ->get();
         file_put_contents($workDir.'/data/repositories.json', json_encode($repos, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         $stats['repositories'] = $repos->count();
@@ -681,12 +678,10 @@ TXT;
             })
             ->pluck('subject_id')->unique()->values();
         $actors = $actorIds->isEmpty() ? collect() : DB::table('actor as a')
-            ->leftJoin('actor_i18n as ai', function ($j) use ($culture) {
-                $j->on('ai.id', '=', 'a.id')->where('ai.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'a.id', $culture))
             ->leftJoin('slug', 'slug.object_id', '=', 'a.id')
             ->whereIn('a.id', $actorIds)
-            ->select('a.id', 'slug.slug', 'ai.authorized_form_of_name as name', 'ai.dates_of_existence', 'ai.history')
+            ->select('a.id', 'slug.slug', I18nFallback::col('ai', 'authorized_form_of_name', 'name'), I18nFallback::col('ai', 'dates_of_existence', 'dates_of_existence'), I18nFallback::col('ai', 'history', 'history'))
             ->get();
         file_put_contents($workDir.'/data/actors.json', json_encode($actors, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         $stats['actors'] = $actors->count();

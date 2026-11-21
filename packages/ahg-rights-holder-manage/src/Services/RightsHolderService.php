@@ -27,6 +27,7 @@ namespace AhgRightsHolderManage\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use AhgCore\Support\I18nFallback;
 
 class RightsHolderService
 {
@@ -50,21 +51,18 @@ class RightsHolderService
             ->join('actor', 'rights_holder.id', '=', 'actor.id')
             ->join('object', 'rights_holder.id', '=', 'object.id')
             ->join('slug', 'rights_holder.id', '=', 'slug.object_id')
-            ->leftJoin('actor_i18n', function ($j) {
-                $j->on('rights_holder.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'rights_holder.id', $this->culture))
             ->where('rights_holder.id', $id)
             ->where('object.class_name', 'QubitRightsHolder')
             ->select([
                 'rights_holder.id',
                 'actor.entity_type_id', 'actor.description_identifier',
                 'actor.corporate_body_identifiers', 'actor.source_culture',
-                'actor_i18n.authorized_form_of_name', 'actor_i18n.dates_of_existence',
-                'actor_i18n.history', 'actor_i18n.places', 'actor_i18n.legal_status',
-                'actor_i18n.functions', 'actor_i18n.mandates', 'actor_i18n.internal_structures',
-                'actor_i18n.general_context', 'actor_i18n.institution_responsible_identifier',
-                'actor_i18n.rules', 'actor_i18n.sources', 'actor_i18n.revision_history',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'), I18nFallback::col('actor_i18n', 'dates_of_existence', 'dates_of_existence'),
+                I18nFallback::col('actor_i18n', 'history', 'history'), I18nFallback::col('actor_i18n', 'places', 'places'), I18nFallback::col('actor_i18n', 'legal_status', 'legal_status'),
+                I18nFallback::col('actor_i18n', 'functions', 'functions'), I18nFallback::col('actor_i18n', 'mandates', 'mandates'), I18nFallback::col('actor_i18n', 'internal_structures', 'internal_structures'),
+                I18nFallback::col('actor_i18n', 'general_context', 'general_context'), I18nFallback::col('actor_i18n', 'institution_responsible_identifier', 'institution_responsible_identifier'),
+                I18nFallback::col('actor_i18n', 'rules', 'rules'), I18nFallback::col('actor_i18n', 'sources', 'sources'), I18nFallback::col('actor_i18n', 'revision_history', 'revision_history'),
                 'object.created_at', 'object.updated_at', 'slug.slug',
             ])
             ->first();
@@ -73,10 +71,7 @@ class RightsHolderService
     public function getContacts(int $rhId): \Illuminate\Support\Collection
     {
         return DB::table('contact_information')
-            ->leftJoin('contact_information_i18n', function ($j) {
-                $j->on('contact_information.id', '=', 'contact_information_i18n.id')
-                    ->where('contact_information_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'contact_information_i18n', 'contact_information.id', $this->culture))
             ->where('contact_information.actor_id', $rhId)
             ->select([
                 'contact_information.id', 'contact_information.primary_contact',
@@ -86,8 +81,8 @@ class RightsHolderService
                 'contact_information.postal_code', 'contact_information.country_code',
                 'contact_information.longitude', 'contact_information.latitude',
                 'contact_information.contact_note',
-                'contact_information_i18n.contact_type', 'contact_information_i18n.city',
-                'contact_information_i18n.region', 'contact_information_i18n.note',
+                I18nFallback::col('contact_information_i18n', 'contact_type', 'contact_type'), I18nFallback::col('contact_information_i18n', 'city', 'city'),
+                I18nFallback::col('contact_information_i18n', 'region', 'region'), I18nFallback::col('contact_information_i18n', 'note', 'note'),
             ])
             ->get();
     }
@@ -95,17 +90,14 @@ class RightsHolderService
     public function getRelatedRights(int $rhId): \Illuminate\Support\Collection
     {
         return DB::table('rights')
-            ->leftJoin('rights_i18n', function ($j) {
-                $j->on('rights.id', '=', 'rights_i18n.id')
-                    ->where('rights_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'rights_i18n', 'rights.id', $this->culture))
             ->where('rights.rights_holder_id', $rhId)
             ->select([
                 'rights.id', 'rights.basis_id', 'rights.start_date', 'rights.end_date',
                 'rights.copyright_status_id', 'rights.copyright_jurisdiction',
-                'rights_i18n.rights_note', 'rights_i18n.copyright_note',
-                'rights_i18n.license_terms', 'rights_i18n.license_note',
-                'rights_i18n.statute_jurisdiction', 'rights_i18n.statute_note',
+                I18nFallback::col('rights_i18n', 'rights_note', 'rights_note'), I18nFallback::col('rights_i18n', 'copyright_note', 'copyright_note'),
+                I18nFallback::col('rights_i18n', 'license_terms', 'license_terms'), I18nFallback::col('rights_i18n', 'license_note', 'license_note'),
+                I18nFallback::col('rights_i18n', 'statute_jurisdiction', 'statute_jurisdiction'), I18nFallback::col('rights_i18n', 'statute_note', 'statute_note'),
             ])
             ->get();
     }
@@ -140,33 +132,27 @@ class RightsHolderService
         try {
             // #1464: rights_record is authoritative; aliased to the legacy shape.
             return DB::table('rights_record as er')
-                ->leftJoin('rights_record_i18n as eri', function ($j) {
-                    $j->on('eri.id', '=', 'er.id')
-                        ->where('eri.culture', '=', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'rights_record_i18n as eri', 'er.id', $this->culture))
                 ->leftJoin('rights_statement as rs', 'er.rights_statement_id', '=', 'rs.id')
                 ->leftJoin('rights_statement_i18n as rs_i18n', function ($j) {
                     $j->on('rs.id', '=', 'rs_i18n.rights_statement_id')
                         ->where('rs_i18n.culture', '=', $this->culture);
                 })
                 ->leftJoin('rights_cc_license as cc', 'er.cc_license_id', '=', 'cc.id')
-                ->leftJoin('information_object_i18n as ioi', function ($j) {
-                    $j->on('ioi.id', '=', 'er.object_id')
-                        ->where('ioi.culture', '=', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'er.object_id', $this->culture))
                 ->leftJoin('slug as s', 's.object_id', '=', 'er.object_id')
                 ->where('er.rights_holder', $rhName)
                 ->select([
                     'er.*',
-                    'eri.rights_note',
-                    'eri.restriction_note as usage_conditions',
+                    I18nFallback::col('eri', 'rights_note', 'rights_note'),
+                    I18nFallback::col('eri', 'restriction_note', 'usage_conditions'),
                     'er.copyright_note as copyright_notice',
                     'rs.code as rights_statement_code',
                     'rs.uri as rights_statement_uri',
                     'rs_i18n.name as rights_statement_name',
                     'cc.code as cc_license_code',
                     'cc.uri as cc_license_uri',
-                    'ioi.title as object_title',
+                    I18nFallback::col('ioi', 'title', 'object_title'),
                     's.slug as object_slug',
                 ])
                 ->orderByDesc('er.created_at')

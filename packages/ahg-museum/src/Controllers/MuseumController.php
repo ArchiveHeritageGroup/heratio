@@ -37,6 +37,7 @@ use AhgRic\Crm\RicToCrmMapper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class MuseumController extends Controller
 {
@@ -170,11 +171,10 @@ class MuseumController extends Controller
         $repository = null;
         if ($museum->repository_id) {
             $repository = DB::table('repository')
-                ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture, required: true))
                 ->join('slug', 'repository.id', '=', 'slug.object_id')
                 ->where('repository.id', $museum->repository_id)
-                ->where('actor_i18n.culture', $culture)
-                ->select('repository.id', 'actor_i18n.authorized_form_of_name as name', 'slug.slug')
+                ->select('repository.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'), 'slug.slug')
                 ->first();
         }
 
@@ -189,22 +189,20 @@ class MuseumController extends Controller
 
         // Subject access points (taxonomy_id = 35)
         $subjects = DB::table('object_term_relation')
-            ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'object_term_relation.term_id', $culture, required: true))
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
             ->where('object_term_relation.object_id', $museum->id)
             ->where('term.taxonomy_id', 35)
-            ->where('term_i18n.culture', $culture)
-            ->select('term_i18n.name')
+            ->select(I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
 
         // Place access points (taxonomy_id = 42)
         $places = DB::table('object_term_relation')
-            ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'object_term_relation.term_id', $culture, required: true))
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
             ->where('object_term_relation.object_id', $museum->id)
             ->where('term.taxonomy_id', 42)
-            ->where('term_i18n.culture', $culture)
-            ->select('term_i18n.name')
+            ->select(I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
 
         // Publication status
@@ -227,11 +225,10 @@ class MuseumController extends Controller
         $parentId = $museum->parent_id;
         while ($parentId && $parentId != 1) {
             $parent = DB::table('information_object')
-                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
                 ->join('slug', 'information_object.id', '=', 'slug.object_id')
                 ->where('information_object.id', $parentId)
-                ->where('information_object_i18n.culture', $culture)
-                ->select('information_object.id', 'information_object.parent_id', 'information_object_i18n.title', 'slug.slug')
+                ->select('information_object.id', 'information_object.parent_id', I18nFallback::col('information_object_i18n', 'title', 'title'), 'slug.slug')
                 ->first();
 
             if (!$parent) {
@@ -265,16 +262,13 @@ class MuseumController extends Controller
         if (!empty($carouselIds)) {
             $childThumbnails = ! $carouselOn ? collect() : DB::table('digital_object')
                 ->join('slug', 'digital_object.object_id', '=', 'slug.object_id')
-                ->join('information_object_i18n', function ($join) use ($culture) {
-                    $join->on('digital_object.object_id', '=', 'information_object_i18n.id')
-                         ->where('information_object_i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'digital_object.object_id', $culture))
                 ->whereIn('digital_object.object_id', $carouselIds)
                 ->where('digital_object.usage_id', 142)
                 ->select(
                     'digital_object.id', 'digital_object.object_id', 'digital_object.name',
                     'digital_object.path', 'digital_object.mime_type', 'digital_object.byte_size',
-                    'slug.slug', 'information_object_i18n.title'
+                    'slug.slug', I18nFallback::col('information_object_i18n', 'title', 'title')
                 )
                 ->orderBy('digital_object.object_id')
                 ->limit(10)
@@ -1019,7 +1013,7 @@ class MuseumController extends Controller
 
     public function authorityLink(string $slug)
     {
-        $actor = DB::table('actor')->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')->join('slug', 'actor.id', '=', 'slug.object_id')->where('slug.slug', $slug)->where('actor_i18n.culture', app()->getLocale())->select('actor.*', 'actor_i18n.authorized_form_of_name', 'slug.slug')->first();
+        $actor = DB::table('actor')->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', app()->getLocale(), required: true))->join('slug', 'actor.id', '=', 'slug.object_id')->where('slug.slug', $slug)->select('actor.*', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'), 'slug.slug')->first();
         $linkedAuthorities = [];
         $sources = [];
         return view('ahg-museum::authority.link', compact('actor', 'linkedAuthorities', 'sources'));

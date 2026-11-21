@@ -28,6 +28,7 @@ namespace AhgStaticPage\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class StaticPageController extends Controller
 {
@@ -35,11 +36,10 @@ class StaticPageController extends Controller
     {
         $culture = app()->getLocale();
         $pages = DB::table('static_page')
-            ->join('static_page_i18n', 'static_page.id', '=', 'static_page_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'static_page_i18n', 'static_page.id', $culture, required: true))
             ->join('slug', 'static_page.id', '=', 'slug.object_id')
-            ->where('static_page_i18n.culture', $culture)
-            ->select('static_page.id', 'static_page_i18n.title', 'slug.slug')
-            ->orderBy('static_page_i18n.title')
+            ->select('static_page.id', I18nFallback::col('static_page_i18n', 'title', 'title'), 'slug.slug')
+            ->orderBy(I18nFallback::col('static_page_i18n', 'title'))
             ->get();
 
         return view('ahg-static-page::browse', compact('pages'));
@@ -49,11 +49,10 @@ class StaticPageController extends Controller
     {
         $culture = app()->getLocale();
         $pages = DB::table('static_page')
-            ->join('static_page_i18n', 'static_page.id', '=', 'static_page_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'static_page_i18n', 'static_page.id', $culture, required: true))
             ->join('slug', 'static_page.id', '=', 'slug.object_id')
-            ->where('static_page_i18n.culture', $culture)
-            ->select('static_page.id', 'static_page_i18n.title', 'slug.slug')
-            ->orderBy('static_page_i18n.title')
+            ->select('static_page.id', I18nFallback::col('static_page_i18n', 'title', 'title'), 'slug.slug')
+            ->orderBy(I18nFallback::col('static_page_i18n', 'title'))
             ->get();
 
         return view('ahg-static-page::list', compact('pages'));
@@ -76,12 +75,9 @@ class StaticPageController extends Controller
         }
 
         $page = DB::table('static_page')
-            ->leftJoin('static_page_i18n', function ($join) use ($culture) {
-                $join->on('static_page.id', '=', 'static_page_i18n.id')
-                    ->where('static_page_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'static_page_i18n', 'static_page.id', $culture))
             ->where('static_page.id', $slugRow->object_id)
-            ->select('static_page.id', 'static_page_i18n.title')
+            ->select('static_page.id', I18nFallback::col('static_page_i18n', 'title', 'title'))
             ->first();
 
         if (! $page) {
@@ -281,16 +277,13 @@ class StaticPageController extends Controller
         }
 
         $page = DB::table('static_page')
-            ->leftJoin('static_page_i18n', function ($join) use ($culture) {
-                $join->on('static_page.id', '=', 'static_page_i18n.id')
-                    ->where('static_page_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'static_page_i18n', 'static_page.id', $culture))
             ->where('static_page.id', $slugRow->object_id)
             ->select([
                 'static_page.id',
                 'static_page.source_culture',
-                'static_page_i18n.title',
-                'static_page_i18n.content',
+                I18nFallback::col('static_page_i18n', 'title', 'title'),
+                I18nFallback::col('static_page_i18n', 'content', 'content'),
                 DB::raw("'".addslashes($slug)."' as slug"),
             ])
             ->first();

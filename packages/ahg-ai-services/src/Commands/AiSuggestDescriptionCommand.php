@@ -19,6 +19,7 @@ use AhgAiServices\Services\LlmService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Throwable;
+use AhgCore\Support\I18nFallback;
 
 class AiSuggestDescriptionCommand extends Command
 {
@@ -47,9 +48,7 @@ class AiSuggestDescriptionCommand extends Command
         $config   = $this->option('llm-config') !== null ? (int) $this->option('llm-config') : null;
 
         $query = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('ioi.id', '=', 'io.id')->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->where('io.id', '!=', 1)
             ->orderBy('io.id')
             ->select('io.id');

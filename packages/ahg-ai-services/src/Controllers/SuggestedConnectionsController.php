@@ -29,6 +29,7 @@ use AhgAiServices\Services\SuggestedConnectionsService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Suggested Connections - North Star generative scholarship (#1210).
@@ -88,12 +89,10 @@ class SuggestedConnectionsController extends Controller
 
         // Rebuild the pair from authoritative data - never trust client titles.
         $meta = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as i', function ($j) {
-                $j->on('i.id', '=', 'io.id')->where('i.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i', 'io.id', app()->getLocale()))
             ->whereIn('io.id', [$id1, $id2])
             ->groupBy('io.id')
-            ->pluck(DB::raw('MAX(i.title)'), 'io.id');
+            ->pluck(DB::raw('MAX(COALESCE(i.title, i_fb.title))'), 'io.id');
 
         $pair = [
             'object_id_1'  => $id1,
@@ -165,16 +164,14 @@ class SuggestedConnectionsController extends Controller
         return DB::table('object_term_relation as a')
             ->join('object_term_relation as b', 'a.term_id', '=', 'b.term_id')
             ->join('term as t', 't.id', '=', 'a.term_id')
-            ->leftJoin('term_i18n as ti', function ($j) {
-                $j->on('ti.id', '=', 't.id')->where('ti.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 't.id', app()->getLocale()))
             ->where('a.object_id', $id1)
             ->where('b.object_id', $id2)
             ->whereIn('t.taxonomy_id', SuggestedConnectionsService::ACCESS_POINT_TAXONOMIES)
-            ->whereNotNull('ti.name')
+            ->whereNotNull(I18nFallback::col('ti', 'name'))
             ->distinct()
-            ->orderBy('ti.name')
-            ->pluck('ti.name')
+            ->orderBy(I18nFallback::col('ti', 'name'))
+            ->pluck(I18nFallback::col('ti', 'name', 'name'))
             ->all();
     }
 }

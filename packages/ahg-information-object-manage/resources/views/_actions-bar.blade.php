@@ -77,6 +77,14 @@
             <i class="fas fa-i-cursor me-2"></i>{{ __('Rename') }}
           </a>
         </li>
+        @if($_hasChildren || \Illuminate\Support\Facades\DB::table('information_object')->where('parent_id', $io->id)->exists())
+        {{-- heratio#1581: this record and everything beneath it, as an editable grid. --}}
+        <li>
+          <a class="dropdown-item" href="{{ route('informationobject.grid', ['collection' => $io->slug]) }}">
+            <i class="fas fa-table me-2"></i>{{ __('Edit as grid') }}
+          </a>
+        </li>
+        @endif
         <li><hr class="dropdown-divider"></li>
         <li>
           <a class="dropdown-item" href="{{ route('physicalobject.link-to', $io->slug) }}">

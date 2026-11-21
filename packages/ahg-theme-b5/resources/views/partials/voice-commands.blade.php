@@ -156,6 +156,15 @@
           <li><span class="voice-cmd-phrase">"navigation / edit / view / browse / global / dictation"</span><span class="voice-cmd-desc">{{ __('Read commands for that section') }}</span></li>
           <li><span class="voice-cmd-phrase">"read all commands"</span><span class="voice-cmd-desc">{{ __('Read every command aloud (say "stop" to stop)') }}</span></li>
         </ul>
+
+        {{-- heratio#1767: shown by voiceSttFallback.js only when server speech-to-text is on. --}}
+        <div id="voice-stt-choice" class="border-top pt-2 mt-2" style="display:none">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="voice-stt-prefer-server">
+            <label class="form-check-label" for="voice-stt-prefer-server">{{ __('Use server speech recognition') }}</label>
+          </div>
+          <div class="form-text">{{ __('Records a short clip and sends it to the speech service for this search. Recordings are not stored.') }}</div>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn atom-btn-outline-light btn-sm" data-bs-dismiss="modal">{{ __('Close') }}</button>

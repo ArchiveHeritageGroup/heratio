@@ -19,6 +19,7 @@ namespace AhgLibrary\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class OpenUrlResolverService
 {
@@ -201,15 +202,12 @@ class OpenUrlResolverService
 
         $base = fn () => DB::table('library_item')
             ->join('information_object', 'library_item.information_object_id', '=', 'information_object.id')
-            ->leftJoin('information_object_i18n', function ($j) use ($culture) {
-                $j->on('information_object.id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
             ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
             ->select([
                 'library_item.id as library_item_id',
                 'information_object.id as information_object_id',
-                'information_object_i18n.title as title',
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
                 'library_item.isbn',
                 'library_item.issn',
                 'library_item.doi',

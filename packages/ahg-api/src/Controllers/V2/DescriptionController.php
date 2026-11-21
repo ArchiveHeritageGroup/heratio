@@ -8,6 +8,7 @@ use AhgCore\Constants\TermId;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class DescriptionController extends BaseApiController
 {
@@ -28,13 +29,12 @@ class DescriptionController extends BaseApiController
         $offset = $this->listOffset($request, $page, $limit);
 
         $query = DB::table('information_object as io')
-            ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
             ->join('object', 'io.id', '=', 'object.id')
             ->join('slug', 'io.id', '=', 'slug.object_id')
             ->leftJoin('status', function ($j) {
                 $j->on('io.id', '=', 'status.object_id')->where('status.type_id', TermId::STATUS_TYPE_PUBLICATION);
             })
-            ->where('ioi.culture', $this->culture)
             ->where('io.id', '!=', 1)
             ->where('status.status_id', TermId::PUBLICATION_STATUS_PUBLISHED);
 
@@ -61,7 +61,7 @@ class DescriptionController extends BaseApiController
             $sort = 'archival';
         }
         match ($sort) {
-            'alphabetic', 'title' => $query->orderBy('ioi.title', $sortDir),
+            'alphabetic', 'title' => $query->orderBy(I18nFallback::col('ioi', 'title'), $sortDir),
             'identifier' => $query->orderBy('io.identifier', $sortDir),
             'archival' => $query->orderBy('io.lft'),
             default => $query->orderBy('object.updated_at', $sortDir),
@@ -69,7 +69,7 @@ class DescriptionController extends BaseApiController
 
         $rows = $query->select(
             'io.id', 'io.identifier', 'io.level_of_description_id', 'io.repository_id', 'io.parent_id',
-            'ioi.title', 'object.created_at', 'object.updated_at', 'slug.slug'
+            I18nFallback::col('ioi', 'title', 'title'), 'object.created_at', 'object.updated_at', 'slug.slug'
         )->offset($offset)->limit($limit)->get();
 
         $levelNames = $this->resolveTermNames($rows->pluck('level_of_description_id'));
@@ -101,12 +101,11 @@ class DescriptionController extends BaseApiController
         }
 
         $io = $this->visibleQuery()
-            ->join('information_object_i18n as ioi', 'io.id', '=', 'ioi.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
             ->join('object', 'io.id', '=', 'object.id')
             ->join('slug', 'io.id', '=', 'slug.object_id')
             ->where('slug.slug', $slug)
-            ->where('ioi.culture', $this->culture)
-            ->select('io.*', 'ioi.*', 'object.created_at', 'object.updated_at', 'slug.slug')
+            ->select('io.*', I18nFallback::col('ioi', 'title', 'title'), I18nFallback::col('ioi', 'alternate_title', 'alternate_title'), I18nFallback::col('ioi', 'edition', 'edition'), I18nFallback::col('ioi', 'extent_and_medium', 'extent_and_medium'), I18nFallback::col('ioi', 'archival_history', 'archival_history'), I18nFallback::col('ioi', 'acquisition', 'acquisition'), I18nFallback::col('ioi', 'scope_and_content', 'scope_and_content'), I18nFallback::col('ioi', 'appraisal', 'appraisal'), I18nFallback::col('ioi', 'accruals', 'accruals'), I18nFallback::col('ioi', 'arrangement', 'arrangement'), I18nFallback::col('ioi', 'access_conditions', 'access_conditions'), I18nFallback::col('ioi', 'reproduction_conditions', 'reproduction_conditions'), I18nFallback::col('ioi', 'physical_characteristics', 'physical_characteristics'), I18nFallback::col('ioi', 'finding_aids', 'finding_aids'), I18nFallback::col('ioi', 'location_of_originals', 'location_of_originals'), I18nFallback::col('ioi', 'location_of_copies', 'location_of_copies'), I18nFallback::col('ioi', 'related_units_of_description', 'related_units_of_description'), I18nFallback::col('ioi', 'institution_responsible_identifier', 'institution_responsible_identifier'), I18nFallback::col('ioi', 'rules', 'rules'), I18nFallback::col('ioi', 'sources', 'sources'), I18nFallback::col('ioi', 'revision_history', 'revision_history'), 'object.created_at', 'object.updated_at', 'slug.slug')
             ->first();
 
         if (! $io) {
@@ -223,8 +222,8 @@ class DescriptionController extends BaseApiController
 
         $link = fn ($r) => ['@id' => url('/'.$r->slug), 'rico:title' => $r->title, 'rico:identifier' => $r->identifier];
         $listed = fn ($q) => $q->join('slug', 'io.id', '=', 'slug.object_id')
-            ->leftJoin('information_object_i18n as ioi', fn ($j) => $j->on('ioi.id', '=', 'io.id')->where('ioi.culture', '=', $this->culture))
-            ->select('io.id', 'slug.slug', 'ioi.title', 'io.identifier');
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
+            ->select('io.id', 'slug.slug', I18nFallback::col('ioi', 'title', 'title'), 'io.identifier');
         if ($io->parent_id && ($parent = $listed($this->visibleQuery()->where('io.id', $io->parent_id))->first())) {
             $ric['rico:isOrWasIncludedIn'] = $link($parent);
         }
@@ -681,11 +680,10 @@ class DescriptionController extends BaseApiController
         $repo = null;
         if ($io->repository_id) {
             $repo = DB::table('repository')
-                ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $this->culture, required: true))
                 ->join('slug as rs', 'repository.id', '=', 'rs.object_id')
                 ->where('repository.id', $io->repository_id)
-                ->where('actor_i18n.culture', $this->culture)
-                ->select('repository.id', 'actor_i18n.authorized_form_of_name as name', 'rs.slug')
+                ->select('repository.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'), 'rs.slug')
                 ->first();
         }
 
@@ -732,12 +730,10 @@ class DescriptionController extends BaseApiController
     protected function getEvents(int $objectId): array
     {
         $events = DB::table('event')
-            ->leftJoin('event_i18n', function ($j) {
-                $j->on('event.id', '=', 'event_i18n.id')->where('event_i18n.culture', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n', 'event.id', $this->culture))
             ->where('event.object_id', $objectId)
             ->select('event.id', 'event.type_id', 'event.actor_id', 'event.start_date', 'event.end_date',
-                'event_i18n.date as date_display', 'event_i18n.name as event_name')
+                I18nFallback::col('event_i18n', 'date', 'date_display'), I18nFallback::col('event_i18n', 'name', 'event_name'))
             ->get();
 
         $typeNames = $this->resolveTermNames($events->pluck('type_id'));
@@ -759,15 +755,14 @@ class DescriptionController extends BaseApiController
     {
         return DB::table('event')
             ->join('actor', 'event.actor_id', '=', 'actor.id')
-            ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'event.actor_id', $this->culture, required: true))
             ->join('slug as cs', 'event.actor_id', '=', 'cs.object_id')
             ->where('event.object_id', $objectId)
             ->where('event.type_id', TermId::EVENT_TYPE_CREATION)
-            ->where('actor_i18n.culture', $this->culture)
             ->whereNotNull('event.actor_id')
             ->tap(fn ($q) => \AhgCore\Services\AclService::addActorVisibilityCriteria($q, 'actor.id'))
-            ->select('event.actor_id as id', 'actor_i18n.authorized_form_of_name as name',
-                'actor_i18n.dates_of_existence', 'actor_i18n.history', 'cs.slug')
+            ->select('event.actor_id as id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'),
+                I18nFallback::col('actor_i18n', 'dates_of_existence', 'dates_of_existence'), I18nFallback::col('actor_i18n', 'history', 'history'), 'cs.slug')
             ->distinct()
             ->get()
             ->map(fn ($c) => ['id' => $c->id, 'name' => $c->name, 'slug' => $c->slug,
@@ -778,21 +773,19 @@ class DescriptionController extends BaseApiController
     protected function getAccessPoints(int $objectId): array
     {
         $getTerms = fn (int $taxonomyId) => DB::table('object_term_relation')
-            ->join('term_i18n', 'object_term_relation.term_id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'object_term_relation.term_id', $this->culture, required: true))
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
             ->where('object_term_relation.object_id', $objectId)
             ->where('term.taxonomy_id', $taxonomyId)
-            ->where('term_i18n.culture', $this->culture)
-            ->pluck('term_i18n.name')->values()->toArray();
+            ->pluck(I18nFallback::col('term_i18n', 'name', 'name'))->values()->toArray();
 
         $names = DB::table('relation')
             ->join('actor', 'relation.object_id', '=', 'actor.id')
-            ->join('actor_i18n', 'relation.object_id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'relation.object_id', $this->culture, required: true))
             ->where('relation.subject_id', $objectId)
             ->where('relation.type_id', TermId::RELATION_NAME_ACCESS_POINT)
-            ->where('actor_i18n.culture', $this->culture)
             ->tap(fn ($q) => \AhgCore\Services\AclService::addActorVisibilityCriteria($q, 'actor.id'))
-            ->pluck('actor_i18n.authorized_form_of_name')->values()->toArray();
+            ->pluck(I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'))->values()->toArray();
 
         return [
             'subjects' => $getTerms(35),
@@ -805,10 +798,9 @@ class DescriptionController extends BaseApiController
     protected function getNotes(int $objectId): array
     {
         $notes = DB::table('note')
-            ->join('note_i18n', 'note.id', '=', 'note_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'note_i18n', 'note.id', $this->culture, required: true))
             ->where('note.object_id', $objectId)
-            ->where('note_i18n.culture', $this->culture)
-            ->select('note.type_id', 'note_i18n.content')
+            ->select('note.type_id', I18nFallback::col('note_i18n', 'content', 'content'))
             ->get();
 
         $typeNames = $this->resolveTermNames($notes->pluck('type_id'));
@@ -870,11 +862,9 @@ class DescriptionController extends BaseApiController
     protected function getProperties(int $objectId): array
     {
         $props = DB::table('property as p')
-            ->leftJoin('property_i18n as pi', function ($j) {
-                $j->on('p.id', '=', 'pi.id')->where('pi.culture', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'property_i18n as pi', 'p.id', $this->culture))
             ->where('p.object_id', $objectId)
-            ->select('p.name', 'pi.value')
+            ->select('p.name', I18nFallback::col('pi', 'value', 'value'))
             ->get();
 
         $result = [];
@@ -905,13 +895,11 @@ class DescriptionController extends BaseApiController
         $ancIds = app(\AhgCore\Services\HierarchyQueryService::class)->ancestorIds('information_object', (int) $objectId, false); // heratio#1541, root-most first
 
         $ancestors = DB::table('information_object as io')
-            ->join('information_object_i18n as ioi', function ($j) {
-                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->whereIn('io.id', $ancIds)
             ->where('io.id', '!=', 1)
-            ->select('io.id', 'slug.slug', 'ioi.title', 'io.lft')
+            ->select('io.id', 'slug.slug', I18nFallback::col('ioi', 'title', 'title'), 'io.lft')
             ->orderByRaw($ancIds ? 'FIELD(io.id, '.implode(',', array_map('intval', $ancIds)).')' : 'io.id')
             ->get();
 
@@ -960,27 +948,21 @@ class DescriptionController extends BaseApiController
         $visible = fn ($q) => \AhgCore\Services\AclService::addActorVisibilityCriteria($q, 'actor.id');
         $events = DB::table('event')
             ->join('actor', 'event.actor_id', '=', 'actor.id')
-            ->join('actor_i18n', function ($j) {
-                $j->on('actor.id', '=', 'actor_i18n.id')->where('actor_i18n.culture', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $this->culture, required: true))
             ->leftJoin('slug', 'actor.id', '=', 'slug.object_id')
-            ->leftJoin('term_i18n as ti', function ($j) {
-                $j->on('event.type_id', '=', 'ti.id')->where('ti.culture', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 'event.type_id', $this->culture))
             ->where('event.object_id', $objectId)
             ->tap($visible)
-            ->select('actor.id', 'slug.slug', 'actor_i18n.authorized_form_of_name as name', 'ti.name as relation_type')
+            ->select('actor.id', 'slug.slug', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'), I18nFallback::col('ti', 'name', 'relation_type'))
             ->get();
         $points = DB::table('relation')
             ->join('actor', 'relation.object_id', '=', 'actor.id')
-            ->join('actor_i18n', function ($j) {
-                $j->on('actor.id', '=', 'actor_i18n.id')->where('actor_i18n.culture', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $this->culture, required: true))
             ->leftJoin('slug', 'actor.id', '=', 'slug.object_id')
             ->where('relation.subject_id', $objectId)
             ->where('relation.type_id', TermId::RELATION_NAME_ACCESS_POINT)
             ->tap($visible)
-            ->select('actor.id', 'slug.slug', 'actor_i18n.authorized_form_of_name as name', DB::raw("'Subject' as relation_type"))
+            ->select('actor.id', 'slug.slug', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'), DB::raw("'Subject' as relation_type"))
             ->get();
 
         return $events->concat($points)->unique(fn ($r) => $r->id.'|'.$r->relation_type)->map(fn ($r) => [
@@ -993,12 +975,10 @@ class DescriptionController extends BaseApiController
     {
         return DB::table('object_term_relation as otr')
             ->join('term as t', 'otr.term_id', '=', 't.id')
-            ->join('term_i18n as ti', function ($j) {
-                $j->on('t.id', '=', 'ti.id')->where('ti.culture', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 't.id', $this->culture, required: true))
             ->where('otr.object_id', $objectId)
             ->where('t.taxonomy_id', $taxonomyId)
-            ->select('t.id', 'ti.name')
+            ->select('t.id', I18nFallback::col('ti', 'name', 'name'))
             ->get()->map(fn ($r) => ['id' => $r->id, 'name' => $r->name])->values()->toArray();
     }
 

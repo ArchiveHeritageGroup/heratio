@@ -28,6 +28,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class GraphEditorController extends Controller
 {
@@ -42,13 +43,12 @@ class GraphEditorController extends Controller
             ->get(['id', 'name', 'role', 'actor_id', 'authority_uri', 'sort_order']);
 
         $subjects = DB::table('object_term_relation')
-            ->join('term_i18n', 'term_i18n.id', '=', 'object_term_relation.term_id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'object_term_relation.term_id', app()->getLocale(), required: true))
             ->where('object_term_relation.object_id', $row->information_object_id)
-            ->where('term_i18n.culture', app()->getLocale())
-            ->orderBy('term_i18n.name')
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->get([
                 'object_term_relation.term_id',
-                'term_i18n.name',
+                I18nFallback::col('term_i18n', 'name', 'name'),
             ]);
 
         return view('ahg-biblio-bf::graph-editor', [
@@ -190,10 +190,7 @@ class GraphEditorController extends Controller
     {
         return DB::table('library_item')
             ->where('library_item.id', $libraryItemId)
-            ->leftJoin('information_object_i18n', function ($j) {
-                $j->on('information_object_i18n.id', '=', 'library_item.information_object_id')
-                  ->where('information_object_i18n.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'library_item.information_object_id', app()->getLocale()))
             ->select(
                 'library_item.id',
                 'library_item.information_object_id',
@@ -206,7 +203,7 @@ class GraphEditorController extends Controller
                 'library_item.language',
                 'library_item.edition',
                 'library_item.work_key',
-                'information_object_i18n.title'
+                I18nFallback::col('information_object_i18n', 'title', 'title')
             )
             ->first();
     }

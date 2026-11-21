@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use AhgCore\Support\I18nFallback;
 
 /**
  * REST API Controller for RIC-O Linked Data publication.
@@ -85,20 +86,16 @@ class LinkedDataApiController extends Controller
         // Culture filter - accept ?culture=fr|nl|de|etc.; fall back to app locale.
         $culture = $this->resolveCulture($request);
         $query = \DB::table('actor as a')
-            ->leftJoin('actor_i18n as i18n', function ($j) use ($culture) {
-                $j->on('a.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as i18n', 'a.id', $culture))
             ->leftJoin('term as at', 'a.entity_type_id', '=', 'at.id')
-            ->leftJoin('term_i18n as at_i18n', function ($j) use ($culture) {
-                $j->on('at.id', '=', 'at_i18n.id')->where('at_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as at_i18n', 'at.id', $culture))
             ->leftJoin('slug', 'a.id', '=', 'slug.object_id')
             ->select([
                 'a.id',
                 'slug.slug',
                 'a.entity_type_id',
-                'i18n.authorized_form_of_name as name',
-                'at_i18n.name as type',
+                I18nFallback::col('i18n', 'authorized_form_of_name', 'name'),
+                I18nFallback::col('at_i18n', 'name', 'type'),
             ]);
 
         // Guests must not see draft / embargoed authority records.
@@ -169,20 +166,16 @@ class LinkedDataApiController extends Controller
         // Filter every _i18n join by culture - without this, one IO row with
         // three translations appears three times (a regression seen in v0.2.x).
         $query = \DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->leftJoin('term as level', 'io.level_of_description_id', '=', 'level.id')
-            ->leftJoin('term_i18n as level_i18n', function ($j) use ($culture) {
-                $j->on('level.id', '=', 'level_i18n.id')->where('level_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as level_i18n', 'level.id', $culture))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->select([
                 'io.id',
                 'slug.slug',
                 'io.identifier',
-                'i18n.title',
-                'level_i18n.name as level',
+                I18nFallback::col('i18n', 'title', 'title'),
+                I18nFallback::col('level_i18n', 'name', 'level'),
             ]);
 
         // Guests must not see draft (unpublished) descriptions.
@@ -458,10 +451,8 @@ class LinkedDataApiController extends Controller
         $culture = app()->getLocale() ?: 'en';
 
         $query = \DB::table('ric_place as p')
-            ->leftJoin('ric_place_i18n as i18n', function ($j) use ($culture) {
-                $j->on('p.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
-            ->select(['p.id', 'p.type_id', 'p.latitude', 'p.longitude', 'i18n.name']);
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_place_i18n as i18n', 'p.id', $culture))
+            ->select(['p.id', 'p.type_id', 'p.latitude', 'p.longitude', I18nFallback::col('i18n', 'name', 'name')]);
 
         if ($type) {
             $query->where('p.type_id', $type);
@@ -523,12 +514,10 @@ class LinkedDataApiController extends Controller
         $culture = app()->getLocale() ?: 'en';
 
         $query = \DB::table('ric_rule as r')
-            ->leftJoin('ric_rule_i18n as i18n', function ($j) use ($culture) {
-                $j->on('r.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_rule_i18n as i18n', 'r.id', $culture))
             ->select([
                 'r.id', 'r.type_id', 'r.jurisdiction',
-                'r.start_date', 'r.end_date', 'i18n.title',
+                'r.start_date', 'r.end_date', I18nFallback::col('i18n', 'title', 'title'),
             ]);
 
         if ($type) {
@@ -599,10 +588,8 @@ class LinkedDataApiController extends Controller
         ];
 
         $query = \DB::table('ric_activity as a')
-            ->leftJoin('ric_activity_i18n as i18n', function ($j) use ($culture) {
-                $j->on('a.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
-            ->select(['a.id', 'a.type_id', 'a.start_date', 'a.end_date', 'i18n.name']);
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_activity_i18n as i18n', 'a.id', $culture))
+            ->select(['a.id', 'a.type_id', 'a.start_date', 'a.end_date', I18nFallback::col('i18n', 'name', 'name')]);
 
         if ($type) {
             $query->where('a.type_id', $type);
@@ -665,12 +652,10 @@ class LinkedDataApiController extends Controller
         $culture = app()->getLocale() ?: 'en';
 
         $query = \DB::table('ric_instantiation as ri')
-            ->leftJoin('ric_instantiation_i18n as i18n', function ($j) use ($culture) {
-                $j->on('ri.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_instantiation_i18n as i18n', 'ri.id', $culture))
             ->select([
                 'ri.id', 'ri.record_id', 'ri.carrier_type', 'ri.mime_type',
-                'ri.extent_value', 'ri.extent_unit', 'i18n.title',
+                'ri.extent_value', 'ri.extent_unit', I18nFallback::col('i18n', 'title', 'title'),
             ]);
 
         if ($carrier) {
@@ -994,11 +979,9 @@ class LinkedDataApiController extends Controller
     {
         $culture = app()->getLocale() ?: 'en';
         $actor = \DB::table('actor as a')
-            ->leftJoin('actor_i18n as i18n', function ($j) use ($culture) {
-                $j->on('a.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as i18n', 'a.id', $culture))
             ->where('a.id', $actorId)
-            ->select('a.id', 'i18n.authorized_form_of_name as name')
+            ->select('a.id', I18nFallback::col('i18n', 'authorized_form_of_name', 'name'))
             ->first();
         if (!$actor) return ['nodes' => [], 'edges' => []];
 
@@ -1009,14 +992,10 @@ class LinkedDataApiController extends Controller
 
         // Records linked via event (creator/accumulator).
         $events = \DB::table('event as e')
-            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('e.object_id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
-            })
-            ->leftJoin('term_i18n as ti', function ($j) use ($culture) {
-                $j->on('e.type_id', '=', 'ti.id')->where('ti.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'e.object_id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 'e.type_id', $culture))
             ->where('e.actor_id', $actorId)
-            ->select('e.object_id', 'ioi.title', 'ti.name as event_type')
+            ->select('e.object_id', I18nFallback::col('ioi', 'title', 'title'), I18nFallback::col('ti', 'name', 'event_type'))
             ->limit(25)
             ->get();
         foreach ($events as $ev) {
@@ -1043,13 +1022,11 @@ class LinkedDataApiController extends Controller
         // Records linked via relation table (with ric_relation_meta predicates where available).
         $rels = \DB::table('relation as r')
             ->leftJoin('ric_relation_meta as rm', 'r.id', '=', 'rm.relation_id')
-            ->leftJoin('information_object_i18n as ioi_o', function ($j) use ($culture) {
-                $j->on('r.object_id', '=', 'ioi_o.id')->where('ioi_o.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi_o', 'r.object_id', $culture))
             ->leftJoin('object as o_o', 'r.object_id', '=', 'o_o.id')
             ->where('r.subject_id', $actorId)
             ->whereIn('o_o.class_name', ['QubitInformationObject'])
-            ->select('r.object_id', 'ioi_o.title', 'rm.rico_predicate')
+            ->select('r.object_id', I18nFallback::col('ioi_o', 'title', 'title'), 'rm.rico_predicate')
             ->limit(15)
             ->get();
         foreach ($rels as $rel) {
@@ -1072,11 +1049,9 @@ class LinkedDataApiController extends Controller
     {
         $culture = app()->getLocale() ?: 'en';
         $repo = \DB::table('actor as a')
-            ->leftJoin('actor_i18n as i18n', function ($j) use ($culture) {
-                $j->on('a.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as i18n', 'a.id', $culture))
             ->where('a.id', $repoId)
-            ->select('a.id', 'i18n.authorized_form_of_name as name')
+            ->select('a.id', I18nFallback::col('i18n', 'authorized_form_of_name', 'name'))
             ->first();
         if (!$repo) return ['nodes' => [], 'edges' => []];
 
@@ -1086,11 +1061,9 @@ class LinkedDataApiController extends Controller
         $seen = [$rootUri => true];
 
         $holdings = \DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->where('io.repository_id', $repoId)
-            ->select('io.id', 'ioi.title')
+            ->select('io.id', I18nFallback::col('ioi', 'title', 'title'))
             ->limit(25)
             ->get();
         foreach ($holdings as $h) {
@@ -1112,11 +1085,9 @@ class LinkedDataApiController extends Controller
     {
         $culture = app()->getLocale() ?: 'en';
         $place = \DB::table('ric_place as p')
-            ->leftJoin('ric_place_i18n as i18n', function ($j) use ($culture) {
-                $j->on('p.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_place_i18n as i18n', 'p.id', $culture))
             ->where('p.id', $placeId)
-            ->select('p.id', 'p.parent_id', 'i18n.name')
+            ->select('p.id', 'p.parent_id', I18nFallback::col('i18n', 'name', 'name'))
             ->first();
         if (!$place) return ['nodes' => [], 'edges' => []];
 
@@ -1128,11 +1099,9 @@ class LinkedDataApiController extends Controller
         // Parent place
         if ($place->parent_id) {
             $parent = \DB::table('ric_place as p')
-                ->leftJoin('ric_place_i18n as i18n', function ($j) use ($culture) {
-                    $j->on('p.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'ric_place_i18n as i18n', 'p.id', $culture))
                 ->where('p.id', $place->parent_id)
-                ->select('p.id', 'i18n.name')->first();
+                ->select('p.id', I18nFallback::col('i18n', 'name', 'name'))->first();
             if ($parent) {
                 $parentUri = $baseUri . '/' . $instanceId . '/place/' . $parent->id;
                 $nodes[] = ['id' => $parentUri, 'label' => $parent->name ?: 'Place ' . $parent->id, 'type' => 'Place'];
@@ -1143,11 +1112,9 @@ class LinkedDataApiController extends Controller
 
         // Child places
         $children = \DB::table('ric_place as p')
-            ->leftJoin('ric_place_i18n as i18n', function ($j) use ($culture) {
-                $j->on('p.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_place_i18n as i18n', 'p.id', $culture))
             ->where('p.parent_id', $placeId)
-            ->select('p.id', 'i18n.name')
+            ->select('p.id', I18nFallback::col('i18n', 'name', 'name'))
             ->limit(15)
             ->get();
         foreach ($children as $c) {
@@ -1160,11 +1127,9 @@ class LinkedDataApiController extends Controller
 
         // Activities at this place
         $activities = \DB::table('ric_activity as a')
-            ->leftJoin('ric_activity_i18n as i18n', function ($j) use ($culture) {
-                $j->on('a.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_activity_i18n as i18n', 'a.id', $culture))
             ->where('a.place_id', $placeId)
-            ->select('a.id', 'a.type_id', 'i18n.name')
+            ->select('a.id', 'a.type_id', I18nFallback::col('i18n', 'name', 'name'))
             ->limit(15)
             ->get();
         foreach ($activities as $a) {
@@ -1182,11 +1147,9 @@ class LinkedDataApiController extends Controller
     {
         $culture = app()->getLocale() ?: 'en';
         $act = \DB::table('ric_activity as a')
-            ->leftJoin('ric_activity_i18n as i18n', function ($j) use ($culture) {
-                $j->on('a.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_activity_i18n as i18n', 'a.id', $culture))
             ->where('a.id', $activityId)
-            ->select('a.id', 'a.type_id', 'a.place_id', 'i18n.name')->first();
+            ->select('a.id', 'a.type_id', 'a.place_id', I18nFallback::col('i18n', 'name', 'name'))->first();
         if (!$act) return ['nodes' => [], 'edges' => []];
 
         $shortType = match (strtolower($act->type_id ?? '')) {
@@ -1202,11 +1165,9 @@ class LinkedDataApiController extends Controller
         // Linked Place
         if ($act->place_id) {
             $place = \DB::table('ric_place as p')
-                ->leftJoin('ric_place_i18n as i18n', function ($j) use ($culture) {
-                    $j->on('p.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'ric_place_i18n as i18n', 'p.id', $culture))
                 ->where('p.id', $act->place_id)
-                ->select('p.id', 'i18n.name')->first();
+                ->select('p.id', I18nFallback::col('i18n', 'name', 'name'))->first();
             if ($place) {
                 $pUri = $baseUri . '/' . $instanceId . '/place/' . $place->id;
                 $nodes[] = ['id' => $pUri, 'label' => $place->name ?: 'Place ' . $place->id, 'type' => 'Place'];
@@ -1222,11 +1183,9 @@ class LinkedDataApiController extends Controller
     {
         $culture = app()->getLocale() ?: 'en';
         $rule = \DB::table('ric_rule as r')
-            ->leftJoin('ric_rule_i18n as i18n', function ($j) use ($culture) {
-                $j->on('r.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_rule_i18n as i18n', 'r.id', $culture))
             ->where('r.id', $ruleId)
-            ->select('r.id', 'i18n.title')->first();
+            ->select('r.id', I18nFallback::col('i18n', 'title', 'title'))->first();
         if (!$rule) return ['nodes' => [], 'edges' => []];
 
         $rootUri = $baseUri . '/' . $instanceId . '/rule/' . $ruleId;
@@ -1240,14 +1199,10 @@ class LinkedDataApiController extends Controller
     {
         $culture = app()->getLocale() ?: 'en';
         $inst = \DB::table('ric_instantiation as ri')
-            ->leftJoin('ric_instantiation_i18n as i18n', function ($j) use ($culture) {
-                $j->on('ri.id', '=', 'i18n.id')->where('i18n.culture', '=', $culture);
-            })
-            ->leftJoin('information_object_i18n as io_i18n', function ($j) use ($culture) {
-                $j->on('ri.record_id', '=', 'io_i18n.id')->where('io_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'ric_instantiation_i18n as i18n', 'ri.id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as io_i18n', 'ri.record_id', $culture))
             ->where('ri.id', $instId)
-            ->select('ri.id', 'ri.record_id', 'ri.mime_type', 'i18n.title', 'io_i18n.title as record_title')
+            ->select('ri.id', 'ri.record_id', 'ri.mime_type', I18nFallback::col('i18n', 'title', 'title'), I18nFallback::col('io_i18n', 'title', 'record_title'))
             ->first();
         if (!$inst) return ['nodes' => [], 'edges' => []];
 

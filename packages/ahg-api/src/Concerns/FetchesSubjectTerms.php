@@ -8,6 +8,7 @@
 namespace AhgApi\Concerns;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Distinct subject-term names for an object in the controller's culture.
@@ -20,13 +21,11 @@ trait FetchesSubjectTerms
     {
         try {
             return DB::table('object_term_relation as otr')
-                ->join('term_i18n as ti', function ($j) {
-                    $j->on('otr.term_id', '=', 'ti.id')->where('ti.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 'otr.term_id', $this->culture, required: true))
                 ->where('otr.object_id', $objectId)
-                ->whereNotNull('ti.name')
+                ->whereNotNull(I18nFallback::col('ti', 'name'))
                 ->distinct()
-                ->pluck('ti.name')
+                ->pluck(I18nFallback::col('ti', 'name', 'name'))
                 ->filter()
                 ->values()
                 ->all();

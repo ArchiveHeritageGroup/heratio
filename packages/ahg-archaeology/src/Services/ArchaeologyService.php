@@ -19,6 +19,7 @@ namespace AhgArchaeology\Services;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class ArchaeologyService
 {
@@ -37,16 +38,12 @@ class ArchaeologyService
         $culture = app()->getLocale();
 
         return DB::table('term')
-            ->join('term_i18n', function ($j) use ($culture) {
-                $j->on('term_i18n.id', '=', 'term.id')->where('term_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
             ->join('taxonomy', 'taxonomy.id', '=', 'term.taxonomy_id')
-            ->join('taxonomy_i18n', function ($j) use ($culture) {
-                $j->on('taxonomy_i18n.id', '=', 'taxonomy.id')->where('taxonomy_i18n.culture', '=', $culture);
-            })
-            ->whereRaw('LOWER(taxonomy_i18n.name) = ?', [mb_strtolower($name)])
-            ->orderBy('term_i18n.name')
-            ->get(['term.id', 'term_i18n.name']);
+            ->tap(fn ($q) => I18nFallback::join($q, 'taxonomy_i18n', 'taxonomy.id', $culture, required: true))
+            ->whereRaw('LOWER(COALESCE(taxonomy_i18n.name, taxonomy_i18n_fb.name)) = ?', [mb_strtolower($name)])
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
+            ->get(['term.id', I18nFallback::col('term_i18n', 'name', 'name')]);
     }
 
     /**
@@ -78,9 +75,7 @@ class ArchaeologyService
         $culture = app()->getLocale();
 
         $query = DB::table('archaeology_site as s')
-            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('ioi.id', '=', 's.information_object_id')->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 's.information_object_id', $culture))
             ->leftJoin('term_i18n as period', function ($j) use ($culture) {
                 $j->on('period.id', '=', 's.period_id')->where('period.culture', '=', $culture);
             })
@@ -107,7 +102,7 @@ class ArchaeologyService
                 $w->where('s.site_number', 'like', $term)
                   ->orWhere('s.national_site_number', 'like', $term)
                   ->orWhere('s.locality', 'like', $term)
-                  ->orWhere('ioi.title', 'like', $term);
+                  ->orWhere(I18nFallback::col('ioi', 'title'), 'like', $term);
             });
         }
 
@@ -115,7 +110,7 @@ class ArchaeologyService
             ->orderBy('s.site_number')
             ->select([
                 's.*',
-                'ioi.title',
+                I18nFallback::col('ioi', 'title', 'title'),
                 'period.name as period_name',
                 'stype.name as site_type_name',
             ])
@@ -132,25 +127,21 @@ class ArchaeologyService
         $culture = app()->getLocale();
 
         return DB::table('archaeology_site as s')
-            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('ioi.id', '=', 's.information_object_id')->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 's.information_object_id', $culture))
             ->leftJoin('term_i18n as period', function ($j) use ($culture) {
                 $j->on('period.id', '=', 's.period_id')->where('period.culture', '=', $culture);
             })
             ->leftJoin('term_i18n as stype', function ($j) use ($culture) {
                 $j->on('stype.id', '=', 's.site_type_id')->where('stype.culture', '=', $culture);
             })
-            ->leftJoin('term_i18n as prot', function ($j) use ($culture) {
-                $j->on('prot.id', '=', 's.protection_status_id')->where('prot.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as prot', 's.protection_status_id', $culture))
             ->where('s.id', $id)
             ->select([
                 's.*',
-                'ioi.title',
+                I18nFallback::col('ioi', 'title', 'title'),
                 'period.name as period_name',
                 'stype.name as site_type_name',
-                'prot.name as protection_status_name',
+                I18nFallback::col('prot', 'name', 'protection_status_name'),
             ])
             ->first();
     }
@@ -170,15 +161,13 @@ class ArchaeologyService
         $culture = app()->getLocale();
 
         return DB::table('archaeology_object as o')
-            ->leftJoin('term_i18n as mat', function ($j) use ($culture) {
-                $j->on('mat.id', '=', 'o.material_id')->where('mat.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as mat', 'o.material_id', $culture))
             ->where('o.site_id', $siteId)
             ->where('o.status', 'active')
-            ->groupBy('mat.name')
+            ->groupBy(I18nFallback::col('mat', 'name'))
             ->orderByDesc(DB::raw('SUM(o.item_count)'))
             ->get([
-                DB::raw("COALESCE(mat.name, 'Undetermined') as material"),
+                DB::raw("COALESCE(COALESCE(mat.name, mat_fb.name), 'Undetermined') as material"),
                 DB::raw('COUNT(*) as records'),
                 DB::raw('SUM(o.item_count) as items'),
             ]);
@@ -198,9 +187,7 @@ class ArchaeologyService
         $culture = app()->getLocale();
 
         $query = DB::table('archaeology_object as o')
-            ->leftJoin('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('ioi.id', '=', 'o.information_object_id')->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'o.information_object_id', $culture))
             ->leftJoin('archaeology_site as s', 's.id', '=', 'o.site_id')
             ->leftJoin('term_i18n as otype', function ($j) use ($culture) {
                 $j->on('otype.id', '=', 'o.object_type_id')->where('otype.culture', '=', $culture);
@@ -233,7 +220,7 @@ class ArchaeologyService
                 $w->where('o.accession_number', 'like', $term)
                   ->orWhere('o.context_reference', 'like', $term)
                   ->orWhere('o.find_location', 'like', $term)
-                  ->orWhere('ioi.title', 'like', $term);
+                  ->orWhere(I18nFallback::col('ioi', 'title'), 'like', $term);
             });
         }
 
@@ -241,7 +228,7 @@ class ArchaeologyService
             ->orderBy('o.accession_number')
             ->select([
                 'o.*',
-                'ioi.title',
+                I18nFallback::col('ioi', 'title', 'title'),
                 's.site_number',
                 'otype.name as object_type_name',
                 'mat.name as material_name',
@@ -352,12 +339,8 @@ class ArchaeologyService
         $culture = app()->getLocale();
 
         return DB::table('archaeology_context as c')
-            ->leftJoin('term_i18n as ty', function ($j) use ($culture) {
-                $j->on('ty.id', '=', 'c.context_type_id')->where('ty.culture', '=', $culture);
-            })
-            ->leftJoin('term_i18n as ph', function ($j) use ($culture) {
-                $j->on('ph.id', '=', 'c.phase_id')->where('ph.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ty', 'c.context_type_id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ph', 'c.phase_id', $culture))
             ->where('c.site_id', $siteId)
             ->where('c.status', 'active')
             ->orderByRaw('c.top_elevation_m IS NULL, c.top_elevation_m DESC')
@@ -365,7 +348,7 @@ class ArchaeologyService
             ->get([
                 'c.id', 'c.context_number', 'c.top_elevation_m', 'c.bottom_elevation_m',
                 'c.description', 'c.information_object_id',
-                'ty.name as type_name', 'ph.name as phase_name',
+                I18nFallback::col('ty', 'name', 'type_name'), I18nFallback::col('ph', 'name', 'phase_name'),
                 DB::raw('(select count(*) from archaeology_object o where o.context_id = c.id and o.status = "active") as find_count'),
             ]);
     }
@@ -382,25 +365,19 @@ class ArchaeologyService
         $culture = app()->getLocale();
 
         $c = DB::table('archaeology_context as c')
-            ->leftJoin('term_i18n as ty', function ($j) use ($culture) {
-                $j->on('ty.id', '=', 'c.context_type_id')->where('ty.culture', '=', $culture);
-            })
-            ->leftJoin('term_i18n as ph', function ($j) use ($culture) {
-                $j->on('ph.id', '=', 'c.phase_id')->where('ph.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ty', 'c.context_type_id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ph', 'c.phase_id', $culture))
             ->where('c.id', $id)
-            ->select('c.*', 'ty.name as type_name', 'ph.name as phase_name')
+            ->select('c.*', I18nFallback::col('ty', 'name', 'type_name'), I18nFallback::col('ph', 'name', 'phase_name'))
             ->first();
         if (! $c) {
             return null;
         }
 
         $c->site = DB::table('archaeology_site as s')
-            ->leftJoin('information_object_i18n as i', function ($j) use ($culture) {
-                $j->on('i.id', '=', 's.information_object_id')->where('i.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i', 's.information_object_id', $culture))
             ->where('s.id', $c->site_id)
-            ->select('s.id', 's.site_number', 'i.title')
+            ->select('s.id', 's.site_number', I18nFallback::col('i', 'title', 'title'))
             ->first();
 
         $c->description_slug = $c->information_object_id
@@ -408,13 +385,11 @@ class ArchaeologyService
             : null;
 
         $c->finds = ! Schema::hasTable('archaeology_object') ? collect() : DB::table('archaeology_object as o')
-            ->leftJoin('information_object_i18n as i', function ($j) use ($culture) {
-                $j->on('i.id', '=', 'o.information_object_id')->where('i.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i', 'o.information_object_id', $culture))
             ->where('o.context_id', $id)
             ->where('o.status', 'active')
             ->orderBy('o.accession_number')
-            ->get(['o.id', 'o.accession_number', 'i.title']);
+            ->get(['o.id', 'o.accession_number', I18nFallback::col('i', 'title', 'title')]);
 
         return $c;
     }

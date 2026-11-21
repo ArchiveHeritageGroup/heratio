@@ -28,6 +28,7 @@
 namespace AhgMetadataExport\Services\Exporters;
 
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class Ead4Serializer
 {
@@ -153,28 +154,16 @@ class Ead4Serializer
 
         // Fetch publication status from status table (type_id = 158)
         $pubStatus = DB::table('status')
-            ->join('term_i18n', function ($join) use ($culture) {
-                $join->on('status.status_id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'status.status_id', $culture, required: true))
             ->where('status.object_id', $objectId)
             ->where('status.type_id', 158)
-            ->value('term_i18n.name');
+            ->value(I18nFallback::col('term_i18n', 'name', 'name'));
 
         // Fetch events (dates, creators)
         $events = DB::table('event')
-            ->leftJoin('event_i18n', function ($join) use ($culture) {
-                $join->on('event.id', '=', 'event_i18n.id')
-                    ->where('event_i18n.culture', '=', $culture);
-            })
-            ->leftJoin('actor_i18n', function ($join) use ($culture) {
-                $join->on('event.actor_id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
-            ->leftJoin('term_i18n as event_type', function ($join) use ($culture) {
-                $join->on('event.type_id', '=', 'event_type.id')
-                    ->where('event_type.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n', 'event.id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'event.actor_id', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as event_type', 'event.type_id', $culture))
             ->where('event.object_id', $objectId)
             ->select(
                 'event.id',
@@ -182,11 +171,11 @@ class Ead4Serializer
                 'event.end_date',
                 'event.type_id',
                 'event.actor_id',
-                'event_i18n.name as event_name',
-                'event_i18n.description as event_description',
-                'event_i18n.date as date_display',
-                'actor_i18n.authorized_form_of_name as actor_name',
-                'event_type.name as event_type_name'
+                I18nFallback::col('event_i18n', 'name', 'event_name'),
+                I18nFallback::col('event_i18n', 'description', 'event_description'),
+                I18nFallback::col('event_i18n', 'date', 'date_display'),
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'actor_name'),
+                I18nFallback::col('event_type', 'name', 'event_type_name')
             )
             ->get();
 
@@ -564,24 +553,18 @@ class Ead4Serializer
     {
         // Subject access points (taxonomy_id = 35)
         $subjects = DB::table('object_term_relation')
-            ->join('term_i18n', function ($join) use ($culture) {
-                $join->on('object_term_relation.term_id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'object_term_relation.term_id', $culture, required: true))
             ->where('object_term_relation.object_id', $objectId)
-            ->select('term_i18n.name')
+            ->select(I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
 
         // Place access points (taxonomy_id = 42)
         $places = DB::table('object_term_relation')
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
-            ->join('term_i18n', function ($join) use ($culture) {
-                $join->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
             ->where('object_term_relation.object_id', $objectId)
             ->where('term.taxonomy_id', 42)
-            ->select('term_i18n.name')
+            ->select(I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
 
         if ($subjects->isEmpty() && $places->isEmpty()) {
@@ -620,10 +603,7 @@ class Ead4Serializer
 
         // Get direct children only (parent_id)
         $children = DB::table('information_object')
-            ->leftJoin('information_object_i18n', function ($join) use ($culture) {
-                $join->on('information_object.id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
             ->where('information_object.parent_id', $io->id)
             ->orderBy('information_object.lft')
             ->select(
@@ -635,22 +615,22 @@ class Ead4Serializer
                 'information_object.parent_id',
                 'information_object.repository_id',
                 'information_object.source_culture',
-                'information_object_i18n.title',
-                'information_object_i18n.scope_and_content',
-                'information_object_i18n.extent_and_medium',
-                'information_object_i18n.access_conditions',
-                'information_object_i18n.arrangement',
-                'information_object_i18n.archival_history',
-                'information_object_i18n.acquisition',
-                'information_object_i18n.appraisal',
-                'information_object_i18n.accruals',
-                'information_object_i18n.reproduction_conditions',
-                'information_object_i18n.physical_characteristics',
-                'information_object_i18n.finding_aids',
-                'information_object_i18n.location_of_originals',
-                'information_object_i18n.location_of_copies',
-                'information_object_i18n.related_units_of_description',
-                'information_object_i18n.alternate_title'
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
+                I18nFallback::col('information_object_i18n', 'scope_and_content', 'scope_and_content'),
+                I18nFallback::col('information_object_i18n', 'extent_and_medium', 'extent_and_medium'),
+                I18nFallback::col('information_object_i18n', 'access_conditions', 'access_conditions'),
+                I18nFallback::col('information_object_i18n', 'arrangement', 'arrangement'),
+                I18nFallback::col('information_object_i18n', 'archival_history', 'archival_history'),
+                I18nFallback::col('information_object_i18n', 'acquisition', 'acquisition'),
+                I18nFallback::col('information_object_i18n', 'appraisal', 'appraisal'),
+                I18nFallback::col('information_object_i18n', 'accruals', 'accruals'),
+                I18nFallback::col('information_object_i18n', 'reproduction_conditions', 'reproduction_conditions'),
+                I18nFallback::col('information_object_i18n', 'physical_characteristics', 'physical_characteristics'),
+                I18nFallback::col('information_object_i18n', 'finding_aids', 'finding_aids'),
+                I18nFallback::col('information_object_i18n', 'location_of_originals', 'location_of_originals'),
+                I18nFallback::col('information_object_i18n', 'location_of_copies', 'location_of_copies'),
+                I18nFallback::col('information_object_i18n', 'related_units_of_description', 'related_units_of_description'),
+                I18nFallback::col('information_object_i18n', 'alternate_title', 'alternate_title')
             )
             ->get();
 
@@ -716,12 +696,9 @@ class Ead4Serializer
 
         // Events for this child
         $events = DB::table('event')
-            ->leftJoin('event_i18n', function ($join) use ($culture) {
-                $join->on('event.id', '=', 'event_i18n.id')
-                    ->where('event_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n', 'event.id', $culture))
             ->where('event.object_id', $child->id)
-            ->select('event.start_date', 'event.end_date', 'event_i18n.date as date_display')
+            ->select('event.start_date', 'event.end_date', I18nFallback::col('event_i18n', 'date', 'date_display'))
             ->get();
 
         foreach ($events as $event) {
@@ -801,10 +778,7 @@ class Ead4Serializer
 
         // Recursively add grandchildren
         $grandchildren = DB::table('information_object')
-            ->leftJoin('information_object_i18n', function ($join) use ($culture) {
-                $join->on('information_object.id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
             ->where('information_object.parent_id', $child->id)
             ->orderBy('information_object.lft')
             ->select(
@@ -816,22 +790,22 @@ class Ead4Serializer
                 'information_object.parent_id',
                 'information_object.repository_id',
                 'information_object.source_culture',
-                'information_object_i18n.title',
-                'information_object_i18n.scope_and_content',
-                'information_object_i18n.extent_and_medium',
-                'information_object_i18n.access_conditions',
-                'information_object_i18n.arrangement',
-                'information_object_i18n.archival_history',
-                'information_object_i18n.acquisition',
-                'information_object_i18n.appraisal',
-                'information_object_i18n.accruals',
-                'information_object_i18n.reproduction_conditions',
-                'information_object_i18n.physical_characteristics',
-                'information_object_i18n.finding_aids',
-                'information_object_i18n.location_of_originals',
-                'information_object_i18n.location_of_copies',
-                'information_object_i18n.related_units_of_description',
-                'information_object_i18n.alternate_title'
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
+                I18nFallback::col('information_object_i18n', 'scope_and_content', 'scope_and_content'),
+                I18nFallback::col('information_object_i18n', 'extent_and_medium', 'extent_and_medium'),
+                I18nFallback::col('information_object_i18n', 'access_conditions', 'access_conditions'),
+                I18nFallback::col('information_object_i18n', 'arrangement', 'arrangement'),
+                I18nFallback::col('information_object_i18n', 'archival_history', 'archival_history'),
+                I18nFallback::col('information_object_i18n', 'acquisition', 'acquisition'),
+                I18nFallback::col('information_object_i18n', 'appraisal', 'appraisal'),
+                I18nFallback::col('information_object_i18n', 'accruals', 'accruals'),
+                I18nFallback::col('information_object_i18n', 'reproduction_conditions', 'reproduction_conditions'),
+                I18nFallback::col('information_object_i18n', 'physical_characteristics', 'physical_characteristics'),
+                I18nFallback::col('information_object_i18n', 'finding_aids', 'finding_aids'),
+                I18nFallback::col('information_object_i18n', 'location_of_originals', 'location_of_originals'),
+                I18nFallback::col('information_object_i18n', 'location_of_copies', 'location_of_copies'),
+                I18nFallback::col('information_object_i18n', 'related_units_of_description', 'related_units_of_description'),
+                I18nFallback::col('information_object_i18n', 'alternate_title', 'alternate_title')
             )
             ->get();
 

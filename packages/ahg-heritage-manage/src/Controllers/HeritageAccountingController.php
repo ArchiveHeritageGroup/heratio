@@ -34,6 +34,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class HeritageAccountingController extends Controller
 {
@@ -99,11 +100,9 @@ class HeritageAccountingController extends Controller
         if ($request->filled('io_id')) {
             $culture = app()->getLocale();
             $io = DB::table('information_object as io')
-                ->join('information_object_i18n as i18n', function ($j) use ($culture) {
-                    $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
                 ->where('io.id', $request->input('io_id'))
-                ->select('io.id', 'i18n.title')
+                ->select('io.id', I18nFallback::col('i18n', 'title', 'title'))
                 ->first();
         }
 
@@ -255,12 +254,10 @@ class HeritageAccountingController extends Controller
         $culture = app()->getLocale();
 
         return DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as i18n', function ($j) use ($culture) {
-                $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $culture))
             ->leftJoin('slug as s', 's.object_id', '=', 'io.id')
             ->where('io.id', $ioId)
-            ->select('io.id', 'io.identifier', 'i18n.title', 's.slug')
+            ->select('io.id', 'io.identifier', I18nFallback::col('i18n', 'title', 'title'), 's.slug')
             ->first();
     }
 

@@ -30,6 +30,7 @@ namespace AhgLibrary\Services;
 use AhgCore\Traits\WithCultureFallback;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use AhgCore\Support\I18nFallback;
 
 class LibraryService
 {
@@ -147,10 +148,7 @@ class LibraryService
                 ->join('information_object', 'library_item.information_object_id', '=', 'information_object.id')
                 ->join('object', 'information_object.id', '=', 'object.id')
                 ->join('slug', 'information_object.id', '=', 'slug.object_id')
-                ->leftJoin('information_object_i18n', function ($j) {
-                    $j->on('information_object.id', '=', 'information_object_i18n.id')
-                        ->where('information_object_i18n.culture', '=', $this->culture);
-                });
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $this->culture));
 
             // Filter by material type
             if ($materialType !== '') {
@@ -160,7 +158,7 @@ class LibraryService
             // Search on title, isbn, publisher, responsibility_statement (author)
             if ($subquery !== '') {
                 $query->where(function ($q) use ($subquery) {
-                    $q->where('information_object_i18n.title', 'LIKE', "%{$subquery}%")
+                    $q->where(I18nFallback::col('information_object_i18n', 'title'), 'LIKE', "%{$subquery}%")
                       ->orWhere('library_item.isbn', 'LIKE', "%{$subquery}%")
                       ->orWhere('library_item.issn', 'LIKE', "%{$subquery}%")
                       ->orWhere('library_item.publisher', 'LIKE', "%{$subquery}%")
@@ -170,7 +168,7 @@ class LibraryService
 
             $query->select([
                 'information_object.id',
-                'information_object_i18n.title as name',
+                I18nFallback::col('information_object_i18n', 'title', 'name'),
                 'library_item.material_type',
                 'library_item.isbn',
                 'library_item.publisher',
@@ -186,15 +184,15 @@ class LibraryService
             // Sorting
             switch ($sort) {
                 case 'alphabetic':
-                    $query->orderBy('information_object_i18n.title', $sortDir);
+                    $query->orderBy(I18nFallback::col('information_object_i18n', 'title'), $sortDir);
                     break;
                 case 'identifier':
                     $query->orderBy('information_object.identifier', $sortDir);
-                    $query->orderBy('information_object_i18n.title', $sortDir);
+                    $query->orderBy(I18nFallback::col('information_object_i18n', 'title'), $sortDir);
                     break;
                 case 'materialType':
                     $query->orderBy('library_item.material_type', $sortDir);
-                    $query->orderBy('information_object_i18n.title', $sortDir);
+                    $query->orderBy(I18nFallback::col('information_object_i18n', 'title'), $sortDir);
                     break;
                 case 'lastUpdated':
                 default:
@@ -822,23 +820,17 @@ class LibraryService
 
         // Level of description terms (taxonomy_id = 34)
         $levels = DB::table('term')
-            ->leftJoin('term_i18n', function ($j) use ($culture) {
-                $j->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture))
             ->where('term.taxonomy_id', 34)
-            ->select('term.id', 'term_i18n.name')
-            ->orderBy('term_i18n.name')
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->get();
 
         // Repositories
         $repositories = DB::table('repository')
-            ->join('actor_i18n', function ($j) use ($culture) {
-                $j->on('repository.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $culture);
-            })
-            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
-            ->orderBy('actor_i18n.authorized_form_of_name')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture, required: true))
+            ->select('repository.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'))
+            ->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
             ->get();
 
         // Material types (static list matching AtoM)
@@ -891,11 +883,9 @@ class LibraryService
 
         // Physical objects for storage container dropdown
         $physicalObjects = DB::table('physical_object as po')
-            ->leftJoin('physical_object_i18n as poi', function ($join) use ($culture) {
-                $join->on('poi.id', '=', 'po.id')->where('poi.culture', '=', $culture);
-            })
-            ->select(['po.id', 'poi.name', 'poi.location'])
-            ->orderBy('poi.name')
+            ->tap(fn ($q) => I18nFallback::join($q, 'physical_object_i18n as poi', 'po.id', $culture))
+            ->select(['po.id', I18nFallback::col('poi', 'name', 'name'), I18nFallback::col('poi', 'location', 'location')])
+            ->orderBy(I18nFallback::col('poi', 'name'))
             ->get()
             ->mapWithKeys(function ($po) {
                 return [$po->id => $po->name . ($po->location ? ' (' . $po->location . ')' : '')];
@@ -965,13 +955,11 @@ class LibraryService
     public function getHoldings(int $informationObjectId): \Illuminate\Support\Collection
     {
         $rows = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as i18n', function ($j) {
-                $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $this->culture))
             ->leftJoin('slug', 'slug.object_id', '=', 'io.id')
             ->where('io.parent_id', $informationObjectId)
             ->orderBy('io.lft')
-            ->get(['io.id', 'io.identifier', 'i18n.title', 'slug.slug']);
+            ->get(['io.id', 'io.identifier', I18nFallback::col('i18n', 'title', 'title'), 'slug.slug']);
         if ($rows->isEmpty()) {
             return $rows;
         }
@@ -999,26 +987,22 @@ class LibraryService
     public function getAccessPoints(int $informationObjectId): array
     {
         $names = DB::table('relation')
-            ->join('actor_i18n', function ($j) {
-                $j->on('actor_i18n.id', '=', 'relation.object_id')->where('actor_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'relation.object_id', $this->culture, required: true))
             ->leftJoin('slug', 'slug.object_id', '=', 'relation.object_id')
             ->where('relation.subject_id', $informationObjectId)
             ->where('relation.type_id', 161)
-            ->orderBy('actor_i18n.authorized_form_of_name')
-            ->select('actor_i18n.authorized_form_of_name as name', 'slug.slug')
+            ->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
+            ->select(I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'), 'slug.slug')
             ->distinct()->get();
 
         $terms = DB::table('object_term_relation as otr')
             ->join('term', 'term.id', '=', 'otr.term_id')
-            ->join('term_i18n', function ($j) {
-                $j->on('term_i18n.id', '=', 'term.id')->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture, required: true))
             ->leftJoin('slug', 'slug.object_id', '=', 'term.id')
             ->where('otr.object_id', $informationObjectId)
             ->whereIn('term.taxonomy_id', [35, 42, 78])
-            ->orderBy('term_i18n.name')
-            ->select('term.taxonomy_id', 'term_i18n.name', 'slug.slug')
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
+            ->select('term.taxonomy_id', I18nFallback::col('term_i18n', 'name', 'name'), 'slug.slug')
             ->get();
 
         return [
@@ -1077,14 +1061,11 @@ class LibraryService
 
         return DB::table('information_object')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
-            ->leftJoin('information_object_i18n', function ($j) {
-                $j->on('information_object.id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $this->culture))
             ->where('information_object.id', $parentId)
             ->select([
                 'information_object.id',
-                'information_object_i18n.title',
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
                 'slug.slug',
             ])
             ->first();
@@ -1107,15 +1088,12 @@ class LibraryService
     {
         $row = DB::table('information_object_physical_location as iopl')
             ->leftJoin('physical_object as po', 'iopl.physical_object_id', '=', 'po.id')
-            ->leftJoin('physical_object_i18n as poi', function ($j) {
-                $j->on('po.id', '=', 'poi.id')
-                  ->where('poi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'physical_object_i18n as poi', 'po.id', $this->culture))
             ->where('iopl.information_object_id', $informationObjectId)
             ->select(
                 'iopl.*',
-                'poi.name as physical_object_name',
-                'poi.location as physical_object_location'
+                I18nFallback::col('poi', 'name', 'physical_object_name'),
+                I18nFallback::col('poi', 'location', 'physical_object_location')
             )
             ->first();
 

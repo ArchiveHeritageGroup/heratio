@@ -36,6 +36,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use AhgCore\Support\I18nFallback;
 
 class TermController extends Controller
 {
@@ -165,15 +166,13 @@ class TermController extends Controller
         $enriched = collect($pager->getResults())->map(function ($doc) use ($culture) {
             $termId = $doc['id'];
             $doc['scopeNotes'] = \Illuminate\Support\Facades\DB::table('note')
-                ->join('note_i18n', 'note.id', '=', 'note_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'note_i18n', 'note.id', $culture, required: true))
                 ->where('note.object_id', $termId)
-                ->where('note_i18n.culture', $culture)
-                ->pluck('note_i18n.content')->toArray();
+                ->pluck(I18nFallback::col('note_i18n', 'content', 'content'))->toArray();
             $doc['useFor'] = \Illuminate\Support\Facades\DB::table('other_name')
-                ->join('other_name_i18n', 'other_name.id', '=', 'other_name_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'other_name_i18n', 'other_name.id', $culture, required: true))
                 ->where('other_name.object_id', $termId)
-                ->where('other_name_i18n.culture', $culture)
-                ->pluck('other_name_i18n.name')->toArray();
+                ->pluck(I18nFallback::col('other_name_i18n', 'name', 'name'))->toArray();
             // Cached per term: a page of large terms recounted 100k+ tagged
             // records each on every view.
             $doc += TermService::remember("term_browse_counts:{$termId}", fn () => [
@@ -306,21 +305,19 @@ class TermController extends Controller
 
         // Use-for labels
         $useFor = \Illuminate\Support\Facades\DB::table('other_name')
-            ->join('other_name_i18n', 'other_name.id', '=', 'other_name_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'other_name_i18n', 'other_name.id', $culture, required: true))
             ->where('other_name.object_id', $term->id)
-            ->where('other_name_i18n.culture', $culture)
-            ->pluck('other_name_i18n.name')->toArray();
+            ->pluck(I18nFallback::col('other_name_i18n', 'name', 'name'))->toArray();
 
         // Broader term (parent)
         $broaderTerm = null;
         $parentId = \Illuminate\Support\Facades\DB::table('term')->where('id', $term->id)->value('parent_id');
         if ($parentId) {
             $broaderTerm = \Illuminate\Support\Facades\DB::table('term')
-                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
                 ->join('slug', 'term.id', '=', 'slug.object_id')
                 ->where('term.id', $parentId)
-                ->where('term_i18n.culture', $culture)
-                ->select('term.id', 'term_i18n.name', 'slug.slug')
+                ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'), 'slug.slug')
                 ->first();
         }
 
@@ -352,21 +349,19 @@ class TermController extends Controller
 
                 // Creator (from event type 111 = creation)
                 $creator = DB::table('event')
-                    ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
+                    ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'event.actor_id', $culture, required: true))
                     ->where('event.object_id', $desc->id)
                     ->where('event.type_id', 111)
-                    ->where('actor_i18n.culture', $culture)
                     ->whereNotNull('event.actor_id')
-                    ->select('actor_i18n.authorized_form_of_name')
+                    ->select(I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'))
                     ->first();
                 $desc->creatorName = $creator->authorized_form_of_name ?? null;
 
                 // Dates from events
                 $dates = DB::table('event')
-                    ->join('event_i18n', 'event.id', '=', 'event_i18n.id')
+                    ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n', 'event.id', $culture))
                     ->where('event.object_id', $desc->id)
-                    ->where('event_i18n.culture', $culture)
-                    ->select('event_i18n.date', 'event.start_date', 'event.end_date')
+                    ->select(I18nFallback::col('event_i18n', 'date', 'date'), 'event.start_date', 'event.end_date')
                     ->first();
                 $desc->dateDisplay = $dates->date ?? $dates->start_date ?? null;
 
@@ -406,14 +401,14 @@ class TermController extends Controller
             }), $pageTtl);
 
         // Source notes (type 121)
-        $sourceNotes = DB::table('note')->join('note_i18n', 'note.id', '=', 'note_i18n.id')
+        $sourceNotes = DB::table('note')->tap(fn ($q) => I18nFallback::join($q, 'note_i18n', 'note.id', $culture, required: true))
             ->where('note.object_id', $term->id)->where('note.type_id', 121)
-            ->where('note_i18n.culture', $culture)->pluck('note_i18n.content')->toArray();
+            ->pluck(I18nFallback::col('note_i18n', 'content', 'content'))->toArray();
 
         // Display notes (type 123)
-        $displayNotes = DB::table('note')->join('note_i18n', 'note.id', '=', 'note_i18n.id')
+        $displayNotes = DB::table('note')->tap(fn ($q) => I18nFallback::join($q, 'note_i18n', 'note.id', $culture, required: true))
             ->where('note.object_id', $term->id)->where('note.type_id', 123)
-            ->where('note_i18n.culture', $culture)->pluck('note_i18n.content')->toArray();
+            ->pluck(I18nFallback::col('note_i18n', 'content', 'content'))->toArray();
 
         // Narrower terms (children) with names, slugs, and child count for expand indicator.
         //
@@ -430,13 +425,12 @@ class TermController extends Controller
         // remains the way to see everything.
         $narrowerTotal = $narrowerCount;   // already counted above; don't re-run it
         $narrowerTerms = DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
             ->join('slug', 'term.id', '=', 'slug.object_id')
             ->where('term.parent_id', $term->id)
-            ->where('term_i18n.culture', $culture)
-            ->select('term.id', 'term_i18n.name', 'slug.slug',
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'), 'slug.slug',
                 DB::raw('(SELECT COUNT(*) FROM term WHERE parent_id = term.id) as child_count'))
-            ->orderBy('term_i18n.name')->limit(self::TREE_MAX)->get();
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))->limit(self::TREE_MAX)->get();
 
         // Sibling terms (other children of the same parent) for treeview navigation
         $siblings = collect();
@@ -449,14 +443,13 @@ class TermController extends Controller
         }
         if ($parentId && $siblingsTotal <= self::TREE_WIDE) {
             $siblings = DB::table('term')
-                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
                 ->join('slug', 'term.id', '=', 'slug.object_id')
                 ->where('term.parent_id', $parentId)
                 ->where('term.id', '!=', $term->id)
-                ->where('term_i18n.culture', $culture)
-                ->select('term.id', 'term_i18n.name', 'slug.slug',
+                ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'), 'slug.slug',
                     DB::raw('(SELECT COUNT(*) FROM term WHERE parent_id = term.id) as child_count'))
-                ->orderBy('term_i18n.name')->limit(self::TREE_MAX)->get();
+                ->orderBy(I18nFallback::col('term_i18n', 'name'))->limit(self::TREE_MAX)->get();
         }
 
         // List tab: paginated alphabetical list of terms
@@ -465,9 +458,8 @@ class TermController extends Controller
         $listPage = max(1, (int) $request->get('listPage', 1));
         $listLimit = 25;
         $listQuery = DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
-            ->join('slug', 'term.id', '=', 'slug.object_id')
-            ->where('term_i18n.culture', $culture);
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
+            ->join('slug', 'term.id', '=', 'slug.object_id');
 
         if ($narrowerTotal > 0 && $term->taxonomy_id == 30) {
             // Root term - show children
@@ -491,8 +483,8 @@ class TermController extends Controller
         $listScope = ($narrowerTotal > 0 && $term->taxonomy_id == 30) ? "p{$termId}" : "t{$term->taxonomy_id}";
         $listTotal = TermService::remember("term_list_total:{$listScope}", fn () => $listCount->count());
         $listTerms = TermService::remember("term_list:{$listScope}:{$culture}:{$listPage}", fn () => $listQuery
-            ->select('term.id', 'term_i18n.name', 'slug.slug')
-            ->orderBy('term_i18n.name')
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'), 'slug.slug')
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->offset(($listPage - 1) * $listLimit)->limit($listLimit)->get());
 
         // Converse term (relation type 177)
@@ -505,10 +497,10 @@ class TermController extends Controller
         if ($converseRel) {
             $converseId = $converseRel->subject_id == $term->id ? $converseRel->object_id : $converseRel->subject_id;
             $converseTerm = DB::table('term')
-                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
                 ->join('slug', 'term.id', '=', 'slug.object_id')
-                ->where('term.id', $converseId)->where('term_i18n.culture', $culture)
-                ->select('term.id', 'term_i18n.name', 'slug.slug')->first();
+                ->where('term.id', $converseId)
+                ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'), 'slug.slug')->first();
         }
 
         // Associated terms (relation type 157)
@@ -521,10 +513,10 @@ class TermController extends Controller
                 $otherId = $rel->subject_id == $term->id ? $rel->object_id : $rel->subject_id;
 
                 return DB::table('term')
-                    ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                    ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
                     ->join('slug', 'term.id', '=', 'slug.object_id')
-                    ->where('term.id', $otherId)->where('term_i18n.culture', $culture)
-                    ->select('term.id', 'term_i18n.name', 'slug.slug')->first();
+                    ->where('term.id', $otherId)
+                    ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'), 'slug.slug')->first();
             })->filter()->values();
 
         // Breadcrumb (ancestors)
@@ -532,10 +524,10 @@ class TermController extends Controller
         $currentParentId = $parentId;
         while ($currentParentId && $currentParentId != \Illuminate\Support\Facades\DB::table('term')->where('taxonomy_id', $term->taxonomy_id)->whereNull('parent_id')->value('id')) {
             $ancestor = DB::table('term')
-                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
                 ->join('slug', 'term.id', '=', 'slug.object_id')
-                ->where('term.id', $currentParentId)->where('term_i18n.culture', $culture)
-                ->select('term.id', 'term_i18n.name', 'slug.slug', 'term.parent_id')->first();
+                ->where('term.id', $currentParentId)
+                ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'), 'slug.slug', 'term.parent_id')->first();
             if (! $ancestor) {
                 break;
             }
@@ -548,22 +540,20 @@ class TermController extends Controller
         $nextTerm = null;
         if ($term->name && $listTotal <= self::NAV_MAX) {
             $prevTerm = DB::table('term')
-                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
                 ->join('slug', 'term.id', '=', 'slug.object_id')
                 ->where('term.taxonomy_id', $term->taxonomy_id)
-                ->where('term_i18n.culture', $culture)
-                ->where('term_i18n.name', '<', $term->name)
-                ->orderByDesc('term_i18n.name')
-                ->select('term_i18n.name', 'slug.slug')->first();
+                ->where(I18nFallback::col('term_i18n', 'name'), '<', $term->name)
+                ->orderByDesc(I18nFallback::col('term_i18n', 'name'))
+                ->select(I18nFallback::col('term_i18n', 'name', 'name'), 'slug.slug')->first();
 
             $nextTerm = DB::table('term')
-                ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
                 ->join('slug', 'term.id', '=', 'slug.object_id')
                 ->where('term.taxonomy_id', $term->taxonomy_id)
-                ->where('term_i18n.culture', $culture)
-                ->where('term_i18n.name', '>', $term->name)
-                ->orderBy('term_i18n.name')
-                ->select('term_i18n.name', 'slug.slug')->first();
+                ->where(I18nFallback::col('term_i18n', 'name'), '>', $term->name)
+                ->orderBy(I18nFallback::col('term_i18n', 'name'))
+                ->select(I18nFallback::col('term_i18n', 'name', 'name'), 'slug.slug')->first();
         }
 
         // Google Maps API key for Place terms
@@ -645,7 +635,7 @@ class TermController extends Controller
     {
         $q = DB::table('object_term_relation')
             ->join('information_object', 'object_term_relation.object_id', '=', 'information_object.id')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
             ->join('object', 'information_object.id', '=', 'object.id')
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             // One IN over the term and its children keeps the term_id index in
@@ -655,8 +645,7 @@ class TermController extends Controller
                 fn ($w) => $w->where('object_term_relation.term_id', $termId),
                 fn ($w) => $w->whereIn('object_term_relation.term_id', fn ($sub) => $sub->select('id')->from('term')
                     ->where('id', $termId)->orWhere('parent_id', $termId)))
-            ->where('object.class_name', 'QubitInformationObject')
-            ->where('information_object_i18n.culture', $culture);
+            ->where('object.class_name', 'QubitInformationObject');
         if ($public) {
             $gate = app(\AhgCore\Services\DisclosureGate::class);
             $gate->wherePublished($q);
@@ -744,12 +733,11 @@ class TermController extends Controller
         $taxonomyName = $this->termService->getTaxonomyName($taxonomyId, $culture);
 
         $terms = DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
             ->leftJoin('slug', 'term.id', '=', 'slug.object_id')
             ->where('term.taxonomy_id', $taxonomyId)
-            ->where('term_i18n.culture', $culture)
-            ->select('term.id', 'term.parent_id', 'term_i18n.name', 'slug.slug', 'term.code')
-            ->orderBy('term_i18n.name')
+            ->select('term.id', 'term.parent_id', I18nFallback::col('term_i18n', 'name', 'name'), 'slug.slug', 'term.code')
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->get();
 
         $baseUri = url('/term').'/';
@@ -770,10 +758,9 @@ class TermController extends Controller
             // locale when only the requested culture is wanted. Phase 2
             // can drop the filter when SKOS-XL labels per locale are added.
             $otherNames = $this->inIdChunks($termIds, fn (array $ids) => DB::table('other_name')
-                ->join('other_name_i18n', 'other_name.id', '=', 'other_name_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'other_name_i18n', 'other_name.id', $culture, required: true))
                 ->whereIn('other_name.object_id', $ids)
-                ->where('other_name_i18n.culture', $culture)
-                ->select('other_name.object_id', 'other_name_i18n.name')
+                ->select('other_name.object_id', I18nFallback::col('other_name_i18n', 'name', 'name'))
                 ->get());
             foreach ($otherNames as $on) {
                 $name = trim((string) $on->name);
@@ -788,10 +775,9 @@ class TermController extends Controller
             // distinguish scopeNote / historyNote / changeNote based on
             // note.type_id once that mapping is documented.
             $notes = $this->inIdChunks($termIds, fn (array $ids) => DB::table('note')
-                ->join('note_i18n', 'note.id', '=', 'note_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'note_i18n', 'note.id', $culture, required: true))
                 ->whereIn('note.object_id', $ids)
-                ->where('note_i18n.culture', $culture)
-                ->select('note.object_id', 'note_i18n.content')
+                ->select('note.object_id', I18nFallback::col('note_i18n', 'content', 'content'))
                 ->get());
             foreach ($notes as $n) {
                 $content = trim((string) $n->content);
@@ -1871,14 +1857,11 @@ class TermController extends Controller
         }
 
         $results = DB::table('term')
-            ->join('term_i18n', function ($j) use ($culture) {
-                $j->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
             ->where('term.taxonomy_id', $taxonomyId)
-            ->where('term_i18n.name', 'LIKE', '%'.$query.'%')
-            ->select('term.id', 'term_i18n.name')
-            ->orderBy('term_i18n.name')
+            ->where(I18nFallback::col('term_i18n', 'name'), 'LIKE', '%'.$query.'%')
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->limit($limit)
             ->get();
 
@@ -1897,16 +1880,14 @@ class TermController extends Controller
         $limit = (int) $request->get('limit', 20);
 
         $rows = DB::table('taxonomy as t')
-            ->leftJoin('taxonomy_i18n as ti', function ($j) use ($culture) {
-                $j->on('ti.id', '=', 't.id')->where('ti.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'taxonomy_i18n as ti', 't.id', $culture))
             ->leftJoin('slug as s', 's.object_id', '=', 't.id')
             ->when($term !== '', function ($q) use ($term) {
-                $q->where('ti.name', 'LIKE', '%'.$term.'%');
+                $q->where(I18nFallback::col('ti', 'name'), 'LIKE', '%'.$term.'%');
             })
-            ->whereNotNull('ti.name')
-            ->select('t.id', 'ti.name', 's.slug')
-            ->orderBy('ti.name')
+            ->whereNotNull(I18nFallback::col('ti', 'name'))
+            ->select('t.id', I18nFallback::col('ti', 'name', 'name'), 's.slug')
+            ->orderBy(I18nFallback::col('ti', 'name'))
             ->limit($limit)
             ->get();
 
@@ -2049,10 +2030,7 @@ class TermController extends Controller
         $parentId = $request->get('parent');
 
         $query = DB::table('term')
-            ->leftJoin('term_i18n', function ($j) use ($culture) {
-                $j->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture))
             ->leftJoin('slug', 'term.id', '=', 'slug.object_id')
             ->where('term.taxonomy_id', $taxonomyId);
 
@@ -2075,11 +2053,11 @@ class TermController extends Controller
             ->select(
                 'term.id',
                 'term.parent_id',
-                'term_i18n.name',
+                I18nFallback::col('term_i18n', 'name', 'name'),
                 'slug.slug',
                 DB::raw('(SELECT COUNT(*) FROM term tc WHERE tc.parent_id = term.id) as child_count'),
             )
-            ->orderBy('term_i18n.name')
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->get();
 
         $nodes = $rows->map(fn ($t) => [

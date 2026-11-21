@@ -28,6 +28,7 @@ namespace AhgStorageManage\Services;
 use AhgCore\Constants\TermId;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use AhgCore\Support\I18nFallback;
 
 class StorageService
 {
@@ -53,18 +54,15 @@ class StorageService
         return DB::table('physical_object')
             ->join('object', 'physical_object.id', '=', 'object.id')
             ->join('slug', 'physical_object.id', '=', 'slug.object_id')
-            ->leftJoin('physical_object_i18n', function ($j) {
-                $j->on('physical_object.id', '=', 'physical_object_i18n.id')
-                    ->where('physical_object_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'physical_object_i18n', 'physical_object.id', $this->culture))
             ->where('physical_object.id', $id)
             ->select([
                 'physical_object.id',
                 'physical_object.type_id',
                 'physical_object.source_culture',
-                'physical_object_i18n.name',
-                'physical_object_i18n.description',
-                'physical_object_i18n.location',
+                I18nFallback::col('physical_object_i18n', 'name', 'name'),
+                I18nFallback::col('physical_object_i18n', 'description', 'description'),
+                I18nFallback::col('physical_object_i18n', 'location', 'location'),
                 'object.created_at',
                 'object.updated_at',
                 'slug.slug',
@@ -80,16 +78,13 @@ class StorageService
     {
         return DB::table('relation')
             ->join('information_object', 'relation.object_id', '=', 'information_object.id')
-            ->leftJoin('information_object_i18n', function ($j) {
-                $j->on('information_object.id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $this->culture))
             ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('relation.subject_id', $physicalObjectId)
             ->where('relation.type_id', TermId::RELATION_HAS_PHYSICAL_OBJECT)
             ->select([
                 'information_object.id',
-                'information_object_i18n.title',
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
                 'slug.slug',
             ])
             ->get();
@@ -103,16 +98,13 @@ class StorageService
     {
         return DB::table('relation')
             ->join('accession', 'relation.object_id', '=', 'accession.id')
-            ->leftJoin('accession_i18n', function ($j) {
-                $j->on('accession.id', '=', 'accession_i18n.id')
-                    ->where('accession_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'accession_i18n', 'accession.id', $this->culture))
             ->leftJoin('slug', 'accession.id', '=', 'slug.object_id')
             ->where('relation.subject_id', $physicalObjectId)
             ->where('relation.type_id', TermId::RELATION_HAS_PHYSICAL_OBJECT)
             ->select([
                 'accession.id',
-                'accession_i18n.title',
+                I18nFallback::col('accession_i18n', 'title', 'title'),
                 'accession.identifier',
                 'slug.slug',
             ])
@@ -122,11 +114,10 @@ class StorageService
     public function getFormChoices(): array
     {
         return DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture, required: true))
             ->where('term.taxonomy_id', 48)
-            ->where('term_i18n.culture', $this->culture)
-            ->orderBy('term_i18n.name')
-            ->pluck('term_i18n.name', 'term.id')
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
+            ->pluck(I18nFallback::col('term_i18n', 'name', 'name'), 'term.id')
             ->all();
     }
 

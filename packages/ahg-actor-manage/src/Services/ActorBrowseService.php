@@ -30,6 +30,7 @@ use AhgCore\Services\AhgSettingsService;
 use AhgCore\Services\BrowseService;
 use AhgCore\Traits\WithCultureFallback;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class ActorBrowseService extends BrowseService
 {
@@ -210,14 +211,13 @@ class ActorBrowseService extends BrowseService
         $rows = DB::table('actor')
             ->select('actor.entity_type_id', DB::raw('COUNT(*) as cnt'))
             ->join('object', 'actor.id', '=', 'object.id')
-            ->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')
-            ->where('actor_i18n.culture', $this->culture)
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $this->culture, required: true))
             ->where('object.class_name', 'QubitActor')
             ->where('actor.id', '!=', 3)
             ->where('actor.id', '!=', 4)
             ->whereNotNull('actor.entity_type_id')
-            ->whereNotNull('actor_i18n.authorized_form_of_name')
-            ->where('actor_i18n.authorized_form_of_name', '!=', '')
+            ->whereNotNull(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
+            ->where(I18nFallback::col('actor_i18n', 'authorized_form_of_name'), '!=', '')
             ->groupBy('actor.entity_type_id')
             ->get();
 
@@ -245,14 +245,11 @@ class ActorBrowseService extends BrowseService
     public function getMaintainedByFacets(): array
     {
         $rows = DB::table('relation')
-            ->join('actor_i18n as repo_name', function ($j) {
-                $j->on('relation.object_id', '=', 'repo_name.id')
-                    ->where('repo_name.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as repo_name', 'relation.object_id', $this->culture, required: true))
             ->where('relation.type_id', TermId::RELATION_NAME_ACCESS_POINT) // isMaintenanceAgencyOf
-            ->select('relation.object_id as id', 'repo_name.authorized_form_of_name as name', DB::raw('COUNT(DISTINCT relation.subject_id) as cnt'))
-            ->groupBy('relation.object_id', 'repo_name.authorized_form_of_name')
-            ->orderBy('repo_name.authorized_form_of_name')
+            ->select('relation.object_id as id', I18nFallback::col('repo_name', 'authorized_form_of_name', 'name'), DB::raw('COUNT(DISTINCT relation.subject_id) as cnt'))
+            ->groupBy('relation.object_id', I18nFallback::col('repo_name', 'authorized_form_of_name'))
+            ->orderBy(I18nFallback::col('repo_name', 'authorized_form_of_name'))
             ->get();
         $facets = [];
         foreach ($rows as $r) {
@@ -272,15 +269,13 @@ class ActorBrowseService extends BrowseService
         // Occupation taxonomy ID = 313 in AtoM
         $rows = DB::table('object_term_relation')
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
-            ->join('term_i18n', function ($j) {
-                $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture, required: true))
             ->join('actor', 'object_term_relation.object_id', '=', 'actor.id')
             ->where('term.taxonomy_id', 313)
             ->where('actor.id', '!=', 3)->where('actor.id', '!=', 4)
-            ->select('term.id', 'term_i18n.name', DB::raw('COUNT(DISTINCT object_term_relation.object_id) as cnt'))
-            ->groupBy('term.id', 'term_i18n.name')
-            ->orderBy('term_i18n.name')
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'), DB::raw('COUNT(DISTINCT object_term_relation.object_id) as cnt'))
+            ->groupBy('term.id', I18nFallback::col('term_i18n', 'name'))
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->get();
         $facets = [];
         foreach ($rows as $r) {
@@ -299,15 +294,13 @@ class ActorBrowseService extends BrowseService
     {
         $rows = DB::table('object_term_relation')
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
-            ->join('term_i18n', function ($j) {
-                $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture, required: true))
             ->join('actor', 'object_term_relation.object_id', '=', 'actor.id')
             ->where('term.taxonomy_id', 42)
             ->where('actor.id', '!=', 3)->where('actor.id', '!=', 4)
-            ->select('term.id', 'term_i18n.name', DB::raw('COUNT(DISTINCT object_term_relation.object_id) as cnt'))
-            ->groupBy('term.id', 'term_i18n.name')
-            ->orderBy('term_i18n.name')
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'), DB::raw('COUNT(DISTINCT object_term_relation.object_id) as cnt'))
+            ->groupBy('term.id', I18nFallback::col('term_i18n', 'name'))
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->limit(20)
             ->get();
         $facets = [];
@@ -327,15 +320,13 @@ class ActorBrowseService extends BrowseService
     {
         $rows = DB::table('object_term_relation')
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
-            ->join('term_i18n', function ($j) {
-                $j->on('term.id', '=', 'term_i18n.id')->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture, required: true))
             ->join('actor', 'object_term_relation.object_id', '=', 'actor.id')
             ->where('term.taxonomy_id', 35)
             ->where('actor.id', '!=', 3)->where('actor.id', '!=', 4)
-            ->select('term.id', 'term_i18n.name', DB::raw('COUNT(DISTINCT object_term_relation.object_id) as cnt'))
-            ->groupBy('term.id', 'term_i18n.name')
-            ->orderBy('term_i18n.name')
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'), DB::raw('COUNT(DISTINCT object_term_relation.object_id) as cnt'))
+            ->groupBy('term.id', I18nFallback::col('term_i18n', 'name'))
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->limit(20)
             ->get();
         $facets = [];
@@ -355,14 +346,11 @@ class ActorBrowseService extends BrowseService
     {
         $rows = DB::table('digital_object')
             ->join('actor', 'digital_object.object_id', '=', 'actor.id')
-            ->join('term_i18n', function ($j) {
-                $j->on('digital_object.media_type_id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'digital_object.media_type_id', $this->culture, required: true))
             ->where('actor.id', '!=', 3)->where('actor.id', '!=', 4)
-            ->select('digital_object.media_type_id as id', 'term_i18n.name', DB::raw('COUNT(*) as cnt'))
-            ->groupBy('digital_object.media_type_id', 'term_i18n.name')
-            ->orderBy('term_i18n.name')
+            ->select('digital_object.media_type_id as id', I18nFallback::col('term_i18n', 'name', 'name'), DB::raw('COUNT(*) as cnt'))
+            ->groupBy('digital_object.media_type_id', I18nFallback::col('term_i18n', 'name'))
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->get();
         $facets = [];
         foreach ($rows as $r) {
@@ -381,13 +369,12 @@ class ActorBrowseService extends BrowseService
     {
         return DB::table('actor')
             ->join('object', 'actor.id', '=', 'object.id')
-            ->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')
-            ->where('actor_i18n.culture', $this->culture)
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $this->culture, required: true))
             ->where('object.class_name', 'QubitActor')
             ->where('actor.id', '!=', 3)
             ->where('actor.id', '!=', 4)
-            ->whereNotNull('actor_i18n.authorized_form_of_name')
-            ->where('actor_i18n.authorized_form_of_name', '!=', '')
+            ->whereNotNull(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
+            ->where(I18nFallback::col('actor_i18n', 'authorized_form_of_name'), '!=', '')
             ->count();
     }
 
@@ -397,13 +384,12 @@ class ActorBrowseService extends BrowseService
     public function getRepositories(): array
     {
         return DB::table('repository')
-            ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $this->culture, required: true))
             ->join('slug', 'repository.id', '=', 'slug.object_id')
-            ->where('actor_i18n.culture', $this->culture)
-            ->whereNotNull('actor_i18n.authorized_form_of_name')
-            ->where('actor_i18n.authorized_form_of_name', '!=', '')
-            ->orderBy('actor_i18n.authorized_form_of_name')
-            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
+            ->whereNotNull(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
+            ->where(I18nFallback::col('actor_i18n', 'authorized_form_of_name'), '!=', '')
+            ->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
+            ->select('repository.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'))
             ->get()
             ->toArray();
     }

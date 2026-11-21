@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use AhgApi\Concerns\PaginatesApiResponse;
+use AhgCore\Support\I18nFallback;
 
 class ActorApiController extends Controller
 {
@@ -35,10 +36,9 @@ class ActorApiController extends Controller
         $offset = ($page - 1) * $limit;
 
         $query = DB::table('actor')
-            ->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $this->culture, required: true))
             ->join('object', 'actor.id', '=', 'object.id')
             ->join('slug', 'actor.id', '=', 'slug.object_id')
-            ->where('actor_i18n.culture', $this->culture)
             ->where('object.class_name', 'QubitActor')
             ->where('actor.parent_id', '!=', 0); // Exclude root
 
@@ -54,7 +54,7 @@ class ActorApiController extends Controller
                 $query->orderBy('object.updated_at', $sortDir === 'asc' ? 'asc' : 'desc');
                 break;
             default: // alphabetic
-                $query->orderBy('actor_i18n.authorized_form_of_name', $sortDir === 'desc' ? 'desc' : 'asc');
+                $query->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'), $sortDir === 'desc' ? 'desc' : 'asc');
                 break;
         }
 
@@ -62,8 +62,8 @@ class ActorApiController extends Controller
             ->select([
                 'actor.id',
                 'actor.entity_type_id',
-                'actor_i18n.authorized_form_of_name',
-                'actor_i18n.dates_of_existence',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'),
+                I18nFallback::col('actor_i18n', 'dates_of_existence', 'dates_of_existence'),
                 'object.created_at',
                 'object.updated_at',
                 'slug.slug',
@@ -129,10 +129,7 @@ class ActorApiController extends Controller
         $actor = DB::table('actor')
             ->join('object', 'actor.id', '=', 'object.id')
             ->join('slug', 'actor.id', '=', 'slug.object_id')
-            ->leftJoin('actor_i18n', function ($j) {
-                $j->on('actor.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $this->culture))
             ->where('actor.id', $objectId)
             ->where('object.class_name', 'QubitActor')
             ->select([
@@ -144,19 +141,19 @@ class ActorApiController extends Controller
                 'actor.source_standard',
                 'actor.corporate_body_identifiers',
                 'actor.source_culture',
-                'actor_i18n.authorized_form_of_name',
-                'actor_i18n.dates_of_existence',
-                'actor_i18n.history',
-                'actor_i18n.places',
-                'actor_i18n.legal_status',
-                'actor_i18n.functions',
-                'actor_i18n.mandates',
-                'actor_i18n.internal_structures',
-                'actor_i18n.general_context',
-                'actor_i18n.institution_responsible_identifier',
-                'actor_i18n.rules',
-                'actor_i18n.sources',
-                'actor_i18n.revision_history',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'),
+                I18nFallback::col('actor_i18n', 'dates_of_existence', 'dates_of_existence'),
+                I18nFallback::col('actor_i18n', 'history', 'history'),
+                I18nFallback::col('actor_i18n', 'places', 'places'),
+                I18nFallback::col('actor_i18n', 'legal_status', 'legal_status'),
+                I18nFallback::col('actor_i18n', 'functions', 'functions'),
+                I18nFallback::col('actor_i18n', 'mandates', 'mandates'),
+                I18nFallback::col('actor_i18n', 'internal_structures', 'internal_structures'),
+                I18nFallback::col('actor_i18n', 'general_context', 'general_context'),
+                I18nFallback::col('actor_i18n', 'institution_responsible_identifier', 'institution_responsible_identifier'),
+                I18nFallback::col('actor_i18n', 'rules', 'rules'),
+                I18nFallback::col('actor_i18n', 'sources', 'sources'),
+                I18nFallback::col('actor_i18n', 'revision_history', 'revision_history'),
                 'object.created_at',
                 'object.updated_at',
                 'slug.slug',
@@ -181,12 +178,9 @@ class ActorApiController extends Controller
 
         // Other names
         $otherNames = DB::table('other_name')
-            ->leftJoin('other_name_i18n', function ($j) {
-                $j->on('other_name.id', '=', 'other_name_i18n.id')
-                    ->where('other_name_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'other_name_i18n', 'other_name.id', $this->culture))
             ->where('other_name.object_id', $actor->id)
-            ->select('other_name.type_id', 'other_name_i18n.name', 'other_name_i18n.dates')
+            ->select('other_name.type_id', I18nFallback::col('other_name_i18n', 'name', 'name'), I18nFallback::col('other_name_i18n', 'dates', 'dates'))
             ->get()
             ->map(function ($name) {
                 return [
@@ -208,10 +202,7 @@ class ActorApiController extends Controller
 
         // Contact information
         $contacts = DB::table('contact_information')
-            ->leftJoin('contact_information_i18n', function ($j) {
-                $j->on('contact_information.id', '=', 'contact_information_i18n.id')
-                    ->where('contact_information_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'contact_information_i18n', 'contact_information.id', $this->culture))
             ->where('contact_information.actor_id', $actor->id)
             ->select([
                 'contact_information.contact_person',
@@ -222,9 +213,9 @@ class ActorApiController extends Controller
                 'contact_information.fax',
                 'contact_information.postal_code',
                 'contact_information.country_code',
-                'contact_information_i18n.contact_type',
-                'contact_information_i18n.city',
-                'contact_information_i18n.region',
+                I18nFallback::col('contact_information_i18n', 'contact_type', 'contact_type'),
+                I18nFallback::col('contact_information_i18n', 'city', 'city'),
+                I18nFallback::col('contact_information_i18n', 'region', 'region'),
             ])
             ->get();
 
@@ -335,16 +326,15 @@ class ActorApiController extends Controller
         }
 
         $results = DB::table('actor')
-            ->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $this->culture, required: true))
             ->join('object', 'actor.id', '=', 'object.id')
             ->join('slug', 'actor.id', '=', 'slug.object_id')
-            ->where('actor_i18n.culture', $this->culture)
             ->where('object.class_name', 'QubitActor')
             ->where('actor.parent_id', '!=', 0)
-            ->where('actor_i18n.authorized_form_of_name', 'like', "%{$query}%")
+            ->where(I18nFallback::col('actor_i18n', 'authorized_form_of_name'), 'like', "%{$query}%")
             ->select([
                 'actor.id',
-                'actor_i18n.authorized_form_of_name',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'),
                 'slug.slug',
             ])
             ->limit(20)

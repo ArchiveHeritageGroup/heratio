@@ -30,6 +30,7 @@ namespace AhgAiServices\Services;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use AhgCore\Support\I18nFallback;
 
 /**
  * LLM Service
@@ -412,13 +413,8 @@ class LlmService
     public function gatherContext(int $objectId): array
     {
         $row = DB::table('information_object as io')
-            ->leftJoin('information_object_i18n as i18n', function ($j) {
-                $j->on('i18n.id', '=', 'io.id')->where('i18n.culture', '=', app()->getLocale());
-            })
-            ->leftJoin('term_i18n as lod', function ($j) {
-                $j->on('lod.id', '=', 'io.level_of_description_id')
-                  ->where('lod.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', app()->getLocale()))
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as lod', 'io.level_of_description_id', app()->getLocale()))
             ->where('io.id', $objectId)
             ->select([
                 'io.id',
@@ -426,14 +422,14 @@ class LlmService
                 'io.parent_id',
                 'io.repository_id',
                 'io.level_of_description_id',
-                'i18n.title',
-                'i18n.scope_and_content',
-                'i18n.archival_history',
-                'i18n.extent_and_medium',
-                'i18n.arrangement',
-                'i18n.physical_characteristics',
-                'i18n.acquisition',
-                'lod.name as level_of_description',
+                I18nFallback::col('i18n', 'title', 'title'),
+                I18nFallback::col('i18n', 'scope_and_content', 'scope_and_content'),
+                I18nFallback::col('i18n', 'archival_history', 'archival_history'),
+                I18nFallback::col('i18n', 'extent_and_medium', 'extent_and_medium'),
+                I18nFallback::col('i18n', 'arrangement', 'arrangement'),
+                I18nFallback::col('i18n', 'physical_characteristics', 'physical_characteristics'),
+                I18nFallback::col('i18n', 'acquisition', 'acquisition'),
+                I18nFallback::col('lod', 'name', 'level_of_description'),
             ])
             ->first();
 

@@ -35,6 +35,7 @@ namespace AhgApi\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class RightsBlockService
 {
@@ -123,8 +124,8 @@ class RightsBlockService
         // Holders recorded as donors (staff only).
         if ($staff && $has('object_rights_holder')) {
             $names = DB::table('object_rights_holder as h')
-                ->leftJoin('actor_i18n as a', fn ($j) => $j->on('a.id', '=', 'h.donor_id')->where('a.culture', '=', $culture))
-                ->where('h.object_id', $objectId)->orderBy('h.id')->pluck('a.authorized_form_of_name');
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as a', 'h.donor_id', $culture))
+                ->where('h.object_id', $objectId)->orderBy('h.id')->pluck(I18nFallback::col('a', 'authorized_form_of_name', 'authorized_form_of_name'));
             foreach ($names as $name) {
                 if ($name) {
                     $rules[] = $this->rule(null, null, ['name' => $name, 'iri' => null], null, null);
@@ -209,11 +210,11 @@ class RightsBlockService
         }
         $out = [];
         $rows = DB::table('rights_grant as g')
-            ->leftJoin('rights_grant_i18n as gi', fn ($j) => $j->on('gi.id', '=', 'g.id')->where('gi.culture', '=', $culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'rights_grant_i18n as gi', 'g.id', $culture))
             ->where('g.rights_record_id', $recordId)
             ->where(fn ($q) => $q->whereNull('g.start_date')->orWhere('g.start_date', '<=', $today))
             ->where(fn ($q) => $q->whereNull('g.end_date')->orWhere('g.end_date', '>=', $today))
-            ->orderBy('g.id')->get(['g.act', 'g.restriction', 'gi.restriction_note']);
+            ->orderBy('g.id')->get(['g.act', 'g.restriction', I18nFallback::col('gi', 'restriction_note', 'restriction_note')]);
         foreach ($rows as $g) {
             if ($g->act) {
                 self::grant($out, strtolower($g->act), strtolower((string) $g->restriction ?: 'allow'), $g->restriction_note);

@@ -31,6 +31,7 @@ use AhgExtendedRights\Services\ExtendedRightsService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * RightsAdminController
@@ -457,13 +458,11 @@ class RightsAdminController extends Controller
         $topLevelRecords = collect();
         try {
             $topLevelRecords = DB::table('information_object as o')
-                ->leftJoin('information_object_i18n as ioi', function ($j) {
-                    $j->on('ioi.id', '=', 'o.id')->where('ioi.culture', '=', app()->getLocale());
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'o.id', app()->getLocale()))
                 ->whereNull('o.parent_id')
                 ->orWhere('o.parent_id', 1)
-                ->select('o.id', 'ioi.title', 'o.identifier')
-                ->orderBy('ioi.title')
+                ->select('o.id', I18nFallback::col('ioi', 'title', 'title'), 'o.identifier')
+                ->orderBy(I18nFallback::col('ioi', 'title'))
                 ->limit(1000)
                 ->get();
         } catch (\Exception $e) {}

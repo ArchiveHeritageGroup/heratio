@@ -29,6 +29,7 @@ namespace AhgInformationObjectManage\Services;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Extended Rights Service
@@ -60,10 +61,7 @@ class ExtendedRightsService
         try {
             return DB::table('relation as r')
                 ->join('rights', 'rights.id', '=', 'r.object_id')
-                ->leftJoin('rights_i18n as ri', function ($j) use ($culture) {
-                    $j->on('ri.id', '=', 'rights.id')
-                        ->where('ri.culture', $culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'rights_i18n as ri', 'rights.id', $culture))
                 ->where('r.subject_id', $objectId)
                 ->where('r.type_id', 168)
                 ->select([
@@ -78,15 +76,15 @@ class ExtendedRightsService
                     'rights.statute_determination_date',
                     'rights.statute_citation_id',
                     'rights.source_culture',
-                    'ri.rights_note',
-                    'ri.copyright_note',
-                    'ri.identifier_value',
-                    'ri.identifier_type',
-                    'ri.identifier_role',
-                    'ri.license_terms',
-                    'ri.license_note',
-                    'ri.statute_jurisdiction',
-                    'ri.statute_note',
+                    I18nFallback::col('ri', 'rights_note', 'rights_note'),
+                    I18nFallback::col('ri', 'copyright_note', 'copyright_note'),
+                    I18nFallback::col('ri', 'identifier_value', 'identifier_value'),
+                    I18nFallback::col('ri', 'identifier_type', 'identifier_type'),
+                    I18nFallback::col('ri', 'identifier_role', 'identifier_role'),
+                    I18nFallback::col('ri', 'license_terms', 'license_terms'),
+                    I18nFallback::col('ri', 'license_note', 'license_note'),
+                    I18nFallback::col('ri', 'statute_jurisdiction', 'statute_jurisdiction'),
+                    I18nFallback::col('ri', 'statute_note', 'statute_note'),
                 ])
                 ->get()
                 ->map(function ($right) {
@@ -123,10 +121,7 @@ class ExtendedRightsService
             // aliased back to the extended_rights names so the ~160 downstream
             // references in blades, forms and controllers keep working.
             return DB::table('rights_record as er')
-                ->leftJoin('rights_record_i18n as eri', function ($j) {
-                    $j->on('eri.id', '=', 'er.id')
-                        ->where('eri.culture', '=', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'rights_record_i18n as eri', 'er.id', $this->culture))
                 ->leftJoin('rights_statement as rs', 'er.rights_statement_id', '=', 'rs.id')
                 ->leftJoin('rights_statement_i18n as rs_i18n', function ($j) {
                     $j->on('rs.id', '=', 'rs_i18n.rights_statement_id')
@@ -141,8 +136,8 @@ class ExtendedRightsService
                     'er.start_date as rights_date',
                     'er.end_date as expiry_date',
                     'er.copyright_note as copyright_notice',
-                    'eri.rights_note',
-                    'eri.restriction_note as usage_conditions',
+                    I18nFallback::col('eri', 'rights_note', 'rights_note'),
+                    I18nFallback::col('eri', 'restriction_note', 'usage_conditions'),
                     'rs.code as rights_statement_code',
                     'rs.uri as rights_statement_uri',
                     DB::raw("COALESCE(rs.icon_filename, '') as rights_statement_icon"),
@@ -572,13 +567,10 @@ class ExtendedRightsService
     {
         try {
             return DB::table('actor as a')
-                ->leftJoin('actor_i18n as ai', function ($j) {
-                    $j->on('ai.id', '=', 'a.id')
-                        ->where('ai.culture', '=', $this->culture);
-                })
-                ->select(['a.id', 'ai.authorized_form_of_name as name'])
-                ->whereNotNull('ai.authorized_form_of_name')
-                ->orderBy('ai.authorized_form_of_name')
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'a.id', $this->culture))
+                ->select(['a.id', I18nFallback::col('ai', 'authorized_form_of_name', 'name')])
+                ->whereNotNull(I18nFallback::col('ai', 'authorized_form_of_name'))
+                ->orderBy(I18nFallback::col('ai', 'authorized_form_of_name'))
                 ->limit($limit)
                 ->get();
         } catch (\Illuminate\Database\QueryException $e) {
@@ -596,13 +588,10 @@ class ExtendedRightsService
     public function getTermsByTaxonomy(int $taxonomyId): Collection
     {
         return DB::table('term as t')
-            ->join('term_i18n as ti', function ($j) {
-                $j->on('ti.id', '=', 't.id')
-                    ->where('ti.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 't.id', $this->culture, required: true))
             ->where('t.taxonomy_id', $taxonomyId)
-            ->select('t.id', 'ti.name')
-            ->orderBy('ti.name')
+            ->select('t.id', I18nFallback::col('ti', 'name', 'name'))
+            ->orderBy(I18nFallback::col('ti', 'name'))
             ->get();
     }
 

@@ -91,6 +91,7 @@ use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
 use AhgApi\Concerns\ResolvesEventMeta;
 use AhgApi\Concerns\ResolvesTermName;
+use AhgCore\Support\I18nFallback;
 
 class IiifPresentationController extends Controller
 {
@@ -410,9 +411,7 @@ class IiifPresentationController extends Controller
 
             $query = DB::table('information_object as io')
                 ->join('slug as s', 's.object_id', '=', 'io.id')
-                ->join('information_object_i18n as i18n', function ($j) {
-                    $j->on('io.id', '=', 'i18n.id')->where('i18n.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'io.id', $this->culture))
                 ->leftJoin('status as st', function ($j) {
                     $j->on('io.id', '=', 'st.object_id')
                         ->where('st.type_id', '=', self::STATUS_TYPE_PUBLICATION);
@@ -432,9 +431,9 @@ class IiifPresentationController extends Controller
                 'io.level_of_description_id',
                 'io.repository_id',
                 's.slug',
-                'i18n.title',
-                'i18n.scope_and_content',
-                'i18n.reproduction_conditions',
+                I18nFallback::col('i18n', 'title', 'title'),
+                I18nFallback::col('i18n', 'scope_and_content', 'scope_and_content'),
+                I18nFallback::col('i18n', 'reproduction_conditions', 'reproduction_conditions'),
                 'st.status_id'
             )->first();
         } catch (\Throwable $e) {
@@ -561,12 +560,10 @@ class IiifPresentationController extends Controller
             }
 
             $value = DB::table('property as p')
-                ->join('property_i18n as pi', function ($j) {
-                    $j->on('p.id', '=', 'pi.id')->where('pi.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'property_i18n as pi', 'p.id', $this->culture, required: true))
                 ->where('p.object_id', $digitalObjectId)
                 ->where('p.name', $name)
-                ->value('pi.value');
+                ->value(I18nFallback::col('pi', 'value', 'value'));
 
             if ($value === null || ! is_numeric($value)) {
                 return null;
@@ -593,11 +590,9 @@ class IiifPresentationController extends Controller
 
         try {
             $name = DB::table('repository as r')
-                ->join('actor_i18n as ai', function ($j) {
-                    $j->on('r.id', '=', 'ai.id')->where('ai.culture', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'r.id', $this->culture, required: true))
                 ->where('r.id', (int) $repositoryId)
-                ->value('ai.authorized_form_of_name');
+                ->value(I18nFallback::col('ai', 'authorized_form_of_name', 'authorized_form_of_name'));
 
             return $name ? trim((string) $name) : '';
         } catch (\Throwable $e) {

@@ -5,6 +5,7 @@ namespace AhgApi\Controllers\V2;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class AuthorityController extends BaseApiController
 {
@@ -17,10 +18,9 @@ class AuthorityController extends BaseApiController
         $offset = $this->listOffset($request, $page, $limit);
 
         $query = DB::table('actor')
-            ->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $this->culture, required: true))
             ->join('object', 'actor.id', '=', 'object.id')
             ->join('slug', 'actor.id', '=', 'slug.object_id')
-            ->where('actor_i18n.culture', $this->culture)
             ->where('object.class_name', 'QubitActor')
             ->where('actor.parent_id', '!=', 0);
         // #1558 - published, not embargoed authority records only (staff see all).
@@ -40,13 +40,13 @@ class AuthorityController extends BaseApiController
             [$sort, $sortDir] = ['name', 'asc'];
         }
         match ($sort) {
-            'alphabetic', 'name' => $query->orderBy('actor_i18n.authorized_form_of_name', $sortDir),
+            'alphabetic', 'name' => $query->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'), $sortDir),
             default => $query->orderBy('object.updated_at', $sortDir),
         };
 
         $rows = $query->select(
             'actor.id', 'actor.entity_type_id',
-            'actor_i18n.authorized_form_of_name', 'actor_i18n.dates_of_existence',
+            I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'), I18nFallback::col('actor_i18n', 'dates_of_existence', 'dates_of_existence'),
             'object.created_at', 'object.updated_at', 'slug.slug'
         )->offset($offset)->limit($limit)->get();
 
@@ -71,12 +71,11 @@ class AuthorityController extends BaseApiController
     public function show(string $slug): JsonResponse
     {
         $actor = DB::table('actor')
-            ->join('actor_i18n', 'actor.id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $this->culture, required: true))
             ->join('object', 'actor.id', '=', 'object.id')
             ->join('slug', 'actor.id', '=', 'slug.object_id')
             ->where('slug.slug', $slug)
-            ->where('actor_i18n.culture', $this->culture)
-            ->select('actor.*', 'actor_i18n.*', 'object.created_at', 'object.updated_at', 'slug.slug')
+            ->select('actor.*', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'), I18nFallback::col('actor_i18n', 'dates_of_existence', 'dates_of_existence'), I18nFallback::col('actor_i18n', 'history', 'history'), I18nFallback::col('actor_i18n', 'places', 'places'), I18nFallback::col('actor_i18n', 'legal_status', 'legal_status'), I18nFallback::col('actor_i18n', 'functions', 'functions'), I18nFallback::col('actor_i18n', 'mandates', 'mandates'), I18nFallback::col('actor_i18n', 'internal_structures', 'internal_structures'), I18nFallback::col('actor_i18n', 'general_context', 'general_context'), I18nFallback::col('actor_i18n', 'institution_responsible_identifier', 'institution_responsible_identifier'), I18nFallback::col('actor_i18n', 'rules', 'rules'), I18nFallback::col('actor_i18n', 'sources', 'sources'), I18nFallback::col('actor_i18n', 'revision_history', 'revision_history'), 'object.created_at', 'object.updated_at', 'slug.slug')
             ->first();
 
         // A hidden authority record answers exactly like a missing one (#1558).
@@ -86,35 +85,27 @@ class AuthorityController extends BaseApiController
 
         // Other names
         $otherNames = DB::table('other_name')
-            ->leftJoin('other_name_i18n', function ($j) {
-                $j->on('other_name.id', '=', 'other_name_i18n.id')->where('other_name_i18n.culture', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'other_name_i18n', 'other_name.id', $this->culture))
             ->where('other_name.object_id', $actor->id)
-            ->select('other_name.type_id', 'other_name_i18n.name')
+            ->select('other_name.type_id', I18nFallback::col('other_name_i18n', 'name', 'name'))
             ->get()
             ->map(fn ($n) => ['name' => $n->name, 'type' => $this->termName($n->type_id)])
             ->values();
 
         // Contact information
         $contacts = DB::table('contact_information')
-            ->leftJoin('contact_information_i18n', function ($j) {
-                $j->on('contact_information.id', '=', 'contact_information_i18n.id')
-                    ->where('contact_information_i18n.culture', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'contact_information_i18n', 'contact_information.id', $this->culture))
             ->where('contact_information.actor_id', $actor->id)
-            ->select('contact_information.*', 'contact_information_i18n.*')
+            ->select('contact_information.*', I18nFallback::col('contact_information_i18n', 'contact_type', 'contact_type'), I18nFallback::col('contact_information_i18n', 'city', 'city'), I18nFallback::col('contact_information_i18n', 'region', 'region'), I18nFallback::col('contact_information_i18n', 'note', 'note'))
             ->get();
 
         // Related resources
         $resources = DB::table('event')
-            ->join('information_object_i18n', function ($j) {
-                $j->on('event.object_id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'event.object_id', $this->culture))
             ->join('slug as rs', 'event.object_id', '=', 'rs.object_id')
             ->where('event.actor_id', $actor->id)
             ->where('event.object_id', '!=', 1)
-            ->select('event.object_id as id', 'information_object_i18n.title', 'rs.slug')
+            ->select('event.object_id as id', I18nFallback::col('information_object_i18n', 'title', 'title'), 'rs.slug')
             ->distinct()
             ->limit(50)
             ->get();

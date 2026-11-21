@@ -32,6 +32,7 @@ use AhgCore\Services\SettingHelper;
 use AhgCore\Traits\WithCultureFallback;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use AhgCore\Support\I18nFallback;
 
 class MuseumService
 {
@@ -257,11 +258,11 @@ class MuseumService
 
         try {
             $query = DB::table('information_object')
-                ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $this->culture))
                 ->join('object', 'information_object.id', '=', 'object.id')
                 ->join('slug', 'information_object.id', '=', 'slug.object_id')
                 ->join('museum_metadata', 'information_object.id', '=', 'museum_metadata.object_id')
-                ->where('information_object_i18n.culture', $this->culture);
+                ;
 
             // Guests see only published objects (status 158/160) - draft-leak fix (#1360).
             if (! auth()->check()) {
@@ -275,7 +276,7 @@ class MuseumService
             $query->select([
                 'information_object.id',
                 'information_object.identifier',
-                'information_object_i18n.title as name',
+                I18nFallback::col('information_object_i18n', 'title', 'name'),
                 'museum_metadata.work_type',
                 'museum_metadata.creator_identity',
                 'museum_metadata.creation_date_display',
@@ -352,8 +353,8 @@ class MuseumService
             if ($subquery !== '') {
                 $needle = "%{$subquery}%";
                 $query->where(function ($q) use ($needle) {
-                    $q->where('information_object_i18n.title',                  'LIKE', $needle)
-                      ->orWhere('information_object_i18n.scope_and_content',     'LIKE', $needle)
+                    $q->where(I18nFallback::col('information_object_i18n', 'title'),                  'LIKE', $needle)
+                      ->orWhere(I18nFallback::col('information_object_i18n', 'scope_and_content'),     'LIKE', $needle)
                       ->orWhere('information_object.identifier',                 'LIKE', $needle)
                       ->orWhere('museum_metadata.creator_identity',              'LIKE', $needle)
                       ->orWhere('museum_metadata.materials',                     'LIKE', $needle)
@@ -379,19 +380,19 @@ class MuseumService
             // Apply sorting
             switch ($sort) {
                 case 'alphabetic':
-                    $query->orderBy('information_object_i18n.title', $sortDir);
+                    $query->orderBy(I18nFallback::col('information_object_i18n', 'title'), $sortDir);
                     break;
                 case 'identifier':
                     $query->orderBy('information_object.identifier', $sortDir);
-                    $query->orderBy('information_object_i18n.title', $sortDir);
+                    $query->orderBy(I18nFallback::col('information_object_i18n', 'title'), $sortDir);
                     break;
                 case 'workType':
                     $query->orderBy('museum_metadata.work_type', $sortDir);
-                    $query->orderBy('information_object_i18n.title', $sortDir);
+                    $query->orderBy(I18nFallback::col('information_object_i18n', 'title'), $sortDir);
                     break;
                 case 'creator':
                     $query->orderBy('museum_metadata.creator_identity', $sortDir);
-                    $query->orderBy('information_object_i18n.title', $sortDir);
+                    $query->orderBy(I18nFallback::col('information_object_i18n', 'title'), $sortDir);
                     break;
                 case 'lastUpdated':
                 default:
@@ -987,19 +988,17 @@ class MuseumService
     {
         // Level of description options (taxonomy_id = 34)
         $levels = DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
             ->where('term.taxonomy_id', 34)
-            ->where('term_i18n.culture', $culture)
-            ->orderBy('term_i18n.name')
-            ->select('term.id', 'term_i18n.name')
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
 
         // Repositories
         $repositories = DB::table('repository')
-            ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
-            ->where('actor_i18n.culture', $culture)
-            ->orderBy('actor_i18n.authorized_form_of_name')
-            ->select('repository.id', 'actor_i18n.authorized_form_of_name as name')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $culture, required: true))
+            ->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'))
+            ->select('repository.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'))
             ->get();
 
         // Work type choices from existing data

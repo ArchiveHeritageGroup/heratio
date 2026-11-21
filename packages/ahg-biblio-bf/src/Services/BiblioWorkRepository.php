@@ -48,6 +48,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class BiblioWorkRepository
 {
@@ -417,10 +418,7 @@ class BiblioWorkRepository
         $culture = app()->getLocale();
 
         return DB::table('library_item')
-            ->leftJoin('information_object_i18n', function ($join) use ($culture) {
-                $join->on('information_object_i18n.id', '=', 'library_item.information_object_id')
-                     ->where('information_object_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'library_item.information_object_id', $culture))
             ->whereIn('library_item.id', $ids)
             ->orderBy('library_item.id')
             ->select([
@@ -442,7 +440,7 @@ class BiblioWorkRepository
             // A record catalogued only in another language would otherwise
             // export as "Untitled", so fall back to any title it does have.
             ->selectRaw(
-                "COALESCE(NULLIF(information_object_i18n.title, ''), ("
+                "COALESCE(NULLIF(COALESCE(information_object_i18n.title, information_object_i18n_fb.title), ''), ("
                 . "SELECT NULLIF(fallback.title, '') FROM information_object_i18n AS fallback"
                 . " WHERE fallback.id = library_item.information_object_id"
                 . " AND fallback.title IS NOT NULL AND fallback.title <> ''"

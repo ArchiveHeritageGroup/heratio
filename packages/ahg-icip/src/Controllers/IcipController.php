@@ -31,6 +31,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use AhgIcip\Concerns\LogsIcipAccess;
+use AhgCore\Support\I18nFallback;
 
 class IcipController extends Controller
 {
@@ -506,12 +507,9 @@ class IcipController extends Controller
         }
 
         $consents = DB::table('icip_consent as c')
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('c.information_object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'c.information_object_id', $this->culture))
             ->where('c.community_id', $id)
-            ->select(['c.*', 'ioi.title as object_title'])
+            ->select(['c.*', I18nFallback::col('ioi', 'title', 'object_title')])
             ->orderBy('c.created_at', 'desc')
             ->limit(20)
             ->get();
@@ -574,15 +572,12 @@ class IcipController extends Controller
 
         $query = DB::table('icip_consent as c')
             ->leftJoin('icip_community as com', 'c.community_id', '=', 'com.id')
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('c.information_object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'c.information_object_id', $this->culture))
             ->leftJoin('slug as s', 'c.information_object_id', '=', 's.object_id')
             ->select([
                 'c.*',
                 'com.name as community_name',
-                'ioi.title as object_title',
+                I18nFallback::col('ioi', 'title', 'object_title'),
                 's.slug',
             ]);
 
@@ -714,16 +709,13 @@ class IcipController extends Controller
 
         $consent = DB::table('icip_consent as c')
             ->leftJoin('icip_community as com', 'c.community_id', '=', 'com.id')
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('c.information_object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'c.information_object_id', $this->culture))
             ->leftJoin('slug as s', 'c.information_object_id', '=', 's.object_id')
             ->where('c.id', $id)
             ->select([
                 'c.*',
                 'com.name as community_name',
-                'ioi.title as object_title',
+                I18nFallback::col('ioi', 'title', 'object_title'),
                 's.slug',
             ])
             ->first();
@@ -759,14 +751,11 @@ class IcipController extends Controller
 
         $query = DB::table('icip_consultation as c')
             ->join('icip_community as com', 'c.community_id', '=', 'com.id')
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('c.information_object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'c.information_object_id', $this->culture))
             ->select([
                 'c.*',
                 'com.name as community_name',
-                'ioi.title as object_title',
+                I18nFallback::col('ioi', 'title', 'object_title'),
             ]);
 
         $type = $request->query('type');
@@ -918,16 +907,13 @@ class IcipController extends Controller
 
         $consultation = DB::table('icip_consultation as c')
             ->join('icip_community as com', 'c.community_id', '=', 'com.id')
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('c.information_object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'c.information_object_id', $this->culture))
             ->leftJoin('slug as s', 'c.information_object_id', '=', 's.object_id')
             ->where('c.id', $id)
             ->select([
                 'c.*',
                 'com.name as community_name',
-                'ioi.title as object_title',
+                I18nFallback::col('ioi', 'title', 'object_title'),
                 's.slug',
             ])
             ->first();
@@ -981,10 +967,7 @@ class IcipController extends Controller
 
         $recentLabels = DB::table('icip_tk_label as l')
             ->join('icip_tk_label_type as t', 'l.label_type_id', '=', 't.id')
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('l.information_object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'l.information_object_id', $this->culture))
             ->leftJoin('slug as s', 'l.information_object_id', '=', 's.object_id')
             ->leftJoin('icip_community as c', 'l.community_id', '=', 'c.id')
             ->select([
@@ -992,7 +975,7 @@ class IcipController extends Controller
                 't.code as label_code',
                 't.name as label_name',
                 't.category',
-                'ioi.title as object_title',
+                I18nFallback::col('ioi', 'title', 'object_title'),
                 's.slug',
                 'c.name as community_name',
             ])
@@ -1031,10 +1014,7 @@ class IcipController extends Controller
 
         $appliedNotices = DB::table('icip_cultural_notice as n')
             ->join('icip_cultural_notice_type as t', 'n.notice_type_id', '=', 't.id')
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('n.information_object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'n.information_object_id', $this->culture))
             ->leftJoin('slug as s', 'n.information_object_id', '=', 's.object_id')
             ->leftJoin('icip_community as c', 'n.community_id', '=', 'c.id')
             ->select([
@@ -1042,7 +1022,7 @@ class IcipController extends Controller
                 't.code as notice_code',
                 't.name as notice_name',
                 't.severity',
-                'ioi.title as object_title',
+                I18nFallback::col('ioi', 'title', 'object_title'),
                 's.slug',
                 'c.name as community_name',
             ])
@@ -1139,15 +1119,12 @@ class IcipController extends Controller
         }
 
         $restrictions = DB::table('icip_access_restriction as r')
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('r.information_object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'r.information_object_id', $this->culture))
             ->leftJoin('slug as s', 'r.information_object_id', '=', 's.object_id')
             ->leftJoin('icip_community as c', 'r.community_id', '=', 'c.id')
             ->select([
                 'r.*',
-                'ioi.title as object_title',
+                I18nFallback::col('ioi', 'title', 'object_title'),
                 's.slug',
                 'c.name as community_name',
             ])
@@ -1247,13 +1224,10 @@ class IcipController extends Controller
         }
 
         $consents = DB::table('icip_consent as c')
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('c.information_object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'c.information_object_id', $this->culture))
             ->leftJoin('slug as s', 'c.information_object_id', '=', 's.object_id')
             ->where('c.community_id', $id)
-            ->select(['c.*', 'ioi.title as object_title', 's.slug'])
+            ->select(['c.*', I18nFallback::col('ioi', 'title', 'object_title'), 's.slug'])
             ->orderBy('c.created_at', 'desc')
             ->get();
 
@@ -1264,22 +1238,16 @@ class IcipController extends Controller
 
         $notices = DB::table('icip_cultural_notice as n')
             ->join('icip_cultural_notice_type as t', 'n.notice_type_id', '=', 't.id')
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('n.information_object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'n.information_object_id', $this->culture))
             ->where('n.community_id', $id)
-            ->select(['n.*', 't.name as notice_name', 'ioi.title as object_title'])
+            ->select(['n.*', 't.name as notice_name', I18nFallback::col('ioi', 'title', 'object_title')])
             ->get();
 
         $labels = DB::table('icip_tk_label as l')
             ->join('icip_tk_label_type as t', 'l.label_type_id', '=', 't.id')
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('l.information_object_id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'l.information_object_id', $this->culture))
             ->where('l.community_id', $id)
-            ->select(['l.*', 't.name as label_name', 't.code', 'ioi.title as object_title'])
+            ->select(['l.*', 't.name as label_name', 't.code', I18nFallback::col('ioi', 'title', 'object_title')])
             ->get();
 
         return view('icip::report-community', [
@@ -1756,16 +1724,13 @@ class IcipController extends Controller
 
         return DB::table('information_object as io')
             ->join('slug as s', 'io.id', '=', 's.object_id')
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('io.id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
             ->where('s.slug', $slug)
             ->select([
                 'io.id',
                 'io.identifier',
                 'io.level_of_description_id',
-                'ioi.title',
+                I18nFallback::col('ioi', 'title', 'title'),
                 's.slug',
             ])
             ->first();
@@ -1972,10 +1937,7 @@ class IcipController extends Controller
 
         return DB::table('icip_consent as c')
             ->join('information_object as io', 'c.information_object_id', '=', 'io.id')
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('io.id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
             ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
             ->leftJoin('icip_community as com', 'c.community_id', '=', 'com.id')
             ->whereIn('c.consent_status', [
@@ -1985,7 +1947,7 @@ class IcipController extends Controller
             ])
             ->select([
                 'c.*',
-                'ioi.title as object_title',
+                I18nFallback::col('ioi', 'title', 'object_title'),
                 'io.identifier',
                 's.slug',
                 'com.name as community_name',
@@ -2008,10 +1970,7 @@ class IcipController extends Controller
 
         return DB::table('icip_consent as c')
             ->join('information_object as io', 'c.information_object_id', '=', 'io.id')
-            ->leftJoin('information_object_i18n as ioi', function ($join) {
-                $join->on('io.id', '=', 'ioi.id')
-                    ->where('ioi.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $this->culture))
             ->leftJoin('slug as s', 'io.id', '=', 's.object_id')
             ->leftJoin('icip_community as com', 'c.community_id', '=', 'com.id')
             ->whereNotNull('c.consent_expiry_date')
@@ -2019,7 +1978,7 @@ class IcipController extends Controller
             ->where('c.consent_expiry_date', '>=', now()->toDateString())
             ->select([
                 'c.*',
-                'ioi.title as object_title',
+                I18nFallback::col('ioi', 'title', 'object_title'),
                 'io.identifier',
                 's.slug',
                 'com.name as community_name',

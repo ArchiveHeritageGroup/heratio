@@ -29,6 +29,7 @@ use AhgCore\Constants\TermId;
 use AhgCore\Traits\WithCultureFallback;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use AhgCore\Support\I18nFallback;
 
 class ActorService
 {
@@ -125,19 +126,16 @@ class ActorService
     public function getOtherNames(int $actorId): \Illuminate\Support\Collection
     {
         return DB::table('other_name')
-            ->leftJoin('other_name_i18n', function ($j) {
-                $j->on('other_name.id', '=', 'other_name_i18n.id')
-                    ->where('other_name_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'other_name_i18n', 'other_name.id', $this->culture))
             ->where('other_name.object_id', $actorId)
             ->select(
                 'other_name.id',
                 'other_name.type_id',
                 'other_name.start_date',
                 'other_name.end_date',
-                'other_name_i18n.name',
-                'other_name_i18n.note',
-                'other_name_i18n.dates'
+                I18nFallback::col('other_name_i18n', 'name', 'name'),
+                I18nFallback::col('other_name_i18n', 'note', 'note'),
+                I18nFallback::col('other_name_i18n', 'dates', 'dates')
             )
             ->get();
     }
@@ -148,10 +146,7 @@ class ActorService
     public function getContacts(int $actorId): \Illuminate\Support\Collection
     {
         return DB::table('contact_information')
-            ->leftJoin('contact_information_i18n', function ($j) {
-                $j->on('contact_information.id', '=', 'contact_information_i18n.id')
-                    ->where('contact_information_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'contact_information_i18n', 'contact_information.id', $this->culture))
             ->leftJoin('contact_information_extended', 'contact_information.id', '=', 'contact_information_extended.contact_information_id')
             ->where('contact_information.actor_id', $actorId)
             ->select([
@@ -169,10 +164,10 @@ class ActorService
                 'contact_information.latitude',
                 'contact_information.contact_note',
                 'contact_information.serial_number',
-                'contact_information_i18n.contact_type',
-                'contact_information_i18n.city',
-                'contact_information_i18n.region',
-                'contact_information_i18n.note',
+                I18nFallback::col('contact_information_i18n', 'contact_type', 'contact_type'),
+                I18nFallback::col('contact_information_i18n', 'city', 'city'),
+                I18nFallback::col('contact_information_i18n', 'region', 'region'),
+                I18nFallback::col('contact_information_i18n', 'note', 'note'),
                 // Extended contact fields
                 'contact_information_extended.title',
                 'contact_information_extended.role',
@@ -194,18 +189,15 @@ class ActorService
     public function getEvents(int $actorId): \Illuminate\Support\Collection
     {
         return DB::table('event')
-            ->leftJoin('event_i18n', function ($j) {
-                $j->on('event.id', '=', 'event_i18n.id')
-                    ->where('event_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'event_i18n', 'event.id', $this->culture))
             ->where('event.actor_id', $actorId)
             ->select(
                 'event.id',
                 'event.type_id',
                 'event.start_date',
                 'event.end_date',
-                'event_i18n.date as date_display',
-                'event_i18n.name as event_name'
+                I18nFallback::col('event_i18n', 'date', 'date_display'),
+                I18nFallback::col('event_i18n', 'name', 'event_name')
             )
             ->get();
     }
@@ -218,14 +210,8 @@ class ActorService
         $asSubject = DB::table('relation')
             ->join('actor', 'relation.object_id', '=', 'actor.id')
             ->join('object', 'actor.id', '=', 'object.id')
-            ->leftJoin('actor_i18n', function ($j) {
-                $j->on('actor.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $this->culture);
-            })
-            ->leftJoin('relation_i18n', function ($j) {
-                $j->on('relation.id', '=', 'relation_i18n.id')
-                    ->where('relation_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $this->culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'relation_i18n', 'relation.id', $this->culture))
             ->leftJoin('slug', 'actor.id', '=', 'slug.object_id')
             ->where('relation.subject_id', $actorId)
             ->where('object.class_name', 'QubitActor')
@@ -236,10 +222,10 @@ class ActorService
                 'relation.end_date',
                 'actor.id',
                 'actor.description_identifier as identifier',
-                'actor_i18n.authorized_form_of_name as name',
-                'actor_i18n.dates_of_existence',
-                'relation_i18n.description as relation_description',
-                'relation_i18n.date as relation_date',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'),
+                I18nFallback::col('actor_i18n', 'dates_of_existence', 'dates_of_existence'),
+                I18nFallback::col('relation_i18n', 'description', 'relation_description'),
+                I18nFallback::col('relation_i18n', 'date', 'relation_date'),
                 'slug.slug'
             )
             ->get()
@@ -248,14 +234,8 @@ class ActorService
         $asObject = DB::table('relation')
             ->join('actor', 'relation.subject_id', '=', 'actor.id')
             ->join('object', 'actor.id', '=', 'object.id')
-            ->leftJoin('actor_i18n', function ($j) {
-                $j->on('actor.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $this->culture);
-            })
-            ->leftJoin('relation_i18n', function ($j) {
-                $j->on('relation.id', '=', 'relation_i18n.id')
-                    ->where('relation_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'actor.id', $this->culture))
+            ->tap(fn ($q) => I18nFallback::join($q, 'relation_i18n', 'relation.id', $this->culture))
             ->leftJoin('slug', 'actor.id', '=', 'slug.object_id')
             ->where('relation.object_id', $actorId)
             ->where('object.class_name', 'QubitActor')
@@ -266,10 +246,10 @@ class ActorService
                 'relation.end_date',
                 'actor.id',
                 'actor.description_identifier as identifier',
-                'actor_i18n.authorized_form_of_name as name',
-                'actor_i18n.dates_of_existence',
-                'relation_i18n.description as relation_description',
-                'relation_i18n.date as relation_date',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'),
+                I18nFallback::col('actor_i18n', 'dates_of_existence', 'dates_of_existence'),
+                I18nFallback::col('relation_i18n', 'description', 'relation_description'),
+                I18nFallback::col('relation_i18n', 'date', 'relation_date'),
                 'slug.slug'
             )
             ->get()
@@ -285,16 +265,13 @@ class ActorService
     {
         return DB::table('event')
             ->join('information_object', 'event.object_id', '=', 'information_object.id')
-            ->leftJoin('information_object_i18n', function ($j) {
-                $j->on('information_object.id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $this->culture))
             ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('event.actor_id', $actorId)
             ->where('information_object.id', '!=', 1)
             ->select(
                 'information_object.id',
-                'information_object_i18n.title',
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
                 'information_object.identifier',
                 'event.type_id as event_type_id',
                 'slug.slug'
@@ -312,16 +289,13 @@ class ActorService
     {
         $baseQuery = DB::table('event')
             ->join('information_object', 'event.object_id', '=', 'information_object.id')
-            ->leftJoin('information_object_i18n', function ($j) {
-                $j->on('information_object.id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $this->culture))
             ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('event.actor_id', $actorId)
             ->where('information_object.id', '!=', 1)
             ->select(
                 'information_object.id',
-                'information_object_i18n.title',
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
                 'information_object.identifier',
                 'event.type_id as event_type_id',
                 'slug.slug'
@@ -354,16 +328,13 @@ class ActorService
         return DB::table('relation')
             ->join('function_object', 'relation.object_id', '=', 'function_object.id')
             ->join('object', 'function_object.id', '=', 'object.id')
-            ->leftJoin('function_object_i18n', function ($j) {
-                $j->on('function_object.id', '=', 'function_object_i18n.id')
-                    ->where('function_object_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'function_object_i18n', 'function_object.id', $this->culture))
             ->leftJoin('slug', 'function_object.id', '=', 'slug.object_id')
             ->where('relation.subject_id', $actorId)
             ->where('object.class_name', 'QubitFunction')
             ->select(
                 'function_object.id',
-                'function_object_i18n.authorized_form_of_name as name',
+                I18nFallback::col('function_object_i18n', 'authorized_form_of_name', 'name'),
                 'slug.slug'
             )
             ->get();
@@ -376,11 +347,10 @@ class ActorService
     {
         // Maintenance note type_id = 174 (MAINTENANCE_NOTE_ID)
         return DB::table('note')
-            ->join('note_i18n', 'note.id', '=', 'note_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'note_i18n', 'note.id', $this->culture, required: true))
             ->where('note.object_id', $actorId)
             ->where('note.type_id', 174)
-            ->where('note_i18n.culture', $this->culture)
-            ->value('note_i18n.content');
+            ->value(I18nFallback::col('note_i18n', 'content', 'content'));
     }
 
     /**
@@ -390,13 +360,10 @@ class ActorService
     {
         return DB::table('object_term_relation')
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
-            ->leftJoin('term_i18n', function ($j) {
-                $j->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture))
             ->where('object_term_relation.object_id', $actorId)
             ->where('term.taxonomy_id', 35) // Subject taxonomy
-            ->select('term.id', 'term_i18n.name')
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
     }
 
@@ -407,13 +374,10 @@ class ActorService
     {
         return DB::table('object_term_relation')
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
-            ->leftJoin('term_i18n', function ($j) {
-                $j->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture))
             ->where('object_term_relation.object_id', $actorId)
             ->where('term.taxonomy_id', 42) // Place taxonomy
-            ->select('term.id', 'term_i18n.name')
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
             ->get();
     }
 
@@ -424,14 +388,11 @@ class ActorService
     {
         return DB::table('object_term_relation')
             ->join('term', 'object_term_relation.term_id', '=', 'term.id')
-            ->leftJoin('term_i18n', function ($j) {
-                $j->on('term.id', '=', 'term_i18n.id')
-                    ->where('term_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture))
             ->leftJoin('slug', 'term.id', '=', 'slug.object_id')
             ->where('object_term_relation.object_id', $actorId)
             ->where('term.taxonomy_id', 78) // Occupation taxonomy (same as genre for IOs)
-            ->select('object_term_relation.id as relation_id', 'term.id', 'term_i18n.name', 'slug.slug')
+            ->select('object_term_relation.id as relation_id', 'term.id', I18nFallback::col('term_i18n', 'name', 'name'), 'slug.slug')
             ->get();
     }
 
@@ -454,13 +415,10 @@ class ActorService
         }
 
         return DB::table('note')
-            ->leftJoin('note_i18n', function ($j) {
-                $j->on('note.id', '=', 'note_i18n.id')
-                    ->where('note_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'note_i18n', 'note.id', $this->culture))
             ->where('note.type_id', 188) // ACTOR_OCCUPATION_NOTE_ID
             ->whereIn('note.object_id', $relationIds)
-            ->select('note.object_id as relation_id', 'note_i18n.content')
+            ->select('note.object_id as relation_id', I18nFallback::col('note_i18n', 'content', 'content'))
             ->get()
             ->keyBy('relation_id')
             ->map(fn ($row) => $row->content)
@@ -476,17 +434,14 @@ class ActorService
     {
         return DB::table('relation')
             ->join('information_object', 'relation.subject_id', '=', 'information_object.id')
-            ->leftJoin('information_object_i18n', function ($j) {
-                $j->on('information_object.id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $this->culture))
             ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('relation.object_id', $actorId)
             ->where('relation.type_id', TermId::RELATION_NAME_ACCESS_POINT)
             ->where('information_object.id', '!=', 1) // exclude root
             ->select(
                 'information_object.id',
-                'information_object_i18n.title',
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
                 'slug.slug'
             )
             ->distinct()
@@ -502,24 +457,21 @@ class ActorService
     {
         $baseQuery = DB::table('relation')
             ->join('information_object', 'relation.subject_id', '=', 'information_object.id')
-            ->leftJoin('information_object_i18n', function ($j) {
-                $j->on('information_object.id', '=', 'information_object_i18n.id')
-                    ->where('information_object_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $this->culture))
             ->leftJoin('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('relation.object_id', $actorId)
             ->where('relation.type_id', TermId::RELATION_NAME_ACCESS_POINT)
             ->where('information_object.id', '!=', 1)
             ->select(
                 'information_object.id',
-                'information_object_i18n.title',
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
                 'slug.slug',
                 'information_object.parent_id'
             )
             // Top-level records (collections, a library bookcase) before the
             // many pages inside them, so they are not buried on page 5.
             ->orderByRaw('information_object.parent_id = 1 DESC')
-            ->orderBy('information_object_i18n.title')
+            ->orderBy(I18nFallback::col('information_object_i18n', 'title'))
             ->distinct();
 
         $total = DB::table(DB::raw("({$baseQuery->toSql()}) as sub"))
@@ -546,13 +498,10 @@ class ActorService
     public function getLanguages(int $actorId): array
     {
         $row = DB::table('property')
-            ->leftJoin('property_i18n', function ($j) {
-                $j->on('property.id', '=', 'property_i18n.id')
-                    ->where('property_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'property_i18n', 'property.id', $this->culture))
             ->where('property.object_id', $actorId)
             ->where('property.name', 'language')
-            ->value('property_i18n.value');
+            ->value(I18nFallback::col('property_i18n', 'value', 'value'));
 
         if (! $row) {
             return [];
@@ -573,13 +522,10 @@ class ActorService
     public function getScripts(int $actorId): array
     {
         $row = DB::table('property')
-            ->leftJoin('property_i18n', function ($j) {
-                $j->on('property.id', '=', 'property_i18n.id')
-                    ->where('property_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'property_i18n', 'property.id', $this->culture))
             ->where('property.object_id', $actorId)
             ->where('property.name', 'script')
-            ->value('property_i18n.value');
+            ->value(I18nFallback::col('property_i18n', 'value', 'value'));
 
         if (! $row) {
             return [];
@@ -603,16 +549,13 @@ class ActorService
         return DB::table('relation')
             ->join('repository', 'relation.object_id', '=', 'repository.id')
             ->join('object', 'repository.id', '=', 'object.id')
-            ->leftJoin('actor_i18n', function ($j) {
-                $j->on('repository.id', '=', 'actor_i18n.id')
-                    ->where('actor_i18n.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $this->culture))
             ->leftJoin('slug', 'repository.id', '=', 'slug.object_id')
             ->where('relation.subject_id', $actorId)
             ->where('object.class_name', 'QubitRepository')
             ->select(
                 'repository.id',
-                'actor_i18n.authorized_form_of_name as name',
+                I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'name'),
                 'slug.slug'
             )
             ->first();
@@ -659,13 +602,10 @@ class ActorService
     {
         $termLookup = function (int $taxonomyId) {
             return DB::table('term')
-                ->leftJoin('term_i18n', function ($j) {
-                    $j->on('term.id', '=', 'term_i18n.id')
-                        ->where('term_i18n.culture', '=', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture))
                 ->where('term.taxonomy_id', $taxonomyId)
-                ->select('term.id', 'term_i18n.name')
-                ->orderBy('term_i18n.name')
+                ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
+                ->orderBy(I18nFallback::col('term_i18n', 'name'))
                 ->get();
         };
 
@@ -759,14 +699,11 @@ class ActorService
 
             // Get all siblings under the same parent in taxonomy 55 (Actor relation type)
             $siblings = DB::table('term')
-                ->join('term_i18n', function ($j) {
-                    $j->on('term.id', '=', 'term_i18n.id')
-                        ->where('term_i18n.culture', '=', $this->culture);
-                })
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $this->culture, required: true))
                 ->where('term.parent_id', $term->parent_id)
                 ->where('term.taxonomy_id', 55)
                 ->where('term.id', '!=', $typeId)
-                ->select('term.id', 'term_i18n.name')
+                ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
                 ->orderBy('term.id')
                 ->get();
 
@@ -1480,12 +1417,9 @@ class ActorService
     public function getActorOccupations(int $actorId): \Illuminate\Support\Collection
     {
         return DB::table('ahg_actor_occupation as o')
-            ->leftJoin('term_i18n as ti', function ($j) {
-                $j->on('o.term_id', '=', 'ti.id')
-                    ->where('ti.culture', '=', $this->culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 'o.term_id', $this->culture))
             ->where('o.actor_id', $actorId)
-            ->select('o.*', 'ti.name as term_name')
+            ->select('o.*', I18nFallback::col('ti', 'name', 'term_name'))
             ->orderBy('o.sort_order')
             ->orderBy('o.date_from')
             ->get();

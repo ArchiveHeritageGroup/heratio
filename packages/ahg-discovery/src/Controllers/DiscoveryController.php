@@ -30,6 +30,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use AhgDiscovery\Concerns\ResolvesDiscoveryConnection;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Discovery Controller -- unified search/discovery across all entity types.
@@ -904,15 +905,13 @@ class DiscoveryController extends Controller
     private function searchInformationObjects(string $query, string $culture, int $limit, int $offset): array
     {
         $base = DB::table('information_object as io')
-            ->join('information_object_i18n as ioi', function ($j) use ($culture) {
-                $j->on('io.id', '=', 'ioi.id')->where('ioi.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as ioi', 'io.id', $culture))
             ->leftJoin('slug', 'io.id', '=', 'slug.object_id')
             ->where('io.id', '!=', 1)
             ->where(function ($q) use ($query) {
-                $q->where('ioi.title', 'like', "%{$query}%")
+                $q->where(I18nFallback::col('ioi', 'title'), 'like', "%{$query}%")
                     ->orWhere('io.identifier', 'like', "%{$query}%")
-                    ->orWhere('ioi.scope_and_content', 'like', "%{$query}%");
+                    ->orWhere(I18nFallback::col('ioi', 'scope_and_content'), 'like', "%{$query}%");
             });
 
         // Guests see only published records (status 158/160) - discovery search must
@@ -931,9 +930,9 @@ class DiscoveryController extends Controller
         }
 
         $total = (clone $base)->count();
-        $results = $base->select('io.id', 'io.identifier', 'ioi.title as label', 'slug.slug',
+        $results = $base->select('io.id', 'io.identifier', I18nFallback::col('ioi', 'title', 'label'), 'slug.slug',
             DB::raw("'Archival description' as entity_type"))
-            ->orderBy('ioi.title')->offset($offset)->limit($limit)->get();
+            ->orderBy(I18nFallback::col('ioi', 'title'))->offset($offset)->limit($limit)->get();
 
         return ['results' => $results, 'total' => $total];
     }
@@ -949,17 +948,15 @@ class DiscoveryController extends Controller
         }
 
         $base = DB::table('actor as a')
-            ->join('actor_i18n as ai', function ($j) use ($culture) {
-                $j->on('a.id', '=', 'ai.id')->where('ai.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'a.id', $culture, required: true))
             ->leftJoin('slug', 'a.id', '=', 'slug.object_id')
             ->where('a.id', '!=', 1)
-            ->where('ai.authorized_form_of_name', 'like', "%{$query}%");
+            ->where(I18nFallback::col('ai', 'authorized_form_of_name'), 'like', "%{$query}%");
 
         $total = (clone $base)->count();
-        $results = $base->select('a.id', 'ai.authorized_form_of_name as label', 'slug.slug',
+        $results = $base->select('a.id', I18nFallback::col('ai', 'authorized_form_of_name', 'label'), 'slug.slug',
             DB::raw("'Authority record' as entity_type"))
-            ->orderBy('ai.authorized_form_of_name')->offset($offset)->limit($limit)->get();
+            ->orderBy(I18nFallback::col('ai', 'authorized_form_of_name'))->offset($offset)->limit($limit)->get();
 
         return ['results' => $results, 'total' => $total];
     }
@@ -974,16 +971,14 @@ class DiscoveryController extends Controller
         }
 
         $base = DB::table('repository as r')
-            ->join('actor_i18n as ai', function ($j) use ($culture) {
-                $j->on('r.id', '=', 'ai.id')->where('ai.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'r.id', $culture, required: true))
             ->leftJoin('slug', 'r.id', '=', 'slug.object_id')
-            ->where('ai.authorized_form_of_name', 'like', "%{$query}%");
+            ->where(I18nFallback::col('ai', 'authorized_form_of_name'), 'like', "%{$query}%");
 
         $total = (clone $base)->count();
-        $results = $base->select('r.id', 'ai.authorized_form_of_name as label', 'slug.slug',
+        $results = $base->select('r.id', I18nFallback::col('ai', 'authorized_form_of_name', 'label'), 'slug.slug',
             DB::raw("'Repository' as entity_type"))
-            ->orderBy('ai.authorized_form_of_name')->offset($offset)->limit($limit)->get();
+            ->orderBy(I18nFallback::col('ai', 'authorized_form_of_name'))->offset($offset)->limit($limit)->get();
 
         return ['results' => $results, 'total' => $total];
     }
@@ -1646,10 +1641,8 @@ class DiscoveryController extends Controller
         $slugs = $db->table('slug')->whereIn('object_id', $ids)->pluck('slug', 'object_id');
 
         $levels = $db->table('information_object as io')
-            ->leftJoin('term_i18n as ti', function ($j) use ($culture) {
-                $j->on('io.level_of_description_id', '=', 'ti.id')->where('ti.culture', '=', $culture);
-            })
-            ->select('io.id', 'ti.name as level')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 'io.level_of_description_id', $culture))
+            ->select('io.id', I18nFallback::col('ti', 'name', 'level'))
             ->whereIn('io.id', $ids)->get()->pluck('level', 'id');
 
         // Resolve "Creation" event type by taxonomy lookup (issue #22).
@@ -1662,17 +1655,14 @@ class DiscoveryController extends Controller
             ->get()->keyBy('object_id');
 
         $creators = $db->table('event')
-            ->join('actor_i18n', 'event.actor_id', '=', 'actor_i18n.id')
-            ->select('event.object_id', 'actor_i18n.authorized_form_of_name as creator')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'event.actor_id', $culture, required: true))
+            ->select('event.object_id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'creator'))
             ->whereIn('event.object_id', $ids)->where('event.type_id', $creationTypeId)
-            ->where('actor_i18n.culture', $culture)
             ->get()->pluck('creator', 'object_id');
 
         $repos = $db->table('information_object as io')
-            ->join('actor_i18n as ai', function ($j) use ($culture) {
-                $j->on('io.repository_id', '=', 'ai.id')->where('ai.culture', '=', $culture);
-            })
-            ->select('io.id', 'ai.authorized_form_of_name as repository')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as ai', 'io.repository_id', $culture, required: true))
+            ->select('io.id', I18nFallback::col('ai', 'authorized_form_of_name', 'repository'))
             ->whereIn('io.id', $ids)->whereNotNull('io.repository_id')
             ->get()->pluck('repository', 'id');
 

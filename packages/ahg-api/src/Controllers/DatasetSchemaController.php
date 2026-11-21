@@ -82,6 +82,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
+use AhgCore\Support\I18nFallback;
 
 class DatasetSchemaController extends Controller
 {
@@ -469,16 +470,14 @@ class DatasetSchemaController extends Controller
                     $j->on('otr.term_id', '=', 't.id')
                         ->where('t.taxonomy_id', '=', self::TAXONOMY_PLACE);
                 })
-                ->join('term_i18n as ti', function ($j) {
-                    $j->on('t.id', '=', 'ti.id')->where('ti.culture', $this->culture);
-                })
-                ->whereNotNull('ti.name')
-                ->where('ti.name', '!=', '')
-                ->select('ti.name', DB::raw('COUNT(*) as n'))
-                ->groupBy('ti.name')
+                ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n as ti', 't.id', $this->culture, required: true))
+                ->whereNotNull(I18nFallback::col('ti', 'name'))
+                ->where(I18nFallback::col('ti', 'name'), '!=', '')
+                ->select(I18nFallback::col('ti', 'name', 'name'), DB::raw('COUNT(*) as n'))
+                ->groupBy(I18nFallback::col('ti', 'name'))
                 ->orderByDesc('n')
                 ->limit(self::SPATIAL_TOP_N)
-                ->pluck('ti.name');
+                ->pluck(I18nFallback::col('ti', 'name', 'name'));
 
             $places = [];
             foreach ($rows as $placeName) {

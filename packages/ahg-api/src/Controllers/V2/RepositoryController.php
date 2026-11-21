@@ -5,6 +5,7 @@ namespace AhgApi\Controllers\V2;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class RepositoryController extends BaseApiController
 {
@@ -17,21 +18,20 @@ class RepositoryController extends BaseApiController
         $offset = ($page - 1) * $limit;
 
         $query = DB::table('repository')
-            ->join('actor_i18n', 'repository.id', '=', 'actor_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'repository.id', $this->culture, required: true))
             ->join('object', 'repository.id', '=', 'object.id')
             ->join('slug', 'repository.id', '=', 'slug.object_id')
-            ->where('actor_i18n.culture', $this->culture)
             ->where('object.class_name', 'QubitRepository');
 
         $total = $query->count();
 
         match ($sort) {
-            'alphabetic', 'name' => $query->orderBy('actor_i18n.authorized_form_of_name', $sortDir),
+            'alphabetic', 'name' => $query->orderBy(I18nFallback::col('actor_i18n', 'authorized_form_of_name'), $sortDir),
             default => $query->orderBy('object.updated_at', $sortDir),
         };
 
         $rows = $query->select(
-            'repository.id', 'actor_i18n.authorized_form_of_name',
+            'repository.id', I18nFallback::col('actor_i18n', 'authorized_form_of_name', 'authorized_form_of_name'),
             'object.created_at', 'object.updated_at', 'slug.slug'
         )->offset($offset)->limit($limit)->get();
 

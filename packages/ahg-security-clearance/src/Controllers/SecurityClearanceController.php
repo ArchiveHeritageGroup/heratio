@@ -33,6 +33,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 /**
  * Security Clearance Controller.
@@ -655,11 +656,9 @@ class SecurityClearanceController extends Controller
         if (Schema::hasTable('setting')) {
             foreach ($settings as $key => &$value) {
                 $dbVal = DB::table('setting as s')
-                    ->leftJoin('setting_i18n as si', function ($j) {
-                        $j->on('si.id', '=', 's.id')->where('si.culture', '=', app()->getLocale());
-                    })
+                    ->tap(fn ($q) => I18nFallback::join($q, 'setting_i18n as si', 's.id', app()->getLocale()))
                     ->where('s.name', 'watermark_'.$key)
-                    ->value('si.value');
+                    ->value(I18nFallback::col('si', 'value', 'value'));
                 if ($dbVal !== null) {
                     $value = $dbVal;
                 }

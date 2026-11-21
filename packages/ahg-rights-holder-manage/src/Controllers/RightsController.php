@@ -28,6 +28,7 @@ namespace AhgRightsHolderManage\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class RightsController extends Controller
 {
@@ -40,11 +41,10 @@ class RightsController extends Controller
         }
 
         $resource = DB::table('information_object')
-            ->join('information_object_i18n', 'information_object.id', '=', 'information_object_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', $culture))
             ->join('slug', 'information_object.id', '=', 'slug.object_id')
             ->where('information_object.id', $objectId)
-            ->where('information_object_i18n.culture', $culture)
-            ->select('information_object.id', 'information_object.level_of_description_id', 'information_object_i18n.title', 'slug.slug')
+            ->select('information_object.id', 'information_object.level_of_description_id', I18nFallback::col('information_object_i18n', 'title', 'title'), 'slug.slug')
             ->first();
         if (! $resource) {
             abort(404);
@@ -56,14 +56,12 @@ class RightsController extends Controller
                     ->where('relation.object_id', '=', $objectId)
                     ->where('relation.type_id', '=', 168);
             })
-            ->leftJoin('rights_i18n', function ($j) use ($culture) {
-                $j->on('rights.id', '=', 'rights_i18n.id')->where('rights_i18n.culture', '=', $culture);
-            })
-            ->select('rights.*', 'rights_i18n.rights_note', 'rights_i18n.copyright_note',
-                'rights_i18n.license_terms', 'rights_i18n.license_note',
-                'rights_i18n.statute_note',
-                'rights_i18n.identifier_type', 'rights_i18n.identifier_value', 'rights_i18n.identifier_role',
-                'rights_i18n.statute_jurisdiction')
+            ->tap(fn ($q) => I18nFallback::join($q, 'rights_i18n', 'rights.id', $culture))
+            ->select('rights.*', I18nFallback::col('rights_i18n', 'rights_note', 'rights_note'), I18nFallback::col('rights_i18n', 'copyright_note', 'copyright_note'),
+                I18nFallback::col('rights_i18n', 'license_terms', 'license_terms'), I18nFallback::col('rights_i18n', 'license_note', 'license_note'),
+                I18nFallback::col('rights_i18n', 'statute_note', 'statute_note'),
+                I18nFallback::col('rights_i18n', 'identifier_type', 'identifier_type'), I18nFallback::col('rights_i18n', 'identifier_value', 'identifier_value'), I18nFallback::col('rights_i18n', 'identifier_role', 'identifier_role'),
+                I18nFallback::col('rights_i18n', 'statute_jurisdiction', 'statute_jurisdiction'))
             ->get()
             ->map(function ($r) use ($culture) {
                 $row = (array) $r;
@@ -93,27 +91,24 @@ class RightsController extends Controller
 
         // Lookup data for the create form
         $basisTerms = DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
             ->where('term.taxonomy_id', 68)
-            ->where('term_i18n.culture', $culture)
-            ->select('term.id', 'term_i18n.name')
-            ->orderBy('term_i18n.name')
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->get();
 
         $actTerms = DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
             ->where('term.taxonomy_id', 67)
-            ->where('term_i18n.culture', $culture)
-            ->select('term.id', 'term_i18n.name')
-            ->orderBy('term_i18n.name')
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->get();
 
         $copyrightStatusTerms = DB::table('term')
-            ->join('term_i18n', 'term.id', '=', 'term_i18n.id')
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', $culture, required: true))
             ->where('term.taxonomy_id', 69)
-            ->where('term_i18n.culture', $culture)
-            ->select('term.id', 'term_i18n.name')
-            ->orderBy('term_i18n.name')
+            ->select('term.id', I18nFallback::col('term_i18n', 'name', 'name'))
+            ->orderBy(I18nFallback::col('term_i18n', 'name'))
             ->get();
 
         return view('ahg-rights-holder-manage::rights.index', compact(

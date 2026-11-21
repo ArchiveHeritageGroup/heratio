@@ -4,6 +4,7 @@ namespace AhgRecordsManage\Services;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class DisposalClassService
 {
@@ -152,10 +153,7 @@ class DisposalClassService
         $culture = app()->getLocale();
 
         $query = DB::table('rm_record_disposal_class as rdc')
-            ->leftJoin('information_object_i18n as io_i18n', function ($join) use ($culture) {
-                $join->on('rdc.information_object_id', '=', 'io_i18n.id')
-                    ->where('io_i18n.culture', '=', $culture);
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as io_i18n', 'rdc.information_object_id', $culture))
             ->where('rdc.disposal_class_id', $classId);
 
         $total = $query->count();

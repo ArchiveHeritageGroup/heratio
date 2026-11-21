@@ -16,6 +16,7 @@ namespace AhgBiblioFrbr\Controllers;
 
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
+use AhgCore\Support\I18nFallback;
 
 class WorkClusterController extends Controller
 {
@@ -41,10 +42,7 @@ class WorkClusterController extends Controller
                           ->where('status.status_id', 160);
                   });
             })
-            ->leftJoin('information_object_i18n', function ($j) {
-                $j->on('information_object_i18n.id', '=', 'information_object.id')
-                  ->where('information_object_i18n.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n', 'information_object.id', app()->getLocale()))
             ->leftJoin('slug', 'slug.object_id', '=', 'information_object.id')
             ->select(
                 'library_item.id as library_item_id',
@@ -57,7 +55,7 @@ class WorkClusterController extends Controller
                 'library_item.edition_statement',
                 'library_item.language',
                 'library_item.material_type',
-                'information_object_i18n.title',
+                I18nFallback::col('information_object_i18n', 'title', 'title'),
                 'slug.slug'
             )
             ->orderBy('library_item.publication_date')

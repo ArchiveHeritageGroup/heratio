@@ -20,6 +20,7 @@ namespace AhgCore\Support;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class PropertyRow
 {
@@ -37,16 +38,16 @@ class PropertyRow
 
         try {
             $q = DB::table('property as p')
-                ->join('property_i18n as pi', 'pi.id', '=', 'p.id')
+                ->tap(fn ($q) => I18nFallback::join($q, 'property_i18n as pi', 'p.id', $culture ?? app()->getLocale(), required: true))
                 ->where('p.object_id', $objectId)
                 ->where('p.name', $name)
-                ->where('pi.culture', $culture ?? app()->getLocale());
+                ;
 
             if ($scope !== null) {
                 $q->where('p.scope', $scope);
             }
 
-            $v = $q->value('pi.value');
+            $v = $q->value(I18nFallback::col('pi', 'value', 'value'));
 
             return $v === null ? null : (string) $v;
         } catch (\Throwable $e) {

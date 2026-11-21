@@ -219,6 +219,8 @@ class AhgCoreServiceProvider extends ServiceProvider
                 \AhgCore\Console\Commands\BuildClosureCommand::class,
                 // #1333 production-scale synthetic corpus generator (dev stress test)
                 \AhgCore\Console\Commands\SeedScaleCorpusCommand::class,
+                \AhgCore\Commands\FacesScanCommand::class, // heratio#1764
+                \AhgCore\Commands\FacesPurgeCommand::class, // heratio#1764
                 \AhgCore\Commands\SearchPopulateCommand::class,
                 \AhgCore\Commands\SearchUpdateCommand::class,
                 \AhgCore\Commands\SearchCleanupCommand::class,
@@ -354,6 +356,7 @@ class AhgCoreServiceProvider extends ServiceProvider
                 // Digital Objects
                 \AhgCore\Commands\RegenDerivativesCommand::class,
                 \AhgCore\Commands\MediaDerivativesCommand::class,
+                \AhgCore\Commands\OfficePdfsCommand::class, // heratio#1627
                 \AhgCore\Commands\MediaRegenerateCommand::class,
                 \AhgCore\Commands\LoadDigitalObjectsCommand::class,
 
@@ -425,6 +428,12 @@ class AhgCoreServiceProvider extends ServiceProvider
                 // older files and failed conversions (CPU ffmpeg, fine at night).
                 $schedule->command('ahg:media-derivatives --missing --limit=200')
                     ->dailyAt('01:30')
+                    ->withoutOverlapping(120)
+                    ->runInBackground();
+
+                // heratio#1627: office masters get their PDF display copy (LibreOffice, CPU).
+                $schedule->command('ahg:office-pdfs --missing --limit=200')
+                    ->dailyAt('01:45')
                     ->withoutOverlapping(120)
                     ->runInBackground();
 

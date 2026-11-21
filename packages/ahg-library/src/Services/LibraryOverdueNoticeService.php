@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
+use AhgCore\Support\I18nFallback;
 
 class LibraryOverdueNoticeService
 {
@@ -63,16 +64,13 @@ class LibraryOverdueNoticeService
             ->join('library_patron as p', 'c.patron_id', '=', 'p.id')
             ->leftJoin('library_copy as cp', 'c.copy_id', '=', 'cp.id')
             ->leftJoin('library_item as li', 'cp.library_item_id', '=', 'li.id')
-            ->leftJoin('information_object_i18n as i18n', function ($j) {
-                $j->on('li.information_object_id', '=', 'i18n.id')
-                  ->where('i18n.culture', '=', app()->getLocale());
-            })
+            ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'li.information_object_id', app()->getLocale()))
             ->where('c.status', 'active')
             ->whereDate('c.due_date', '<', $today->toDateString())
             ->select(
                 'c.id as checkout_id', 'c.due_date',
                 'p.id as patron_id', 'p.first_name', 'p.last_name', 'p.email', 'p.patron_type',
-                'cp.barcode', 'li.call_number', 'li.material_type', 'i18n.title'
+                'cp.barcode', 'li.call_number', 'li.material_type', I18nFallback::col('i18n', 'title', 'title')
             )
             // #1473: a notice must say which branch the loan was made at, and
             // must quote THAT branch's fine rate. Selected only where the
