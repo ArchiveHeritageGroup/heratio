@@ -149,11 +149,53 @@ class CronSchedulerService
 
                 continue;
             }
-            $results[] = $this->runSingle($schedule);
+            // A long job runs in its own process. The runner is one sequential
+            // process (withoutOverlapping), so a 50-minute virus scan at 04:00
+            // held back every other job - services-check, search-update,
+            // llm-health - until it finished, and the missed-run check rightly
+            // raised calls (CH-001024..1030, 20-21 Nov 2026).
+            if ($this->runsLong($schedule)) {
+                $results[] = $this->launchInBackground($schedule);
+            } else {
+                $results[] = $this->runSingle($schedule);
+            }
             $running++;
         }
 
         return $results;
+    }
+
+    /** Hinted medium/long, or its last run took over a minute. */
+    public function runsLong(object $schedule): bool
+    {
+        return in_array($schedule->duration_hint ?? null, ['medium', 'long'], true)
+            || (int) ($schedule->last_run_duration_ms ?? 0) > 60000;
+    }
+
+    /**
+     * Start `ahg:cron-run --slug=` detached. The row is marked running first,
+     * so the next minute's runner does not start it a second time; the child's
+     * runSingle() then records the outcome as usual. The stale-lock reclaim
+     * covers a child that dies.
+     */
+    protected function launchInBackground(object $schedule): array
+    {
+        DB::table($this->table)->where('id', $schedule->id)->update([
+            'last_run_status' => 'running',
+            'last_run_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
+
+        $cmd = sprintf(
+            'nohup %s %s ahg:cron-run --slug=%s >> %s 2>&1 &',
+            escapeshellarg(PHP_BINARY),
+            escapeshellarg(base_path('artisan')),
+            escapeshellarg((string) $schedule->slug),
+            escapeshellarg(storage_path('logs/cron-runner.log'))
+        );
+        exec($cmd);
+
+        return ['id' => $schedule->id, 'slug' => $schedule->slug, 'status' => 'started'];
     }
 
     /**

@@ -50,8 +50,9 @@ class CronRunCommand extends Command
             // key duration_ms" once schedule:run actually started firing
             // every minute (the cron infra fix in v1.52.41). Tolerate both.
             $status = $r['status'] ?? 'unknown';
-            $icon = $status === 'success' ? '<info>OK</info>'
-                  : ($status === 'skipped' || $status === 'deferred' ? '<comment>SKIP</comment>' : '<error>FAIL</error>');
+            $icon = $status === 'started' ? '<info>STARTED</info>'
+                  : ($status === 'success' ? '<info>OK</info>'
+                  : ($status === 'skipped' || $status === 'deferred' ? '<comment>SKIP</comment>' : '<error>FAIL</error>'));
             $label = $r['slug'] ?? $r['reason'] ?? '(unknown)';
             $duration = isset($r['duration_ms']) ? "({$r['duration_ms']}ms)" : '';
             $pending = $status === 'failed' && ! ($r['confirmed'] ?? true) ? ' - first failure, reported if the next run fails too' : '';
