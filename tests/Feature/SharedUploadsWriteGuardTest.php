@@ -22,7 +22,7 @@ class SharedUploadsWriteGuardTest extends TestCase
 {
     use DatabaseTransactions;
 
-    public function test_writes_in_shared_folders_follow_the_catalogue_check_only(): void
+    public function test_nothing_is_written_into_shared_folders(): void
     {
         $root = sys_get_temp_dir().'/ahg-suw-'.uniqid();
         mkdir($root.'/archive/r/some-repository/a/b', 0777, true);
@@ -34,27 +34,17 @@ class SharedUploadsWriteGuardTest extends TestCase
         DB::connection('shared_uploads')->statement('create table digital_object (id integer primary key, path varchar(255), name varchar(255))');
         DB::connection('shared_uploads')->table('digital_object')->insert(['path' => '/uploads/r/some-repository/a/b/', 'name' => 'theirs.pdf']);
 
+        // 21 Nov 2026: Heratio writes nothing into the other system's folders.
         $new = $root.'/archive/r/some-repository/a/b/reference_mine.pdf';
-        $this->assertNull(SharedUploadsGuard::refuseWrite($new), 'a new file of our own may be written');
-        $this->assertNotNull(SharedUploadsGuard::refuse($new), 'moving or deleting there is still refused');
-        $this->assertNotNull(SharedUploadsGuard::refuseWrite($root.'/archive/r/some-repository/a/b/theirs.pdf'), 'a file the other catalogue uses is never written over');
-
-        // Never overwrite a file Heratio did not write, even one nobody references.
-        file_put_contents($root.'/archive/r/some-repository/a/b/orphan.pdf', 'x');
-        $this->assertNotNull(SharedUploadsGuard::refuseWrite($root.'/archive/r/some-repository/a/b/orphan.pdf'));
-        // Never a PSIS derivative name.
-        $this->assertNotNull(SharedUploadsGuard::refuseWrite($root.'/archive/r/some-repository/a/b/scan_141.jpg'));
-        $this->assertNotNull(SharedUploadsGuard::refuseWrite($root.'/archive/r/some-repository/a/b/scan_142.png'));
-        // A file Heratio wrote and recorded may be written again.
-        file_put_contents($new, 'pdf');
-        $this->assertNotNull(SharedUploadsGuard::refuseWrite($new), 'not yet recorded');
-        SharedUploadsGuard::recordWrite($new, 123, 'office_pdf');
-        $this->assertNull(SharedUploadsGuard::refuseWrite($new), 'recorded: Heratio may refresh its own file');
-        $this->assertSame(1, DB::table('ahg_shared_upload_write')->where('name', 'reference_mine.pdf')->count());
+        $this->assertNotNull(SharedUploadsGuard::refuseWrite($new), 'no new file in a shared folder');
+        $this->assertNotNull(SharedUploadsGuard::refuseWrite($root.'/archive/r/some-repository/a/b/theirs.pdf'));
+        // Heratio's own numeric folders are fine.
+        $own = $root.'/archive/r/12345/reference_mine.pdf';
+        $this->assertNull(SharedUploadsGuard::refuseWrite($own));
 
         config(['database.connections.shared_uploads.database' => $root.'/missing/none.sqlite']);
         DB::purge('shared_uploads');
-        $this->assertNotNull(SharedUploadsGuard::refuseWrite($new), 'fails closed when the catalogue cannot be read');
+        $this->assertNotNull(SharedUploadsGuard::refuseWrite($own), 'fails closed when the catalogue cannot be read');
         DB::purge('shared_uploads');
         shell_exec('rm -rf '.escapeshellarg($root));
     }

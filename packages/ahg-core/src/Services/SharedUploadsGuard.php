@@ -65,15 +65,11 @@ class SharedUploadsGuard
 
     /**
      * Writing a file Heratio makes itself (a PDF display copy) beside a master.
-     * Agreed with PSIS (21 Nov 2026), for any folder outside Heratio's numeric
-     * ones:
-     *   - never overwrite: an existing file is refused unless Heratio wrote it
-     *     (it is in ahg_shared_upload_write);
-     *   - never a PSIS derivative name (*_141.*, *_142.*);
-     *   - refused when the other catalogue points at that exact file, or when
-     *     the catalogue cannot be read (fail closed).
-     * Callers record the write (recordWrite) and write atomically.
-     * Null when the write may go ahead.
+     * Only inside Heratio's own numeric folders, and never over a file the
+     * other catalogue uses; fails closed when that catalogue cannot be read.
+     * v1.166.32 briefly allowed new files in the other system's folders; the
+     * nine it wrote are listed in ahg_shared_upload_write. Callers still record
+     * writes (recordWrite) and write atomically. Null when the write may go ahead.
      */
     public static function refuseWrite(string $file): ?string
     {
@@ -84,12 +80,10 @@ class SharedUploadsGuard
         if ($rel === null) {
             return null;
         }
-        $shared = ! preg_match('#^\d+/#', $rel);
-        if ($shared && preg_match('/_14[12]\.[A-Za-z0-9]+$/', basename($rel))) {
-            return 'a derivative name the shared catalogue uses: '.$rel;
-        }
-        if ($shared && file_exists($file) && ! self::wroteIt($file)) {
-            return 'a file Heratio did not write already exists there: '.$rel;
+        // 21 Nov 2026, Dr Johan Pieterse: Heratio and PSIS get separate files;
+        // Heratio writes nothing into the other system's folders.
+        if (! preg_match('#^\d+/#', $rel)) {
+            return 'not in a Heratio numeric folder: '.$rel;
         }
         try {
             $dir = dirname($rel);
