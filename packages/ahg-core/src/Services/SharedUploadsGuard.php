@@ -63,6 +63,70 @@ class SharedUploadsGuard
         return $used ? 'still used by the shared catalogue: '.$rel : null;
     }
 
+    /**
+     * Writing a file Heratio makes itself (a PDF display copy) beside a master.
+     * Agreed with PSIS (21 Nov 2026), for any folder outside Heratio's numeric
+     * ones:
+     *   - never overwrite: an existing file is refused unless Heratio wrote it
+     *     (it is in ahg_shared_upload_write);
+     *   - never a PSIS derivative name (*_141.*, *_142.*);
+     *   - refused when the other catalogue points at that exact file, or when
+     *     the catalogue cannot be read (fail closed).
+     * Callers record the write (recordWrite) and write atomically.
+     * Null when the write may go ahead.
+     */
+    public static function refuseWrite(string $file): ?string
+    {
+        if (! self::enabled()) {
+            return null;
+        }
+        $rel = self::relative($file);
+        if ($rel === null) {
+            return null;
+        }
+        $shared = ! preg_match('#^\d+/#', $rel);
+        if ($shared && preg_match('/_14[12]\.[A-Za-z0-9]+$/', basename($rel))) {
+            return 'a derivative name the shared catalogue uses: '.$rel;
+        }
+        if ($shared && file_exists($file) && ! self::wroteIt($file)) {
+            return 'a file Heratio did not write already exists there: '.$rel;
+        }
+        try {
+            $dir = dirname($rel);
+            $used = DB::connection(self::CONNECTION)->table('digital_object')
+                ->whereIn('path', ['/uploads/r/'.$dir.'/', 'uploads/r/'.$dir.'/', '/uploads/r/'.$dir])
+                ->where('name', basename($rel))->exists();
+        } catch (\Throwable $e) {
+            Log::warning('[shared-uploads] cannot check '.$rel.': '.$e->getMessage());
+
+            return 'the shared catalogue could not be checked';
+        }
+
+        return $used ? 'used by the shared catalogue: '.$rel : null;
+    }
+
+    /** Record a file Heratio wrote into a shared folder (no-op when not shared, or outside the uploads folder). */
+    public static function recordWrite(string $file, ?int $digitalObjectId, string $purpose): void
+    {
+        $rel = self::enabled() ? self::relative($file) : null;
+        if ($rel === null || preg_match('#^\d+/#', $rel) || ! \Illuminate\Support\Facades\Schema::hasTable('ahg_shared_upload_write')) {
+            return;
+        }
+        if (self::wroteIt($file)) {
+            return;
+        }
+        DB::table('ahg_shared_upload_write')->insert([
+            'path' => dirname($file), 'name' => basename($file),
+            'digital_object_id' => $digitalObjectId, 'purpose' => $purpose, 'written_at' => now(),
+        ]);
+    }
+
+    private static function wroteIt(string $file): bool
+    {
+        return \Illuminate\Support\Facades\Schema::hasTable('ahg_shared_upload_write')
+            && DB::table('ahg_shared_upload_write')->where('path', dirname($file))->where('name', basename($file))->exists();
+    }
+
     /** Path below the shared uploads folder (without a leading r/), or null when outside it. */
     private static function relative(string $file): ?string
     {

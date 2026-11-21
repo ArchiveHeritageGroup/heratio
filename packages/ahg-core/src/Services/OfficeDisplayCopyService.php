@@ -100,16 +100,21 @@ class OfficeDisplayCopyService
         $safe = str_starts_with($safe, 'master_') ? substr($safe, 7) : $safe;
         $name = 'reference_'.$safe.'.pdf';
         $target = dirname($masterPath).'/'.$name;
-        if ($why = SharedUploadsGuard::refuse($target)) {
+        if ($why = SharedUploadsGuard::refuseWrite($target)) {
             Log::warning('[office-pdf] not written for DO '.$masterId.': '.$why);
 
             return null;
         }
-        if (! @copy($pdf, $target)) {
+        // Written under a temporary name in the same folder, then renamed, so a
+        // half-written PDF never sits under the final name.
+        $tmp = $target.'.part-'.bin2hex(random_bytes(4));
+        if (! @copy($pdf, $tmp) || ! @rename($tmp, $target)) {
+            @unlink($tmp);
             Log::warning('[office-pdf] could not write '.$target);
 
             return null;
         }
+        SharedUploadsGuard::recordWrite($target, $masterId, 'office_pdf');
 
         $row = [
             'object_id' => $master->object_id, 'usage_id' => DigitalObjectService::USAGE_REFERENCE,
@@ -170,7 +175,7 @@ class OfficeDisplayCopyService
             ->where('mime_type', 'image/jpeg')->get();
         foreach ($rows as $r) {
             $file = DigitalObjectService::resolveDiskPath($r);
-            if (! $file || SharedUploadsGuard::refuse($file)) {
+            if (! $file || SharedUploadsGuard::refuseWrite($file)) {
                 continue;
             }
             $size = (int) $r->usage_id === DigitalObjectService::USAGE_THUMBNAIL ? 100 : 480;
