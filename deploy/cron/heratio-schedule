@@ -10,10 +10,12 @@
 # with "Could not open input file: artisan" (the silent failure mode that
 # bit /etc/cron.d/ahg-discovery-prune — see its log).
 #
+# -o closes the lock before running the command, so a long job the runner
+# starts in the background (v1.166.33) does not keep holding it.
 # Output goes to /var/log/heratio-schedule.log (chowned to www-data so the
 # www-data-run command can append).
 SHELL=/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 MAILTO=""
 
-* * * * * www-data flock -n /run/lock/heratio-schedule.lock -c '/usr/bin/php8.3 /usr/share/nginx/heratio/artisan schedule:run >> /var/log/heratio-schedule.log 2>&1'
+* * * * * www-data flock -n -o /run/lock/heratio-schedule.lock -c '/usr/bin/php8.3 /usr/share/nginx/heratio/artisan schedule:run >> /var/log/heratio-schedule.log 2>&1'

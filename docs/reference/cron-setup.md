@@ -7,7 +7,7 @@ Heratio uses **per-task `/etc/cron.d/` files** (one file per scheduled artisan c
 `/etc/cron.d/heratio-schedule` (installed 2026-05-06) calls `php artisan schedule:run` every minute. Without this file, **all `Schedule::command()` registrations are dormant** - `schedule:list` shows them but they never fire.
 
 ```cron
-* * * * * www-data flock -n /var/run/heratio-schedule.lock -c '/usr/bin/php8.3 /usr/share/nginx/heratio/artisan schedule:run >> /var/log/heratio-schedule.log 2>&1'
+* * * * * www-data flock -n -o /var/run/heratio-schedule.lock -c '/usr/bin/php8.3 /usr/share/nginx/heratio/artisan schedule:run >> /var/log/heratio-schedule.log 2>&1'
 ```
 
 Output goes to `/var/log/heratio-schedule.log` (chowned to `www-data`).

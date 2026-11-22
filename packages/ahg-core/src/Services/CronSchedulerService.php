@@ -186,8 +186,12 @@ class CronSchedulerService
             'updated_at' => Carbon::now(),
         ]);
 
+        // The job must not inherit the runner's open files: cron's
+        // `flock -n` lock (fd 3) would stay held until the job ends and every
+        // tick in between is silently skipped (22 Nov: 40 minutes during the
+        // virus scan). Close fds 3-9 and detach stdin.
         $cmd = sprintf(
-            'nohup %s %s ahg:cron-run --slug=%s >> %s 2>&1 &',
+            'nohup %s %s ahg:cron-run --slug=%s < /dev/null >> %s 2>&1 3>&- 4>&- 5>&- 6>&- 7>&- 8>&- 9>&- &',
             escapeshellarg(PHP_BINARY),
             escapeshellarg(base_path('artisan')),
             escapeshellarg((string) $schedule->slug),
