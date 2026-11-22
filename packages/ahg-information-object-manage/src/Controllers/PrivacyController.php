@@ -492,6 +492,23 @@ class PrivacyController extends Controller
     public function iiifCheck(\Illuminate\Http\Request $request)
     {
         $identifier = (string) $request->query('identifier', '');
+
+        // SECURITY (22 Nov 2026): the image server resolves an identifier to a
+        // path on disk, so one Heratio does not know could name another
+        // system's file. Same rule as fileCheck(): outside uploads/, or in a
+        // shared install outside Heratio's numeric folders, only files in
+        // Heratio's own catalogue are served.
+        $plain = ltrim((string) preg_replace('#/+#', '/', str_replace('_SL_', '/', (string) preg_replace('/;\d+$/', '', rawurldecode($identifier)))), '/');
+        if (preg_match('#(^|/)\.\.?(/|$)#', $plain)) {
+            return response()->json(['allowed' => false]);
+        }
+        $ownFolder = \AhgCore\Services\SharedUploadsGuard::enabled()
+            ? (bool) preg_match('#^uploads/r/[0-9]+/#', $plain)
+            : str_starts_with($plain, 'uploads/');
+        if ($identifier !== '' && !$ownFolder && !app(RedactionRenderService::class)->knowsIdentifier($identifier)) {
+            return response()->json(['allowed' => false]);
+        }
+
         $denied = $identifier !== ''
             && \Schema::hasTable('privacy_visual_redaction')
             && app(RedactionRenderService::class)->isRedactedIdentifier($identifier);

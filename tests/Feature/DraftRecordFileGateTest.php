@@ -155,6 +155,30 @@ class DraftRecordFileGateTest extends TestCase
         $u('/uploads/r/123456/own-file.png')->assertNoContent();
     }
 
+    public function test_the_image_server_gets_no_other_systems_files(): void
+    {
+        // heratio.org, 22 Nov 2026: unknown identifiers opened PSIS images
+        // through /iiif/, by relative and by absolute path.
+        $check = fn (string $id, bool $allowed) => $this->getJson('/privacy/iiif-check?identifier='.rawurlencode($id))->assertJson(['allowed' => $allowed]);
+
+        config(['database.connections.shared_uploads.database' => 'archive']);
+        $check('uploads_SL_r_SL_null_SL_6_SL_7_SL_psis.png', false);
+        $check('uploads_SL_r_SL_%6Eull_SL_6_SL_psis.png', false);
+        $check('uploads_SL__SL_r_SL_null_SL_psis.png', false);
+        $check('uploads_SL_r_SL_123_SL_.._SL_null_SL_psis.png', false);
+        $check('uploads_SL_r_SL_123%2F..%2Fnull_SL_psis.png', false);
+        $check('uploads_SL_other_SL_psis.png', false);
+        $check('usr_SL_share_SL_nginx_SL_archive_SL_uploads_SL_r_SL_null_SL_psis.png', false);
+        $check('uploads_SL_r_SL_123456_SL_own.png', true);
+        // A file Heratio's catalogue lists in a shared folder still opens.
+        $this->file($this->record(160), 'listed.png');
+        $check(str_replace('/', '_SL_', $this->dir).'_SL_listed.png', true);
+
+        config(['database.connections.shared_uploads.database' => '']);
+        $check('usr_SL_share_SL_nginx_SL_archive_SL_uploads_SL_r_SL_null_SL_psis.png', false);
+        $check('uploads_SL_r_SL_some-repo_SL_own.png', true);
+    }
+
     public function test_staff_who_see_drafts_still_get_the_file(): void
     {
         $this->file($this->record(159), 'draft.pdf');

@@ -37679,8 +37679,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-19",
-            "mt_batch_count": 27071,
+            "mt_batch_last_run": "2026-11-22",
+            "mt_batch_count": 27593,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%{maxFileSizeMessage}; %{maxPostSizeMessage}",
@@ -38473,7 +38473,13 @@
                 "Accounting standard added successfully",
                 "Accounting standard deleted",
                 "Audio guide",
-                "Braille"
+                "Braille",
+                "AAC (M4A)",
+                "MP3",
+                "Problem: :check",
+                "Sidecar (JSON)",
+                "Sidecar (XMP)",
+                "Problem"
             ],
             "review_required": "native-speaker review required before production",
             "mt_rejections": {
@@ -38494,8 +38500,12 @@
                 "Storylines &amp; Narratives": 3,
                 "Voice &amp; AI": 3,
                 "in :input / out :output": 1,
-                ":found item(s) of personal information found:pdf; :added new redaction region(s) added. They are blacked out for visitors now; review them below.": 1,
-                ":name (:count items):privacy": 1
+                ":found item(s) of personal information found:pdf; :added new redaction region(s) added. They are blacked out for visitors now; review them below.": 2,
+                ":name (:count items):privacy": 2,
+                "Reproductions free of charge": 1,
+                "Requester's user type: :type": 1,
+                "This record is under an active legal hold (hold #:hold), so it cannot be deleted.": 1,
+                "This cannot be deleted: record #:record, which it belongs to or which is inside it, is under an active legal hold (hold #:hold).": 1
             }
         },
         "pt": {
@@ -49418,8 +49428,8 @@
             "credit": "AtoM / Artefactual community",
             "first_seeded_at": "2026-04-30",
             "primary_source": "atom-xliff",
-            "mt_batch_last_run": "2026-11-19",
-            "mt_batch_count": 26281,
+            "mt_batch_last_run": "2026-11-22",
+            "mt_batch_count": 26802,
             "mt_batch_model": "qwen3:8b via gateway /ai/v1/ollama/api/chat (ahg:translation-llm-fill)",
             "mt_same_as_source": [
                 "%1% representation",
@@ -50447,7 +50457,16 @@
                 "Becomes the asset's current location.",
                 "Braille",
                 "Exhibition: :title",
-                "Policy :p"
+                "Policy :p",
+                "AAC (M4A)",
+                "MP3",
+                "Problem: :check",
+                "Sidecar (JSON)",
+                "Sidecar (XMP)",
+                "Live streaming",
+                "Server",
+                "held",
+                "Problem"
             ],
             "review_required": "native-speaker review required before production",
             "mt_rejections": {
@@ -50473,17 +50492,25 @@
                 "Read by :model through the AI gateway": 1,
                 "Offers (:count pending)": 1,
                 "in :input / out :output": 1,
-                "Short-term, often &lt; 1 month": 1,
+                "Short-term, often &lt; 1 month": 2,
                 "to help Indigenous communities manage their cultural heritage.": 1,
                 "+:count pts": 1,
                 "90 Days": 1,
                 ":count images": 1,
                 "Community: :community": 1,
                 "Diligent search completed: :date": 1,
-                ":name (:count items):privacy": 1,
-                ":frequency @ :time · :daysd retention": 1,
-                "@ :time · :daysd retention": 1,
-                ":from to :to": 1
+                ":name (:count items):privacy": 2,
+                ":frequency @ :time · :daysd retention": 2,
+                "@ :time · :daysd retention": 2,
+                ":from to :to": 2,
+                "Editing": 1,
+                "This record was changed by someone else after the grid loaded it. Reload the page to see the new version; your changes to this row were not saved.": 1,
+                "Unknown column: :c": 1,
+                "You do not have permission to edit this record.": 1,
+                "Arrow keys move between cells. Enter or F2 edits a cell, Escape cancels, Enter or Tab keeps the change (Shift+Enter starts a new line in long text). Ctrl+S, or the Save button, saves the row. Changes are saved in the current language (:lang); for a record described in another language they are saved as its translation.": 1,
+                "This address is on an internal network. Save it as the AI gateway address first, then test it.": 1,
+                "Counted at :time.": 1,
+                "File is not a JSON object": 1
             }
         },
         "ta": {
