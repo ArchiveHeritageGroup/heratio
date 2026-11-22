@@ -110,6 +110,33 @@ class DraftRecordFileGateTest extends TestCase
         $this->gate('consent.jpg.c2pa.json')->assertForbidden();
     }
 
+    public function test_a_draft_records_thumbnails_are_refused_but_a_published_redacted_thumbnail_stays_public(): void
+    {
+        if (! Schema::hasTable('privacy_visual_redaction')) {
+            $this->markTestSkipped('privacy_visual_redaction table not present in this install.');
+        }
+        $draft = $this->file($this->record(159), 'draft.jpg');
+        $this->file(null, 'draft_142.jpg', $draft);
+        $this->file(null, 'thumbnail_draft.jpg', $draft);
+        $this->gate('draft_142.jpg')->assertForbidden();
+        $this->gate('thumbnail_draft.jpg')->assertForbidden();
+
+        $service = \Mockery::mock(\AhgInformationObjectManage\Services\RedactionRenderService::class)->makePartial();
+        $service->shouldReceive('isRedactedIdentifier')->andReturn(true);
+        $this->app->instance(\AhgInformationObjectManage\Services\RedactionRenderService::class, $service);
+
+        $published = $this->file($this->record(160), 'open.jpg');
+        $this->file(null, 'open_142.jpg', $published);
+        $this->file(null, 'thumbnail_open.jpg', $published);
+        $this->gate('open_142.jpg')->assertNoContent();
+        $this->gate('thumbnail_open.jpg')->assertNoContent();
+        $this->gate('open.jpg')->assertForbidden();
+
+        // A master with a thumbnail-style name is still a master.
+        $this->file($this->record(160), 'thumbnail_master.jpg');
+        $this->gate('thumbnail_master.jpg')->assertForbidden();
+    }
+
     public function test_published_shared_and_unlinked_files_stay_public(): void
     {
         $this->file($this->record(160), 'public.jpg');

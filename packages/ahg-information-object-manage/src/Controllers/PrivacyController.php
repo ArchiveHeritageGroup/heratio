@@ -582,7 +582,14 @@ class PrivacyController extends Controller
             return response('', 403);
         }
 
+        // Thumbnails stay public under the redaction policy (too small to read),
+        // but still follow every other rule below. A master that merely has a
+        // thumbnail-style name is judged as the master it is.
+        $isThumbnail = preg_match('#(_142\.[A-Za-z0-9]+|/thumbnail_[^/]+)$#', '/'.$plain) === 1
+            && \AhgCore\Services\MasterAccess::masterForPath($path) === null;
+
         $refuse = $path !== ''
+            && !$isThumbnail
             && !RedactionRenderService::viewerCanBypass()
             && \Schema::hasTable('privacy_visual_redaction')
             && app(RedactionRenderService::class)->isRedactedIdentifier($path);
