@@ -155,23 +155,9 @@ class QueueWorkCommand extends Command
             );
         }
 
-        // CLI task bridge: payload contains a 'command' key with Symfony CLI task
+        // Heratio launches nothing from another system's install (Dr Johan Pieterse, 22 Nov 2026).
         if (isset($payload['command'])) {
-            $cmd = 'php /usr/share/nginx/archive/symfony '.escapeshellarg($payload['command']);
-
-            if (isset($payload['arguments']) && is_array($payload['arguments'])) {
-                foreach ($payload['arguments'] as $key => $value) {
-                    $cmd .= ' --'.escapeshellarg($key).'='.escapeshellarg($value);
-                }
-            }
-
-            passthru($cmd, $exitCode);
-
-            if ($exitCode !== 0) {
-                throw new \RuntimeException("Command failed with exit code {$exitCode}");
-            }
-
-            return;
+            throw new \RuntimeException("Job type '{$jobType}' asks to run an external command, which is not allowed.");
         }
 
         // Laravel job class bridge: payload contains a 'class' key
