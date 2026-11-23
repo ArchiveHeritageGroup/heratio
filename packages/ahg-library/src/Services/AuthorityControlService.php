@@ -22,10 +22,44 @@ namespace AhgLibrary\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Throwable;
 
 class AuthorityControlService
 {
+    /** @var array<string,bool> */
+    private array $columns = [];
+
+    /**
+     * Installs differ: core schema has heading_type + heading_normalized, the
+     * migration's fresh-table path has subject_type. Callers always see subject_type.
+     */
+    public function typeColumn(): string
+    {
+        return $this->hasColumn('subject_type') ? 'subject_type' : 'heading_type';
+    }
+
+    public function hasColumn(string $column): bool
+    {
+        return $this->columns[$column] ??= Schema::hasColumn('library_subject_authority', $column);
+    }
+
+    public static function normalizeHeading(string $heading): string
+    {
+        $flat = preg_replace('/\s+/u', ' ', trim($heading)) ?? trim($heading);
+
+        return rtrim(mb_strtolower($flat), " .,;:");
+    }
+
+    private function present(object $row): object
+    {
+        if (! property_exists($row, 'subject_type')) {
+            $row->subject_type = $row->heading_type ?? null;
+        }
+
+        return $row;
+    }
+
     /**
      * List authority records with optional search, paginated.
      *
@@ -40,6 +74,7 @@ class AuthorityControlService
         $search = trim($params['search'] ?? '');
         $type   = trim($params['subject_type'] ?? '');
         $source = trim($params['source'] ?? '');
+        $recordType = trim($params['record_type'] ?? '');
 
         $query = DB::table('library_subject_authority');
 
@@ -47,7 +82,20 @@ class AuthorityControlService
             $query->where('heading', 'LIKE', "%{$search}%");
         }
         if ($type !== '') {
-            $query->where('subject_type', $type);
+            $query->where($this->typeColumn(), $type);
+        }
+        if ($recordType !== '' && Schema::hasTable('library_authority_record')) {
+            // Rows with no typing row take the type their heading type implies.
+            $column = $this->typeColumn();
+            $query->where(fn ($q) => $q
+                ->whereIn('id', DB::table('library_authority_record')->where('record_type', $recordType)->select('authority_id'))
+                ->orWhere(function ($untyped) use ($column, $recordType) {
+                    $untyped->whereNotIn('id', DB::table('library_authority_record')->select('authority_id'));
+                    $mapped = AuthorityRecordService::HEADING_TYPE_MAP;
+                    $recordType === AuthorityRecordService::DEFAULT_TYPE
+                        ? $untyped->where(fn ($t) => $t->whereNull($column)->orWhereNotIn($column, array_keys($mapped)))
+                        : $untyped->whereIn($column, array_keys($mapped, $recordType, true));
+                }));
         }
         if ($source !== '') {
             $query->where('source', $source);
@@ -63,7 +111,7 @@ class AuthorityControlService
             ->get();
 
         return [
-            'hits'  => $rows->values()->all(),
+            'hits'  => $rows->map(fn ($r) => $this->present($r))->values()->all(),
             'total' => $total,
             'page'  => $page,
             'limit' => $limit,
@@ -85,7 +133,7 @@ class AuthorityControlService
             $count = DB::table('library_item_authority_link')
                 ->where('authority_id', $id)
                 ->count();
-            $auth = (object) array_merge((array) $auth, ['linked_count' => $count]);
+            $auth = $this->present((object) array_merge((array) $auth, ['linked_count' => $count]));
         }
 
         return $auth;
@@ -99,15 +147,20 @@ class AuthorityControlService
      */
     public function create(array $data): int
     {
-        $id = DB::table('library_subject_authority')->insertGetId([
+        $row = [
             'heading'      => $data['heading'] ?? '',
-            'subject_type' => $data['subject_type'] ?? 'topic',
+            $this->typeColumn() => $data['subject_type'] ?? 'topic',
             'source'      => $data['source'] ?? 'local',
             'uri'         => $data['uri'] ?? null,
             'linked_count'=> 0,
             'created_at'  => now(),
             'updated_at'  => now(),
-        ]);
+        ];
+        if ($this->hasColumn('heading_normalized')) {
+            $row['heading_normalized'] = self::normalizeHeading($row['heading']);
+        }
+
+        $id = DB::table('library_subject_authority')->insertGetId($row);
 
         return (int) $id;
     }
@@ -123,13 +176,23 @@ class AuthorityControlService
     {
         $upd = array_filter([
             'heading'      => $data['heading'] ?? null,
-            'subject_type' => $data['subject_type'] ?? null,
+            $this->typeColumn() => $data['subject_type'] ?? null,
             'source'      => $data['source'] ?? null,
-            'uri'         => array_key_exists('uri', $data) ? $data['uri'] : null,
         ], fn($v) => $v !== null);
+
+        // Optional fields: a present key is written, so a value can be cleared.
+        foreach (['uri', 'lc_label', 'rda_label', 'authorized_form', 'vocab_code', 'vocab_uri', 'notes'] as $field) {
+            if (array_key_exists($field, $data) && $this->hasColumn($field)) {
+                $upd[$field] = $data[$field];
+            }
+        }
 
         if (empty($upd)) {
             return false;
+        }
+
+        if (isset($upd['heading']) && $this->hasColumn('heading_normalized')) {
+            $upd['heading_normalized'] = self::normalizeHeading($upd['heading']);
         }
 
         $upd['updated_at'] = now();
@@ -219,7 +282,7 @@ class AuthorityControlService
             ->where('heading', 'LIKE', "%{$term}%")
             ->orderByDesc('linked_count')
             ->take($max)
-            ->get(['id', 'heading', 'subject_type', 'source'])
+            ->get(['id', 'heading', $this->typeColumn().' as subject_type', 'source'])
             ->toArray();
     }
 

@@ -181,7 +181,8 @@ class CrossReferenceTest extends TestCase
         $colenzo = collect($lines)->first(fn ($l) => $l[1] === 'Colenzo');
         $this->assertStringStartsWith('possible misspelling', $colenzo[0]);
         $this->assertSame('Colenso', $colenzo[4]);
-        $this->assertEqualsCanonicalizing(['Colenzo', 'Ladysmith'], array_column(array_slice($lines, 1), 1), 'every printed place is listed, nothing else');
+        // The telegram prints LADYSMITH: the stored name is the printed form, not the model's casing.
+        $this->assertEqualsCanonicalizing(['Colenzo', 'LADYSMITH'], array_column(array_slice($lines, 1), 1), 'every printed place is listed, nothing else');
 
         $data = ExplorerDataService::build([$a, $b], 'https://example.org');
         $rec = collect($data['records'])->keyBy('id');

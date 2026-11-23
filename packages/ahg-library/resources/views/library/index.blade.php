@@ -7,6 +7,8 @@
 {{-- Library admin sections (previously reachable by direct URL only). --}}
 <div class="d-flex gap-2 mb-3 flex-wrap">
   <a href="{{ route('library.circulation.index') }}" class="btn atom-btn-white"><i class="fas fa-right-left me-1"></i>{{ __('Circulation') }}</a>
+  <a href="{{ route('library.stocktake.index') }}" class="btn atom-btn-white"><i class="fas fa-clipboard-check me-1"></i>{{ __('Stocktake') }}</a>
+  <a href="{{ route('library.labels.index') }}" class="btn atom-btn-white"><i class="fas fa-tags me-1"></i>{{ __('Print Labels') }}</a>
   <a href="{{ route('library.patrons') }}" class="btn atom-btn-white"><i class="fas fa-users me-1"></i>{{ __('Patrons') }}</a>
   <a href="{{ route('library.serials') }}" class="btn atom-btn-white"><i class="fas fa-newspaper me-1"></i>{{ __('Serials') }}</a>
   <a href="{{ route('library.acquisitions') }}" class="btn atom-btn-white"><i class="fas fa-cart-shopping me-1"></i>{{ __('Acquisitions') }}</a>

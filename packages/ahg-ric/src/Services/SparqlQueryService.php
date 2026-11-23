@@ -11,6 +11,7 @@
 
 namespace AhgRic\Services;
 
+use AhgRic\Support\TripleStore;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -367,6 +368,8 @@ SPARQL;
      */
     public function executeQuery(string $sparql, bool $useCache = true): array
     {
+        $sparql = TripleStore::scope($sparql); // #1518
+
         // Generate cache key
         $cacheKey = 'sparql_' . md5($sparql);
 
@@ -426,7 +429,7 @@ SPARQL;
      */
     private function executeViaHttp(string $sparql): array
     {
-        $url = $this->fusekiEndpoint . '/sparql';
+        $url = TripleStore::queryUrl($this->fusekiEndpoint, '/sparql');
 
         $ch = curl_init();
         curl_setopt_array($ch, [

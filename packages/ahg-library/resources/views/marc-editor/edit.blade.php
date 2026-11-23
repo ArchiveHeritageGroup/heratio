@@ -11,6 +11,7 @@
             <h2 class="mb-0">{{ __('MARC Editor') }}</h2>
             <span class="badge bg-secondary mt-1">{{ __('Library Item #:id', ['id' => $formData['library_item_id'] ?? '']) }}</span>
         </div>
+        <a href="{{ route('library.marc-source', $formData['library_item_id'] ?? 0) }}" class="btn btn-outline-secondary btn-sm ms-auto">{{ __('Source record') }}</a>
     </div>
 
     @if(session('success'))

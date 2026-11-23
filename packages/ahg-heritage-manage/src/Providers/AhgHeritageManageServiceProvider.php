@@ -26,6 +26,9 @@
 namespace AhgHeritageManage\Providers;
 
 use AhgHeritageManage\Console\Commands\HeritageDisclosureNoteCommand;
+use AhgHeritageManage\Console\Commands\HeritageRegisterReconcileCommand;
+use AhgHeritageManage\Jurisdiction\Grap103RollForwardProfile;
+use AhgHeritageManage\Services\RollForwardProfileRegistry;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -34,18 +37,25 @@ class AhgHeritageManageServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->singleton(RollForwardProfileRegistry::class, function () {
+            $registry = new RollForwardProfileRegistry();
+            $registry->register(new Grap103RollForwardProfile());
+
+            return $registry;
+        });
     }
 
     public function boot(): void
     {
         \Illuminate\Support\Facades\Route::middleware('web')
             ->group(__DIR__ . '/../../routes/web.php');
+        \Illuminate\Support\Facades\Route::middleware('web')->group(__DIR__ . '/../../routes/grap-rollforward.php');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-heritage-manage');
 
         if ($this->app->runningInConsole()) {
             $this->commands([
                 HeritageDisclosureNoteCommand::class,
+                HeritageRegisterReconcileCommand::class,
             ]);
         }
 

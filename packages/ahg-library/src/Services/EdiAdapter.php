@@ -122,166 +122,9 @@ class EdiAdapter
      */
     public function buildIllRequestMessage(IllRequest $request): array
     {
-        $tp = $this->partner;
-        $type = $tp?->edi_type ?? 'EANCOM';
-
-        return match ($type) {
-            'EANCOM'     => $this->buildEancom($request),
-            'UN/EDIFACT' => $this->buildEdifact($request),
-            'X12'        => $this->buildX12($request),
-            'CUSTOM'    => $this->buildCustom($request),
-            default      => $this->buildEancom($request),
-        };
-    }
-
-    protected function buildEancom(IllRequest $request): array
-    {
-        $profile = $this->partner?->message_profile ?? 'EANCOM_S93';
-        $now = Carbon::now();
-        $sender = parse_url(config('app.url'), PHP_URL_HOST) ?: 'HERARIO';
-        $receiver = $this->partner?->edi_partner_code ?? 'PARTNER';
-        $msgRef = 'MR' . strtoupper(Str::random(12));
-        $grpRef = 'GR' . strtoupper(Str::random(8));
-        $nowFmt = $now->format('ymdHis');
-
-        // UNB envelope
-        $unb = "UNB+UNOC:3+{$sender}:ZZZ+{$receiver}:ZZZ+{$nowFmt}+{$msgRef}'";
-
-        // UNG group
-        $ung = "UNG+ILLIC+:ZZ+{$sender}:ZZZ+{$receiver}:ZZZ+{$nowFmt}+{$grpRef}'";
-
-        // UNH message header
-        $msgId = $profile === 'EANCOM_S94' ? '24' : '23';
-        $unh = "UNH+{$msgRef}+ILLIC:{$msgId}:3:UN'";
-
-        // BGM begin message
-        $bgmRef = 'BGM' . strtoupper(Str::random(8));
-        $title = $this->truncate($request->title ?? '', 300);
-        $bgm = "BGM+24+{$bgmRef}+AC'";
-
-        // NAD segments - requester / responder
-        $requester = $request->requesterLibrary;
-        $responder = $request->responderLibrary;
-
-        $nadReq = $requester
-            ? "NAD+LR+{$requester->code}+::{::}+" . $this->truncate($requester->name, 35) . "+{$requester->address}++{$requester->contact_email}'"
-            : "NAD+LR+::SYSTEM+HERARIO'";
-
-        $nadResp = $responder
-            ? "NAD+LE+{$responder->code}+::{::}+" . $this->truncate($responder->name, 35) . "+{$responder->address}++{$responder->contact_email}'"
-            : '';
-
-        // LIN item line
-        $isbnSeg = $request->isbn ? "LIN+1+++ISBN:IB' " : '';
-        $issnSeg = $request->issn ? "LIN+2+++ISSN:IB' " : '';
-        $lin = rtrim("LIN+1+{$isbnSeg}{$issnSeg}", ' ');
-
-        // IMD description
-        $author = $this->truncate($request->author ?? '', 200);
-        $imd = "IMD+L+{:}+{:}:EN+{$author}:AU'";
-
-        // DTM dates
-        $reqDate = $request->request_date
-            ? Carbon::parse($request->request_date)->format('ymd')
-            : $now->format('ymd');
-        $neededDate = $request->needed_by_date
-            ? 'DTM+369:' . Carbon::parse($request->needed_by_date)->format('ymd') . ':102\' '
-            : '';
-        $dtm = "DTM+137:{$reqDate}:102' {$neededDate}";
-        $dtm = trim(str_replace("  ", " ", $dtm));
-
-        // FTX notes
-        $ftx = $request->requester_note
-            ? "FTX+GEN+++{$this->truncate($request->requester_note, 300)}'"
-            : '';
-
-        // UNT trailer
-        $segmentCount = substr_count($unb . $ung . $unh . $bgm . $nadReq . $nadResp . $lin . $imd . $dtm . $ftx, "'") + 1;
-        $unt = "UNT+{$segmentCount}+{$msgRef}'";
-
-        // UNE + UNZ envelope close
-        $une = "UNE+1+{$grpRef}'";
-        $unz = "UNZ+1+{$msgRef}'";
-
-        $raw = implode("\n", array_filter([$unb, $ung, $unh, $bgm, $nadReq, $nadResp, $lin, $imd, $dtm, $ftx, $unt, $une, $unz]));
-
-        return [
-            'raw'      => $raw,
-            'envelope' => $unb,
-            'type'     => 'EANCOM',
-            'msg_ref'  => $msgRef,
-        ];
-    }
-
-    protected function buildEdifact(IllRequest $request): array
-    {
-        // UN/EDIFACT - same structure as EANCOM but without EANCOM qualifier in UNB
-        $result = $this->buildEancom($request);
-        $result['type'] = 'UN/EDIFACT';
-        // Strip the UNOC:3 qualifier for pure EDIFACT
-        $result['envelope'] = preg_replace('/\+UNOC:3\+/', '+UNB+', $result['envelope']) ?: $result['envelope'];
-        $result['raw'] = preg_replace('/\+UNOC:3\+/', '+UNB+', $result['raw']) ?: $result['raw'];
-        return $result;
-    }
-
-    protected function buildX12(IllRequest $request): array
-    {
-        $now = Carbon::now();
-        $isaCtrl = str_pad((string) random_int(1, 999999999), 9, '0', STR_PAD_LEFT);
-        $gsCtrl  = str_pad((string) random_int(1, 999999), 4, '0', STR_PAD_LEFT);
-        $stCtrl  = str_pad((string) random_int(1, 99999), 4, '0', STR_PAD_LEFT);
-        $sender  = parse_url(config('app.url'), PHP_URL_HOST) ?: 'HERARIO';
-        $receiver = $this->partner?->edi_partner_code ?? 'PARTNER';
-
-        $isa = "ISA*00*          *00*          *ZZ*${sender}       *ZZ*${receiver}     *{$now->format('ymd')}*{$now->format('Hi')}*^*00501*{$isaCtrl}*0*P*:~";
-        $gs  = "GS*IL*${sender}*${receiver}*{$now->format('ymd')}*{$now->format('Hi')}*{$gsCtrl}*X*005010X22A~";
-        $st  = "ST*850*{$stCtrl}~";
-        $ref = "REF*IV*" . ($request->ill_number ?? 'ILL-' . $request->id) . "~";
-        $n1  = "N1*LB*{$sender}*92*" . ($this->partner?->vendor?->code ?? '') . "~";
-        $n2  = $request->requester_note ? "N2*" . $this->truncate($request->requester_note, 60) . "~" : '';
-        $po1 = "PO1*1*1*EA*" . number_format((float) ($request->cost_amount ?? 0), 2, '.', '') . "*UK*" . ($request->isbn ?: ($request->issn ?: '')) . "**PF*ILL~
-               PID*F****" . $this->truncate($request->title ?? '', 80) . "~
-               PAT*06***" . ($request->needed_by_date ? Carbon::parse($request->needed_by_date)->format('ymd') : $now->format('ymd')) . "~";
-        $ctt = "CTT*1~";
-        $se  = "SE*" . (substr_count($st . $ref . $n1 . $n2 . $po1 . $ctt, '~') + 1) . "*{$stCtrl}~";
-        $ge  = "GE*1*{$gsCtrl}~";
-        $iea = "IEA*1*{$isaCtrl}~";
-
-        $raw = implode("\n", array_filter([$isa, $gs, $st, $ref, $n1, $n2, $po1, $ctt, $se, $ge, $iea]));
-
-        return [
-            'raw'     => $raw,
-            'envelope' => $isa,
-            'type'    => 'X12 850',
-            'msg_ref' => $stCtrl,
-        ];
-    }
-
-    protected function buildCustom(IllRequest $request): array
-    {
-        $raw = json_encode([
-            'ill_number'       => $request->ill_number,
-            'title'            => $request->title,
-            'author'           => $request->author,
-            'isbn'             => $request->isbn,
-            'issn'             => $request->issn,
-            'volume'           => $request->volume,
-            'issue'            => $request->issue,
-            'pages'            => $request->pages,
-            'requester_note'   => $request->requester_note,
-            'needed_by_date'   => $request->needed_by_date?->toDateString(),
-            'request_date'     => $request->request_date?->toDateString(),
-            'request_type'     => $request->request_type ?? 'BORROW',
-            'borrowing_protocol' => $request->borrowing_protocol ?? 'AARC',
-            'material_type'    => $request->material_type ?? 'BOOK',
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-
-        return [
-            'raw'      => $raw,
-            'envelope' => 'CUSTOM/JSON',
-            'type'     => 'CUSTOM',
-            'msg_ref'  => 'CUST' . strtoupper(Str::random(10)),
-        ];
+        // The encoder carries the request number, title and identifiers that a
+        // partner must echo back for its reply to be matched (#1475).
+        return (new EdiEncoderService($this->partner))->encode($request);
     }
 
     // ── Transmission ───────────────────────────────────────────────────
@@ -310,6 +153,7 @@ class EdiAdapter
             return [
                 'ok'            => true,
                 'message'       => 'TEST mode: message not transmitted.',
+                'test_mode'     => true,
                 'edi_message_id' => 'TEST-' . strtoupper(Str::random(8)),
             ];
         }
@@ -326,23 +170,51 @@ class EdiAdapter
         };
     }
 
+    /** Whether this install has what the transport needs to send anything. */
+    public static function canTransmit(?string $endpointType): bool
+    {
+        return match ($endpointType) {
+            'MANUAL', 'AS2', 'HTTP_HTTPS', 'EMAIL' => true,
+            'SFTP'  => class_exists(\phpseclib3\Net\SFTP::class),
+            default => false,
+        };
+    }
+
     protected function prepareManual(array $msg, TradingPartner $tp): array
     {
-        $dir = base_path($tp->outbound_directory);
-        if (!is_dir($dir)) {
-            mkdir($dir, 0755, true);
+        $sub = trim((string) $tp->outbound_directory, '/');
+        if (preg_match('#(^|/)\.\.(/|$)#', $sub)) {
+            return $this->manualFailure($tp, 'Outbound directory is not valid.');
         }
-        $filename = ($msg['msg_ref'] ?? 'msg') . '.edi';
-        file_put_contents(rtrim($dir, '/') . '/' . $filename, $msg['raw']);
+
+        $root = rtrim((string) config('heratio.ill_edi_outbound_path'), '/');
+        $dir = $sub === '' ? $root : $root . '/' . $sub;
+        if (!is_dir($dir) && !@mkdir($dir, 0750, true) && !is_dir($dir)) {
+            return $this->manualFailure($tp, 'Outbound directory could not be created.');
+        }
+
+        $filename = preg_replace('/[^A-Za-z0-9._-]/', '_', (string) ($msg['msg_ref'] ?? 'msg')) . '.edi';
+        if (@file_put_contents($dir . '/' . $filename, $msg['raw'], LOCK_EX) === false) {
+            return $this->manualFailure($tp, 'Outbound file could not be written.');
+        }
 
         $tp->last_outbound_at = Carbon::now();
         $tp->save();
 
         return [
             'ok'            => true,
-            'message'       => "Message queued to {$tp->outbound_directory}/{$filename}",
+            'message'       => 'Message queued to ' . ($sub === '' ? '' : $sub . '/') . $filename,
             'edi_message_id' => $msg['msg_ref'],
         ];
+    }
+
+    private function manualFailure(TradingPartner $tp, string $message): array
+    {
+        $tp->last_error_at = Carbon::now();
+        $tp->last_error_message = $message;
+        $tp->save();
+
+        return ['ok' => false, 'message' => $message, 'edi_message_id' => null];
     }
 
     protected function sendViaSftp(array $msg, TradingPartner $tp): array
@@ -369,7 +241,9 @@ class EdiAdapter
                     throw new \RuntimeException('SFTP authentication failed.');
                 }
                 $remotePath = rtrim($dir, '/') . '/' . ($msg['msg_ref'] ?? 'msg') . '.edi';
-                $sftp->put($remotePath, $msg['raw']);
+                if (!$sftp->put($remotePath, $msg['raw'])) {
+                    throw new \RuntimeException('SFTP upload failed.');
+                }
 
                 $tp->last_outbound_at = Carbon::now();
                 $tp->last_error_at = null;

@@ -44,9 +44,9 @@
       @foreach($__labels as $l)
         @php $__chip = $l->name.($l->community_name ? ' - '.$l->community_name : ''); @endphp
         @if($l->local_contexts_url)
-          <a href="{{ $l->local_contexts_url }}" target="_blank" rel="noopener" class="badge text-white text-decoration-none {{ $l->category === 'BC' ? 'icip-bc-label' : 'icip-tk-label' }}" title="{{ $l->description }}">{{ $__chip }}</a>
+          <a href="{{ $l->local_contexts_url }}" target="_blank" rel="noopener" @if(!empty($l->language_tag)) lang="{{ $l->language_tag }}" @endif class="badge text-white text-decoration-none {{ $l->category === 'BC' ? 'icip-bc-label' : 'icip-tk-label' }}" title="{{ $l->description }}">{{ $__chip }}</a>
         @else
-          <span class="badge text-white {{ $l->category === 'BC' ? 'icip-bc-label' : 'icip-tk-label' }}" title="{{ $l->description }}">{{ $__chip }}</span>
+          <span @if(!empty($l->language_tag)) lang="{{ $l->language_tag }}" @endif class="badge text-white {{ $l->category === 'BC' ? 'icip-bc-label' : 'icip-tk-label' }}" title="{{ $l->description }}">{{ $__chip }}</span>
         @endif
       @endforeach
     </div>

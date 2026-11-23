@@ -92,25 +92,30 @@ class HeritageValuationService
         $newValue = round((float) ($input['new_value'] ?? 0), 2);
         $date = $input['valuation_date'] ?? date('Y-m-d');
 
-        // The value being replaced: the last valuation if there is one, else the
-        // carrying amount the asset was recognised at.
-        $previous = $asset->last_valuation_amount ?? ($asset->current_carrying_amount ?? 0);
+        // The value being replaced is the carrying amount, which an impairment
+        // since the last valuation will have lowered. Without it the change, the
+        // reserve and the roll-forward would all be measured from a stale figure.
+        $previous = $asset->current_carrying_amount ?? ($asset->last_valuation_amount ?? 0);
         $previous = round((float) $previous, 2);
         $change = round($newValue - $previous, 2);
+        $lastValued = round((float) ($asset->last_valuation_amount ?? $previous), 2);
 
-        // Only a surplus movement adds to the revaluation reserve; a deficit
-        // unwinds it (floored at zero - the balance below that is a P&L expense,
-        // which OciMovementService splits out on the ledger side).
+        // An increase first reverses any loss taken to P&L; only the rest adds to
+        // the reserve. A deficit unwinds the reserve (floored at zero - the balance
+        // below that is a P&L expense). OciMovementService posts the same split.
         $existingSurplus = round((float) ($asset->revaluation_surplus ?? 0), 2);
-        $surplusChange = $change > 0 ? $change : max(-$existingSurplus, $change);
+        $surplusChange = $change > 0
+            ? round($change - min($change, app(OciMovementService::class)->getAccumulatedPlImpairment($assetId)), 2)
+            : max(-$existingSurplus, $change);
 
         // Automated callers (the Spectrum valuation bridge re-runs on every
         // procedure PATCH) must not append an identical history row each time.
         // An operator submitting the form always writes - re-valuing at the
         // same figure on the same day is a real, deliberate act there.
-        if (! empty($input['skip_if_unchanged'])
-            && $change == 0.0
-            && (string) ($asset->last_valuation_date ?? '') === (string) $date) {
+        if (! empty($input['skip_if_unchanged']) && (
+            ($newValue === $lastValued && (string) ($asset->last_valuation_date ?? '') === (string) $date)
+            || $this->isSuperseded($asset, $assetId, (string) $date, $newValue)
+        )) {
             return [
                 'status'            => 'unchanged',
                 'heritage_asset_id' => $assetId,
@@ -160,27 +165,10 @@ class HeritageValuationService
             }
         }
 
-        $update = $this->onlyColumns('heritage_asset', [
-            'last_valuation_date'        => $date,
-            'last_valuation_amount'      => $newValue,
-            'current_carrying_amount'    => $newValue,
-            'revaluation_surplus'        => round($existingSurplus + $surplusChange, 2),
-            // Blank fields on the form leave the asset's existing value alone.
-            'valuation_method'           => ($input['valuation_method'] ?? null) ?: ($asset->valuation_method ?? null),
-            'valuer_name'                => ($input['valuer_name'] ?? null) ?: ($asset->valuer_name ?? null),
-            'valuer_credentials'         => ($input['valuer_credentials'] ?? null) ?: ($asset->valuer_credentials ?? null),
-            'valuation_report_reference' => ($input['valuation_report_reference'] ?? null) ?: ($asset->valuation_report_reference ?? null),
-            'updated_at'                 => date('Y-m-d H:i:s'),
-        ]);
-        if (! empty($input['user_id']) && Schema::hasColumn('heritage_asset', 'updated_by')) {
-            $update['updated_by'] = $input['user_id'];
-        }
-        if ($update) {
-            DB::table('heritage_asset')->where('id', $assetId)->update($update);
-        }
-
         // Post the OCI / P&L split. Gated: the ledger table ships in the
-        // package install.sql but is absent on installs that predate it.
+        // package install.sql but is absent on installs that predate it. This
+        // runs before the asset update because the split reads the reserve held
+        // on the asset, which must still be the figure before this movement.
         $ociIds = [];
         try {
             if (Schema::hasTable('ahg_heritage_oci_movement')) {
@@ -201,6 +189,25 @@ class HeritageValuationService
             // The ledger posting must never lose the valuation itself.
         }
 
+        $update = $this->onlyColumns('heritage_asset', [
+            'last_valuation_date'        => $date,
+            'last_valuation_amount'      => $newValue,
+            'current_carrying_amount'    => $newValue,
+            'revaluation_surplus'        => round($existingSurplus + $surplusChange, 2),
+            // Blank fields on the form leave the asset's existing value alone.
+            'valuation_method'           => ($input['valuation_method'] ?? null) ?: ($asset->valuation_method ?? null),
+            'valuer_name'                => ($input['valuer_name'] ?? null) ?: ($asset->valuer_name ?? null),
+            'valuer_credentials'         => ($input['valuer_credentials'] ?? null) ?: ($asset->valuer_credentials ?? null),
+            'valuation_report_reference' => ($input['valuation_report_reference'] ?? null) ?: ($asset->valuation_report_reference ?? null),
+            'updated_at'                 => date('Y-m-d H:i:s'),
+        ]);
+        if (! empty($input['user_id']) && Schema::hasColumn('heritage_asset', 'updated_by')) {
+            $update['updated_by'] = $input['user_id'];
+        }
+        if ($update) {
+            DB::table('heritage_asset')->where('id', $assetId)->update($update);
+        }
+
         return [
             'status'            => 'recorded',
             'heritage_asset_id' => $assetId,
@@ -210,6 +217,29 @@ class HeritageValuationService
             'history_id'        => $historyId,
             'oci_movement_ids'  => $ociIds,
         ];
+    }
+
+    /** A replay: the latest figure in the history for that day, or older than the asset's latest valuation or impairment. */
+    private function isSuperseded(object $asset, int $assetId, string $date, float $newValue): bool
+    {
+        $day = substr($date, 0, 10);
+        foreach (['last_valuation_date', 'last_impairment_date'] as $field) {
+            $latest = substr((string) ($asset->{$field} ?? ''), 0, 10);
+            if ($latest !== '' && $day < $latest) {
+                return true;
+            }
+        }
+
+        if (! Schema::hasTable('heritage_valuation_history')) {
+            return false;
+        }
+        $latestThatDay = DB::table('heritage_valuation_history')
+            ->where('heritage_asset_id', $assetId)
+            ->whereDate('valuation_date', $day)
+            ->orderByDesc('id')
+            ->value('new_value');
+
+        return $latestThatDay !== null && round((float) $latestThatDay, 2) === $newValue;
     }
 
     /** Valuation history for an asset, newest first. */

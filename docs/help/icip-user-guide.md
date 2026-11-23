@@ -539,13 +539,12 @@ read the projects that account can see.
 
 **3. Configure Heratio.** In **Admin > AHG Settings > ICIP Settings**, tick
 **Enable Local Contexts Hub API** and paste the key into the API key field
-(it is stored encrypted). Two further values live in the `icip_config` table
-and are not on the settings form yet, so a database administrator sets them:
+(it is stored encrypted). Two further values are on the same form:
 
-| Key | Value |
-|-----|-------|
-| `local_contexts_project_ids` | One or more project Unique IDs, separated by commas or new lines |
-| `local_contexts_hub_url` | `https://localcontextshub.org` (default), or `https://sandbox.localcontextshub.org` for testing |
+| Field | Value |
+|-------|-------|
+| Local Contexts Project IDs | One or more project Unique IDs, separated by commas or new lines |
+| Local Contexts Hub URL | `https://localcontextshub.org` (default), or `https://sandbox.localcontextshub.org` for testing |
 
 **4. Run a first sync by hand** to check the key and ids:
 

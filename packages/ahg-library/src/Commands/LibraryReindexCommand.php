@@ -38,6 +38,12 @@ class LibraryReindexCommand extends Command
 
     protected int $batchSize;
 
+    /** Exact-match fields for authority search expansion. */
+    private const SUBJECT_FIELDS = [
+        'authority_ids'          => ['type' => 'long'],
+        'subject_headings_exact' => ['type' => 'keyword'],
+    ];
+
     public function handle(): int
     {
         $this->host      = config('services.elasticsearch.host', 'http://localhost:9200');
@@ -70,6 +76,14 @@ class LibraryReindexCommand extends Command
         // Ensure index exists
         if (! $this->indexExists()) {
             $this->createIndex();
+        }
+
+        // An index built before these fields existed would otherwise map them dynamically as text.
+        $mapped = Http::put("{$this->host}/{$this->index}/_mapping", ['properties' => self::SUBJECT_FIELDS]);
+        if (! $mapped->successful()) {
+            $this->error('Could not add the subject fields to the index: ' . substr($mapped->body(), 0, 200));
+
+            return 1;
         }
 
         // Run reindex
@@ -170,6 +184,7 @@ class LibraryReindexCommand extends Command
                     'series_title'         => ['type' => 'text'],
                     'series_issn'          => ['type' => 'keyword'],
                     'subjects'             => ['type' => 'text'],
+                    ...self::SUBJECT_FIELDS,
 
                     // Digital
                     'cover_url'            => ['type' => 'keyword', 'index' => false],
@@ -315,9 +330,11 @@ class LibraryReindexCommand extends Command
                 $checkoutCounts = $checkouts;
             }
 
+            $subjectTerms = $this->loadSubjectTerms($ids);
+
             $bulk = '';
             foreach ($rows as $row) {
-                $doc = $this->buildDoc($row, $i18nRows, $slugs, $libCreators, $copyAggs, $checkoutCounts);
+                $doc = $this->buildDoc($row, $i18nRows, $slugs, $libCreators, $copyAggs, $checkoutCounts) + ($subjectTerms[$row->id] ?? ['authority_ids' => [], 'subject_headings_exact' => []]);
                 $bulk .= json_encode(['index' => ['_index' => $this->index, '_id' => $row->id]]) . "\n";
                 $bulk .= json_encode($doc) . "\n";
                 $bar->advance();
@@ -330,6 +347,26 @@ class LibraryReindexCommand extends Command
 
         $bar->finish();
         $this->newLine();
+    }
+
+    /** @return array<int,array{authority_ids:int[],subject_headings_exact:string[]}> */
+    protected function loadSubjectTerms(array $ids): array
+    {
+        $terms = [];
+        foreach (DB::table('library_item_authority_link')->whereIn('library_item_id', $ids)->get(['library_item_id', 'authority_id']) as $link) {
+            $terms[$link->library_item_id]['authority_ids'][] = (int) $link->authority_id;
+        }
+        foreach (DB::table('library_item_subject')->whereIn('library_item_id', $ids)->get(['library_item_id', 'authority_id', 'heading']) as $subject) {
+            if ($subject->authority_id) {
+                $terms[$subject->library_item_id]['authority_ids'][] = (int) $subject->authority_id;
+            }
+            $terms[$subject->library_item_id]['subject_headings_exact'][] = mb_strtolower(trim($subject->heading));
+        }
+
+        return array_map(fn ($t) => [
+            'authority_ids' => array_values(array_unique($t['authority_ids'] ?? [])),
+            'subject_headings_exact' => array_values(array_unique($t['subject_headings_exact'] ?? [])),
+        ], $terms);
     }
 
     protected function buildDoc($row, array $i18nRows, array $slugs, $libCreators, $copyAggs, array $checkoutCounts): array

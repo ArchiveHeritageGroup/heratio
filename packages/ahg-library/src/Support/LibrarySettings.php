@@ -65,6 +65,12 @@ class LibrarySettings
         return self::branchInt('library_default_loan_days', 14, $branchId);
     }
 
+    /** How far back an offline desk transaction is accepted without a staff decision (#1474). */
+    public static function offlineMaxDays(): int
+    {
+        return max(1, AhgSettingsService::getInt('library_offline_max_days', 14));
+    }
+
     public static function maxRenewals(?int $branchId = null): int
     {
         return self::branchInt('library_max_renewals', 2, $branchId);

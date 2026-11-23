@@ -67,10 +67,13 @@ class AhgCoreServiceProvider extends ServiceProvider
         // information_schema queries, roughly 0.75 s of every request. Answer
         // "this table/column exists" from a per-release cache file instead;
         // missing ones are still checked live. See SchemaExistenceCache.
-        // Off under unit tests so they keep seeing the live schema;
+        // Under tests it is an in-process memo that covers boot only, so test
+        // bodies keep seeing the live schema (heratio#1502).
         // AHG_SCHEMA_CACHE=false switches it off anywhere.
-        if (filter_var((config('ahg-env.ahg_schema_cache') ?? true), FILTER_VALIDATE_BOOL) && ! $this->app->runningUnitTests()) {
-            \Illuminate\Database\Connection::resolverFor('mysql', fn ($pdo, $database, $prefix, $config) => new \AhgCore\Database\CachingMySqlConnection($pdo, $database, $prefix, $config));
+        if (filter_var((config('ahg-env.ahg_schema_cache') ?? true), FILTER_VALIDATE_BOOL)) {
+            $testing = $this->app->runningUnitTests();
+            $connection = $testing ? \AhgCore\Database\TestBootMySqlConnection::class : \AhgCore\Database\CachingMySqlConnection::class;
+            \Illuminate\Database\Connection::resolverFor('mysql', fn ($pdo, $database, $prefix, $config) => new $connection($pdo, $database, $prefix, $config));
             // A config file (ahg-archivematica) queries the database while
             // config loads, before this provider registers, so a stock
             // connection may already exist. Drop it; the next query
@@ -82,7 +85,15 @@ class AhgCoreServiceProvider extends ServiceProvider
                     }
                 }
             }
-            \AhgCore\Database\SchemaExistenceCache::enable(self::schemaCachePath());
+            if ($testing) {
+                \AhgCore\Database\SchemaExistenceCache::enableTestBootMemo(self::schemaCachePath());
+                $this->app->afterBootstrapping(
+                    \Illuminate\Foundation\Bootstrap\BootProviders::class,
+                    fn () => \AhgCore\Database\SchemaExistenceCache::disable()
+                );
+            } else {
+                \AhgCore\Database\SchemaExistenceCache::enable(self::schemaCachePath());
+            }
         }
     }
 

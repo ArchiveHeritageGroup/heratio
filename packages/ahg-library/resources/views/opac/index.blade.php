@@ -93,6 +93,10 @@
                         autofocus
                     >
                 </div>
+                <div class="form-check mt-1">
+                    <input class="form-check-input" type="checkbox" name="expand" value="1" id="opac-expand" {{ request()->boolean('expand') ? 'checked' : '' }}>
+                    <label class="form-check-label small" for="opac-expand">{{ __('Include narrower subject terms') }}</label>
+                </div>
             </div>
             <div class="col-auto">
                 <select name="sort" class="form-select" onchange="document.getElementById('opac-search-form').submit()">

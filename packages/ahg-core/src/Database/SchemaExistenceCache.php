@@ -41,14 +41,44 @@ class SchemaExistenceCache
 
     private static bool $enabled = false;
 
+    /** Set while the cache is the in-process test-boot memo; null otherwise. */
+    private static ?string $memoScope = null;
+
     public static function enable(string $path): void
     {
+        self::$memoScope = null;
         self::$path = $path;
         self::$enabled = true;
         self::$loaded = false;
         self::$dirty = false;
         self::$data = ['t' => [], 'c' => []];
         register_shutdown_function([self::class, 'save']);
+    }
+
+    /**
+     * Test runs only (heratio#1502): remember answers in memory for this PHP
+     * process, with no file. Every test boots the app, and the providers'
+     * existence checks were about two thirds of that boot. The caller switches
+     * this off once boot ends, so test bodies always see the live schema.
+     */
+    public static function enableTestBootMemo(string $scope): void
+    {
+        if (self::$memoScope !== $scope) {
+            self::$data = ['t' => [], 'c' => []];
+            self::$memoScope = $scope;
+        }
+        self::$path = null;
+        self::$loaded = true;
+        self::$dirty = false;
+        self::$enabled = true;
+    }
+
+    /** Drop the test-boot memo after DDL. A file-backed cache is left alone. */
+    public static function flushTestBootMemo(): void
+    {
+        if (self::$memoScope !== null) {
+            self::$data = ['t' => [], 'c' => []];
+        }
     }
 
     public static function disable(): void

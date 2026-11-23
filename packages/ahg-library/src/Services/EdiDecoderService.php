@@ -299,16 +299,9 @@ class EdiDecoderService
         if ($word === null) {
             return null;
         }
-        $key = strtolower(trim($word));
-        if (isset(self::WORD_STATUS_MAP[$key])) {
-            return self::WORD_STATUS_MAP[$key];
-        }
-        foreach (self::WORD_STATUS_MAP as $needle => $status) {
-            if (str_contains($key, $needle)) {
-                return $status;
-            }
-        }
-        return null;
+        // Exact match only: replies now drive real status changes, and a
+        // substring match would read "cannot be shipped" as shipped (#1475).
+        return self::WORD_STATUS_MAP[strtolower(trim($word))] ?? null;
     }
 
     /** Parse a yymmdd or yyyymmdd EDI date to Y-m-d. */

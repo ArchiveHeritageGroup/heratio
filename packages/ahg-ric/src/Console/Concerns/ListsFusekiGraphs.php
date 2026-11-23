@@ -35,7 +35,8 @@ trait ListsFusekiGraphs
     private function listFusekiGraphsByPrefix(string $prefix): array
     {
         $sparql = 'SELECT DISTINCT ?s WHERE { { ?s ?p ?o } UNION { GRAPH ?g { ?s ?p ?o } } FILTER(STRSTARTS(STR(?s), "' . $prefix . '")) }';
-        $endpoint = config('heratio.fuseki_endpoint', 'http://localhost:3030/heratio') . '/sparql';
+        // Deliberately not scoped: this maintenance listing reads every graph (#1518).
+        $endpoint = \AhgRic\Support\TripleStore::queryUrl(config('heratio.fuseki_endpoint', 'http://localhost:3030/heratio'), '/sparql');
 
         $ch = curl_init();
         curl_setopt_array($ch, [

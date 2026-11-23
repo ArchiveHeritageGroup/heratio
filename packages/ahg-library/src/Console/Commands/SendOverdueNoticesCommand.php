@@ -5,7 +5,7 @@
  *
  * Scheduled daily. Honours library_overdue_notices_enabled; renders the
  * library_notice_template ladder and logs each send to
- * library_overdue_notice_log. --dry-run renders + logs without sending mail.
+ * library_overdue_notice_log. --dry-run renders + logs without sending or queueing.
  *
  * @author    Johan Pieterse
  * @copyright Plain Sailing Information Systems
@@ -20,7 +20,7 @@ use Illuminate\Console\Command;
 
 class SendOverdueNoticesCommand extends Command
 {
-    protected $signature = 'ahg:library-overdue-notices {--dry-run : Render and log without sending email}';
+    protected $signature = 'ahg:library-overdue-notices {--dry-run : Render and log without sending or queueing}';
 
     protected $description = 'Send tiered overdue notices to patrons with past-due loans and log each send.';
 
@@ -35,10 +35,11 @@ class SendOverdueNoticesCommand extends Command
         $stats = $notices->processOverdue($dryRun);
 
         $this->info(sprintf(
-            '%sOverdue notices: %d candidate(s), %d sent, %d skipped, %d failed.',
+            '%sOverdue notices: %d candidate(s), %d sent, %d queued for print, %d skipped, %d failed.',
             $dryRun ? '[dry-run] ' : '',
             $stats['candidates'],
             $stats['sent'],
+            $stats['queued'],
             $stats['skipped'],
             $stats['failed'],
         ));

@@ -99,6 +99,18 @@
                 <input type="password" name="settings[local_contexts_api_key]" class="form-control" value="" autocomplete="new-password" placeholder="{{ __('Leave blank to keep current') }}"> {{-- #1395(D) write-only --}}
                 <div class="form-text">{{ __('API key for accessing the Local Contexts Hub. Leave blank if not using API integration.') }}</div>
               </div>
+              <div class="mb-3">
+                <label class="form-label" for="lc_hub_url">{{ __('Local Contexts Hub URL') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <input type="url" name="settings[local_contexts_hub_url]" id="lc_hub_url" class="form-control @error('settings.local_contexts_hub_url') is-invalid @enderror" maxlength="255" value="{{ old('settings.local_contexts_hub_url', $settings['local_contexts_hub_url'] ?? '') }}">
+                @error('settings.local_contexts_hub_url')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                <div class="form-text">{{ __('The live Hub, or the sandbox while testing. Each has its own accounts and keys.') }}</div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="lc_project_ids">{{ __('Local Contexts Project IDs') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+                <textarea name="settings[local_contexts_project_ids]" id="lc_project_ids" rows="3" maxlength="4000" class="form-control @error('settings.local_contexts_project_ids') is-invalid @enderror">{{ old('settings.local_contexts_project_ids', $settings['local_contexts_project_ids'] ?? '') }}</textarea>
+                @error('settings.local_contexts_project_ids')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                <div class="form-text">{{ __('Hub project unique IDs to sync, separated by commas or spaces.') }}</div>
+              </div>
             </div>
           </div>
         </div>

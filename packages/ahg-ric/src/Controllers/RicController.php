@@ -33,6 +33,8 @@ use AhgRic\Services\RicSerializationService;
 use AhgRic\Services\ShaclValidationService;
 use AhgRic\Support\RicDisclosure;
 use AhgRic\Support\FusekiEndpoint;
+use AhgRic\Support\RicGraphJoin;
+use AhgRic\Support\TripleStore;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -903,7 +905,7 @@ class RicController extends Controller
     protected function checkFusekiStatusQuick(): array
     {
         $config = $this->getFusekiConfig();
-        $endpoint = ($config['fuseki_endpoint'] ?? config('services.ric.fuseki_endpoint', 'http://localhost:3030/ric')) . '/query';
+        $endpoint = TripleStore::queryUrl($config['fuseki_endpoint'] ?? config('services.ric.fuseki_endpoint', 'http://localhost:3030/ric'));
         $username = $config['fuseki_username'] ?? config('services.ric.fuseki_username', 'admin');
         $password = SecretCrypto::reveal($config['fuseki_password'] ?? config('services.ric.fuseki_password', '')); // #1395(D) decrypt-at-rest
 
@@ -1030,7 +1032,7 @@ class RicController extends Controller
         $sparql = rtrim($sparql, " ;\n") . " .\n}";
 
         // Execute SPARQL UPDATE
-        $updateUrl = rtrim($fusekiEndpoint, '/') . '/update';
+        $updateUrl = TripleStore::updateUrl(rtrim($fusekiEndpoint, '/'));
         $ch = curl_init();
         curl_setopt_array($ch, [
             CURLOPT_URL => $updateUrl,
@@ -1127,7 +1129,7 @@ class RicController extends Controller
         }
 
         $config = $this->getFusekiConfig();
-        $fusekiEndpoint = ($config['fuseki_endpoint'] ?? config('services.ric.fuseki_endpoint', 'http://localhost:3030/ric')) . '/query';
+        $fusekiEndpoint = TripleStore::queryUrl($config['fuseki_endpoint'] ?? config('services.ric.fuseki_endpoint', 'http://localhost:3030/ric'));
         $fusekiUsername  = $config['fuseki_username'] ?? config('services.ric.fuseki_username', 'admin');
         $fusekiPassword  = SecretCrypto::reveal($config['fuseki_password'] ?? config('services.ric.fuseki_password', '')); // #1395(D) decrypt-at-rest
         $baseUri         = $config['ric_base_uri'] ?? config('ric.base_uri', 'https://ric.theahg.co.za/ric');
@@ -1279,7 +1281,7 @@ class RicController extends Controller
         $opts = [
             CURLOPT_URL            => $endpoint,
             CURLOPT_POST           => true,
-            CURLOPT_POSTFIELDS     => $query,
+            CURLOPT_POSTFIELDS     => TripleStore::scope($query), // #1518
             CURLOPT_HTTPHEADER     => [
                 'Content-Type: application/sparql-query',
                 'Accept: application/json',
@@ -1330,7 +1332,7 @@ class RicController extends Controller
         // Main query: RecordSets and their relations including new RiC-O predicates
         $query = <<<'SPARQL'
 PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
-SELECT ?s ?label ?type ?related ?relLabel ?relType ?pred WHERE {
+SELECT ?s ?label ?type ?related ?pred WHERE {
   {
     ?s a rico:RecordSet .
     ?s rico:title ?label .
@@ -1339,13 +1341,17 @@ SELECT ?s ?label ?type ?related ?relLabel ?relType ?pred WHERE {
   OPTIONAL {
     ?s ?pred ?related .
     FILTER(isURI(?related) && ?pred != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
-    OPTIONAL { ?related rico:title ?relLabel }
-    OPTIONAL { ?related a ?relType . FILTER(STRSTARTS(STR(?relType), "https://www.ica.org/standards/RiC/ontology#")) }
   }
 } LIMIT 200
 SPARQL;
 
-        $result = $this->executeSparql($query, $endpoint, $username, $password);
+        // #1518 - titles and types come from one follow-up query for these nodes.
+        $result = RicGraphJoin::enrich(
+            $this->executeSparql($query, $endpoint, $username, $password),
+            fn (string $sparql) => $this->executeSparql($sparql, $endpoint, $username, $password),
+            fn (array $row) => ['related', 'relLabel', 'relType'],
+            200
+        );
         $nodes = [];
         $edges = [];
         $nodeIndex = [];
@@ -2501,7 +2507,7 @@ SPARQL;
         }
 
         // Fallback: use SPARQL-based lightweight validation
-        $validationResults = $this->sparqlBasedValidation($fusekiEndpoint . '/query', $fusekiUsername, $fusekiPassword);
+        $validationResults = $this->sparqlBasedValidation(TripleStore::queryUrl($fusekiEndpoint), $fusekiUsername, $fusekiPassword);
 
         return response()->json([
             'success' => true,
@@ -2632,7 +2638,7 @@ SPARQL;
         RicDisclosure::guard((int) $recordId);
 
         $config = $this->getFusekiConfig();
-        $fusekiEndpoint = ($config['fuseki_endpoint'] ?? config('services.ric.fuseki_endpoint', 'http://localhost:3030/ric')) . '/query';
+        $fusekiEndpoint = TripleStore::queryUrl($config['fuseki_endpoint'] ?? config('services.ric.fuseki_endpoint', 'http://localhost:3030/ric'));
         $fusekiUsername  = $config['fuseki_username'] ?? config('services.ric.fuseki_username', 'admin');
         $fusekiPassword  = SecretCrypto::reveal($config['fuseki_password'] ?? config('services.ric.fuseki_password', '')); // #1395(D) decrypt-at-rest
         $baseUri         = $config['ric_base_uri'] ?? config('ric.base_uri', 'https://ric.theahg.co.za/ric');

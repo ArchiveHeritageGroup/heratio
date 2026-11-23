@@ -3,12 +3,19 @@
 @section('content')
 <div class="container py-4">
     <div class="d-flex align-items-center mb-4">
-        <a href="{{ route('library.marc-authority.show', $record->id ?? 0) }}"
+        <a href="{{ route('library.authority-view', $record->id) }}"
            class="btn btn-outline-secondary btn-sm me-3">
             <i class="fas fa-arrow-left"></i>
         </a>
         <h2 class="mb-0">{{ __('Edit Authority Record #:id', ['id' => $record->id ?? '']) }}</h2>
     </div>
+
+    @if($errors->any())
+        <div class="alert alert-danger" role="alert">{{ __('Please fix the errors below.') }}</div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-danger" role="alert">{{ session('error') }}</div>
+    @endif
 
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -17,7 +24,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('library.marc-authority.update', $record->id ?? 0) }}" autocomplete="off">
+    <form method="POST" action="{{ route('library.authority-update', $record->id) }}" autocomplete="off">
         @csrf
         @method('PUT')
         <div class="row g-4">
@@ -27,6 +34,12 @@
                         <h5 class="mb-0"><i class="fas fa-tag me-2"></i>{{ __('Authority Labels') }}</h5>
                     </div>
                     <div class="card-body">
+                        <div class="mb-3">
+                            <label for="heading" class="form-label small fw-semibold">{{ __('Heading') }} <span class="text-danger">*</span></label>
+                            <input type="text" name="heading" id="heading" class="form-control" required
+                                   value="{{ old('heading', $record->heading ?? '') }}" maxlength="500">
+                            @error('heading') <div class="text-danger small">{{ $message }}</div> @enderror
+                        </div>
                         <div class="mb-3">
                             <label for="lc_label" class="form-label small fw-semibold">{{ __('LC Label') }}</label>
                             <input type="text" name="lc_label" id="lc_label" class="form-control"
@@ -57,11 +70,29 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="subject_type" class="form-label small fw-semibold">{{ __('Subject Type') }}</label>
-                                <select name="subject_type" id="subject_type" class="form-select">
-                                    @foreach(['topic','person','family','corporate_body','title','geographic','event','uniform_title'] as $t)
-                                        <option value="{{ $t }}" {{ old('subject_type', $record->subject_type ?? 'topic') === $t ? 'selected' : '' }}>{{ $t }}</option>
+                                @php $currentType = old('subject_type', $record->subject_type ?? 'topic'); @endphp
+                                <select name="subject_type" id="subject_type" class="form-select" required>
+                                    @unless(isset($subjectTypes[$currentType]))
+                                        <option value="{{ $currentType }}" selected>{{ $currentType }}</option>
+                                    @endunless
+                                    @foreach($subjectTypes as $code => $label)
+                                        <option value="{{ $code }}" {{ $currentType === $code ? 'selected' : '' }}>{{ $label }}</option>
                                     @endforeach
                                 </select>
+                                @error('subject_type') <div class="text-danger small">{{ $message }}</div> @enderror
+                            </div>
+                            <div class="col-md-6">
+                                <label for="record_type" class="form-label small fw-semibold">{{ __('Record Type') }}</label>
+                                @php $currentRecordType = old('record_type', $recordType); @endphp
+                                <select name="record_type" id="record_type" class="form-select" required>
+                                    @unless(isset($recordTypes[$currentRecordType]))
+                                        <option value="{{ $currentRecordType }}" selected>{{ $currentRecordType }}</option>
+                                    @endunless
+                                    @foreach($recordTypes as $code => $label)
+                                        <option value="{{ $code }}" {{ $currentRecordType === $code ? 'selected' : '' }}>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                                @error('record_type') <div class="text-danger small">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-md-6">
                                 <label for="vocab_code" class="form-label small fw-semibold">{{ __('Vocabulary Code') }}</label>
@@ -93,8 +124,15 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="source" class="form-label small fw-semibold">{{ __('Source') }}</label>
-                                <input type="text" name="source" id="source" class="form-control"
-                                       value="{{ old('source', $record->source ?? '') }}" maxlength="100">
+                                @php $currentSource = old('source', $record->source ?? 'local'); @endphp
+                                <select name="source" id="source" class="form-select" required>
+                                    @unless(isset($sources[$currentSource]))
+                                        <option value="{{ $currentSource }}" selected>{{ $currentSource }}</option>
+                                    @endunless
+                                    @foreach($sources as $code => $label)
+                                        <option value="{{ $code }}" {{ $currentSource === $code ? 'selected' : '' }}>{{ $label }}</option>
+                                    @endforeach
+                                </select>
                                 @error('source') <div class="text-danger small">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -122,7 +160,7 @@
                         <button type="submit" class="btn btn-success w-100 mb-2">
                             <i class="fas fa-save me-2"></i>{{ __('Save Changes') }}
                         </button>
-                        <a href="{{ route('library.marc-authority.show', $record->id ?? 0) }}"
+                        <a href="{{ route('library.authority-view', $record->id) }}"
                            class="btn btn-outline-secondary w-100">
                             {{ __('Cancel') }}
                         </a>

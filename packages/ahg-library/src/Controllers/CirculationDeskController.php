@@ -94,6 +94,13 @@ class CirculationDeskController extends Controller
         // 0 or absent is the deliberate "all branches" choice, not a missing
         // value - the form submits it as a real option.
         $branchId = (int) ($validated['branch_id'] ?? 0);
+
+        // #1474: takings stay with the branch whose drawer they went into.
+        if (auth()->check() && (new \AhgLibrary\Services\LibraryCashDeskService())->blockingBranchChange((int) auth()->id(), $branchId > 0 ? $branchId : null)) {
+            return redirect()->route('library.circulation.index')
+                ->with('error', __('Close your open cash session before changing branch.'));
+        }
+
         if (! LibraryBranch::chooseOperatorBranch($branchId > 0 ? $branchId : null)) {
             return redirect()->route('library.circulation.index')
                 ->with('error', __('Your branch is set by an administrator.'));

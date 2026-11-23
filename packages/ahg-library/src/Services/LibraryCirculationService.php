@@ -26,6 +26,7 @@
 namespace AhgLibrary\Services;
 
 use AhgLibrary\Support\LibraryBranch;
+use AhgLibrary\Support\LibraryOfflineRuleHistory;
 use AhgLibrary\Support\LibrarySettings;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -38,12 +39,21 @@ class LibraryCirculationService
     public const STATUS_CHECKED_OUT = 'checked_out';
     public const STATUS_ON_HOLD = 'on_hold';
 
+    /** A loan still out: ahg:library-overdue-check moves past-due loans from active to overdue. */
+    public const OPEN_LOAN_STATUSES = ['active', 'overdue'];
+
     /**
      * Per-table branch_id availability, keyed by connection then table. Not a
      * flat per-process cache: this process can serve more than one database -
      * see the note in LibraryBranch::available().
      */
     private static array $branchColumns = [];
+
+    /** A container singleton, so a fine sweep does not reload the calendar per loan. */
+    private function calendar(): LibraryCalendarService
+    {
+        return app(LibraryCalendarService::class);
+    }
 
     /**
      * Find the loan rule governing a transaction. Resolution runs most
@@ -148,7 +158,7 @@ class LibraryCirculationService
             // Patron checkout cap
             $activeCount = DB::table('library_checkout')
                 ->where('patron_id', $patronId)
-                ->where('status', 'active')
+                ->whereIn('status', self::OPEN_LOAN_STATUSES)
                 ->count();
             if ($activeCount >= (int) $patron->max_checkouts) {
                 return null;
@@ -174,7 +184,8 @@ class LibraryCirculationService
                 'copy_id' => $copyId,
                 'patron_id' => $patronId,
                 'checkout_date' => now(),
-                'due_date' => date('Y-m-d', strtotime("+{$loanDays} days")),
+                // #1475: a loan never falls due on a day the branch is shut.
+                'due_date' => $this->calendar()->nextOpenDay(date('Y-m-d', strtotime("+{$loanDays} days")), $branchId),
                 'renewed_count' => 0,
                 'status' => 'active',
                 'checked_out_by' => $userId,
@@ -201,7 +212,7 @@ class LibraryCirculationService
     {
         return DB::transaction(function () use ($checkoutId, $userId, $condition, $notes) {
             $checkout = DB::table('library_checkout')->where('id', $checkoutId)->lockForUpdate()->first();
-            if (!$checkout || $checkout->status !== 'active') {
+            if (!$checkout || !in_array($checkout->status, self::OPEN_LOAN_STATUSES, true)) {
                 return false;
             }
 
@@ -282,7 +293,10 @@ class LibraryCirculationService
             }
 
             $loanDays = $this->resolveLoanDays($materialType, $patron->patron_type, $branchId);
-            $newDue = date('Y-m-d', strtotime($c->due_date . " +{$loanDays} days"));
+            $newDue = $this->calendar()->nextOpenDay(
+                date('Y-m-d', strtotime($c->due_date . " +{$loanDays} days")),
+                $branchId
+            );
 
             DB::table('library_checkout')->where('id', $checkoutId)->update([
                 'due_date' => $newDue,
@@ -463,8 +477,30 @@ class LibraryCirculationService
         // Subtract grace period from the overdue duration. Defaults to 0 when
         // no rule covers the (material, patron) pair, which mirrors AtoM.
         $grace = $rule ? (int) $rule->grace_period_days : 0;
-        $overdueDays = (int) floor((time() - $dueTs) / 86400) - $grace;
+        // #1475: days the branch was shut are not charged, and do not use up
+        // the grace period either - grace is counted in open days.
+        $closedDays = $this->calendar()->closedDaysBetween(
+            date('Y-m-d', $dueTs),
+            date('Y-m-d'),
+            $branchId !== null ? (int) $branchId : null
+        );
+        $overdueDays = (int) floor((time() - $dueTs) / 86400) - $closedDays - $grace;
         if ($overdueDays <= 0) {
+            // A closure added afterwards can cover every charged day. The row
+            // stays outstanding at zero rather than becoming 'waived', which
+            // records a staff decision, and so that removing the closure
+            // brings the same fine back on the next run.
+            $cleared = DB::table('library_fine')
+                ->where('checkout_id', $checkout->id)
+                ->where('fine_type', 'overdue')
+                ->where('status', 'outstanding')
+                ->whereColumn('amount', '>', 'paid_amount')
+                // Never below what the patron has already paid on this row.
+                ->update(['amount' => DB::raw('paid_amount'), 'updated_at' => now()]);
+            if ($cleared > 0) {
+                LibraryFineService::refreshPatronTotals((int) $checkout->patron_id);
+            }
+
             return;
         }
 
@@ -473,18 +509,29 @@ class LibraryCirculationService
             $amount = $cap;
         }
 
+        // #1474: what was already paid or waived on this loan is not charged again.
+        $amount = LibraryFineService::chargeableOverdue((int) $checkout->id, (float) $amount);
+
         $existing = DB::table('library_fine')
             ->where('checkout_id', $checkout->id)
             ->where('fine_type', 'overdue')
             ->where('status', 'outstanding')
+            ->orderByDesc('id')
             ->first();
 
         if ($existing) {
-            DB::table('library_fine')->where('id', $existing->id)->update([
-                'amount' => $amount,
+            // A payment stands: settled rows are netted off by chargeableOverdue()
+            // above, so a loan still accruing is charged only the difference.
+            $paid = (float) $existing->paid_amount;
+            // Only if no payment landed since the read; the next run picks it up.
+            DB::table('library_fine')->where('id', $existing->id)
+                ->where('status', 'outstanding')->where('paid_amount', $existing->paid_amount)->update([
+                // Never below what the patron has already paid on this row.
+                'amount' => max($amount, $paid),
+                'status' => $paid > 0 && $amount <= $paid ? 'paid' : 'outstanding',
                 'updated_at' => now(),
             ]);
-        } else {
+        } elseif ($amount > 0) {
             // #74 encryption_field_financial_data: encrypt-on-write so
             // direct inserts don't have to wait for the daily bulk-apply
             // safety net. Short-circuits to plaintext when the category
@@ -513,14 +560,7 @@ class LibraryCirculationService
         }
 
         // Refresh patron's running total.
-        $total = (float) DB::table('library_fine')
-            ->where('patron_id', $checkout->patron_id)
-            ->where('status', 'outstanding')
-            ->sum('amount');
-        DB::table('library_patron')->where('id', $checkout->patron_id)->update([
-            'total_fines_owed' => $total,
-            'updated_at' => now(),
-        ]);
+        LibraryFineService::refreshPatronTotals((int) $checkout->patron_id);
     }
 
     /**
@@ -587,7 +627,8 @@ class LibraryCirculationService
             ->whereIn('checkout_id', array_map(static fn ($r) => $r->id, $rows))
             ->where('fine_type', 'overdue')
             ->where('status', 'outstanding')
-            ->pluck('amount', 'checkout_id');
+            ->selectRaw('checkout_id, amount - paid_amount as balance')
+            ->pluck('balance', 'checkout_id');
 
         $today = strtotime(date('Y-m-d'));
 
@@ -726,15 +767,52 @@ class LibraryCirculationService
             'notes'               => ($data['notes'] ?? null) ?: null,
         ];
 
+        // Before and after, so offline loans can be judged by the rules in force
+        // when they happened (#1474).
+        LibraryOfflineRuleHistory::captureQuietly('rule_edit');
         DB::table('library_loan_rule')->updateOrInsert($key, $values);
+        LibraryOfflineRuleHistory::captureQuietly('rule_edit');
 
         return (int) DB::table('library_loan_rule')->where($key)->value('id');
+    }
+
+    /**
+     * Edit one loan rule by id - #1475. Unlike saveLoanRule this can move a rule
+     * to a different branch, material or patron type. renewal_period_days is
+     * kept when the form does not send it, because the editor does not show it.
+     */
+    public function updateLoanRule(int $id, array $data): bool
+    {
+        $values = [
+            'material_type'     => (string) $data['material_type'],
+            'patron_type'       => (string) (($data['patron_type'] ?? null) ?: '*'),
+            'loan_period_days'  => (int) $data['loan_period_days'],
+            'max_renewals'      => (int) ($data['max_renewals'] ?? 0),
+            'fine_per_day'      => (float) ($data['fine_per_day'] ?? 0),
+            'fine_cap'          => ($data['fine_cap'] ?? null) !== null && $data['fine_cap'] !== ''
+                ? (float) $data['fine_cap'] : null,
+            'grace_period_days' => (int) ($data['grace_period_days'] ?? 0),
+            'is_loanable'       => ! empty($data['is_loanable']) ? 1 : 0,
+            'notes'             => ($data['notes'] ?? null) ?: null,
+        ];
+        if (isset($data['renewal_period_days'])) {
+            $values['renewal_period_days'] = (int) $data['renewal_period_days'];
+        }
+        if (LibraryBranch::available()) {
+            $values['branch_id'] = max((int) ($data['branch_id'] ?? 0), LibraryBranch::ALL);
+        }
+
+        return DB::table('library_loan_rule')->where('id', $id)->update($values) >= 0;
     }
 
     /** Delete one loan rule. */
     public function deleteLoanRule(int $id): bool
     {
-        return DB::table('library_loan_rule')->where('id', $id)->delete() > 0;
+        LibraryOfflineRuleHistory::captureQuietly('rule_edit');
+        $deleted = DB::table('library_loan_rule')->where('id', $id)->delete() > 0;
+        LibraryOfflineRuleHistory::captureQuietly('rule_edit');
+
+        return $deleted;
     }
 
     public function getLoanRules(): array

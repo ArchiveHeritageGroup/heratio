@@ -341,12 +341,16 @@ class LibraryController extends Controller
             }
         }
 
+        // #1475: strict schedules refuse here; warn schedules save and tell the cataloguer.
+        $classWarning = app(\AhgLibrary\Services\ClassificationScheduleService::class)->guardKeyedNumber($data);
+
         $id = $this->service->create($data);
         $slug = $this->service->getSlug($id);
 
         return redirect()
             ->route('library.show', $slug)
-            ->with('success', __('Library item created successfully.'));
+            ->with('success', __('Library item created successfully.'))
+            ->with($classWarning ? ['warning' => $classWarning] : []);
     }
 
     public function update(Request $request, string $slug)
@@ -441,11 +445,15 @@ class LibraryController extends Controller
         $data['subjects']     = $request->input('subjects', []);
         $data['itemLocation'] = $this->collectItemLocation($request);
 
+        // #1475: an unchanged number is never re-judged, so a legacy value cannot block an edit.
+        $classWarning = app(\AhgLibrary\Services\ClassificationScheduleService::class)->guardKeyedNumber($data, (array) $item);
+
         $this->service->update($slug, $data);
 
         return redirect()
             ->route('library.show', $slug)
-            ->with('success', __('Library item updated successfully.'));
+            ->with('success', __('Library item updated successfully.'))
+            ->with($classWarning ? ['warning' => $classWarning] : []);
     }
 
     /**
@@ -719,23 +727,9 @@ class LibraryController extends Controller
     }
 
     /** Create or update a loan rule - #1473. */
-    public function saveLoanRule(Request $request)
+    public function saveLoanRule(\AhgLibrary\Http\Requests\LoanRuleRequest $request)
     {
-        $data = $request->validate([
-            'branch_id'           => 'nullable|integer|min:0',
-            'material_type'       => 'required|string|max:50',
-            'patron_type'         => 'nullable|string|max:30',
-            'loan_period_days'    => 'required|integer|min:0|max:3650',
-            'renewal_period_days' => 'nullable|integer|min:0|max:3650',
-            'max_renewals'        => 'nullable|integer|min:0|max:99',
-            'fine_per_day'        => 'nullable|numeric|min:0',
-            'fine_cap'            => 'nullable|numeric|min:0',
-            'grace_period_days'   => 'nullable|integer|min:0|max:365',
-            'is_loanable'         => 'nullable|boolean',
-            'notes'               => 'nullable|string|max:65535',
-        ]);
-
-        $this->circ->saveLoanRule($data);
+        $this->circ->saveLoanRule($request->validated());
 
         return redirect()->route('library.loan-rules')->with('success', __('Loan rule saved.'));
     }
@@ -743,6 +737,12 @@ class LibraryController extends Controller
     /** Delete a loan rule - #1473. */
     public function deleteLoanRule(Request $request, int $id)
     {
+        $rule = DB::table('library_loan_rule')->where('id', $id)->first();
+        abort_unless(
+            ! $rule || \AhgLibrary\Services\LibraryCalendarService::operatorMayManage((int) ($rule->branch_id ?? 0)),
+            403
+        );
+
         $this->circ->deleteLoanRule($id);
 
         return redirect()->route('library.loan-rules')->with('success', __('Loan rule deleted.'));
@@ -756,6 +756,8 @@ class LibraryController extends Controller
             'rules' => collect($this->circ->getLoanRules()),
             'branchAware' => $branchAware,
             'branchLabels' => $branchAware ? LibraryBranch::options() : [],
+            'materialOptions' => \AhgLibrary\Http\Requests\LoanRuleRequest::materialOptions(),
+            'patronOptions' => \AhgLibrary\Http\Requests\LoanRuleRequest::patronOptions(),
         ]);
     }
 
@@ -1155,6 +1157,7 @@ class LibraryController extends Controller
                 'page'          => max(1, (int) $request->query('page', 1)),
                 'per_page'      => max(1, (int) $request->query('per_page',
                                           \AhgLibrary\Support\LibrarySettings::opacResultsPerPage())),
+                'expand'        => $request->boolean('expand'),
             ];
 
             $searchResult = $this->search->search($filters);
@@ -1374,9 +1377,8 @@ class LibraryController extends Controller
         $items = collect();
         try {
             if (\Schema::hasTable('library_item')) {
-                $items = \DB::table('library_item')
-                    ->whereNotNull('call_number')->where('call_number', '!=', '')
-                    ->orderBy('call_number')->limit(500)->get();
+                // #1475: true shelf order from the derived key, not string order.
+                $items = app(\AhgLibrary\Services\ClassificationScheduleService::class)->shelfList(500);
             }
         } catch (\Throwable $e) {}
         return view('ahg-library::reports.call-numbers', compact('items'));

@@ -22,6 +22,10 @@
         </div>
     @endif
 
+    @if(session('error'))
+        <div class="alert alert-danger" role="alert">{{ session('error') }}</div>
+    @endif
+
     <div class="row g-4">
         <div class="col-lg-8">
             {{-- Authority detail card --}}
@@ -73,6 +77,10 @@
                     </dl>
                 </div>
             </div>
+
+            @if($depthAvailable)
+                @include('ahg-library::authority._hierarchy')
+            @endif
 
             {{-- Linked library items --}}
             <div class="card shadow-sm">

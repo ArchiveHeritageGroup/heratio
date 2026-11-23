@@ -38,7 +38,9 @@
 
 namespace AhgHeritageManage\Console\Commands;
 
+use AhgHeritageManage\Services\HeritageRollForwardService;
 use AhgHeritageManage\Services\OciMovementService;
+use AhgHeritageManage\Services\RollForwardProfileRegistry;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -122,7 +124,36 @@ class HeritageDisclosureNoteCommand extends Command
         $vars['asset_count'] = number_format($assetCount);
         $vars['total_carrying_amount'] = number_format($carrying, 2);
 
-        $summary = $oci->summariseForPeriod($start, $end);
+        // The GRAP note reports the period-end position from the roll-forward,
+        // so it excludes unrecognised and derecognised assets. It covers only
+        // assets assigned to GRAP 103, matching the report filtered to that
+        // standard. Unassigned assets are left out and counted in a warning,
+        // because claiming them for GRAP 103 would be a guess. -1 matches nothing
+        // when the standard is not configured, so no other standard leaks in.
+        $scope = null;
+        if ($standard === 'grap-103') {
+            $scope = (int) (Schema::hasTable('heritage_accounting_standard')
+                ? DB::table('heritage_accounting_standard')->where('code', 'GRAP103')->value('id')
+                : 0) ?: -1;
+            $rollForward = app(HeritageRollForwardService::class)->compute($start, $end, $scope);
+            $vars['asset_count'] = number_format($rollForward['asset_count']);
+            $vars['total_carrying_amount'] = number_format($rollForward['lines']['closing'], 2);
+            $vars['roll_forward_table'] = app(HeritageRollForwardService::class)
+                ->markdown($rollForward, app(RollForwardProfileRegistry::class)->for('GRAP103'));
+            if ($scope === -1) {
+                $vars['roll_forward_table'] .= "\n**Not available:** the GRAP 103 standard is not configured, so no assets are reported.\n";
+            }
+            $unassigned = Schema::hasTable('heritage_asset')
+                ? DB::table('heritage_asset')->whereNull('accounting_standard_id')
+                    ->where(fn ($q) => $q->whereIn('recognition_status', ['recognised', 'derecognised'])->orWhereNotNull('derecognition_date'))
+                    ->count()
+                : 0;
+            if ($unassigned > 0) {
+                $vars['roll_forward_table'] .= "\n**Excluded:** {$unassigned} recognised asset(s) have no accounting standard assigned and are not in this note. Assign them before signing.\n";
+            }
+        }
+
+        $summary = $oci->summariseForPeriod($start, $end, $scope);
         $vars['oci_revaluation_up'] = number_format($summary['revaluation_up'] ?? 0, 2);
         $vars['oci_revaluation_down'] = number_format($summary['revaluation_down'] ?? 0, 2);
         $vars['oci_impairment'] = number_format($summary['impairment'] ?? 0, 2);
@@ -152,6 +183,7 @@ class HeritageDisclosureNoteCommand extends Command
         $basisLines = '';
         if (Schema::hasTable('heritage_asset')) {
             $rows = DB::table('heritage_asset')
+                ->when($scope, fn ($q) => $q->where('accounting_standard_id', $scope))
                 ->selectRaw('COALESCE(measurement_basis, "unspecified") AS basis, COUNT(*) AS n')
                 ->groupBy('basis')
                 ->get();

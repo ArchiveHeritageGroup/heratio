@@ -744,7 +744,8 @@ class LinkedDataApiController extends Controller
     private function executeSparql(string $query): array
     {
         $endpoint = config('heratio.fuseki_endpoint', 'http://localhost:3030/heratio');
-        $url = $endpoint . '/sparql';
+        $url = \AhgRic\Support\TripleStore::queryUrl($endpoint, '/sparql');
+        $query = \AhgRic\Support\TripleStore::scope($query); // #1518
 
         $ch = curl_init();
         curl_setopt_array($ch, [

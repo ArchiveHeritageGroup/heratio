@@ -17,6 +17,7 @@
   $enabledLocales = $enabledLocales ?? ['en'];
   $currentLocale  = $currentLocale  ?? app()->getLocale();
   $isAhgDropdown  = $source === 'ahg_dropdown';
+  $isTenderList   = $isAhgDropdown && $taxonomy === 'library_payment_method';
 @endphp
 @section('content')
 <div class="row">
@@ -176,6 +177,7 @@
               <th>{{ __('Label') }}</th>
               <th style="width:140px">{{ __('Code') }}</th>
               <th style="width:80px" class="text-center">{{ __('Color') }}</th>
+              @if($isTenderList)<th style="width:130px">{{ __('Goes in cash drawer') }}</th>@endif
               <th style="width:80px" class="text-center">{{ __('Default') }}</th>
               <th style="width:80px" class="text-center">{{ __('Active') }}</th>
               <th style="width:80px" class="text-center">{{ __('Actions') }}</th>
@@ -199,6 +201,17 @@
                          value="{{ $term->color ?: '#6c757d' }}" data-id="{{ $term->id }}"
                          title="{{ __('Choose color') }}" style="width:32px;height:28px;padding:2px;">
                 </td>
+                @if($isTenderList)
+                  @php($termMeta = json_decode((string) ($term->metadata ?? ''), true))
+                  @php($termFlag = is_array($termMeta) && is_bool($termMeta['is_cash'] ?? null) ? ($termMeta['is_cash'] ? '1' : '0') : '')
+                  <td>
+                    <select class="form-select form-select-sm term-flag-select" data-id="{{ $term->id }}" data-original="{{ $termFlag }}" aria-label="{{ __('Goes in cash drawer') }}">
+                      @if($termFlag === '')<option value="" selected>{{ __('Not set') }}</option>@endif
+                      <option value="1" @selected($termFlag === '1')>{{ __('Yes') }}</option>
+                      <option value="0" @selected($termFlag === '0')>{{ __('No') }}</option>
+                    </select>
+                  </td>
+                @endif
                 <td class="text-center">
                   <input type="radio" class="form-check-input term-default-radio"
                          name="default_term" value="{{ $term->id }}"
@@ -333,6 +346,16 @@
             <input type="text" id="addTermIcon" class="form-control" placeholder="{{ __('fa-check') }}">
           </div>
         </div>
+        @if($isTenderList)
+          <div class="mt-3">
+            <label class="form-label" for="addTermFlag">{{ __('Goes in cash drawer') }} <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
+            <select id="addTermFlag" class="form-select">
+              <option value="">{{ __('Choose') }}</option>
+              <option value="1">{{ __('Yes') }}</option>
+              <option value="0">{{ __('No') }}</option>
+            </select>
+          </div>
+        @endif
       </div>
       <div class="modal-footer">
         <button type="button" class="btn atom-btn-white" data-bs-dismiss="modal">{{ __('Cancel') }}</button>
@@ -413,6 +436,7 @@
       code: addTermCode.value,
       color: color !== '#6c757d' ? color : null,
       icon: document.getElementById('addTermIcon').value || null,
+      flag: document.getElementById('addTermFlag')?.value || null,
     }).then(data => {
       btn.disabled = false;
       if (data.success) {
@@ -466,6 +490,26 @@
       }).then(data => {
         if (!data.success) alert(data.message || 'Failed to update color.');
       }).catch(() => alert('Network error.'));
+    });
+  });
+
+  // ---- Metadata flag (cash drawer) ----
+  document.querySelectorAll('.term-flag-select').forEach(sel => {
+    sel.addEventListener('change', function() {
+      const original = this.dataset.original;
+      ajaxPost('{{ route("dropdown.update-term") }}', {
+        id: parseInt(this.dataset.id), field: 'flag', value: this.value,
+      }).then(data => {
+        if (data.success) {
+          sel.dataset.original = sel.value;
+        } else {
+          sel.value = original;
+          alert(data.message || 'Failed to update.');
+        }
+      }).catch(() => {
+        sel.value = original;
+        alert('Network error.');
+      });
     });
   });
 

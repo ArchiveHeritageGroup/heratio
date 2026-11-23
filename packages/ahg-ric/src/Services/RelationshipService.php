@@ -28,6 +28,8 @@
 namespace AhgRic\Services;
 
 use AhgCore\Services\SecretCrypto;
+use AhgRic\Support\RicGraphJoin;
+use AhgRic\Support\TripleStore;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -57,7 +59,7 @@ class RelationshipService
             $config = $rows;
         }
 
-        $this->fusekiEndpoint = ($config['fuseki_endpoint'] ?? config('ric.fuseki.url', 'http://localhost:3030/ric')) . '/query';
+        $this->fusekiEndpoint = TripleStore::queryUrl($config['fuseki_endpoint'] ?? config('ric.fuseki.url', 'http://localhost:3030/ric'));
         $this->fusekiUsername = $config['fuseki_username'] ?? config('ric.fuseki.user', '');
         $this->fusekiPassword = SecretCrypto::reveal($config['fuseki_password'] ?? config('ric.fuseki.password', '')); // #1395(D) decrypt-at-rest
         $this->baseUri = $config['ric_base_uri'] ?? config('ric.base_uri', 'https://ric.theahg.co.za/ric');
@@ -284,27 +286,31 @@ class RelationshipService
 
         $query = <<<SPARQL
 PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
-SELECT ?s ?p ?o ?sLabel ?oLabel ?sType ?oType WHERE {
+SELECT ?s ?p ?o ?dir WHERE {
   {
     <{$uri}> ?p ?o .
     BIND(<{$uri}> AS ?s)
+    BIND("out" AS ?dir)
     FILTER(isURI(?o) && ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
-    OPTIONAL { ?o rico:title ?oLabel }
-    OPTIONAL { ?o a ?oType . FILTER(STRSTARTS(STR(?oType), "https://www.ica.org/standards/RiC/ontology#")) }
   }
   UNION
   {
     ?s ?p <{$uri}> .
     BIND(<{$uri}> AS ?o)
+    BIND("in" AS ?dir)
     FILTER(isURI(?s) && ?p != <http://www.w3.org/1999/02/22-rdf-syntax-ns#type>)
-    OPTIONAL { ?s rico:title ?sLabel }
-    OPTIONAL { ?s a ?sType . FILTER(STRSTARTS(STR(?sType), "https://www.ica.org/standards/RiC/ontology#")) }
   }
   OPTIONAL { <{$uri}> rico:title ?centerLabel }
 } LIMIT 100
 SPARQL;
 
-        $result = $this->executeSparql($query);
+        // #1518 - titles and types come from one follow-up query for these nodes.
+        $result = RicGraphJoin::enrich(
+            $this->executeSparql($query),
+            fn (string $sparql) => $this->executeSparql($sparql),
+            fn (array $row) => $row['dir']['value'] === 'out' ? ['o', 'oLabel', 'oType'] : ['s', 'sLabel', 'sType'],
+            100
+        );
         $nodes = [];
         $edges = [];
         $nodeIndex = [];
@@ -610,7 +616,7 @@ SPARQL;
         $opts = [
             CURLOPT_URL            => $this->fusekiEndpoint,
             CURLOPT_POST           => true,
-            CURLOPT_POSTFIELDS     => $query,
+            CURLOPT_POSTFIELDS     => TripleStore::scope($query), // #1518
             CURLOPT_HTTPHEADER     => [
                 'Content-Type: application/sparql-query',
                 'Accept: application/json',

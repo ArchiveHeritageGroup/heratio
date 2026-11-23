@@ -54,6 +54,7 @@ namespace AhgAiServices\Services;
 
 use AhgAiServices\Support\AiServicesSettings;
 use AhgAiServices\Support\NerExtractionLedger;
+use AhgAuthorityResolution\Services\PromoteToMentionService;
 use AhgCore\Services\HierarchyQueryService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -99,7 +100,11 @@ class CrossReferenceService
             $ocr = DB::table('iiif_ocr_text')->whereIn('object_id', $chunk)->orderBy('id')
                 ->get(['object_id', 'full_text'])->groupBy('object_id')
                 ->map(fn ($rows) => trim($rows->pluck('full_text')->implode("\n")));
-            $scope = DB::table('information_object_i18n')->whereIn('id', $chunk)->where('culture', 'en')->pluck('scope_and_content', 'id');
+            // The record's own language wins over a translation; not every collection is in English.
+            $scope = DB::table('information_object_i18n as i')->join('information_object as io', 'io.id', '=', 'i.id')
+                ->whereIn('i.id', $chunk)->whereNotNull('i.scope_and_content')->where('i.scope_and_content', '!=', '')
+                ->where(fn ($q) => $q->where('i.culture', 'en')->orWhereColumn('i.culture', 'io.source_culture'))
+                ->orderByRaw('i.culture = io.source_culture')->pluck('i.scope_and_content', 'i.id');
             foreach ($chunk as $id) {
                 $t = (string) (($ocr[$id] ?? '') !== '' ? $ocr[$id] : ($scope[$id] ?? ''));
                 if (trim($t) !== '') {
@@ -168,7 +173,7 @@ class CrossReferenceService
     {
         $ids = array_unique(array_merge(array_column($pairs, 'a'), array_column($pairs, 'b')));
         $parent = $ids ? DB::table('information_object')->whereIn('id', $ids)->pluck('parent_id', 'id')->map('intval')->all() : [];
-        $count = [];
+        $links = [];
         foreach ($pairs as $p) {
             if (min($p['a_share'], $p['b_share']) < $identical) {
                 continue;
@@ -176,12 +181,14 @@ class CrossReferenceService
             $pa = $parent[$p['a']] ?? 0;
             $pb = $parent[$p['b']] ?? 0;
             if ($pa && $pb && $pa !== $pb) {
-                $key = min($pa, $pb).':'.max($pa, $pb);
-                $count[$key] = ($count[$key] ?? 0) + 1;
+                [$low, $high] = $pa < $pb ? [$p['a'], $p['b']] : [$p['b'], $p['a']];
+                $links[min($pa, $pb).':'.max($pa, $pb)][$low][$high] = true;
             }
         }
         $out = [];
-        foreach ($count as $key => $n) {
+        foreach ($links as $key => $itemLinks) {
+            // Count items, not pairs: each item on a page can repeat only one on the other.
+            $n = $this->matchedItems($itemLinks);
             if ($n >= $minShared) {
                 [$a, $b] = array_map('intval', explode(':', $key));
                 $out[] = ['page_a' => $a, 'page_b' => $b, 'shared_items' => $n];
@@ -189,6 +196,38 @@ class CrossReferenceService
         }
 
         return $out;
+    }
+
+    /**
+     * Most one-to-one matches between two pages' items (augmenting paths).
+     *
+     * @param  array<int, array<int, true>>  $links  item on one page => its matches on the other
+     */
+    private function matchedItems(array $links): int
+    {
+        $owner = [];
+        $assign = function (int $item, array &$seen) use (&$assign, &$owner, $links): bool {
+            foreach ($links[$item] as $other => $_) {
+                if (isset($seen[$other])) {
+                    continue;
+                }
+                $seen[$other] = true;
+                if (! isset($owner[$other]) || $assign($owner[$other], $seen)) {
+                    $owner[$other] = $item;
+
+                    return true;
+                }
+            }
+
+            return false;
+        };
+        $n = 0;
+        foreach ($links as $item => $_) {
+            $seen = [];
+            $n += $assign($item, $seen) ? 1 : 0;
+        }
+
+        return $n;
     }
 
     /**
@@ -307,7 +346,7 @@ class CrossReferenceService
                 // An OCR slip, not a different name: near-identical and at most one
                 // character longer or shorter; for people the start must match too.
                 if ($other === $k || (abs(strlen($k) - strlen($other)) <= 1 && ($type !== 'person' || strncmp($k, $other, 2) === 0)
-                    && $this->ratio($k, $other) >= 0.88)) {
+                    && levenshtein($k, $other) <= 1 && $this->ratio($k, $other) >= 0.88)) {
                     $key = $other;
                     break;
                 }
@@ -347,10 +386,10 @@ class CrossReferenceService
         $kept = [];
         foreach ($types as $key => $type) {
             foreach ((array) ($found[$key] ?? []) as $name) {
-                $name = trim((string) $name);
                 // Grounded: the printed form, never the model's "canonical" form.
-                if (mb_strlen($name) >= 2 && mb_stripos($text, $name) !== false) {
-                    $kept[$type.'|'.$name] = ['type' => $type, 'value' => $name];
+                $printed = is_string($name) ? $this->printedForm($text, $name) : null;
+                if ($printed !== null) {
+                    $kept[$type.'|'.$printed] = ['type' => $type, 'value' => $printed];
                 }
             }
         }
@@ -374,6 +413,71 @@ class CrossReferenceService
         }
 
         return $kept;
+    }
+
+    /**
+     * Send an item's grounded names to the authority review queue as pending
+     * mentions. Nothing is linked or created until a person decides.
+     *
+     * @param  list<array{type: string, value: string}>  $kept
+     * @return int mentions newly queued
+     */
+    public function promoteToAuthorityQueue(int $objectId, string $text, array $kept): int
+    {
+        if (! $kept || ! class_exists(PromoteToMentionService::class) || ! Schema::hasTable('ahg_mention')) {
+            return 0;
+        }
+        $promoter = app(PromoteToMentionService::class);
+        // The review screen highlights against the record's own text, so offsets
+        // are taken from that text wherever the name is printed in it.
+        $recordText = $promoter->fetchSourceText($objectId);
+        $n = 0;
+        foreach ($kept as $e) {
+            $id = DB::table('ahg_ner_entity')->where('object_id', $objectId)->where('entity_type', $e['type'])
+                ->where('entity_value', $e['value'])->where('status', 'pending')->value('id');
+            if (! $id || DB::table('ahg_mention')->where('ner_entity_id', $id)->exists()) {
+                continue;
+            }
+            $hit = $this->locate($recordText, $e['value']);
+            $source = $hit !== null ? $recordText : $text;
+            $hit ??= $this->locate($text, $e['value']);
+            if ($promoter->promote((int) $id, $source, $hit['offset'] ?? null)) {
+                $n++;
+            }
+        }
+
+        return $n;
+    }
+
+    /**
+     * The name as the item prints it, matched on whole words (so "Ann" is not
+     * found inside "Annual"), ignoring case and line breaks. Null when absent.
+     */
+    private function printedForm(string $text, string $name): ?string
+    {
+        return $this->locate($text, $name)['printed'] ?? null;
+    }
+
+    /**
+     * Where the name is printed. Offsets are bytes, the unit the mention
+     * context is sliced and stored in.
+     *
+     * @return array{printed: string, offset: array{start: int, end: int}}|null
+     */
+    private function locate(string $text, string $name): ?array
+    {
+        $words = preg_split('/\s+/u', trim($name), -1, PREG_SPLIT_NO_EMPTY) ?: [];
+        if (! $words || mb_strlen(implode(' ', $words)) < 2 || mb_strlen(implode(' ', $words)) > 500) {
+            return null;
+        }
+        $pattern = '/(?<![\p{L}\p{N}])'.implode('\s+', array_map(fn ($w) => preg_quote($w, '/'), $words)).'(?![\p{L}\p{N}])/iu';
+
+        if (preg_match($pattern, $text, $m, PREG_OFFSET_CAPTURE) !== 1) {
+            return null;
+        }
+
+        return ['printed' => (string) preg_replace('/\s+/u', ' ', $m[0][0]),
+            'offset' => ['start' => $m[0][1], 'end' => $m[0][1] + strlen($m[0][0])]];
     }
 
     private function squash(string $s): string

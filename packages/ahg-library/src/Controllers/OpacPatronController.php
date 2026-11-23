@@ -30,6 +30,8 @@ use AhgLibrary\Services\LibraryPatronService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Session;
 
 class OpacPatronController extends Controller
@@ -86,19 +88,34 @@ class OpacPatronController extends Controller
                 ->withInput(['card_number' => trim($validated['card_number'])]);
         }
 
-        // PIN check when stored in library_patron_pin table.
-        $storedPin = DB::table('library_patron_pin')
-            ->where('patron_id', $patron->id)
-            ->first();
-        if ($storedPin) {
-            $supplied = trim($validated['pin'] ?? '');
-            if ($supplied !== '' && !password_verify($supplied, $storedPin->pin_hash)) {
-                return redirect()
-                    ->route('opac.patron.login')
-                    ->with('error', __('Incorrect PIN.'))
-                    ->withInput(['card_number' => trim($validated['card_number'])]);
-            }
+        // A card number is printed on the card, so it never signs anyone in alone.
+        $storedPin = Schema::hasTable('library_patron_pin')
+            ? DB::table('library_patron_pin')->where('patron_id', $patron->id)->first()
+            : null;
+        if (!$storedPin) {
+            return redirect()
+                ->route('opac.patron.login')
+                ->with('error', __('Your account has no PIN yet. Please ask a librarian to set one.'))
+                ->withInput(['card_number' => trim($validated['card_number'])]);
         }
+
+        // Same counter as the self-check terminals, so a PIN cannot be
+        // guessed by moving between the two.
+        $pinKey = 'sip2:pin:' . $patron->id;
+        $supplied = trim($validated['pin'] ?? '');
+        if (RateLimiter::tooManyAttempts($pinKey, 5)
+            || $supplied === ''
+            || !password_verify($supplied, $storedPin->pin_hash)) {
+            if ($supplied !== '') {
+                RateLimiter::hit($pinKey, 900);
+            }
+
+            return redirect()
+                ->route('opac.patron.login')
+                ->with('error', __('Incorrect PIN.'))
+                ->withInput(['card_number' => trim($validated['card_number'])]);
+        }
+        RateLimiter::clear($pinKey);
 
         // Store patron identity in session.
         Session::put('patron_id', (int) $patron->id);

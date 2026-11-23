@@ -87,7 +87,7 @@ class LibraryIllService
     private const TRANSITIONS = [
         // BORROW lane - we request an item from another library (requester side).
         self::TYPE_BORROW => [
-            self::STATUS_PENDING     => [self::STATUS_REQUESTED, self::STATUS_CANCELLED],
+            self::STATUS_PENDING     => [self::STATUS_REQUESTED, self::STATUS_UNFULFILLED, self::STATUS_CANCELLED],
             self::STATUS_REQUESTED   => [self::STATUS_SHIPPED, self::STATUS_UNFULFILLED, self::STATUS_CANCELLED],
             self::STATUS_SHIPPED     => [self::STATUS_RECEIVED, self::STATUS_LOST],
             self::STATUS_RECEIVED    => [self::STATUS_RETURNED],
@@ -116,6 +116,7 @@ class LibraryIllService
     private const TRANSITION_LABELS = [
         self::STATUS_PENDING    . '→' . self::STATUS_REQUESTED  => 'ILL request transmitted to lender',
         self::STATUS_PENDING    . '→' . self::STATUS_CANCELLED   => 'Request cancelled (no lender found)',
+        self::STATUS_PENDING    . '→' . self::STATUS_UNFULFILLED => 'No supplier could be reached (unfulfilled)',
         self::STATUS_REQUESTED  . '→' . self::STATUS_SHIPPED     => 'Item shipped by lender',
         self::STATUS_REQUESTED  . '→' . self::STATUS_UNFULFILLED  => 'Lender unable to supply (unfulfilled)',
         self::STATUS_REQUESTED  . '→' . self::STATUS_CANCELLED    => 'Request cancelled after lender reply',
@@ -143,6 +144,26 @@ class LibraryIllService
     public const OCLC_SYSTEM_FEDORO    = 'fedoro';   // Koha/Fedora-based
     public const OCLC_SYSTEM_CUSTOM    = 'custom';
 
+    // The core schema names these columns differently from the package migration.
+    // Installed databases carry the core shape, so both must work (#1475).
+    private const CORE_COLUMNS = [
+        'ill_number'    => 'request_number',
+        'type'          => 'direction',
+        'library_name'  => 'partner_library',
+        'cost_amount'   => 'cost',
+        'cost_currency' => 'currency',
+    ];
+
+    // Fields the staff views read that the core table does not have.
+    private const OPTIONAL_FIELDS = [
+        'volume', 'issue', 'edition', 'library_symbol', 'requester_note', 'staff_note',
+        'publisher', 'citation', 'needed_by_date', 'shipping_method', 'edi_message_id',
+        'closed_at', 'closed_reason', 'cost_amount', 'cost_currency', 'request_type',
+    ];
+    private const CORE_DIRECTIONS = [self::TYPE_BORROW => 'borrowing', self::TYPE_LEND => 'lending'];
+
+    private ?array $tableColumns = null;
+
     // ─────────────────────────────────────────────────────────────────────────
     // CRUD - list
     // ─────────────────────────────────────────────────────────────────────────
@@ -165,16 +186,16 @@ class LibraryIllService
             $q->where('status', $filters['status']);
         }
         if (!empty($filters['type'])) {
-            $q->where('type', $filters['type']);
+            $q->where($this->column('type'), $this->storedType($filters['type']));
         }
         if (!empty($filters['search'])) {
             $needle = '%' . $filters['search'] . '%';
             $q->where(function ($w) use ($needle) {
-                $w->where('ill_number', 'LIKE', $needle)
+                $w->where($this->column('ill_number'), 'LIKE', $needle)
                     ->orWhere('title', 'LIKE', $needle)
                     ->orWhere('author', 'LIKE', $needle)
                     ->orWhere('isbn', 'LIKE', $needle)
-                    ->orWhere('library_name', 'LIKE', $needle);
+                    ->orWhere($this->column('library_name'), 'LIKE', $needle);
             });
         }
         if (!empty($filters['overdue_only'])) {
@@ -191,7 +212,7 @@ class LibraryIllService
             $q->limit((int) $filters['limit']);
         }
 
-        return $q->get()->all();
+        return $q->get()->map(fn ($row) => $this->normalise($row))->all();
     }
 
     /**
@@ -209,7 +230,7 @@ class LibraryIllService
             ->select('status', DB::raw('COUNT(*) as cnt'))
             ->groupBy('status');
         if ($type) {
-            $q->where('type', $type);
+            $q->where($this->column('type'), $this->storedType($type));
         }
         $rows = $q->get()->all();
         return array_column($rows, 'cnt', 'status');
@@ -224,7 +245,9 @@ class LibraryIllService
         if (!Schema::hasTable('library_ill_request')) {
             return null;
         }
-        return DB::table('library_ill_request')->where('id', $id)->first() ?: null;
+        $row = DB::table('library_ill_request')->where('id', $id)->first();
+
+        return $row ? $this->normalise($row) : null;
     }
 
     /**
@@ -260,6 +283,7 @@ class LibraryIllService
             'patron_id'        => $data['patron_id'] ?? null,
             'requester_note'   => $data['requester_note'] ?? null,
             'due_date'         => $data['due_date'] ?? null,
+            'request_date'     => $data['request_date'] ?? $now->toDateString(),
             'status'           => self::STATUS_PENDING,
             'opac_suppress'    => !empty($data['opac_suppress']) ? 1 : 0,
             'created_at'       => $now,
@@ -270,7 +294,7 @@ class LibraryIllService
         $this->logTransition($row['ill_number'], null, self::STATUS_PENDING,
             'ILL request created');
 
-        return (int) DB::table('library_ill_request')->insertGetId($row);
+        return (int) DB::table('library_ill_request')->insertGetId($this->toStorage($row));
     }
 
     /**
@@ -310,8 +334,9 @@ class LibraryIllService
 
         // Append audit note if provided
         if ($note !== null) {
-            $existing = $current->staff_note ?? '';
-            $payload['staff_note'] = trim($existing . "\n[" . now()->toDateTimeString() . "] " . $note);
+            $noteColumn = in_array('staff_note', $this->columns(), true) ? 'staff_note' : 'notes';
+            $existing = $current->{$noteColumn} ?? '';
+            $payload[$noteColumn] = trim($existing . "\n[" . now()->toDateTimeString() . "] " . $note);
         }
 
         $affected = DB::table('library_ill_request')
@@ -342,6 +367,7 @@ class LibraryIllService
         // Guard against accidental status changes through this method
         unset($data['status'], $data['ill_number'], $data['id']);
 
+        $data = $this->toStorage($data);
         if (!$data) {
             return false;
         }
@@ -485,7 +511,7 @@ class LibraryIllService
             return $base . '-0001';
         }
         $count = (int) DB::table('library_ill_request')
-            ->where('request_number', 'LIKE', $base . '-%')
+            ->where($this->column('ill_number'), 'LIKE', $base . '-%')
             ->count();
         return $base . '-' . str_pad((string) ($count + 1), 4, '0', STR_PAD_LEFT);
     }
@@ -512,6 +538,81 @@ class LibraryIllService
     public function setOpacSuppress(int $id, bool $suppress): bool
     {
         return $this->update($id, ['opac_suppress' => $suppress ? 1 : 0]);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Schema shape
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /** Real column for a logical field on this installation's table. */
+    public function column(string $logical): string
+    {
+        $core = self::CORE_COLUMNS[$logical] ?? null;
+
+        return $core && in_array($core, $this->columns(), true) ? $core : $logical;
+    }
+
+    /** Value to store or filter on for a logical borrow/lend type. */
+    public function storedType(string $type): string
+    {
+        return $this->column('type') === 'direction'
+            ? (self::CORE_DIRECTIONS[$type] ?? $type)
+            : $type;
+    }
+
+    private function columns(): array
+    {
+        return $this->tableColumns ??= Schema::getColumnListing('library_ill_request');
+    }
+
+    /** Give a row the logical field names whichever schema it came from. */
+    public function normalise(object $row): object
+    {
+        if (isset($row->request_number)) {
+            $row->ill_number = $row->request_number;
+        }
+        if (isset($row->direction)) {
+            $row->type = $row->direction === 'lending' ? self::TYPE_LEND : self::TYPE_BORROW;
+        }
+        if (isset($row->partner_library)) {
+            $row->library_name = $row->partner_library;
+        }
+        if (property_exists($row, 'cost')) {
+            $row->cost_amount = $row->cost;
+            $row->cost_currency = $row->currency ?? null;
+        }
+        if (!property_exists($row, 'staff_note') && property_exists($row, 'notes')) {
+            $row->staff_note = $row->notes;
+        }
+        foreach (self::OPTIONAL_FIELDS as $field) {
+            if (!property_exists($row, $field)) {
+                $row->{$field} = null;
+            }
+        }
+        $row->renewal_count ??= 0;
+
+        return $row;
+    }
+
+    /** Map logical fields to real columns and drop any the table does not have. */
+    private function toStorage(array $data): array
+    {
+        $columns = $this->columns();
+        if (isset($data['requester_note']) && !in_array('requester_note', $columns, true)
+            && in_array('notes', $columns, true) && !isset($data['notes'])) {
+            $data['notes'] = $data['requester_note'];
+        }
+
+        $out = [];
+        foreach ($data as $key => $value) {
+            $column = $this->column($key);
+            if (!in_array($column, $columns, true)) {
+                continue;
+            }
+            $out[$column] = $key === 'type' && is_string($value) ? $this->storedType($value) : $value;
+        }
+
+        return $out;
     }
 
     // ─────────────────────────────────────────────────────────────────────────

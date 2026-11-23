@@ -259,6 +259,8 @@
               </div>
             </div>
 
+            @include('ahg-library::classification._picker')
+
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label for="shelf_location" class="form-label">{{ __('Shelf location') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>

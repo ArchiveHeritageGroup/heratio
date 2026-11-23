@@ -36,7 +36,12 @@
     <tbody>
       @forelse($items as $i)
       <tr>
-        <td><code>{{ e($i->call_number ?? '') }}</code></td>
+        <td>
+          <code>{{ e($i->call_number ?? '') }}</code>
+          @if(property_exists($i, 'shelf_sort_key') && $i->shelf_sort_key === null)
+            <span class="badge bg-warning text-dark ms-1">{{ __('Not in shelf order') }}</span>
+          @endif
+        </td>
         <td>{{ e($i->title ?? '-') }}</td>
         <td><span class="badge bg-secondary">{{ ucfirst($i->material_type ?? '-') }}</span></td>
         <td><small>{{ e($i->shelf_location ?? $i->classification_scheme ?? '-') }}</small></td>

@@ -1,0 +1,27 @@
+-- Authority control depth (heratio#1475 item 3).
+INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `sort_order`, `is_default`, `is_active`)
+VALUES
+    ('library_authority_record_type', 'Authority Record Type', 'library', 'subject', 'Subject', 10, 1, 1),
+    ('library_authority_record_type', 'Authority Record Type', 'library', 'name', 'Name', 20, 0, 1),
+    ('library_authority_record_type', 'Authority Record Type', 'library', 'title', 'Title', 30, 0, 1),
+    ('library_authority_record_type', 'Authority Record Type', 'library', 'genre', 'Genre / Form', 40, 0, 1),
+    ('library_authority_subject_type', 'Authority Heading Type', 'library', 'topic', 'Topic', 10, 1, 1),
+    ('library_authority_subject_type', 'Authority Heading Type', 'library', 'topical', 'Topical', 20, 0, 1),
+    ('library_authority_subject_type', 'Authority Heading Type', 'library', 'geographic', 'Geographic', 30, 0, 1),
+    ('library_authority_subject_type', 'Authority Heading Type', 'library', 'temporal', 'Temporal', 40, 0, 1),
+    ('library_authority_subject_type', 'Authority Heading Type', 'library', 'genre', 'Genre', 50, 0, 1),
+    ('library_authority_subject_type', 'Authority Heading Type', 'library', 'form', 'Form', 60, 0, 1),
+    ('library_authority_subject_type', 'Authority Heading Type', 'library', 'uniform', 'Uniform title', 70, 0, 1),
+    ('library_authority_subject_type', 'Authority Heading Type', 'library', 'names', 'Names', 80, 0, 1),
+    ('library_authority_subject_type', 'Authority Heading Type', 'library', 'personal', 'Personal name', 90, 0, 1),
+    ('library_authority_subject_type', 'Authority Heading Type', 'library', 'corporate', 'Corporate name', 100, 0, 1),
+    ('library_authority_subject_type', 'Authority Heading Type', 'library', 'meeting', 'Meeting name', 110, 0, 1),
+    ('library_authority_source', 'Authority Source Vocabulary', 'library', 'local', 'Local', 10, 1, 1),
+    ('library_authority_source', 'Authority Source Vocabulary', 'library', 'lcsh', 'LCSH', 20, 0, 1),
+    ('library_authority_source', 'Authority Source Vocabulary', 'library', 'lcgft', 'LCGFT', 30, 0, 1),
+    ('library_authority_source', 'Authority Source Vocabulary', 'library', 'lcnaf', 'LCNAF', 40, 0, 1),
+    ('library_authority_source', 'Authority Source Vocabulary', 'library', 'mesh', 'MeSH', 50, 0, 1),
+    ('library_authority_source', 'Authority Source Vocabulary', 'library', 'gsafd', 'GSAFD', 60, 0, 1),
+    ('library_authority_source', 'Authority Source Vocabulary', 'library', 'rvm', 'RVM', 70, 0, 1),
+    ('library_authority_relation_origin', 'Authority Relation Origin', 'library', 'local', 'Local', 10, 1, 1),
+    ('library_authority_relation_origin', 'Authority Relation Origin', 'library', 'sync', 'External vocabulary', 20, 0, 1);

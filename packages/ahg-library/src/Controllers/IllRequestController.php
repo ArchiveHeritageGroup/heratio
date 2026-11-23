@@ -6,6 +6,7 @@ use AhgLibrary\Http\Requests\StoreIllRequestRequest;
 use AhgLibrary\Models\IllRequest;
 use AhgLibrary\Models\TradingPartner;
 use AhgLibrary\Services\EdiAdapter;
+use AhgLibrary\Services\IllRoutingService;
 use AhgLibrary\Services\LibraryIllService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -16,7 +17,8 @@ class IllRequestController
 {
     public function __construct(
         protected LibraryIllService $illService,
-        protected EdiAdapter $ediAdapter
+        protected EdiAdapter $ediAdapter,
+        protected IllRoutingService $routing,
     ) {}
 
     /** Staff list - ILL request management */
@@ -27,7 +29,7 @@ class IllRequestController
         if ($request->filled('search')) {
             $needle = '%' . $request->search . '%';
             $q->where(function ($w) use ($needle) {
-                $w->where('request_number', 'LIKE', $needle)
+                $w->where($this->illService->column('ill_number'), 'LIKE', $needle)
                   ->orWhere('title', 'LIKE', $needle)
                   ->orWhere('author', 'LIKE', $needle)
                   ->orWhere('isbn', 'LIKE', $needle);
@@ -37,7 +39,7 @@ class IllRequestController
             $q->where('status', $request->status);
         }
         if ($request->get('type')) {
-            $q->where('type', $request->type);
+            $q->where($this->illService->column('type'), $this->illService->storedType((string) $request->type));
         }
         if ($request->get('overdue')) {
             $q->whereNotNull('due_date')
@@ -45,7 +47,8 @@ class IllRequestController
               ->whereNotIn('status', $this->illService->terminalStatuses());
         }
 
-        $requests = $q->orderByDesc('request_date')->paginate(25)->withQueryString();
+        $requests = $q->orderByDesc('request_date')->paginate(25)->withQueryString()
+            ->through(fn ($row) => $this->illService->normalise($row));
 
         $statuses = $this->illService::STATUSES;
         $protocols = ['AARC', 'IFM', 'BLDSS', 'RLG', 'CUSTOM'];
@@ -95,7 +98,8 @@ class IllRequestController
         ]);
 
         if ($id && !empty($data['request_type'])) {
-            DB::table('library_ill_request')->where('id', $id)->update([
+            // Through the service: not every column exists on every installed schema.
+            $this->illService->update($id, [
                 'request_type'         => $data['request_type'],
                 'borrowing_protocol'   => $data['borrowing_protocol'] ?? 'AARC',
                 'material_type'       => $data['material_type'] ?? 'BOOK',
@@ -189,9 +193,25 @@ class IllRequestController
         }
 
         $partner = TradingPartner::find($request->trading_partner_id);
-        $adapter = new EdiAdapter($partner);
+        if ($partner->test_mode) {
+            return redirect()
+                ->route('library.ill-requests.show', $id)
+                ->with('error', __('This partner is in test mode. Nothing was transmitted and the request has not changed.'));
+        }
 
-        $result = $adapter->sendIllRequest(new IllRequest((array) $ill));
+        $claim = $this->routing->beginHandSend($id, (int) $partner->id);
+        if (!$claim) {
+            return redirect()
+                ->route('library.ill-requests.show', $id)
+                ->with('error', __('A rota supplier is handling this request. Stop waiting for it on the routing screen first.'));
+        }
+
+        $result = ['ok' => false];
+        try {
+            $result = (new EdiAdapter($partner))->sendIllRequest(new IllRequest((array) $ill));
+        } finally {
+            $this->routing->finishHandSend($claim, !empty($result['ok']), $result['edi_message_id'] ?? null);
+        }
 
         if ($result['ok']) {
             if (!empty($result['edi_message_id'])) {

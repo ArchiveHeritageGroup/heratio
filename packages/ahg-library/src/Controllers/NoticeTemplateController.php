@@ -24,7 +24,7 @@ class NoticeTemplateController extends Controller
     /** Tokens advertised in the editor help panel. */
     public const TOKENS = [
         'patron_name', 'title', 'barcode', 'due_date', 'days_overdue',
-        'currency', 'fine_per_day', 'fine_amount', 'library_name', 'expiry_date',
+        'currency', 'fine_per_day', 'fine_amount', 'library_name', 'branch_name', 'expiry_date',
     ];
 
     /**
@@ -112,6 +112,7 @@ class NoticeTemplateController extends Controller
             'fine_per_day' => '0.50',
             'fine_amount'  => '4.50',
             'library_name' => config('app.name', 'Library'),
+            'branch_name'  => config('app.name', 'Library'),
             'expiry_date'  => now()->addDays(5)->toDateString(),
         ];
 

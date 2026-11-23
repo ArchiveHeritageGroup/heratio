@@ -500,6 +500,8 @@ class HeritageAccountingController extends Controller
 
         try {
             $this->accounting->addImpairment($id, $v, auth()->id());
+        } catch (\InvalidArgumentException $e) {
+            return back()->withInput()->withErrors(['impairment_loss' => __('The impairment loss cannot be more than the carrying amount.')]);
         } catch (\RuntimeException $e) {
             abort(404);
         }

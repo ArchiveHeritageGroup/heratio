@@ -13,6 +13,11 @@
     <a href="{{ route('portable-export.import') }}" class="btn btn-outline-success btn-sm">
       <i class="fas fa-file-import me-1"></i>{{ __('Import Archive') }}
     </a>
+    @if (\AhgCore\Services\AclService::isAdministrator((object) ['id' => (int) auth()->id()]))
+    <a href="{{ route('portable-export.releases.index') }}" class="btn btn-outline-primary btn-sm ms-2">
+      <i class="fas fa-code-branch me-1"></i>{{ __('Versioned releases') }}
+    </a>
+    @endif
   </div>
 
   <div class="card mb-4">

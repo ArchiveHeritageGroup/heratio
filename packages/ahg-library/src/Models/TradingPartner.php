@@ -31,7 +31,7 @@ class TradingPartner extends Model
 
     public function vendor()
     {
-        return $this->belongsTo(\App\Models\LibraryVendor::class, 'vendor_id');
+        return $this->belongsTo(\AhgLibrary\Models\LibraryVendor::class, 'vendor_id');
     }
 
     public function illRequests()

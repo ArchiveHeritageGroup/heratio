@@ -73,6 +73,10 @@ return [
     // serves; empty = <uploads_path>/.trash.
     'trash_path' => env('HERATIO_TRASH_PATH'),
 
+    // Outbound EDI files for partners on the MANUAL transport (#1475). Must be
+    // writable by the web worker, which cannot write inside the application tree.
+    'ill_edi_outbound_path' => env('HERATIO_ILL_EDI_OUTBOUND_PATH', storage_path('app/library-edi/outbound')),
+
     // Backups path — independently configurable.
     'backups_path' => env('HERATIO_BACKUPS_PATH', env('HERATIO_STORAGE_PATH', base_path('uploads')).'/backups'),
 

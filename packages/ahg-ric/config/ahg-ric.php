@@ -137,6 +137,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Triple store type and instance graph (heratio#1518)
+    |--------------------------------------------------------------------------
+    |
+    | driver: fuseki (default) or qlever. Controls endpoint URL shapes only.
+    | instance_graph: IRI that read queries are limited to with FROM, for a
+    | store whose default graph is the union of all graphs. Empty = no change.
+    |
+    */
+    'triplestore' => [
+        'driver'         => env('RIC_STORE_DRIVER', 'fuseki'),
+        'instance_graph' => env('RIC_STORE_INSTANCE_GRAPH'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Source Database for RiC Extraction
     |--------------------------------------------------------------------------
     |

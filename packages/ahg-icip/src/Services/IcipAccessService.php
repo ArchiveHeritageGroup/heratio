@@ -248,13 +248,42 @@ class IcipAccessService
             return collect();
         }
 
-        return DB::table('icip_tk_label as l')
+        $labels = DB::table('icip_tk_label as l')
             ->join('icip_tk_label_type as t', 'l.label_type_id', '=', 't.id')
             ->leftJoin('icip_community as c', 'l.community_id', '=', 'c.id')
             ->where('l.information_object_id', $objectId)
-            ->select(['t.code', 't.name', 't.category', 't.description', 't.local_contexts_url', 'c.name as community_name'])
+            ->select(['t.code', 't.name', 't.category', 't.description', 't.local_contexts_url', 'c.name as community_name', 'l.local_contexts_project_id'])
             ->orderBy('t.display_order')
             ->get();
+
+        return $this->withHubWording($labels);
+    }
+
+    /**
+     * #1448 - where a label is linked to a synced, Public Hub project, show the
+     * community's own wording. Everything else keeps the local catalog text.
+     */
+    private function withHubWording($labels)
+    {
+        if ($labels->whereNotNull('local_contexts_project_id')->isEmpty()) {
+            return $labels;
+        }
+        $hub = app(LocalContextsHubService::class);
+        if (! $hub->isEnabled()) {
+            return $labels;
+        }
+
+        return $labels->each(function ($label) use ($hub) {
+            $projectId = trim((string) $label->local_contexts_project_id);
+            $wording = $projectId !== '' ? $hub->publicLabel($label->code, $projectId) : null;
+            if ($wording) {
+                $label->name = $wording['name'];
+                $label->description = $wording['description'] ?: $label->description;
+                $label->local_contexts_url = $wording['url'] ?: $label->local_contexts_url;
+                $label->community_name = $label->community_name ?: ($wording['community'] ?: null);
+                $label->language_tag = $wording['language_tag'];
+            }
+        });
     }
 
     /**

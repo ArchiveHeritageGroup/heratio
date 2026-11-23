@@ -12,6 +12,7 @@
             <h1 class="mb-0"><i class="fas fa-desktop me-2"></i>{{ __('Circulation Desk') }}</h1>
         </div>
         <div class="text-end">
+            <a href="{{ route('library.cash-desk.index') }}" class="btn btn-sm atom-btn-white mb-1"><i class="fas fa-cash-register me-1"></i>{{ __('Cash desk') }}</a>
             <div id="clock" class="fw-bold text-secondary small"></div>
         </div>
     </div>
@@ -77,6 +78,9 @@
         @endif
         <a href="{{ route('library.patrons') }}" class="btn btn-sm atom-btn-white">
             <i class="fas fa-users me-1"></i>{{ __('Manage Patrons') }}
+        </a>
+        <a href="{{ route('library.circulation.offline') }}" class="btn btn-sm atom-btn-white">
+            <i class="fas fa-plug me-1"></i>{{ __('Offline Desk') }}
         </a>
     </div>
 

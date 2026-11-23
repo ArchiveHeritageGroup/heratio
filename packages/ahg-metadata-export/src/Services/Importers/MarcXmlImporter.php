@@ -39,6 +39,7 @@
 
 namespace AhgMetadataExport\Services\Importers;
 
+use AhgLibrary\Services\AuthorityControlService;
 use AhgMetadataExport\Services\Rda\RdaCarrierMapper;
 use DOMDocument;
 use DOMElement;
@@ -149,7 +150,7 @@ class MarcXmlImporter
                 continue;
             }
             try {
-                [$ioId, $action] = $this->persist($desc);
+                [$ioId, $action] = $this->persistKeepingSource($desc, $rec, $xml, count($records) === 1);
                 $desc['io_id'] = $ioId;
                 $desc['action'] = $action;
                 $desc['authority_links_created'] = $this->persistAuthorityLinks(
@@ -430,10 +431,17 @@ class MarcXmlImporter
                 return (int) $existing;
             }
         }
-        $existing = (clone $query)
-            ->where('heading', $heading)
-            ->where('subject_type', $link['subject_type'])
-            ->value('id');
+        $authorities = app(AuthorityControlService::class);
+        $column = $authorities->typeColumn();
+        // The core schema's heading_type vocabulary names these two differently.
+        $type = $column === 'heading_type'
+            ? (['topic' => 'topical', 'place' => 'geographic'][$link['subject_type']] ?? $link['subject_type'])
+            : $link['subject_type'];
+        $match = (clone $query)->where($column, $type);
+        $authorities->hasColumn('heading_normalized')
+            ? $match->where('heading_normalized', AuthorityControlService::normalizeHeading($heading))
+            : $match->where('heading', $heading);
+        $existing = $match->value('id');
         if ($existing) {
             // Backfill the uri if the incoming record now carries one.
             if ($uri !== null) {
@@ -446,16 +454,15 @@ class MarcXmlImporter
             return (int) $existing;
         }
 
-        return (int) DB::table('library_subject_authority')->insertGetId([
+        $id = $authorities->create([
             'heading'      => $heading,
-            'lc_label'     => $heading,
-            'subject_type' => $link['subject_type'],
+            'subject_type' => $type,
             'source'       => $uri !== null ? 'marc-import' : 'local',
             'uri'          => $uri,
-            'linked_count' => 0,
-            'created_at'   => $now,
-            'updated_at'   => $now,
         ]);
+        $authorities->update($id, ['lc_label' => $heading]);
+
+        return $id;
     }
 
 
@@ -527,6 +534,39 @@ class MarcXmlImporter
         \AhgCore\Services\RecordCreationService::finalizeInformationObject((int) $objectId, null);
 
         return [(int) $objectId, 'create'];
+    }
+
+    /**
+     * Updating an existing library item records the state it is about to lose
+     * and the incoming record in the source history (#1476). The incoming row
+     * commits or rolls back with the update. A failed snapshot of the prior
+     * state is logged and does not block the import, as on every other save.
+     * The library package is optional here, so it is resolved by name.
+     *
+     * @return array{0: int, 1: string}
+     */
+    private function persistKeepingSource(array $desc, DOMElement $rec, string $xml, bool $singleRecord): array
+    {
+        $storeClass = \AhgLibrary\Services\MarcRecordStore::class;
+        $ioId = (int) ($desc['matched_io_id'] ?? 0);
+        $itemId = $ioId && class_exists($storeClass) && Schema::hasTable('library_item')
+            ? (int) DB::table('library_item')->where('information_object_id', $ioId)->value('id')
+            : 0;
+        if (! $itemId) {
+            return $this->persist($desc);
+        }
+
+        $store = new $storeClass();
+        return DB::transaction(function () use ($store, $itemId, $ioId, $desc, $rec, $xml, $singleRecord) {
+            // Not ensureBaseline: an item with history must keep this state too.
+            // snapshot() adds nothing when the latest version already matches.
+            $store->snapshot($itemId, 'baseline');
+            $result = $this->persist($desc);
+            $singleRecord
+                ? $store->captureImport($ioId, $xml)
+                : $store->captureImport($ioId, $store->recordXml($rec), true);
+            return $result;
+        });
     }
 
     private function logAudit(int $ioId, string $action, array $desc): ?int

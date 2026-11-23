@@ -32,6 +32,7 @@ Where the revaluation model is applied, revaluations are performed by an indepen
 
 ## 4. Movements during the period
 
+{{ roll_forward_table }}
 The following movements were posted to the heritage asset revaluation reserve and statement of financial performance during the period:
 
 | Movement type        | Amount         |
@@ -47,7 +48,7 @@ The following movements were posted to the heritage asset revaluation reserve an
 
 Total movement transactions recorded: {{ movement_count }}.
 
-Revaluation surpluses are credited to the revaluation reserve in net assets (OCI). Decreases first reduce any surplus accumulated for the same asset in the reserve, with the balance recognised in surplus or deficit (GRAP 103.51).
+Revaluation increases first reverse any decrease for the same asset previously recognised in surplus or deficit, with the balance credited to the revaluation reserve in net assets (OCI). Decreases first reduce any surplus accumulated for the same asset in the reserve, with the balance recognised in surplus or deficit (GRAP 103.51).
 
 ## 5. Impairment
 

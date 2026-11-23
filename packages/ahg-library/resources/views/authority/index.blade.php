@@ -23,25 +23,32 @@
     <div class="card shadow-sm mb-4">
         <div class="card-body">
             <div class="row g-3 align-items-end">
-                <div class="col-md-5">
-                    <form method="GET" action="{{ route('library.authority-index') }}" class="d-flex gap-2">
-                        <input type="text" name="search" class="form-control"
-                               placeholder="{{ __('Search headings…') }}" value="{{ request('search') }}">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-search"></i>
-                        </button>
+                <div class="col-md-8">
+                    <form method="GET" action="{{ route('library.authority-index') }}" class="row g-2">
+                        <div class="col-md-5">
+                            <input type="text" name="search" class="form-control" aria-label="{{ __('Search headings') }}"
+                                   placeholder="{{ __('Search headings…') }}" value="{{ request('search') }}">
+                        </div>
+                        <div class="col-md-3">
+                            <select name="record_type" class="form-select" aria-label="{{ __('Record type') }}" onchange="this.form.submit()">
+                                <option value="">{{ __('All record types') }}</option>
+                                @foreach($recordTypes as $code => $label)
+                                    <option value="{{ $code }}" {{ request('record_type') === $code ? 'selected' : '' }}>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select name="subject_type" class="form-select" aria-label="{{ __('Heading type') }}" onchange="this.form.submit()">
+                                <option value="">{{ __('All types') }}</option>
+                                @foreach($subjectTypes as $code => $label)
+                                    <option value="{{ $code }}" {{ request('subject_type') === $code ? 'selected' : '' }}>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-1">
+                            <button type="submit" class="btn btn-primary" aria-label="{{ __('Search') }}"><i class="fas fa-search"></i></button>
+                        </div>
                     </form>
-                </div>
-                <div class="col-md-3">
-                    <select name="subject_type" class="form-select"
-                            onchange="this.form.submit()">
-                        <option value="">{{ __('All types') }}</option>
-                        @foreach(['topic','geographic','temporal','genre','form','uniform','names'] as $type)
-                            <option value="{{ $type }}" {{ request('subject_type') === $type ? 'selected' : '' }}>
-                                {{ ucfirst($type) }}
-                            </option>
-                        @endforeach
-                    </select>
                 </div>
                 <div class="col-md-4 text-end">
                     <a href="{{ route('library.authority-create') }}" class="btn btn-success">

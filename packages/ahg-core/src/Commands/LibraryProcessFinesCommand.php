@@ -62,6 +62,8 @@ class LibraryProcessFinesCommand extends Command
             if ($cap !== null) {
                 $amount = min($amount, $cap);
             }
+            // #1474: what was already paid or waived on this loan is not charged again.
+            $amount = \AhgLibrary\Services\LibraryFineService::chargeableOverdue((int) $r->id, (float) $amount);
             if ($amount <= 0) {
                 continue;
             }
@@ -80,7 +82,9 @@ class LibraryProcessFinesCommand extends Command
                 ->first();
             if ($existing) {
                 if ((float) $existing->amount < $amount) {
-                    DB::table('library_fine')->where('id', $existing->id)->update([
+                    // Only if no payment landed since the read; the next run picks it up.
+                    DB::table('library_fine')->where('id', $existing->id)
+                        ->where('status', 'outstanding')->where('paid_amount', $existing->paid_amount)->update([
                         'amount' => $amount, 'updated_at' => now(),
                     ]);
                 }
@@ -101,16 +105,16 @@ class LibraryProcessFinesCommand extends Command
                     'checkout_id' => $r->id,
                     'fine_type' => 'overdue',
                     'amount' => $amount,
-                    'currency' => 'ZAR',
+                    'currency' => \AhgLibrary\Support\LibrarySettings::currency(),
                     'status' => 'outstanding',
                     'fine_date' => $today,
                     'description' => $description,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
-                DB::table('library_patron')->where('id', $r->patron_id)
-                    ->increment('total_fines_owed', $amount);
             }
+            // Recomputed, because a top-up of an existing row never reached the total.
+            \AhgLibrary\Services\LibraryFineService::refreshPatronTotals((int) $r->patron_id);
             $accrued++;
         }
         $this->info(sprintf('accrued=%d total=%s%s', $accrued, number_format($totalAmount, 2), $dry ? ' (dry-run)' : ''));

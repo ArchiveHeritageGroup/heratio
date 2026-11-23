@@ -45,13 +45,15 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="pin" class="form-label">{{ __('PIN') }} <span class="text-muted">({{ __('optional') }})</span></label>
+                    <label for="pin" class="form-label">{{ __('PIN') }}</label>
                     <input
                         type="password"
                         name="pin"
                         id="pin"
                         class="form-control"
-                        placeholder="{{ __('Your 4-6 digit PIN if set') }}"
+                        placeholder="{{ __('Your 4 to 12 digit PIN') }}"
+                        autocomplete="current-password"
+                        required
                     >
                     @error('pin')
                         <div class="text-danger small mt-1">{{ $message }}</div>

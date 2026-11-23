@@ -27,6 +27,7 @@ use AhgLibrary\Services\LibraryService;
 use AhgLibrary\Services\MarcEditService;
 use AhgLibrary\Services\Marc21DecoderService;
 use AhgLibrary\Services\MarcMergeService;
+use AhgLibrary\Services\MarcRecordStore;
 use AhgLibrary\Services\MarcValidationService;
 use AhgMetadataExport\Services\Exporters\Marc21BinaryEncoder;
 use AhgMetadataExport\Services\Importers\MarcXmlImporter;
@@ -102,15 +103,21 @@ class MarcEditorController extends Controller
 
     public function formImportCommit(Request $request)
     {
-        $request->validate([
-            'marc_file' => 'required|file|max:20480|mimes:xml,marcxml,text/xml',
-        ]);
-
-        $file = $request->file('marc_file');
-        $raw = file_get_contents($file->getRealPath());
+        // The preview screen posts the file back base64-encoded; a direct post uploads it.
+        if ($request->hasFile('marc_file')) {
+            $request->validate(['marc_file' => 'required|file|max:20480|mimes:xml,marcxml,text/xml']);
+            $raw = file_get_contents($request->file('marc_file')->getRealPath());
+        } else {
+            $request->validate(['marc_file' => 'required|string|max:28000000']);
+            $raw = base64_decode($request->input('marc_file'), true);
+            if ($raw === false || strlen($raw) > 20480 * 1024) {
+                return redirect()->back()->with('error', __('Invalid MARC file.'));
+            }
+        }
 
         try {
             $records = $this->importer->parseRecords($raw);
+            $store = new MarcRecordStore();
             $created = 0;
             $skipped = 0;
 
@@ -122,14 +129,20 @@ class MarcEditorController extends Controller
                     continue;
                 }
 
-                $this->libraryService->create([
-                    'title' => $desc['title'],
-                    'scope_and_content' => $desc['scope_and_content'] ?? null,
-                    'extent_and_medium' => $desc['extent_and_medium'] ?? null,
-                    'identifier' => $desc['control_number'] ?? null,
-                    'creators' => [],
-                    'subjects' => [],
-                ]);
+                // The item and its source record are stored together or not at all.
+                DB::transaction(function () use ($desc, $store, $raw, $records, $recordNode) {
+                    $ioId = $this->libraryService->create([
+                        'title' => $desc['title'],
+                        'scope_and_content' => $desc['scope_and_content'] ?? null,
+                        'extent_and_medium' => $desc['extent_and_medium'] ?? null,
+                        'identifier' => $desc['control_number'] ?? null,
+                        'creators' => [],
+                        'subjects' => [],
+                    ]);
+                    count($records) === 1
+                        ? $store->captureImport($ioId, $raw)
+                        : $store->captureImport($ioId, $store->recordXml($recordNode), true);
+                });
                 $created++;
             }
 
@@ -238,7 +251,13 @@ class MarcEditorController extends Controller
                 return redirect()->back()->with('error', __('Invalid base64-encoded MARC file.'));
             }
 
-            $ioId = $this->decoder->decodeToLibraryItem($raw);
+            $ioId = DB::transaction(function () use ($raw) {
+                $ioId = $this->decoder->decodeToLibraryItem($raw);
+                if ($ioId) {
+                    (new MarcRecordStore())->captureImport($ioId, $raw);
+                }
+                return $ioId;
+            });
             if (! $ioId) {
                 return redirect()->back()->with('error', __('Failed to create library item from MARC record.'));
             }
@@ -281,11 +300,16 @@ class MarcEditorController extends Controller
 
         $formData = $request->except(['_token', '_method']);
 
+        $sourceRecords = new MarcRecordStore();
+        $sourceRecords->ensureBaseline($libraryItemId);
+
         $ok = $this->marcEdit->applyEdits($libraryItemId, $formData);
 
         if (! $ok) {
             return redirect()->back()->with('error', __('Failed to save MARC edits.'));
         }
+
+        $sourceRecords->snapshot($libraryItemId, 'edit');
 
         $ioId = DB::table('library_item')->where('id', $libraryItemId)->value('information_object_id');
         $slug = DB::table('slug')->where('object_id', $ioId)->value('slug');

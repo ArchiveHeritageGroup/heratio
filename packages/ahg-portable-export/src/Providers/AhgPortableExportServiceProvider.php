@@ -15,6 +15,7 @@ class AhgPortableExportServiceProvider extends ServiceProvider
     {
         \Illuminate\Support\Facades\Route::middleware('web')
             ->group(__DIR__.'/../../routes/web.php');
+        \Illuminate\Support\Facades\Route::middleware('web')->group(__DIR__.'/../../routes/releases.php'); // #1586
         $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-portable-export');
         $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
 

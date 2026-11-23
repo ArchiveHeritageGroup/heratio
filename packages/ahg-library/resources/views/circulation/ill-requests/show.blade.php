@@ -4,6 +4,7 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="h4">ILL: {{ $ill->ill_number }}</h2>
     <div>
+      <a href="{{ route('library.ill-routing.request', $ill->id) }}" class="btn btn-outline-primary btn-sm">{{ __('Supplier routing') }}</a>
       <a href="{{ route('library.ill-requests.index') }}" class="btn btn-outline-secondary btn-sm">{{ __('Back') }}</a>
       <form method="POST" action="{{ route('library.ill-requests.destroy', $ill->id) }}" class="d-inline"
         onsubmit="return confirm('Delete this ILL request?');">
@@ -96,7 +97,7 @@
             <tr><th>{{ __('ISSN') }}</th><td>{{ $ill->issn ?: '-' }}</td></tr>
             <tr><th>{{ __('Publisher') }}</th><td>{{ $ill->publisher ?: '-' }}</td></tr>
             <tr><th>{{ __('Year') }}</th><td>{{ $ill->publication_year ?: '-' }}</td></tr>
-            <tr><th>{{ __('Volume / Issue / Pages') }}</th><td>{{ [$ill->volume, $ill->issue, $ill->pages] | array_filter | join(' / ') ?: '-' }}</td></tr>
+            <tr><th>{{ __('Volume / Issue / Pages') }}</th><td>{{ implode(' / ', array_filter([$ill->volume, $ill->issue, $ill->pages])) ?: '-' }}</td></tr>
             <tr><th>{{ __('Citation') }}</th><td>{{ $ill->citation ?: '-' }}</td></tr>
             <tr><th>{{ __('Library') }}</th><td>{{ $ill->library_name ?: '-' }}</td></tr>
             <tr><th>{{ __('Symbol') }}</th><td><code>{{ $ill->library_symbol ?: '-' }}</code></td></tr>

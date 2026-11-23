@@ -10,7 +10,9 @@ class AhgLibraryServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->singleton(\AhgLibrary\Services\LibraryCalendarService::class);
+        $this->app->register(AuthorityDepthServiceProvider::class); // #1475 item 3
+        $this->app->register(LibraryLedgerServiceProvider::class); // #1475 invoicing sub-ledger
     }
 
     public function boot(): void
@@ -31,13 +33,27 @@ class AhgLibraryServiceProvider extends ServiceProvider
             // tables not migrated yet - skip seeding, boot continues
         }
 
+        // #1476 circulation statistics - before web.php, see the route file.
+        \Illuminate\Support\Facades\Route::middleware('web')
+            ->group(__DIR__ . '/../../routes/circulation-stats.php');
+
         \Illuminate\Support\Facades\Route::middleware('web')
             ->group(__DIR__ . '/../../routes/web.php');
+        \Illuminate\Support\Facades\Route::middleware('web')
+            ->group(__DIR__ . '/../../routes/fines.php'); // #1474 fine payment + cash desk
+        \Illuminate\Support\Facades\Route::middleware('web')->group(__DIR__ . '/../../routes/notices.php');
+        \Illuminate\Support\Facades\Route::middleware('web')->group(__DIR__ . '/../../routes/offline-circulation.php');
+        \Illuminate\Support\Facades\Route::middleware('web')->group(__DIR__ . '/../../routes/stocktake.php'); // #1474 item 5
+        \Illuminate\Support\Facades\Route::middleware('web')->group(__DIR__ . '/../../routes/loan-calendar.php');
+        \Illuminate\Support\Facades\Route::middleware('web')->group(__DIR__ . '/../../routes/classification.php'); // #1475
+        \Illuminate\Support\Facades\Route::middleware('web')->group(__DIR__ . '/../../routes/labels.php'); // #1476 item 2
+        \Illuminate\Support\Facades\Route::middleware('web')->group(__DIR__ . '/../../routes/marc-records.php'); // #1476
 
         // #1100 library acquisitions JSON:API. Route file applies its own
         // api.auth scope + prefix groups, so it is loaded without an extra
         // middleware wrap.
         $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
+        $this->loadRoutesFrom(__DIR__ . '/../../routes/ill-routing.php'); // #1475
 
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ahg-library');
 
@@ -91,6 +107,12 @@ class AhgLibraryServiceProvider extends ServiceProvider
                 \AhgLibrary\Console\Commands\SerialExpiryAlertsCommand::class,    // #1092
                 \AhgLibrary\Console\Commands\SendOverdueNoticesCommand::class,    // #1093
                 \AhgLibrary\Console\Commands\BranchUnmatchedCommand::class,       // #1473
+                \AhgLibrary\Console\Commands\Sip2ServeCommand::class,            // #1475
+                \AhgLibrary\Console\Commands\Sip2SetupCommand::class,            // #1475
+                \AhgLibrary\Console\Commands\IllRouteTimeoutsCommand::class,      // #1475
+                \AhgLibrary\Console\Commands\RebuildShelfKeysCommand::class,      // #1475
+                \AhgLibrary\Console\Commands\EmailCirculationReportCommand::class, // #1476
+                \AhgLibrary\Console\Commands\ReplayMarcRecordsCommand::class,     // #1476
             ]);
 
             $this->app->booted(function () {
@@ -115,6 +137,8 @@ class AhgLibraryServiceProvider extends ServiceProvider
                 $schedule->command('ahg:library-serial-expiry-alerts')->dailyAt('03:45')->withoutOverlapping(60);
                 // #1093 circulation: tiered overdue notices.
                 $schedule->command('ahg:library-overdue-notices')->dailyAt('06:00')->withoutOverlapping(120);
+                // #1475 ILL failover. Does nothing until automatic routing is switched on.
+                $schedule->command('ahg:library-ill-route-timeouts')->hourly()->withoutOverlapping(55);
             });
         }
     }
@@ -148,6 +172,17 @@ class AhgLibraryServiceProvider extends ServiceProvider
                     ['code' => 'approval',        'label' => 'Approval Plan',       'default' => false],
                 ],
             ],
+            // #1476 circulation statistics report periods.
+            'library_report_period' => [
+                'label'   => 'Library Report Period',
+                'section' => 'library',
+                'options' => [
+                    ['code' => 'monthly',   'label' => 'Last full month',   'default' => true],
+                    ['code' => 'quarterly', 'label' => 'Last full quarter', 'default' => false],
+                    ['code' => 'yearly',    'label' => 'Last full year',    'default' => false],
+                    ['code' => 'custom',    'label' => 'Custom dates',      'default' => false],
+                ],
+            ],
             'acq_payment_status' => [
                 'label'   => 'Acquisition Payment Status',
                 'section' => 'library',
@@ -157,6 +192,28 @@ class AhgLibraryServiceProvider extends ServiceProvider
                     ['code' => 'paid',      'label' => 'Paid',                   'default' => false],
                     ['code' => 'overdue',   'label' => 'Overdue',                'default' => false],
                     ['code' => 'refunded',  'label' => 'Refunded / Credited',    'default' => false],
+                ],
+            ],
+            // #1475 classification schedules. Codes are the values library_item
+            // already stores in classification_scheme.
+            'library_classification_scheme' => [
+                'label'   => 'Classification Scheme',
+                'section' => 'library',
+                'options' => [
+                    ['code' => 'LC',    'label' => 'Library of Congress (LC)',               'default' => false],
+                    ['code' => 'Dewey', 'label' => 'Dewey Decimal Classification',           'default' => false],
+                    ['code' => 'UDC',   'label' => 'Universal Decimal Classification (UDC)', 'default' => false],
+                    ['code' => 'Local', 'label' => 'Local scheme',                           'default' => false],
+                    ['code' => 'Other', 'label' => 'Other',                                  'default' => false],
+                ],
+            ],
+            'library_classification_validation' => [
+                'label'   => 'Classification Validation',
+                'section' => 'library',
+                'options' => [
+                    ['code' => 'off',    'label' => 'Off - do not check',              'default' => false],
+                    ['code' => 'warn',   'label' => 'Warn - save and show a warning',  'default' => true],
+                    ['code' => 'strict', 'label' => 'Strict - refuse unknown numbers', 'default' => false],
                 ],
             ],
         ];

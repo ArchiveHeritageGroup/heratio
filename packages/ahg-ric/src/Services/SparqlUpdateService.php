@@ -66,7 +66,7 @@ class SparqlUpdateService
             '/'
         );
 
-        $derived = $base . '/update';
+        $derived = \AhgRic\Support\TripleStore::updateUrl($base); // #1518
 
         $this->updateEndpoint = $this->setting(
             'fuseki_update_endpoint',

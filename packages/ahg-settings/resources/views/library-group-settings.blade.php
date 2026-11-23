@@ -47,6 +47,13 @@
                    value="{{ $settings['library_max_renewals'] ?? '2' }}" min="0">
           </div>
           <div class="col-md-4 mb-3">
+            <label for="library_offline_max_days" class="form-label">{{ __('Offline Window (days)') }}</label>
+            <input type="number" class="form-control" id="library_offline_max_days"
+                   name="settings[library_offline_max_days]"
+                   value="{{ $settings['library_offline_max_days'] ?? '14' }}" min="1">
+            <div class="form-text">{{ __('Offline desk transactions older than this wait for a staff decision.') }}</div>
+          </div>
+          <div class="col-md-4 mb-3">
             <label for="library_currency" class="form-label">{{ __('Currency') }}</label>
             <input type="text" class="form-control" id="library_currency"
                    name="settings[library_currency]"

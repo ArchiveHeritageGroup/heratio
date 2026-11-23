@@ -694,6 +694,10 @@ TXT;
             ->select('id', 'object_id', 'usage_id', 'mime_type', 'media_type_id', 'name', 'path', 'byte_size', 'parent_id')
             ->orderBy('object_id')->orderBy('usage_id')
             ->get();
+        // #1586 - a redacted record's file names and storage paths can carry the
+        // personal data that was redacted, so its objects are not listed at all.
+        $disclosure = new \AhgCore\Services\DisclosureGate;
+        $dos = $dos->reject(fn ($d) => $disclosure->hasRedactions((int) $d->object_id))->values();
         file_put_contents($workDir.'/data/digital_objects.json', json_encode($dos, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         $stats['digital_objects'] = $dos->count();
 
@@ -826,7 +830,11 @@ TXT;
                 ->whereNotNull('manifest_json')
                 ->orderBy('id')
                 ->get(['information_object_id', 'manifest_json']);
+            $disclosure = new \AhgCore\Services\DisclosureGate;
             foreach ($manifests as $m) {
+                if ($disclosure->hasRedactions((int) $m->information_object_id)) {
+                    continue; // #1586 - a manifest can name the original file
+                }
                 if (! is_dir($c2paDir)) {
                     @mkdir($c2paDir, 0775, true);
                 }

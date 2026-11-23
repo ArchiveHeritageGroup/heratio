@@ -113,7 +113,7 @@
                                     @foreach($loans as $l)
                                         @php
                                             $dueTs = strToTime($l->due_date ?? '');
-                                            $daysLeft = $dueTs !== false ? floor(($dueTs - time{}) / 86400) : null;
+                                            $daysLeft = $dueTs !== false ? floor(($dueTs - time()) / 86400) : null;
                                             $isOverdue = $dueTs !== false && $dueTs < time();
                                         @endphp
                                         <tr class="{{ $isOverdue ? 'table-danger' : '' }}">
@@ -214,6 +214,7 @@
 
         {{-- Tab: Fine History --}}
         <div class="tab-pane{{ $activeTab === 'fines' ? ' show active' : '' }}" id="tab-fines" role="tabpanel">
+            <p><a href="{{ route('library.fines.index', $patron->id) }}" class="btn btn-sm atom-btn-white"><i class="fas fa-cash-register me-1"></i>{{ __('Take payment or waive') }}</a></p>
             @if($fines->isNotEmpty())
                 <div class="card">
                     <div class="card-body p-0">
@@ -234,7 +235,7 @@
                                         <tr>
                                             <td>{{ $f->fine_date ?? '' }}</td>
                                             <td>{{ ucfirst($f->fine_type ?? '') }}</td>
-                                            <td>{{ \AhgCore\Support\EncryptionService::decrypt($f->description ?? '') }}</td>
+                                            <td>{{ \AhgLibrary\Services\LibraryFineService::description($f->description ?? '') }}</td>
                                             <td class="text-end">{{ number_format((float) ($f->amount ?? 0), 2) }}</td>
                                             <td class="text-end">{{ number_format((float) ($f->paid_amount ?? 0), 2) }}</td>
                                             <td>

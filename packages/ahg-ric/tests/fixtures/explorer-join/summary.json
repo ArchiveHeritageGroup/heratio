@@ -1,0 +1,906 @@
+{
+ "edges": {
+  "head": {
+   "vars": [
+    "s",
+    "p",
+    "o",
+    "dir"
+   ]
+  },
+  "results": {
+   "bindings": [
+    {
+     "dir": {
+      "type": "literal",
+      "value": "out"
+     },
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/multi"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#hasCreator"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "dir": {
+      "type": "literal",
+      "value": "out"
+     },
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/multi"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#hasCreator"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "dir": {
+      "type": "literal",
+      "value": "out"
+     },
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/plain"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#hasCreator"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "dir": {
+      "type": "literal",
+      "value": "out"
+     },
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/plain"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#hasCreator"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "dir": {
+      "type": "literal",
+      "value": "out"
+     },
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/foreign"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#hasCreator"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "dir": {
+      "type": "literal",
+      "value": "out"
+     },
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/foreign"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#hasCreator"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "dir": {
+      "type": "literal",
+      "value": "out"
+     },
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#isAssociatedWith"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "dir": {
+      "type": "literal",
+      "value": "out"
+     },
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#isAssociatedWith"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "dir": {
+      "type": "literal",
+      "value": "in"
+     },
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#isAssociatedWith"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "dir": {
+      "type": "literal",
+      "value": "in"
+     },
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#isAssociatedWith"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "dir": {
+      "type": "literal",
+      "value": "in"
+     },
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#isPartOfThing"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/in1"
+     }
+    },
+    {
+     "dir": {
+      "type": "literal",
+      "value": "in"
+     },
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#isPartOfThing"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/in1"
+     }
+    },
+    {
+     "dir": {
+      "type": "literal",
+      "value": "in"
+     },
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#isPartOfThing"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/in2"
+     }
+    },
+    {
+     "dir": {
+      "type": "literal",
+      "value": "in"
+     },
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#isPartOfThing"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/in2"
+     }
+    }
+   ]
+  }
+ },
+ "metadata": {
+  "head": {
+   "vars": [
+    "n",
+    "title",
+    "type"
+   ]
+  },
+  "results": {
+   "bindings": [
+    {
+     "n": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "title": {
+      "type": "literal",
+      "value": "Centre one"
+     }
+    },
+    {
+     "n": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "title": {
+      "type": "literal",
+      "value": "Centre two"
+     }
+    },
+    {
+     "n": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "type": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#RecordSet"
+     }
+    },
+    {
+     "n": {
+      "type": "uri",
+      "value": "https://example.org/foreign"
+     },
+     "type": {
+      "type": "uri",
+      "value": "http://www.w3.org/2002/07/owl#Thing"
+     }
+    },
+    {
+     "n": {
+      "type": "uri",
+      "value": "https://example.org/in1"
+     },
+     "title": {
+      "type": "literal",
+      "value": "Incoming"
+     }
+    },
+    {
+     "n": {
+      "type": "uri",
+      "value": "https://example.org/in1"
+     },
+     "type": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#Record"
+     }
+    },
+    {
+     "n": {
+      "type": "uri",
+      "value": "https://example.org/multi"
+     },
+     "title": {
+      "type": "literal",
+      "value": "Multi A"
+     }
+    },
+    {
+     "n": {
+      "type": "uri",
+      "value": "https://example.org/multi"
+     },
+     "title": {
+      "type": "literal",
+      "value": "Multi B"
+     }
+    },
+    {
+     "n": {
+      "type": "uri",
+      "value": "https://example.org/multi"
+     },
+     "type": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#Person"
+     }
+    },
+    {
+     "n": {
+      "type": "uri",
+      "value": "https://example.org/multi"
+     },
+     "type": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#Agent"
+     }
+    },
+    {
+     "n": {
+      "type": "uri",
+      "value": "https://example.org/multi"
+     },
+     "type": {
+      "type": "uri",
+      "value": "http://www.w3.org/2002/07/owl#Thing"
+     }
+    },
+    {
+     "n": {
+      "type": "uri",
+      "value": "https://example.org/plain"
+     },
+     "title": {
+      "type": "literal",
+      "value": "Plain only"
+     }
+    }
+   ]
+  }
+ },
+ "old": {
+  "head": {
+   "vars": [
+    "s",
+    "p",
+    "o",
+    "sLabel",
+    "oLabel",
+    "sType",
+    "oType"
+   ]
+  },
+  "results": {
+   "bindings": [
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/multi"
+     },
+     "oLabel": {
+      "type": "literal",
+      "value": "Multi A"
+     },
+     "oType": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#Person"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#hasCreator"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/multi"
+     },
+     "oLabel": {
+      "type": "literal",
+      "value": "Multi A"
+     },
+     "oType": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#Person"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#hasCreator"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/multi"
+     },
+     "oLabel": {
+      "type": "literal",
+      "value": "Multi A"
+     },
+     "oType": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#Agent"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#hasCreator"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/multi"
+     },
+     "oLabel": {
+      "type": "literal",
+      "value": "Multi A"
+     },
+     "oType": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#Agent"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#hasCreator"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/multi"
+     },
+     "oLabel": {
+      "type": "literal",
+      "value": "Multi B"
+     },
+     "oType": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#Person"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#hasCreator"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/multi"
+     },
+     "oLabel": {
+      "type": "literal",
+      "value": "Multi B"
+     },
+     "oType": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#Person"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#hasCreator"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/multi"
+     },
+     "oLabel": {
+      "type": "literal",
+      "value": "Multi B"
+     },
+     "oType": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#Agent"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#hasCreator"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/multi"
+     },
+     "oLabel": {
+      "type": "literal",
+      "value": "Multi B"
+     },
+     "oType": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#Agent"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#hasCreator"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/plain"
+     },
+     "oLabel": {
+      "type": "literal",
+      "value": "Plain only"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#hasCreator"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/plain"
+     },
+     "oLabel": {
+      "type": "literal",
+      "value": "Plain only"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#hasCreator"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/foreign"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#hasCreator"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/foreign"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#hasCreator"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "oLabel": {
+      "type": "literal",
+      "value": "Centre one"
+     },
+     "oType": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#RecordSet"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#isAssociatedWith"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "oLabel": {
+      "type": "literal",
+      "value": "Centre one"
+     },
+     "oType": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#RecordSet"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#isAssociatedWith"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "oLabel": {
+      "type": "literal",
+      "value": "Centre two"
+     },
+     "oType": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#RecordSet"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#isAssociatedWith"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "oLabel": {
+      "type": "literal",
+      "value": "Centre two"
+     },
+     "oType": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#RecordSet"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#isAssociatedWith"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#isAssociatedWith"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "sLabel": {
+      "type": "literal",
+      "value": "Centre one"
+     },
+     "sType": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#RecordSet"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#isAssociatedWith"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "sLabel": {
+      "type": "literal",
+      "value": "Centre one"
+     },
+     "sType": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#RecordSet"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#isAssociatedWith"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "sLabel": {
+      "type": "literal",
+      "value": "Centre two"
+     },
+     "sType": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#RecordSet"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#isAssociatedWith"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "sLabel": {
+      "type": "literal",
+      "value": "Centre two"
+     },
+     "sType": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#RecordSet"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#isPartOfThing"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/in1"
+     },
+     "sLabel": {
+      "type": "literal",
+      "value": "Incoming"
+     },
+     "sType": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#Record"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#isPartOfThing"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/in1"
+     },
+     "sLabel": {
+      "type": "literal",
+      "value": "Incoming"
+     },
+     "sType": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#Record"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#isPartOfThing"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/in2"
+     }
+    },
+    {
+     "o": {
+      "type": "uri",
+      "value": "https://example.org/c"
+     },
+     "p": {
+      "type": "uri",
+      "value": "https://www.ica.org/standards/RiC/ontology#isPartOfThing"
+     },
+     "s": {
+      "type": "uri",
+      "value": "https://example.org/in2"
+     }
+    }
+   ]
+  }
+ }
+}

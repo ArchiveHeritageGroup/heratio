@@ -27,11 +27,15 @@
 
 namespace AhgLibrary\Controllers;
 
+use AhgCore\Support\DropdownOptions;
 use AhgLibrary\Services\AuthorityControlService;
+use AhgLibrary\Services\AuthorityHierarchyService;
+use AhgLibrary\Services\AuthorityRecordService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 use Throwable;
 
 class AuthorityControlController extends Controller
@@ -43,9 +47,40 @@ class AuthorityControlController extends Controller
         $this->svc = new AuthorityControlService();
     }
 
+    /** @return array<string,array<string,string>> Dropdown Manager options for the forms */
+    private function options(): array
+    {
+        return [
+            'recordTypes'  => DropdownOptions::resolve('library_authority_record_type', []),
+            'subjectTypes' => DropdownOptions::resolve('library_authority_subject_type', []),
+            'sources'      => DropdownOptions::resolve('library_authority_source', []),
+        ];
+    }
+
+    private function rules(?object $current = null, ?string $currentRecordType = null): array
+    {
+        $options = $this->options();
+        // A stored value retired from the Dropdown Manager must not block other edits.
+        $allow = fn (array $codes, ?string $value) => Rule::in(array_filter([...array_keys($codes), $value]));
+
+        return [
+            'heading'         => 'required|string|max:500',
+            'record_type'     => ['required', 'string', 'max:30', $allow($options['recordTypes'], $currentRecordType)],
+            'subject_type'    => ['required', 'string', 'max:50', $allow($options['subjectTypes'], $current->subject_type ?? null)],
+            'source'          => ['required', 'string', 'max:50', $allow($options['sources'], $current->source ?? null)],
+            'uri'             => 'nullable|url|max:500',
+            'lc_label'        => 'nullable|string|max:500',
+            'rda_label'       => 'nullable|string|max:500',
+            'authorized_form' => 'nullable|string|max:500',
+            'vocab_code'      => 'nullable|string|max:50',
+            'vocab_uri'       => 'nullable|url|max:500',
+            'notes'           => 'nullable|string|max:1000',
+        ];
+    }
+
     public function index(Request $request)
     {
-        $params = $request->only(['page', 'limit', 'search', 'subject_type', 'source']);
+        $params = $request->only(['page', 'limit', 'search', 'subject_type', 'source', 'record_type']);
         $result = $this->svc->index($params);
 
         return view('ahg-library::authority.index', [
@@ -53,25 +88,26 @@ class AuthorityControlController extends Controller
             'total' => $result['total'],
             'page' => $result['page'],
             'limit' => $result['limit'],
-        ]);
+        ] + $this->options());
     }
 
     public function create()
     {
-        return view('ahg-library::authority.create');
+        return view('ahg-library::authority.create', $this->options());
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'heading'      => 'required|string|max:500',
-            'subject_type' => 'required|string|max:50',
-            'source'       => 'required|string|max:50',
-            'uri'          => 'nullable|url|max:1000',
-        ]);
+        $validated = $request->validate($this->rules());
 
         try {
-            $id = $this->svc->create($validated);
+            $id = DB::transaction(function () use ($validated) {
+                $newId = $this->svc->create($validated);
+                $this->svc->update($newId, array_intersect_key($validated, array_flip(['lc_label', 'rda_label', 'authorized_form', 'vocab_code', 'vocab_uri', 'notes'])));
+                app(AuthorityRecordService::class)->setType($newId, $validated['record_type']);
+
+                return $newId;
+            });
             return redirect()->route('library.authority-view', $id)
                 ->with('success', __('Authority record created.'));
         } catch (Throwable $e) {
@@ -89,27 +125,38 @@ class AuthorityControlController extends Controller
         }
 
         $linkedItems = $this->svc->linkedItems($id);
+        $records = app(AuthorityRecordService::class);
+        $hierarchy = app(AuthorityHierarchyService::class);
+        $depth = $records->available();
+        $typing = $depth ? $records->get($id) : null;
 
         return view('ahg-library::authority.view', [
             'authority' => $authority,
             'linkedItems' => $linkedItems,
+            'depthAvailable' => $depth,
+            'typing' => $typing,
+            'recordType' => $records->typeFor($authority, $typing),
+            'overrides' => $records->overriddenFields($typing),
+            'recordTypes' => DropdownOptions::resolve('library_authority_record_type', []),
+            'broader' => $depth ? $hierarchy->broader($id) : [],
+            'narrower' => $depth ? $hierarchy->narrower($id) : [],
         ]);
     }
 
     public function update(Request $request, int $id)
     {
-        $validated = $request->validate([
-            'heading'      => 'required|string|max:500',
-            'subject_type' => 'required|string|max:50',
-            'source'       => 'required|string|max:50',
-            'uri'          => 'nullable|url|max:1000',
-        ]);
+        $before = $this->svc->find($id);
+        abort_unless($before, 404);
+        $records = app(AuthorityRecordService::class);
+        $storedType = $records->typeFor($before, $records->available() ? $records->get($id) : null);
+        $validated = $request->validate($this->rules($before, $storedType));
 
         try {
-            $ok = $this->svc->update($id, $validated);
-            if (! $ok) {
-                return redirect()->back()->with('error', __('Nothing to update.'));
-            }
+            DB::transaction(function () use ($id, $validated, $before, $records) {
+                $this->svc->update($id, $validated);
+                $records->setType($id, $validated['record_type']);
+                $records->recordLocalEdit($id, $before, $validated);
+            });
 
             return redirect()->route('library.authority-view', $id)
                 ->with('success', __('Authority record updated.'));

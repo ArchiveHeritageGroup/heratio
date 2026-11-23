@@ -9,6 +9,7 @@ use AhgCore\Services\SecretCrypto;
 use Illuminate\Support\Facades\DB;
 use AhgDiscovery\Concerns\ResolvesDiscoveryConnection;
 use AhgCore\Support\I18nFallback;
+use AhgRic\Support\TripleStore;
 
 /**
  * PageIndex Service
@@ -823,7 +824,15 @@ SPARQL;
      */
     private function executeSparqlQuery(string $sparql): array
     {
-        $ch = curl_init($this->fusekiEndpoint.'/query');
+        try {
+            [$url, $sparql] = $this->sparqlRequest($sparql);
+        } catch (\InvalidArgumentException $e) {
+            error_log('[PageIndex] SPARQL query not scoped: '.$e->getMessage());
+
+            return [];
+        }
+
+        $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => $sparql,
@@ -857,6 +866,21 @@ SPARQL;
         $data = json_decode($response, true);
 
         return $data['results']['bindings'] ?? [];
+    }
+
+    /**
+     * Endpoint and query for a read (#1518). This package also runs without
+     * ahg-ric, and then keeps the plain Fuseki endpoint.
+     *
+     * @return array{0: string, 1: string}
+     */
+    private function sparqlRequest(string $sparql): array
+    {
+        if (! class_exists(TripleStore::class)) {
+            return [$this->fusekiEndpoint.'/query', $sparql];
+        }
+
+        return [TripleStore::queryUrl($this->fusekiEndpoint), TripleStore::scope($sparql)];
     }
 
     // =========================================================================

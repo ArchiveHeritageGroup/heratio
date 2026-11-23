@@ -31,6 +31,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class DropdownController extends Controller
 {
@@ -570,7 +571,9 @@ class DropdownController extends Controller
             'code' => 'required|string|max:100',
             'color' => 'nullable|string|max:7',
             'icon' => 'nullable|string|max:50',
+            'flag' => [Rule::requiredIf(isset(self::METADATA_FLAGS[$request->taxonomy])), 'nullable', 'in:0,1'],
         ]);
+        $flag = self::METADATA_FLAGS[$request->taxonomy] ?? null;
 
         // Check code uniqueness within taxonomy
         $exists = DB::table('ahg_dropdown')
@@ -607,6 +610,7 @@ class DropdownController extends Controller
             'sort_order' => $maxSort + 1,
             'is_default' => 0,
             'is_active' => 1,
+            'metadata' => $flag ? json_encode([$flag => (string) $request->flag === '1']) : null,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -620,6 +624,9 @@ class DropdownController extends Controller
         ]);
     }
 
+    /** Taxonomies whose terms carry a required yes/no flag in metadata. */
+    private const METADATA_FLAGS = ['library_payment_method' => 'is_cash'];
+
     /**
      * AJAX: Update a single field on a term.
      */
@@ -627,12 +634,16 @@ class DropdownController extends Controller
     {
         $request->validate([
             'id' => 'required|integer',
-            'field' => 'required|string|in:label,color,icon,is_active',
+            'field' => 'required|string|in:label,color,icon,is_active,flag',
             'value' => 'nullable|string|max:255',
         ]);
 
         $field = $request->field;
         $value = $request->value;
+
+        if ($field === 'flag') {
+            return $this->updateMetadataFlag((int) $request->id, $value);
+        }
 
         // Convert boolean-like values for is_active
         if ($field === 'is_active') {
@@ -649,6 +660,23 @@ class DropdownController extends Controller
         if ($updated === 0) {
             return response()->json(['success' => false, 'message' => 'Term not found or no change.'], 404);
         }
+
+        return response()->json(['success' => true, 'message' => 'Term updated.']);
+    }
+
+    /** Set a term's metadata flag, keeping whatever else its metadata holds. */
+    private function updateMetadataFlag(int $id, ?string $value): JsonResponse
+    {
+        $term = DB::table('ahg_dropdown')->where('id', $id)->first();
+        $flag = $term ? (self::METADATA_FLAGS[$term->taxonomy] ?? null) : null;
+        if (! $flag || ! in_array($value, ['0', '1'], true)) {
+            return response()->json(['success' => false, 'message' => 'This term has no such setting.'], 422);
+        }
+
+        $metadata = json_decode((string) $term->metadata, true);
+        $metadata = is_array($metadata) ? $metadata : [];
+        $metadata[$flag] = $value === '1';
+        DB::table('ahg_dropdown')->where('id', $id)->update(['metadata' => json_encode($metadata), 'updated_at' => now()]);
 
         return response()->json(['success' => true, 'message' => 'Term updated.']);
     }

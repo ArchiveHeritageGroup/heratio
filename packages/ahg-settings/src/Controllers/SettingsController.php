@@ -2643,10 +2643,22 @@ class SettingsController extends Controller
             'default_consultation_follow_up_days' => '30',
             'local_contexts_hub_enabled' => '0',
             'local_contexts_api_key' => '',
+            'local_contexts_hub_url' => 'https://localcontextshub.org',
+            'local_contexts_project_ids' => '',
             'audit_all_icip_access' => '0',
         ];
 
         if ($request->isMethod('post')) {
+            // #1448 - the API key is sent to this host, so only the Hub's two published servers are accepted.
+            $uuid = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
+            $request->validate([
+                'settings.local_contexts_hub_url' => ['nullable', 'string', 'max:255', 'regex:#^https://(sandbox\.)?localcontextshub\.org/?$#i'],
+                'settings.local_contexts_project_ids' => ['nullable', 'string', 'max:4000', 'regex:/^[\s,]*'.$uuid.'(?:[\s,]+'.$uuid.')*[\s,]*$/i'],
+            ], [
+                'settings.local_contexts_hub_url.regex' => __('Use https://localcontextshub.org or https://sandbox.localcontextshub.org.'),
+                'settings.local_contexts_project_ids.regex' => __('Enter Hub project unique IDs (UUIDs), separated by commas or spaces.'),
+            ]);
+
             $this->ensureIcipConfigTable();
             $posted = $request->input('settings', []);
             foreach (array_keys($keyDefaults) as $key) {
@@ -3608,6 +3620,12 @@ class SettingsController extends Controller
             $label = (string) $request->input('name', '');
             $section = (string) $request->input('description', '');
 
+            // #1474: this editor rewrites codes and drops metadata, and tenders
+            // depend on both for cash reconciliation.
+            if (in_array('library_payment_method', [$taxonomy, $newTaxonomy], true)) {
+                return redirect()->route('dropdown.index')->with('error', __('Edit payment methods in the Dropdown Manager.'));
+            }
+
             // Replace the full set of values for this taxonomy.
             if ($taxonomy) {
                 DB::table('ahg_dropdown')->where('taxonomy', $taxonomy)->delete();
@@ -4213,12 +4231,25 @@ class SettingsController extends Controller
         // #119: explicit checkbox list so a fresh-install operator can persist
         // an unchecked default-true switch on first save (no DB row exists yet,
         // so the auto-detect fallback in buildGroupSettings can't fire).
-        return $this->buildGroupSettings($request, 'library', 'library-group-settings', 'Library Settings', [
+        // #1474: default loan periods are dated too, so offline loans replay by the value then in force.
+        $history = $request->isMethod('post') && class_exists(\AhgLibrary\Support\LibraryOfflineRuleHistory::class);
+        if ($history) {
+            \AhgLibrary\Support\LibraryOfflineRuleHistory::captureQuietly('settings_edit');
+        }
+
+        $response = $this->buildGroupSettings($request, 'library', 'library-group-settings', 'Library Settings', [
             'library_auto_fine', 'library_barcode_auto_generate',
             'library_auto_expire_holds', 'library_auto_expire_patrons',
             'library_opac_enabled', 'library_opac_show_availability',
             'library_opac_show_covers', 'library_opac_allow_holds',
         ]);
+
+        if ($history) {
+            \AhgCore\Services\AhgSettingsService::clearCache();
+            \AhgLibrary\Support\LibraryOfflineRuleHistory::captureQuietly('settings_edit');
+        }
+
+        return $response;
     }
 
     public function multiTenantSettings(Request $request)

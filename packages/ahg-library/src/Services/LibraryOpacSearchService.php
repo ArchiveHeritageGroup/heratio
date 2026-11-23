@@ -42,6 +42,9 @@ class LibraryOpacSearchService
 
     protected bool $esAvailable;
 
+    /** @var array{ids:int[],headings:string[]} authority expansion for the current search */
+    protected array $expansion = ['ids' => [], 'headings' => []];
+
     public function __construct()
     {
         $this->host    = config('services.elasticsearch.host', 'http://localhost:9200');
@@ -69,6 +72,7 @@ class LibraryOpacSearchService
      *                                   year_desc | year_asc | popular
      *   page           (int)           1-based page
      *   per_page       (int)           results per page (max 100)
+     *   expand         (bool)          also match narrower authority terms
      *
      * Returns array:
      *   results   (LengthAwarePaginator)  Item rows
@@ -81,6 +85,10 @@ class LibraryOpacSearchService
         $sort       = $filters['sort'] ?? 'relevance';
         $page       = max(1, (int) ($filters['page'] ?? 1));
         $perPage    = max(1, min(100, (int) ($filters['per_page'] ?? LibrarySettings::opacResultsPerPage())));
+
+        $this->expansion = ! empty($filters['expand']) && $query !== ''
+            ? app(AuthorityHierarchyService::class)->expandForSearch($query)
+            : ['ids' => [], 'headings' => []];
 
         if ($this->esAvailable) {
             return $this->searchEs($query, $filters, $sort, $page, $perPage);
@@ -140,6 +148,14 @@ class LibraryOpacSearchService
                                 ],
                             ],
                         ],
+                        // Exact, like the database path. Needs a reindex; absent fields match nothing.
+                        ...($this->expansion['ids'] ? [
+                            ['terms' => ['authority_ids' => $this->expansion['ids']]],
+                            ['terms' => ['subject_headings_exact' => array_values(array_unique(array_map(
+                                fn ($heading) => mb_strtolower(trim($heading)),
+                                $this->expansion['headings']
+                            )))]],
+                        ] : []),
                     ],
                     'minimum_should_match' => 1,
                 ],
@@ -467,13 +483,22 @@ class LibraryOpacSearchService
         // Text query
         if ($query !== '') {
             $like = '%' . $query . '%';
-            $q->where(function ($w) use ($like) {
+            $expansion = $this->expansion;
+            $q->where(function ($w) use ($like, $expansion) {
                 $w->where(I18nFallback::col('i18n', 'title'), 'LIKE', $like)
                   ->orWhere('li.isbn', 'LIKE', $like)
                   ->orWhere('li.call_number', 'LIKE', $like)
                   ->orWhere('li.publisher', 'LIKE', $like)
                   ->orWhere('li.responsibility_statement', 'LIKE', $like)
                   ->orWhere('li.summary', 'LIKE', $like);
+                if ($expansion['ids']) {
+                    $w->orWhereIn('li.id', DB::table('library_item_authority_link')
+                        ->whereIn('authority_id', $expansion['ids'])->select('library_item_id'))
+                      ->orWhereIn('li.id', DB::table('library_item_subject')
+                        ->whereIn('authority_id', $expansion['ids'])->select('library_item_id'))
+                      ->orWhereIn('li.id', DB::table('library_item_subject')
+                        ->whereIn('heading', $expansion['headings'])->select('library_item_id'));
+                }
             });
         }
 

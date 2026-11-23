@@ -34,24 +34,30 @@
                     @enderror
                 </div>
 
+                <div class="mb-3">
+                    <label for="record_type" class="form-label">{{ __('Record Type') }} <span class="text-danger">*</span></label>
+                    <select name="record_type" id="record_type" class="form-select" required>
+                        @foreach($recordTypes as $code => $label)
+                            <option value="{{ $code }}" {{ old('record_type', 'subject') === $code ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    @error('record_type') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                </div>
+
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
                         <label for="subject_type" class="form-label">{{ __('Subject Type') }} <span class="text-danger">*</span></label>
                         <select name="subject_type" id="subject_type" class="form-select" required>
-                            @foreach(['topic','geographic','temporal','genre','form','uniform','names'] as $type)
-                                <option value="{{ $type }}" {{ old('subject_type', 'topic') === $type ? 'selected' : '' }}>
-                                    {{ ucfirst($type) }}
-                                </option>
+                            @foreach($subjectTypes as $code => $label)
+                                <option value="{{ $code }}" {{ old('subject_type', 'topic') === $code ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="col-md-6">
                         <label for="source" class="form-label">{{ __('Source') }} <span class="text-danger">*</span></label>
                         <select name="source" id="source" class="form-select" required>
-                            @foreach(['local','lcsh','lcgft','lcnaf','mesh','gsafd','rvm'] as $src)
-                                <option value="{{ $src }}" {{ old('source', 'local') === $src ? 'selected' : '' }}>
-                                    {{ strtoupper($src) }}
-                                </option>
+                            @foreach($sources as $code => $label)
+                                <option value="{{ $code }}" {{ old('source', 'local') === $code ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
                         </select>
                     </div>

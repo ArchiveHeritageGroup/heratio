@@ -89,6 +89,9 @@ footer { padding: 8px 20px; font-size: 12px; color: var(--headtext); background:
   .lang button.on { background: var(--head); color: var(--headtext); }
   .homebtn { padding: 6px 12px; border: 1px solid var(--rule); border-radius: 4px; background: #fff; color: var(--ink); font: inherit; font-size: 14px; cursor: pointer; }
   img.evidence { display: block; max-width: 100%; max-height: 320px; margin: 10px 0; border: 1px solid #d8cfbf; background: #fff; }
+  #zoom { position: fixed; inset: 0; z-index: 50; display: none; background: rgba(0,0,0,.88); overflow: hidden; touch-action: none; }
+  #zoom.on { display: block; } #zoom img { position: absolute; inset: 0; margin: auto; max-width: 100%; max-height: 100%; cursor: grab; transform-origin: center; }
+  #zoom button { position: absolute; top: 12px; right: 16px; z-index: 1; padding: 6px 12px; font: inherit; cursor: pointer; }
   p.excerpt { font-size: 14px; line-height: 1.5; color: #3b342a; margin: 8px 0 12px; }
 </style>
 </head>
@@ -106,6 +109,7 @@ footer { padding: 8px 20px; font-size: 12px; color: var(--headtext); background:
   <aside id="side"></aside>
 </main>
 <div id="timeline"></div>
+<div id="zoom" role="dialog" aria-modal="true"><button type="button"></button><img alt=""></div>
 <footer><span id="made"></span><span id="builtfrom"></span></footer>
 <script src="cytoscape.min.js"></script>
 <script src="data.js"></script>
@@ -122,7 +126,7 @@ const I18N = {
     exported: 'Exported :d', builtOn: 'Built from the catalogue on :d', scope: ':r records, :e subjects, places and names',
     liveScope: 'showing :s of :t results, :e subjects, places and names', more: 'Load 100 more', back: 'Back to the list',
     whole: 'Search the whole catalogue', go: 'Search', catalogued: 'Catalogued as:', onRecs: 'On :n record', onRecsP: 'On :n records',
-    best40: ' (the map shows the 40 best connected)', andMore: 'and :n more', alongside: 'Appears alongside', wholeThis: 'Search the whole catalogue for this',
+    openPdf: 'Open the PDF', closeImg: 'Close', best40: ' (the map shows the 40 best connected)', andMore: 'and :n more', alongside: 'Appears alongside', wholeThis: 'Search the whole catalogue for this',
     untitled: '(untitled)', openRec: 'Open the record', linked: 'Linked with', same: 'The same story elsewhere', sameTip: ':p% of the wording in common', start: 'Where to start',
     startTip: 'The most-used subjects, places and names in this selection. Click one, or search above.', records: 'records', recordsN: ':n records',
     noMatch: 'No match in this selection', recs: 'records', people: 'people and bodies', places: 'places', subjects: 'subjects', events: 'events', dates: 'dates',
@@ -136,7 +140,7 @@ const I18N = {
     exported: 'Uitgevoer :d', builtOn: 'Saamgestel uit die katalogus op :d', scope: ':r rekords, :e onderwerpe, plekke en name',
     liveScope: 'wys :s van :t resultate, :e onderwerpe, plekke en name', more: 'Laai nog 100', back: 'Terug na die lys',
     whole: 'Soek in die hele katalogus', go: 'Soek', catalogued: 'Gekatalogiseer as:', onRecs: 'Op :n rekord', onRecsP: 'Op :n rekords',
-    best40: ' (die kaart wys die 40 met die meeste verbindings)', andMore: 'en nog :n', alongside: 'Verskyn saam met', wholeThis: 'Soek dit in die hele katalogus',
+    openPdf: 'Maak die PDF oop', closeImg: 'Maak toe', best40: ' (die kaart wys die 40 met die meeste verbindings)', andMore: 'en nog :n', alongside: 'Verskyn saam met', wholeThis: 'Soek dit in die hele katalogus',
     untitled: '(sonder titel)', openRec: 'Maak die rekord oop', linked: 'Gekoppel aan', same: 'Dieselfde berig elders', sameTip: ':p% van die bewoording gemeen', start: 'Waar om te begin',
     startTip: 'Die mees gebruikte onderwerpe, plekke en name in hierdie seleksie. Klik op een, of soek hierbo.', records: 'rekords', recordsN: ':n rekords',
     noMatch: 'Geen treffer in hierdie seleksie nie', recs: 'rekords', people: 'persone en liggame', places: 'plekke', subjects: 'onderwerpe', events: 'gebeure', dates: 'datums',
@@ -269,9 +273,10 @@ function showEntity(e, co) {
 function showRecord(r) {
   // The evidence in place: the record's picture and the opening of its text.
   side.innerHTML = `<div class="meta">${ref(r)}</div><h2>${esc(r.title || t('untitled'))}</h2>
-    ${r.img ? `<a href="${esc(r.url || r.img)}" target="_blank" rel="noopener"><img class="evidence" src="${esc(r.img)}" alt="${esc(r.title || '')}" loading="lazy" onerror="this.remove()"></a>` : ''}
+    ${r.img ? `<a href="${esc(r.img)}" data-zoom="${esc(r.img)}"><img class="evidence" src="${esc(r.img)}" alt="${esc(r.title || '')}" loading="lazy" onerror="this.remove()"></a>` : ''}
     ${r.text ? `<p class="excerpt">${esc(r.text)}</p>` : ''}
     ${r.url ? `<a class="btn" href="${esc(r.url)}" target="_blank" rel="noopener">${t('openRec')}</a>` : ''}
+    ${r.pdf ? ` <a class="btn" href="${esc(r.pdf)}" target="_blank" rel="noopener">${t('openPdf')}</a>` : ''}
     ${r.ents.length ? `<h3>${t('linked')}</h3><div class="tags">${r.ents.map(k => chip(k) + '</span>').join('')}</div>` : ''}
     ${(r.same || []).some(([x]) => REC.has(x)) ? `<h3>${t('same')}</h3><div class="list">${r.same.filter(([x]) => REC.has(x)).map(([x, p]) => linkRec(x).replace('</small></a>', ` - ${t('sameTip', { p })}</small></a>`)).join('')}</div>` : ''}`;
 }
@@ -357,6 +362,32 @@ function home() {
 }
 document.getElementById('home').addEventListener('click', ev => { const t = ev.target.closest('[data-go]'); if (t) focus(t.dataset.go); });
 document.getElementById('homebtn').onclick = home;
+
+// Zoomable item image: wheel or +/- to zoom, drag to move, Esc or Close to leave.
+(() => {
+  const box = document.getElementById('zoom'), img = box.querySelector('img'), close = box.querySelector('button');
+  let s = 1, x = 0, y = 0, drag = null, back = null;
+  close.textContent = t('closeImg');
+  const draw = () => { img.style.transform = `translate(${x}px, ${y}px) scale(${s})`; };
+  const scale = f => { s = Math.min(8, Math.max(1, s * f)); if (s === 1) x = y = 0; draw(); };
+  const shut = () => { box.classList.remove('on'); img.removeAttribute('src'); if (back) back.focus(); };
+  document.addEventListener('click', ev => {
+    const a = ev.target.closest && ev.target.closest('[data-zoom]');
+    if (!a) return;
+    ev.preventDefault(); back = a; s = 1; x = y = 0; draw();
+    img.src = a.dataset.zoom; img.alt = a.querySelector('img')?.alt || ''; box.classList.add('on'); close.focus();
+  });
+  close.onclick = shut;
+  box.addEventListener('click', ev => { if (ev.target === box) shut(); });
+  box.addEventListener('wheel', ev => { ev.preventDefault(); scale(ev.deltaY < 0 ? 1.2 : 1 / 1.2); }, { passive: false });
+  img.addEventListener('pointerdown', ev => { ev.preventDefault(); drag = [ev.clientX - x, ev.clientY - y]; img.setPointerCapture(ev.pointerId); });
+  img.addEventListener('pointermove', ev => { if (drag) { x = ev.clientX - drag[0]; y = ev.clientY - drag[1]; draw(); } });
+  img.addEventListener('pointerup', () => { drag = null; });
+  document.addEventListener('keydown', ev => {
+    if (!box.classList.contains('on')) return;
+    if (ev.key === 'Escape') shut(); else if (ev.key === '+' || ev.key === '=') scale(1.2); else if (ev.key === '-') scale(1 / 1.2);
+  });
+})();
 
 const start = decodeURIComponent(location.hash.slice(1));
 if (start && (ENT.has(start) || REC.has(start))) focus(start, false); else { home(); }

@@ -25,6 +25,7 @@
             ['route' => 'heritage.hreport.asset-register', 'icon' => 'fa-clipboard-list', 'label' => 'Asset Register'],
             ['route' => 'heritage.hreport.movement', 'icon' => 'fa-exchange-alt', 'label' => 'Movement Report'],
             ['route' => 'heritage.hreport.valuation', 'icon' => 'fa-dollar-sign', 'label' => 'Valuation Report'],
+            ['route' => 'heritage.hreport.roll-forward', 'icon' => 'fa-stream', 'label' => 'Roll-forward'],
         ],
     ];
 @endphp

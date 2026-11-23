@@ -41,12 +41,12 @@ class IllRequest extends Model
 
     public function requesterLibrary()
     {
-        return $this->belongsTo(\App\Models\LibraryVendor::class, 'requester_library_id');
+        return $this->belongsTo(\AhgLibrary\Models\LibraryVendor::class, 'requester_library_id');
     }
 
     public function responderLibrary()
     {
-        return $this->belongsTo(\App\Models\LibraryVendor::class, 'responder_library_id');
+        return $this->belongsTo(\AhgLibrary\Models\LibraryVendor::class, 'responder_library_id');
     }
 
     public function tradingPartner()

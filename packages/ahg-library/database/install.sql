@@ -167,6 +167,36 @@ CREATE TABLE IF NOT EXISTS library_subject_authority (
     FULLTEXT INDEX ft_heading (heading)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Authority control depth (heratio#1475 item 3). Dropdowns: seed_authority_dropdowns.sql
+CREATE TABLE IF NOT EXISTS library_authority_record (
+    authority_id BIGINT UNSIGNED NOT NULL PRIMARY KEY,
+    record_type VARCHAR(30) NOT NULL DEFAULT 'subject',
+    scheme VARCHAR(30) NULL,
+    external_id VARCHAR(191) NULL,
+    overridden_fields JSON NULL,
+    last_synced_at TIMESTAMP NULL,
+    last_sync_error VARCHAR(500) NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    UNIQUE KEY uk_authority_external (scheme, external_id),
+    INDEX idx_authority_record_type (record_type),
+    CONSTRAINT fk_authority_record FOREIGN KEY (authority_id) REFERENCES library_subject_authority(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS library_authority_relation (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    broader_id BIGINT UNSIGNED NOT NULL,
+    narrower_id BIGINT UNSIGNED NOT NULL,
+    origin VARCHAR(20) NOT NULL DEFAULT 'local',
+    suppressed TINYINT(1) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    UNIQUE KEY uk_authority_relation (broader_id, narrower_id),
+    INDEX idx_authority_relation_narrower (narrower_id, suppressed),
+    CONSTRAINT fk_authority_relation_broader FOREIGN KEY (broader_id) REFERENCES library_subject_authority(id) ON DELETE CASCADE,
+    CONSTRAINT fk_authority_relation_narrower FOREIGN KEY (narrower_id) REFERENCES library_subject_authority(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Entity-Subject Map - bridges NER entities to subject authorities
 CREATE TABLE IF NOT EXISTS library_entity_subject_map (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -480,4 +510,153 @@ VALUES
     ('library_binding_status', 'Serial Binding Status', 'bound',      'Bound',       30, 0, 1),
     ('library_binding_status', 'Serial Binding Status', 'shelved',    'Shelved',     40, 0, 1);
 
+-- ==============================================
+-- #1475 ILL supplier routing + inbound EDI
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS library_ill_rota_entry (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    trading_partner_id BIGINT UNSIGNED NOT NULL,
+    priority SMALLINT UNSIGNED NOT NULL DEFAULT 100,
+    timeout_hours SMALLINT UNSIGNED NOT NULL DEFAULT 72,
+    material_types VARCHAR(255) NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    inbound_token_hash CHAR(64) NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    UNIQUE KEY uk_ill_rota_partner (trading_partner_id),
+    UNIQUE KEY uk_ill_rota_token (inbound_token_hash),
+    KEY idx_ill_rota_rank (is_active, priority)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS library_ill_routing_attempt (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    ill_request_id BIGINT UNSIGNED NOT NULL,
+    trading_partner_id BIGINT UNSIGNED NOT NULL,
+    sequence SMALLINT UNSIGNED NOT NULL DEFAULT 1,
+    status VARCHAR(30) NOT NULL,
+    send_failures TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    edi_message_id VARCHAR(50) NULL,
+    sent_at TIMESTAMP NULL,
+    expires_at TIMESTAMP NULL,
+    responded_at TIMESTAMP NULL,
+    note VARCHAR(500) NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    UNIQUE KEY uk_ill_attempt_partner (ill_request_id, trading_partner_id),
+    KEY idx_ill_attempt_expiry (status, expires_at),
+    KEY idx_ill_attempt_partner (trading_partner_id, status),
+    KEY idx_ill_attempt_message (trading_partner_id, edi_message_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS library_ill_edi_inbound (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    trading_partner_id BIGINT UNSIGNED NOT NULL,
+    payload_hash CHAR(64) NOT NULL,
+    ill_request_id BIGINT UNSIGNED NULL,
+    msg_ref VARCHAR(100) NULL,
+    ill_number VARCHAR(50) NULL,
+    profile VARCHAR(20) NULL,
+    raw_status VARCHAR(100) NULL,
+    decoded_status VARCHAR(30) NULL,
+    outcome VARCHAR(30) NOT NULL,
+    detail VARCHAR(500) NULL,
+    raw_message MEDIUMTEXT NOT NULL,
+    created_at TIMESTAMP NULL,
+    updated_at TIMESTAMP NULL,
+    UNIQUE KEY uk_ill_inbound_payload (trading_partner_id, payload_hash),
+    KEY idx_ill_inbound_request (ill_request_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO ahg_dropdown (taxonomy, taxonomy_label, taxonomy_section, code, label, sort_order, is_default, is_active) VALUES
+    ('library_ill_attempt_status', 'ILL Routing Attempt Status', 'library', 'sent',        'Awaiting reply', 10, 1, 1),
+    ('library_ill_attempt_status', 'ILL Routing Attempt Status', 'library', 'accepted',    'Accepted',       20, 0, 1),
+    ('library_ill_attempt_status', 'ILL Routing Attempt Status', 'library', 'declined',    'Declined',       30, 0, 1),
+    ('library_ill_attempt_status', 'ILL Routing Attempt Status', 'library', 'timed_out',   'Timed out',      40, 0, 1),
+    ('library_ill_attempt_status', 'ILL Routing Attempt Status', 'library', 'send_failed', 'Send failed',    50, 0, 1),
+    ('library_ill_attempt_status', 'ILL Routing Attempt Status', 'library', 'withdrawn',   'Withdrawn',      60, 0, 1),
+    ('library_ill_attempt_status', 'ILL Routing Attempt Status', 'library', 'manual',      'Sent by hand',   70, 0, 1),
+    ('library_ill_inbound_outcome', 'ILL Inbound Message Outcome', 'library', 'processing',         'Processing',            10, 1, 1),
+    ('library_ill_inbound_outcome', 'ILL Inbound Message Outcome', 'library', 'applied',            'Applied',               20, 0, 1),
+    ('library_ill_inbound_outcome', 'ILL Inbound Message Outcome', 'library', 'stale',              'Late reply, not applied', 30, 0, 1),
+    ('library_ill_inbound_outcome', 'ILL Inbound Message Outcome', 'library', 'no_match',           'No matching request',   40, 0, 1),
+    ('library_ill_inbound_outcome', 'ILL Inbound Message Outcome', 'library', 'unmapped',           'Status not understood', 50, 0, 1),
+    ('library_ill_inbound_outcome', 'ILL Inbound Message Outcome', 'library', 'ignored',            'Needs staff review',    60, 0, 1),
+    ('library_ill_inbound_outcome', 'ILL Inbound Message Outcome', 'library', 'invalid_transition', 'Invalid status change', 70, 0, 1);
+=======
+-- Classification schedules (heratio#1475 item 6). Mirrored by migration
+-- 2026_11_22_100000. Schedule content is loaded per installation by CSV: DDC
+-- and UDC are licensed, so none is shipped here.
+CREATE TABLE IF NOT EXISTS `library_classification_schedule` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `scheme` VARCHAR(50) NOT NULL,
+    `name` VARCHAR(255) NOT NULL,
+    `edition` VARCHAR(50) NULL,
+    `description` TEXT NULL,
+    `validation_mode` VARCHAR(20) NOT NULL DEFAULT 'warn',
+    `is_active` TINYINT(1) NOT NULL DEFAULT 0,
+    `created_at` TIMESTAMP NULL,
+    `updated_at` TIMESTAMP NULL,
+    UNIQUE KEY `uq_lib_class_schedule` (`scheme`, `name`),
+    KEY `idx_lib_class_schedule_active` (`scheme`, `is_active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `library_classification_entry` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `schedule_id` BIGINT UNSIGNED NOT NULL,
+    `parent_id` BIGINT UNSIGNED NULL,
+    `notation` VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    `notation_end` VARCHAR(100) NULL,
+    `caption` VARCHAR(500) NOT NULL,
+    `note` TEXT NULL,
+    `sort_key` VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    `sort_key_end` VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL,
+    `depth` SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+    `created_at` TIMESTAMP NULL,
+    `updated_at` TIMESTAMP NULL,
+    UNIQUE KEY `uq_lib_class_entry` (`schedule_id`, `notation`),
+    KEY `idx_lib_class_entry_tree` (`schedule_id`, `parent_id`, `sort_key`),
+    KEY `idx_lib_class_entry_sort` (`schedule_id`, `sort_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `library_item_shelf_key` (
+    `library_item_id` BIGINT UNSIGNED NOT NULL PRIMARY KEY,
+    `scheme` VARCHAR(50) NOT NULL,
+    `class_number` VARCHAR(255) NOT NULL,
+    `schedule_entry_id` BIGINT UNSIGNED NULL,
+    `sort_key` VARCHAR(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+    `updated_at` TIMESTAMP NULL,
+    KEY `idx_lib_shelf_key` (`scheme`, `sort_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO `ahg_dropdown` (`taxonomy`, `taxonomy_label`, `taxonomy_section`, `code`, `label`, `sort_order`, `is_default`, `is_active`)
+VALUES
+    ('library_classification_scheme', 'Classification Scheme', 'library', 'LC',    'Library of Congress (LC)',               10, 0, 1),
+    ('library_classification_scheme', 'Classification Scheme', 'library', 'Dewey', 'Dewey Decimal Classification',           20, 0, 1),
+    ('library_classification_scheme', 'Classification Scheme', 'library', 'UDC',   'Universal Decimal Classification (UDC)', 30, 0, 1),
+    ('library_classification_scheme', 'Classification Scheme', 'library', 'Local', 'Local scheme',                           40, 0, 1),
+    ('library_classification_scheme', 'Classification Scheme', 'library', 'Other', 'Other',                                  50, 0, 1),
+    ('library_classification_validation', 'Classification Validation', 'library', 'off',    'Off - do not check',              10, 0, 1),
+    ('library_classification_validation', 'Classification Validation', 'library', 'warn',   'Warn - save and show a warning',  20, 1, 1),
+    ('library_classification_validation', 'Classification Validation', 'library', 'strict', 'Strict - refuse unknown numbers', 30, 0, 1);
+
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- Source MARC record history (heratio#1476): verbatim at import, snapshot at each edit.
+CREATE TABLE IF NOT EXISTS library_marc_record (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  library_item_id BIGINT UNSIGNED NOT NULL,
+  version INT UNSIGNED NOT NULL,
+  event VARCHAR(32) NOT NULL COMMENT 'Dropdown: library_marc_record_event',
+  source_format VARCHAR(32) NOT NULL COMMENT 'Dropdown: library_marc_source_format',
+  is_verbatim TINYINT(1) NOT NULL DEFAULT 0,
+  marcxml LONGTEXT NULL,
+  source_binary LONGBLOB NULL,
+  content_sha256 CHAR(64) NOT NULL,
+  byte_length INT UNSIGNED NOT NULL,
+  created_by BIGINT UNSIGNED NULL,
+  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_marc_record_version (library_item_id, version),
+  KEY idx_marc_record_event (library_item_id, event),
+  CONSTRAINT fk_marc_record_item FOREIGN KEY (library_item_id) REFERENCES library_item(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -549,6 +549,26 @@ class PrivacyController extends Controller
      */
     public function fileCheck(\Illuminate\Http\Request $request)
     {
+        $path = '';
+        $refuse = $this->refusesFile($request, $path);
+
+        // heratio#1739 / #1772: an original let through is a download, counted
+        // here - the one place every file request passes - for every visitor.
+        if (!$refuse && $path !== '' && ($master = \AhgCore\Services\MasterAccess::masterForPath($path))) {
+            \AhgCore\Services\DeliveryLog::download((int) $master->object_id, (int) $master->id, ['via' => 'file', 'file' => $path]);
+        }
+
+        return response('', $refuse ? 403 : 204);
+    }
+
+    /**
+     * The upload gate's decision with no side effects, so a caller that is not
+     * delivering the file (the offline package export) records no download.
+     *
+     * @param  string  $path  set to the canonical encoded path that was judged
+     */
+    public function refusesFile(\Illuminate\Http\Request $request, string &$path = ''): bool
+    {
         // SECURITY (21 Nov 2026): judge exactly the file nginx will serve.
         // nginx serves from $uri (decoded, slashes merged, dot segments
         // resolved) but used to send only the raw $request_uri, so a request
@@ -560,14 +580,14 @@ class PrivacyController extends Controller
         if ($served === '' && \AhgCore\Services\SharedUploadsGuard::enabled()) {
             // Where the uploads folder is shared, a location that calls this
             // gate without sending the served path fails closed.
-            return response('', 403);
+            return true;
         }
         $raw = (string) parse_url((string) $request->header('X-Original-URI', ''), PHP_URL_PATH);
         $plain = ltrim((string) preg_replace('#/+#', '/', $served !== '' ? $served : rawurldecode($raw)), '/');
         // A dot segment left (only possible on the raw fallback) moves the
         // request into another folder than the one it names: never serve it.
         if (preg_match('#(^|/)\.\.?(/|$)#', $plain)) {
-            return response('', 403);
+            return true;
         }
         $path = implode('/', array_map('rawurlencode', explode('/', $plain)));
 
@@ -579,7 +599,7 @@ class PrivacyController extends Controller
         // "unaffected" by every check below. Applies to every viewer.
         if ($plain !== '' && preg_match('#^uploads/r/(?![0-9]+/)#', $plain)
             && !app(RedactionRenderService::class)->knowsIdentifier($path)) {
-            return response('', 403);
+            return true;
         }
 
         // Thumbnails stay public under the redaction policy (too small to read),
@@ -623,13 +643,7 @@ class PrivacyController extends Controller
             $refuse = true;
         }
 
-        // heratio#1739 / #1772: an original let through is a download, counted
-        // here - the one place every file request passes - for every visitor.
-        if (!$refuse && $path !== '' && ($master = \AhgCore\Services\MasterAccess::masterForPath($path))) {
-            \AhgCore\Services\DeliveryLog::download((int) $master->object_id, (int) $master->id, ['via' => 'file', 'file' => $path]);
-        }
-
-        return response('', $refuse ? 403 : 204);
+        return $refuse;
     }
 
     /** Administrators, editors and contributors already see draft descriptions. */

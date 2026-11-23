@@ -383,6 +383,7 @@ class LibraryService
             return $id;
         });
 
+        app(ClassificationScheduleService::class)->refreshShelfKeyForObject((int) $newId);
         \AhgCore\Support\AuditLog::captureCreate((int) $newId, 'library_item', $this->auditSnapshot((int) $newId));
         return (int) $newId;
     }
@@ -466,6 +467,13 @@ class LibraryService
         $auditBefore = $this->auditSnapshot($id);
 
         $fingerprintBefore = \AhgInformationObjectManage\Services\InformationObjectService::contentFingerprint((int) $id); // #1549
+
+        // #1476: keep the record as it stood before its first edit.
+        $marcRecords = new MarcRecordStore();
+        $marcItemId = (int) DB::table('library_item')->where('information_object_id', $id)->value('id');
+        if ($marcItemId) {
+            $marcRecords->ensureBaseline($marcItemId);
+        }
 
         DB::transaction(function () use ($id, $data, $fingerprintBefore) {
             // 1. Update information_object
@@ -592,8 +600,13 @@ class LibraryService
         // for the audit log. The middleware merges it into the row it
         // writes for this request - see app/Http/Middleware/AuditLog.php
         // and packages/ahg-core/src/Support/AuditLog.php.
+        app(ClassificationScheduleService::class)->refreshShelfKeyForObject((int) $id);
         $auditAfter = $this->auditSnapshot($id);
         \AhgCore\Support\AuditLog::captureEdit($id, 'library_item', $auditBefore, $auditAfter);
+
+        if ($marcItemId) {
+            $marcRecords->snapshot($marcItemId, 'edit');
+        }
     }
 
     /**
@@ -849,12 +862,7 @@ class LibraryService
         ]);
 
         // Classification schemes
-        $classificationSchemes = collect([
-            'LC' => 'Library of Congress (LC)',
-            'Dewey' => 'Dewey Decimal Classification',
-            'UDC' => 'Universal Decimal Classification (UDC)',
-            'Other' => 'Other',
-        ]);
+        $classificationSchemes = collect(\AhgCore\Services\AhgSettingsService::getDropdownChoices('library_classification_scheme', false));
 
         // Creator roles - Issue #59 Tier 3 culture-aware via the COALESCE helper.
         $creatorRoles = \AhgCore\Services\AhgSettingsService::getDropdownChoices('creator_role', false);

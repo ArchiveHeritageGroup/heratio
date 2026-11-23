@@ -26,7 +26,9 @@
 namespace AhgApi\Console;
 
 use AhgApi\Services\ExplorerDataService;
+use AhgApi\Services\ExplorerFilePackager;
 use AhgApi\Services\GraphExplorerService as G;
+use AhgCore\Services\DisclosureGate;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -41,6 +43,7 @@ class ExplorerExportCommand extends Command
         {--base-url= : Site address the record links point at (default APP_URL)}
         {--hide= : Comma-separated general words kept off the starting list and the map (still searchable)}
         {--title= : Heading shown on the page}
+        {--with-files : Copy the publicly released image and PDF of each record into the folder, so the package works with no server}
         {--brand= : A saved page or stylesheet of the client site; its declared colour tokens brand the explorer}
         {--out= : Folder to write (default storage/app/explorer/<slug of the title>)}';
 
@@ -66,6 +69,19 @@ class ExplorerExportCommand extends Command
         $out = $this->option('out') ?: storage_path('app/explorer/'.Str::slug($title));
         if (! is_dir($out) && ! mkdir($out, 0775, true)) {
             $this->error("Cannot create {$out}");
+
+            return self::FAILURE;
+        }
+        try {
+            if ($this->option('with-files')) {
+                $copied = app(ExplorerFilePackager::class)->package($data['records'], $out);
+                $this->line(sprintf('%d image(s) and %d PDF(s) copied; %d file(s) withheld or missing.', $copied['images'], $copied['pdfs'], $copied['skipped']));
+            } else {
+                app(ExplorerFilePackager::class)->clear($out);
+                $this->line('Images link to the site. Use --with-files for a package that works with no server.');
+            }
+        } catch (\RuntimeException $e) {
+            $this->error($e->getMessage());
 
             return self::FAILURE;
         }
@@ -97,6 +113,8 @@ class ExplorerExportCommand extends Command
         $q = DB::table('information_object as io')
             ->join('status as st', fn ($j) => $j->on('st.object_id', '=', 'io.id')->where('st.type_id', G::STATUS_TYPE_PUBLICATION))
             ->where('st.status_id', G::STATUS_PUBLISHED)->where('io.id', '!=', G::ROOT_ID);
+        // A package leaves the building: embargoed, protocol-restricted or classified records stay out.
+        app(DisclosureGate::class)->excludeRestricted($q, 'io.id');
 
         if ($a = $this->option('ancestor')) {
             $root = DB::table('information_object')->where('id', ctype_digit((string) $a) ? (int) $a : DB::table('slug')->where('slug', $a)->value('object_id'))->first(['lft', 'rgt']);

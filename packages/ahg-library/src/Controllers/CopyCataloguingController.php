@@ -97,7 +97,19 @@ class CopyCataloguingController extends Controller
                 return redirect()->back()->with('error', __('Invalid MARC data.'));
             }
 
-            $ioId = $this->svc->import($raw);
+            // Unreadable XML would otherwise become an empty "Untitled" item.
+            if ((new \AhgLibrary\Services\Marc21DecoderService())->detectSyntax($raw) !== 'marc21') {
+                $parsed = (new \AhgLibrary\Services\MarcEditService())->parseMarcxml($raw);
+                if ($parsed['control'] === [] && $parsed['data'] === []) {
+                    return redirect()->back()->with('error', __('Invalid MARC data.'));
+                }
+            }
+
+            $ioId = DB::transaction(function () use ($raw) {
+                $ioId = $this->svc->import($raw);
+                (new \AhgLibrary\Services\MarcRecordStore())->captureImport($ioId, $raw);
+                return $ioId;
+            });
 
             $slug = DB::table('slug')->where('object_id', $ioId)->value('slug');
 

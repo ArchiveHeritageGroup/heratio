@@ -40,6 +40,12 @@ class Marc21DecoderService
      */
     public function detectSyntax(string $raw): string
     {
+        // A binary record may quote "<record" in a note, so the leader is read
+        // first. XML always opens with markup, and a leader never does.
+        if (strlen($raw) >= 24 && ctype_digit(substr($raw, 12, 5))
+            && preg_match('/^(?:\xEF\xBB\xBF)?\s*</', $raw) !== 1) {
+            return 'marc21';
+        }
         if (str_contains($raw, '<?xml') || str_contains($raw, '<record')) {
             return 'marcxml';
         }
@@ -47,11 +53,6 @@ class Marc21DecoderService
         // and byte 5 is always 'n' in UTF-8 records. A safer marker is the
         // field terminator (0x1D) within the first 30 bytes.
         if (isset($raw[9]) && ord($raw[9]) === 0x1D) {
-            return 'marc21';
-        }
-        // Fallback: if the 24-byte leader looks like a valid MARC leader
-        // (base address is in bytes 12-16 as digits), treat as binary.
-        if (strlen($raw) >= 24 && ctype_digit(substr($raw, 12, 5))) {
             return 'marc21';
         }
         return 'unknown';
@@ -207,7 +208,16 @@ class Marc21DecoderService
     public function decodeToLibraryItem(string $raw, ?string $culture = null): int
     {
         $culture = $culture ?? (string) app()->getLocale();
-        $parsed  = $this->decode($raw);
+
+        return (new LibraryService($culture))->create($this->mapToLibraryData($this->decode($raw)));
+    }
+
+    /**
+     * The MARC field mapping: parsed record to LibraryService::create() data.
+     * Shared with mapping replay (#1476), so a mapping fix here reaches both.
+     */
+    public function mapToLibraryData(array $parsed): array
+    {
         $data    = $parsed['data'];
         $control = $parsed['control'];
 
@@ -306,10 +316,7 @@ class Marc21DecoderService
         $f022 = $firstOf('022');
         $issn = $f022 ? ($flat($f022)['a'] ?? null) : null;
 
-        // Create via LibraryService
-        $libraryService = new LibraryService($culture);
-
-        return $libraryService->create([
+        return [
             'title' => $title,
             'subtitle' => $subtitle,
             'creators' => $creators,
@@ -327,7 +334,7 @@ class Marc21DecoderService
             'marc_leader' => ($parsed['leader'] ?? '') !== '' ? $parsed['leader'] : null,
             'marc_005' => ($control['005'] ?? '') !== '' ? $control['005'] : null,
             'marc_008' => $c008 !== '' ? $c008 : null,
-        ]);
+        ];
     }
 
     /**

@@ -51,6 +51,9 @@ class IcipHubSyncCommand extends Command
                     $r['labels'] ?? 0,
                     $r['notices'] ?? 0
                 ));
+                if (! in_array(strtolower($r['project_id']), array_map('strtolower', $hub->configuredProjectIds()), true)) {
+                    $this->warn('Project '.$r['project_id'].' is not in the configured project ids, so it is stored but not shown.');
+                }
             } else {
                 $allOk = false;
                 $this->error(sprintf(

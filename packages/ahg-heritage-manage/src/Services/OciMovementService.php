@@ -39,7 +39,8 @@ class OciMovementService
 {
     /**
      * Record a revaluation. Direction is determined by sign of $newValue - $previousValue.
-     * Surpluses post to OCI; deficits eat the existing reserve first then spill to P&L.
+     * An increase first reverses any loss previously taken to P&L, the rest posts
+     * to OCI; deficits eat the existing reserve first then spill to P&L.
      *
      * @return int[] List of inserted ahg_heritage_oci_movement row ids (1 or 2 rows).
      */
@@ -61,25 +62,32 @@ class OciMovementService
         }
 
         if ($delta > 0) {
-            // Surplus - post entire amount to OCI
-            return [$this->insertRow([
-                'heritage_asset_id'    => $heritageAssetId,
-                'information_object_id'=> $informationObjectId,
-                'movement_type'        => 'revaluation_up',
-                'amount'               => $delta,
-                'currency'             => $currency,
-                'valuation_date'       => $valuationDate,
-                'valuer_id'            => $valuerId,
-                'valuation_method'     => $valuationMethod,
-                'reason'               => $reason,
-                'posted_to'            => 'OCI',
-                'created_by_user_id'   => $userId,
-            ])];
+            $plPortion = min($delta, $this->getAccumulatedPlImpairment($heritageAssetId));
+            $ids = [];
+            foreach (['P&L' => $plPortion, 'OCI' => round($delta - $plPortion, 2)] as $postedTo => $portion) {
+                if ($portion > 0) {
+                    $ids[] = $this->insertRow([
+                        'heritage_asset_id'    => $heritageAssetId,
+                        'information_object_id'=> $informationObjectId,
+                        'movement_type'        => 'revaluation_up',
+                        'amount'               => $portion,
+                        'currency'             => $currency,
+                        'valuation_date'       => $valuationDate,
+                        'valuer_id'            => $valuerId,
+                        'valuation_method'     => $valuationMethod,
+                        'reason'               => $reason,
+                        'posted_to'            => $postedTo,
+                        'created_by_user_id'   => $userId,
+                    ]);
+                }
+            }
+
+            return $ids;
         }
 
         // Deficit - reduce OCI surplus first, remainder hits P&L (GRAP 103.51 / IPSAS 45.74)
         $deficitAbs = abs($delta);
-        $existingSurplus = $this->getAccumulatedOciSurplus($heritageAssetId);
+        $existingSurplus = $this->heldReserve($heritageAssetId);
         $ociPortion = min($deficitAbs, max($existingSurplus, 0));
         $plPortion = $deficitAbs - $ociPortion;
 
@@ -135,7 +143,7 @@ class OciMovementService
         if ($loss < 0.005) {
             return [];
         }
-        $existingSurplus = $this->getAccumulatedOciSurplus($heritageAssetId);
+        $existingSurplus = $this->heldReserve($heritageAssetId);
         $ociPortion = min($loss, max($existingSurplus, 0));
         $plPortion = $loss - $ociPortion;
 
@@ -286,8 +294,23 @@ class OciMovementService
     }
 
     /**
-     * Net cumulative impairment that has already passed through P&L for the asset.
-     * Used to size reversal P&L recycling.
+     * Reserve available to absorb a loss: the ledger balance, or the asset's own
+     * reserve when that is higher because it predates the ledger or was keyed on
+     * the asset form.
+     */
+    private function heldReserve(int $heritageAssetId): float
+    {
+        $ledger = $this->getAccumulatedOciSurplus($heritageAssetId);
+        if (! Schema::hasColumn('heritage_asset', 'revaluation_surplus')) {
+            return $ledger;
+        }
+
+        return max($ledger, (float) DB::table('heritage_asset')->where('id', $heritageAssetId)->value('revaluation_surplus'));
+    }
+
+    /**
+     * Net cumulative loss that has already passed through P&L for the asset and
+     * not yet been reversed. Sizes the P&L part of a reversal or later increase.
      */
     public function getAccumulatedPlImpairment(int $heritageAssetId): float
     {
@@ -302,7 +325,7 @@ class OciMovementService
         $reversals = DB::table('ahg_heritage_oci_movement')
             ->where('heritage_asset_id', $heritageAssetId)
             ->where('posted_to', 'P&L')
-            ->where('movement_type', 'reversal')
+            ->whereIn('movement_type', ['reversal', 'revaluation_up'])
             ->sum('amount'); // positive
         return (float) max(0.0, -1 * $impairments - $reversals);
     }
@@ -315,7 +338,7 @@ class OciMovementService
      *   impairment: float, reversal: float, disposal: float, closing: float, by_posting: array
      * }
      */
-    public function summariseForPeriod(string $periodStart, string $periodEnd): array
+    public function summariseForPeriod(string $periodStart, string $periodEnd, ?int $standardId = null): array
     {
         $out = [
             'period_start'    => $periodStart,
@@ -333,6 +356,8 @@ class OciMovementService
         }
         $rows = DB::table('ahg_heritage_oci_movement')
             ->whereBetween('valuation_date', [$periodStart, $periodEnd])
+            ->when($standardId, fn ($q) => $q->whereIn('heritage_asset_id',
+                DB::table('heritage_asset')->where('accounting_standard_id', $standardId)->select('id')))
             ->get();
         foreach ($rows as $r) {
             $type = $r->movement_type;

@@ -84,14 +84,16 @@ class CrossReferenceCommand extends Command
 
         if ($this->option('entities') && ! $this->option('dry-run')) {
             $bar = $this->output->createProgressBar(count($texts));
-            $kept = 0;
+            $kept = $queued = 0;
             foreach ($texts as $id => $text) {
-                $kept += count($svc->entities($id, $text));
+                $names = $svc->entities($id, $text);
+                $kept += count($names);
+                $queued += $svc->promoteToAuthorityQueue($id, $text, $names);
                 $bar->advance();
             }
             $bar->finish();
             $this->newLine();
-            $this->info("{$kept} grounded entit(ies) kept for review (NER review queue).");
+            $this->info("{$kept} grounded entit(ies) kept for review (NER review queue); {$queued} new authority candidate(s) queued.");
         }
 
         if ($path = $this->option('places')) {

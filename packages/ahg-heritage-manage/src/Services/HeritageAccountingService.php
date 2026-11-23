@@ -270,12 +270,12 @@ class HeritageAccountingService
      */
     public function addImpairment(int $assetId, array $data, ?int $userId): int
     {
-        $asset = DB::table('heritage_asset')->where('id', $assetId)->first();
-        if (! $asset) {
+        if (! DB::table('heritage_asset')->where('id', $assetId)->exists()) {
             throw new \RuntimeException('Asset not found');
         }
 
-        return DB::transaction(function () use ($asset, $assetId, $data, $userId) {
+        return DB::transaction(function () use ($assetId, $data, $userId) {
+            $asset = DB::table('heritage_asset')->where('id', $assetId)->lockForUpdate()->first();
             $data['heritage_asset_id'] = $assetId;
             $data['carrying_amount_before'] = (float) $asset->current_carrying_amount;
             $data['created_by'] = $userId;
@@ -284,6 +284,9 @@ class HeritageAccountingService
             if (! empty($data['impairment_identified'])) {
                 if (($data['impairment_loss'] ?? null) === null && ($data['recoverable_amount'] ?? null) !== null) {
                     $data['impairment_loss'] = max(0.0, $data['carrying_amount_before'] - (float) $data['recoverable_amount']);
+                }
+                if ((float) ($data['impairment_loss'] ?? 0) > $data['carrying_amount_before']) {
+                    throw new \InvalidArgumentException('Impairment loss exceeds the carrying amount');
                 }
                 $data['carrying_amount_after'] = $data['carrying_amount_before'] - (float) ($data['impairment_loss'] ?? 0);
             }
@@ -295,10 +298,30 @@ class HeritageAccountingService
                     ->filter(fn ($k) => ! empty($data[$k]))
                     ->map(fn ($k) => trim(str_replace('_', ' ', $k) . (! empty($data[$k . '_details']) ? ': ' . $data[$k . '_details'] : '')))
                     ->implode('; ');
+
+                // Post the reserve-first split to the ledger; the asset's reserve
+                // falls by exactly what the ledger took from OCI.
+                $reserve = (float) $asset->revaluation_surplus;
+                if (Schema::hasTable('ahg_heritage_oci_movement')) {
+                    $oci = app(OciMovementService::class);
+                    $before = $oci->getAccumulatedOciSurplus($assetId);
+                    $oci->recordImpairment(
+                        $assetId,
+                        (float) ($data['impairment_loss'] ?? 0),
+                        $data['assessment_date'],
+                        $data['notes'] ?? null,
+                        $asset->information_object_id ?? $asset->object_id ?? null,
+                        $userId,
+                        $this->currency() ?? 'USD'
+                    );
+                    $reserve = max(0.0, round($reserve - ($before - $oci->getAccumulatedOciSurplus($assetId)), 2));
+                }
+
                 DB::table('heritage_asset')->where('id', $assetId)->update([
+                    'revaluation_surplus' => $reserve,
                     'last_impairment_date' => $data['assessment_date'],
                     'impairment_indicators' => 1,
-                    'impairment_indicators_details' => $details ?: null,
+                    'impairment_indicators_details' => $details ?: ($data['notes'] ?? null),
                     'impairment_loss' => (float) $asset->impairment_loss + (float) ($data['impairment_loss'] ?? 0),
                     'recoverable_amount' => $data['recoverable_amount'] ?? $asset->recoverable_amount,
                     'current_carrying_amount' => $data['carrying_amount_after'],

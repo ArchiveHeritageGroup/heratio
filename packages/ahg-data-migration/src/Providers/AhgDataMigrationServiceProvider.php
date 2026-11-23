@@ -46,6 +46,9 @@ class AhgDataMigrationServiceProvider extends ServiceProvider
             Route::middleware('web')->group(__DIR__.'/../../routes/web.php');
             $this->loadViewsFrom(__DIR__.'/../../resources/views', 'ahg-data-migration');
             $this->seedDropdownsIfMissing();
+            if ($this->app->runningInConsole()) {
+                $this->commands([\AhgDataMigration\Console\SourceMigrateCommand::class]); // heratio#1495
+            }
         } catch (\Throwable $e) {
             // boot is best-effort - never break the framework if DB isn't ready
         }

@@ -14,6 +14,7 @@
         <div class="d-flex gap-2">
             <a href="{{ route('library.checkout-form', ['patron' => $patron->id]) }}" class="btn btn-primary"><i class="fas fa-exchange-alt me-1"></i>{{ __('Check Out') }}</a>
             <a href="{{ route('library.patron-edit', $patron->id) }}" class="btn btn-outline-secondary"><i class="fas fa-pen me-1"></i>{{ __('Edit') }}</a>
+            <a href="{{ route('library.notice-channel.patron', $patron->id) }}" class="btn btn-outline-secondary"><i class="fas fa-bell me-1"></i>{{ __('Notice channel') }}</a>
             @if($st === 'active')
                 <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#suspendModal"><i class="fas fa-ban me-1"></i>{{ __('Suspend') }}</button>
             @else
