@@ -6,6 +6,26 @@ Heratio uses Cantaloupe as its IIIF Image API server for the OpenSeadragon and M
 
 Cantaloupe is optional only if the installation will use the browser-native Image viewer instead of OpenSeadragon or Mirador.
 
+## This server: Heratio has its own Cantaloupe
+
+Since 23 November 2026 Heratio on this host no longer shares an image server with any other application.
+
+| Setting | Value |
+|---|---|
+| Service | `cantaloupe-heratio` |
+| Address | `127.0.0.1:8184` (not reachable from other machines) |
+| Install folder | `/opt/cantaloupe-heratio` |
+| Delegates source | `deploy/cantaloupe-heratio/delegates.rb` |
+| Cache | `/var/cache/cantaloupe-heratio` |
+| Log | `/var/log/cantaloupe-heratio/application.log` |
+| Serves | heratio.org, www.heratio.org, the dev instance and atom.theahg.co.za |
+
+An identifier resolves only to a file under that host's own folders. Access is decided in `pre_authorize`, the one hook that also runs for `info.json`, and a failed check refuses the request.
+
+To change the delegates, edit the file in `deploy/cantaloupe-heratio/`, install it to `/opt/cantaloupe-heratio/delegates.rb` and run `sudo systemctl restart cantaloupe-heratio`. Test with real image requests as well as `info.json`, and run them against a service running as `www-data`, because some files are readable only by that user.
+
+The port 8182 examples below describe a single-application install. On this host, port 8182 belongs to the other applications' image server, so do not point Heratio at it.
+
 ## How It Works
 
 When OpenSeadragon or Mirador displays a supported raster image, Heratio requests its IIIF `info.json` document and image tiles from Cantaloupe. Cantaloupe must be running, and the web server must proxy `/iiif/` requests to it. A missing or misconfigured endpoint can return an HTML error page where the viewer expects IIIF JSON, causing a JSON parse error.

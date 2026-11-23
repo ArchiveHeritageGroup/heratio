@@ -1,5 +1,25 @@
 # Cantaloupe IIIF Image Server - Setup Guide
 
+## This server: Heratio has its own Cantaloupe
+
+Since 23 November 2026 Heratio on this host no longer shares an image server with any other application.
+
+| Setting | Value |
+|---|---|
+| Service | `cantaloupe-heratio` |
+| Address | `127.0.0.1:8184` (not reachable from other machines) |
+| Install folder | `/opt/cantaloupe-heratio` |
+| Delegates source | `deploy/cantaloupe-heratio/delegates.rb` |
+| Cache | `/var/cache/cantaloupe-heratio` |
+| Log | `/var/log/cantaloupe-heratio/application.log` |
+| Serves | heratio.org, www.heratio.org, the dev instance and atom.theahg.co.za |
+
+An identifier resolves only to a file under that host's own folders. Access is decided in `pre_authorize`, the one hook that also runs for `info.json`, and a failed check refuses the request.
+
+To change the delegates, edit the file in `deploy/cantaloupe-heratio/`, install it to `/opt/cantaloupe-heratio/delegates.rb` and run `sudo systemctl restart cantaloupe-heratio`. Test with real image requests as well as `info.json`, and run them against a service running as `www-data`, because some files are readable only by that user.
+
+The port 8182 examples below describe a single-application install. On this host, port 8182 belongs to the other applications' image server, so do not point Heratio at it.
+
 ## Overview
 
 Heratio uses [Cantaloupe](https://cantaloupe-project.github.io/) as its IIIF image server for deep-zoom viewing of high-resolution images (TIFF, JP2, etc.) that browsers cannot display natively. Cantaloupe serves tiled JPEG derivatives on-the-fly from master files, enabling OpenSeadragon and Mirador viewers to provide smooth pan/zoom at any resolution.

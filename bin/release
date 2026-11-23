@@ -27,6 +27,10 @@ for arg in "$@"; do
     fi
 done
 
+# Feature freeze gate (Dr Johan Pieterse, 23 November 2026): refuses before anything changes.
+G=/usr/share/nginx/workbench/bin/release-freeze-check
+if [ -x "$G" ]; then "$G" heratio "$TYPE" "$MSG" || exit 1; fi
+
 cd "$(dirname "$0")/.."
 REPO="ArchiveHeritageGroup/heratio"
 
