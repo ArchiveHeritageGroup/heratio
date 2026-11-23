@@ -232,12 +232,13 @@ class CashDeskTest extends LibraryFeatureTestCase
         $this->desk->open(7, 0, null);
         $this->fines->pay($this->patron, [$f], 8, 'cash', null, null, 7, 'n');
 
-        // The command's own day count is negative today, so it accrues nothing
-        // for a past due date: assert that it cannot re-raise the settled fine.
+        // Ten days at 1.00 with 8.00 settled: only the unpaid 2.00 is raised.
         $this->artisan('ahg:library-process-fines')->assertExitCode(0);
 
-        $this->assertSame(0, DB::table('library_fine')->where('checkout_id', $checkout)->where('status', 'outstanding')->count());
-        $this->assertEquals(0, $this->patronRow()->total_fines_owed);
+        $open = DB::table('library_fine')->where('checkout_id', $checkout)->where('status', 'outstanding')->get();
+        $this->assertCount(1, $open);
+        $this->assertEquals(2, (float) $open[0]->amount);
+        $this->assertEquals(2, $this->patronRow()->total_fines_owed);
     }
 
     public function test_session_lifecycle_variance_and_second_person_reconciliation(): void

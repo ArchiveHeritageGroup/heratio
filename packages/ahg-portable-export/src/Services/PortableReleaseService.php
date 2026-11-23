@@ -275,11 +275,14 @@ class PortableReleaseService
             throw new ReleaseException('Freeze refused.', ['This export has already been used for a version of this series. Build a new export.']);
         }
 
-        $previous = DB::table('portable_release')->where('series_id', $seriesId)
+        $latest = DB::table('portable_release')->where('series_id', $seriesId)
             ->where('status', '!=', self::ABANDONED)->orderByDesc('version_number')->first();
-        if ($previous && $previous->status !== self::RELEASED) {
-            throw new ReleaseException('Freeze refused.', ['Version '.$previous->version_number.' must be released or abandoned first.']);
+        if ($latest && $latest->status !== self::RELEASED && ! $this->isStranded($latest)) {
+            throw new ReleaseException('Freeze refused.', ['Version '.$latest->version_number.' must be released or abandoned first.']);
         }
+        // A stranded version never became a release, so changes are listed from the last real one.
+        $previous = $latest && $latest->status !== self::RELEASED
+            ? $this->releasedBefore($seriesId, (int) $latest->version_number) : $latest;
 
         $config = $this->doi->configFor($series->repository_id !== null ? (int) $series->repository_id : null);
         if ($problem = $this->doi->unconfiguredResult($config, 'registration')) {
@@ -306,6 +309,9 @@ class PortableReleaseService
             $failures = $this->gate->checkPackage($export, $inspection);
             if ($failures !== []) {
                 throw new ReleaseException('This package did not pass the disclosure checks.', $failures);
+            }
+            if ($latest && $series->scope_type === 'clipboard') {
+                $this->assertSameSelection($latest, $inspection['records']);
             }
 
             $corrections = DB::table('portable_release_correction')
@@ -416,7 +422,7 @@ class PortableReleaseService
 
         $this->publicUrl($series); // refuses an address a DOI could never resolve to
 
-        $failures = array_merge($this->verifyFrozen($release), $this->recheck($release));
+        $failures = array_merge($this->verifyFrozen($release), $this->disclosureFailures($release));
         if ($failures !== []) {
             throw new ReleaseException('This version can no longer be approved.', $failures);
         }
@@ -476,8 +482,15 @@ class PortableReleaseService
         if ($release->status !== self::APPROVED || ! $deposit || empty($deposit->approved_by)) {
             throw new ReleaseException('Publish refused.', ['This version has not been approved by an archivist.']);
         }
-        $failures = array_merge($this->verifyFrozen($release), $this->recheck($release));
+        if (DB::table('portable_release')->where('series_id', $release->series_id)->where('status', '!=', self::ABANDONED)
+            ->where('version_number', '>', $release->version_number)->exists()) {
+            throw new ReleaseException('Publish refused.', ['A later version has replaced this one, so it can no longer be published.']);
+        }
+        $failures = array_merge($this->verifyFrozen($release), $this->disclosureFailures($release));
         if ($failures !== []) {
+            if ($release->doi_state === 'findable') {
+                $failures[] = 'The version DOI is already public, so this version cannot be abandoned. Its public page stays up with the package withheld. To move on, freeze a new version from an export without these records.';
+            }
             throw new ReleaseException('Publish refused.', $failures);
         }
 
@@ -581,6 +594,54 @@ class PortableReleaseService
         return $this->gate->checkRecords(array_map('intval', $ids['record_ids']), array_map('intval', $ids['asset_record_ids']));
     }
 
+    /** Everything that stops this version going public, including what its frozen changelog names. */
+    private function disclosureFailures(object $release): array
+    {
+        $failures = $this->recheck($release);
+        if (! $this->publicChanges($release)['changelog_available']) {
+            $failures[] = 'The frozen changelog names a withdrawn record that is no longer cleared for public disclosure.';
+        }
+
+        return $failures;
+    }
+
+    /**
+     * The change list as it may be shown today. A withdrawn record that is no
+     * longer disclosable is counted, never named. The frozen changelog file
+     * cannot be rewritten, so it is held back if it names such a record.
+     */
+    public function publicChanges(object $release): array
+    {
+        $changes = json_decode((string) $release->changelog_json, true) ?: [];
+        $removed = $changes['removed'] ?? [];
+        $listable = array_flip($this->gate->disclosableIds(array_map('intval', array_column($removed, 'id'))));
+        $changes['removed'] = array_values(array_filter($removed, fn ($r) => isset($listable[(int) $r['id']])));
+        $dropped = count($removed) - count($changes['removed']);
+        $changes['removed_unlisted'] = (int) ($changes['removed_unlisted'] ?? 0) + $dropped;
+        $changes['changelog_available'] = $dropped === 0;
+
+        return $changes;
+    }
+
+    /** Publishing stopped after the permanent DOI went public, and the version may not be disclosed now. */
+    private function isStranded(object $release): bool
+    {
+        return $release->status === self::APPROVED && $release->doi_state === 'findable'
+            && $this->disclosureFailures($release) !== [];
+    }
+
+    /** A clipboard series has no fixed scope, so a new version must keep at least half the last one's records. */
+    private function assertSameSelection(object $latest, array $records): void
+    {
+        $base = $this->readIndex($latest)['records'] ?? null;
+        if ($base === null) {
+            throw new ReleaseException('Freeze refused.', ['The record index of version '.$latest->version_number.' cannot be read, so this export cannot be shown to cover the same scope.']);
+        }
+        if (count(array_intersect_key($base, $records)) * 2 < count($base)) {
+            throw new ReleaseException('Freeze refused.', ['This export covers a different scope from the series: it keeps fewer than half of the records in version '.$latest->version_number.'. Start a new series for a different selection.']);
+        }
+    }
+
     /** The nearest earlier released version: abandoned numbers are skipped in the DOI chain. */
     private function releasedBefore(int $seriesId, int $version): ?object
     {
@@ -601,9 +662,12 @@ class PortableReleaseService
     public function publicUrl(object $series, ?int $version = null): string
     {
         $base = rtrim((string) config('app.url'), '/');
-        $host = strtolower((string) parse_url($base, PHP_URL_HOST));
-        $isPrivate = $host === 'localhost' || str_ends_with($host, '.local')
-            || (filter_var($host, FILTER_VALIDATE_IP) && ! filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE));
+        $host = rtrim(trim(strtolower((string) parse_url($base, PHP_URL_HOST)), '[]'), '.');
+        $isIp = filter_var($host, FILTER_VALIDATE_IP) !== false;
+        $isPrivate = $isIp
+            ? ! filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)
+                || (filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && (ip2long($host) & 0xFFC00000) === 0x64400000) // 100.64.0.0/10
+            : ! str_contains($host, '.') || (bool) preg_match('/\.(local|localhost|internal|\d+)$/', $host);
         if ($host === '' || $isPrivate) {
             throw new ReleaseException('Publish refused.', ['APP_URL is not a public address, and a DOI registered against it could never resolve.']);
         }
@@ -677,7 +741,7 @@ class PortableReleaseService
         $attrs = $this->baseAttributes($series, $this->publicUrl($series));
         $attrs['version'] = 'v'.$newest->version_number;
         $dois = DB::table('portable_release')->where('series_id', $series->id)
-            ->where(fn ($q) => $q->where('status', self::RELEASED)->orWhere('id', $newest->id))
+            ->where(fn ($q) => $q->where('status', self::RELEASED)->orWhere('id', $newest->id)->orWhere('doi_state', 'findable'))
             ->orderBy('version_number')->pluck('version_doi');
         $attrs['relatedIdentifiers'] = $dois->map(fn ($d) => $this->relation($d, 'HasVersion'))->all();
 
@@ -716,11 +780,14 @@ class PortableReleaseService
                 }
             }
         }
+        $listable = array_flip($this->gate->disclosableIds(array_column($removed, 'id')));
+        $listed = array_values(array_filter($removed, fn ($r) => isset($listable[$r['id']])));
 
         return [
             'first_release' => $old === null,
             'added' => $added,
-            'removed' => $removed,
+            'removed' => $listed,
+            'removed_unlisted' => count($removed) - count($listed),
             'changed' => $changed,
             'corrections' => $corrections->map(fn ($c) => [
                 'type' => $c->correction_type,
@@ -745,7 +812,8 @@ class PortableReleaseService
             $out .= "## Release notes\n\n".trim($notes)."\n\n";
         }
         if (! $c['first_release']) {
-            $out .= '## Summary'."\n\n".'- Added: '.count($c['added'])."\n- Withdrawn: ".count($c['removed'])."\n- Changed: ".count($c['changed'])."\n\n";
+            $unlisted = (int) $c['removed_unlisted'];
+            $out .= '## Summary'."\n\n".'- Added: '.count($c['added'])."\n- Withdrawn: ".(count($c['removed']) + $unlisted).($unlisted ? ' ('.$unlisted.' not listed)' : '')."\n- Changed: ".count($c['changed'])."\n\n";
             foreach (['Withdrawn records' => $c['removed'], 'Added records' => $c['added']] as $heading => $rows) {
                 if ($rows) {
                     $out .= '## '.$heading."\n\n".implode("\n", array_map(fn ($r) => '- '.$ref($r), $rows))."\n\n";
@@ -796,7 +864,8 @@ class PortableReleaseService
     private function scopeHash(object $export): string
     {
         // A clipboard scope is its item list, which legitimately changes between
-        // versions (that is what a withdrawal is), so only its type is compared.
+        // versions (that is what a withdrawal is), so only its type is hashed.
+        // assertSameSelection() compares the records themselves at freeze.
         return hash('sha256', json_encode([$export->scope_type, $export->scope_slug,
             $export->scope_repository_id === null ? null : (int) $export->scope_repository_id]));
     }

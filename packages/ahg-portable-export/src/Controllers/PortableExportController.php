@@ -146,9 +146,8 @@ class PortableExportController extends Controller
      * #1357 - anonymous, token-gated public download of a shared bundle. NOT
      * admin-gated (that is the point of a share link); the safety is the 128-bit
      * token, the expiry, the optional download cap, and the published-only gate
-     * below. ICIP/TK, ODRL and PII were already excluded at BUILD time, so the
-     * only residual risk - a bundle the operator built with the include-drafts
-     * override - is refused here.
+     * below. Disclosure rules were applied at BUILD time, but records change, so
+     * every record in the package is judged again here before it is served.
      */
     public function share(Request $request, string $token)
     {
@@ -184,6 +183,9 @@ class PortableExportController extends Controller
         $summary = json_decode((string) ($export->disclosure_summary ?? ''), true);
         if (is_array($summary) && ! empty($summary['included_unpublished'])) {
             abort(403, 'This bundle includes unpublished records and cannot be served through a public share link.');
+        }
+        if ($refusal = app(\AhgPortableExport\Services\ReleaseGate::class)->shareRefusal($export)) {
+            abort(403, $refusal);
         }
 
         // Count the download before streaming, so a mid-stream abort still counts
@@ -535,6 +537,9 @@ class PortableExportController extends Controller
         if (is_array($summary) && ! empty($summary['included_unpublished'])) {
             return response()->json(['success' => false,
                 'error' => 'This bundle includes unpublished records, so a public share link is not allowed. Re-export it published-only to share.'], 422);
+        }
+        if (($export->status ?? '') === 'complete' && ($refusal = app(\AhgPortableExport\Services\ReleaseGate::class)->shareRefusal($export))) {
+            return response()->json(['success' => false, 'error' => $refusal], 422);
         }
         if (! Schema::hasTable('portable_export_share_token')) {
             return response()->json(['success' => false,

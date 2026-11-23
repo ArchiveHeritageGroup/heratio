@@ -29,7 +29,7 @@ If the page is already open when the link drops, carry on using it. Otherwise op
 2. For a checkout, scan the **Patron card**.
 3. Scan the **Copy barcode** and select **Save**.
 
-The desk warns you if its data shows a problem, such as an unknown card, a copy already out, a patron who cannot borrow or a patron at the loan limit. You can save anyway, and the transaction will be checked on reconnection. For checkouts it shows an indicative due date. Treat that as provisional, because the final date is set during sync.
+The desk warns you if its data shows a problem, such as an unknown card, a copy already out, a patron who cannot borrow or a patron at the loan limit. You can save anyway, and the transaction will be checked on reconnection. For checkouts it shows an indicative due date. Treat that as provisional, because the final date is set during sync and moves to the next open day if it lands on a closure.
 
 Saved transactions appear under **Waiting to sync**. They stay safe in the browser if the page is closed or you sign out. Do not clear the browser's site data while anything is waiting, as that would delete the queue.
 
@@ -58,6 +58,7 @@ For each row, choose a resolution, add a note if needed and select **Go**:
 | Patron is not in good standing | Apply if the patron was entitled to borrow at the time. |
 | Patron was at the loan limit | Apply if you accept the extra loan. |
 | Patron is over the fine threshold | Apply if the loan should stand. |
+| Item is not for loan | The loan rule in force at the time did not allow it. Apply to record the loan, or recover the item and reject. |
 | Desk clock is ahead of or behind the server | Confirm the real time before applying. |
 | Older than the offline window | Apply only if you trust the record. |
 | Received out of sequence | Check the order of events first. |
@@ -71,15 +72,11 @@ Timing and fine conflicts always need a named decision, so **Check again** will 
 
 **Offline Window (days)** under Library Settings at `/admin/ahgSettings/library` sets how old a transaction may be before it needs a staff decision. The default is 14. Desk clocks must agree with the server to within five minutes at sync, so keep them on automatic time.
 
-Offline loans are judged by the loan rules recorded for that moment. Changes made with the **Edit** button on a loan rule are not recorded straight away, so after editing a rule, select **Download desk data** on a desk while online to record the new version.
+Offline loans are judged by the loan rules recorded for that moment. Every saved, edited or deleted rule is recorded straight away. A desk keeps the rules it last downloaded for its indicative due dates, so select **Download desk data** while online after a change.
 
 ## Known limits
 
-Offline transactions do not use the opening hours and closures calendar. A due date can land on a closed day, and a fine worked out at an offline return counts closed days. Check these by hand after a long outage that included a closure.
-
-A loan already marked overdue by the nightly overdue check is not treated as open by this feature. The desk may warn that the copy has no open loan, and the return will arrive in the conflicts report as **No open loan to return**, which neither **Check again** nor **Apply anyway** can clear. Process the return at the normal Circulation Desk, then **Reject** the offline entry with a note. The return will carry the date you process it, so waive any fine that built up during the outage if appropriate.
-
-When an offline return changes a fine for a patron who has made part payments, the patron's running total can be overstated. The individual balances on the Patron Fines page remain correct, so use those.
+The desk does not warn about a **Loanable** rule or check the calendar while capturing. Both are applied during sync: a due date moves off a closed day, closed days are not charged at an offline return, and a not-for-loan checkout arrives in the conflicts report.
 
 ## Troubleshooting
 

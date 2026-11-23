@@ -14,6 +14,46 @@ class PackageInspector
     private const IGNORED_FIELDS = ['lft', 'rgt'];
 
     /**
+     * Every record a package names, in its record list or digital object list,
+     * without hashing its files, so it is cheap enough to run per download.
+     *
+     * @return int[]|null null when the package cannot be read
+     */
+    public function recordIds(string $path): ?array
+    {
+        if (is_dir($path)) {
+            $ios = @file_get_contents($path.'/data/ios.json');
+            $objects = @file_get_contents($path.'/data/digital_objects.json');
+        } else {
+            $zip = new ZipArchive;
+            if (! is_file($path) || $zip->open($path, ZipArchive::RDONLY) !== true) {
+                return null;
+            }
+            $ios = $zip->getFromName('data/ios.json');
+            $objects = $zip->getFromName('data/digital_objects.json');
+            $zip->close();
+        }
+        $ios = json_decode((string) $ios, true);
+        $objects = json_decode((string) $objects, true);
+        if (! is_array($ios) || ! is_array($objects)) {
+            return null;
+        }
+
+        $ids = [];
+        foreach ([[$ios, 'id'], [$objects, 'object_id']] as [$rows, $key]) {
+            foreach ($rows as $row) {
+                $id = is_array($row) ? (int) ($row[$key] ?? 0) : 0;
+                if ($id <= 0) {
+                    return null;
+                }
+                $ids[$id] = true;
+            }
+        }
+
+        return array_keys($ids);
+    }
+
+    /**
      * @return array{files:array, records:array, asset_record_ids:int[], disclosure:?array, problems:string[]}
      */
     public function inspect(string $zipPath): array

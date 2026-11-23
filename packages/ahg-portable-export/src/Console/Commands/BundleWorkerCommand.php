@@ -54,7 +54,7 @@ class BundleWorkerCommand extends Command
      * #1389 disclosure tally for the run in progress - records withheld by each
      * gate. Reset per row in processOne().
      */
-    private array $excluded = ['unpublished' => 0, 'icip' => 0, 'odrl' => 0, 'protocol' => 0, 'redacted_objects' => 0];
+    private array $excluded = ['unpublished' => 0, 'icip' => 0, 'odrl' => 0, 'embargo' => 0, 'classified' => 0, 'protocol' => 0, 'redacted_objects' => 0];
 
     /** #role-based - whether the exporting operator may see draft/unpublished records. */
     private bool $operatorCanViewDraft = false;
@@ -140,7 +140,7 @@ class BundleWorkerCommand extends Command
         // Resolve scope -> IO id list, then apply the #1389 disclosure gates
         // (publication status, ICIP/TK protocols, ODRL) BEFORE anything is
         // written - over-inclusion into an offline package is unrecoverable.
-        $this->excluded = ['unpublished' => 0, 'icip' => 0, 'odrl' => 0, 'protocol' => 0, 'redacted_objects' => 0,
+        $this->excluded = ['unpublished' => 0, 'icip' => 0, 'odrl' => 0, 'embargo' => 0, 'classified' => 0, 'protocol' => 0, 'redacted_objects' => 0,
             'perm_masters' => 0, 'perm_references' => 0, 'perm_thumbnails' => 0];
         $this->fixity = [];          // #1390
         $this->c2paCarried = 0;      // #1390
@@ -177,10 +177,11 @@ class BundleWorkerCommand extends Command
         $rawIds = $this->resolveScopeIoIds($row);
         $ioIds = $this->applyDisclosureGates($rawIds, $row);
         $withheld = $this->excluded['unpublished'] + $this->excluded['icip'] + $this->excluded['odrl']
-            + $this->excluded['protocol'];
+            + $this->excluded['embargo'] + $this->excluded['classified'] + $this->excluded['protocol'];
         $this->line('  '.count($ioIds).' IOs in scope'
             .($withheld ? ' ('.$withheld.' withheld: '.$this->excluded['unpublished'].' unpublished, '
                 .$this->excluded['icip'].' ICIP-restricted, '.$this->excluded['odrl'].' ODRL-gated, '
+                .$this->excluded['embargo'].' embargoed, '.$this->excluded['classified'].' classified, '
                 .$this->excluded['protocol'].' protocol-restricted)' : ''));
 
         // Destination: for a 'folder' export, build the bundle DIRECTLY on the
@@ -287,7 +288,8 @@ class BundleWorkerCommand extends Command
      *     portable_export_include_unpublished setting is explicitly on;
      *   - ICIP/TK protocol-restricted (icip_access_restriction), including whole
      *     subtrees flagged applies_to_descendants;
-     *   - ODRL use-prohibited (research_rights_policy prohibition on 'use').
+     *   - ODRL use-prohibited (research_rights_policy prohibition on 'use');
+     *   - under an active embargo, or classified above public.
      * Each excluded id is counted once, in that precedence order, into $excluded.
      */
     private function applyDisclosureGates(array $ioIds, object $row): array
@@ -304,6 +306,8 @@ class BundleWorkerCommand extends Command
         $gate = app(\AhgCore\Services\DisclosureGate::class);
         $icip = array_flip($gate->icipRestrictedIds());
         $odrl = array_flip($gate->odrlRestrictedIds());
+        $embargoed = array_flip($gate->embargoedIds());
+        $classified = array_flip($gate->classifiedIds());
         // #1388 - records tagged with a restricted community-protocol term must
         // not enter an offline package either (no operator override; unrecoverable).
         $protocol = array_flip(\AhgCore\Services\TermProtocolService::restrictedRecordIds());
@@ -328,6 +332,8 @@ class BundleWorkerCommand extends Command
             if (! $includeUnpublished && ! isset($published[$id])) { $this->excluded['unpublished']++; continue; }
             if (isset($icip[$id])) { $this->excluded['icip']++; continue; }
             if (isset($odrl[$id])) { $this->excluded['odrl']++; continue; }
+            if (isset($embargoed[$id])) { $this->excluded['embargo']++; continue; }
+            if (isset($classified[$id])) { $this->excluded['classified']++; continue; }
             if (isset($protocol[$id])) { $this->excluded['protocol']++; continue; }
             $kept[] = $id;
         }
@@ -686,9 +692,8 @@ TXT;
         file_put_contents($workDir.'/data/actors.json', json_encode($actors, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         $stats['actors'] = $actors->count();
 
-        // Digital objects (metadata only, regardless of include_objects -
-        // the JSON file lists every DO but the assets/ directory only
-        // contains files for the usages flagged include_*).
+        // Digital objects (metadata only). Only the tiers this package carries
+        // are listed: a file name or storage path is disclosure in itself.
         $dos = empty($ioIds) ? collect() : DB::table('digital_object')
             ->whereIn('object_id', $ioIds)
             ->select('id', 'object_id', 'usage_id', 'mime_type', 'media_type_id', 'name', 'path', 'byte_size', 'parent_id')
@@ -698,6 +703,12 @@ TXT;
         // personal data that was redacted, so its objects are not listed at all.
         $disclosure = new \AhgCore\Services\DisclosureGate;
         $dos = $dos->reject(fn ($d) => $disclosure->hasRedactions((int) $d->object_id))->values();
+        $tiers = (int) ($row->include_objects ?? 1) ? array_keys(array_filter([
+            140 => (int) ($row->include_masters ?? 0),
+            141 => (int) ($row->include_references ?? 0),
+            142 => (int) ($row->include_thumbnails ?? 0),
+        ])) : [];
+        $dos = $dos->filter(fn ($d) => in_array((int) $d->usage_id, $tiers, true))->values();
         file_put_contents($workDir.'/data/digital_objects.json', json_encode($dos, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
         $stats['digital_objects'] = $dos->count();
 

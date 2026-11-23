@@ -44,7 +44,7 @@ class LibraryOfflineCirculationService extends LibraryCirculationService
     public const NEEDS_DECISION = ['clock_invalid', 'clock_behind', 'outside_window', 'out_of_order', 'fine_reduction'];
 
     /** Policy and timing checks can be overridden; facts about a copy cannot. */
-    public const OVERRIDABLE = ['patron_suspended', 'over_limit', 'fine_threshold', ...self::NEEDS_DECISION];
+    public const OVERRIDABLE = ['patron_suspended', 'over_limit', 'fine_threshold', 'not_loanable', ...self::NEEDS_DECISION];
 
     /** Tolerated difference between the desk clock and the server, in seconds. */
     private const CLOCK_TOLERANCE = 300;
@@ -77,7 +77,7 @@ class LibraryOfflineCirculationService extends LibraryCirculationService
             ->leftJoin('library_item as li', 'cp.library_item_id', '=', 'li.id')
             ->tap(fn ($q) => I18nFallback::join($q, 'information_object_i18n as i18n', 'li.information_object_id', app()->getLocale()))
             ->leftJoin('library_checkout as c', function ($join) {
-                $join->on('c.copy_id', '=', 'cp.id')->where('c.status', '=', 'active');
+                $join->on('c.copy_id', '=', 'cp.id')->whereIn('c.status', LibraryCirculationService::OPEN_LOAN_STATUSES);
             })
             ->leftJoin('library_patron as lp', 'c.patron_id', '=', 'lp.id')
             ->whereNotNull('cp.barcode')
@@ -112,7 +112,7 @@ class LibraryOfflineCirculationService extends LibraryCirculationService
         return $query->orderBy('p.id')->limit($limit)
             ->get(['p.id', 'p.card_number', 'p.first_name', 'p.last_name', 'p.patron_type',
                 'p.borrowing_status', 'p.max_checkouts', 'p.total_fines_owed',
-                DB::raw("(SELECT COUNT(*) FROM library_checkout lc WHERE lc.patron_id = p.id AND lc.status = 'active') AS active_loans")])
+                DB::raw("(SELECT COUNT(*) FROM library_checkout lc WHERE lc.patron_id = p.id AND lc.status IN ('active', 'overdue')) AS active_loans")])
             ->map(function ($p) use ($threshold) {
                 $initial = mb_substr(trim((string) $p->first_name), 0, 1);
 
@@ -327,9 +327,20 @@ class LibraryOfflineCirculationService extends LibraryCirculationService
             (int) $patron->id
         );
 
+        // Same test as the online checkout, against the rules in force then. The
+        // copy has already left the building, so staff can apply it with a note.
+        $governing = $this->ruleFromSnapshot($snapshot, $materialType, $patron->patron_type, $branchId, false);
+        if ($governing && (int) $governing['is_loanable'] !== 1 && ! in_array('not_loanable', $override, true)) {
+            return $this->markConflict($row, 'not_loanable', ['copy_id' => (int) $copy->id]);
+        }
+
         $rule = $this->ruleFromSnapshot($snapshot, $materialType, $patron->patron_type, $branchId, true);
         $days = $rule ? (int) $rule['loan_period_days'] : $this->defaultDaysFromSnapshot($snapshot, $branchId);
-        $due = CarbonImmutable::parse($at, 'UTC')->addDays($days)->toDateString();
+        // A loan never falls due on a day the branch is shut, as online.
+        $due = app(LibraryCalendarService::class)->nextOpenDay(
+            CarbonImmutable::parse($at, 'UTC')->addDays($days)->toDateString(),
+            $branchId
+        );
 
         $loan = [
             'copy_id' => $copy->id,
@@ -363,7 +374,7 @@ class LibraryOfflineCirculationService extends LibraryCirculationService
         }
         DB::table(self::TXN)->where('id', $row->id)->update(['copy_id' => $copy->id]);
 
-        $loan = DB::table('library_checkout')->where('copy_id', $copy->id)->where('status', 'active')
+        $loan = DB::table('library_checkout')->where('copy_id', $copy->id)->whereIn('status', LibraryCirculationService::OPEN_LOAN_STATUSES)
             ->orderByDesc('id')->lockForUpdate()->first();
         if (! $loan) {
             return $this->markConflict($row, 'no_active_loan', []);
@@ -383,6 +394,8 @@ class LibraryOfflineCirculationService extends LibraryCirculationService
 
         if (LibrarySettings::autoFine()) {
             [$amount, $days] = $this->fineAsAt($loan, $copy, $at, $snapshot);
+            // What was already paid or waived on this loan is not charged again, as online.
+            $amount = LibraryFineService::chargeableOverdue((int) $loan->id, (float) $amount);
             $existing = DB::table('library_fine')->where('checkout_id', $loan->id)
                 ->where('fine_type', 'overdue')->where('status', 'outstanding')->lockForUpdate()->first();
 
@@ -435,7 +448,13 @@ class LibraryOfflineCirculationService extends LibraryCirculationService
 
         $dueTs = strtotime($loan->due_date . ' 00:00:00 UTC');
         $atTs = strtotime($at . ' UTC');
-        $days = $atTs > $dueTs ? (int) floor(($atTs - $dueTs) / 86400) - $grace : 0;
+        $days = app(LibraryCalendarService::class)->chargeableDays(
+            substr((string) $loan->due_date, 0, 10),
+            substr($at, 0, 10),
+            $atTs > $dueTs ? (int) floor(($atTs - $dueTs) / 86400) : 0,
+            $grace,
+            $branchId !== null ? (int) $branchId : null
+        );
         $amount = $days > 0 ? $perDay * $days : 0.0;
         if ($cap !== null && $amount > $cap) {
             $amount = $cap;
@@ -489,11 +508,7 @@ class LibraryOfflineCirculationService extends LibraryCirculationService
             return;
         }
 
-        DB::table('library_patron')->where('id', $loan->patron_id)->update([
-            'total_fines_owed' => (float) DB::table('library_fine')->where('patron_id', $loan->patron_id)
-                ->where('status', 'outstanding')->sum('amount'),
-            'updated_at' => now(),
-        ]);
+        LibraryFineService::refreshPatronTotals((int) $loan->patron_id);
     }
 
     /** matchRule() over a recorded version of the rules: same precedence. */

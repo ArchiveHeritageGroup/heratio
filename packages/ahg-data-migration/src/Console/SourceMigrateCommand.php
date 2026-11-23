@@ -127,6 +127,9 @@ class SourceMigrateCommand extends Command
         if (! is_file($file)) {
             throw new \InvalidArgumentException('Source file cannot be read.');
         }
+        if (in_array(strtolower(pathinfo($file, PATHINFO_EXTENSION)), ['xls', 'xlsx'], true)) {
+            return (new SourceDetector)->detect((new SourceMigrationPreflight)->headers($file));
+        }
         $fh = fopen($file, 'r');
         $line = (string) fgets($fh);
         fclose($fh);

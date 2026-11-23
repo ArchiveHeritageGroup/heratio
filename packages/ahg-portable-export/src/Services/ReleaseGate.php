@@ -90,6 +90,34 @@ class ReleaseGate
         return $failures;
     }
 
+    /**
+     * @param  int[]  $ids
+     * @return int[] those that may be named publicly today
+     */
+    public function disclosableIds(array $ids): array
+    {
+        return array_values(array_diff((new DisclosureGate)->filterIds($ids), TermProtocolService::restrictedRecordIds()));
+    }
+
+    /**
+     * Whether an anonymous share link may serve this package today. Records
+     * change after a build, so each one is judged again. A package that cannot
+     * be read is refused. The reason names no record.
+     */
+    public function shareRefusal(object $export): ?string
+    {
+        $ids = app(PackageInspector::class)->recordIds((string) ($export->output_path ?? ''));
+        if ($ids === null) {
+            return 'This package could not be checked, so it cannot be served through a public share link.';
+        }
+        $gate = new DisclosureGate;
+        if (array_diff($ids, $gate->filterIds($ids)) !== [] || array_intersect($ids, TermProtocolService::restrictedRecordIds()) !== []) {
+            return 'This package holds records that are not cleared for public access, so it cannot be served through a public share link.';
+        }
+
+        return null;
+    }
+
     /** A researcher's offline copy carries a live sync token and their name. */
     public static function isPublicKind(object $export): bool
     {

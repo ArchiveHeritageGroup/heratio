@@ -13,10 +13,10 @@
   @if ($series->description)<p>{{ $series->description }}</p>@endif
 
   <dl class="row">
-    <dt class="col-sm-3">{{ __('Cite as') }}</dt><dd class="col-sm-9">{{ $series->creator_name }} ({{ \Illuminate\Support\Carbon::parse($release->released_at)->year }}). {{ $series->title }} (v{{ $release->version_number }}). {{ $series->publisher }}. https://doi.org/{{ $release->version_doi }}</dd>
+    <dt class="col-sm-3">{{ __('Cite as') }}</dt><dd class="col-sm-9">{{ $series->creator_name }} ({{ \Illuminate\Support\Carbon::parse($release->released_at ?: $release->approved_at)->year }}). {{ $series->title }} (v{{ $release->version_number }}). {{ $series->publisher }}. https://doi.org/{{ $release->version_doi }}</dd>
     <dt class="col-sm-3">{{ __('Version DOI') }}</dt><dd class="col-sm-9"><a href="https://doi.org/{{ $release->version_doi }}">{{ $release->version_doi }}</a></dd>
     <dt class="col-sm-3">{{ __('Concept DOI (newest version)') }}</dt><dd class="col-sm-9"><a href="https://doi.org/{{ $series->concept_doi }}">{{ $series->concept_doi }}</a></dd>
-    <dt class="col-sm-3">{{ __('Released') }}</dt><dd class="col-sm-9">{{ \Illuminate\Support\Carbon::parse($release->released_at)->toDateString() }}</dd>
+    @if ($release->released_at)<dt class="col-sm-3">{{ __('Released') }}</dt><dd class="col-sm-9">{{ \Illuminate\Support\Carbon::parse($release->released_at)->toDateString() }}</dd>@endif
     <dt class="col-sm-3">{{ __('Records') }}</dt><dd class="col-sm-9">{{ number_format($release->record_count) }}</dd>
     @if ($series->license)<dt class="col-sm-3">{{ __('Licence') }}</dt><dd class="col-sm-9">{{ $series->license }}</dd>@endif
     <dt class="col-sm-3">SHA-256</dt><dd class="col-sm-9 text-break"><code>{{ $release->package_sha256 }}</code></dd>
@@ -26,7 +26,7 @@
     <p>
       <a class="btn atom-btn-white" href="{{ route('portable-release.file', ['key' => $series->series_key, 'version' => $release->version_number, 'file' => 'package']) }}"><i class="fas fa-download me-1"></i>{{ __('Download package') }} ({{ number_format($release->package_bytes / 1048576, 1) }} MB)</a>
       <a class="btn atom-btn-white" href="{{ route('portable-release.file', ['key' => $series->series_key, 'version' => $release->version_number, 'file' => 'manifest']) }}">{{ __('Manifest') }}</a>
-      <a class="btn atom-btn-white" href="{{ route('portable-release.file', ['key' => $series->series_key, 'version' => $release->version_number, 'file' => 'changelog']) }}">{{ __('Changelog') }}</a>
+      @if ($changes['changelog_available'])<a class="btn atom-btn-white" href="{{ route('portable-release.file', ['key' => $series->series_key, 'version' => $release->version_number, 'file' => 'changelog']) }}">{{ __('Changelog') }}</a>@endif
     </p>
 
     <h2 class="h5 mt-4">{{ __('What changed in this version') }}</h2>
@@ -34,11 +34,12 @@
     @if (! empty($changes['first_release']))
       <p>{{ __('First release.') }}</p>
     @else
-      <p>{{ __('Added: :a. Withdrawn: :w. Changed: :c.', ['a' => count($changes['added'] ?? []), 'w' => count($changes['removed'] ?? []), 'c' => count($changes['changed'] ?? [])]) }}</p>
+      <p>{{ __('Added: :a. Withdrawn: :w. Changed: :c.', ['a' => count($changes['added'] ?? []), 'w' => count($changes['removed'] ?? []) + $changes['removed_unlisted'], 'c' => count($changes['changed'] ?? [])]) }}</p>
       @if (! empty($changes['removed']))
         <h3 class="h6">{{ __('Withdrawn records') }}</h3>
         <ul>@foreach (array_slice($changes['removed'], 0, 50) as $r)<li>#{{ $r['id'] }}{{ $r['identifier'] ? ' ('.$r['identifier'].')' : '' }}</li>@endforeach</ul>
       @endif
+      @if ($changes['removed_unlisted'] > 0)<p class="text-muted">{{ __('Withdrawn records not listed: :n.', ['n' => $changes['removed_unlisted']]) }}</p>@endif
       @if (! empty($changes['changed']))
         <h3 class="h6">{{ __('Changed records') }}</h3>
         <ul>@foreach (array_slice($changes['changed'], 0, 50) as $r)<li>#{{ $r['id'] }}{{ $r['identifier'] ? ' ('.$r['identifier'].')' : '' }}: {{ implode(', ', $r['fields']) }}</li>@endforeach</ul>

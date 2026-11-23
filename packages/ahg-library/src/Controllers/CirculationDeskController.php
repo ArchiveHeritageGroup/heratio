@@ -295,7 +295,7 @@ class CirculationDeskController extends Controller
         if (!$checkoutId) {
             return redirect()
                 ->route('library.circulation.do-checkout')
-                ->with('error', __('Checkout failed. The copy may already be checked out, or the patron has reached their loan limit, is suspended, or has exceeded the fine threshold.'))
+                ->with('error', __('Checkout failed. The copy may already be checked out, or the patron has reached their loan limit, is suspended, or has exceeded the fine threshold.') . ' ' . __('A loan rule may also mark this item as not for loan.'))
                 ->withInput();
         }
 

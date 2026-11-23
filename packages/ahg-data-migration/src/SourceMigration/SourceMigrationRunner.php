@@ -138,6 +138,15 @@ class SourceMigrationRunner
         $target = (int) ($options['parent_id'] ?? InformationObjectService::ROOT_ID);
         $authorities = new AuthorityResolver($culture, $analysis['authority_types']);
         $ids = [];
+        // The register promises that flattened and folded values keep their source
+        // label. Only a target's own first column may stand alone unlabelled.
+        $actions = array_column($analysis['register']['fields'], 'action', 'field');
+        $primary = [];
+        foreach ($mapping['fields'] as $name => $field) {
+            $primary[$field['target'] ?? ''] ??= (string) $name;
+        }
+        $keepsLabel = fn (string $name, string $target) => ($actions[$name] ?? null) === 'flattened'
+            || (($actions[$name] ?? null) === 'folded' && $primary[$target] !== $name);
 
         foreach ($analysis['nodes'] as $node) {
             $record = $node['synthesised'] ? null : $analysis['prepared'][$node['key']];
@@ -151,7 +160,7 @@ class SourceMigrationRunner
                 'title' => $node['ref'],
             ];
             foreach ($record['scalars'] ?? [] as $field => $parts) {
-                $data[$field] = count($parts) === 1
+                $data[$field] = count($parts) === 1 && ! $keepsLabel($parts[0][0], $field)
                     ? $parts[0][1]
                     : implode("\n\n", array_map(fn ($p) => "{$p[0]}: {$p[1]}", $parts));
             }

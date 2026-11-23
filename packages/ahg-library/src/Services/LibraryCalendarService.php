@@ -104,6 +104,15 @@ class LibraryCalendarService
     }
 
     /**
+     * Days to charge on an overdue loan: elapsed days less closed days and
+     * grace, so grace is counted in open days. Online and offline both use it.
+     */
+    public function chargeableDays(string $due, string $through, int $elapsedDays, int $grace, ?int $branchId = null): int
+    {
+        return max(0, $elapsedDays - $this->closedDaysBetween($due, $through, $branchId) - $grace);
+    }
+
+    /**
      * The seven days as they apply to a branch, each flagged with whether the
      * row is the branch's own or inherited from the all-branches pattern.
      */

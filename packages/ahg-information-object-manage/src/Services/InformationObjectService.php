@@ -325,6 +325,8 @@ class InformationObjectService
             } else {
                 $baseSlug = Str::slug($title);
             }
+            // The slug column holds 255 characters; leave room for a uniqueness suffix.
+            $baseSlug = rtrim(mb_substr((string) $baseSlug, 0, 240), '-');
             if (empty($baseSlug)) {
                 $baseSlug = 'untitled';
             }

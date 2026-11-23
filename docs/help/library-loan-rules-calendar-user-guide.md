@@ -28,10 +28,10 @@ The fields are:
 | Grace (open days) | Open days after the due date before fines begin. |
 | Fine/Day | Amount charged per chargeable day. |
 | Fine cap | The most a single loan can be fined. Leave empty for no cap. |
-| Loanable | Whether this rule supplies the loan period. See the warning below. |
+| Loanable | Whether items under this rule can be checked out. See the note below. |
 | Notes | Internal notes, available on the edit screen. |
 
-Clearing **Loanable** does not currently stop an item being checked out. Heratio ignores that rule when working out the loan period and uses the next matching rule or the default instead, so the item can still leave the building. To keep material in the library, set the copy's status so it is not available for loan.
+Clearing **Loanable** stops new checkouts at the Circulation Desk and at self-check kiosks. The most specific matching rule decides, so a branch rule that allows loans overrides an all-branches rule that does not. At the Offline Desk the checkout arrives in the conflicts report for a staff decision, because the item has already left the building. Loans already out are not recalled, but they cannot be renewed while the rule stays cleared. A loan flagged as overdue cannot be renewed either, so staff deal with the overdue item first.
 
 Material types come from the catalogue's built-in list, plus any already in use. They cannot yet be added through the Dropdown Manager.
 
@@ -65,19 +65,13 @@ When an item is checked out or renewed, a due date landing on a closed day moves
 
 Closed days are not charged as overdue and do not use up the grace period. If a closure is added after a fine has built up, the next daily fine run lowers the fine, and overdue notices quote the same chargeable days. A fine reduced to nothing this way is not recorded as waived, so removing the closure brings it back on the next run. Money already paid is never reduced.
 
+Both daily fine jobs, `ahg:library-calculate-fines` and `ahg:library-process-fines`, use this same calculation for every open loan, including loans already marked overdue. They follow the lending branch's calendar and its branch and patron-type rules. Each loan keeps one running fine, so running both jobs does not charge a day twice, and neither job charges anything while **Auto-generate daily overdue fines** is off. Offline Desk due dates and fines follow the calendar too.
+
 If nothing has been configured, every day counts as open.
-
-## Known limits
-
-The daily fine job, `ahg:library-calculate-fines`, follows the calendar for loans still marked active. Once `ahg:library-overdue-check` marks a loan overdue, that job stops updating it, although the fine is recalculated correctly when the item is returned at the desk.
-
-A separate **Process Fines** job (`ahg:library-process-fines`) appears in the cron scheduler's Library Management group. It does not read the calendar and does not use branch or patron-type rules. If it is enabled at your site, closed days can be charged on overdue loans, so ask your administrator to review it before relying on closures.
-
-Transactions captured at the Offline Desk are also not adjusted for the calendar. See the offline circulation article.
 
 ## Troubleshooting
 
-When a due date lands on a closed day, the closure was probably added after the loan was made, or the loan came from the Offline Desk. Check the loan's branch as well, because the lending branch's calendar is the one that counts.
+When a due date lands on a closed day, the closure was probably added after the loan was made. Check the loan's branch as well, because the lending branch's calendar is the one that counts.
 
 The message "The calendar tables are not installed yet" means the database update for this feature has not been applied, and every day counts as open until your administrator runs it. A read-only calendar means you are assigned to another branch, so someone at that branch or an administrator must make the change.
 

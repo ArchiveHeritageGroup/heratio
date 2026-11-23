@@ -230,7 +230,9 @@ class PortableReleaseController extends Controller
         $this->abortIfDisabled();
         $series = $this->publicSeries($key);
         $release = $this->publicRelease($series, $version);
-        $withheld = $this->releases->recheck($release) !== [];
+        // A version stopped after its DOI went public keeps its page, never its files.
+        $withheld = $release->status !== PortableReleaseService::RELEASED || $this->releases->recheck($release) !== [];
+        $changes = $withheld ? null : $this->releases->publicChanges($release);
         $all = DB::table('portable_release')->where('series_id', $series->id)
             ->where('status', PortableReleaseService::RELEASED)->orderByDesc('version_number')
             ->get(['version_number', 'version_doi', 'released_at']);
@@ -240,9 +242,9 @@ class PortableReleaseController extends Controller
             'release' => $release,
             'withheld' => $withheld,
             // The change list names records, so it is held back with the package.
-            'changes' => $withheld ? null : json_decode((string) $release->changelog_json, true),
+            'changes' => $changes,
             'versions' => $all,
-            'newest' => (int) $all->first()->version_number,
+            'newest' => (int) ($all->first()->version_number ?? $release->version_number),
             'correctionTypes' => DropdownOptions::resolve('portable_release_correction_type', []),
         ]);
     }
@@ -252,7 +254,8 @@ class PortableReleaseController extends Controller
         $this->abortIfDisabled();
         $series = $this->publicSeries($key);
         $release = $this->publicRelease($series, $version);
-        abort_if($this->releases->recheck($release) !== [], 403, 'This version is withheld pending review.');
+        abort_if($release->status !== PortableReleaseService::RELEASED || $this->releases->recheck($release) !== [], 403, 'This version is withheld pending review.');
+        abort_if($file === 'changelog' && ! $this->releases->publicChanges($release)['changelog_available'], 403, 'This changelog is withheld pending review.');
         [$name, $as, $type] = match ($file) {
             'package' => ['package.zip', 'portable-'.$key.'-v'.$version.'.zip', 'application/zip'],
             'manifest' => ['release-manifest.json', 'release-manifest-v'.$version.'.json', 'application/json'],
@@ -279,7 +282,10 @@ class PortableReleaseController extends Controller
     private function publicRelease(object $series, int $version): object
     {
         $release = DB::table('portable_release')->where('series_id', $series->id)
-            ->where('version_number', $version)->where('status', PortableReleaseService::RELEASED)->first();
+            ->where('version_number', $version)
+            ->where(fn ($q) => $q->where('status', PortableReleaseService::RELEASED)
+                ->orWhere(fn ($s) => $s->where('status', PortableReleaseService::APPROVED)->where('doi_state', 'findable')))
+            ->first();
         abort_unless($release, 404);
 
         return $release;

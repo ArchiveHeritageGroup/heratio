@@ -103,8 +103,14 @@ class OpacPatronController extends Controller
         // guessed by moving between the two.
         $pinKey = 'sip2:pin:' . $patron->id;
         $supplied = trim($validated['pin'] ?? '');
-        if (RateLimiter::tooManyAttempts($pinKey, 5)
-            || $supplied === ''
+        // Checked before the PIN, so the reply is the same whether it was right.
+        if (RateLimiter::tooManyAttempts($pinKey, 5)) {
+            return redirect()
+                ->route('opac.patron.login')
+                ->with('error', __('Too many PIN attempts. This card is locked for about 15 minutes.'))
+                ->withInput(['card_number' => trim($validated['card_number'])]);
+        }
+        if ($supplied === ''
             || !password_verify($supplied, $storedPin->pin_hash)) {
             if ($supplied !== '') {
                 RateLimiter::hit($pinKey, 900);

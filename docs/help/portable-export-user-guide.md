@@ -435,6 +435,8 @@ Retention is **data-driven**: each completed export stores an `expires_at`, and 
 - Internet Explorer is NOT supported.
 - TIP: Share links expire after 7 days by default.
 - Set a longer expiry for permanent sharing.
+- TIP: Packages leave out unpublished, embargoed, classified and culturally restricted records.
+- A share link checks the package again each time it is opened. If a record in it has since been restricted, the link is refused until you build a new export.
 - TIP: Delete expired exports from the admin page as they
 - pass their expiry to reclaim disk space (retention-driven).
 - TIP: Use the clipboard export for targeted deliveries -

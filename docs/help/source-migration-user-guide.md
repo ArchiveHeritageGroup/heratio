@@ -26,7 +26,7 @@ To check that Heratio recognises the file:
 sudo -u www-data php artisan ahg:source-migrate detect --file=/path/to/export.csv
 ```
 
-Detection reads CSV-style text only. For an Excel file, skip this step and pass `--mapping=calm` to the preflight.
+Detection reads CSV-style text and Excel files (`.xls`, `.xlsx`). Excel date cells are imported as dates.
 
 ## Step 2: Run the preflight
 
@@ -41,7 +41,7 @@ The command prints a run number and a table of every column that is not a clean 
 | Action | Meaning |
 | --- | --- |
 | dropped | The values will not be imported. |
-| flattened | The value is kept, but loses some structure, such as a closure date that becomes text in the access conditions. |
+| flattened | The value is kept, but loses some structure, such as a closure date that becomes text in the access conditions, labelled with its source column. |
 | folded | Several source columns share one Heratio field, and each value keeps its source label. |
 
 The output also names any record types left out, such as Calm persons, places or accessions rows, and it lists open decisions and blockers. The JSON register adds detail the screen omits, including how many rows were shorter than the headings and how many dates could be normalised.
@@ -94,7 +94,7 @@ When it finishes, review the new Draft records and publish them in the normal wa
 
 ## Troubleshooting
 
-"No known source matches this file" means the required columns were not found, or the file is Excel. Check the headings, or pass `--mapping=calm`.
+"No known source matches this file" means the required columns were not found. Check the headings, or pass `--mapping=calm`.
 
 "The file, mapping or catalogue changed since the register was acknowledged" is a safeguard working as designed. Run a new preflight, review it and acknowledge the new run.
 

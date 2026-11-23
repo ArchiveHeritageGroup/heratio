@@ -24,7 +24,7 @@ php artisan ahg:library-sip2-setup pin <card number>
 
 The command prompts for the new PIN, so it never appears in the command history. A PIN is 4 to 12 digits, and running the command again replaces the old one. Plan how you will issue PINs before this feature goes live, since every patron without one will be locked out of the OPAC account until they have one.
 
-The same PIN works at the kiosks and in the OPAC, and failed attempts count across both. After five wrong PINs the card is locked for about 15 minutes. During that time even the correct PIN is reported as incorrect in the OPAC.
+The same PIN works at the kiosks and in the OPAC, and failed attempts count across both. After five wrong PINs the card is locked for about 15 minutes. During that time the OPAC says the card is locked, whichever PIN is entered, and does not reveal whether the PIN was right.
 
 ## Create a terminal account
 
@@ -89,6 +89,6 @@ The patron information reply reports the amount owed but always gives a fine ite
 
 ## Troubleshooting
 
-A patron told they have no PIN needs one set with the `pin` command above. If a correct PIN is reported as incorrect, the card has probably been locked by repeated failures. Wait about 15 minutes and try again, since setting a new PIN does not lift the lock early. At a kiosk, "Card or PIN not accepted" covers the same causes, as well as a patron who has no PIN at all.
+A patron told they have no PIN needs one set with the `pin` command above. If the OPAC says the card is locked, wait about 15 minutes and try again, since setting a new PIN does not lift the lock early. At a kiosk, "Card or PIN not accepted" covers a locked card, a wrong PIN and a patron who has no PIN at all.
 
 When a terminal cannot log in, check its login and password, and remember that five failed attempts lock that login for about 15 minutes. "Could not bind" means the port is already in use or the address does not belong to this server. If every message gets a `96` reply, the terminal is not logged in, the message type is unsupported, or a checksum is wrong.

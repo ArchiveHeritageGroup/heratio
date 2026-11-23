@@ -258,6 +258,12 @@ class SourceMigrationPreflight
         ], fn ($v) => $v !== null);
     }
 
+    /** @return list<string> the file's column headings, read the same way preflight reads them */
+    public function headers(string $file): array
+    {
+        return $this->readTable($file)[0];
+    }
+
     /** @return array{0:list<string>,1:list<array>} */
     private function readTable(string $file): array
     {

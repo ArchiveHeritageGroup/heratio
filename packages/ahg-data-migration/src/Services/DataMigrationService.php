@@ -193,6 +193,17 @@ class DataMigrationService
         }
     }
 
+    /** An Excel date cell holds a day serial; the importer needs the date it stands for. */
+    private function excelDateText(int|float $serial): string
+    {
+        $date = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($serial, 'UTC');
+        if ($serial >= 0 && $serial < 1) {
+            return $date->format('H:i:s');
+        }
+
+        return $date->format(floor($serial) == $serial ? 'Y-m-d' : 'Y-m-d H:i:s');
+    }
+
     /**
      * Turn an uploaded file into the one shape the importer reads: a UTF-8,
      * comma-separated CSV with a header row (heratio#1555). XLS/XLSX take the
@@ -208,7 +219,12 @@ class DataMigrationService
             $book = \PhpOffice\PhpSpreadsheet\IOFactory::load($src);
             $sheet = $book->getSheet(max(0, min($sheetIndex, $book->getSheetCount() - 1)));
             $fh = fopen($out, 'w');
-            foreach ($sheet->toArray(null, true, false, false) as $row) {
+            foreach ($sheet->toArray(null, true, false, false) as $r => $row) {
+                foreach ($row as $c => $v) {
+                    if ((is_int($v) || is_float($v)) && \PhpOffice\PhpSpreadsheet\Shared\Date::isDateTime($sheet->getCell([$c + 1, $r + 1]), $v)) {
+                        $row[$c] = $this->excelDateText($v);
+                    }
+                }
                 fputcsv($fh, array_map(fn ($v) => $v === null ? '' : (string) $v, $row));
             }
             fclose($fh);

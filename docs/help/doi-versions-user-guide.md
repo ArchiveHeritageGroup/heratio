@@ -52,7 +52,7 @@ Heratio copies the package and judges every record against its current state: pu
 
 Each export can be used only once per series. For a new version, build a new Portable Export first. The previous version must be released or abandoned before the next can be frozen.
 
-Take care with series built from clipboard exports. Heratio compares only the scope type for these, so it cannot tell that an unrelated clipboard selection does not belong to the series. Check the record list yourself before freezing, because it would be cited under the same concept DOI.
+A series built from a clipboard export has no fixed collection behind it, so Heratio compares the records themselves. A new version must keep at least half of the records in the version before it, and may add or withdraw the rest. A selection that keeps fewer is refused: start a new series for it.
 
 ## Approve and publish
 
@@ -72,13 +72,15 @@ Corrections are published in the next version's changelog, so never enter restri
 
 ## Abandon a version
 
-If a frozen or approved version must not go public, for example because a record in it has since been restricted, open **Abandon this version**, give a reason, tick the confirmation and select **Abandon version**. Its number is never reused, its corrections return to the pending list, and any unpublished draft deposit is deleted. A version whose DOI is already public cannot be abandoned.
+If a frozen or approved version must not go public, for example because a record in it has since been restricted, open **Abandon this version**, give a reason, tick the confirmation and select **Abandon version**. Its number is never reused, its corrections return to the pending list, and any unpublished draft deposit is deleted. A version whose DOI is already public cannot be abandoned, because that DOI is permanent. If publishing stopped after that point and a record has since been restricted, the version's public page stays up with its package withheld. To move on, build an export without the restricted record and freeze the next version. The stopped version keeps its number and is never published.
 
 ## The public page
 
 Each released version has a public page that needs no login, showing how to cite it, its DOIs, what changed, all versions in the series, and links to download the package, manifest and changelog. An older version says that a newer one exists.
 
 Records can change after release. If a released version no longer passes the disclosure checks, its page stays up so the citation remains valid, but the package and change list are withheld pending review.
+
+A later version's change list names a withdrawn record only while that record may still be disclosed. Once it is restricted, the page shows a count instead, and that version's changelog file is withheld because a frozen file cannot be edited.
 
 ## Troubleshooting
 
@@ -88,7 +90,7 @@ A refusal naming DataCite credentials or the prefix `10.12345` means the DOI con
 
 "APP_URL is not a public address" means the site's configured address is local or private. This must be corrected on the server before anything can be approved.
 
-"This export covers a different scope from the series" means you need an export of the same collection, repository or scope type. "This export has already been used" means you should build a fresh one.
+"This export covers a different scope from the series" means you need an export of the same collection or repository, or for a clipboard series, one that keeps at least half of the previous version's records. "This export has already been used" means you should build a fresh one.
 
 If publishing fails partway, the error appears on the version, which stays **Approved**. Fix the cause and select **Retry publishing**. It carries on from the step that failed and does not repeat a completed deposit.
 

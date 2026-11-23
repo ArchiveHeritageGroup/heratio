@@ -128,7 +128,7 @@ class OfflineCirculationController extends Controller
             'rows' => $this->offline->reportQuery(LibraryBranch::operatorBranchId(), $status)->paginate(50)->withQueryString(),
             'status' => $status,
             'statuses' => $statuses,
-            'conflictLabels' => $this->options('library_offline_conflict'),
+            'conflictLabels' => $this->conflictLabels(),
             'actionLabels' => $this->options('library_offline_action'),
             'resolutions' => $this->options('library_offline_resolution'),
             'overridable' => Offline::OVERRIDABLE,
@@ -150,8 +150,17 @@ class OfflineCirculationController extends Controller
         $back = redirect()->route('library.circulation.offline.conflicts');
 
         return $row->status === Offline::CONFLICT
-            ? $back->with('error', __('Still in conflict: :reason', ['reason' => $this->options('library_offline_conflict')[$row->conflict_code] ?? $row->conflict_code]))
+            ? $back->with('error', __('Still in conflict: :reason', ['reason' => $this->conflictLabels()[$row->conflict_code] ?? $row->conflict_code]))
             : $back->with('success', __('Transaction settled.'));
+    }
+
+    /**
+     * ponytail: not_loanable has no ahg_dropdown row because this fix ships
+     * without a data change. A row added later takes precedence over this label.
+     */
+    private function conflictLabels(): array
+    {
+        return $this->options('library_offline_conflict') + ['not_loanable' => 'Item is not for loan'];
     }
 
     private function options(string $taxonomy): array

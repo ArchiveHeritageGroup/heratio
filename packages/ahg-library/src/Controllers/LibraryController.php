@@ -1703,7 +1703,7 @@ class LibraryController extends Controller
 
         $checkoutId = $this->circ->checkout((int) $copyId, (int) $data['patron_id'], \Illuminate\Support\Facades\Auth::id());
         if (!$checkoutId) {
-            return back()->withInput()->with('error', __('Checkout failed - the copy may be unavailable or the patron over limit.'));
+            return back()->withInput()->with('error', __('Checkout failed - the copy may be unavailable or the patron over limit.') . ' ' . __('A loan rule may also mark this item as not for loan.'));
         }
         return redirect()->route('library.patron-view', (int) $data['patron_id'])->with('success', __('Item checked out.'));
     }
