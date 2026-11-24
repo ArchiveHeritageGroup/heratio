@@ -84,7 +84,7 @@ A live demonstration instance, reset every night, is available at **[https://her
 │  Bootstrap 5 - WCAG 2.1 Level AA                        │
 └─────────────────────────────────────────────────────────┘
 
-![Heratio architecture: application layer over MySQL, Fuseki, OpenSearch and Qdrant, with the RiC Explorer graph view and an optional RiC semantic search API](docs/images/heratio-architecture.svg)
+[Heratio architecture: application layer over MySQL, Fuseki, OpenSearch and Qdrant, with the RiC Explorer graph view and an optional RiC semantic search API](docs/images/heratio-architecture.svg)
 ```
 
 Heratio operates alongside the existing AtoM MySQL database. Both application stacks coexist with no code dependency - metadata enriched by Heratio is immediately available through both platforms.
