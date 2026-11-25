@@ -36,6 +36,9 @@ packages/ahg-heritage-manage/resources/views/contribute.blade.php	title-attr	'.e
 packages/ahg-icip/resources/views/partials/ocap-badges.blade.php	title-attr	' . e(__('OCAP: :label', ['label' => $label])) . '
 packages/ahg-ingest/resources/views/preview.blade.php	title-attr	' . htmlspecialchars(__('Has digital object')) . '
 packages/ahg-jobs-manage/src/Controllers/JobController.php	flash	{$count} inactive job(s) cleared.
+packages/ahg-library/resources/views/authority/_hierarchy.blade.php	placeholder	sh85034652
+packages/ahg-portable-export/resources/views/releases/index.blade.php	placeholder	https://sandbox.zenodo.org
+packages/ahg-portable-export/resources/views/releases/landing.blade.php	text	{{…}} ({{…}}). {{…}} (v{{…}}). {{…}}. https://doi.org/{{…}}
 packages/ahg-portable-export/src/Controllers/PortableExportController.php	flash	This export was written to a folder on the server:
 packages/ahg-rdm/src/Controllers/DatasetController.php	flash	Deposit failed:
 packages/ahg-rdm/src/Controllers/DatasetController.php	flash	Deposited {$r['stored']} file(s)
@@ -84,6 +87,8 @@ packages/ahg-settings/resources/views/themes.blade.php	text	rem
 packages/ahg-settings/resources/views/themes.blade.php	text	{{…}}rem
 packages/ahg-settings/resources/views/themes.blade.php	text	{{…}}rem
 packages/ahg-settings/resources/views/themes.blade.php	text	{{…}}rem
+packages/ahg-settings/resources/views/voice-ai-settings.blade.php	placeholder	/ai/v1/audio/transcriptions
+packages/ahg-settings/resources/views/voice-ai-settings.blade.php	placeholder	whisper-large-v3
 packages/ahg-settings/resources/views/voice-ai-settings.blade.php	text	isiXhosa
 packages/ahg-settings/resources/views/voice-ai-settings.blade.php	text	isiZulu
 packages/ahg-theme-b5/resources/views/layouts/print.blade.php	heading	@yield('record-title')

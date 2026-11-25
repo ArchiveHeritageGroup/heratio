@@ -4,7 +4,7 @@
 
 @section('content')
 @php($signed = $stocktake->status === 'signed_off')
-<nav aria-label="breadcrumb"><ol class="breadcrumb">
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb">
   <li class="breadcrumb-item"><a href="{{ route('library.stocktake.index') }}">{{ __('Stocktake') }}</a></li>
   <li class="breadcrumb-item active">{{ $stocktake->name }}</li>
 </ol></nav>
