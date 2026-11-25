@@ -485,7 +485,8 @@
               {{-- Thumbnail --}}
               <td class="col-thumb text-center">
                 @if($objThumb)
-                  <a href="{{ $objUrl }}">
+                  {{-- Same target as the title link in the next cell: hidden from screen readers and Tab so it is not an unnamed duplicate link (axe link-name). --}}
+                  <a href="{{ $objUrl }}" tabindex="-1" aria-hidden="true">
                     <img src="{{ $normalizeBrowseImageUrl($objThumb) }}" alt="" class="browse-thumb-lg" loading="lazy">
                   </a>
                 @else
