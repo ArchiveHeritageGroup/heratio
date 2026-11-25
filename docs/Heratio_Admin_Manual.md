@@ -567,6 +567,8 @@ Every create, update, delete operation is logged with:
 
 **View:** Admin > Audit Trail
 
+**Append-only triggers.** Two database triggers (`ahg_audit_log_no_update_chained` and `ahg_audit_log_no_delete_chained`) stop chained audit rows from being changed or deleted. Heratio creates a missing one when it starts. Where binary logging is on and the database user is not SUPER, MySQL refuses this (error 1419). Heratio then logs the warning "ahg-audit-trail: could not create ..." in the Laravel log and tries again an hour later. The site keeps working. To fix it, create the triggers once as a MySQL user that may, from `packages/ahg-audit-trail/database/install-trigger.sql` (in the `mysql` client, wrap each `CREATE TRIGGER ... END` in `DELIMITER $$`), or set `log_bin_trust_function_creators=1`.
+
 ### 5.3 Error Log
 
 **View:** Admin > AHG Settings > Error Log

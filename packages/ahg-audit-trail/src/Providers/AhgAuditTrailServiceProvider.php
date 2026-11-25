@@ -27,7 +27,9 @@ namespace AhgAuditTrail\Providers;
 
 use AhgAuditTrail\Services\AuditService;
 use AhgAuditTrail\Services\ChainedAuditWriter;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
@@ -85,9 +87,24 @@ class AhgAuditTrailServiceProvider extends ServiceProvider
                 if (!Schema::hasColumn('ahg_audit_log', 'seq')) {
                     $this->runSqlFile(__DIR__.'/../../database/install-chain.sql');
                 }
-                if (!$this->triggerExists('ahg_audit_log_no_update_chained')
-                    || !$this->triggerExists('ahg_audit_log_no_delete_chained')) {
-                    $this->runSqlFileUnprepared(__DIR__.'/../../database/install-trigger.sql');
+                // Create only the triggers that are missing, never drop one that exists, and
+                // after a failure wait an hour. Where the app's DB user may not create triggers
+                // (binlog on, not SUPER) the old drop-then-create on every request removed a
+                // working trigger and queued every request on the table's metadata lock
+                // (ANC, 25 Nov 2026).
+                $missing = array_values(array_filter(
+                    ['ahg_audit_log_no_update_chained', 'ahg_audit_log_no_delete_chained'],
+                    fn (string $t) => ! $this->triggerExists($t)
+                ));
+                if ($missing && ! Cache::has('ahg_audit_trigger_install_failed')) {
+                    try {
+                        $this->runSqlFileUnprepared(__DIR__.'/../../database/install-trigger.sql', $missing);
+                    } catch (\Throwable $e) {
+                        Cache::put('ahg_audit_trigger_install_failed', true, 3600);
+                        Log::warning('ahg-audit-trail: could not create '.implode(', ', $missing).': '.$e->getMessage()
+                            .' - create them as a MySQL user allowed to (SUPER, or log_bin_trust_function_creators=1 when binlog is on)'
+                            .' from packages/ahg-audit-trail/database/install-trigger.sql. Next try in an hour.');
+                    }
                 }
                 // Issue #676 Phase 6 - tenant_id column + composite index for
                 // tenant-scoped reports. Same schema-probe pattern so a fresh
@@ -135,8 +152,14 @@ class AhgAuditTrailServiceProvider extends ServiceProvider
      * rejects. Issue the whole file via unprepared() but still split into
      * single statements (CREATE TRIGGER ... END; / DROP TRIGGER ...) so each
      * trigger lands as one server-side statement.
+     *
+     * Only the CREATE TRIGGER statements for $only run. The file's DROPs are
+     * skipped: the named triggers are missing anyway, and dropping one that
+     * exists is how a working trigger got lost when the CREATE then failed.
+     *
+     * @param  string[]  $only  trigger names to create
      */
-    private function runSqlFileUnprepared(string $path): void
+    private function runSqlFileUnprepared(string $path, array $only): void
     {
         $sql = (string) file_get_contents($path);
         $lines = preg_split('/\r?\n/', $sql) ?: [];
@@ -157,7 +180,7 @@ class AhgAuditTrailServiceProvider extends ServiceProvider
         $parts = preg_split('/;\s*\n(?=(DROP\s+TRIGGER|CREATE\s+TRIGGER|$))/i', $stripped) ?: [];
         foreach ($parts as $stmt) {
             $stmt = trim(rtrim($stmt, ";\n\r\t "));
-            if ($stmt === '') {
+            if (! preg_match('/^CREATE\s+TRIGGER\s+`?(\w+)`?/i', $stmt, $m) || ! in_array($m[1], $only, true)) {
                 continue;
             }
             DB::unprepared($stmt);
