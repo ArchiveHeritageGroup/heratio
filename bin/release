@@ -2,12 +2,17 @@
 #===============================================================================
 # AtoM Heratio - Release Script
 #===============================================================================
-# Usage: ./bin/release patch|minor|major "commit message" [--issue N]
+# Usage: ./bin/release patch|minor|major "commit message" [--issue N] [--staged]
 #
 # Examples:
 #   ./bin/release patch "Fix user browse GROUP_CONCAT"
 #   ./bin/release minor "Phase 4: Admin & Settings" --issue 42
 #   ./bin/release patch "Bug fixes" --issue 15,16,17
+#   git add <files> && ./bin/release patch "Fix X" --staged
+#
+# --staged commits only what is already staged (plus the version bump and its
+# session log) and leaves every other change in the working tree alone. Use it
+# while another job is writing files, e.g. the daily translation run on lang/.
 #===============================================================================
 set -e
 
@@ -15,6 +20,7 @@ TYPE=${1:-patch}
 MSG=${2:-"Bug fixes and improvements"}
 ISSUE_ARG=""
 INCLUDE_DRIFT=0
+STAGED_ONLY=0
 
 # Parse --issue argument
 for arg in "$@"; do
@@ -24,6 +30,8 @@ for arg in "$@"; do
         ISSUE_ARG="$arg"
     elif [[ "$arg" == "--include-drift" ]]; then
         INCLUDE_DRIFT=1
+    elif [[ "$arg" == "--staged" ]]; then
+        STAGED_ONLY=1
     fi
 done
 
@@ -83,7 +91,7 @@ case $TYPE in
     patch) PATCH=$((PATCH + 1)) ;;
     minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
     major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
-    *) echo "Usage: ./bin/release patch|minor|major \"message\" [--issue N]"; exit 1 ;;
+    *) echo "Usage: ./bin/release patch|minor|major \"message\" [--issue N] [--staged]"; exit 1 ;;
 esac
 
 NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
@@ -176,7 +184,12 @@ fi
 RELEASE_EXCLUDE=${RELEASE_EXCLUDE-"composer.json composer.lock"}
 [[ "$INCLUDE_DRIFT" == "1" ]] && RELEASE_EXCLUDE=""
 
-git add -A
+if [[ "$STAGED_ONLY" == "1" ]]; then
+    git add -- "$VERSION_FILE"
+    echo -e "${YELLOW}--staged: releasing staged files only; other changes stay uncommitted${NC}"
+else
+    git add -A
+fi
 
 EXCLUDED=""
 for _p in $RELEASE_EXCLUDE; do

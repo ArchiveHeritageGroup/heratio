@@ -36,9 +36,11 @@ class PublishPackageTest extends TestCase
 {
     use DatabaseTransactions;
 
-    private string $root;
+    // Empty until setUp() gets past its skip checks: a skipped test (CI has no
+    // ffmpeg) still runs tearDown(), which must not touch unset folders.
+    private string $root = '';
 
-    private string $out;
+    private string $out = '';
 
     protected function setUp(): void
     {
@@ -61,7 +63,9 @@ class PublishPackageTest extends TestCase
 
     protected function tearDown(): void
     {
-        shell_exec('rm -rf '.escapeshellarg($this->root).' '.escapeshellarg($this->out));
+        if ($this->root !== '') {
+            shell_exec('rm -rf '.escapeshellarg($this->root).' '.escapeshellarg($this->out));
+        }
         AhgSettingsService::clearCache();
         parent::tearDown();
     }

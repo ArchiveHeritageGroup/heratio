@@ -279,8 +279,9 @@
       @endif
       @endauth
     </div>
-    @php return; @endphp
-  @endif
+  {{-- No early return here: it would end the view before @endsection, so the
+       page went out without the layout, theme or styles. --}}
+  @else
 
   {{-- Document Info Card --}}
   <div class="card doc-info-card border-0 shadow-sm mb-3">
@@ -430,6 +431,7 @@
     </div>
 
   </div>
+  @endif
 
 </div>
 @endsection
