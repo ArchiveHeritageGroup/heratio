@@ -73,3 +73,12 @@ docs/assets
 **/llama.cpp/
 **/whisper.cpp/
 **/transformers_cache/
+
+# ─── Host-side state and secrets - must NEVER enter the image ─────────────────
+# docker/persist holds a deployment's .env (APP_KEY, DB password) and install
+# marker, bind-mounted at runtime. It is root-only on some hosts, so including
+# it also breaks the build ("open docker/persist: permission denied", ANC 25 Nov
+# 2026). Any .env below the root is a secret too.
+docker/persist
+**/.env
+**/.env.*
