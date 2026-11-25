@@ -48,7 +48,7 @@ class RicOccupationController extends Controller
         if ($q !== '') {
             $query->where(function ($w) use ($q) {
                 $w->where('ric_occupation.title', 'like', "%{$q}%")
-                  ->orWhere('actor_i18n.authorized_form_of_name', 'like', "%{$q}%");
+                  ->orWhere(I18nFallback::col('actor_i18n', 'authorized_form_of_name'), 'like', "%{$q}%");
             });
         }
 

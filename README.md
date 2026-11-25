@@ -2,7 +2,7 @@
 
 **Open-source GLAM and archival management software. Describe, preserve and publish the collections of archives, museums, libraries and galleries in one system, with Records in Contexts (RiC) as a first-class capability. Free under the GNU AGPL-3.0 licence.**
 
-Live demo and guided tour: [heratio.org](https://heratio.org) - Contribute: [CONTRIBUTING.md](CONTRIBUTING.md)
+Live demo and guided tour: [heratio.org](https://heratio.org) - Contribute: [CONTRIBUTING.md](CONTRIBUTING.md) - How we use AI: [AI-STATEMENT.md](AI-STATEMENT.md)
 
 A modern, self-hostable alternative to legacy archival and museum software such as AtoM and ArchivesSpace, built for the international GLAM market.
 
@@ -16,7 +16,7 @@ A modern, self-hostable alternative to legacy archival and museum software such 
 
 ## Overview
 
-Heratio is a pure Laravel 12 application designed and developed by **[The Archive and Heritage Digital Commons Group (Pty) Ltd (The AHG)](https://www.theahg.co.za)**. It unifies archival description, museum collections management, digital asset management, digital preservation, and records management on a single standards-based stack (PHP 8.3, MySQL 8, Elasticsearch 8).
+Heratio is a pure Laravel 12 application built by **Plain Sailing Information Systems (PSIS)** and supported by **[The Archive and Heritage Group (AHG)](https://www.theahg.co.za)**. It unifies archival description, museum collections management, digital asset management, digital preservation, and records management on a single standards-based stack (PHP 8.3, MySQL 8, OpenSearch or Elasticsearch).
 
 Heratio supports galleries, libraries, archives, and museums of any size, and universities managing special collections, institutional archives, and research data together. It is built for the international GLAM market: the core is jurisdiction-neutral, and country-specific compliance (for example GRAP 103, POPIA, GDPR, IPSAS) ships as pluggable per-market modules rather than baked into the core.
 
@@ -26,7 +26,7 @@ Supported standards include ISAD(G), ISAAR(CPF), ISDIAH, Records in Contexts (Ri
 
 The RiC-native semantic framework, documentation, and ecosystem is centralised under **[OpenRiC](https://openric.org)**.
 
-A live demonstration instance, reset every night, is available at **[https://heratio.org](https://heratio.org)**, with a [guided tour](https://heratio.org/solutions/tour) and a [list of every capability](https://heratio.org/solutions/capabilities) marked released, preview or planned.
+A live demonstration instance, reset every Sunday, is available at **[https://heratio.org](https://heratio.org)**, with a [guided tour](https://heratio.org/solutions/tour) and a [list of every capability](https://heratio.org/solutions/capabilities) marked released, preview or planned.
 
 ---
 
@@ -37,13 +37,17 @@ A live demonstration instance, reset every night, is available at **[https://her
 - Plugin architecture with modular packages for every functional domain
 - Role-based access controls and institutional deployment support
 - Import/export flows and digital object management
+- Library management: cataloguing, circulation with loan rules, holds, fines and a cash desk, offline circulation, stocktake and a public catalogue (OPAC) (`ahg-library`)
+- Portable exports: offline packages of a collection that apply the same disclosure rules as the public site, with expiring share links (`ahg-portable-export`)
+- Versioned DOI releases for datasets and collections (`ahg-doi-manage`)
+- Source migration: import from spreadsheets and other systems with field mapping and validation (`ahg-data-migration`)
 - Archivematica connector for digital preservation - two-way transfer/DIP round-trip ([setup + crons](docs/help/archivematica-setup-and-crons.md), [install](docs/standalone-install-howto.md))
 
 ### AI-Assisted Metadata Enrichment
 - NLP-based Named Entity Recognition (NER) pipeline extracts persons, organisations, dates, locations, and subjects
 - Extracted entities mapped to archival description fields and authority records
 - Human-in-the-loop review - AI suggestions presented for archivist approval before committing
-- Model-agnostic architecture supports locally hosted models via Ollama, ensuring data sovereignty under POPIA
+- Model-agnostic architecture supports locally hosted models via Ollama, so records need not leave the institution's control, as POPIA, GDPR and similar laws expect
 
 ### RiC - First-Class Contextual Mode
 - Dual-view on every major entity page: traditional archival view and RiC contextual view
@@ -51,7 +55,7 @@ A live demonstration instance, reset every night, is available at **[https://her
 - Automatic sync to Apache Jena Fuseki triplestore
 - SPARQL endpoint queryable by external systems
 - JSON-LD / RDF outputs and multi-standard export (EAD3, EAC-CPF, Turtle, RDF/XML)
-- Semantic search across the archival graph (Qdrant vector search + Elasticsearch)
+- Semantic search across the archival graph (Qdrant vector search + OpenSearch)
 - EAD/ISAD to RiC-O mapping
 - Integrity checking, orphan management, and provenance tracking
 
@@ -71,27 +75,15 @@ A live demonstration instance, reset every night, is available at **[https://her
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  Heratio (Laravel 12 / PHP 8.3) - Application Layer     │
-├──────────────┬──────────────┬────────────┬──────────────┤
-│  MySQL       │  Fuseki      │ Elastic    │  Qdrant      │
-│  Archival DB │  RiC-O graph │ Full-text  │  Semantic    │
-│  (AtoM-      │  17.9M+      │ search     │  search      │
-│  compatible) │  triples     │            │              │
-├──────────────┴──────────────┴────────────┴──────────────┤
-│  RiC Explorer - Graph visualization (Flask/Cytoscape.js) │
-│  Bootstrap 5 - WCAG 2.1 Level AA                        │
-└─────────────────────────────────────────────────────────┘
-```
+![Heratio architecture: application layer over MySQL, Fuseki, OpenSearch and Qdrant, with the RiC Explorer graph view and an optional RiC semantic search API](docs/images/heratio-architecture.svg)
 
-Heratio operates alongside the existing AtoM MySQL database. Both application stacks coexist with no code dependency - metadata enriched by Heratio is immediately available through both platforms.
+Heratio has its own database. Because it uses the Qubit schema that AtoM uses, it can also be installed over an existing AtoM database without losing the catalogue (Scenario 1 below).
 
 ---
 
 ## Package Architecture
 
-Heratio uses a monorepo plugin architecture:
+Heratio is a monorepo of 121 packages, one per functional domain. A selection:
 
 ```
 packages/
@@ -110,6 +102,12 @@ packages/
 ├── ahg-settings/              - Settings dashboard (admin)
 ├── ahg-jobs-manage/           - Jobs browse/show (admin)
 ├── ahg-iiif-collection/       - IIIF Collection management
+├── ahg-library/               - Library cataloguing, circulation, fines, OPAC
+├── ahg-research/              - Research portal: bookings, seats, access requests
+├── ahg-ric/                   - Records in Contexts entities and graph
+├── ahg-records-manage/        - File plans, retention and disposal
+├── ahg-portable-export/       - Offline packages and share links
+├── ahg-data-migration/        - Import from other systems
 └── ...                        - Additional domain packages
 ```
 
@@ -139,7 +137,7 @@ At the AtoM Foundation AGM in September 2026, members put their wishes for the p
 | Custom metadata fields beyond RAD and ISAD(G), carried into PDF finding aids and exports | Admin-defined fields on every description form and page, in the PDF finding aid, EAD 2002 and EAD3, Dublin Core, MODS and CSV; a field can be kept out of exports (`ahg-custom-fields`) |
 | Compliance with new standards: CAAIS | A CAAIS 1.0 accession profile: structured extent, source confidentiality, language of material, preservation requirements, custody and legal-transfer events, revision log, and a CAAIS export (`ahg-accession-manage`) |
 | IIIF integration | IIIF Image API 3 through Cantaloupe, deep zoom, IIIF collections and manifests, and a choice of Mirador, Universal Viewer or OpenSeadragon |
-| Search improvements | Elasticsearch keyword search, semantic and thesaurus-expanded search, and a discovery layer (`ahg-search`, `ahg-semantic-search`, `ahg-discovery`) |
+| Search improvements | OpenSearch or Elasticsearch keyword search, semantic and thesaurus-expanded search, and a discovery layer (`ahg-search`, `ahg-semantic-search`, `ahg-discovery`) |
 | Provenance | Provenance records on descriptions, AI-inference provenance as PROV-O, C2PA signing of digital objects (`ahg-provenance-ai`, `ahg-c2pa`) |
 | A sandbox or testing environment | A one-command Docker test stack and a VM provisioner (`docker/`, `bin/heratio-vm.sh`) |
 | Analytics and SEO | Usage statistics, `sitemap.xml` and `robots.txt` (`ahg-statistics`) |
@@ -189,7 +187,7 @@ The wishes Heratio does not fully meet yet. Each has an open issue, and this lis
 
 ## Requirements
 
-Every release tag is installed from scratch in CI on Ubuntu 24.04 with **PHP 8.3, MySQL 8.0 and Elasticsearch 8.13**, and the installed site must serve its home, sign-in and browse pages (the "Clean install" badge above). Those are the tested versions; the other versions in the table are expected to work but are not tested on every release. Only the latest release receives fixes - see [SECURITY.md](SECURITY.md#supported-versions).
+Every release tag is installed from scratch in CI on Ubuntu 24.04 with **PHP 8.3, MySQL 8.0 and OpenSearch 3.4**, and the installed site must serve its home, sign-in and browse pages (the "Clean install" badge above). Those are the tested versions; the other versions in the table are expected to work but are not tested on every release. Only the latest release receives fixes - see [SECURITY.md](SECURITY.md#supported-versions).
 
 | Requirement | Version | Notes |
 |---|---|---|
@@ -197,7 +195,8 @@ Every release tag is installed from scratch in CI on Ubuntu 24.04 with **PHP 8.3
 | Laravel | 12 | bundled in `composer.json` |
 | MySQL / MariaDB | 8.0+ / 10.3+ | utf8mb4 |
 | Nginx | 1.18+ | Apache works too |
-| Elasticsearch | 7.x or 8.x | prefix `heratio_` |
+| OpenSearch or Elasticsearch | OpenSearch 3.4 (recommended, tested) or Elasticsearch 7.x / 8.x | same API; index prefix `heratio_` |
+| Cantaloupe | 5.x | optional, IIIF deep-zoom image server |
 | Apache Jena Fuseki | 4.10+ | optional, for RiC SPARQL endpoint |
 | Ollama | Latest stable | optional, remote - never bundled |
 | html2canvas | 1.4.1 | bundled at `public/vendor/html2canvas/1.4.1/` (CSP/offline-safe); powers the "Download PNG" button on the Museum-procedures label page. |
@@ -248,13 +247,13 @@ Full guide: [`docs/overlay-install-howto.md`](docs/overlay-install-howto.md)
 
 ### Scenario 2 - Standalone clean install
 
-For a fresh deployment with no AtoM. `bin/install` is a 14-stage idempotent installer: preflight → composer → npm build → `.env` + `key:generate` → create DB → core schema (`database/core/`) → plugin schema (`heratio:install-bootstrap`) → seeds (`database/seeds/`) → sector site profile → admin user → **package migrations (`artisan migrate --force`)** → storage paths → Elasticsearch reindex → GLAM browse facet cache → nginx config → smoke test. Install the OS prerequisites first (PHP 8.3, MySQL 8, nginx, Redis, Node, Elasticsearch - see the how-to §3). (`bin/install-host-tools.sh` is separate: it installs the optional 3D / provenance tools only.)
+For a fresh deployment with no AtoM. `bin/install` is a 14-stage idempotent installer: preflight → composer → npm build → `.env` + `key:generate` → create DB → core schema (`database/core/`) → plugin schema (`heratio:install-bootstrap`) → seeds (`database/seeds/`) → sector site profile → admin user → **package migrations (`artisan migrate --force`)** → storage paths → search reindex → GLAM browse facet cache → nginx config → smoke test. Install the OS prerequisites first (PHP 8.3, MySQL 8, nginx, Redis, Node, OpenSearch or Elasticsearch - see the how-to §3). (`bin/install-host-tools.sh` is separate: it installs the optional 3D / provenance tools only.)
 
 Full step-by-step guide: [`docs/standalone-install-howto.md`](docs/standalone-install-howto.md). (The original design doc is [`docs/standalone-install-plan.md`](docs/standalone-install-plan.md).)
 
 ### Scenario 3 - Docker test stack
 
-A self-contained Compose stack - PHP 8.3 + nginx + MySQL 8 + Elasticsearch 8 - for clients, laptops, CI, throwaway evaluations, and libvirt VMs. Cantaloupe (IIIF) and Ollama (AI) stay external by design.
+A self-contained Compose stack - PHP 8.3 + nginx + MySQL 8 + OpenSearch 3.4 - for clients, laptops, CI, throwaway evaluations, and libvirt VMs. Cantaloupe (IIIF) and Ollama (AI) stay external by design.
 
 **AI / model policy:** The Heratio image contains **no model weights or AI runtimes**. Heratio is an AI client - HTR, NER, condition scan, and semantic search call out via HTTP to a separate Ollama / vLLM host you operate. The image is fully public on GHCR; nothing in Heratio itself is private. The `Dockerfile` asserts the AI-free invariant at build time and refuses to build if any model artefact is detected in the build context.
 
@@ -277,7 +276,7 @@ Use a tag from [Releases](https://github.com/ArchiveHeritageGroup/heratio/releas
 The installer:
 1. Downloads `docker-compose.client.yml` and `.env.docker.example` into `./heratio/`
 2. Prompts for admin email + password + DB passwords + host port (on the terminal, so it works through `curl ... | bash`). Without a terminal it writes `.env.docker` and stops: set the three passwords there and run it again
-3. Sets `vm.max_map_count` if running as root (Elasticsearch requires it)
+3. Sets `vm.max_map_count` if running as root (OpenSearch requires it)
 4. `docker compose pull && up -d` - typical install completes in 30-60 s after the image is local
 5. On a first install only, asks whether to send one **opt-in, anonymous** install ping (default No): the Heratio version, the CPU architecture and a random install ID. No hostname, organisation, email or data is sent, and the receiving server does not store your IP address. It is skipped without asking when there is no terminal, when `CI` is set, or with `HERATIO_NO_PING=1`. A failed ping never affects the install. See [docker/README.md](docker/README.md#install-ping).
 
@@ -297,11 +296,11 @@ docker compose -f docker/docker-compose.yml --env-file docker/.env.docker up -d 
 docker compose -f docker/docker-compose.yml logs -f heratio
 ```
 
-First boot runs `docker/init.sh` which mirrors the standalone-install pipeline inside the container: generates `.env`, runs `key:generate`, loads `database/core/*.sql`, runs `heratio:install-bootstrap` passes 1+2, loads seeds, creates the admin user, and creates the `heratio_*` Elasticsearch indices. A marker at `storage/.heratio-installed` makes subsequent boots skip the schema/seed work.
+First boot runs `docker/init.sh` which mirrors the standalone-install pipeline inside the container: generates `.env`, runs `key:generate`, loads `database/core/*.sql`, runs `heratio:install-bootstrap` passes 1+2, loads seeds, creates the admin user, and creates the `heratio_*` search indices. A marker at `storage/.heratio-installed` makes subsequent boots skip the schema/seed work.
 
 Once the `heratio` container reports `healthy`, browse to `http://<host>:8088/` and log in.
 
-**Reset everything (drops MySQL + ES + uploads volumes):**
+**Reset everything (drops MySQL + search + uploads volumes):**
 
 ```bash
 docker compose -f docker/docker-compose.yml down -v
@@ -379,15 +378,15 @@ Heratio is released under the [GNU Affero General Public License v3.0 (AGPL-3.0)
 
 ## Authors and Credits
 
-Heratio is the brainchild of **Johan Pieterse**, conceived and architected as the operational platform for AI-assisted archival, records, and digital asset management. The AI subsystems and platform were built by:
+Heratio is the brainchild of **Dr Johan Pieterse**, conceived and architected as the operational platform for AI-assisted archival, records, and digital asset management. The AI subsystems and platform were built by:
 
-- **Johan Pieterse** - concept, architecture, platform lead
+- **Dr Johan Pieterse** - concept, architecture, platform lead
 - **Renaldo Venter** - AI engineering
 - **Stefan du Toit** - AI engineering
 
 ### Acknowledgement - AtoM (Access to Memory) and the Qubit framework
 
-Heratio runs against the **Qubit schema** originally created for **AtoM (Access to Memory)** by **[Artefactual Systems Inc.](https://www.artefactual.com)** (Copyright © 2006–2014, Artefactual Systems Inc., licensed under the GNU Affero General Public License v3.0 - see [https://www.accesstomemory.org](https://www.accesstomemory.org)).
+Heratio runs against the **Qubit schema** originally created for **AtoM (Access to Memory)** by **[Artefactual Systems Inc.](https://www.artefactual.com)** (Copyright © 2006-2014, Artefactual Systems Inc., licensed under the GNU Affero General Public License v3.0 - see [https://www.accesstomemory.org](https://www.accesstomemory.org)).
 
 AtoM remains a foundational contribution to the open-source archival software ecosystem. Heratio's data model, descriptive standards (ISAD(G), ISAAR(CPF), ISDIAH, ISDF), class-table inheritance, and many cataloguing patterns derive directly from AtoM's design. Heratio is a Laravel-based platform built on top of that schema; it is not a fork of AtoM and contains no AtoM source code, but its existence depends on Artefactual's two decades of standards work, and that contribution is gratefully acknowledged.
 
@@ -424,8 +423,8 @@ If you use Heratio in your research, please cite:
 
 ## Contact
 
-**The Archive and Heritage Digital Commons Group (Pty) Ltd**
-Johan Pieterse - johan@theahg.co.za
+**The Archive and Heritage Group (AHG)**, supporting Heratio, which is built by Plain Sailing Information Systems (PSIS)
+Dr Johan Pieterse - johan@theahg.co.za
 
 ---
 

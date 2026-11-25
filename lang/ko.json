@@ -27699,5 +27699,6 @@
     "Choose an image or describe what you are looking for.": "사진을 선택하거나 찾고 있는 내용을 설명해 주세요.",
     "Image search is not available right now. Please try again later.": "사진 검색 기능이 현재 사용할 수 없습니다. 나중에 다시 시도해 주세요.",
     "This record is under an active legal hold (hold #:hold), so it cannot be deleted.": "이 기록은 활성 중인 법적 보류 (보류 #:hold) 상태이므로 삭제할 수 없습니다.",
-    "One frame is checked for faces every this many seconds of video.": "영상의 이 많은 초마다 프레임 하나가 얼굴을 확인합니다."
+    "One frame is checked for faces every this many seconds of video.": "영상의 이 많은 초마다 프레임 하나가 얼굴을 확인합니다.",
+    ":staged held string(s) staged for review; :skipped skipped; :unknown unknown id(s).": ":staged 검토를 위한 문자열(s)이 배치됨; :skipped 건너뜀; :unknown 알 수 없는 ID(s)입니다."
 }

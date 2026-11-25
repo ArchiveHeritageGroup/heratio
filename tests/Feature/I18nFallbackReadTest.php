@@ -136,6 +136,22 @@ class I18nFallbackReadTest extends TestCase
         $this->assertSame(['ZZ only English', 'ZZ ook Afrikaans'], $rows, 'one row per term, no duplicates');
     }
 
+    /** Model queries use the helper too (the RiC occupations list returned 500 before). */
+    public function test_helper_accepts_an_eloquent_query(): void
+    {
+        $a = $this->term(self::SUBJECTS, 'ZZ eloquent English');
+        $model = new class extends \Illuminate\Database\Eloquent\Model
+        {
+            protected $table = 'term';
+        };
+
+        $name = $model->newQuery()
+            ->tap(fn ($q) => I18nFallback::join($q, 'term_i18n', 'term.id', 'af'))
+            ->where('term.id', $a)
+            ->first([I18nFallback::col('term_i18n', 'name', 'name')]);
+        $this->assertSame('ZZ eloquent English', $name?->name);
+    }
+
     public function test_the_record_page_shows_english_title_creators_subjects_and_places(): void
     {
         $c = $this->catalogue();

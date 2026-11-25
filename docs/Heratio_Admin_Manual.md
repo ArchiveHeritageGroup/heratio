@@ -166,7 +166,7 @@ Controls the background job system.
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
 | Enable Jobs | Toggle | On | Master switch for background job processing. When off, all tasks run synchronously. |
-| Max Concurrent | Number | 2 | Maximum jobs running simultaneously. Range: 1–10. Higher values need more server resources. |
+| Max Concurrent | Number | 2 | Maximum long jobs (medium or long, or taking over a minute) started in the background in the same minute. Short jobs run one after another and do not count, so frequent checks are never held back. Jobs held back run first the next minute. Range: 1-10. Higher values need more server resources. |
 | Timeout | Seconds | 3600 | Maximum time a single job can run before being killed. Range: 60–86400 (1 min to 24 hours). |
 | Retry Attempts | Number | 3 | How many times a failed job is retried. Range: 0–10. |
 | Cleanup After | Days | 30 | Completed jobs are deleted from the database after this many days. Range: 1–365. |

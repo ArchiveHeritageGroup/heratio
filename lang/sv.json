@@ -27892,5 +27892,6 @@
     "Full ingest URL": "Full ingest-URL",
     "Ingest host": "Ingest-host",
     "Ingest port (RTMP)": "Ingest-port (RTMP)",
-    ":corrected corrected and :accepted accepted; :refused refused (placeholders do not match the English).": ":corrected korrektions och :accepted accepterade; :refused avslagna (plats hållare matchar inte engelska)."
+    ":corrected corrected and :accepted accepted; :refused refused (placeholders do not match the English).": ":corrected korrektions och :accepted accepterade; :refused avslagna (plats hållare matchar inte engelska).",
+    "Counted at :time.": "Räknat vid :time."
 }

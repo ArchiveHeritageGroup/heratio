@@ -33,6 +33,7 @@
 namespace AhgCore\Support;
 
 use Illuminate\Contracts\Database\Query\Expression as ExpressionContract;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -54,12 +55,12 @@ final class I18nFallback
      *                          (the old inner-join semantics, satisfied by the fallback)
      */
     public static function join(
-        Builder $query,
+        Builder|EloquentBuilder $query,
         string $i18nTable,
         string $parentKey,
         ?string $culture = null,
         bool $required = false
-    ): Builder {
+    ): Builder|EloquentBuilder {
         [$table, $alias] = self::splitAlias($i18nTable);
         $fb = $alias . '_fb';
         $culture = $culture ?? (string) app()->getLocale();

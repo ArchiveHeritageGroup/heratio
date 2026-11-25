@@ -346,7 +346,7 @@ class DoiController extends Controller
             ->join('information_object', 'ahg_doi.information_object_id', '=', 'information_object.id')
             ->tap(fn ($q) => I18nFallback::join($q, 'repository_i18n', 'information_object.repository_id', $culture))
             ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n', 'information_object.repository_id', $culture))
-            ->selectRaw("COALESCE(actor_i18n.authorized_form_of_name, '[No repository]') as repository_name")
+            ->selectRaw("COALESCE(COALESCE(actor_i18n.authorized_form_of_name, actor_i18n_fb.authorized_form_of_name), '[No repository]') as repository_name")
             ->selectRaw('COUNT(ahg_doi.id) as doi_count')
             ->groupByRaw("COALESCE(COALESCE(actor_i18n.authorized_form_of_name, actor_i18n_fb.authorized_form_of_name), '[No repository]')")
             ->orderByDesc('doi_count')

@@ -27781,5 +27781,6 @@
     "More like this": "Plus d'images similaires",
     "Choose an image or describe what you are looking for.": "Choisissez une image ou décrivez ce que vous cherchez.",
     "Image search is not available right now. Please try again later.": "La recherche d'images n'est pas disponible pour le moment. Veuillez réessayer plus tard.",
-    "Machine translation into :lang is not available yet. Translate this field by hand.": "La traduction automatique en :lang n'est pas disponible pour le moment. Traduisez ce champ à la main."
+    "Machine translation into :lang is not available yet. Translate this field by hand.": "La traduction automatique en :lang n'est pas disponible pour le moment. Traduisez ce champ à la main.",
+    "One frame is checked for faces every this many seconds of video.": "Une image est vérifiée pour les visages toutes ces secondes de vidéo."
 }

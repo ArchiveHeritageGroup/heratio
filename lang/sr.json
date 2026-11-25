@@ -27810,5 +27810,9 @@
     "Drawn on images": "Цртани на слици",
     "Authority record slug or id (optional)": "Слаг или идентификатор ауторитетског записа (по избору)",
     "With an authority record, every confirmed face adds it to the record as a name access point.": "Са ауторитетским записом, сваки потврђен лик додаје је у запис као тачку приступа имена.",
-    "Reference: :n interface strings in the code.": "Референца: :n интерфејсни низови у коду."
+    "Reference: :n interface strings in the code.": "Референца: :n интерфејсни низови у коду.",
+    "This is a declared record: its description and files are read-only.": "Ово је изјављен запис: његова опис и датотеке су само за читање.",
+    "not available on this server": "Немогуће на овом серверу",
+    "trimmed": "обрани",
+    "Trim to the platform's longest allowed length when the clip is longer (otherwise that platform is refused)": "Обрани до најдужег дозвољеног дужине платформе када клип није дужи (инако та платформа је одбијена)"
 }

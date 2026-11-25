@@ -28060,5 +28060,6 @@
     "(Symfony) installation, over the same AtoM database. Your original AtoM stays intact and fully functional, and the overlay is": "(Symfony) การติดตั้ง บนฐานข้อมูล AtoM เดียวกัน ฐานข้อมูล AtoM เดิมของคุณยังคงทำงานได้อย่างสมบูรณ์ และการทับซ้อนนี้",
     "Build a CQL query using field prefixes": "สร้างคิวเอล (CQL) โดยใช้คำนำหน้าของฟิลด์",
     "Authority record slug or id (optional)": "ชื่อสไลด์หรือ ID ของบันทึกความมั่นคง (เลือกได้)",
-    "No authority record with that id or slug.": "ไม่มีบันทึกความมั่นคงที่มี ID หรือสไลด์นั้น"
+    "No authority record with that id or slug.": "ไม่มีบันทึกความมั่นคงที่มี ID หรือสไลด์นั้น",
+    "Everything in your basket is sent as one request. You can follow it, and download what is released to you, under My requests.": "สิ่งทั้งหมดในตะกร้าของคุณจะถูกส่งเป็นคำขอเดียว คุณสามารถติดตามคำขอและดาวน์โหลดสิ่งที่ถูกปล่อยให้คุณได้ภายใต้คำขอของฉัน"
 }

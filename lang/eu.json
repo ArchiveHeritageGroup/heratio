@@ -27965,5 +27965,18 @@
     "Kind of change": "Aldaketa mota",
     "Major change (1.x to 2.0)": "Aldaketa osoa (1.x-2.0)",
     "Sidecar (JSON)": "Aldizkaria (JSON)",
-    "Sidecar (XMP)": "Aldizkaria (XMP)"
+    "Sidecar (XMP)": "Aldizkaria (XMP)",
+    "Install and configure regional accounting standards (IPSAS, GRAP, FRS, etc.)": "Instalatu eta konfiguratu arloko kontabilitate normak (IPSAS, GRAP, FRS, etc.)",
+    "Journal Number": "Diarioaren zenbakia",
+    "Journal Type": "Diarioaren mota",
+    "Journal entry recorded.": "Diarioaren erregistroa eginda.",
+    "Last Valuation": "Azken balorazioa",
+    "Left blank, it is the carrying amount less the recoverable amount.": "Hutsik dago, hori da balio berdea txikia berreskuragarri dena.",
+    "Loan Objects": "Kreditu objektuak",
+    "Manage Objects": "Objektuak kudeatu",
+    "Checked out to :user on :when (version :v). It cannot be replaced until it is checked in.": ":user erabiltzaileari eman da :when (bertsioa :v). Hori ez da aurrekoaren ordezkatu ezarri aurretik.",
+    "Privacy: recordings are not stored. The audio is sent to the AI gateway for transcription only, and the temporary file is deleted when the request ends.": "Pertsonalitatea: grabazioak ez daude gorde. Audioa AI bidea zehazteko bidali da, eta fitxategia erabiltzailearen eskaintza amaitzean ezabatuko da.",
+    "Enable Server Speech-to-Text": "Servidoraren hitz-izen-erakuspena aktibatu",
+    "Takes effect only once a transcription model is set.": "Transkriptazio modelua ezarri ondoren bakarrik eragina izango da.",
+    ":corrected corrected and :accepted accepted; :refused refused (placeholders do not match the English).": ":corrected korregitu eta :accepted onartu; :refused utzi (hutsaren ez da egokia ingelesez)."
 }

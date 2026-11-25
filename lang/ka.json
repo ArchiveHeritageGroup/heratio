@@ -27980,5 +27980,18 @@
     "No descriptions to show.": "აღწერილობების არ არსებობს.",
     "Saved.": "შენახულია.",
     "Not saved.": "არ არის შენახული.",
-    "Changed by someone else - reload to see it. Not saved.": "სხვა მომხმარებელი შეცვალა - ახალი ვერსიის დასახელება საჭიროა. არ არის შენახული."
+    "Changed by someone else - reload to see it. Not saved.": "სხვა მომხმარებელი შეცვალა - ახალი ვერსიის დასახელება საჭიროა. არ არის შენახული.",
+    "Reviewed or held": "შემოწმებულია ან დამატებულია",
+    "Same as English": "იგივე ინგლისურის სახით",
+    "Share of the interface strings in the code that each language shows translated. It counts the language file and the interface strings stored in the database, which take precedence over the file. Strings that correctly read the same as English count as done.": "ინტერფეისის სტრინგების პროცენტი, რომელიც თითოეული ენა ასახავს თარგმნილად. ის ასახავს ენის ფაილს და ინტერფეისის სტრინგებს ბაზაში, რომლები მიუხედავად ფაილის არის უფრო მნიშვნელოვანი. ინგლისურად სწორად წაკითხული სტრინგები არის დასრულებული",
+    "South Africa": "საფრანგეთი",
+    "South African languages only": "საფრანგეთის ენები მხოლოდ",
+    "A blank correction cell means the reviewer accepted the machine text": "ცარიებული სამართალის უჯრა ნიშნავს, რომ შემოწმებული ტექსტის მიმართ მომხმარებელი დაადასტურა",
+    "Apply reviewed strings": "შემოწმებული სტრინგების გამოყენება",
+    "Back to translation review": "დაბრუნება თარგმნის შემოწმებაში",
+    ":c correction(s), :a accepted, :r refused, :u unknown id(s), :n unchanged.": ":c შემოწმებული, :a დამატებული, :r უარყო, :u უცნობი იდენტიფიკატორი, :n უცვლელი",
+    "Check the imported review (:locale)": "შემოწმებული იმპორტირებული მონაცემები (:locale)",
+    ":corrected corrected and :accepted accepted; :refused refused (placeholders do not match the English).": ":corrected შემოწმებული და :accepted დამატებული; :refused უარყო (პლაჰოლდერები არ ემატება ინგლისურს)",
+    "Correction (leave empty to accept the machine text)": "შემოწმება (დატოვე ცარიებული სამართალის უჯრა დამატებული ტექსტის მიმართ მომხმარებელი დაადასტურა)",
+    ":staged held string(s) staged for review; :skipped skipped; :unknown unknown id(s).": ":staged შემოწმებული სტრინგები, :skipped გამოტოვებული, :unknown უცნობი იდენტიფიკატორი"
 }

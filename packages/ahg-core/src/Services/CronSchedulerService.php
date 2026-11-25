@@ -73,6 +73,10 @@ class CronSchedulerService
                             ->whereRaw('DATE_ADD(last_run_at, INTERVAL GREATEST(COALESCE(timeout_minutes, 60), 1) MINUTE) < ?', [Carbon::now()]);
                     });
             })
+            // Most overdue first (never-run rows have NULL and sort first), so a
+            // job deferred by the concurrency cap is at the front next tick
+            // instead of losing to the same low sort_order jobs every minute.
+            ->orderBy('next_run_at')
             ->orderBy('sort_order')
             ->get();
     }
@@ -144,22 +148,25 @@ class CronSchedulerService
         $running = 0;
 
         foreach ($due as $schedule) {
-            if ($running >= $maxConcurrent) {
-                $results[] = ['id' => $schedule->id, 'slug' => $schedule->slug, 'status' => 'deferred', 'reason' => 'max_concurrent reached'];
-
-                continue;
-            }
             // A long job runs in its own process. The runner is one sequential
             // process (withoutOverlapping), so a 50-minute virus scan at 04:00
             // held back every other job - services-check, search-update,
             // llm-health - until it finished, and the missed-run check rightly
             // raised calls (CH-001024..1030, 20-21 Nov 2026).
             if ($this->runsLong($schedule)) {
+                // Only background launches run concurrently, so only they count
+                // against the cap. Counting short jobs too starved frequent jobs
+                // on installs left at the default of 2 (sasa, CH-001049..1056).
+                if ($running >= $maxConcurrent) {
+                    $results[] = ['id' => $schedule->id, 'slug' => $schedule->slug, 'status' => 'deferred', 'reason' => 'max_concurrent reached'];
+
+                    continue;
+                }
                 $results[] = $this->launchInBackground($schedule);
+                $running++;
             } else {
                 $results[] = $this->runSingle($schedule);
             }
-            $running++;
         }
 
         return $results;
@@ -610,6 +617,8 @@ class CronSchedulerService
                 ['slug' => 'ai-spellcheck', 'name' => 'AI Spellcheck', 'description' => 'Run AI-powered spellcheck across descriptions and flag corrections.', 'artisan_command' => 'ahg:ai-spellcheck --all --limit=200', 'cron_expression' => '0 4 * * 0', 'duration_hint' => 'medium', 'log_file' => 'logs/ai-spellcheck.log'],
                 ['slug' => 'ai-ner-sync', 'name' => 'AI NER Sync / Retrain', 'description' => 'Sync NER training data and retrain the model with accepted corrections.', 'artisan_command' => 'ahg:ai-ner-sync --retrain', 'cron_expression' => '0 1 1 * *', 'duration_hint' => 'long', 'log_file' => 'logs/ai-ner-sync.log'],
                 ['slug' => 'ai-sync-entity-cache', 'name' => 'AI Entity Cache Sync', 'description' => 'Refresh the AI entity resolution cache from authority records.', 'artisan_command' => 'ahg:ai-sync-entity-cache', 'cron_expression' => '0 5 * * *', 'duration_hint' => 'medium', 'log_file' => 'logs/ai-entity-cache.log'],
+                ['slug' => 'ai-ner-score', 'name' => 'AI NER Evidence Scoring', 'description' => 'Score extracted names that have no confidence from catalogue evidence (authority matches, earlier reviews, name shape), so the review queue shows likely mistakes first. Rules only, no AI call.', 'artisan_command' => 'ahg:ai-ner-score', 'cron_expression' => '30 5 * * *', 'duration_hint' => 'short', 'log_file' => 'logs/ai-ner-score.log'],
+                ['slug' => 'ai-risk-monitor', 'name' => 'AI Risk Monitor', 'description' => 'Weekly post-market digest of open AI incidents and overdue risk reviews, sent to the notification bell. Skipped when nothing needs attention or the notification spool is missing.', 'artisan_command' => 'ai-compliance:risk-monitor --quiet-empty', 'cron_expression' => '0 7 * * 1', 'duration_hint' => 'short', 'log_file' => 'logs/ai-risk-monitor.log'],
                 ['slug' => 'ai-condition-scan', 'name' => 'AI Condition Scan', 'description' => 'Run AI-powered condition assessments on queued digital objects.', 'artisan_command' => 'ahg:ai-condition-scan --limit=100', 'cron_expression' => '0 3 * * *', 'duration_hint' => 'long', 'log_file' => 'logs/ai-condition.log'],
                 ['slug' => 'ai-condition-status', 'name' => 'AI Condition Status', 'description' => 'Check status of pending AI condition assessment jobs.', 'artisan_command' => 'ahg:ai-condition-status', 'cron_expression' => '*/5 * * * *', 'duration_hint' => 'short', 'log_file' => 'logs/ai-condition-status.log'],
                 ['slug' => 'ai-summarize', 'name' => 'AI Summarize', 'description' => 'Generate AI summaries for records with empty scope and content fields.', 'artisan_command' => 'ahg:ai-summarize --all-empty --field=scope_and_content', 'cron_expression' => '0 2 * * 0', 'duration_hint' => 'long', 'log_file' => 'logs/ai-summarize.log'],

@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="470" viewBox="0 0 960 470" role="img" aria-labelledby="t d">
+  <title id="t">Heratio architecture</title>
+  <desc id="d">Heratio, a Laravel 12 and PHP 8.3 application with a Bootstrap 5 interface and automated WCAG 2.2 AA checks, stores records in MySQL using the AtoM-compatible Qubit schema, and uses Fuseki for an optional RiC-O graph, OpenSearch for full-text search and Qdrant for semantic search. RiC Explorer shows the graph inside the application with Cytoscape.js, and an optional Python service provides RiC semantic search.</desc>
+  <style>
+    text { font-family: Arial, Helvetica, sans-serif; }
+    .h { font-size: 20px; font-weight: 700; fill: #10373E; }
+    .b { font-size: 15px; fill: #262626; }
+    .m { font-size: 14px; fill: #5b6b6d; }
+  </style>
+  <rect x="0" y="0" width="960" height="470" rx="14" fill="#F2EDE6"/>
+
+  <!-- application layer -->
+  <rect x="30" y="24" width="900" height="104" rx="10" fill="#10373E"/>
+  <rect x="30" y="24" width="8" height="104" rx="4" fill="#E1B34F"/>
+  <text x="60" y="68" font-size="32" font-weight="700" fill="#E1B34F">Heratio</text>
+  <text x="60" y="100" font-size="16" fill="#F2EDE6">Application layer - Laravel 12, PHP 8.3</text>
+  <text x="905" y="68" font-size="15" fill="#F2EDE6" text-anchor="end">Bootstrap 5 interface</text>
+  <text x="905" y="92" font-size="15" fill="#F2EDE6" text-anchor="end">Automated WCAG 2.2 AA checks</text>
+
+  <!-- connectors -->
+  <g stroke="#E1B34F" stroke-width="3">
+    <line x1="135" y1="128" x2="135" y2="168"/>
+    <line x1="365" y1="128" x2="365" y2="168"/>
+    <line x1="595" y1="128" x2="595" y2="168"/>
+    <line x1="825" y1="128" x2="825" y2="168"/>
+  </g>
+
+  <!-- data stores -->
+  <g>
+    <rect x="30" y="168" width="210" height="150" rx="10" fill="#FFFFFF" stroke="#10373E" stroke-width="2"/>
+    <rect x="30" y="168" width="210" height="8" rx="4" fill="#E1B34F"/>
+    <text class="h" x="50" y="208">MySQL</text>
+    <text class="b" x="50" y="238">Archival database</text>
+    <text class="m" x="50" y="264">Qubit schema,</text>
+    <text class="m" x="50" y="284">AtoM-compatible</text>
+  </g>
+  <g>
+    <rect x="260" y="168" width="210" height="150" rx="10" fill="#FFFFFF" stroke="#10373E" stroke-width="2"/>
+    <rect x="260" y="168" width="210" height="8" rx="4" fill="#E1B34F"/>
+    <text class="h" x="280" y="208">Fuseki</text>
+    <text class="b" x="280" y="238">RiC-O graph</text>
+    <text class="m" x="280" y="264">Records in Contexts</text>
+    <text class="m" x="280" y="284">(optional)</text>
+  </g>
+  <g>
+    <rect x="490" y="168" width="210" height="150" rx="10" fill="#FFFFFF" stroke="#10373E" stroke-width="2"/>
+    <rect x="490" y="168" width="210" height="8" rx="4" fill="#E1B34F"/>
+    <text class="h" x="510" y="208">OpenSearch</text>
+    <text class="b" x="510" y="238">Full-text search</text>
+    <text class="m" x="510" y="264">or Elasticsearch</text>
+  </g>
+  <g>
+    <rect x="720" y="168" width="210" height="150" rx="10" fill="#FFFFFF" stroke="#10373E" stroke-width="2"/>
+    <rect x="720" y="168" width="210" height="8" rx="4" fill="#E1B34F"/>
+    <text class="h" x="740" y="208">Qdrant</text>
+    <text class="b" x="740" y="238">Semantic search</text>
+    <text class="m" x="740" y="264">Vector index</text>
+  </g>
+
+  <!-- graph view inside the application, reading the RiC-O graph -->
+  <line x1="365" y1="318" x2="365" y2="358" stroke="#E1B34F" stroke-width="3"/>
+  <rect x="30" y="358" width="560" height="84" rx="10" fill="#FFFFFF" stroke="#10373E" stroke-width="2"/>
+  <rect x="30" y="358" width="8" height="84" rx="4" fill="#E1B34F"/>
+  <text class="h" x="60" y="394">RiC Explorer</text>
+  <text class="b" x="60" y="422">Graph view in the application (Cytoscape.js)</text>
+
+  <!-- optional Python service called by the application -->
+  <rect x="610" y="358" width="320" height="84" rx="10" fill="#FFFFFF" stroke="#10373E" stroke-width="2" stroke-dasharray="7 5"/>
+  <text class="h" x="630" y="394">RiC semantic search API</text>
+  <text class="m" x="630" y="422">Python service (optional)</text>
+</svg>

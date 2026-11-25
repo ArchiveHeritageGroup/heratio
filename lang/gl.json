@@ -28098,5 +28098,8 @@
     "More like this": "Mais como este",
     "Choose an image or describe what you are looking for.": "Elige unha imaxe ou describe o que estás buscando.",
     "Image search is not available right now. Please try again later.": "A busca de imaxes non está dispoñible agora. Por favor, intenta máis tarde.",
-    "Machine translation into :lang is not available yet. Translate this field by hand.": "A tradución automática ao :lang non está dispoñible agora. Traduce este campo manualmente."
+    "Machine translation into :lang is not available yet. Translate this field by hand.": "A tradución automática ao :lang non está dispoñible agora. Traduce este campo manualmente.",
+    "Cannot execute destruction: :file - :reason": "Non se pode executar a destrución: :file - :reason",
+    "by :user on :date": "por :user o :date",
+    ":corrected corrected and :accepted accepted; :refused refused (placeholders do not match the English).": ":corrected corrixido e :accepted aceptado; :refused rexeitado (os placeholders non coinciden co inglés)."
 }

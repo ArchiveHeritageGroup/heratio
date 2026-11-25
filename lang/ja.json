@@ -27609,5 +27609,6 @@
     "Takes effect only once a transcription model is set.": "テキスト起こしモデルが設定されたときにのみ効きます。",
     "Transcription Model": "テキスト起こしモデル",
     "Gateway Transcription Route": "ゲートウェイテキスト起こしルート",
-    "In the video at": "ビデオの"
+    "In the video at": "ビデオの",
+    "Machine translation into :lang is not available yet. Translate this field by hand.": "機械翻訳による :lang への翻訳は現在利用できません。このフィールドは手動で翻訳してください。"
 }
