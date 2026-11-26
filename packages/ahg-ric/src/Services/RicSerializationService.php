@@ -912,8 +912,10 @@ class RicSerializationService
      */
     public function exportRecordSet(int $fondsId, array $options = []): array
     {
-        $fonds = $this->serializeRecord($fondsId, $options);
-        
+        // Same restriction block as a single record (GET /records/{slug}), on the
+        // root and on every descendant.
+        $fonds = $this->addIscapCompliance($this->serializeRecord($fondsId, $options), $fondsId, 'information_object');
+
         // Include all descendants
         $descendants = $this->getAllDescendants($fondsId);
         
@@ -1135,12 +1137,25 @@ class RicSerializationService
             return []; // Prevent infinite recursion
         }
 
-        $children = $this->getChildRecords($parentId);
+        // Children by parent_id in tree order. The id used to be read back from the
+        // child's slug URI, so a slug gave id 0 (an error node) and a slug starting
+        // with digits ("1938-127-pdf-1") exported a different record (id 1938).
+        $childIds = DB::table('information_object')->where('parent_id', $parentId)
+            ->orderBy('lft')->pluck('id');
+        $guest = \Illuminate\Support\Facades\Auth::guest();
+        $records = app(\AhgCore\Services\MultilingualRecordService::class);
         $allDescendants = [];
 
-        foreach ($children as $child) {
-            $childId = $this->extractIdFromUri($child['@id']);
-            $allDescendants[] = $this->serializeRecord($childId, ['include_children' => false]);
+        foreach ($childIds as $childId) {
+            $childId = (int) $childId;
+            // The export route is public: hold each descendant to the same rules as
+            // the root (no drafts for guests, no restricted community-protocol
+            // terms). A hidden record's own descendants are left out with it.
+            if (($guest && ! $records->isPublished($childId)) || ! \AhgCore\Services\TermProtocolGate::allowsRecord($childId)) {
+                continue;
+            }
+            $allDescendants[] = $this->addIscapCompliance(
+                $this->serializeRecord($childId, ['include_children' => false]), $childId, 'information_object');
             $allDescendants = array_merge($allDescendants, $this->getAllDescendants($childId, $depth + 1));
         }
 
@@ -1406,15 +1421,6 @@ class RicSerializationService
         return DB::table('personal_data_log')
             ->where('object_id', $entityId)
             ->exists();
-    }
-
-    /**
-     * Extract ID from URI
-     */
-    private function extractIdFromUri(string $uri): int
-    {
-        $parts = explode('/', $uri);
-        return (int) end($parts);
     }
 
     // =========================================================================

@@ -10,8 +10,18 @@ discover, harvest, and trust Heratio's records-in-contexts data.
 |---|---|
 | `/dataset` | DCAT + VoID descriptor (JSON-LD): title, license, publisher, version, `dcterms:conformsTo` the pinned standards, `void:sparqlEndpoint`, and every `dcat:distribution` |
 | `/changelog` | Versioned change feed + the pinned standard versions + link to the governance pin |
-| `/records/{slug}/export?format=jsonld\|ttl\|rdf` | Per-record export (existing) |
+| `/records/{slug}/export?format=jsonld\|ttl\|rdf` | The record and every record below it, in tree order (existing) |
 | `/sparql`, `/oai` | SPARQL query + OAI-PMH harvest (existing) |
+
+### What the record-set export leaves out (since 26 Nov 2026)
+
+`/records/{slug}/export` applies the same rules as `/records/{slug}` to every record in the set, not only the top one:
+
+- A visitor who is not signed in gets no draft record, and nothing below a draft.
+- A record tagged with a restricted community-protocol term is left out, with everything below it.
+- Each record carries the same restriction block as a single record: `rico:hasSecurityClassification`, `rico:hasAccessRestriction` and `rico:containsPersonalData`, where they apply.
+
+The same records are left out in JSON-LD, Turtle and RDF/XML, because the set is filtered before it is converted. Before this fix, child records were read back from their URL names, so most came out as "Information Object not found" entries, and a name starting with digits exported a different record. Test: `tests/Feature/RicRecordSetExportTest.php`.
 
 ## Round-trip portability guarantee (increment 1)
 
