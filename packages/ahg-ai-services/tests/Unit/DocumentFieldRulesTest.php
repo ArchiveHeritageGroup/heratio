@@ -45,6 +45,13 @@ class DocumentFieldRulesTest extends TestCase
         $this->assertTrue($po === null || X::grounded($po, $text, false), 'the order number is in the document');
     }
 
+    public function test_a_form_that_quotes_an_order_has_no_heading_so_it_is_not_read(): void
+    {
+        // 26 Nov 2026: this form was stored as purchase order PO-77826.
+        $this->assertNull(X::heading((string) file_get_contents(__DIR__.'/../fixtures/documents/induction-form.txt')));
+        $this->assertSame('purchase_order', X::heading((string) file_get_contents(__DIR__.'/../fixtures/documents/po-77841.txt')));
+    }
+
     public function test_a_model_answer_is_kept_when_it_already_has_the_order(): void
     {
         $text = (string) file_get_contents(__DIR__.'/../fixtures/documents/inv-hc-88247.txt');

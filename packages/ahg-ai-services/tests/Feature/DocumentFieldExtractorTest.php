@@ -106,6 +106,29 @@ class DocumentFieldExtractorTest extends TestCase
         $this->assertSame('delivered', $x->match($dn)['status']);
     }
 
+    public function test_a_form_quoting_an_order_is_not_read_and_never_stands_in_for_the_order(): void
+    {
+        $x = app(DocumentFieldExtractor::class);
+        $form = $this->record('form.pdf', ['CONTRACTOR SITE ACCESS AND SAFETY INDUCTION', 'Contract / order PO-55601', 'Access period 10 to 21 November 2026']);
+        $r = $x->extract($form);   // refused before the gateway is asked
+        $this->assertArrayHasKey('error', $r);
+        $this->assertSame(0, DB::table('ahg_ai_suggestion')->where('object_id', $form)->count(), 'nothing stored for the form');
+
+        // A record left over from before the fix, holding the number but no total, is passed over.
+        DB::table('ahg_ai_suggestion')->insert(['object_id' => $form, 'field_name' => 'po.number', 'suggested_value' => 'PO-55601', 'status' => 'pending', 'created_at' => now(), 'updated_at' => now()]);
+        $po = $this->record('po2.pdf', ['PURCHASE ORDER PO-55601', 'Total R 500.00']);
+        $inv = $this->record('inv3.pdf', ['TAX INVOICE INV-9003', 'Your order PO-55601', 'Service period 10 to 21 November 2026', 'Total due R 500.00']);
+        $this->answer(
+            ['document_type' => 'purchase_order', 'number' => 'PO-55601', 'total' => 'R 500.00'],
+            ['document_type' => 'invoice', 'number' => 'INV-9003', 'po_number' => 'PO-55601', 'total' => 'R 500.00', 'date' => '10 to 21 November 2026'],
+        );
+        $x->extract($po);
+        $this->assertSame(['date' => '10 to 21 November 2026'], $x->extract($inv)['dropped'], 'a period is not a date');
+        $m = $x->match($inv);
+        $this->assertSame('matched', $m['status']);
+        $this->assertSame($po, $m['po_io']);
+    }
+
     public function test_the_page_lists_the_fields_for_an_administrator(): void
     {
         $inv = $this->record('inv2.pdf', ['TAX INVOICE INV-9002', 'Total due R 99.00']);

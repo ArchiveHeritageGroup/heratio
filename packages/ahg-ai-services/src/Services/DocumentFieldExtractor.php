@@ -62,6 +62,12 @@ TXT;
         if ($text === '') {
             return $this->fail('No text could be read from the document.');
         }
+        // 26 Nov 2026: a contractor induction form that quoted PO-77826 was stored as
+        // that purchase order, because every number it gave was in the text. Only a
+        // page headed as an invoice, purchase order or delivery note is read.
+        if (self::heading($text) === null) {
+            return $this->fail('Not read: the top of the document is not headed as an invoice, purchase order or delivery note.');
+        }
 
         $logger = class_exists(\AhgAiCompliance\Services\InferenceLogger::class) ? app(\AhgAiCompliance\Services\InferenceLogger::class) : null;
         $before = $logger?->last();
@@ -94,6 +100,8 @@ TXT;
             }
             if ($f === 'document_type') {
                 $fields[$f] = in_array($v, ['invoice', 'purchase_order', 'delivery_note'], true) ? $v : 'invoice';
+            } elseif ($f === 'date' && preg_match('/\s(?:to|until|-)\s/iu', $v)) {
+                $dropped[$f] = $v;   // a period ("10 to 21 November 2026"), not a date
             } elseif (self::grounded($v, $text, in_array($f, self::AMOUNTS, true))) {
                 $fields[$f] = $v;
             } else {
@@ -161,8 +169,12 @@ TXT;
             return ['status' => 'no_po_number'];
         }
         $isDelivery = ($inv['document_type']->suggested_value ?? '') === 'delivery_note';
-        $poIo = (int) DB::table('ahg_ai_suggestion')->where('field_name', 'po.number')->where('status', '!=', 'rejected')
-            ->whereRaw('REPLACE(suggested_value, " ", "") = ?', [str_replace(' ', '', $po)])->value('object_id');
+        $candidates = DB::table('ahg_ai_suggestion')->where('field_name', 'po.number')->where('status', '!=', 'rejected')
+            ->whereRaw('REPLACE(suggested_value, " ", "") = ?', [str_replace(' ', '', $po)])->orderBy('id')->pluck('object_id');
+        // An invoice is checked only against an order that has a total, so a record that
+        // merely quotes the number (no total) is never taken for the order itself.
+        $poIo = (int) ($isDelivery ? $candidates->first()
+            : $candidates->first(fn ($id) => self::amount((string) ($this->fieldsOf((int) $id)['total']->suggested_value ?? '')) !== ''));
         if ($poIo === 0) {
             return ['status' => $isDelivery ? 'delivered_po_not_found' : 'po_not_found', 'po_number' => $po];
         }
@@ -199,13 +211,8 @@ TXT;
      */
     public static function applyRules(array $fields, string $text): array
     {
-        $head = mb_strtoupper(mb_substr($text, 0, 600));
-        if (str_contains($head, 'DELIVERY NOTE')) {
-            $fields['document_type'] = 'delivery_note';
-        } elseif (str_contains($head, 'PURCHASE ORDER')) {
-            $fields['document_type'] = 'purchase_order';
-        } elseif (preg_match('/\b(TAX\s+)?INVOICE\b/', $head)) {
-            $fields['document_type'] = 'invoice';
+        if ($type = self::heading($text)) {
+            $fields['document_type'] = $type;
         }
 
         if (($fields['document_type'] ?? 'invoice') !== 'purchase_order' && empty($fields['po_number'])) {
@@ -223,6 +230,19 @@ TXT;
         }
 
         return $fields;
+    }
+
+    /** The document type its heading gives (the first 600 characters), or null. */
+    public static function heading(string $text): ?string
+    {
+        $head = mb_strtoupper(mb_substr($text, 0, 600));
+
+        return match (true) {
+            str_contains($head, 'DELIVERY NOTE') => 'delivery_note',
+            str_contains($head, 'PURCHASE ORDER') => 'purchase_order',
+            (bool) preg_match('/\b(TAX\s+)?INVOICE\b/', $head) => 'invoice',
+            default => null,
+        };
     }
 
     /** "R 153,617.00" -> "153617.00" */
