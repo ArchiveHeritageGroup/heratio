@@ -33,7 +33,10 @@
                     'type' => 'warning',
                     'icon' => 'fa-key',
                     'message' => $pendingAccess . ' pending access request' . ($pendingAccess > 1 ? 's' : ''),
-                    'url' => url('/admin/accessRequests'),
+                    // The list of access_request rows (researcher registrations included) - the
+                    // count above reads that table. /admin/accessRequests went to the security
+                    // clearance list, which never showed these, so "Review" led to "0 pending".
+                    'url' => \Illuminate\Support\Facades\Route::has('accessRequest.pending') ? route('accessRequest.pending') : url('/access-request/pending'),
                     'action' => 'Review',
                 ];
             }

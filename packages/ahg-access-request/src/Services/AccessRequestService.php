@@ -367,6 +367,17 @@ class AccessRequestService
         if ($affected) {
             $this->log($id, $conditions ? 'released with conditions' : 'approved', $reviewerId, $conditions ?? $notes);
             $this->closeWorkflow($id, $reviewerId, 'approved', $notes);
+            // A researcher registration is approved from this list too: approve the pending
+            // researcher, or the request closed while the person stayed "pending" and could
+            // not reach their workspace.
+            $req = DB::table('access_request')->where('id', $id)->first(['user_id', 'request_type']);
+            if ($req && $req->request_type === 'researcher' && $req->user_id
+                && \Illuminate\Support\Facades\Schema::hasTable('research_researcher')) {
+                DB::table('research_researcher')->where('user_id', $req->user_id)->where('status', 'pending')->update([
+                    'status' => 'approved', 'approved_by' => $reviewerId, 'approved_at' => $reviewedAt,
+                    'expires_at' => $reviewedAt->copy()->addYear()->toDateString(), 'updated_at' => $reviewedAt,
+                ]);
+            }
         }
 
         // heratio#1775: an approved object request gets a release link to the

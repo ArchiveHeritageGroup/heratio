@@ -31,7 +31,8 @@ Route::middleware('auth')->prefix('access-request')->group(function () {
 });
 
 // ── Legacy URL redirects (ahgAccessRequestPlugin compatibility) ─────────────
-Route::get('/admin/accessRequests', fn () => redirect('/security/access-requests', 301))->middleware(['auth', 'admin']);
+// Legacy alias for the access-request list (access_request), not the security clearance list.
+Route::get('/admin/accessRequests', fn () => redirect()->route('accessRequest.pending', [], 301))->middleware(['auth', 'admin']);
 Route::get('/accessRequest', fn () => redirect()->route('accessRequest.pending', [], 301));
 Route::get('/security/request', fn () => redirect()->route('accessRequest.pending', [], 301));
 Route::get('/security/request-access', fn () => redirect()->route('accessRequest.create', [], 301));

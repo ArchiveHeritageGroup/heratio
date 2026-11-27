@@ -176,7 +176,7 @@
         </form>
       @endif
 
-      <form action="{{ route('research.resetPassword', $researcher->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Generate a new password for this user? They will need to use the new password to log in.')">
+      <form action="{{ route('research.resetPassword', $researcher->id) }}" method="POST" class="d-inline" onsubmit="return confirm(this.dataset.confirm)" data-confirm="{{ __('Generate a new password for this user? They will need to use the new password to log in.') }}">
         @csrf
         <button type="submit" class="btn btn-outline-secondary">
           <i class="fas fa-key me-1"></i>{{ __('Reset Password') }}

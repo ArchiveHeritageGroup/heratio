@@ -247,6 +247,12 @@ class ResearchService
         if ($result) {
             $newValues = (array)(DB::table('research_researcher')->where('id', $id)->first() ?? new \stdClass);
             $this->logAudit('approve', 'Researcher', $id, $oldValues, $newValues, ($newValues['first_name'] ?? '') . ' ' . ($newValues['last_name'] ?? ''));
+            // Close the registration's access request too, as the automatic approval path does;
+            // otherwise the admin banner kept counting it as pending after approval.
+            if (! empty($newValues['user_id'])) {
+                DB::table('access_request')->where('user_id', $newValues['user_id'])->where('request_type', 'researcher')->where('status', 'pending')
+                    ->update(['status' => 'approved', 'reviewed_by' => $approvedBy, 'reviewed_at' => now(), 'updated_at' => now()]);
+            }
         }
         return $result;
     }
