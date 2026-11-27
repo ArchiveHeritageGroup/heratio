@@ -38,6 +38,10 @@
       'startdate'   => __('Start date'),
       'enddate'     => __('End date'),
   ];
+  // A search is ranked by relevance by default; offer it (first) only when there is a query.
+  if (trim((string) ($queryFilter ?? request('query', ''))) !== '') {
+      $sortLabels = ['relevance' => __('Relevance')] + $sortLabels;
+  }
   $fp   = $filterParams ?? [];
   $from = (($page ?? 1) - 1) * ($limit ?? 30) + 1;
   $to   = min(($page ?? 1) * ($limit ?? 30), $total ?? 0);

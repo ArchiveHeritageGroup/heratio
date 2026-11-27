@@ -201,7 +201,10 @@ class DisplayController extends Controller
         $defaultSort = auth()->check()
             ? \AhgCore\Support\GlobalSettings::sortBrowserUser()
             : \AhgCore\Support\GlobalSettings::sortBrowserAnonymous();
-        $sort = $request->input('sort', $defaultSort !== '' ? $defaultSort : 'date');
+        // A search ranks by relevance unless a sort was chosen: the title/date default put
+        // the 100 meaning-based matches of a semantic search in alphabetical order.
+        $sort = $request->input('sort', trim((string) $request->input('query', '')) !== ''
+            ? 'relevance' : ($defaultSort !== '' ? $defaultSort : 'date'));
         $defaultSortDir = auth()->check()
             ? \AhgCore\Support\GlobalSettings::sortBrowserDirectionUser()
             : \AhgCore\Support\GlobalSettings::sortBrowserDirectionAnonymous();
@@ -687,7 +690,10 @@ class DisplayController extends Controller
         $defaultSort = auth()->check()
             ? \AhgCore\Support\GlobalSettings::sortBrowserUser()
             : \AhgCore\Support\GlobalSettings::sortBrowserAnonymous();
-        $sort = $request->input('sort', $defaultSort !== '' ? $defaultSort : 'date');
+        // A search ranks by relevance unless a sort was chosen: the title/date default put
+        // the 100 meaning-based matches of a semantic search in alphabetical order.
+        $sort = $request->input('sort', trim((string) $request->input('query', '')) !== ''
+            ? 'relevance' : ($defaultSort !== '' ? $defaultSort : 'date'));
         $defaultSortDir = auth()->check()
             ? \AhgCore\Support\GlobalSettings::sortBrowserDirectionUser()
             : \AhgCore\Support\GlobalSettings::sortBrowserDirectionAnonymous();
@@ -758,7 +764,10 @@ class DisplayController extends Controller
         $defaultSort = auth()->check()
             ? \AhgCore\Support\GlobalSettings::sortBrowserUser()
             : \AhgCore\Support\GlobalSettings::sortBrowserAnonymous();
-        $sort = $request->input('sort', $defaultSort !== '' ? $defaultSort : 'date');
+        // A search ranks by relevance unless a sort was chosen: the title/date default put
+        // the 100 meaning-based matches of a semantic search in alphabetical order.
+        $sort = $request->input('sort', trim((string) $request->input('query', '')) !== ''
+            ? 'relevance' : ($defaultSort !== '' ? $defaultSort : 'date'));
         $defaultSortDir = auth()->check()
             ? \AhgCore\Support\GlobalSettings::sortBrowserDirectionUser()
             : \AhgCore\Support\GlobalSettings::sortBrowserDirectionAnonymous();

@@ -370,16 +370,38 @@ class QdrantIndexCommand extends Command
 
     protected function embed(string $base, string $model, string $text, ?string $key = null): ?array
     {
-        // #1247: transparent Ollama passthrough on the gateway preserves the
-        // /api/embeddings request + 'embedding' response shape.
-        $resp = $this->httpJson('POST', rtrim($base, '/') . '/ollama/api/embeddings', [
-            'model'  => $model,
-            'prompt' => $text,
-        ], 30000, $key);
-        if (! is_array($resp) || empty($resp['embedding']) || ! is_array($resp['embedding'])) {
-            return null;
+        // A small embedding model (all-minilm reads ~256 tokens) is refused with
+        // "the input length exceeds the context length" when the text is longer;
+        // the gateway no longer truncates for us. Retry on shorter openings of the
+        // text - title and the start of the description carry most of the meaning.
+        foreach (self::embeddingAttempts($text) as $attempt) {
+            // #1247: transparent Ollama passthrough on the gateway preserves the
+            // /api/embeddings request + 'embedding' response shape.
+            $resp = $this->httpJson('POST', rtrim($base, '/') . '/ollama/api/embeddings', [
+                'model'  => $model,
+                'prompt' => $attempt,
+            ], 30000, $key);
+            if (is_array($resp) && ! empty($resp['embedding']) && is_array($resp['embedding'])) {
+                return array_map('floatval', $resp['embedding']);
+            }
         }
-        return array_map('floatval', $resp['embedding']);
+
+        return null;
+    }
+
+    /** The text, then shorter openings of it (whole words), for models with a short context. */
+    public static function embeddingAttempts(string $text): array
+    {
+        $out = [$text];
+        foreach ([1000, 600, 300] as $max) {
+            if (mb_strlen($text) > $max) {
+                $cut = mb_substr($text, 0, $max);
+                $sp = mb_strrpos($cut, ' ');
+                $out[] = $sp > $max / 2 ? mb_substr($cut, 0, $sp) : $cut;
+            }
+        }
+
+        return array_values(array_unique($out));
     }
 
     protected function ping(string $url, int $timeoutMs, ?string $key = null): bool
