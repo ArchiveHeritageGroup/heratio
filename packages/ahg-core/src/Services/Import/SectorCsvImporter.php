@@ -706,6 +706,17 @@ abstract class SectorCsvImporter
             'name' => $name,
         ]);
 
+        // A term needs a slug: without one it has no page and is left out of the
+        // subject and place lists (the term browse joins slug). Same scheme as
+        // SubjectAccessPointService::createTerm().
+        $base = \Illuminate\Support\Str::slug($name) ?: ('term-'.$termObjectId);
+        $slug = $base;
+        $n = 1;
+        while (DB::table('slug')->where('slug', $slug)->exists()) {
+            $slug = $base.'-'.$n++;
+        }
+        DB::table('slug')->insert(['object_id' => $termObjectId, 'slug' => $slug]);
+
         return $termObjectId;
     }
 

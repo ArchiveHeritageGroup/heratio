@@ -60,7 +60,9 @@
       </div>
     </div>
 
-    {{-- Documentation Portal --}}
+    {{-- Documentation Portal - the vendor's developer/technical site. Only on the vendor's
+         own sites (heratio.org and friends), never on an institution's install. --}}
+    @if(\App\Support\MarketingSite::is())
     <div class="card border-primary mb-4">
       <div class="card-body">
         <div class="row align-items-center">
@@ -76,6 +78,7 @@
         </div>
       </div>
     </div>
+    @endif
 
     {{-- Function & Route Catalogues (admin-gated; surface only for signed-in admins) --}}
     @auth

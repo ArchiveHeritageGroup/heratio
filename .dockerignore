@@ -25,6 +25,9 @@ public/build
 /site
 /audit_outputs
 /docs
+# ...except the in-app Help Center articles, which init.sh loads with ahg:help-ingest-all.
+# Without them every Docker install had an empty /help.
+!docs/help
 *.log
 .env
 .env.*

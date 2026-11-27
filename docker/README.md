@@ -70,6 +70,12 @@ Behind an HTTPS reverse proxy, have the proxy send `X-Forwarded-Proto https`
 to PHP, so search boxes and other forms submit to https. Before v1.167.17 they
 submitted to http and browsers blocked or warned about the search.
 
+The image includes `docs/help/`, and the first boot loads it into the in-app
+Help Center (`ahg:help-ingest-all`). Before v1.167.27 the image left all of
+`docs/` out, so `/help` on a Docker install was empty. On an existing install,
+rebuild the image and run
+`docker exec -u www-data heratio-app php artisan ahg:help-ingest-all`.
+
 ## Reset
 
 ```bash
