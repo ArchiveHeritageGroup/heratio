@@ -704,8 +704,12 @@ class LoginController extends Controller
      */
     public function showResearcherRegister()
     {
+        // A signed-in user without a researcher profile lands here from every research
+        // page (My Workspace, projects, collections...). This public form is for new
+        // visitors; hand a signed-in user the in-app "register as a researcher" form,
+        // which shares this URL and was otherwise unreachable. It used to redirect to /.
         if (Auth::check()) {
-            return redirect('/');
+            return app(\AhgResearch\Controllers\ResearchRegistrationController::class)->register(request());
         }
 
         return view('auth.researcher-register');
@@ -718,6 +722,11 @@ class LoginController extends Controller
      */
     public function researcherRegister(Request $request)
     {
+        // Signed in: this is the in-app researcher form posting back (see showResearcherRegister).
+        if (Auth::check()) {
+            return app(\AhgResearch\Controllers\ResearchRegistrationController::class)->register($request);
+        }
+
         $request->validate([
             'username' => 'required|string|min:3|max:255|unique:user,username',
             'email' => 'required|email|max:255|unique:user,email',
