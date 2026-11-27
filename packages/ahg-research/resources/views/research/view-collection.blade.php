@@ -37,7 +37,7 @@
         <small class="text-muted"><i class="fas fa-clock me-1"></i>{{ __('Created: :date', ['date' => date('M j, Y', strtotime($collection->created_at))]) }}</small>
       </div>
       <div class="col-md-4 text-md-end">
-        <span class="badge bg-{{ ($collection->is_public ?? false) ? 'success' : 'secondary' }} me-2">{{ ($collection->is_public ?? false) ? 'Public' : 'Private' }}</span>
+        <span class="badge bg-{{ ($collection->is_public ?? false) ? 'success' : 'secondary' }} me-2">{{ ($collection->is_public ?? false) ? __('Public') : __('Private') }}</span>
         <span class="badge bg-primary">{{ __(':count items', ['count' => count($collection->items ?? [])]) }}</span>
       </div>
     </div>

@@ -1,10 +1,10 @@
 {{-- Edit Project - Migrated from AtoM --}}
 @extends('theme::layouts.2col')
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'projects'])@endsection
-@section('title', ($isNew ?? false) ? 'New Project' : 'Edit Project')
+@section('title', ($isNew ?? false) ? __('New Project') : __('Edit Project'))
 @section('content')
-<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li><li class="breadcrumb-item"><a href="{{ route('research.projects') }}">{{ __('Projects') }}</a></li><li class="breadcrumb-item active">{{ ($isNew ?? false) ? 'New' : 'Edit' }}</li></ol></nav>
-<h1 class="h2 mb-4"><i class="fas fa-project-diagram text-primary me-2"></i>{{ ($isNew ?? false) ? 'New Project' : 'Edit Project' }}</h1>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li><li class="breadcrumb-item"><a href="{{ route('research.projects') }}">{{ __('Projects') }}</a></li><li class="breadcrumb-item active">{{ ($isNew ?? false) ? __('New') : __('Edit') }}</li></ol></nav>
+<h1 class="h2 mb-4"><i class="fas fa-project-diagram text-primary me-2"></i>{{ ($isNew ?? false) ? __('New Project') : __('Edit Project') }}</h1>
 <div class="card">
     <div class="card-body">
         <form method="POST" autocomplete="off">

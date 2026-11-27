@@ -76,7 +76,7 @@
                 </div>
             </div>
             <button type="button" id="mintDoiBtn" class="btn btn-primary btn-sm">
-                <i class="fas fa-stamp me-1"></i>{{ !empty($currentDoi) ? 'Update DOI' : 'Mint DOI' }}
+                <i class="fas fa-stamp me-1"></i>{{ !empty($currentDoi) ? __('Update DOI') : __('Mint DOI') }}
             </button>
         </form>
         <div id="doiResult" class="mt-3 d-none"></div>

@@ -140,8 +140,8 @@ document.querySelectorAll('.edit-type-btn').forEach(function(btn) {
         document.getElementById('typeDomains').value = t.email_domains || '';
         document.getElementById('typeDiscount').value = t.discount_percent || 0;
         document.getElementById('typeFree').checked = t.free_access == 1;
-        document.getElementById('typeModalTitle').textContent = 'Edit Type: ' + t.name;
-        document.getElementById('typeSubmitBtn').innerHTML = '<i class="fas fa-save me-1"></i>Save Changes';
+        document.getElementById('typeModalTitle').textContent = @json(__('Edit Type: ')) + t.name;
+        document.getElementById('typeSubmitBtn').innerHTML = '<i class="fas fa-save me-1"></i>' + @json(__('Save Changes'));
         new bootstrap.Modal(document.getElementById('addTypeModal')).show();
     });
 });
@@ -149,8 +149,8 @@ document.querySelectorAll('.edit-type-btn').forEach(function(btn) {
 document.getElementById('addTypeModal').addEventListener('hidden.bs.modal', function() {
     document.getElementById('typeAction').value = 'create';
     document.getElementById('typeForm').reset();
-    document.getElementById('typeModalTitle').textContent = 'Add Researcher Type';
-    document.getElementById('typeSubmitBtn').innerHTML = '<i class="fas fa-plus me-1"></i>Add Type';
+    document.getElementById('typeModalTitle').textContent = @json(__('Add Researcher Type'));
+    document.getElementById('typeSubmitBtn').innerHTML = '<i class="fas fa-plus me-1"></i>' + @json(__('Add Type'));
 });
 </script>
 @endpush

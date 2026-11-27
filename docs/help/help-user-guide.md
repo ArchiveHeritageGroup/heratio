@@ -8,7 +8,7 @@ The Help Center is Heratio's built-in, searchable documentation library. It coll
 
 Every page in the Help Center is a help article that has been ingested from a Markdown source file. Each article is rendered to formatted HTML, broken into its individual headings (its sections), word-counted, and indexed for full-text search. Because articles are stored as data rather than hard-coded pages, the library grows automatically as new modules are documented, and search always reflects the current contents.
 
-The Help Center lives at the `/help` route. From there you can search, browse by category, open any individual article, and open two interactive diagrams that map the whole platform. Most articles are visible to everyone; a small number of operator-focused categories are reserved for signed-in users.
+The Help Center lives at the `/help` route. From there you can search, browse by category, open any individual article, and open two interactive diagrams that map the whole platform. Visitors who are not signed in see only the guides to the public screens - searching, browsing, viewing records and images, citing, favourites, the cart, reading room bookings and reading in your language. Every other article describes staff screens such as editing and settings, and is reserved for signed-in users; opening one sends a visitor to the sign-in page first.
 
 ## Key features
 
@@ -84,7 +84,7 @@ Because ingest matches on the slug, re-running the command with the same slug sa
 
 The Help Center needs no per-site configuration. Its two tables, `help_article` and `help_section`, are created automatically on first boot, and the `ahg:help-ingest` artisan command is registered automatically when the module loads. The full-text search index is part of the table definition, so search works as soon as the first article is ingested.
 
-Article visibility is governed by category. The categories `Technical` and `Plugin Reference` are treated as operator material and are hidden from anonymous visitors; signed-in users see all categories. There are no other access settings to manage. The administration interface follows the standard Bootstrap 5 theme.
+Article visibility depends on whether the reader is signed in. Anonymous visitors see a fixed list of public-screen guides (`HelpArticleService::PUBLIC_SLUGS`); signed-in users see every article. The same rule applies to search results, category lists, next/previous links and the system diagrams. There are no other access settings to manage. The administration interface follows the standard Bootstrap 5 theme.
 
 ## References
 

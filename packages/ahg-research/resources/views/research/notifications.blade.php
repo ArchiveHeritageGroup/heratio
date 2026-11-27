@@ -147,7 +147,7 @@
     <div class="text-center py-5">
         <i class="fas fa-bell-slash fa-4x text-muted mb-3 opacity-50"></i>
         <h4 class="text-muted">{{ __('No notifications') }}</h4>
-        <p class="text-muted">{{ $currentTab === 'unread' ? 'You have no unread notifications.' : 'You have no notifications yet.' }}</p>
+        <p class="text-muted">{{ $currentTab === 'unread' ? __('You have no unread notifications.') : __('You have no notifications yet.') }}</p>
     </div>
     @endif
 @endif

@@ -13,13 +13,15 @@
 @php
     $allRequests = $requests ?? [];
     $statusCounts = [
-        'requested' => ['name' => 'Requested', 'icon' => 'clock', 'color' => '#ffc107', 'count' => collect($allRequests)->where('status', 'requested')->count()],
-        'in_transit' => ['name' => 'In Transit', 'icon' => 'truck', 'color' => '#17a2b8', 'count' => collect($allRequests)->where('status', 'in_transit')->count()],
-        'delivered' => ['name' => 'Delivered', 'icon' => 'check-circle', 'color' => '#28a745', 'count' => collect($allRequests)->whereIn('status', ['delivered'])->count()],
-        'in_use' => ['name' => 'In Use', 'icon' => 'book-open', 'color' => '#007bff', 'count' => collect($allRequests)->where('status', 'in_use')->count()],
-        'returned' => ['name' => 'Returned', 'icon' => 'undo', 'color' => '#6c757d', 'count' => collect($allRequests)->where('status', 'returned')->count()],
-        'unavailable' => ['name' => 'Unavailable', 'icon' => 'ban', 'color' => '#dc3545', 'count' => collect($allRequests)->where('status', 'unavailable')->count()],
+        'requested' => ['name' => __('Requested'), 'icon' => 'clock', 'color' => '#ffc107', 'count' => collect($allRequests)->where('status', 'requested')->count()],
+        'in_transit' => ['name' => __('In Transit'), 'icon' => 'truck', 'color' => '#17a2b8', 'count' => collect($allRequests)->where('status', 'in_transit')->count()],
+        'delivered' => ['name' => __('Delivered'), 'icon' => 'check-circle', 'color' => '#28a745', 'count' => collect($allRequests)->whereIn('status', ['delivered'])->count()],
+        'in_use' => ['name' => __('In Use'), 'icon' => 'book-open', 'color' => '#007bff', 'count' => collect($allRequests)->where('status', 'in_use')->count()],
+        'returned' => ['name' => __('Returned'), 'icon' => 'undo', 'color' => '#6c757d', 'count' => collect($allRequests)->where('status', 'returned')->count()],
+        'unavailable' => ['name' => __('Unavailable'), 'icon' => 'ban', 'color' => '#dc3545', 'count' => collect($allRequests)->where('status', 'unavailable')->count()],
     ];
+    // Translated label for a status code (badges, headings).
+    $statusName = fn ($c) => $statusCounts[$c]['name'] ?? __(ucfirst(str_replace('_', ' ', (string) $c)));
 @endphp
 <div class="row mb-4">
     @foreach($statusCounts as $code => $q)
@@ -46,7 +48,7 @@
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">
             @if(request('status'))
-                {{ __(':status Requests (:count)', ['status' => ucfirst(str_replace('_', ' ', request('status'))), 'count' => $filtered->count()]) }}
+                {{ __(':status Requests (:count)', ['status' => $statusName(request('status')), 'count' => $filtered->count()]) }}
             @else
                 {{ __('All Requests (:count)', ['count' => $filtered->count()]) }}
             @endif
@@ -105,12 +107,12 @@
                             <td>
                                 @php $pc = ['rush'=>'danger','high'=>'warning']; @endphp
                                 <span class="badge bg-{{ $pc[$req->priority ?? ''] ?? 'secondary' }}">
-                                    <i class="fas fa-{{ match($req->priority ?? '') { 'rush' => 'bolt', 'high' => 'arrow-up', default => 'minus' } }} me-1"></i>{{ ucfirst($req->priority ?? 'normal') }}
+                                    <i class="fas fa-{{ match($req->priority ?? '') { 'rush' => 'bolt', 'high' => 'arrow-up', default => 'minus' } }} me-1"></i>{{ __(ucfirst($req->priority ?? 'normal')) }}
                                 </span>
                             </td>
                             <td>
                                 @php $sc = ['requested'=>'warning','in_transit'=>'info','delivered'=>'success','in_use'=>'primary','returned'=>'secondary','unavailable'=>'danger']; @endphp
-                                <span class="badge bg-{{ $sc[$req->status] ?? 'secondary' }}">{{ ucfirst(str_replace('_', ' ', $req->status)) }}</span>
+                                <span class="badge bg-{{ $sc[$req->status] ?? 'secondary' }}">{{ $statusName($req->status) }}</span>
                             </td>
                             <td>
                                 <div class="btn-group btn-group-sm">
@@ -180,7 +182,7 @@
         @else
         <div class="card-body text-center text-muted py-5">
             <i class="fas fa-dolly fa-3x mb-3"></i>
-            <p>{{ request('status') ? __('No requests with status ":status".', ['status' => ucfirst(str_replace('_', ' ', request('status')))]) : __('No requests in the queue.') }}</p>
+            <p>{{ request('status') ? __('No requests with status ":status".', ['status' => $statusName(request('status'))]) : __('No requests in the queue.') }}</p>
         </div>
         @endif
     </div>

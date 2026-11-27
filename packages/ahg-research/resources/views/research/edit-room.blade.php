@@ -1,17 +1,17 @@
 @extends('theme::layouts.2col')
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'rooms'])@endsection
-@section('title', $isNew ? 'Add Reading Room' : 'Edit Reading Room')
+@section('title', $isNew ? __('Add Reading Room') : __('Edit Reading Room'))
 
 @section('content')
 <nav aria-label="{{ __('breadcrumb') }}">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li>
         <li class="breadcrumb-item"><a href="{{ route('research.rooms') }}">{{ __('Rooms') }}</a></li>
-        <li class="breadcrumb-item active">{{ $isNew ? 'Add' : 'Edit' }}</li>
+        <li class="breadcrumb-item active">{{ $isNew ? __('Add') : __('Edit') }}</li>
     </ol>
 </nav>
 
-<h1><i class="fas fa-door-open text-primary me-2"></i>{{ $isNew ? 'Add Reading Room' : 'Edit Reading Room' }}</h1>
+<h1><i class="fas fa-door-open text-primary me-2"></i>{{ $isNew ? __('Add Reading Room') : __('Edit Reading Room') }}</h1>
 
 <div class="card">
   <div class="card-body">
@@ -119,7 +119,7 @@
 
       <div class="d-flex justify-content-between">
         <a href="{{ route('research.rooms') }}" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>{{ __('Cancel') }}</a>
-        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ $isNew ? 'Create Room' : 'Save Changes' }}</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>{{ $isNew ? __('Create Room') : __('Save Changes') }}</button>
       </div>
     </form>
   </div>

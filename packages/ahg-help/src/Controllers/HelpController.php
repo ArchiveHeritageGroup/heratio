@@ -217,6 +217,10 @@ class HelpController extends Controller
     {
         $article = HelpArticleService::getBySlug($slug);
         if (! $article) {
+            // Staff articles exist but need a login: send the visitor to sign in, then back here.
+            if (HelpArticleService::isStaffOnly($slug)) {
+                return redirect()->guest(route('login'));
+            }
             abort(404);
         }
 

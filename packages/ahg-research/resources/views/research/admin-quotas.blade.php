@@ -221,8 +221,8 @@ document.querySelectorAll('.edit-policy-btn').forEach(function(btn) {
         document.getElementById('policyNotes').value = p.notes || '';
         document.getElementById('policyActive').checked = (p.is_active == 1);
         ahgQuotaUpdateStorageHint();
-        document.getElementById('policyModalTitle').textContent = 'Edit Policy: ' + p.scope + ' / ' + (p.scope_key || '*');
-        document.getElementById('policySubmitBtn').innerHTML = '<i class="fas fa-save me-1"></i>Save Changes';
+        document.getElementById('policyModalTitle').textContent = @json(__('Edit Policy: ')) + p.scope + ' / ' + (p.scope_key || '*');
+        document.getElementById('policySubmitBtn').innerHTML = '<i class="fas fa-save me-1"></i>' + @json(__('Save Changes'));
         new bootstrap.Modal(document.getElementById('addPolicyModal')).show();
     });
 });
@@ -231,8 +231,8 @@ document.getElementById('addPolicyModal').addEventListener('hidden.bs.modal', fu
     document.getElementById('policyAction').value = 'create';
     document.getElementById('policyForm').reset();
     document.getElementById('policyStorageHint').textContent = '';
-    document.getElementById('policyModalTitle').textContent = 'Add Quota Policy';
-    document.getElementById('policySubmitBtn').innerHTML = '<i class="fas fa-plus me-1"></i>Add Policy';
+    document.getElementById('policyModalTitle').textContent = @json(__('Add Quota Policy'));
+    document.getElementById('policySubmitBtn').innerHTML = '<i class="fas fa-plus me-1"></i>' + @json(__('Add Policy'));
 });
 </script>
 @endpush

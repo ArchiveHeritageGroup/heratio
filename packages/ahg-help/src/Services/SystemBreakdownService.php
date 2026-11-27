@@ -179,9 +179,7 @@ class SystemBreakdownService
                 $q = \Illuminate\Support\Facades\DB::table('help_article')
                     ->whereIn('slug', array_keys($slugs))
                     ->where('is_published', 1);
-                if (! HelpArticleService::isAdmin()) {
-                    $q->whereNotIn('category', HelpArticleService::ADMIN_CATEGORIES);
-                }
+                HelpArticleService::applyAdminFilter($q);
                 $viewable = array_flip($q->pluck('slug')->all());
                 foreach ($elements as &$el) {
                     if (! empty($el['data']['help']) && ! isset($viewable[$el['data']['help']])) {

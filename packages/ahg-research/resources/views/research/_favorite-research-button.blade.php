@@ -25,9 +25,9 @@
             data-title="{{ e($title) }}"
             data-url="{{ e($url) }}"
             data-favorited="{{ $isFav ? '1' : '0' }}"
-            title="{{ $isFav ? 'Remove from Favorites' : 'Add to Favorites' }}">
+            title="{{ $isFav ? __('Remove from Favorites') : __('Add to Favorites') }}">
         <i class="fa{{ $isFav ? 's' : 'r' }} fa-heart"></i>
-        <span class="d-none d-md-inline ms-1">{{ $isFav ? 'Favorited' : 'Favorite' }}</span>
+        <span class="d-none d-md-inline ms-1">{{ $isFav ? __('Favorited') : __('Favorite') }}</span>
     </button>
     @if(!$isFav)
     <button type="button" class="btn btn-sm btn-outline-danger dropdown-toggle dropdown-toggle-split"
@@ -81,13 +81,13 @@
                 icon.className = 'fas fa-heart';
                 btn.dataset.favorited = '1';
                 btn.title = 'Remove from Favorites';
-                if (label) label.textContent = 'Favorited';
+                if (label) label.textContent = @json(__('Favorited'));
                 if (ddBtn) ddBtn.style.display = 'none';
             } else {
                 icon.className = 'far fa-heart';
                 btn.dataset.favorited = '0';
                 btn.title = 'Add to Favorites';
-                if (label) label.textContent = 'Favorite';
+                if (label) label.textContent = @json(__('Favorite'));
                 if (ddBtn) ddBtn.style.display = '';
             }
         });
@@ -104,7 +104,7 @@
                 var rootLi = document.createElement('li');
                 var rootA = document.createElement('a');
                 rootA.className = 'dropdown-item'; rootA.href = '#';
-                rootA.innerHTML = '<i class="fas fa-inbox me-2 text-muted"></i>Unfiled';
+                rootA.innerHTML = '<i class="fas fa-inbox me-2 text-muted"></i>' + @json(__('Unfiled'));
                 rootA.addEventListener('click', function(ev) { ev.preventDefault(); toggleFav(null); });
                 rootLi.appendChild(rootA); menu.appendChild(rootLi);
                 if (data.folders && data.folders.length > 0) {
@@ -120,7 +120,7 @@
                 var newDiv = document.createElement('li'); newDiv.innerHTML = '<hr class="dropdown-divider">'; menu.appendChild(newDiv);
                 var newLi = document.createElement('li'); var newA = document.createElement('a');
                 newA.className = 'dropdown-item text-primary'; newA.href = '/favorites';
-                newA.innerHTML = '<i class="fas fa-plus me-2"></i>Manage folders...';
+                newA.innerHTML = '<i class="fas fa-plus me-2"></i>' + @json(__('Manage folders...'));
                 newLi.appendChild(newA); menu.appendChild(newLi);
             }).catch(function() { menu.innerHTML = '<li class="px-3 py-1 text-danger small">Could not load folders</li>'; });
         });

@@ -49,7 +49,15 @@ class IngestAllHelpCommand extends Command
             return self::FAILURE;
         }
 
-        $files = glob(rtrim($dir, '/').'/*.md') ?: [];
+        // Subfolders too (docs/help/export/, observability/, ...): a top-level-only glob left
+        // those articles out of every fresh install's Help Center.
+        $files = [];
+        foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS)) as $f) {
+            if ($f->isFile() && strtolower($f->getExtension()) === 'md') {
+                $files[] = $f->getPathname();
+            }
+        }
+        sort($files);
         if (! $files) {
             $this->warn("No markdown help files in {$dir}");
 

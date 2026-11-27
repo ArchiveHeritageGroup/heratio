@@ -1,4 +1,7 @@
-@extends('theme::layouts.1col')
+@extends('theme::layouts.2col')
+@section('sidebar')
+  @include('research::research._sidebar', ['sidebarActive' => 'offline'])
+@endsection
 @section('title', __('Work Offline'))
 @push('meta')
     <link rel="manifest" href="/manifest.webmanifest">

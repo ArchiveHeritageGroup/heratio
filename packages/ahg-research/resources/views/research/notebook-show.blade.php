@@ -52,7 +52,7 @@
                                             <input type="hidden" name="form_action" value="pin_item">
                                             <input type="hidden" name="item_id" value="{{ $it->id }}">
                                             <input type="hidden" name="pinned" value="{{ $it->pinned ? 0 : 1 }}">
-                                            <button class="btn btn-sm btn-link p-0" title="{{ $it->pinned ? 'Unpin' : 'Pin' }}"><i class="fas fa-thumbtack {{ $it->pinned ? 'text-warning' : 'text-muted' }}"></i></button>
+                                            <button class="btn btn-sm btn-link p-0" title="{{ $it->pinned ? __('Unpin') : __('Pin') }}"><i class="fas fa-thumbtack {{ $it->pinned ? 'text-warning' : 'text-muted' }}"></i></button>
                                         </form>
                                         <form method="post" action="{{ route('research.notebookShow', $notebook->id) }}" class="d-inline" onsubmit="return confirm('Remove this item?')">
                                             @csrf

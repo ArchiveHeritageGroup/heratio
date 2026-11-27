@@ -33,6 +33,31 @@ class HelpArticleService
     public const ADMIN_CATEGORIES = ['Technical', 'Plugin Reference'];
 
     /**
+     * The only articles a visitor who is not signed in can see: guides to the public screens
+     * (searching, browsing, viewing records and images, citing, favourites, cart, booking,
+     * language). Everything else describes staff screens - editing, settings, admin - and needs
+     * a login. The old guest rule hid ADMIN_CATEGORIES, but help ingest files articles as
+     * "User Guides" / "Reference" / "Plugins", so guests saw all of them.
+     * ponytail: a fixed list; a per-article audience column is the upgrade if sites need to choose.
+     */
+    public const PUBLIC_SLUGS = [
+        '3d-model-viewer-user-guide', '3d-viewer-tools', 'accessibility-statement-user-guide',
+        'advanced-search-user-guide', 'ask-the-collection-user-guide', 'browse-by-genre-user-guide',
+        'browse-by-place-user-guide', 'browse-sort-direction-user-guide', 'cart-user-guide',
+        'cite-this-record-user-guide', 'collection-timeline', 'content-credentials-explainer',
+        'discoveries-user-guide', 'discovery-user-guide', 'exhibition-wayfinding-user-guide',
+        'explore-by-theme-user-guide', 'explore-hub-user-guide', 'explore-the-collection-user-guide',
+        'favorites-user-guide', 'fuzzy-search-user-guide', 'glam-browse-user-guide', 'help-user-guide',
+        'iiif-compare-mode', 'iiif-features-how-to-use', 'iiif-scalebar-magnifier', 'image-metadata-panel',
+        'marketplace-buyer-quickstart', 'mirador-tools', 'mirador-user-guide', 'public-explore-hub',
+        'read-record-in-your-language-user-guide', 'reading-language-preference-user-guide',
+        'reading-room-booking', 'recently-added-user-guide', 'repository-browse-user-guide',
+        'researcher-user-guide', 'search-syntax-and-close-matches', 'search-user-guide',
+        'semantic-search-user-guide', 'term-taxonomy-browse-user-guide', 'voice-commands',
+        'whats-on-user-guide',
+    ];
+
+    /**
      * Ensure the article↔article link table exists (ahg-help ships via
      * install.sql, so create idempotently for already-installed instances).
      */
@@ -193,11 +218,20 @@ class HelpArticleService
         return auth()->check(); // All logged-in users can see admin categories in Heratio
     }
 
-    protected static function applyAdminFilter($query): void
+    /** Restrict a help_article query to what the current visitor may see ($col names the slug column). */
+    public static function applyAdminFilter($query, string $col = 'slug'): void
     {
         if (! self::isAdmin()) {
-            $query->whereNotIn('category', self::ADMIN_CATEGORIES);
+            $query->whereIn($col, self::PUBLIC_SLUGS);
         }
+    }
+
+    /** A published article exists under this slug but only signed-in users may read it. */
+    public static function isStaffOnly(string $slug): bool
+    {
+        return ! self::isAdmin()
+            && ! in_array($slug, self::PUBLIC_SLUGS, true)
+            && DB::table('help_article')->where('slug', $slug)->where('is_published', 1)->exists();
     }
 
     public static function getCategories(): array
@@ -227,14 +261,12 @@ class HelpArticleService
 
     public static function getByCategory(string $category): array
     {
-        if (! self::isAdmin() && in_array($category, self::ADMIN_CATEGORIES)) {
-            return [];
-        }
-
-        return DB::table('help_article')
+        $query = DB::table('help_article')
             ->where('category', $category)
-            ->where('is_published', 1)
-            ->select('id', 'slug', 'title', 'subcategory', 'word_count', 'related_plugin', 'tags', 'updated_at')
+            ->where('is_published', 1);
+        self::applyAdminFilter($query);
+
+        return $query->select('id', 'slug', 'title', 'subcategory', 'word_count', 'related_plugin', 'tags', 'updated_at')
             ->orderBy('subcategory')
             ->orderBy('sort_order')
             ->orderBy('title')
@@ -303,9 +335,7 @@ class HelpArticleService
             ->where('ha.is_published', 1)
             ->whereRaw('MATCH(hs.heading, hs.body_text) AGAINST(? IN BOOLEAN MODE)', [$query.'*']);
 
-        if (! self::isAdmin()) {
-            $q->whereNotIn('ha.category', self::ADMIN_CATEGORIES);
-        }
+        self::applyAdminFilter($q, 'ha.slug');
 
         return $q->select(
             'ha.slug', 'ha.title as article_title', 'ha.category',
@@ -330,6 +360,7 @@ class HelpArticleService
         $prev = DB::table('help_article')
             ->where('category', $category)
             ->where('is_published', 1)
+            ->where(fn ($q) => self::applyAdminFilter($q))
             ->where(function ($q) use ($current) {
                 $q->where('sort_order', '<', $current->sort_order)
                     ->orWhere(function ($q2) use ($current) {
@@ -345,6 +376,7 @@ class HelpArticleService
         $next = DB::table('help_article')
             ->where('category', $category)
             ->where('is_published', 1)
+            ->where(fn ($q) => self::applyAdminFilter($q))
             ->where(function ($q) use ($current) {
                 $q->where('sort_order', '>', $current->sort_order)
                     ->orWhere(function ($q2) use ($current) {

@@ -29,7 +29,7 @@
                 <label class="form-label fw-bold">{{ __('Share URL') }}</label>
                 <div class="input-group">
                     <input type="text" class="form-control" id="shareUrl" value="{{ url('/research/shared/' . $project->share_token) }}" readonly>
-                    <button type="button" class="btn btn-outline-secondary" onclick="navigator.clipboard.writeText(document.getElementById('shareUrl').value); this.innerHTML='<i class=\'fas fa-check\'></i> Copied'; setTimeout(function(){ document.querySelector('#shareUrl + button').innerHTML='<i class=\'fas fa-copy\'></i> Copy'; }, 2000);">
+                    <button type="button" class="btn btn-outline-secondary" onclick="navigator.clipboard.writeText(document.getElementById('shareUrl').value); this.innerHTML='<i class=\'fas fa-check\'></i> ' + @json(__('Copied')); setTimeout(function(){ document.querySelector('#shareUrl + button').innerHTML='<i class=\'fas fa-copy\'></i> ' + @json(__('Copy')); }, 2000);">
                         <i class="fas fa-copy"></i> {{ __('Copy') }}
                     </button>
                 </div>

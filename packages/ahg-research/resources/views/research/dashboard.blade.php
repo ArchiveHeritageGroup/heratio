@@ -268,10 +268,11 @@
             <li class="list-group-item py-2">
               <div class="d-flex justify-content-between align-items-center">
                 <div>
-                  <span class="badge bg-light text-dark me-1">{{ ucfirst(str_replace('_', ' ', $activity->activity_type ?? '')) }}</span>
+                  {{-- Action codes go through the translator; dates follow the visitor's language. --}}
+                  <span class="badge bg-light text-dark me-1">{{ __(ucfirst(str_replace('_', ' ', $activity->activity_type ?? ''))) }}</span>
                   <span class="small">{{ e($activity->entity_title ?? $activity->description ?? '') }}</span>
                 </div>
-                <small class="text-muted">{{ isset($activity->created_at) ? \Carbon\Carbon::parse($activity->created_at)->format('M j, H:i') : '' }}</small>
+                <small class="text-muted">{{ isset($activity->created_at) ? \Carbon\Carbon::parse($activity->created_at)->locale(app()->getLocale())->translatedFormat('j M, H:i') : '' }}</small>
               </div>
             </li>
           @endforeach

@@ -75,7 +75,8 @@ class ReportService
             foreach ($sections as $sectionDef) {
                 $parts = explode(':', $sectionDef, 2);
                 $type = $parts[0];
-                $title = $parts[1] ?? ucfirst($type);
+                // Section headings are created in the researcher's language.
+                $title = __($parts[1] ?? ucfirst(str_replace('_', ' ', $type)));
 
                 DB::table('research_report_section')->insert([
                     'report_id' => $reportId,

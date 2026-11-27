@@ -289,8 +289,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('annContent').value = '';
             document.getElementById('annVisibility').value = 'private';
             document.getElementById('annTags').value = '';
-            document.getElementById('annotationModalTitle').innerHTML = '<i class="fas fa-sticky-note me-2"></i>New Note';
-            document.getElementById('annotationSubmitBtn').innerHTML = '<i class="fas fa-save me-1"></i>Save Note';
+            document.getElementById('annotationModalTitle').innerHTML = '<i class="fas fa-sticky-note me-2"></i>' + @json(__('New Note'));
+            document.getElementById('annotationSubmitBtn').innerHTML = '<i class="fas fa-save me-1"></i>' + @json(__('Save Note'));
         }
         isEdit = false;
     });
@@ -308,8 +308,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('annContent').value = d.content;
             document.getElementById('annVisibility').value = d.visibility || 'private';
             document.getElementById('annTags').value = d.tags || '';
-            document.getElementById('annotationModalTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Edit Note';
-            document.getElementById('annotationSubmitBtn').innerHTML = '<i class="fas fa-save me-1"></i>Update Note';
+            document.getElementById('annotationModalTitle').innerHTML = '<i class="fas fa-edit me-2"></i>' + @json(__('Edit Note'));
+            document.getElementById('annotationSubmitBtn').innerHTML = '<i class="fas fa-save me-1"></i>' + @json(__('Update Note'));
             new bootstrap.Modal(document.getElementById('annotationModal')).show();
         });
     });

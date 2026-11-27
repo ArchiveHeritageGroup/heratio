@@ -12,14 +12,14 @@
         <dt class="col-sm-3">{{ __('Code') }}</dt><dd class="col-sm-9"><code>{{ e($room->code ?? '') }}</code></dd>
         <dt class="col-sm-3">{{ __('Capacity') }}</dt><dd class="col-sm-9">{{ $room->capacity ?? '-' }}</dd>
         <dt class="col-sm-3">{{ __('Location') }}</dt><dd class="col-sm-9">{{ e($room->location ?? '-') }}</dd>
-        <dt class="col-sm-3">{{ __('Status') }}</dt><dd class="col-sm-9"><span class="badge bg-{{ ($room->is_active ?? false) ? 'success' : 'danger' }}">{{ ($room->is_active ?? false) ? 'Active' : 'Inactive' }}</span></dd>
+        <dt class="col-sm-3">{{ __('Status') }}</dt><dd class="col-sm-9"><span class="badge bg-{{ ($room->is_active ?? false) ? 'success' : 'danger' }}">{{ ($room->is_active ?? false) ? __('Active') : __('Inactive') }}</span></dd>
     </dl>
     @if($room->description ?? false)<hr><p class="mb-0">{{ e($room->description) }}</p>@endif
 </div></div>
 @if(!empty($seats))
 <div class="card mb-4"><div class="card-header">{{ __('Seats (:count)', ['count' => count($seats)]) }}</div><div class="card-body p-0">
     <table class="table table-sm mb-0"><thead class="table-light"><tr><th>{{ __('Seat') }}</th><th>{{ __('Type') }}</th><th>{{ __('Status') }}</th></tr></thead><tbody>
-        @foreach($seats as $s)<tr><td>{{ e($s->seat_label ?: ('Seat ' . ($s->seat_number ?? $s->id))) }}</td><td>{{ e($s->seat_type ?? 'standard') }}</td><td>@php $occupied = ($s->status ?? '') === 'occupied'; @endphp<span class="badge bg-{{ $occupied ? 'danger' : 'success' }}">{{ $occupied ? 'Occupied' : 'Available' }}</span></td></tr>@endforeach
+        @foreach($seats as $s)<tr><td>{{ e($s->seat_label ?: ('Seat ' . ($s->seat_number ?? $s->id))) }}</td><td>{{ e($s->seat_type ?? 'standard') }}</td><td>@php $occupied = ($s->status ?? '') === 'occupied'; @endphp<span class="badge bg-{{ $occupied ? 'danger' : 'success' }}">{{ $occupied ? __('Occupied') : __('Available') }}</span></td></tr>@endforeach
     </tbody></table>
 </div></div>
 @endif

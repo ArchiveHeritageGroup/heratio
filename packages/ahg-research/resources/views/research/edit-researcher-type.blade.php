@@ -1,10 +1,10 @@
 {{-- Edit Researcher Type - Migrated from AtoM --}}
 @extends('theme::layouts.2col')
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'adminTypes'])@endsection
-@section('title', ($isNew ?? true) ? 'Add Researcher Type' : 'Edit Researcher Type')
+@section('title', ($isNew ?? true) ? __('Add Researcher Type') : __('Edit Researcher Type'))
 @section('content')
-<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li><li class="breadcrumb-item"><a href="{{ route('research.adminTypes') }}">{{ __('Researcher Types') }}</a></li><li class="breadcrumb-item active">{{ ($isNew ?? true) ? 'Add' : 'Edit' }}</li></ol></nav>
-<h1 class="h2 mb-4"><i class="fas fa-user-tag text-primary me-2"></i>{{ ($isNew ?? true) ? 'Add Researcher Type' : 'Edit Researcher Type' }}</h1>
+<nav aria-label="{{ __('breadcrumb') }}"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ route('research.dashboard') }}">{{ __('Research') }}</a></li><li class="breadcrumb-item"><a href="{{ route('research.adminTypes') }}">{{ __('Researcher Types') }}</a></li><li class="breadcrumb-item active">{{ ($isNew ?? true) ? __('Add') : __('Edit') }}</li></ol></nav>
+<h1 class="h2 mb-4"><i class="fas fa-user-tag text-primary me-2"></i>{{ ($isNew ?? true) ? __('Add Researcher Type') : __('Edit Researcher Type') }}</h1>
 <div class="card">
     <div class="card-body">
         <form method="POST" autocomplete="off">

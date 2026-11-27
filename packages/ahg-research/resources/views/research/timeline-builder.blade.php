@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('autoPopulateBtn')?.addEventListener('click', function() {
         var cid = document.getElementById('autoCollectionId').value;
         if (!cid) { alert('Select a collection first'); return; }
-        this.disabled = true; this.textContent = 'Populating...';
+        this.disabled = true; this.textContent = @json(__('Populating...'));
         var form = document.createElement('form');
         form.method = 'POST'; form.action = apiUrl; form.style.display = 'none';
         form.innerHTML = '<input name="_token" value="{{ csrf_token() }}"><input name="form_action" value="auto_populate"><input name="collection_id" value="' + cid + '">';

@@ -6,7 +6,7 @@
 --}}
 @extends('theme::layouts.2col')
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'projects'])@endsection
-@section('title', ($isNew ?? false) ? 'Add memory item' : 'Edit memory item')
+@section('title', ($isNew ?? false) ? __('Add memory item') : __('Edit memory item'))
 
 @section('content')
 @php

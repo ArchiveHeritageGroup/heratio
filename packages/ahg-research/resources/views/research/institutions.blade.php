@@ -101,16 +101,16 @@ document.querySelectorAll('.edit-inst-btn').forEach(function(btn) {
         document.getElementById('instContactName').value = i.contact_name || '';
         document.getElementById('instContactEmail').value = i.contact_email || '';
         document.getElementById('instActive').checked = i.is_active == 1;
-        document.getElementById('instModalTitle').textContent = 'Edit: ' + i.name;
-        document.getElementById('instSubmitBtn').innerHTML = '<i class="fas fa-save me-1"></i>Save';
+        document.getElementById('instModalTitle').textContent = @json(__('Edit: ')) + i.name;
+        document.getElementById('instSubmitBtn').innerHTML = '<i class="fas fa-save me-1"></i>' + @json(__('Save'));
         new bootstrap.Modal(document.getElementById('institutionModal')).show();
     });
 });
 document.getElementById('institutionModal').addEventListener('hidden.bs.modal', function() {
     document.getElementById('instAction').value = 'create';
     document.getElementById('instForm').reset();
-    document.getElementById('instModalTitle').textContent = 'Add Institution';
-    document.getElementById('instSubmitBtn').innerHTML = '<i class="fas fa-plus me-1"></i>Add';
+    document.getElementById('instModalTitle').textContent = @json(__('Add Institution'));
+    document.getElementById('instSubmitBtn').innerHTML = '<i class="fas fa-plus me-1"></i>' + @json(__('Add'));
 });
 </script>
 @endpush

@@ -210,7 +210,7 @@
 <script src="{{ asset('vendor/tom-select/2.2.2/tom-select.complete.min.js') }}"></script>
 <script>
 function editSeat(seat) {
-    document.getElementById('seatModalTitle').textContent = 'Edit Seat';
+    document.getElementById('seatModalTitle').textContent = @json(__('Edit Seat'));
     document.getElementById('seatAction').value = 'update';
     document.getElementById('seatId').value = seat.id;
     document.getElementById('seatNumber').value = seat.seat_number || '';
@@ -226,7 +226,7 @@ function editSeat(seat) {
 }
 
 document.getElementById('addSeatModal').addEventListener('hidden.bs.modal', function() {
-    document.getElementById('seatModalTitle').textContent = 'Add Seat';
+    document.getElementById('seatModalTitle').textContent = @json(__('Add Seat'));
     document.getElementById('seatAction').value = 'create';
     document.getElementById('seatForm').reset();
 });
@@ -246,7 +246,11 @@ if (assignEl) {
     new TomSelect(assignEl, {
         valueField: 'id', labelField: 'name', searchField: ['name', 'email'],
         loadThrottle: 300,
-        load: function(q, cb) { if (q.length<2) return cb(); fetch('/research/researcher-autocomplete?query='+encodeURIComponent(q)).then(function(r){return r.json()}).then(cb).catch(function(){cb()}); },
+        // Opened empty with no hint until two letters were typed, so it read as "no researchers".
+        // List the first 20 on focus, then search by name or email.
+        preload: 'focus',
+        placeholder: @json(__('Click to choose, or type a name or email')),
+        load: function(q, cb) { if (q.length === 1) return cb(); fetch('/research/researcher-autocomplete?query='+encodeURIComponent(q)).then(function(r){return r.json()}).then(cb).catch(function(){cb()}); },
         render: {
             option: function(i, escape) { return '<div><strong>'+escape(i.name || '')+'</strong><br><small class="text-muted">'+escape(i.email || '')+'</small></div>'; },
             item: function(i, escape) { return '<div>'+escape(i.name || '')+'</div>'; }

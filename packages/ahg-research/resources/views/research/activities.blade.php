@@ -71,21 +71,24 @@
                 <div class="flex-grow-1">
                     <div class="d-flex justify-content-between">
                         <div>
-                            <strong>{{ e($a->title ?? ucfirst(str_replace('_', ' ', $a->type ?? __('Activity')))) }}</strong>
+                            <strong>{{ e($a->title ?? __(ucfirst(str_replace('_', ' ', $a->type ?? 'Activity')))) }}</strong>
                             @if($a->researcher_name ?? null)
                                 <br><small class="text-muted"><i class="fas fa-user me-1"></i>{{ e($a->researcher_name) }}</small>
                             @endif
                         </div>
                         <div class="text-end">
-                            <small class="text-muted">{{ $a->created_at ? date('M j, Y H:i', strtotime($a->created_at)) : '' }}</small>
-                            <br><span class="badge bg-light text-dark">{{ ucfirst(str_replace('_', ' ', $a->type ?? '')) }}</span>
+                            <small class="text-muted">{{ $a->created_at ? \Carbon\Carbon::parse($a->created_at)->locale(app()->getLocale())->translatedFormat('j M Y H:i') : '' }}</small>
+                            <br><span class="badge bg-light text-dark">{{ __(ucfirst(str_replace('_', ' ', $a->type ?? ''))) }}</span>
                         </div>
                     </div>
-                    @if($a->details ?? null)
-                        <small class="text-muted d-block mt-1">{{ e(\Illuminate\Support\Str::limit($a->details, 120)) }}</small>
+                    {{-- Details that are stored as JSON (e.g. {"method": "Controller@action"}) are
+                         internal and were shown raw, double-escaped; show only readable text. --}}
+                    @php $details = html_entity_decode((string) ($a->details ?? ''), ENT_QUOTES); @endphp
+                    @if($details !== '' && ! str_starts_with(ltrim($details), '{') && ! str_starts_with(ltrim($details), '['))
+                        <small class="text-muted d-block mt-1">{{ \Illuminate\Support\Str::limit($details, 120) }}</small>
                     @endif
                     @if($a->entity_type ?? null)
-                        <small class="text-muted"><i class="fas fa-link me-1"></i>{{ ucfirst(str_replace('_', ' ', $a->entity_type)) }}{{ ($a->entity_id ?? null) ? ' #' . $a->entity_id : '' }}</small>
+                        <small class="text-muted"><i class="fas fa-link me-1"></i>{{ __(ucfirst(str_replace('_', ' ', $a->entity_type))) }}{{ ($a->entity_id ?? null) ? ' #' . $a->entity_id : '' }}</small>
                     @endif
                 </div>
             </div>

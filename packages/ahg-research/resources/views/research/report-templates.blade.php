@@ -28,7 +28,8 @@
         <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h6 class="mb-0">
-                    {{ $tpl->name }}
+                    {{-- System templates ship in English and are translated; a site's own are shown as typed. --}}
+                    {{ $tpl->is_system ? __($tpl->name) : $tpl->name }}
                     @if($tpl->is_system)<span class="badge bg-info ms-2">{{ __('System') }}</span>@endif
                 </h6>
                 @if($isAdmin ?? false)
@@ -53,7 +54,7 @@
             </div>
             <div class="card-body">
                 @if($tpl->description)
-                    <p class="text-muted small mb-2">{{ e($tpl->description) }}</p>
+                    <p class="text-muted small mb-2">{{ $tpl->is_system ? __($tpl->description) : $tpl->description }}</p>
                 @endif
                 <strong class="small">{{ __('Sections:') }}</strong>
                 @php $sections = json_decode($tpl->sections_config ?? '[]', true) ?: []; @endphp

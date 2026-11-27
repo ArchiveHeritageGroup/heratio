@@ -7,7 +7,7 @@
 @php
     $score = $score ?? 0;
     $scoreColor = $score >= 80 ? 'success' : ($score >= 50 ? 'warning' : 'danger');
-    $scoreLabel = $score >= 80 ? 'High Trust' : ($score >= 50 ? 'Moderate Trust' : 'Low Trust');
+    $scoreLabel = $score >= 80 ? __('High Trust') : ($score >= 50 ? __('Moderate Trust') : __('Low Trust'));
 @endphp
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>

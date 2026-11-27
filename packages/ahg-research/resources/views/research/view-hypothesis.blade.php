@@ -13,7 +13,7 @@
 <div class="card mb-4"><div class="card-header">{{ __('Supporting Evidence') }}</div><div class="card-body p-0">
     @if(!empty($evidence))
     <table class="table table-hover mb-0"><thead class="table-light"><tr><th>{{ __('Evidence') }}</th><th>{{ __('Source') }}</th><th>{{ __('Supports') }}</th></tr></thead><tbody>
-        @foreach($evidence as $e)<tr><td>{{ e(Str::limit($e->description ?? '', 60)) }}</td><td>{{ e($e->source_title ?? '-') }}</td><td><span class="badge bg-{{ ($e->supports ?? true) ? 'success' : 'danger' }}">{{ ($e->supports ?? true) ? 'Supports' : 'Contradicts' }}</span></td></tr>@endforeach
+        @foreach($evidence as $e)<tr><td>{{ e(Str::limit($e->description ?? '', 60)) }}</td><td>{{ e($e->source_title ?? '-') }}</td><td><span class="badge bg-{{ ($e->supports ?? true) ? 'success' : 'danger' }}">{{ ($e->supports ?? true) ? __('Supports') : __('Contradicts') }}</span></td></tr>@endforeach
     </tbody></table>
     @else <div class="text-center py-4 text-muted">{{ __('No evidence linked yet.') }}</div>@endif
 </div></div>

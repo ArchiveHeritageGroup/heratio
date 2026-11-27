@@ -20,7 +20,7 @@
                             <td><span class="badge bg-secondary">{{ ucfirst($link->access_type ?? '') }}</span></td>
                             <td class="small">{{ $link->expires_at ?? __('Never') }}</td>
                             <td>{{ $link->view_count ?? 0 }}</td>
-                            <td><span class="badge bg-{{ ($link->is_active ?? false) ? 'success' : 'danger' }}">{{ ($link->is_active ?? false) ? 'Active' : 'Expired' }}</span></td>
+                            <td><span class="badge bg-{{ ($link->is_active ?? false) ? 'success' : 'danger' }}">{{ ($link->is_active ?? false) ? __('Active') : __('Expired') }}</span></td>
                             <td>
                                 <button class="btn btn-sm btn-outline-primary" onclick="navigator.clipboard.writeText('{{ url('/external/' . ($link->token ?? '')) }}')"><i class="fas fa-copy"></i></button>
                                 <form method="POST" class="d-inline" onsubmit="return confirm('Revoke this link?')">@csrf @method('DELETE') <input type="hidden" name="link_id" value="{{ $link->id }}"><button class="btn btn-sm btn-outline-danger"><i class="fas fa-times"></i></button></form>

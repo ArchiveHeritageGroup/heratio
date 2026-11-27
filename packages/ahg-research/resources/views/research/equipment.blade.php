@@ -168,7 +168,7 @@
 @push('js')
 <script>
 function editEquipment(item) {
-    document.getElementById('equipmentModalTitle').textContent = 'Edit Equipment';
+    document.getElementById('equipmentModalTitle').textContent = @json(__('Edit Equipment'));
     document.getElementById('equipmentAction').value = 'update';
     document.getElementById('equipmentId').value = item.id;
     document.getElementById('eqName').value = item.name;
@@ -214,7 +214,7 @@ function showHistory(equipmentId, name) {
 }
 
 document.getElementById('addEquipmentModal').addEventListener('hidden.bs.modal', function() {
-    document.getElementById('equipmentModalTitle').textContent = 'Add Equipment';
+    document.getElementById('equipmentModalTitle').textContent = @json(__('Add Equipment'));
     document.getElementById('equipmentAction').value = 'create';
     document.getElementById('equipmentForm').reset();
 });

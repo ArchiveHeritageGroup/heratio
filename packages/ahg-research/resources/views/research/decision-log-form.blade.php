@@ -6,7 +6,7 @@
 --}}
 @extends('theme::layouts.2col')
 @section('sidebar')@include('research::research._sidebar', ['sidebarActive' => 'projects'])@endsection
-@section('title', ($isNew ?? false) ? 'Record a decision' : 'Edit decision')
+@section('title', ($isNew ?? false) ? __('Record a decision') : __('Edit decision'))
 
 @section('content')
 @php
