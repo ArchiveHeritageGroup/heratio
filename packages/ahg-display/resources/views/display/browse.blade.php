@@ -398,7 +398,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header glam-filter-header">
-        <h5 class="modal-title" id="semanticSearchModalLabel">
+        <h5 class="modal-title text-white" id="semanticSearchModalLabel">
           <i class="fas fa-brain me-2"></i> {{ __('Semantic Search') }}
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
@@ -419,10 +419,12 @@
           </div>
           <div class="mb-3">
             <div class="form-check form-switch">
+              {{-- On by default: this is the semantic search popup. The header search box's
+                   separate "expand with synonyms" switch was moved here (27 Nov 2026). --}}
               <input class="form-check-input" type="checkbox" role="switch" id="semantic-toggle" name="semantic" value="1"
-                     {{ !empty($fp['semantic']) ? 'checked' : '' }}>
+                     {{ (!request()->has('query') || !empty($fp['semantic'])) ? 'checked' : '' }}>
               <label class="form-check-label" for="semantic-toggle">
-                <i class="fas fa-brain me-1"></i> {{ __('Enable AI-powered semantic expansion') }}
+                <i class="fas fa-brain me-1"></i> {{ __('Expand search with synonyms') }}
                <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
             </div>
             <small class="text-muted d-block mt-1">
@@ -453,6 +455,13 @@
 @push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // The header search box's "Semantic search" item sends other pages here with
+  // ?openSemantic=1, because the semantic search popup only exists on this page.
+  if (new URLSearchParams(window.location.search).get('openSemantic') === '1') {
+    var semBtn = document.getElementById('openSemanticSearchBtn');
+    if (semBtn) { semBtn.click(); }
+  }
+
   // Semantic modal: query expansion preview
   var semQueryInput = document.getElementById('semantic-query');
   var semToggle = document.getElementById('semantic-toggle');

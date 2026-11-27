@@ -65,25 +65,10 @@
         {{ __('Advanced search') }}
       </a>
       <div class="dropdown-divider"></div>
-      <a class="dropdown-item" href="#" id="semantic-search-dropdown-link" onclick="event.preventDefault(); var btn = document.getElementById('openSemanticSearchBtn'); if (btn) { btn.click(); } else if (typeof openSemanticModal === 'function') { openSemanticModal(); }">
+      <a class="dropdown-item" href="#" id="semantic-search-dropdown-link" onclick="event.preventDefault(); var btn = document.getElementById('openSemanticSearchBtn'); if (btn) { btn.click(); } else if (typeof openSemanticModal === 'function') { openSemanticModal(); } else { window.location.href = '{{ route('glam.browse') }}?openSemantic=1'; }">
         <i class="fas fa-brain me-1" aria-hidden="true"></i>
         {{ __('Semantic search') }}
       </a>
-      <div class="dropdown-divider"></div>
-      <div class="px-3 py-2">
-        <div class="form-check form-switch">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            id="semantic-search-toggle"
-            name="semantic"
-            value="1"
-            {{ request('semantic') == '1' ? 'checked' : '' }}>
-          <label class="form-check-label" for="semantic-search-toggle">
-            {{ __('Expand search with synonyms') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span>
-          </label>
-        </div>
-      </div>
     </div>
     <input
       id="search-box-input"
