@@ -1269,9 +1269,13 @@ Route::prefix('api/v2')->middleware(['api.cors', 'api.auth:read', 'api.ratelimit
     Route::get('events/{id}', [EventController::class, 'show'])->where('id', '[0-9]+');
     Route::get('events/correlation/{id}', [EventController::class, 'correlation'])->where('id', '[0-9]+');
 
-    // Audit (API request log)
-    Route::get('audit', [AuditController::class, 'index']);
-    Route::get('audit/{id}', [AuditController::class, 'show'])->where('id', '[0-9]+');
+    // Audit (API request log) and the privacy registers: administrators only
+    // (26 Nov 2026 - the read scope alone let a non-admin staff role list DSARs,
+    // breaches and the API log).
+    Route::middleware('api.staff:admin')->group(function () {
+        Route::get('audit', [AuditController::class, 'index']);
+        Route::get('audit/{id}', [AuditController::class, 'show'])->where('id', '[0-9]+');
+    });
 
     // Publishing
     Route::get('publish/readiness/{slug}', [PublishController::class, 'readiness']);
@@ -1302,13 +1306,15 @@ Route::prefix('api/v2')->middleware(['api.cors', 'api.auth:read', 'api.ratelimit
     Route::post('valuations', [AssetController::class, 'storeValuation'])->middleware('api.auth:write');
     Route::get('assets/{id}/valuations', [AssetController::class, 'assetValuations'])->where('id', '[0-9]+');
 
-    // Privacy / DSAR / Breaches
-    Route::get('privacy/dsars', [PrivacyController::class, 'dsarIndex']);
-    Route::post('privacy/dsars', [PrivacyController::class, 'dsarStore'])->middleware('api.auth:write');
-    Route::get('privacy/dsars/{id}', [PrivacyController::class, 'dsarShow'])->where('id', '[0-9]+');
-    Route::match(['put', 'patch'], 'privacy/dsars/{id}', [PrivacyController::class, 'dsarUpdate'])->where('id', '[0-9]+')->middleware('api.auth:write');
-    Route::get('privacy/breaches', [PrivacyController::class, 'breachIndex']);
-    Route::post('privacy/breaches', [PrivacyController::class, 'breachStore'])->middleware('api.auth:write');
+    // Privacy / DSAR / Breaches (administrators only, see Audit above)
+    Route::middleware('api.staff:admin')->group(function () {
+        Route::get('privacy/dsars', [PrivacyController::class, 'dsarIndex']);
+        Route::post('privacy/dsars', [PrivacyController::class, 'dsarStore'])->middleware('api.auth:write');
+        Route::get('privacy/dsars/{id}', [PrivacyController::class, 'dsarShow'])->where('id', '[0-9]+');
+        Route::match(['put', 'patch'], 'privacy/dsars/{id}', [PrivacyController::class, 'dsarUpdate'])->where('id', '[0-9]+')->middleware('api.auth:write');
+        Route::get('privacy/breaches', [PrivacyController::class, 'breachIndex']);
+        Route::post('privacy/breaches', [PrivacyController::class, 'breachStore'])->middleware('api.auth:write');
+    });
 
     // Mobile Sync
     Route::get('sync/changes', [SyncController::class, 'changes']);
@@ -1371,8 +1377,9 @@ Route::prefix('api')->middleware(['throttle:60,1', 'api.cors'])->group(function 
 
     Route::match(['get', 'post'], 'search/io', [LegacyApiController::class, 'searchIo']);
     Route::match(['get', 'post'], 'autocomplete/glam', [LegacyApiController::class, 'autocompleteGlam']);
-    Route::get('export-preview', [LegacyApiController::class, 'exportPreview']);
-    Route::get('reports/pending-counts', [LegacyApiController::class, 'pendingCounts']);
+    // Internal counts (drafts, failed jobs): staff only (26 Nov 2026, were public).
+    Route::get('export-preview', [LegacyApiController::class, 'exportPreview'])->middleware(['api.auth:read', 'api.staff']);
+    Route::get('reports/pending-counts', [LegacyApiController::class, 'pendingCounts'])->middleware(['api.auth:read', 'api.staff']);
 });
 
 /*

@@ -384,14 +384,16 @@ Complete listing of the user-facing functionality across the Heratio platform an
 - Manage exhibitions and their object placements (including remote placements across federated sites)
 - Manage physical objects, digital objects, and per-object embedded metadata
 - Manage conservation conditions with photo attachments, and manage assets with valuations
-- Handle privacy workflows over the API: raise and track DSARs (data-subject access requests) and log data breaches
+- Handle privacy workflows over the API: raise and track DSARs (data-subject access requests) and log data breaches (administrators only since 26 Nov 2026)
 - Publish records: check publish readiness then execute publication
 - Upload files for a description, run batch operations, and run federated cross-site search
 - Pull incremental sync changes and push batched sync updates for offline/mobile clients
 - Look up, validate, and detect identifiers (ISBN, barcode, etc.) and list an object's identifier types
 - Search the marketplace, place bids, check auction status, favourite lots, and list currencies/categories
 - Read museum-procedure workflow statistics, events, and per-object activity
-- Retrieve event streams (with correlation chains) and audit records over the API
+- Retrieve event streams (with correlation chains) and audit records over the API (the API audit log is for administrators only since 26 Nov 2026)
+- The badge counts (`/api/reports/pending-counts`) and export statistics (`/api/export-preview`) need a signed-in administrator or editor, or their API key, since 26 Nov 2026
+- The SPARQL endpoints (`/api/sparql`, `/api/ric/v1/sparql`) are for administrators and editors, run read-only queries only, and refuse federated `SERVICE` queries
 ### API Access & Integration
 - Self-service API key management (list, issue, revoke)
 - Register and manage webhooks, inspect delivery history, and regenerate signing secrets

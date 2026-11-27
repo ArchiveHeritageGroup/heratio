@@ -724,6 +724,9 @@ class LinkedDataApiController extends Controller
                 'example' => 'SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 10',
             ], 400);
         }
+        if ($no = \AhgRic\Support\SparqlGuard::refusal((string) $query)) {
+            return response()->json(['error' => $no[1]], $no[0]);
+        }
 
         // Sanitize and execute query
         $result = $this->executeSparql($query);

@@ -20,11 +20,16 @@ use Illuminate\Http\Request;
 
 class ApiStaffOnly
 {
-    public function handle(Request $request, Closure $next)
+    /** api.staff = administrators and editors; api.staff:admin = administrators only. */
+    public function handle(Request $request, Closure $next, ?string $level = null)
     {
         $id = (int) $request->attributes->get('api_user_id');
         $user = $id ? (object) ['id' => $id] : null;
-        if (! $user || ! (AclService::isAdministrator($user) || AclService::isEditor($user))) {
+        if ($level === 'admin') {
+            if (! $user || ! AclService::isAdministrator($user)) {
+                return response()->json(['error' => 'Forbidden', 'message' => 'This endpoint is for administrators only.'], 403);
+            }
+        } elseif (! $user || ! (AclService::isAdministrator($user) || AclService::isEditor($user))) {
             return response()->json(['error' => 'Forbidden', 'message' => 'This endpoint is for administrators and editors only.'], 403);
         }
 

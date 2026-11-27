@@ -97,12 +97,9 @@ class RdfImportController extends Controller
             return response()->json(['error' => 'Missing query parameter or body.'], 400);
         }
 
-        // Defence in depth - only SELECT / ASK / CONSTRUCT / DESCRIBE allowed
-        if (preg_match('/\b(INSERT|DELETE|LOAD|DROP|CLEAR|CREATE|MOVE|COPY|ADD)\b/i', $query)) {
-            return response()->json(['error' => 'Update operations are not permitted on this endpoint.'], 403);
-        }
-        if (!preg_match('/\b(SELECT|ASK|CONSTRUCT|DESCRIBE)\b/i', $query)) {
-            return response()->json(['error' => 'Only SELECT / ASK / CONSTRUCT / DESCRIBE queries are accepted.'], 400);
+        // Read-only, no SERVICE (the store would fetch any address a caller names).
+        if ($no = \AhgRic\Support\SparqlGuard::refusal($query)) {
+            return response()->json(['error' => $no[1]], $no[0]);
         }
 
         try {
@@ -110,7 +107,10 @@ class RdfImportController extends Controller
             $bindings = $svc->executeQuery($query);
             return response()->json($bindings);
         } catch (\Throwable $e) {
-            return response()->json(['error' => 'Query failed: ' . $e->getMessage()], 502);
+            // The backend message can carry internal addresses: log it, do not return it.
+            \Illuminate\Support\Facades\Log::warning('[sparql-proxy] query failed: '.mb_substr($e->getMessage(), 0, 500));
+
+            return response()->json(['error' => 'Query failed.'], 502);
         }
     }
 }
