@@ -1572,7 +1572,7 @@
     "Exhibition": "Toonwees",
     "Exhibitions": "Toonwese",
     "Existing reports:": "Bestaande verslae:",
-    "Expand search with synonyms": "Verbreid die soek met sinonieme",
+    "Expand search with synonyms": "Verbreed die soek met sinonieme",
     "Expected format: ZIP file containing an <code>images/</code> directory (JPG/PNG files) and an <code>annotations/</code> directory (JSON files with damage type and bounding box coordinates).": "Aangeduide formaat: 'n ZIP-bestand wat 'n <code>images/</code>-map (JPG/PNG-bestande) en 'n <code>annotations/</code>-map (JSON-bestaande met skade-tipe en omgrensingskoördinate) bevat.",
     "Expiration Date": "Vervaldatum",
     "Expired": "Vervul",
