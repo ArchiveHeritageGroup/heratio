@@ -536,7 +536,7 @@
             @if(!empty($doc['thumbnail_path']))
               <div class="col-12 col-lg-3 pb-2 pb-lg-0 pe-lg-3">
                 <a href="{{ route('actor.show', $doc['slug']) }}">
-                  <img src="{{ url('/uploads/r/' . $doc['thumbnail_path']) }}" alt="{{ $doc['name'] ?: '[Untitled]' }}" class="img-thumbnail">
+                  <img src="{{ url($doc['thumbnail_path']) }}" alt="{{ $doc['name'] ?: '[Untitled]' }}" class="img-thumbnail">
                 </a>
               </div>
             @endif

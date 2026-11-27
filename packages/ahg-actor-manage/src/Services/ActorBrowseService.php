@@ -101,7 +101,9 @@ class ActorBrowseService extends BrowseService
             DB::raw('COALESCE(actor_cur.history, actor_fb.history) AS history'),
             'object.updated_at',
             'slug.slug',
-            DB::raw('(SELECT do_thumb.path FROM digital_object do_master JOIN digital_object do_thumb ON do_thumb.parent_id = do_master.id AND do_thumb.usage_id = 113 WHERE do_master.object_id = actor.id LIMIT 1) as thumbnail_path'),
+            // The thumbnail derivative (usage 142) as a full web path, folder + file name.
+            // It read usage 113 and the folder only, so no authority list ever showed a thumbnail.
+            DB::raw('(SELECT CONCAT(do_thumb.path, do_thumb.name) FROM digital_object do_master JOIN digital_object do_thumb ON do_thumb.parent_id = do_master.id AND do_thumb.usage_id = '.\AhgCore\Services\DigitalObjectService::USAGE_THUMBNAIL.' WHERE do_master.object_id = actor.id LIMIT 1) as thumbnail_path'),
         ];
     }
 
