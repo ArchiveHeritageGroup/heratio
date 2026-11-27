@@ -104,8 +104,12 @@ class SettingsService
         return SecretCrypto::conceal($value);
     }
 
-    public function saveSetting(string $name, ?string $scope, string $value, string $culture = 'en'): void
+    public function saveSetting(string $name, ?string $scope, ?string $value, string $culture = 'en'): void
     {
+        // A blank form field reaches here as null (ConvertEmptyStringsToNull), even when
+        // the caller passed '' as the input() default; store it as an empty string.
+        $value = (string) $value;
+
         // #1395(D) - don't wipe a stored secret when its write-only field is blank.
         if ($this->isBlankSecret($name, $value)) {
             return;

@@ -103,7 +103,7 @@ mkdir -p "${HERATIO_STORAGE_PATH:-storage/uploads}" \
          storage/framework/{sessions,views,cache,testing} \
          storage/logs storage/app/public \
          bootstrap/cache
-chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
+chown -R www-data:www-data storage bootstrap/cache public/css public/vendor/ahg-theme-b5/css 2>/dev/null || true
 
 # ─── Stage 6-7: schema (only first boot) ─────────────────────────────────────
 # Fail closed: never load the core schema over a database that already holds a
@@ -213,6 +213,6 @@ php artisan view:cache    --no-interaction 2>/dev/null || true
 # Every artisan step above ran as root and left root-owned cache, view and log
 # files behind; php-fpm runs as www-data and could not write them, so the first
 # sign-in failed with a 500 (H07). Hand the tree back as the last step.
-chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
+chown -R www-data:www-data storage bootstrap/cache public/css public/vendor/ahg-theme-b5/css 2>/dev/null || true
 
 echo "[init] === Heratio bootstrap complete ==="

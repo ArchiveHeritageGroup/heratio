@@ -57,6 +57,14 @@ rm ./heratio.env
 Once healthy, point your browser at `http://<host>:8088/` and log in with the
 admin credentials from `.env.docker`.
 
+The container's nginx serves uploaded files (images and their thumbnails) from
+the storage volume at `/uploads/`, and the theme's CSS and JS from
+`public/vendor/`. On every boot `init.sh` gives the web server write access to
+`public/css` and `public/vendor/ahg-theme-b5/css`, so saving Admin > Settings >
+Themes can regenerate the theme CSS. Before v1.167.15, images and the theme
+did not load in the Docker stack. Before v1.167.16, saving Themes reported that
+the generated CSS could not be written.
+
 ## Reset
 
 ```bash
