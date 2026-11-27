@@ -66,6 +66,7 @@ class ActorController extends Controller
             'subquery' => $request->get('query', $request->get('subquery', '')),
             'entityType' => $request->get('entityType', ''),
             'repository' => $request->get('repository', ''),
+            'maintainedBy' => $request->get('maintainedBy', ''),
             'hasDigitalObject' => $request->get('hasDigitalObject', ''),
             'emptyField' => $request->get('emptyField', ''),
             'relatedType' => $request->get('relatedType', ''),
@@ -79,7 +80,7 @@ class ActorController extends Controller
             $params["so{$i}"] = $request->get("so{$i}", 'and');
         }
 
-        $hasAdvancedFilters = $params['entityType'] || $params['repository']
+        $hasAdvancedFilters = $params['entityType'] || $params['repository'] || $params['maintainedBy']
             || $params['hasDigitalObject'] || $params['emptyField']
             || $params['sq0'];
 

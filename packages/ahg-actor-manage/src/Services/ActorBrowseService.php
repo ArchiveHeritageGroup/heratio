@@ -246,7 +246,9 @@ class ActorBrowseService extends BrowseService
     {
         $rows = DB::table('relation')
             ->tap(fn ($q) => I18nFallback::join($q, 'actor_i18n as repo_name', 'relation.object_id', $this->culture, required: true))
-            ->where('relation.type_id', TermId::RELATION_NAME_ACCESS_POINT) // isMaintenanceAgencyOf
+            // The maintaining-repository link (actor -> repository), as ActorController saves it.
+            // It used the name-access-point type, so the facet listed people, not repositories.
+            ->where('relation.type_id', TermId::RELATION_MAINTAINING_REPOSITORY)
             ->select('relation.object_id as id', I18nFallback::col('repo_name', 'authorized_form_of_name', 'name'), DB::raw('COUNT(DISTINCT relation.subject_id) as cnt'))
             ->groupBy('relation.object_id', I18nFallback::col('repo_name', 'authorized_form_of_name'))
             ->orderBy(I18nFallback::col('repo_name', 'authorized_form_of_name'))
@@ -413,6 +415,18 @@ class ActorBrowseService extends BrowseService
                     ->join('information_object', 'event.object_id', '=', 'information_object.id')
                     ->whereColumn('event.actor_id', 'actor.id')
                     ->where('information_object.repository_id', $repoId);
+            });
+        }
+
+        // "Maintained by" facet - actors whose maintaining repository is this one.
+        if (! empty($params['maintainedBy'])) {
+            $repoId = (int) $params['maintainedBy'];
+            $query->whereExists(function ($sub) use ($repoId) {
+                $sub->select(DB::raw(1))
+                    ->from('relation')
+                    ->whereColumn('relation.subject_id', 'actor.id')
+                    ->where('relation.object_id', $repoId)
+                    ->where('relation.type_id', TermId::RELATION_MAINTAINING_REPOSITORY);
             });
         }
 
