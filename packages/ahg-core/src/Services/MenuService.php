@@ -352,6 +352,16 @@ class MenuService
      * Admin > Marketplace > Settings (ahg_settings marketplace_enabled) is not off. Every
      * marketplace banner, button, menu entry and record-page card checks this.
      */
+    /**
+     * The RiC Tools menu shows in the main navigation: RiC is on and the site has not hidden
+     * the menu (Fuseki / RiC settings, ric_show_in_nav). Hiding it leaves RiC itself running.
+     */
+    public static function ricInNav(): bool
+    {
+        return self::isPluginEnabled('ahgRicExplorerPlugin')
+            && AhgSettingsService::getBool('ric_show_in_nav', true);
+    }
+
     public static function marketplaceEnabled(): bool
     {
         return self::isPluginEnabled('ahgMarketplacePlugin')

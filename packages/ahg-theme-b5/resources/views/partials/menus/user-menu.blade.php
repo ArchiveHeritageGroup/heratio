@@ -271,9 +271,9 @@
       })();
       </script>
 
-      {{-- Demo credentials - only on the AHG-branded heratio site, not on white-label client deployments.
-           Gated by Show Branding (same toggle that controls "Powered by Heratio"). --}}
-      @if($themeData['showBranding'] ?? true)
+      {{-- Demo credentials - only on the public demo site (heratio.org). Gating on Show Branding
+           alone printed the shared demo login on every install that kept branding on. --}}
+      @if(\App\Support\MarketingSite::is())
       <div class="alert alert-info py-2 px-2 mt-2 mb-2 small">
         <strong>{{ __('Demo:') }}</strong> <code>louise@theahg.co.za</code> / <code>Password@123</code>
       </div>

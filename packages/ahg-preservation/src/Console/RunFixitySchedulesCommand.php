@@ -164,9 +164,16 @@ class RunFixitySchedulesCommand extends Command
                 $stats['processed'] = count($batch);
                 foreach ($batch as $digitalObjectId => $r) {
                     $outcomeRaw = is_array($r) ? ($r['outcome'] ?? 'unknown') : 'unknown';
-                    $passed     = $outcomeRaw === 'verified';
+                    // AhgIntegrity\FixityService reports pass|fail|missing|error|no_baseline. This
+                    // checked for 'verified', which it never returns, so every object counted as
+                    // failed. A file with no stored checksum yet is skipped, not failed.
+                    $passed     = in_array($outcomeRaw, ['pass', 'verified'], true);
                     $premisOutcome = $passed ? 'success' : 'failure';
 
+                    if ($outcomeRaw === 'no_baseline') {
+                        $stats['skipped']++;
+                        continue;
+                    }
                     if ($passed) {
                         $stats['succeeded']++;
                     } else {

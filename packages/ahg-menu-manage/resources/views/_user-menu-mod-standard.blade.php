@@ -78,9 +78,12 @@ if ($isAuthenticated && $hasSpectrum) {
       </button>
     </form>
 
+    {{-- Demo login hint: only on the public demo site (heratio.org), never on a client install. --}}
+    @if(\App\Support\MarketingSite::is())
     <div class="alert alert-info py-2 px-2 mt-2 mb-2 small">
       <strong>{{ __('Demo') }}:</strong> <code>louise@theahg.co.za</code> / <code>Password@123</code>
     </div>
+    @endif
 
     <div class="text-center mt-2">
       <a href="{{ route('user.passwordReset') }}" class="small text-muted">

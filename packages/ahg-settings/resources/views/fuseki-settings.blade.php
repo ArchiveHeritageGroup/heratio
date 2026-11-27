@@ -35,6 +35,21 @@
   <form method="POST" action="{{ route('settings.ahg.fuseki') }}">
     @csrf
 
+    {{-- Main navigation: show or hide the RiC Tools menu without switching RiC itself off. --}}
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-bars me-2"></i>{{ __('Main navigation') }}</h5>
+      </div>
+      <div class="card-body">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="ric_show_in_nav" name="ric_show_in_nav" value="1"
+                 {{ ($settings['ric_show_in_nav'] ?? '1') === '1' ? 'checked' : '' }}>
+          <label class="form-check-label" for="ric_show_in_nav">{{ __('Show RiC Tools in the main menu') }}</label>
+        </div>
+        <div class="form-text">{{ __('Hiding the menu does not switch RiC off: sync, the RiC views and /admin/ric keep working.') }}</div>
+      </div>
+    </div>
+
     {{-- Card 1: Fuseki Connection --}}
     <div class="card mb-4">
       <div class="card-header bg-primary text-white">

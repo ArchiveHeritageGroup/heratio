@@ -79,6 +79,10 @@ The Python RiC extractor historically read `ATOM_DB_HOST`, `ATOM_DB_USER`, `ATOM
 
 ---
 
+### Showing or hiding the RiC Tools menu
+
+The RiC Tools menu in the main navigation can be hidden without switching RiC off. Go to **Settings > Fuseki / RIC Triplestore** (`/admin/ahgSettings/fuseki`) and clear **Show RiC Tools in the main menu** in the Main navigation card, then save. Sync, the RiC views on records and `/admin/ric` keep working; only the menu entry goes. The switch is on by default.
+
 ## Running the sync
 
 ### From the dashboard (recommended)

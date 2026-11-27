@@ -358,11 +358,15 @@ A previous run is still active or was interrupted. If the process is no longer r
 ### No baseline checksums found
 The preservation pipeline must have generated checksums for the digital objects. Baselines are created automatically on ingest; Integrity Assurance will also generate a baseline on first verification of an object that lacks one.
 
+To record baselines for every file that has none, run `php artisan ahg:preservation-fixity --baseline --limit=1000` (repeat until it reports none left). The scheduled fixity run counts a file without a baseline as skipped, not failed.
+
 ### "Memory limit reached" (partial status)
 Increase the schedule's max memory setting or reduce the batch size.
 
 ### Objects reported as "missing" but files exist
 Confirm the storage path is mounted and reachable (the Heratio uploads/storage location, e.g. the NAS mount). A disconnected mount is the most common cause of false "missing" results.
+
+Before v1.167.36 the scheduled fixity run looked for each file at its folder without the file name, so every object was reported missing or failed on every install, and the files themselves were fine. After upgrading, record baselines (above) and the next run reports real results.
 
 ### Pass rate declining
 1. Check the dead letter queue for patterns (same repository, same failure type)

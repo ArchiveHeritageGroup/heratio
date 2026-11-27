@@ -299,19 +299,15 @@ class FixityService
     {
         $do = DB::table('digital_object')
             ->where('id', $digitalObjectId)
-            ->first(['path']);
+            ->first(['path', 'name']);
 
         if (! $do || ! $do->path) {
             return null;
         }
 
-        $path = $do->path;
-
-        // If the path is already absolute, use it directly
-        if (str_starts_with($path, '/')) {
-            return $path;
-        }
-
-        return rtrim(config('heratio.uploads_path', self::UPLOAD_ROOT), '/').'/'.ltrim($path, '/');
+        // digital_object.path is the web FOLDER (/uploads/r/<id>/) and has no file name, so the
+        // old "absolute path / uploads_path + path" build never found a file: every scheduled
+        // fixity run failed every object. Same fix as #1733 made for PreservationService.
+        return \AhgCore\Services\DigitalObjectService::resolveDiskPath($do);
     }
 }

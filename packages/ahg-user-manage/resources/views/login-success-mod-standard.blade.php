@@ -36,10 +36,13 @@
         </div>
       </div>
     </div>
+    {{-- Demo login hint: only on the public demo site (heratio.org), never on a client install. --}}
+    @if(\App\Support\MarketingSite::is())
     <div class="alert alert-info py-2 mb-3">
       <i class="fas fa-info-circle me-1"></i><strong>{{ __('Demo') }}:</strong>
       <code>louise@theahg.co.za</code> / <code>Password@123</code>
     </div>
+    @endif
     <div class="d-flex justify-content-between align-items-center mb-3">
       <button type="submit" class="btn atom-btn-outline-success">
         <i class="fas fa-sign-in-alt me-1"></i>{{ __('Log in') }}

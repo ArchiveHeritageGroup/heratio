@@ -117,8 +117,15 @@ These stay external on purpose:
   the `iiif_base_url` setting in the Dropdown Manager.
 - **Ollama / vLLM** (AI services - HTR, NER, condition scan). Per project
   policy, AI is remote-only. Set `voice_local_llm_url` to your GPU host.
-- **Cron / queue worker.** Add a `queue-worker` service to compose if you
-  need background jobs. The supervisor config has a stub.
+- **Queue worker.** Heratio does not need one today; the supervisor config
+  has a stub if you add queued jobs.
+
+Scheduled jobs run inside the container: supervisor starts the Laravel
+scheduler (`artisan schedule:work`) as `www-data`, which runs `ahg:cron-run`
+and every other scheduled task each minute. Images built before v1.167.36 had
+no scheduler, so no scheduled job (search index updates, fixity checks,
+watched folders, notices) ever ran; rebuild the image to pick it up. Check it
+with `docker compose exec heratio supervisorctl status scheduler`.
 - **TLS termination.** The container speaks plain HTTP on port 80. Front
   it with the host's nginx (or Traefik) for HTTPS.
 

@@ -4022,8 +4022,10 @@ class SettingsController extends Controller
                 'fuseki_batch_size',
                 'fuseki_integrity_schedule',
                 'fuseki_orphan_retention_days',
+                'ric_show_in_nav',
             ];
             $checkboxes = [
+                'ric_show_in_nav',
                 'fuseki_sync_enabled',
                 'fuseki_queue_enabled',
                 'fuseki_sync_on_save',
