@@ -131,7 +131,7 @@
         <h6 class="mb-1">{{ e(($researcher->first_name ?? '') . ' ' . ($researcher->last_name ?? '')) }}</h6>
         <small class="text-muted d-block">{{ e($researcher->email ?? '') }}</small>
         <small class="text-muted d-block">{{ e($researcher->institution ?: 'Independent Researcher') }}</small>
-        <span class="badge bg-{{ ($researcher->status ?? '') === 'approved' ? 'success' : 'secondary' }} mt-2">{{ ucfirst($researcher->status ?? '') }}</span>
+        <span class="badge bg-{{ ($researcher->status ?? '') === 'approved' ? 'success' : 'secondary' }} mt-2">{{ __(ucfirst(str_replace('_', ' ', $researcher->status ?? ''))) }}</span>
       </div>
     </div>
     @endif

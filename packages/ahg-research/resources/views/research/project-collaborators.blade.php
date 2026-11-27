@@ -45,7 +45,7 @@
                             <span class="badge bg-{{ match($c->role ?? '') { 'admin' => 'danger', 'editor' => 'warning', 'reviewer' => 'info', default => 'secondary' } }}">{{ ucfirst($c->role ?? 'contributor') }}</span>
                         </td>
                         <td>
-                            <span class="badge bg-{{ match($c->status ?? '') { 'active' => 'success', 'invited' => 'info', default => 'warning' } }}">{{ ucfirst($c->status ?? 'pending') }}</span>
+                            <span class="badge bg-{{ match($c->status ?? '') { 'active' => 'success', 'invited' => 'info', default => 'warning' } }}">{{ __(ucfirst(str_replace('_', ' ', $c->status ?? 'pending'))) }}</span>
                         </td>
                         <td>
                             @if(($c->researcher_id ?? 0) != ($researcher->id ?? -1))

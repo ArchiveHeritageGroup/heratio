@@ -126,7 +126,7 @@
                             <span class="badge bg-info">{{ ucfirst($a->assertion_type ?? '') }}</span>
                         </td>
                         <td>
-                            <span class="badge bg-{{ match($a->status ?? '') { 'verified' => 'success', 'disputed' => 'danger', default => 'warning' } }}">{{ ucfirst($a->status ?? 'proposed') }}</span>
+                            <span class="badge bg-{{ match($a->status ?? '') { 'verified' => 'success', 'disputed' => 'danger', default => 'warning' } }}">{{ __(ucfirst(str_replace('_', ' ', $a->status ?? 'proposed'))) }}</span>
                         </td>
                         <td>{{ $a->evidence_count ?? 0 }}</td>
                         <td class="small">{{ $a->created_at ?? '' }}</td>

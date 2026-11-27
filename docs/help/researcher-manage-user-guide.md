@@ -64,6 +64,10 @@ Every signed-in user has a personal researcher dashboard. Regular users see only
 
 ---
 
+### Standard researcher types
+
+Every install starts with eleven researcher types - General Public, School learner or educator, Registered Researcher, Academic Staff, Postgraduate and Undergraduate Student, Visiting Scholar, Institutional Partner, Heritage Professional, Genealogist and Media/Journalist - with starting booking limits for each site to adjust. Their names show in the reader's language on the Researcher Types list.
+
 ## Configuration
 
 - **Access.** All dashboard, submission, browse, and import routes require sign-in. Deleting a researcher record requires an administrator account.

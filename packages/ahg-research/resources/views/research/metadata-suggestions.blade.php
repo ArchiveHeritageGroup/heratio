@@ -74,7 +74,7 @@
                   </form>
                 </td>
               @else
-                <td><span class="badge bg-{{ $s->status === 'approved' ? 'success' : 'secondary' }}">{{ ucfirst($s->status) }}</span></td>
+                <td><span class="badge bg-{{ $s->status === 'approved' ? 'success' : 'secondary' }}">{{ __(ucfirst(str_replace('_', ' ', $s->status ?? ''))) }}</span></td>
               @endif
             </tr>
           @endforeach

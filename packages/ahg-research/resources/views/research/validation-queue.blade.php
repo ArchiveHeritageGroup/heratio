@@ -117,7 +117,7 @@
                         <small class="text-muted">-</small>
                     @endif
                 </td>
-                <td><span class="badge bg-{{ match($item->status ?? '') { 'pending' => 'warning', 'accepted' => 'success', 'rejected' => 'danger', 'modified' => 'info', default => 'secondary' } }}">{{ ucfirst($item->status ?? 'pending') }}</span></td>
+                <td><span class="badge bg-{{ match($item->status ?? '') { 'pending' => 'warning', 'accepted' => 'success', 'rejected' => 'danger', 'modified' => 'info', default => 'secondary' } }}">{{ __(ucfirst(str_replace('_', ' ', $item->status ?? 'pending'))) }}</span></td>
                 <td>
                     <div class="btn-group btn-group-sm">
                         <button class="btn btn-outline-secondary preview-btn" data-id="{{ (int) $item->result_id }}" data-data="{{ e($item->data_json ?? '{}') }}" title="{{ __('Preview') }}"><i class="fas fa-eye"></i></button>

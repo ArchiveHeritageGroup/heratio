@@ -55,7 +55,7 @@
         <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <strong>{{ e(Str::limit($h->statement ?? __('Untitled'), 80)) }}</strong>
-                <span class="badge bg-{{ match($h->status ?? '') { 'supported' => 'success', 'refuted' => 'danger', 'testing' => 'info', default => 'warning' } }}">{{ ucfirst($h->status ?? 'proposed') }}</span>
+                <span class="badge bg-{{ match($h->status ?? '') { 'supported' => 'success', 'refuted' => 'danger', 'testing' => 'info', default => 'warning' } }}">{{ __(ucfirst(str_replace('_', ' ', $h->status ?? 'proposed'))) }}</span>
             </div>
             <div class="card-body">
                 <p class="mb-0">{{ e($h->statement ?? '') }}</p>

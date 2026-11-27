@@ -36,7 +36,7 @@
                 <a href="{{ route('research.viewProject', $project->id) }}">{{ e($project->title) }}</a>
               </h5>
               <span class="badge bg-{{ ($project->status ?? '') === 'active' ? 'success' : (($project->status ?? '') === 'completed' ? 'primary' : 'secondary') }}">
-                {{ ucfirst(e($project->status ?? 'active')) }}
+                {{ __(ucfirst(str_replace('_', ' ', $project->status ?? 'active'))) }}
               </span>
             </div>
             @if($project->description ?? false)

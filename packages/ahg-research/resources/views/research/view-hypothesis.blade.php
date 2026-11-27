@@ -8,7 +8,7 @@
 <div class="row"><div class="col-md-8">
 <div class="card mb-4"><div class="card-header" style="background:var(--ahg-primary);color:#fff">{{ __('Hypothesis') }}</div><div class="card-body">
     <p>{{ e($hypothesis->description ?? '') }}</p>
-    <span class="badge bg-{{ match($hypothesis->status ?? '') { 'confirmed' => 'success', 'refuted' => 'danger', 'testing' => 'info', default => 'warning' } }} fs-6">{{ ucfirst($hypothesis->status ?? 'proposed') }}</span>
+    <span class="badge bg-{{ match($hypothesis->status ?? '') { 'confirmed' => 'success', 'refuted' => 'danger', 'testing' => 'info', default => 'warning' } }} fs-6">{{ __(ucfirst(str_replace('_', ' ', $hypothesis->status ?? 'proposed'))) }}</span>
 </div></div>
 <div class="card mb-4"><div class="card-header">{{ __('Supporting Evidence') }}</div><div class="card-body p-0">
     @if(!empty($evidence))

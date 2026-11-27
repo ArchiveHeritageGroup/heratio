@@ -8,7 +8,7 @@
 <div class="row"><div class="col-md-8">
 <div class="card mb-4"><div class="card-header" style="background:var(--ahg-primary);color:#fff">{{ __('Claim') }}</div><div class="card-body">
     <h5>{{ e($assertion->claim ?? '') }}</h5>
-    <span class="badge bg-{{ match($assertion->status ?? '') { 'approved' => 'success', 'rejected' => 'danger', 'flagged' => 'warning', default => 'secondary' } }}">{{ ucfirst($assertion->status ?? 'pending') }}</span>
+    <span class="badge bg-{{ match($assertion->status ?? '') { 'approved' => 'success', 'rejected' => 'danger', 'flagged' => 'warning', default => 'secondary' } }}">{{ __(ucfirst(str_replace('_', ' ', $assertion->status ?? 'pending'))) }}</span>
     <span class="badge bg-info ms-2">{{ __('Confidence: :percent%', ['percent' => number_format(($assertion->confidence ?? 0) * 100)]) }}</span>
 </div></div>
 @if($assertion->evidence ?? false)

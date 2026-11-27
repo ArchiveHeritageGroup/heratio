@@ -93,7 +93,7 @@
                                     </small>
                                 </div>
                                 <span class="badge bg-{{ ['ready' => 'success', 'generating' => 'warning', 'error' => 'danger', 'pending' => 'secondary'][$a->status] ?? 'dark' }}">
-                                    {{ ucfirst($a->status) }}
+                                    {{ __(ucfirst(str_replace('_', ' ', $a->status ?? ''))) }}
                                 </span>
                             </li>
                         @endforeach

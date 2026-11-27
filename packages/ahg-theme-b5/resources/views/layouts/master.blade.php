@@ -531,6 +531,23 @@
     <script src="{{ asset('vendor/ahg-theme-b5/js/voiceSttFallback.js') }}"></script>
     @endif
 
+    {{-- Required-field message in the site's language, not the browser's ("Please fill out this
+         field" showed in English on an Afrikaans site). Cleared as soon as the field changes. --}}
+    @if(! str_starts_with(app()->getLocale(), 'en'))
+    <script nonce="{{ $cspNonce }}">
+    (function () {
+      var msg = @json(__('Please fill out this field.'));
+      document.addEventListener('invalid', function (e) {
+        var f = e.target;
+        if (f && f.validity && f.validity.valueMissing && f.setCustomValidity) { f.setCustomValidity(msg); }
+      }, true);
+      ['input', 'change'].forEach(function (ev) {
+        document.addEventListener(ev, function (e) { if (e.target && e.target.setCustomValidity) { e.target.setCustomValidity(''); } }, true);
+      });
+    })();
+    </script>
+    @endif
+
     @stack('js')
 
     {{-- CSP-safe replacements for inline onchange="this.form.submit()" / onchange="location=this.value".

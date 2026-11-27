@@ -114,7 +114,7 @@
                         <small class="text-muted">-</small>
                     @endif
                 </td>
-                <td><span class="badge bg-{{ match($p->status) { 'proposed' => 'warning', 'accepted' => 'success', 'rejected' => 'danger', default => 'secondary' } }}">{{ ucfirst($p->status) }}</span></td>
+                <td><span class="badge bg-{{ match($p->status) { 'proposed' => 'warning', 'accepted' => 'success', 'rejected' => 'danger', default => 'secondary' } }}">{{ __(ucfirst(str_replace('_', ' ', $p->status ?? ''))) }}</span></td>
                 <td>
                     <div class="btn-group btn-group-sm">
                         @if($p->status === 'proposed')

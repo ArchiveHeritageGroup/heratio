@@ -62,7 +62,7 @@
           </form>
         </div>
         <div class="col-md-6 text-end">
-          <span class="text-muted">{{ __(':count researchers', ['count' => is_countable($researchers) ? count($researchers) : (is_object($researchers) && method_exists($researchers, 'total') ? $researchers->total() : 0)]) }}</span>
+          <span class="text-muted">@php $nRes = is_countable($researchers) ? count($researchers) : (is_object($researchers) && method_exists($researchers, 'total') ? $researchers->total() : 0); @endphp{{ trans_choice(':count researcher|:count researchers', $nRes, ['count' => $nRes]) }}</span>
         </div>
       </div>
     </div>
@@ -93,7 +93,7 @@
                 @php
                   $sc = ['approved' => 'success', 'pending' => 'warning', 'suspended' => 'danger', 'expired' => 'secondary', 'rejected' => 'danger'];
                 @endphp
-                <span class="badge bg-{{ $sc[$r->status] ?? 'secondary' }}">{{ ucfirst(e($r->status ?? 'unknown')) }}</span>
+                <span class="badge bg-{{ $sc[$r->status] ?? 'secondary' }}">{{ __(ucfirst(str_replace('_', ' ', $r->status ?? 'unknown'))) }}</span>
               </td>
               <td>
                 @if((int) ($r->id_verified ?? 0) === 1)

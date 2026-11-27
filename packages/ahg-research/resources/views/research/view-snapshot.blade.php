@@ -14,7 +14,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h2">{{ e($snapshot->title) }}</h1>
-    <span class="badge bg-{{ ($snapshot->status ?? '') === 'active' ? 'success' : 'secondary' }} fs-6">{{ ucfirst($snapshot->status ?? 'active') }}</span>
+    <span class="badge bg-{{ ($snapshot->status ?? '') === 'active' ? 'success' : 'secondary' }} fs-6">{{ __(ucfirst(str_replace('_', ' ', $snapshot->status ?? 'active'))) }}</span>
 </div>
 
 {{-- Snapshot metadata --}}

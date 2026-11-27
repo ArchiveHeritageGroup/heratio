@@ -144,7 +144,7 @@
                   <small class="text-muted">{{ substr($booking->start_time, 0, 5) }} - {{ substr($booking->end_time, 0, 5) }}</small><br>
                   <small>{{ e($booking->room_name) }}</small>
                 </div>
-                <span class="badge bg-{{ $booking->status === 'confirmed' ? 'success' : 'warning' }}">{{ ucfirst($booking->status) }}</span>
+                <span class="badge bg-{{ $booking->status === 'confirmed' ? 'success' : 'warning' }}">{{ __(ucfirst(str_replace('_', ' ', $booking->status ?? ''))) }}</span>
               </div>
             </li>
           @endforeach
@@ -170,7 +170,7 @@
             <li class="list-group-item py-2">
               <small>
                 <strong>{{ date('M j, Y', strtotime($booking->booking_date)) }}</strong> - {{ e($booking->room_name) }}
-                <span class="badge bg-{{ $booking->status === 'completed' ? 'success' : 'secondary' }} float-end">{{ ucfirst($booking->status) }}</span>
+                <span class="badge bg-{{ $booking->status === 'completed' ? 'success' : 'secondary' }} float-end">{{ __(ucfirst(str_replace('_', ' ', $booking->status ?? ''))) }}</span>
               </small>
             </li>
           @endforeach

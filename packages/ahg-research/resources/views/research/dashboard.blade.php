@@ -243,7 +243,7 @@
               <td>{{ e($booking->room_name ?? '-') }}</td>
               <td>
                 <span class="badge bg-{{ ($booking->status ?? '') === 'confirmed' ? 'success' : 'warning' }}">
-                  {{ ucfirst($booking->status ?? 'unknown') }}
+                  {{ __(ucfirst(str_replace('_', ' ', $booking->status ?? 'unknown'))) }}
                 </span>
               </td>
             </tr>

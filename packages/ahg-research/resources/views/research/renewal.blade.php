@@ -25,7 +25,7 @@
                 @elseif($researcher->status === 'expired')
                     <span class="badge bg-danger"><i class="fas fa-exclamation-circle me-1"></i>{{ __('Expired') }}</span>
                 @else
-                    <span class="badge bg-secondary">{{ ucfirst($researcher->status) }}</span>
+                    <span class="badge bg-secondary">{{ __(ucfirst(str_replace('_', ' ', $researcher->status ?? ''))) }}</span>
                 @endif
             </dd>
 

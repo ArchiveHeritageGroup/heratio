@@ -22,7 +22,7 @@
         $statusColors = ['approved' => 'success', 'pending' => 'warning', 'suspended' => 'danger', 'expired' => 'secondary', 'rejected' => 'danger'];
         $statusColor = $statusColors[$researcher->status ?? ''] ?? 'secondary';
       @endphp
-      <span class="badge bg-{{ $statusColor }} fs-6">{{ ucfirst(e($researcher->status ?? 'unknown')) }}</span>
+      <span class="badge bg-{{ $statusColor }} fs-6">{{ __(ucfirst(str_replace('_', ' ', $researcher->status ?? 'unknown'))) }}</span>
     </div>
   </div>
 

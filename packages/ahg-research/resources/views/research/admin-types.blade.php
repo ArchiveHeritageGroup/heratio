@@ -35,8 +35,8 @@
             @forelse($types as $type)
                 <tr>
                     <td>
-                        <strong>{{ e($type->name) }}</strong>
-                        @if($type->description)<br><small class="text-muted">{{ e(\Illuminate\Support\Str::limit($type->description, 50)) }}</small>@endif
+                        <strong>{{ __($type->name) }}</strong>
+                        @if($type->description)<br><small class="text-muted">{{ \Illuminate\Support\Str::limit(__($type->description), 50) }}</small>@endif
                     </td>
                     <td><code>{{ $type->code }}</code></td>
                     <td>{{ __(':count days', ['count' => $type->max_booking_days_advance ?? 14]) }}</td>

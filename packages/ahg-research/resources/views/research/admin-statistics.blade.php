@@ -190,7 +190,7 @@
             <div class="card-header"><h6 class="mb-0">{{ __('Projects by Status') }}</h6></div>
             <ul class="list-group list-group-flush">
                 @forelse($stats['projects_by_status'] ?? [] as $s)
-                    <li class="list-group-item d-flex justify-content-between">{{ ucfirst($s->status) }}<span class="badge bg-secondary">{{ $s->count }}</span></li>
+                    <li class="list-group-item d-flex justify-content-between">{{ __(ucfirst(str_replace('_', ' ', $s->status ?? ''))) }}<span class="badge bg-secondary">{{ $s->count }}</span></li>
                 @empty
                     <li class="list-group-item text-muted">{{ __('No data') }}</li>
                 @endforelse

@@ -85,7 +85,7 @@
                                 <li class="list-group-item d-flex align-items-center justify-content-between">
                                     <div class="me-2">
                                         <div>{{ e($p->title ?? ('Package #'.$p->id)) }}</div>
-                                        <div class="small text-muted">{{ ucfirst($p->status ?? 'pending') }}@if(($p->status ?? '') !== 'completed') · {{ (int) ($p->progress ?? 0) }}%@endif</div>
+                                        <div class="small text-muted">{{ __(ucfirst(str_replace('_', ' ', $p->status ?? 'pending'))) }}@if(($p->status ?? '') !== 'completed') · {{ (int) ($p->progress ?? 0) }}%@endif</div>
                                     </div>
                                     @if(($p->status ?? '') === 'completed')
                                         <a href="{{ route('research.offline.download', ['id' => $p->id]) }}" class="btn btn-sm btn-success">

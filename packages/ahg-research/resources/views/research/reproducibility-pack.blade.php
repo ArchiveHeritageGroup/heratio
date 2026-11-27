@@ -62,7 +62,7 @@
     <div class="card-body">
         <dl class="row mb-0">
             <dt class="col-sm-3">{{ __('Title') }}</dt><dd class="col-sm-9">{{ e($project->title) }}</dd>
-            <dt class="col-sm-3">{{ __('Status') }}</dt><dd class="col-sm-9"><span class="badge bg-{{ match($project->status ?? '') { 'active' => 'success', 'completed' => 'primary', 'on_hold' => 'warning', default => 'secondary' } }}">{{ ucfirst($project->status ?? 'unknown') }}</span></dd>
+            <dt class="col-sm-3">{{ __('Status') }}</dt><dd class="col-sm-9"><span class="badge bg-{{ match($project->status ?? '') { 'active' => 'success', 'completed' => 'primary', 'on_hold' => 'warning', default => 'secondary' } }}">{{ __(ucfirst(str_replace('_', ' ', $project->status ?? 'unknown'))) }}</span></dd>
             @if($project->description ?? null)
             <dt class="col-sm-3">{{ __('Description') }}</dt><dd class="col-sm-9">{{ e($project->description) }}</dd>
             @endif
@@ -176,7 +176,7 @@
                     <li class="list-group-item px-0 py-1">
                         <small>
                             <span class="badge bg-light text-dark">{{ e($ej->extraction_type ?? '') }}</span>
-                            {{ ucfirst($ej->status ?? '') }} - {{ (int)($ej->processed_items ?? 0) }}/{{ (int)($ej->total_items ?? 0) }}
+                            {{ __(ucfirst(str_replace('_', ' ', $ej->status ?? ''))) }} - {{ (int)($ej->processed_items ?? 0) }}/{{ (int)($ej->total_items ?? 0) }}
                         </small>
                     </li>
                     @endforeach
@@ -217,7 +217,7 @@
         @forelse($hypotheses ?? [] as $h)
         <li class="list-group-item d-flex justify-content-between align-items-center">
             <span>{{ e(Str::limit($h->statement ?? '', 80)) }}</span>
-            <span class="badge bg-{{ match($h->status ?? '') { 'supported' => 'success', 'refuted' => 'danger', 'testing' => 'info', default => 'warning' } }}">{{ ucfirst($h->status ?? 'proposed') }}</span>
+            <span class="badge bg-{{ match($h->status ?? '') { 'supported' => 'success', 'refuted' => 'danger', 'testing' => 'info', default => 'warning' } }}">{{ __(ucfirst(str_replace('_', ' ', $h->status ?? 'proposed'))) }}</span>
         </li>
         @empty
         <li class="list-group-item text-muted small">{{ __('No hypotheses.') }}</li>

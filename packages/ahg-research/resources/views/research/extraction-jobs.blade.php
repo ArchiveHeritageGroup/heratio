@@ -49,7 +49,7 @@
             @endphp
             <tr data-job-id="{{ $j->id }}" data-status="{{ $j->status ?? '' }}">
                 <td><span class="badge bg-light text-dark">{{ e($j->extraction_type ?? '') }}</span></td>
-                <td><span class="badge bg-{{ match($j->status ?? '') { 'queued' => 'secondary', 'running' => 'primary', 'completed' => 'success', 'failed' => 'danger', default => 'dark' } }} job-status">{{ ucfirst($j->status ?? '') }}</span></td>
+                <td><span class="badge bg-{{ match($j->status ?? '') { 'queued' => 'secondary', 'running' => 'primary', 'completed' => 'success', 'failed' => 'danger', default => 'dark' } }} job-status">{{ __(ucfirst(str_replace('_', ' ', $j->status ?? ''))) }}</span></td>
                 <td>
                     <div class="progress" style="height: 20px;">
                         <div class="progress-bar job-progress" style="width: {{ $pct }}%">{{ (int)($j->processed_items ?? 0) }}/{{ (int)($j->total_items ?? 0) }}</div>

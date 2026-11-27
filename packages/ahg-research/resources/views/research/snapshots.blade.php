@@ -29,7 +29,7 @@
                 <td><strong>{{ e($s->title ?? __('Untitled')) }}</strong></td>
                 <td>{{ (int)($s->item_count ?? 0) }}</td>
                 <td><code class="small">{{ Str::limit($s->hash_sha256 ?? '', 12, '...') }}</code></td>
-                <td><span class="badge bg-{{ ($s->status ?? '') === 'active' ? 'success' : 'secondary' }}">{{ ucfirst($s->status ?? 'created') }}</span></td>
+                <td><span class="badge bg-{{ ($s->status ?? '') === 'active' ? 'success' : 'secondary' }}">{{ __(ucfirst(str_replace('_', ' ', $s->status ?? 'created'))) }}</span></td>
                 <td><small>{{ $s->created_at ?? '' }}</small></td>
                 <td><a href="{{ route('research.viewSnapshot', $s->id) }}" class="btn btn-sm btn-outline-primary">{{ __('View') }}</a></td>
             </tr>

@@ -88,7 +88,7 @@
                     <tr>
                         <td>{{ e($m->title ?? '') }}</td>
                         <td><span class="badge bg-info">{{ ucfirst(str_replace('_', ' ', $m->milestone_type ?? '')) }}</span></td>
-                        <td><span class="badge bg-{{ match($m->status ?? '') { 'approved' => 'success', 'completed' => 'success', 'rejected' => 'danger', default => 'warning' } }}">{{ ucfirst($m->status ?? 'pending') }}</span></td>
+                        <td><span class="badge bg-{{ match($m->status ?? '') { 'approved' => 'success', 'completed' => 'success', 'rejected' => 'danger', default => 'warning' } }}">{{ __(ucfirst(str_replace('_', ' ', $m->status ?? 'pending'))) }}</span></td>
                         <td class="small">{{ $m->created_at ?? '' }}</td>
                     </tr>
                     @endforeach
@@ -119,7 +119,7 @@
                     <tr>
                         <td>{{ e($p->title ?? $p->name ?? '') }}</td>
                         <td><span class="badge bg-secondary">{{ ucfirst($p->type ?? '') }}</span></td>
-                        <td><span class="badge bg-{{ ($p->status ?? '') === 'active' ? 'success' : 'warning' }}">{{ ucfirst($p->status ?? 'draft') }}</span></td>
+                        <td><span class="badge bg-{{ ($p->status ?? '') === 'active' ? 'success' : 'warning' }}">{{ __(ucfirst(str_replace('_', ' ', $p->status ?? 'draft'))) }}</span></td>
                     </tr>
                     @endforeach
                 </tbody>

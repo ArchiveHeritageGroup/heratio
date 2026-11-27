@@ -103,6 +103,10 @@ On any edit page (any of the three sources) the **Translate labels (side-by-side
 
 For `ahg_dropdown`, translations are written to `ahg_dropdown_i18n`; for `term`, to `term_i18n` (`name`); for `setting`, to `setting_i18n` (`value`). Queued drafts are recorded in `ahg_translation_draft` and reviewed on the translation drafts admin page.
 
+### Translations that ship
+
+Afrikaans labels for the standard dropdown values ship with Heratio (`database/seeds/12_dropdown_labels_af.sql`). A form shows the label for the reader's language when one exists and falls back to English otherwise. A label you have already set for a language is never overwritten. Some older screens still read the English label directly; report any that stay in English.
+
 ## Configuration
 
 - **Access** - the Dropdown Manager is administrator-only (`admin` middleware). Translation drafting is available to users with editor (translate) rights, but their edits are queued rather than applied.

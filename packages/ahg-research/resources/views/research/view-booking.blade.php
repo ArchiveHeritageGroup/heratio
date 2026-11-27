@@ -107,7 +107,7 @@
                   </td>
                   <td>
                     <span class="badge bg-{{ ($material->status ?? '') === 'retrieved' ? 'success' : (($material->status ?? '') === 'pending' ? 'warning' : 'secondary') }}">
-                      {{ ucfirst(e($material->status ?? 'pending')) }}
+                      {{ __(ucfirst(str_replace('_', ' ', $material->status ?? 'pending'))) }}
                     </span>
                   </td>
                 </tr>

@@ -62,8 +62,8 @@
                         <strong>{{ e($row['name'] ?: '(unnamed)') }}</strong>
                         @if(!empty($row['email']))<br><small class="text-muted">{{ e($row['email']) }}</small>@endif
                     </td>
-                    <td><span class="badge bg-secondary">{{ e($row['status'] ?? '-') }}</span></td>
-                    <td><span class="badge bg-info text-dark">{{ e($row['period']) }}</span></td>
+                    <td><span class="badge bg-secondary">{{ __(ucfirst($row['status'] ?? '-')) }}</span></td>
+                    <td><span class="badge bg-info text-dark">{{ __(ucfirst($row['period'])) }}</span></td>
                     <td>
                         @if($row['download_limit'] === null)
                             <span class="text-muted">{{ $row['download_usage'] }} / <em>{{ __('unlimited') }}</em></span>
@@ -113,9 +113,9 @@
             <tbody>
             @forelse($policies as $p)
                 <tr>
-                    <td><span class="badge bg-primary">{{ e($p->scope) }}</span></td>
+                    <td><span class="badge bg-primary">{{ __(ucfirst($p->scope)) }}</span></td>
                     <td><code>{{ e($p->scope_key) }}</code></td>
-                    <td>{{ e($p->period) }}</td>
+                    <td>{{ __(ucfirst($p->period)) }}</td>
                     <td>{{ $p->max_downloads === null ? __('unlimited') : $p->max_downloads }}</td>
                     <td>{{ $p->max_storage_bytes === null ? __('unlimited') : ahg_quota_human_bytes($p->max_storage_bytes) }}</td>
                     <td>{{ (int) $p->soft_warn_pct }}%</td>

@@ -55,7 +55,7 @@
                             <td>{{ ucfirst($item->reproduction_type ?? 'scan') }}</td>
                             <td>{{ $item->format ?? '-' }}</td>
                             <td>{{ $item->quantity ?? 1 }}</td>
-                            <td><span class="badge bg-{{ ($item->status ?? 'pending') === 'completed' ? 'success' : 'warning' }}">{{ ucfirst($item->status ?? 'pending') }}</span></td>
+                            <td><span class="badge bg-{{ ($item->status ?? 'pending') === 'completed' ? 'success' : 'warning' }}">{{ __(ucfirst(str_replace('_', ' ', $item->status ?? 'pending'))) }}</span></td>
                             <td>@if(in_array($reproRequest->status, ['draft', 'submitted']))<form method="POST" class="d-inline" onsubmit="return confirm('Remove?')">@csrf<input type="hidden" name="form_action" value="remove_item"><input type="hidden" name="item_id" value="{{ $item->id }}"><button class="btn btn-sm btn-outline-danger"><i class="fas fa-times"></i></button></form>@endif</td>
                         </tr>
                     @endforeach

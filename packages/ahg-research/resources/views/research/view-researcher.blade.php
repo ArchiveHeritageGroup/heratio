@@ -22,7 +22,7 @@
       @else
         <span class="badge bg-light text-dark border fs-6">{{ __('Not verified') }}</span>
       @endif
-      <span class="badge bg-{{ $sc[$researcher->status ?? ''] ?? 'secondary' }} fs-6">{{ ucfirst(e($researcher->status ?? 'unknown')) }}</span>
+      <span class="badge bg-{{ $sc[$researcher->status ?? ''] ?? 'secondary' }} fs-6">{{ __(ucfirst(str_replace('_', ' ', $researcher->status ?? 'unknown'))) }}</span>
       <form action="{{ route('research.researchers.verify', $researcher->id) }}" method="POST" class="d-inline">
         @csrf
         <input type="hidden" name="verified" value="{{ $isVerified ? '0' : '1' }}">

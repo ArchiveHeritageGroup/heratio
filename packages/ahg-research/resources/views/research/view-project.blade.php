@@ -17,7 +17,7 @@
 <div class="d-flex justify-content-between align-items-start mb-4">
     <div>
         <h1 class="h2">{{ e($project->title) }}</h1>
-        <span class="badge bg-{{ match($project->status ?? '') { 'active' => 'success', 'planning' => 'info', 'on_hold' => 'warning', 'completed' => 'secondary', default => 'dark' } }} me-2">{{ ucfirst($project->status ?? 'active') }}</span>
+        <span class="badge bg-{{ match($project->status ?? '') { 'active' => 'success', 'planning' => 'info', 'on_hold' => 'warning', 'completed' => 'secondary', default => 'dark' } }} me-2">{{ __(ucfirst(str_replace('_', ' ', $project->status ?? 'active'))) }}</span>
         <span class="badge bg-light text-dark">{{ ucfirst($project->project_type ?? 'personal') }}</span>
     </div>
     @if($isOwner)
@@ -205,7 +205,7 @@
                             <div>
                                 <span class="{{ $item->type === 'milestone' ? 'fw-bold' : '' }}">{{ e($item->title) }}</span>
                                 @if($item->type === 'milestone')
-                                    <span class="badge bg-{{ $item->color }} ms-1">{{ ucfirst($item->status) }}</span>
+                                    <span class="badge bg-{{ $item->color }} ms-1">{{ __(ucfirst(str_replace('_', ' ', $item->status ?? ''))) }}</span>
                                 @else
                                     <small class="text-muted ms-1">{{ ucfirst(str_replace('_', ' ', $item->status)) }}</small>
                                 @endif

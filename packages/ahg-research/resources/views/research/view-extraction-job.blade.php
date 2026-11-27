@@ -8,7 +8,7 @@
 <div class="row"><div class="col-md-8">
 <div class="card mb-4"><div class="card-header" style="background:var(--ahg-primary);color:#fff">{{ __('Job Details') }}</div><div class="card-body">
     <dl class="row mb-0">
-        <dt class="col-sm-3">{{ __('Status') }}</dt><dd class="col-sm-9"><span class="badge bg-{{ match($job->status ?? '') { 'completed' => 'success', 'running' => 'primary', 'failed' => 'danger', 'queued' => 'info', default => 'warning' } }} fs-6">{{ ucfirst($job->status ?? 'pending') }}</span></dd>
+        <dt class="col-sm-3">{{ __('Status') }}</dt><dd class="col-sm-9"><span class="badge bg-{{ match($job->status ?? '') { 'completed' => 'success', 'running' => 'primary', 'failed' => 'danger', 'queued' => 'info', default => 'warning' } }} fs-6">{{ __(ucfirst(str_replace('_', ' ', $job->status ?? 'pending'))) }}</span></dd>
         <dt class="col-sm-3">{{ __('Type') }}</dt><dd class="col-sm-9">{{ ucfirst(str_replace('_', ' ', $job->extraction_type ?? '')) }}</dd>
         <dt class="col-sm-3">{{ __('Source') }}</dt><dd class="col-sm-9">{{ e($job->source_name ?? '-') }}</dd>
         <dt class="col-sm-3">{{ __('Progress') }}</dt><dd class="col-sm-9"><div class="progress" style="height:8px;"><div class="progress-bar" style="width:{{ $job->progress ?? 0 }}%"></div></div><small>{{ $job->progress ?? 0 }}%</small></dd>
