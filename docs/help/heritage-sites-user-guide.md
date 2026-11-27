@@ -264,6 +264,21 @@ Configure at **Heritage** > **Admin** > **Landing Config**:
 | Primary Color | Theme color for the platform |
 | Show Sections | Toggle visibility of landing page sections |
 
+#### Hero text in more than one language
+
+When more than one language is enabled (Admin > Settings > Languages), a
+**Language of the hero text** list appears at the top of the page.
+
+- **Main text (all languages)** is the tagline, subtext, search placeholder and
+  suggested searches that every language shows by default.
+- Choose a language, for example Afrikaans, to give it its own version of those
+  four fields, then select **Save Configuration**. Visitors who switch the site
+  to that language see its text.
+- Leave a field blank to keep the main text in that language. The main text is
+  shown greyed in the empty field as a reminder.
+- Colours, sections, filters and hero images are the same in every language, so
+  they only appear when the main text is selected.
+
 ### Hero Slides
 
 Manage background images at **Heritage** > **Admin** > **Hero Slides**:

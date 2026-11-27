@@ -19,6 +19,19 @@ $showRecentAdditions = $config->show_recent_additions ?? 1;
 $primaryColor = $config->primary_color ?? '#0d6efd';
 $secondaryColor = $config->secondary_color ?? '';
 $heroImagesArray = $heroImages ?? [];
+// Language mode (?lang=xx): the four hero text fields hold that language's text;
+// blank fields fall back to the main text, which shows as the placeholder.
+$lang = $lang ?? '';
+$languages = $languages ?? [];
+$langName = fn ($c) => ucfirst(\Locale::getDisplayLanguage($c, $c)) . ' (' . $c . ')';
+$mainTagline = $heroTagline; $mainSubtext = $heroSubtext; $mainPlaceholder = $heroSearchPlaceholder; $mainSuggested = (array) $suggestedSearches;
+if ($lang !== '') {
+  $t = $translation ?? null;
+  $heroTagline = $t->hero_tagline ?? '';
+  $heroSubtext = $t->hero_subtext ?? '';
+  $heroSearchPlaceholder = $t->hero_search_placeholder ?? '';
+  $suggestedSearches = json_decode((string) ($t->suggested_searches ?? '[]'), true) ?: [];
+}
 @endphp
 
 @section('content')
@@ -40,21 +53,49 @@ $heroImagesArray = $heroImages ?? [];
   <div class="col-md-9">
     <h1><i class="fas fa-cog me-2"></i>{{ __('Heritage Landing Configuration') }}</h1>
 
+    @if(count($languages) > 1)
+    <form method="get" action="{{ route('heritage.admin-config') }}" class="card border-0 shadow-sm mb-4">
+      <div class="card-body d-flex flex-wrap align-items-center gap-2">
+        <label for="lang" class="form-label mb-0 fw-bold"><i class="fas fa-language me-1"></i>{{ __('Language of the hero text') }}</label>
+        <select id="lang" name="lang" class="form-select w-auto" onchange="this.form.submit()">
+          <option value="" {{ $lang === '' ? 'selected' : '' }}>{{ __('Main text (all languages)') }}</option>
+          @foreach($languages as $code)
+          <option value="{{ $code }}" {{ $lang === $code ? 'selected' : '' }}>{{ $langName($code) }}</option>
+          @endforeach
+        </select>
+        <noscript><button type="submit" class="btn btn-sm atom-btn-white">{{ __('Open') }}</button></noscript>
+        <div class="form-text w-100 mb-0">
+          @if($lang === '')
+            {{ __('The main text is shown in every language that has no text of its own. Choose a language to give it its own tagline, subtext, search hint and suggested searches.') }}
+          @else
+            {{ __('Text for :language. Leave a field blank to show the main text (shown greyed in the field) in this language.', ['language' => $langName($lang)]) }}
+          @endif
+        </div>
+      </div>
+    </form>
+    @endif
+
 <form action="{{ route('heritage.admin-config') }}" method="post">@csrf
+      <input type="hidden" name="lang" value="{{ $lang }}">
 
       <div class="card border-0 shadow-sm mb-4" id="section-hero">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h2 class="h5 mb-0">{{ __('Hero Section') }}</h2></div>
         <div class="card-body">
-          <div class="mb-3"><label for="hero_tagline" class="form-label">{{ __('Tagline') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" class="form-control" id="hero_tagline" name="hero_tagline" value="{{ $heroTagline }}" maxlength="500"><div class="form-text">{{ __('Main headline displayed in the hero section.') }}</div></div>
-          <div class="mb-3"><label for="hero_subtext" class="form-label">{{ __('Subtext') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea class="form-control" id="hero_subtext" name="hero_subtext" rows="2">{{ $heroSubtext }}</textarea></div>
-          <div class="mb-3"><label for="hero_search_placeholder" class="form-label">{{ __('Search Placeholder') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" class="form-control" id="hero_search_placeholder" name="hero_search_placeholder" value="{{ $heroSearchPlaceholder }}"></div>
-          <div class="mb-3"><label for="suggested_searches" class="form-label">{{ __('Suggested Searches') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea class="form-control" id="suggested_searches" name="suggested_searches" rows="4" placeholder="{{ __('One search term per line') }}">{{ implode("\n", (array)$suggestedSearches) }}</textarea><div class="form-text">{{ __('Enter one search suggestion per line.') }}</div></div>
+          <div class="mb-3"><label for="hero_tagline" class="form-label">{{ __('Tagline') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" class="form-control" id="hero_tagline" name="hero_tagline" value="{{ $heroTagline }}" maxlength="500" @if($lang !== '') placeholder="{{ $mainTagline }}" @endif><div class="form-text">{{ __('Main headline displayed in the hero section.') }}</div></div>
+          <div class="mb-3"><label for="hero_subtext" class="form-label">{{ __('Subtext') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea class="form-control" id="hero_subtext" name="hero_subtext" rows="2" @if($lang !== '') placeholder="{{ $mainSubtext }}" @endif>{{ $heroSubtext }}</textarea></div>
+          <div class="mb-3"><label for="hero_search_placeholder" class="form-label">{{ __('Search Placeholder') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="text" class="form-control" id="hero_search_placeholder" name="hero_search_placeholder" value="{{ $heroSearchPlaceholder }}" @if($lang !== '') placeholder="{{ $mainPlaceholder }}" @endif></div>
+          <div class="mb-3"><label for="suggested_searches" class="form-label">{{ __('Suggested Searches') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><textarea class="form-control" id="suggested_searches" name="suggested_searches" rows="4" placeholder="{{ $lang !== '' && $mainSuggested ? implode("\n", $mainSuggested) : __('One search term per line') }}">{{ implode("\n", (array)$suggestedSearches) }}</textarea><div class="form-text">{{ __('Enter one search suggestion per line.') }}</div></div>
+          @if($lang === '')
           <div class="row">
             <div class="col-md-6 mb-3"><label for="hero_effect" class="form-label">{{ __('Background Effect') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><select class="form-select" id="hero_effect" name="hero_effect"><option value="kenburns" {{ $heroEffect==='kenburns'?'selected':'' }}>{{ __('Ken Burns') }}</option><option value="fade" {{ $heroEffect==='fade'?'selected':'' }}>{{ __('Fade') }}</option><option value="none" {{ $heroEffect==='none'?'selected':'' }}>{{ __('None') }}</option></select></div>
             <div class="col-md-6 mb-3"><label for="hero_rotation_seconds" class="form-label">{{ __('Image Rotation (seconds)') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label><input type="number" class="form-control" id="hero_rotation_seconds" name="hero_rotation_seconds" value="{{ (int)$heroRotationSeconds }}" min="1" max="60"></div>
           </div>
+          @endif
         </div>
       </div>
+
+      {{-- Sections, filters, images and styling are the same in every language. --}}
+      @if($lang === '')
 
       <div class="card border-0 shadow-sm mb-4" id="section-sections">
         <div class="card-header" style="background:var(--ahg-primary);color:#fff"><h2 class="h5 mb-0">{{ __('Sections') }}</h2></div>
@@ -144,6 +185,7 @@ $heroImagesArray = $heroImages ?? [];
           </div>
         </div>
       </div>
+      @endif
 
       <div class="d-flex justify-content-end gap-2 mb-4">
         <a href="{{ route('heritage.landing') }}" class="btn atom-btn-white">{{ __('Cancel') }}</a>

@@ -377,6 +377,11 @@ Configure at **Heritage** > **Admin** > **Landing Config**:
 | Primary Color | Theme color for the platform |
 | Show Sections | Toggle visibility of landing page sections |
 
+With more than one language enabled, a **Language of the hero text** list at
+the top of the page lets you give each language its own tagline, subtext,
+search placeholder and suggested searches. A blank field shows the main text
+in that language.
+
 ### Hero Slides
 
 Manage background images at **Heritage** > **Admin** > **Hero Slides**:

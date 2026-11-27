@@ -72,6 +72,8 @@ class HeritageController extends Controller
         } catch (\Exception $e) {
             $config = null;
         }
+        // The visitor's language wins where a translation of the hero text exists.
+        $config = $this->withLandingTranslation($config, app()->getLocale());
 
         $tagline = $config->hero_tagline ?? 'Discover Our Heritage';
         $subtext = $config->hero_subtext ?? 'Explore collections spanning centuries of history, culture, and human achievement';
@@ -1564,7 +1566,48 @@ class HeritageController extends Controller
         $heroImages = Schema::hasTable('heritage_hero_slide')
             ? DB::table('heritage_hero_slide')->orderBy('display_order')->get()->map(fn ($r) => (array) $r)->toArray()
             : [];
-        return view('ahg-heritage-manage::admin-config', compact('config', 'heroImages'));
+        // ?lang=xx edits that language's hero text; no lang edits the main row,
+        // which every language falls back to.
+        $languages   = $this->landingLanguages();
+        $lang        = in_array($request->query('lang'), $languages, true) ? $request->query('lang') : '';
+        $translation = ($lang && $config && Schema::hasTable('heritage_landing_config_i18n'))
+            ? DB::table('heritage_landing_config_i18n')->where('config_id', $config->id)->where('culture', $lang)->first()
+            : null;
+        return view('ahg-heritage-manage::admin-config', compact('config', 'heroImages', 'languages', 'lang', 'translation'));
+    }
+
+    /** Enabled interface languages (Settings > Languages), as on the language menu. */
+    private function landingLanguages(): array
+    {
+        return DB::table('setting')->where('scope', 'i18n_languages')->where('editable', 1)->pluck('name')->all();
+    }
+
+    /** Overlay a language's hero text on the main config row; blank fields keep the main text. */
+    private function withLandingTranslation(?object $config, string $culture): ?object
+    {
+        if (! $config || ! isset($config->id)) {
+            return $config;
+        }
+        try {
+            $t = Schema::hasTable('heritage_landing_config_i18n')
+                ? DB::table('heritage_landing_config_i18n')->where('config_id', $config->id)->where('culture', $culture)->first()
+                : null;
+        } catch (\Throwable $e) {
+            $t = null;
+        }
+        if ($t) {
+            $config = clone $config;
+            foreach (['hero_tagline', 'hero_subtext', 'hero_search_placeholder'] as $f) {
+                if (trim((string) $t->$f) !== '') {
+                    $config->$f = $t->$f;
+                }
+            }
+            if (! empty(json_decode((string) $t->suggested_searches, true))) {
+                $config->suggested_searches = $t->suggested_searches;
+            }
+        }
+
+        return $config;
     }
 
     /**
@@ -1578,6 +1621,10 @@ class HeritageController extends Controller
         if (!Schema::hasTable('heritage_landing_config')) {
             return redirect()->route('heritage.admin-config')
                 ->with('error', __('heritage_landing_config table not installed; run migrations first.'));
+        }
+        $lang = (string) $request->input('lang', '');
+        if ($lang !== '') {
+            return $this->adminConfigStoreTranslation($request, $lang);
         }
         $validated = $request->validate([
             'hero_tagline'             => 'nullable|string|max:500',
@@ -1616,6 +1663,44 @@ class HeritageController extends Controller
         }
         return redirect()->route('heritage.admin-config')
             ->with('success', __('Heritage landing configuration saved.'));
+    }
+
+    /**
+     * Save one language's hero text. Only the four text fields are per language;
+     * a blank field falls back to the main text on the landing page.
+     */
+    private function adminConfigStoreTranslation(Request $request, string $lang)
+    {
+        if (! in_array($lang, $this->landingLanguages(), true)) {
+            return redirect()->route('heritage.admin-config')->with('error', __('That language is not enabled.'));
+        }
+        if (! Schema::hasTable('heritage_landing_config_i18n')) {
+            return redirect()->route('heritage.admin-config')
+                ->with('error', __('heritage_landing_config_i18n table not installed; run migrations first.'));
+        }
+        $v = $request->validate([
+            'hero_tagline'            => 'nullable|string|max:500',
+            'hero_subtext'            => 'nullable|string|max:500',
+            'hero_search_placeholder' => 'nullable|string|max:255',
+            'suggested_searches'      => 'nullable|string',
+        ]);
+        $configId = DB::table('heritage_landing_config')->value('id')
+            ?? DB::table('heritage_landing_config')->insertGetId(['created_at' => now(), 'updated_at' => now()]);
+        $suggestions = array_values(array_filter(array_map('trim', preg_split('/\r?\n/', (string) ($v['suggested_searches'] ?? ''))), fn ($s) => $s !== ''));
+        DB::table('heritage_landing_config_i18n')->updateOrInsert(
+            ['config_id' => $configId, 'culture' => $lang],
+            [
+                'hero_tagline'            => $v['hero_tagline'] ?? null,
+                'hero_subtext'            => $v['hero_subtext'] ?? null,
+                'hero_search_placeholder' => $v['hero_search_placeholder'] ?? null,
+                'suggested_searches'      => json_encode($suggestions, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                'updated_at'              => now(),
+                'created_at'              => now(),
+            ]
+        );
+
+        return redirect()->route('heritage.admin-config', ['lang' => $lang])
+            ->with('success', __('Heritage landing text saved for :language.', ['language' => $lang]));
     }
     public function adminEmbargoes() { return view('ahg-heritage-manage::admin-embargoes', ['items' => collect()]); }
     public function adminFeaturedCollections() { return view('ahg-heritage-manage::admin-featured-collections', ['items' => collect()]); }

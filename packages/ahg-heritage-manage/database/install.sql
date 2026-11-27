@@ -65,6 +65,21 @@ CREATE TABLE IF NOT EXISTS heritage_landing_config (
     INDEX idx_institution (institution_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Table: heritage_landing_config_i18n
+-- Per-language hero text; the landing page falls back to heritage_landing_config
+CREATE TABLE IF NOT EXISTS heritage_landing_config_i18n (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    config_id INT NOT NULL,
+    culture VARCHAR(16) NOT NULL,
+    hero_tagline VARCHAR(500) DEFAULT NULL,
+    hero_subtext VARCHAR(500) DEFAULT NULL,
+    hero_search_placeholder VARCHAR(255) DEFAULT NULL,
+    suggested_searches JSON DEFAULT NULL,
+    created_at TIMESTAMP NULL DEFAULT NULL,
+    updated_at TIMESTAMP NULL DEFAULT NULL,
+    UNIQUE KEY uq_heritage_landing_config_i18n (config_id, culture)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Table: heritage_filter_type
 -- Available filter types system-wide
 CREATE TABLE IF NOT EXISTS heritage_filter_type (
