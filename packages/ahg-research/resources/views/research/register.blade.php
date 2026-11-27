@@ -66,8 +66,10 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-4 mb-3">
-            <label for="id_type" class="form-label">{{ __('ID Type') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-            <select name="id_type" id="id_type" class="form-select" required>
+            {{-- ID is optional (27 Nov 2026): not every institution needs it, and the
+                 public sign-up form already treats it as optional. --}}
+            <label for="id_type" class="form-label">{{ __('ID Type') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <select name="id_type" id="id_type" class="form-select">
               <option value="">{{ __('-- Select --') }}</option>
               {{-- Issue #59 Tier 2 - culture-aware dropdown via the COALESCE helper. --}}
               @foreach(\AhgCore\Services\AhgSettingsService::getDropdownChoicesWithAttributes('id_type') as $idt)
@@ -76,8 +78,8 @@
             </select>
           </div>
           <div class="col-md-4 mb-3">
-            <label for="id_number" class="form-label">{{ __('ID Number') }} <span class="text-danger">*</span> <span class="badge bg-danger ms-1">{{ __('Required') }}</span></label>
-            <input type="text" name="id_number" id="id_number" class="form-control" value="{{ old('id_number') }}" required>
+            <label for="id_number" class="form-label">{{ __('ID Number') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>
+            <input type="text" name="id_number" id="id_number" class="form-control" value="{{ old('id_number') }}">
           </div>
           <div class="col-md-4 mb-3">
             <label for="student_id" class="form-label">{{ __('Student ID') }} <span class="badge bg-secondary ms-1">{{ __('Optional') }}</span></label>

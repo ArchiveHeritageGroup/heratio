@@ -38,7 +38,7 @@ If you do not have an account yet:
 2. Enter a username (3+ characters), a valid email, and a password (8+ characters, confirmed), along with your name, affiliation, research interests, and identity details.
 3. Submit. Your account is created in the researcher seat and marked **pending approval**. You land on the registration-complete confirmation page.
 
-If you are already logged in but not yet a researcher, open **`/research/register`** and complete the same details. A previously rejected applicant can re-apply: the rejected record is reset to **pending** and the rejection reason is cleared.
+If you are already logged in but not yet a researcher, open **`/research/register`** and complete the same details. **My Workspace** and the other research pages take you there automatically until you are registered. ID type and ID number are optional on both forms. A previously rejected applicant can re-apply: the rejected record is reset to **pending** and the rejection reason is cleared.
 
 Staff then approve, verify, suspend, or reject your application (see Configuration). Until you are approved, booking, projects, and API keys are blocked.
 
