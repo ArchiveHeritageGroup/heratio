@@ -4,11 +4,11 @@
 
   Renders only if:
     - the user is authenticated
-    - the marketplace_enabled setting is on (default: true)
+    - the marketplace is on and this user may sell (MenuService::marketplaceSellingAllowed)
     - the ahgmarketplace.seller-listing-create route exists (marketplace package booted)
 --}}
 @auth
-@if(\AhgCore\Services\AhgSettingsService::getBool('marketplace_enabled', true)
+@if(\AhgCore\Services\MenuService::marketplaceSellingAllowed()
     && \Illuminate\Support\Facades\Route::has('ahgmarketplace.seller-listing-create')
     && !empty($ioId))
   <div class="card mb-3">

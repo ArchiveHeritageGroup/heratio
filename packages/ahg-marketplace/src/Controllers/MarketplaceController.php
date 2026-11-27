@@ -756,6 +756,9 @@ class MarketplaceController extends Controller
                 $this->service->setSetting($key, false, 'boolean', $setting->setting_group);
             }
         }
+        // The whole-marketplace switch (MenuService::marketplaceEnabled) lives in ahg_settings,
+        // where the record-page card has always read it.
+        \AhgCore\Services\AhgSettingsService::set('marketplace_enabled', $request->has('marketplace_enabled') ? '1' : '0', 'marketplace');
 
         session()->flash('notice', __('Settings updated.'));
 

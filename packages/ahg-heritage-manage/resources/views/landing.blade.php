@@ -20,18 +20,20 @@
          ================================================================ -->
     <section class="heritage-hero" id="heritage-hero" style="height: calc(100vh - 280px); min-height: 450px;">
 
-        <!-- Marketplace CTA (top-right corner) - only when ahgMarketplacePlugin enabled -->
-        @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgMarketplacePlugin'))
+        <!-- Marketplace CTA (top-right corner) - only when the marketplace is on; Sell only for those who may sell -->
+        @if(\AhgCore\Services\MenuService::marketplaceEnabled())
         <div class="position-absolute d-flex flex-wrap gap-2"
              style="top: 1rem; right: 1rem; z-index: 5;">
             <a href="{{ url('/marketplace/browse') }}"
                class="btn btn-warning btn-sm fw-semibold shadow-sm">
                 <i class="fas fa-shopping-bag me-1"></i> {{ __('Browse & Buy') }}
             </a>
+            @if(\AhgCore\Services\MenuService::marketplaceSellingAllowed())
             <a href="{{ url('/marketplace/register') }}"
                class="btn btn-light btn-sm fw-semibold shadow-sm">
                 <i class="fas fa-tag me-1"></i> {{ __('Sell') }}
             </a>
+            @endif
         </div>
         @endif
 
@@ -308,6 +310,7 @@
     <!-- ================================================================
          Section 6: Recently Added (Masonry Grid)
          ================================================================ -->
+    @if(($config->show_recent_additions ?? 1))
     <section class="heritage-recent">
         <div class="heritage-section-header">
             <h2 class="heritage-section-title">{{ __('Recently Added') }}</h2>
@@ -338,7 +341,8 @@
                 @endphp
                 @if($thumbPath)
                 <a href="{{ route('informationobject.show', ['slug' => $item->slug]) }}" class="heritage-masonry-item">
-                    <img src="{{ $thumbPath }}"
+                    {{-- Tall images (book spines) are kept to a sensible height in the masonry. --}}
+                    <img src="{{ $thumbPath }}" style="max-height:260px;object-fit:cover;"
                          alt="{{ $item->title ?? 'Item' }}"
                          onerror="this.parentElement.style.display='none';">
                     <div class="heritage-masonry-overlay">
@@ -352,6 +356,7 @@
             @endif
         </div>
     </section>
+    @endif
 
     <!-- ================================================================
          Section 7: Help Us Improve (Contributions CTA)

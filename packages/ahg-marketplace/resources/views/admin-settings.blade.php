@@ -41,6 +41,20 @@
     @csrf
     <input type="hidden" name="form_action" value="save">
 
+    {{-- One switch for the whole marketplace: off hides every marketplace banner, button,
+         menu entry and record-page card (MenuService::marketplaceEnabled). --}}
+    <div class="card mb-4">
+      <div class="card-header">{{ __('Marketplace') }}</div>
+      <div class="card-body">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="marketplace_enabled" name="marketplace_enabled" value="1"
+                 {{ \AhgCore\Services\AhgSettingsService::getBool('marketplace_enabled', true) ? 'checked' : '' }}>
+          <label class="form-check-label fw-bold" for="marketplace_enabled">{{ __('Marketplace enabled') }}</label>
+        </div>
+        <div class="form-text">{{ __('Switch off to hide the marketplace from visitors and staff: the Browse & Buy and Sell buttons, the home page banner and the marketplace card on record pages. Who may sell is set by "Seller registration open" below; staff can always sell.') }}</div>
+      </div>
+    </div>
+
     @php
       $grouped = [];
       foreach ($settings as $setting) {

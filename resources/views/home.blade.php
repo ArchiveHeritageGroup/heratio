@@ -85,7 +85,7 @@
   @endif
 
   {{-- Marketplace hero CTA — only when ahgMarketplacePlugin is enabled --}}
-  @if(\AhgCore\Services\MenuService::isPluginEnabled('ahgMarketplacePlugin'))
+  @if(\AhgCore\Services\MenuService::marketplaceEnabled())
   <section class="marketplace-hero rounded shadow-sm mb-4 p-4"
            style="background:linear-gradient(135deg, var(--ahg-primary, #1d6a52) 0%, var(--ahg-secondary, #134537) 100%); color:#fff;">
     <div class="row align-items-center g-3">
@@ -105,10 +105,12 @@
              class="btn btn-warning btn-lg fw-semibold px-4 shadow-sm">
             <i class="fas fa-shopping-bag me-2"></i>Browse &amp; Buy
           </a>
+          @if(\AhgCore\Services\MenuService::marketplaceSellingAllowed())
           <a href="{{ url('/marketplace/register') }}"
              class="btn btn-light btn-lg fw-semibold px-4 shadow-sm">
             <i class="fas fa-tag me-2"></i>{{ __('Sell or join') }}
           </a>
+          @endif
         </div>
         <div class="text-end mt-2">
           <a href="{{ url('/marketplace/featured') }}" class="text-white-50 small text-decoration-none">

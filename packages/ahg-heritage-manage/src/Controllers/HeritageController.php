@@ -211,7 +211,8 @@ class HeritageController extends Controller
             'timelinePeriods',
             'recentItems',
             'topContributors',
-            'exploreCategories'
+            'exploreCategories',
+            'config'   // the Sections switches (show_recent_additions, ...) the view honours
         ));
     }
 

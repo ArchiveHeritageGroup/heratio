@@ -146,7 +146,22 @@ Each as CSV. Plug into your BI tool or accountant's spreadsheet.
 
 ## Settings
 
-`/admin/marketplace/settings` is the bulk configuration page. The values that change behaviour day-to-day:
+`/admin/marketplace/settings` is the bulk configuration page.
+
+### Switching the marketplace off, and who may sell
+
+- **Marketplace enabled** (the first switch on the page) turns the whole
+  marketplace on or off. Off hides the home page "Heratio Marketplace" banner,
+  the **Browse & Buy** and **Sell** buttons on the heritage landing page, and the
+  marketplace card on record pages, for visitors and staff alike. Turn it back
+  on from the same page.
+- **Who may sell:** administrators and editors can always offer items for sale.
+  The public can only sell, and only sees the **Sell** / **Sell or join**
+  buttons, when **Seller registration open** is on. Turn it off for an
+  institution that sells its own items but does not take sellers from the
+  public. **Browse & Buy** stays visible to everyone while the marketplace is on.
+
+The values that change behaviour day-to-day:
 
 | Setting | What it does |
 | --- | --- |

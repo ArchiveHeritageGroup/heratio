@@ -348,6 +348,40 @@ class MenuService
     }
 
     /**
+     * The marketplace is on: its plugin is enabled and the "Marketplace enabled" switch on
+     * Admin > Marketplace > Settings (ahg_settings marketplace_enabled) is not off. Every
+     * marketplace banner, button, menu entry and record-page card checks this.
+     */
+    public static function marketplaceEnabled(): bool
+    {
+        return self::isPluginEnabled('ahgMarketplacePlugin')
+            && AhgSettingsService::getBool('marketplace_enabled', true);
+    }
+
+    /**
+     * The current visitor may offer items for sale: the marketplace is on and they are
+     * staff (administrator or editor), or the marketplace lets the public register as
+     * sellers (marketplace_settings seller_registration_open).
+     */
+    public static function marketplaceSellingAllowed(): bool
+    {
+        if (! self::marketplaceEnabled()) {
+            return false;
+        }
+        try {
+            $user = auth()->user();
+            if ($user && (AclService::isAdministrator($user) || AclService::isEditor($user))) {
+                return true;
+            }
+            $open = DB::table('marketplace_settings')->where('setting_key', 'seller_registration_open')->value('setting_value');
+
+            return in_array((string) $open, ['1', 'true'], true);
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
      * Toggle a plugin's per-user visibility. is_hidden=1 hides it; delete row
      * (or pass false) to unhide.
      */

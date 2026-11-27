@@ -256,7 +256,13 @@ class DisplayController extends Controller
         // is non-empty.
         $singleRepoMode = !\AhgCore\Support\GlobalSettings::multiRepository();
 
-        if ($hasFilters) {
+        // The unfiltered page reads display_facet_cache, which a scheduled job fills.
+        // On a new install (or before that job first runs) the table is empty and every
+        // facet vanished as soon as the last filter was cleared; count live instead.
+        $facetCacheBuilt = ! $hasFilters && \Illuminate\Support\Facades\Schema::hasTable('display_facet_cache')
+            && DB::table('display_facet_cache')->exists();
+
+        if ($hasFilters || ! $facetCacheBuilt) {
             $types = $this->getLiveFacet('type');
             $levels = $this->getLiveFacet('level');
             $repositories = $singleRepoMode ? collect() : $this->getLiveFacet('repository');
