@@ -65,6 +65,11 @@ Themes can regenerate the theme CSS. Before v1.167.15, images and the theme
 did not load in the Docker stack. Before v1.167.16, saving Themes reported that
 the generated CSS could not be written.
 
+Behind an HTTPS reverse proxy, have the proxy send `X-Forwarded-Proto https`
+(and set `APP_URL` to the https address). The container passes that header on
+to PHP, so search boxes and other forms submit to https. Before v1.167.17 they
+submitted to http and browsers blocked or warned about the search.
+
 ## Reset
 
 ```bash
