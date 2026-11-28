@@ -578,6 +578,8 @@ Every create, update, delete operation is logged with:
 
 Application errors logged in `ahg_error_log` table. Resolve errors to clear the log.
 
+**Who sees the unread-errors bar.** By default every administrator sees the red "unread errors" bar at the top of each page. To show it only to particular logins, set `error_banner_users` in `ahg_settings` to a comma-separated list of their email addresses (for example `johan@theahg.co.za`). Leave it empty to show the bar to all administrators again. The Error Log page itself stays open to every administrator.
+
 ---
 
 ## 6. Queue Management

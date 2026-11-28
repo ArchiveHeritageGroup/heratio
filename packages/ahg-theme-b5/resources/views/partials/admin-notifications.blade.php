@@ -58,8 +58,12 @@
             }
         } catch (\Exception $e) {}
 
-        // Unread error log entries (only Heratio errors)
-        try {
+        // Unread error log entries (only Heratio errors). error_banner_users (comma-separated
+        // email addresses) limits this bar to those logins; empty = every administrator.
+        $errorBannerFor = array_filter(array_map(fn ($e) => strtolower(trim($e)),
+            explode(',', (string) \AhgCore\Services\AhgSettingsService::get('error_banner_users', ''))));
+        $seesErrorBanner = ! $errorBannerFor || in_array(strtolower((string) (auth()->user()->email ?? '')), $errorBannerFor, true);
+        if ($seesErrorBanner) try {
             $heratioHost = request()->getHost();
             $unreadErrors = \Illuminate\Support\Facades\DB::table('ahg_error_log')
                 ->where('is_read', 0)
