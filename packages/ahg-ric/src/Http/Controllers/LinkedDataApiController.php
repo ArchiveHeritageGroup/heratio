@@ -180,6 +180,14 @@ class LinkedDataApiController extends Controller
 
         // Guests must not see draft (unpublished) descriptions.
         \AhgCore\Services\AclService::addFilterDraftsCriteria($query, 'io.id');
+        // Nor anything else the shared gate withholds from non-staff: embargo, security
+        // classification, ICIP restriction, ODRL 'use' prohibition, another tenant's records.
+        // Applied before the count, so ric:total matches what the list returns.
+        if (! \AhgRic\Support\RicDisclosure::seesAll()) {
+            $gate = app(\AhgCore\Services\DisclosureGate::class);
+            $gate->wherePublished($query, 'io');
+            $gate->excludeRestricted($query, 'io.id');
+        }
         // #1388 - nor records tagged with a restricted community-protocol term.
         \AhgCore\Services\TermProtocolGate::excludeRestrictedRecords($query, 'io.id');
 
@@ -227,9 +235,10 @@ class LinkedDataApiController extends Controller
             return response()->json(['error' => 'Record not found'], 404);
         }
 
-        // Guests must not see draft (unpublished) descriptions.
-        if (\Illuminate\Support\Facades\Auth::guest()
-            && ! app(\AhgCore\Services\MultilingualRecordService::class)->isPublished((int) $io->id)) {
+        // Non-staff get 404 for anything the shared gate withholds: drafts, embargo,
+        // security classification, ICIP restriction, ODRL 'use' prohibition, another
+        // tenant's records (AhgRic\Support\RicDisclosure, as on the RiC explorer routes).
+        if (isset(\AhgRic\Support\RicDisclosure::hidden([(int) $io->id])[(int) $io->id])) {
             return response()->json(['error' => 'Record not found'], 404);
         }
 
@@ -272,9 +281,10 @@ class LinkedDataApiController extends Controller
             return response()->json(['error' => 'Record not found'], 404);
         }
 
-        // Guests must not see draft (unpublished) descriptions.
-        if (\Illuminate\Support\Facades\Auth::guest()
-            && ! app(\AhgCore\Services\MultilingualRecordService::class)->isPublished((int) $io->id)) {
+        // Non-staff get 404 for anything the shared gate withholds: drafts, embargo,
+        // security classification, ICIP restriction, ODRL 'use' prohibition, another
+        // tenant's records (AhgRic\Support\RicDisclosure, as on the RiC explorer routes).
+        if (isset(\AhgRic\Support\RicDisclosure::hidden([(int) $io->id])[(int) $io->id])) {
             return response()->json(['error' => 'Record not found'], 404);
         }
 

@@ -139,6 +139,19 @@ Access via: **Admin → RiC Management** or `/admin/ric`
 
 ---
 
+## The RiC linked-data API: what each caller receives
+
+The read endpoints under `/api/ric/v1` - `records`, `records/{slug}` and `records/{slug}/export` - are public, so they follow the same disclosure rule as the public record pages and the RiC explorer.
+
+| Caller | What they receive |
+|---|---|
+| Visitor (not signed in) | Published records only. A record that is a draft, under an active embargo, security-classified above public, ICIP-restricted, ODRL-prohibited for use, tagged with a restricted community-protocol term or in another tenant's scope answers 404, is left out of the list and its total, and is left out of a record-set export together with its own descendants. |
+| Signed-in user without staff rights (researcher, plain account) | The same as a visitor. |
+| API key without a signed-in session | The same as a visitor. |
+| Contributor, editor, administrator | Everything, including restricted records; a restricted record's community-protocol labels are included in its JSON-LD. |
+
+Integrations that harvested this API before v1.167.38 may hold records that are now refused; they receive 404 for those records from that version on.
+
 ## Quick Reference
 
 ### Access Points

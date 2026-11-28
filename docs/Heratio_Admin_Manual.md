@@ -192,6 +192,9 @@ Controls the Records in Contexts (RiC) RiC (Records in Contexts) linked data int
 | Batch Size | Number | 100 | Records per batch during bulk sync operations. Range: 10–1000. |
 | Integrity Schedule | Select | weekly | How often to run integrity checks between AtoM and Fuseki. Options: daily, weekly, monthly, disabled. |
 | Orphan Retention | Days | 30 | Orphaned triples (in Fuseki but not AtoM) are kept for this many days before cleanup. Range: 1–365. |
+| Show RiC Tools in the main menu | Toggle | On | Shows the RiC Tools menu in the main navigation. Turning it off hides only the menu; sync, the RiC views and `/admin/ric` keep working. |
+
+**What the public RiC API discloses.** The read endpoints `/api/ric/v1/records`, `/records/{slug}` and `/records/{slug}/export` apply the same disclosure gate as the public record pages. Anyone who is not staff - visitors, signed-in users without staff rights, and API-key requests without a signed-in session - gets only published records that carry no embargo, security classification above public, ICIP restriction, ODRL 'use' prohibition, restricted community-protocol term or other tenant's scope; anything else answers 404 and is left out of lists, totals and record-set exports. Contributors, editors and administrators see everything. This applies from v1.167.38; earlier versions served restricted published records through these three endpoints.
 
 ---
 

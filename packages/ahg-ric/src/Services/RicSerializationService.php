@@ -1142,16 +1142,15 @@ class RicSerializationService
         // with digits ("1938-127-pdf-1") exported a different record (id 1938).
         $childIds = DB::table('information_object')->where('parent_id', $parentId)
             ->orderBy('lft')->pluck('id');
-        $guest = \Illuminate\Support\Facades\Auth::guest();
-        $records = app(\AhgCore\Services\MultilingualRecordService::class);
+        // The export route is public: hold each descendant to the same rules as the root -
+        // the shared gate for non-staff (drafts, embargo, classification, ICIP, ODRL, tenant)
+        // and restricted community-protocol terms. A hidden record's descendants go with it.
+        $hidden = \AhgRic\Support\RicDisclosure::hidden($childIds->all());
         $allDescendants = [];
 
         foreach ($childIds as $childId) {
             $childId = (int) $childId;
-            // The export route is public: hold each descendant to the same rules as
-            // the root (no drafts for guests, no restricted community-protocol
-            // terms). A hidden record's own descendants are left out with it.
-            if (($guest && ! $records->isPublished($childId)) || ! \AhgCore\Services\TermProtocolGate::allowsRecord($childId)) {
+            if (isset($hidden[$childId]) || ! \AhgCore\Services\TermProtocolGate::allowsRecord($childId)) {
                 continue;
             }
             $allDescendants[] = $this->addIscapCompliance(
