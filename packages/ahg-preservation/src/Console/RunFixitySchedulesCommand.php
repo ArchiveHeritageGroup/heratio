@@ -162,8 +162,36 @@ class RunFixitySchedulesCommand extends Command
                 $deadline = $maxRuntime > 0 ? ((int) $startedAt + $maxRuntime) : null;
                 $batch = $fixity->batchVerify($ids, $algorithm, $throttleMs, $deadline);
                 $stats['processed'] = count($batch);
+                $staleById = [];
+                foreach ($stale as $s) {
+                    $staleById[(int) $s->digital_object_id] = $s;
+                }
                 foreach ($batch as $digitalObjectId => $r) {
                     $outcomeRaw = is_array($r) ? ($r['outcome'] ?? 'unknown') : 'unknown';
+                    // Append to the integrity ledger, as ahg:integrity-verify does. getStaleObjects()
+                    // picks files by their last ledger entry, and the integrity dashboard reads it:
+                    // with no row written here, every run re-checked the same first batch_limit
+                    // files, the rest were never checked, and the dashboard showed nothing.
+                    if (is_array($r) && (int) $digitalObjectId > 0) {
+                        $src = $staleById[(int) $digitalObjectId] ?? null;
+                        DB::table('integrity_ledger')->insert([
+                            'digital_object_id' => (int) $digitalObjectId,
+                            'information_object_id' => $src->information_object_id ?? null,
+                            'repository_id' => $src->repository_id ?? null,
+                            'file_path' => isset($r['file_path']) ? mb_substr((string) $r['file_path'], 0, 1024) : null,
+                            'file_size' => $r['file_size'] ?? null,
+                            'file_exists' => ! empty($r['file_exists']) ? 1 : 0,
+                            'file_readable' => ! empty($r['file_readable']) ? 1 : 0,
+                            'algorithm' => mb_substr($algorithm, 0, 10),
+                            'expected_hash' => $r['expected'] ?? null,
+                            'computed_hash' => $r['actual'] ?? null,
+                            'hash_match' => ($r['expected'] ?? null) && ($r['actual'] ?? null) ? (! empty($r['passed']) ? 1 : 0) : null,
+                            'outcome' => mb_substr($outcomeRaw, 0, 30),
+                            'error_detail' => $r['error'] ?? null,
+                            'duration_ms' => $r['duration_ms'] ?? null,
+                            'verified_at' => now(),
+                        ]);
+                    }
                     // AhgIntegrity\FixityService reports pass|fail|missing|error|no_baseline. This
                     // checked for 'verified', which it never returns, so every object counted as
                     // failed. A file with no stored checksum yet is skipped, not failed.

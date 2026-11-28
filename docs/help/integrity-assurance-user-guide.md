@@ -368,6 +368,10 @@ Confirm the storage path is mounted and reachable (the Heratio uploads/storage l
 
 Before v1.167.36 the scheduled fixity run looked for each file at its folder without the file name, so every object was reported missing or failed on every install, and the files themselves were fine. After upgrading, record baselines (above) and the next run reports real results.
 
+Before v1.167.39 the scheduled run also wrote nothing to the integrity ledger. Because each run picks the files whose last ledger entry is oldest, every run re-checked the same first batch (the schedule's batch limit, usually 500) and the files beyond it were never checked; the integrity dashboard's throughput, trend and per-repository figures stayed empty for scheduled runs. From v1.167.39 every checked file gets a ledger row, so successive runs work through the whole collection.
+
+**Reading results from before v1.167.36.** Scheduled runs before that version recorded a "fixity check failed" preservation event for every file they looked at, and marked the run as dead-lettered, although the files were never actually read. Those events and runs say nothing about the files. Judge integrity only by runs from v1.167.36 on (better, v1.167.39 on), or by running `php artisan ahg:integrity-verify` once.
+
 ### Pass rate declining
 1. Check the dead letter queue for patterns (same repository, same failure type)
 2. Run a targeted verification for the affected repository
