@@ -1,3 +1,5 @@
+# theahg.co.za is NOT skipped: it answers slowly from the CI runners at times (27 Nov 2026), so the
+# workflow waits longer (--timeout 45, --retry-wait-time 10) instead of hiding it.
 # Links the readme-links check skips (one regex per line), with the reason.
 # gnu.org licence pages time out from the CI runners (v1.166.4 and v1.166.5);
 # they are stable and checking them only produces false failures.

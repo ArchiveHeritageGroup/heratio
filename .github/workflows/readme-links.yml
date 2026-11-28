@@ -40,6 +40,8 @@ jobs:
             --no-progress
             --include-fragments
             --max-retries 3
+            --retry-wait-time 10
+            --timeout 45
             --accept 200,429
             --user-agent "Mozilla/5.0 (lychee link check)"
             README.md SECURITY.md docs/upgrade.md

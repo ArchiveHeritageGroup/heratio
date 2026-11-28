@@ -64,7 +64,6 @@ packages/ahg-research/resources/views/research/entity-resolution.blade.php	text	
 packages/ahg-research/resources/views/research/entity-resolution.blade.php	text	partOf
 packages/ahg-research/resources/views/research/entity-resolution.blade.php	text	relatedTo
 packages/ahg-research/resources/views/research/entity-resolution.blade.php	text	sameAs
-packages/ahg-research/resources/views/research/share-project.blade.php	text	Copied'; setTimeout(function(){ document.querySelector('#shareUrl + button').innerHTML='
 packages/ahg-ric/resources/views/_ric-view-actor.blade.php	text	isCreatorOf / isAccumulatorOf
 packages/ahg-ric/resources/views/_ric-view-actor.blade.php	text	rico:{{…}}
 packages/ahg-ric/resources/views/_ric-view-gallery.blade.php	text	rico:hasCreator

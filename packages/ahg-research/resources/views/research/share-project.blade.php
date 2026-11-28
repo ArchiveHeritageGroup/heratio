@@ -29,8 +29,8 @@
                 <label class="form-label fw-bold">{{ __('Share URL') }}</label>
                 <div class="input-group">
                     <input type="text" class="form-control" id="shareUrl" value="{{ url('/research/shared/' . $project->share_token) }}" readonly>
-                    <button type="button" class="btn btn-outline-secondary" onclick="navigator.clipboard.writeText(document.getElementById('shareUrl').value); this.innerHTML='<i class=\'fas fa-check\'></i> ' + @json(__('Copied')); setTimeout(function(){ document.querySelector('#shareUrl + button').innerHTML='<i class=\'fas fa-copy\'></i> ' + @json(__('Copy')); }, 2000);">
-                        <i class="fas fa-copy"></i> {{ __('Copy') }}
+                    <button type="button" class="btn btn-outline-secondary" id="copyShareUrl" data-copied="{{ __('Copied') }}">
+                        <i class="fas fa-copy"></i> <span>{{ __('Copy') }}</span>
                     </button>
                 </div>
                 <small class="text-muted">{{ __('Anyone with this link can view the project.') }}</small>
@@ -46,3 +46,20 @@
     </div>
 </div>
 @endsection
+
+@push('js')
+<script>
+// Copy the share link; the label swaps to "Copied" for two seconds. (Was an inline onclick whose
+// quoting broke once the labels were translated.)
+(function () {
+  var b = document.getElementById('copyShareUrl');
+  if (!b) return;
+  b.addEventListener('click', function () {
+    navigator.clipboard.writeText(document.getElementById('shareUrl').value);
+    var label = b.querySelector('span'), icon = b.querySelector('i'), was = label.textContent;
+    label.textContent = b.dataset.copied; icon.className = 'fas fa-check';
+    setTimeout(function () { label.textContent = was; icon.className = 'fas fa-copy'; }, 2000);
+  });
+})();
+</script>
+@endpush
